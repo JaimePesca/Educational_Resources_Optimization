@@ -31,9 +31,13 @@ Si falta una clave en un idioma, se muestra la versión en inglés.
 
 ## Añadir un recurso
 
-1. Crea `resources/<id>.html` partiendo de uno existente (misma cabecera, barra superior y scripts).
-2. Añade una entrada en `assets/catalog.js` con su `level`, `project` y `type` (`simulation`, `game` o `animation`).
-3. Añade a cada archivo de `locales/` las claves `resource.<id>.title`, `resource.<id>.summary` y los textos propios de la página.
+La guía completa para colaboradores está en [`CONTRIBUTING.md`](../CONTRIBUTING.md). En resumen:
+
+1. Copia `resources/_template.html` a `resources/<id>.html`.
+2. Añade una entrada en `assets/catalog.js` con `level`, `type` (`simulation`, `game` o `animation`) y `href`. `project` (caso de investigación que aplica) y `author` (quién lo aportó) son opcionales.
+3. Añade a `locales/en.js` las claves `resource.<id>.title`, `resource.<id>.summary` y los textos de la página. Los demás idiomas usan el inglés hasta que alguien los traduzca.
+
+Una entrada del catálogo sin `href` es un recurso **planeado**: aparece en la página como idea abierta para colaboradores. Los planeados actuales salen de los manuscritos y están descritos en [`docs/research-cases.md`](../docs/research-cases.md).
 
 ## Ver en local
 
