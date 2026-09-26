@@ -63,7 +63,48 @@
   }
   .plist a:hover { background: var(--surface2); }
   .plist a .ptitle { font-weight: 600; font-size: 14.5px; }
-  .plist a .pmeta { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+  .plist .prow {
+    display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: baseline; padding: 7px 0;
+  }
+  .plist .prow .ptitle { font-weight: 500; font-size: 14px; color: var(--ink2); }
+  .ptag {
+    font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); border: 1px dashed var(--axis); border-radius: 5px; padding: 1px 5px; margin-right: 8px;
+    vertical-align: 1px;
+  }
+  .plist .prow .pmeta, .plist a .pmeta { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+  .case {
+    display: grid; gap: 4px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .case-label {
+    font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--accent-text); font-weight: 600;
+  }
+  .case-place { font-weight: 600; font-size: 14px; }
+  .case-facts { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 2px 14px; }
+  .case-facts li { font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+  .planned-block { display: grid; gap: 8px; margin-top: 6px; }
+  .planned-head {
+    margin: 0; font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .planned-list {
+    margin: 0; padding: 0; list-style: none; display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px;
+  }
+  .planned-list li {
+    border: 1.5px dashed var(--axis); border-radius: 10px; padding: 12px 14px; display: grid; gap: 5px; align-content: start;
+  }
+  .pl-head { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+  .pl-title { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 600; font-size: 16px; line-height: 1.2; }
+  .pl-type {
+    font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .pl-sum { margin: 0; font-size: 13px; color: var(--ink2); }
+  .planned-list .rfrom { font-size: 12.5px; color: var(--muted); }
+  .planned-list .rfrom b { color: var(--pine-text); font-weight: 600; }
   .plist .empty { font-size: 13.5px; color: var(--muted); padding-block: 4px; }
 
   /* ---- learning path ---- */
@@ -175,14 +216,18 @@
     if (text != null) n.textContent = text;
     return n;
   }
+  function published(r) { return !!r.href; }
   function byProject(id) { return C.resources.filter(function (r) { return r.project === id; }); }
   function byLevel(id) { return C.resources.filter(function (r) { return r.level === id; }); }
   function levelOf(r) { return C.levels.filter(function (l) { return l.id === r.level; })[0]; }
+  function metaLine(r) { return t("home.levelShort", { n: levelOf(r).n }) + " · " + t("type." + r.type); }
 
   function renderFacts() {
     var ul = document.getElementById("facts"); ul.textContent = "";
+    var live = C.resources.filter(published).length;
     [[C.projects.length, "home.facts.projects"], [C.levels.length, "home.facts.levels"],
-     [C.resources.length, "home.facts.resources"], [I18N.languages.length, "home.facts.languages"]]
+     [live, "home.facts.resources"], [C.resources.length - live, "home.facts.planned"],
+     [I18N.languages.length, "home.facts.languages"]]
       .forEach(function (f) {
         var li = h("li"); var b = h("b", null, f[0]);
         li.append(b, document.createTextNode(t(f[1])));
@@ -194,39 +239,59 @@
     var host = document.getElementById("projects"); host.textContent = "";
     C.projects.forEach(function (p, i) {
       var res = byProject(p.id);
+      var live = res.filter(published), planned = res.filter(function (r) { return !published(r); });
       var card = h("article", "project"); card.id = "project-" + p.id;
 
       var top = h("div", "project-top");
       top.appendChild(h("span", "pindex", t("home.projectN", { n: i + 1 })));
-      var st = h("span", "state " + (res.length ? "live" : "soon"),
-        res.length ? t("home.resourcesCount", { n: res.length }) : t("home.inPrep"));
-      top.appendChild(st);
+      var counts = [];
+      if (live.length) counts.push(t("home.publishedCount", { n: live.length }));
+      if (planned.length) counts.push(t("home.plannedCount", { n: planned.length }));
+      top.appendChild(h("span", "state " + (live.length ? "live" : "soon"), counts.join(" · ") || t("home.inPrep")));
+
+      var kase = h("div", "case");
+      kase.append(h("span", "case-label", t("home.case")), h("span", "case-place", t("project." + p.id + ".place")));
+      var facts = h("ul", "case-facts");
+      t("project." + p.id + ".facts").split("|").forEach(function (s) { facts.appendChild(h("li", null, s.trim())); });
+      kase.appendChild(facts);
 
       var chips = h("div", "chips");
       p.methods.forEach(function (m) { chips.appendChild(h("span", "chip", t("method." + m))); });
 
       var list = h("div", "plist");
-      if (res.length) {
-        res.forEach(function (r) {
-          var a = h("a"); a.href = I18N.href(r.href);
-          a.append(h("span", "ptitle", t("resource." + r.id + ".title")),
-            h("span", "pmeta", t("home.levelShort", { n: levelOf(r).n }) + " · " + t("type." + r.type)));
-          list.appendChild(a);
-        });
-      } else {
-        list.appendChild(h("div", "empty", t("home.project.empty")));
-      }
+      live.forEach(function (r) {
+        var a = h("a"); a.href = I18N.href(r.href);
+        a.append(h("span", "ptitle", t("resource." + r.id + ".title")), h("span", "pmeta", metaLine(r)));
+        list.appendChild(a);
+      });
+      planned.forEach(function (r) {
+        var row = h("div", "prow planned");
+        var name = h("span", "ptitle");
+        name.append(h("span", "ptag", t("home.planned")), document.createTextNode(t("resource." + r.id + ".title")));
+        row.append(name, h("span", "pmeta", metaLine(r)));
+        list.appendChild(row);
+      });
+      if (!res.length) list.appendChild(h("div", "empty", t("home.project.empty")));
 
       card.append(top, h("h3", null, t("project." + p.id + ".title")),
-        h("p", "sum", t("project." + p.id + ".summary")), chips, list);
+        h("p", "sum", t("project." + p.id + ".summary")), kase, chips, list);
       host.appendChild(card);
     });
+  }
+
+  function creditLine(r) {
+    if (!r.project && !r.author) return null;
+    var from = h("span", "rfrom");
+    from.append(document.createTextNode(t(r.project ? "home.fromProject" : "home.byAuthor") + " "),
+      h("b", null, r.project ? t("project." + r.project + ".title") : r.author));
+    return from;
   }
 
   function renderLadder() {
     var host = document.getElementById("ladder"); host.textContent = "";
     C.levels.forEach(function (l) {
       var res = byLevel(l.id);
+      var live = res.filter(published), planned = res.filter(function (r) { return !published(r); });
       var row = h("article", "level"); row.id = "level-" + l.id;
 
       var num = h("div", "lnum");
@@ -239,19 +304,34 @@
       t("level." + l.id + ".topics").split("|").forEach(function (s) { chips.appendChild(h("span", "chip", s.trim())); });
       body.appendChild(chips);
 
-      if (res.length) {
+      if (live.length) {
         var grid = h("div", "rgrid");
-        res.forEach(function (r) {
+        live.forEach(function (r) {
           var a = h("a", "rcard"); a.href = I18N.href(r.href);
-          var from = h("span", "rfrom");
-          from.append(document.createTextNode(t("home.fromProject") + " "), h("b", null, t("project." + r.project + ".title")));
           a.append(h("span", "rtype", t("type." + r.type)), h("span", "rtitle", t("resource." + r.id + ".title")),
-            h("span", "rsum", t("resource." + r.id + ".summary")), from);
+            h("span", "rsum", t("resource." + r.id + ".summary")));
+          var c = creditLine(r); if (c) a.appendChild(c);
           grid.appendChild(a);
         });
         body.appendChild(grid);
       } else {
         body.appendChild(h("div", "soon-box", t("home.level.empty")));
+      }
+
+      if (planned.length) {
+        var wrap = h("div", "planned-block");
+        wrap.appendChild(h("p", "planned-head", t("home.plannedHead")));
+        var ul = h("ul", "planned-list");
+        planned.forEach(function (r) {
+          var li = h("li");
+          var head = h("div", "pl-head");
+          head.append(h("span", "pl-title", t("resource." + r.id + ".title")), h("span", "pl-type", t("type." + r.type)));
+          li.append(head, h("p", "pl-sum", t("resource." + r.id + ".summary")));
+          var c = creditLine(r); if (c) li.appendChild(c);
+          ul.appendChild(li);
+        });
+        wrap.appendChild(ul);
+        body.appendChild(wrap);
       }
 
       row.append(num, body);

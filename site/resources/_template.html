@@ -1,0 +1,65 @@
+<!doctype html>
+<!--
+  Starting point for a new resource. Copy this file to resources/<your-id>.html, then:
+    1. Replace every "tpl." key prefix with a short prefix of your own (e.g. "simplex.").
+    2. Add those keys to locales/en.js. Other languages fall back to English until translated.
+    3. Register the page in assets/catalog.js (id, href, level, type and, optionally, project/author).
+  Keep all visible text in the locale files and use I18N.t() / I18N.fmt() in scripts.
+-->
+<html lang="en" data-title-key="tpl.title">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Resource Template</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  /* Page-specific styles go here. Colors must come from the tokens in site.css. */
+  .demo output { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 600; color: var(--accent-text); }
+  .demo input[type="range"] { width: 100%; accent-color: var(--accent); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="tpl.eyebrow"></p>
+    <h1 data-i18n="tpl.title"></h1>
+    <p class="lede" data-i18n-html="tpl.lede"></p>
+  </header>
+
+  <div class="card demo">
+    <h2><span class="kicker" data-i18n="tpl.card.kicker"></span><span data-i18n="tpl.card.title"></span></h2>
+    <label for="x" data-i18n="tpl.card.label"></label>
+    <input type="range" id="x" min="0" max="10" step="0.5" value="4">
+    <p><output id="result"></output></p>
+  </div>
+
+  <p class="note" data-i18n="tpl.footer"></p>
+</div>
+
+<script src="../assets/i18n.js" charset="utf-8"></script>
+<script src="../locales/en.js" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var x = document.getElementById("x"), out = document.getElementById("result");
+
+  function render() {
+    var v = +x.value;
+    out.textContent = t("tpl.card.result", { z: I18N.fmt(3 * v, 1) });
+  }
+
+  x.addEventListener("input", render);
+  I18N.onChange(render); // first render and every language switch
+})();
+</script>
+</body>
+</html>
