@@ -220,7 +220,7 @@
   function byProject(id) { return C.resources.filter(function (r) { return r.project === id; }); }
   function byLevel(id) { return C.resources.filter(function (r) { return r.level === id; }); }
   function levelOf(r) { return C.levels.filter(function (l) { return l.id === r.level; })[0]; }
-  function metaLine(r) { return t("home.levelShort", { n: levelOf(r).n }) + " · " + t("type." + r.type); }
+  function metaLine(r) { return t("home.levelShort", { n: levelOf(r).n }) + " \u00b7 " + t("type." + r.type); }
 
   function renderFacts() {
     var ul = document.getElementById("facts"); ul.textContent = "";
@@ -247,7 +247,7 @@
       var counts = [];
       if (live.length) counts.push(t("home.publishedCount", { n: live.length }));
       if (planned.length) counts.push(t("home.plannedCount", { n: planned.length }));
-      top.appendChild(h("span", "state " + (live.length ? "live" : "soon"), counts.join(" · ") || t("home.inPrep")));
+      top.appendChild(h("span", "state " + (live.length ? "live" : "soon"), counts.join(" \u00b7 ") || t("home.inPrep")));
 
       var kase = h("div", "case");
       kase.append(h("span", "case-label", t("home.case")), h("span", "case-place", t("project." + p.id + ".place")));
@@ -341,7 +341,7 @@
 
   function renderLangNote() {
     var names = I18N.languages.map(function (l) { return l.name; });
-    document.getElementById("langnote").textContent = t("home.langnote", { list: names.join(" · ") });
+    document.getElementById("langnote").textContent = t("home.langnote", { list: names.join(" \u00b7 ") });
   }
 
   I18N.onChange(function () { renderFacts(); renderProjects(); renderLadder(); renderLangNote(); });
