@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en" data-title-key="knap.title">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Critical Load</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .wrap { max-width: 980px; }
+
+  /* level tabs */
+  .levels { display: flex; gap: 8px; flex-wrap: wrap; }
+  .lvbtn {
+    font: 600 13.5px "Instrument Sans", sans-serif; padding: 8px 14px; border-radius: 99px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink2); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .lvbtn[aria-current="true"] { background: var(--pine); color: var(--on-solid); border-color: var(--pine); }
+  .lvbtn .st { font-size: 12px; letter-spacing: 0.06em; color: inherit; opacity: 0.9; }
+
+  /* mission bar */
+  .mission { display: flex; flex-wrap: wrap; gap: 12px 26px; align-items: baseline; margin-bottom: 12px; }
+  .mtitle { font-weight: 600; font-size: 16px; }
+  .mfacts { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--ink2); }
+
+  .meterwrap { margin-block: 6px 16px; }
+  .meterlabels {
+    display: flex; justify-content: space-between; font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px; color: var(--ink2); margin-bottom: 5px; font-variant-numeric: tabular-nums;
+  }
+  .meter {
+    height: 16px; border-radius: 99px; background: var(--surface2);
+    border: 1px solid var(--border); overflow: hidden; position: relative;
+  }
+  .meter .fill { height: 100%; background: var(--pine); width: 0%; transition: width 0.25s, background 0.25s; }
+  .meter.full .fill { background: var(--accent); }
+  .meter.over .fill { background: var(--crit); }
+  .overmsg { color: var(--crit); font-weight: 600; font-size: 13.5px; min-height: 1.4em; margin-top: 5px; }
+
+  /* item cards */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+  .item {
+    text-align: left; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface);
+    padding: 11px 12px; cursor: pointer; display: grid; grid-template-columns: auto 1fr; gap: 4px 11px;
+    align-items: center; font-family: inherit; color: var(--ink); font-size: 14px;
+  }
+  .item:hover { border-color: var(--pine); }
+  .item[aria-pressed="true"] { background: var(--sel); border-color: var(--pine); }
+  .item:disabled { cursor: default; opacity: 0.85; }
+  .mono {
+    grid-row: span 2; width: 40px; height: 40px; border-radius: 9px; background: var(--surface2);
+    border: 1px solid var(--border); display: grid; place-items: center;
+    font: 600 13px "JetBrains Mono", monospace; color: var(--pine-text); letter-spacing: 0.02em;
+  }
+  .item[aria-pressed="true"] .mono { background: var(--pine); color: var(--on-solid); border-color: var(--pine); }
+  .iname { font-weight: 600; line-height: 1.25; }
+  .ifacts { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+  .item .tag {
+    grid-column: 1 / -1; font-size: 11.5px; font-weight: 600; border-radius: 6px; padding: 2px 8px;
+    justify-self: start; display: none;
+  }
+  .item.showopt .tag.opt { display: inline-block; background: var(--accent); color: #fdfdfb; }
+  .item.showgre .tag.gre { display: inline-block; background: var(--c-aqua); color: #10241c; }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+  button.btn {
+    font: 600 14px "Instrument Sans", sans-serif; color: #fdfdfb; background: var(--accent);
+    border: none; border-radius: 9px; padding: 11px 18px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
+  button.ghost { background: transparent; color: var(--accent-text); border: 1.5px solid var(--accent-text); }
+  button.quiet { background: transparent; color: var(--ink2); border: 1.5px solid var(--border); }
+  .liveval { font-family: "JetBrains Mono", monospace; font-size: 13.5px; color: var(--ink2); margin-left: auto; }
+  .liveval b { color: var(--ink); font-size: 16px; }
+
+  /* result */
+  .result { border-left: 4px solid var(--accent); }
+  .verdict { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 800; font-size: 26px; margin: 0 0 2px; }
+  .stars { font-size: 21px; letter-spacing: 4px; color: var(--accent-text); }
+  .stars .off { color: var(--axis); }
+  .rsub { color: var(--ink2); margin: 4px 0 14px; max-width: 64ch; }
+  .bars { display: flex; flex-direction: column; gap: 9px; max-width: 560px; }
+  .brow { display: grid; grid-template-columns: 130px 1fr; gap: 10px; align-items: center; font-size: 13.5px; }
+  .brow .lbl { color: var(--ink2); text-align: right; }
+  .btrack { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; height: 26px; position: relative; }
+  .bfill { height: 100%; border-radius: 5px 4px 4px 5px; min-width: 2px; }
+  .bval {
+    position: absolute; top: 50%; transform: translateY(-50%); font: 600 12.5px "JetBrains Mono", monospace;
+    color: var(--ink); padding-left: 8px; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .rextra { margin-top: 14px; color: var(--ink2); font-size: 14.5px; max-width: 70ch; }
+  .rextra b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="knap.eyebrow"></p>
+    <h1 data-i18n="knap.title"></h1>
+    <p class="lede" data-i18n-html="knap.lede"></p>
+  </header>
+
+  <nav class="levels" id="levels" data-i18n-attr="aria-label:knap.levelsAria"></nav>
+
+  <div class="card">
+    <div class="mission">
+      <span class="mtitle" id="mname"></span>
+      <span class="mfacts" id="mfacts"></span>
+    </div>
+    <div class="meterwrap">
+      <div class="meterlabels"><span id="wnow">0 kg</span><span id="wcap"></span></div>
+      <div class="meter" id="meter"><div class="fill" id="mfill"></div></div>
+      <div class="overmsg" id="overmsg"></div>
+    </div>
+    <div class="grid" id="items"></div>
+    <div class="actions">
+      <button class="btn" id="confirm" type="button" data-i18n="knap.btn.confirm"></button>
+      <button class="btn quiet" id="reset" type="button" data-i18n="knap.btn.reset"></button>
+      <span class="liveval"><span data-i18n="knap.onboard"></span> <b id="vnow">0</b> <span data-i18n="knap.pts"></span></span>
+    </div>
+  </div>
+
+  <div class="card result" id="result" hidden>
+    <p class="verdict" id="verdict"></p>
+    <div class="stars" id="stars"></div>
+    <p class="rsub" id="rsub"></p>
+    <div class="bars" id="bars"></div>
+    <div class="rextra" id="rextra"></div>
+    <div class="actions">
+      <button class="btn ghost" id="showopt" type="button" data-i18n="knap.btn.showOpt"></button>
+      <button class="btn ghost" id="showgre" type="button" data-i18n="knap.btn.showGreedy"></button>
+      <button class="btn quiet" id="retry" type="button" data-i18n="knap.btn.retry"></button>
+      <button class="btn" id="next" type="button" data-i18n="knap.btn.next"></button>
+    </div>
+  </div>
+
+  <section>
+    <details>
+      <summary data-i18n="knap.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="knap.d1.p1"></p>
+        <div class="formula" data-i18n="knap.d1.formula"></div>
+        <p data-i18n-html="knap.d1.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="knap.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="knap.d2.p1"></p>
+        <p data-i18n-html="knap.d2.p2"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="knap.footer"></p>
+</div>
+
+<script src="../assets/i18n.js" charset="utf-8"></script>
+<script src="../locales/en.js" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+
+  // Item names and level briefs come from the locale files: knap.item.<id>, knap.lvN.name / .brief
+  var LEVELS = [
+    {
+      cap: 120,
+      items: [
+        { id: "mb", mono: "MB", w: 40, v: 90 },
+        { id: "mg", mono: "MG", w: 25, v: 55 },
+        { id: "km", mono: "KM", w: 15, v: 40 },
+        { id: "ra", mono: "RA", w: 20, v: 35 },
+        { id: "ms", mono: "MS", w: 30, v: 60 },
+        { id: "dr", mono: "DR", w: 10, v: 30 }
+      ]
+    },
+    {
+      cap: 150,
+      items: [
+        { id: "tr", mono: "TR", w: 80, v: 95 },
+        { id: "mb", mono: "MB", w: 70, v: 80 },
+        { id: "ba", mono: "BA", w: 75, v: 82 },
+        { id: "em", mono: "EM", w: 40, v: 38 },
+        { id: "cu", mono: "CU", w: 25, v: 22 },
+        { id: "km", mono: "KM", w: 15, v: 18 },
+        { id: "ra", mono: "RA", w: 20, v: 17 }
+      ]
+    },
+    {
+      cap: 200,
+      items: [
+        { id: "tr", mono: "TR", w: 80, v: 96 },
+        { id: "mb", mono: "MB", w: 70, v: 85 },
+        { id: "ba", mono: "BA", w: 75, v: 83 },
+        { id: "ge", mono: "GE", w: 55, v: 60 },
+        { id: "em", mono: "EM", w: 40, v: 42 },
+        { id: "ms", mono: "MS", w: 30, v: 38 },
+        { id: "km", mono: "KM", w: 15, v: 22 },
+        { id: "dr", mono: "DR", w: 10, v: 28, nameKey: "drn" },
+        { id: "ra", mono: "RA", w: 20, v: 24 }
+      ]
+    }
+  ];
+  var iname = function (it) { return t("knap.item." + (it.nameKey || it.id)); };
+
+  // ---- exact solvers ----
+  function dpSolve(items, cap) {
+    var g = 5; // all weights are multiples of 5 kg
+    var Wn = Math.floor(cap / g);
+    var n = items.length;
+    var val = [], keep = [];
+    for (var i = 0; i <= n; i++) {
+      val.push(new Array(Wn + 1).fill(0));
+      keep.push(new Array(Wn + 1).fill(false));
+    }
+    for (i = 1; i <= n; i++) {
+      var w = Math.round(items[i - 1].w / g), v = items[i - 1].v;
+      for (var c = 0; c <= Wn; c++) {
+        val[i][c] = val[i - 1][c];
+        if (w <= c && val[i - 1][c - w] + v > val[i][c]) {
+          val[i][c] = val[i - 1][c - w] + v;
+          keep[i][c] = true;
+        }
+      }
+    }
+    var set = [], c2 = Wn;
+    for (i = n; i >= 1; i--) {
+      if (keep[i][c2]) { set.push(items[i - 1].id); c2 -= Math.round(items[i - 1].w / g); }
+    }
+    return { value: val[n][Wn], set: set };
+  }
+  function greedySolve(items, cap) {
+    var order = items.slice().sort(function (a, b) { return b.v / b.w - a.v / a.w; });
+    var w = 0, v = 0, set = [];
+    order.forEach(function (it) { if (w + it.w <= cap) { w += it.w; v += it.v; set.push(it.id); } });
+    return { value: v, set: set };
+  }
+
+  // ---- state ----
+  var lv = 0, sel = {}, phase = "pick", attempts = [0, 0, 0], starsBy = [null, null, null];
+  var showingOpt = false, showingGre = false;
+  try {
+    var saved = JSON.parse(localStorage.getItem("cc-stars") || "null");
+    if (Array.isArray(saved)) starsBy = saved.map(function (s) { return typeof s === "number" ? s : null; });
+  } catch (e) { /* private mode: play without records */ }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var css = function (name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); };
+  var L = function () { return LEVELS[lv]; };
+  function selItems() { return L().items.filter(function (it) { return sel[it.id]; }); }
+  function selW() { return selItems().reduce(function (s, it) { return s + it.w; }, 0); }
+  function selV() { return selItems().reduce(function (s, it) { return s + it.v; }, 0); }
+
+  function saveStars() {
+    try { localStorage.setItem("cc-stars", JSON.stringify(starsBy)); } catch (e) { /* ok */ }
+  }
+
+  // ---- render ----
+  function renderLevels() {
+    var nav = $("levels"); nav.textContent = "";
+    LEVELS.forEach(function (Lv, i) {
+      var b = document.createElement("button");
+      b.className = "lvbtn"; b.type = "button";
+      b.setAttribute("aria-current", i === lv ? "true" : "false");
+      var st = starsBy[i];
+      b.textContent = t("knap.levelN", { n: i + 1 }) + " ";
+      var s = document.createElement("span"); s.className = "st";
+      s.textContent = st == null ? "· " + t("knap.notPlayed") : "★".repeat(st) + "☆".repeat(3 - st);
+      b.appendChild(s);
+      b.addEventListener("click", function () { lv = i; sel = {}; phase = "pick"; renderAll(); });
+      nav.appendChild(b);
+    });
+  }
+
+  function renderBoard() {
+    var n = lv + 1;
+    $("mname").textContent = t("knap.levelN", { n: n }) + " · " + t("knap.lv" + n + ".name") + ". " + t("knap.lv" + n + ".brief");
+    $("mfacts").textContent = t("knap.facts", { n: L().items.length, cap: L().cap });
+    $("wcap").textContent = t("knap.capacity", { cap: L().cap });
+
+    var w = selW(), cap = L().cap;
+    $("wnow").textContent = w + " kg";
+    $("vnow").textContent = selV();
+    $("meter").className = "meter" + (w > cap ? " over" : w >= cap * 0.92 ? " full" : "");
+    $("mfill").style.width = Math.min(100, w / cap * 100) + "%";
+    $("overmsg").textContent = w > cap ? t("knap.over", { kg: w - cap }) : "";
+
+    var grid = $("items"); grid.textContent = "";
+    var opt = dpSolve(L().items, cap), gre = greedySolve(L().items, cap);
+    L().items.forEach(function (it) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "item";
+      b.setAttribute("aria-pressed", sel[it.id] ? "true" : "false");
+      if (phase === "done") {
+        b.disabled = true;
+        if (showingOpt && opt.set.indexOf(it.id) >= 0) b.classList.add("showopt");
+        if (showingGre && gre.set.indexOf(it.id) >= 0) b.classList.add("showgre");
+      }
+      var parts = [
+        ["mono", it.mono],
+        ["iname", iname(it)],
+        ["ifacts", it.w + " kg · " + it.v + " " + t("knap.pts") + " · " + I18N.fmt(it.v / it.w, 2, 2) + " " + t("knap.ptsPerKg")],
+        ["tag opt", t("knap.tag.opt")],
+        ["tag gre", t("knap.tag.greedy")]
+      ];
+      parts.forEach(function (p) {
+        var s = document.createElement("span"); s.className = p[0]; s.textContent = p[1]; b.appendChild(s);
+      });
+      b.addEventListener("click", function () {
+        if (phase !== "pick") return;
+        sel[it.id] = !sel[it.id];
+        renderBoard();
+      });
+      grid.appendChild(b);
+    });
+
+    $("confirm").disabled = phase !== "pick" || w > cap || w === 0;
+    $("reset").disabled = phase !== "pick";
+  }
+
+  function barsRow(host, label, value, max, color) {
+    var row = document.createElement("div"); row.className = "brow";
+    var lbl = document.createElement("span"); lbl.className = "lbl"; lbl.textContent = label;
+    var track = document.createElement("div"); track.className = "btrack";
+    var fill = document.createElement("div"); fill.className = "bfill";
+    fill.style.width = (max > 0 ? value / max * 100 : 0) + "%";
+    fill.style.background = color;
+    var val = document.createElement("span"); val.className = "bval"; val.textContent = value + " " + t("knap.pts");
+    track.append(fill, val);
+    row.append(lbl, track);
+    host.appendChild(row);
+  }
+
+  function renderResult() {
+    var box = $("result");
+    if (phase !== "done") { box.hidden = true; return; }
+    box.hidden = false;
+    var opt = dpSolve(L().items, L().cap), gre = greedySolve(L().items, L().cap);
+    var mine = selV();
+    var ratio = opt.value > 0 ? mine / opt.value : 0;
+    var stars = ratio >= 0.999 ? 3 : ratio >= 0.92 ? 2 : ratio >= 0.8 ? 1 : 0;
+    if (starsBy[lv] == null || stars > starsBy[lv]) { starsBy[lv] = stars; saveStars(); renderLevels(); }
+
+    $("verdict").textContent = t("knap.verdict." + stars);
+    $("stars").setAttribute("aria-label", t("knap.starsAria", { n: stars }));
+    $("stars").innerHTML = "★".repeat(stars) + '<span class="off">' + "★".repeat(3 - stars) + "</span>";
+    $("rsub").textContent = t("knap.rsub", { mine: mine, opt: opt.value, pct: Math.round(ratio * 100), n: attempts[lv] });
+
+    var bars = $("bars"); bars.textContent = "";
+    var mx = Math.max(mine, opt.value, gre.value);
+    barsRow(bars, t("knap.bar.mine"), mine, mx, css("--c-blue"));
+    barsRow(bars, t("knap.bar.greedy"), gre.value, mx, css("--c-aqua"));
+    barsRow(bars, t("knap.bar.opt"), opt.value, mx, css("--accent"));
+
+    $("rextra").innerHTML = t(gre.value < opt.value ? "knap.extra.worse" : "knap.extra.same", { v: gre.value });
+    $("next").hidden = lv >= LEVELS.length - 1;
+  }
+
+  function renderAll() { renderLevels(); renderBoard(); renderResult(); persist(); }
+
+  // ---- actions ----
+  $("confirm").addEventListener("click", function () {
+    if (selW() > L().cap || selW() === 0) return;
+    attempts[lv]++; phase = "done"; showingOpt = false; showingGre = false;
+    renderAll();
+    $("result").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+  $("reset").addEventListener("click", function () { sel = {}; renderAll(); });
+  $("retry").addEventListener("click", function () { sel = {}; phase = "pick"; showingOpt = false; showingGre = false; renderAll(); });
+  $("next").addEventListener("click", function () {
+    if (lv < LEVELS.length - 1) { lv++; sel = {}; phase = "pick"; showingOpt = false; showingGre = false; renderAll(); }
+  });
+  $("showopt").addEventListener("click", function () { showingOpt = !showingOpt; renderBoard(); });
+  $("showgre").addEventListener("click", function () { showingGre = !showingGre; renderBoard(); });
+
+  // ---- hot reload state (survives republish while the page is open) ----
+  function persist() {
+    if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+      try { window.claude.hot.snapshot({ lv: lv, sel: sel, phase: phase, attempts: attempts }); } catch (e) { /* ok */ }
+    }
+  }
+  function start(data) {
+    if (data && typeof data.lv === "number" && LEVELS[data.lv]) {
+      lv = data.lv; sel = data.sel || {}; phase = data.phase === "done" ? "done" : "pick";
+      if (Array.isArray(data.attempts)) attempts = data.attempts;
+    }
+    I18N.onChange(renderAll);
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.ready) {
+    window.claude.hot.ready(start);
+  } else {
+    start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+  }
+})();
+</script>
+</body>
+</html>

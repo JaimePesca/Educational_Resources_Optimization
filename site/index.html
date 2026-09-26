@@ -1,0 +1,269 @@
+<title>Optimization in Action</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  html { scroll-behavior: smooth; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 72px); }
+  .wrap { max-width: 1080px; gap: 0; }
+
+  /* ---- hero ---- */
+  .hero { padding-block: 44px 34px; display: grid; gap: 14px; }
+  .hero h1 { font-size: clamp(40px, 8vw, 76px); margin: 0; }
+  .hero h1 .opt { color: var(--accent-text); }
+  .hero .lede { font-size: 17px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 6px 0 0; padding: 0; list-style: none; }
+  .facts li {
+    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--ink2);
+    font-variant-numeric: tabular-nums;
+  }
+  .facts b { color: var(--ink); font-weight: 600; font-size: 15px; margin-right: 5px; }
+
+  /* ---- division headers ---- */
+  .division { padding-block: 34px 10px; border-top: 1px solid var(--axis); display: grid; gap: 20px; }
+  .division-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px 32px; align-items: end; }
+  @media (max-width: 760px) { .division-head { grid-template-columns: 1fr; } }
+  .division-head h2 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 800;
+    font-size: clamp(28px, 4.4vw, 40px); line-height: 1.05; margin: 0; letter-spacing: -0.01em;
+  }
+  .division-head p { margin: 0; color: var(--ink2); max-width: 60ch; }
+
+  /* ---- research projects ---- */
+  .projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 760px) { .projects { grid-template-columns: 1fr; } }
+  .project {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px; display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 80px;
+  }
+  .project-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .project h3 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 600;
+    font-size: 21px; line-height: 1.15; margin: 0; text-wrap: balance;
+  }
+  .project p.sum { margin: 0; color: var(--ink2); font-size: 14.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.04em;
+    padding: 3px 8px; border-radius: 6px; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--ink2); white-space: nowrap;
+  }
+  .state {
+    margin-left: auto; font-size: 11.5px; font-weight: 600; letter-spacing: 0.03em;
+    padding: 3px 10px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .state.live { color: var(--pine-text); }
+  .state.soon { color: var(--muted); border-style: dashed; }
+  .pindex {
+    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .plist { margin-top: auto; border-top: 1px solid var(--border); padding-top: 10px; display: grid; gap: 2px; }
+  .plist a {
+    display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: baseline;
+    padding: 7px 8px; margin-inline: -8px; border-radius: 7px; text-decoration: none; color: var(--ink);
+  }
+  .plist a:hover { background: var(--surface2); }
+  .plist a .ptitle { font-weight: 600; font-size: 14.5px; }
+  .plist a .pmeta { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+  .plist .empty { font-size: 13.5px; color: var(--muted); padding-block: 4px; }
+
+  /* ---- learning path ---- */
+  .ladder { display: grid; gap: 0; }
+  .level {
+    display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 0 22px;
+    padding-block: 22px; border-top: 1px solid var(--border); scroll-margin-top: 80px;
+  }
+  .level:first-child { border-top: none; padding-top: 4px; }
+  @media (max-width: 620px) { .level { grid-template-columns: 1fr; gap: 6px; } }
+  .lnum {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 800;
+    font-size: 76px; line-height: 0.85; color: var(--pine-text); font-variant-numeric: tabular-nums;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .lnum small {
+    font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 400; font-size: 10.5px;
+    letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); line-height: 1.2;
+  }
+  @media (max-width: 620px) { .lnum { flex-direction: row; align-items: baseline; font-size: 48px; } }
+  .lbody { display: grid; gap: 10px; }
+  .lbody h3 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 600;
+    font-size: 24px; line-height: 1.1; margin: 0;
+  }
+  .lbody p.sum { margin: 0; color: var(--ink2); max-width: 70ch; }
+  .rgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 4px; }
+  .rcard {
+    display: flex; flex-direction: column; gap: 6px; padding: 14px 15px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    text-decoration: none; color: var(--ink); transition: border-color 0.15s, transform 0.15s;
+  }
+  .rcard:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .rcard .rtype {
+    font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--accent-text); font-weight: 600;
+  }
+  .rcard .rtitle { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 600; font-size: 18px; line-height: 1.15; }
+  .rcard .rsum { font-size: 13.5px; color: var(--ink2); }
+  .rcard .rfrom { margin-top: auto; padding-top: 4px; font-size: 12.5px; color: var(--muted); }
+  .rcard .rfrom b { color: var(--pine-text); font-weight: 600; }
+  .soon-box {
+    border: 1.5px dashed var(--axis); border-radius: 10px; padding: 13px 15px;
+    font-size: 13.5px; color: var(--muted); margin-top: 4px;
+  }
+
+  footer.foot { border-top: 1px solid var(--axis); margin-top: 26px; padding-top: 16px; display: grid; gap: 6px; }
+</style>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">x*</span><span data-i18n="site.name"></span></a>
+    <nav class="topnav" data-i18n-attr="aria-label:nav.sections">
+      <a href="#research" data-i18n="nav.research"></a>
+      <a href="#learn" data-i18n="nav.learn"></a>
+    </nav>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap" id="top">
+  <section class="hero">
+    <p class="eyebrow" data-i18n="home.eyebrow"></p>
+    <h1 data-i18n-html="home.title"></h1>
+    <p class="lede" data-i18n="home.lede"></p>
+    <ul class="facts" id="facts"></ul>
+  </section>
+
+  <section class="division" id="research" aria-labelledby="research-h">
+    <div class="division-head">
+      <div>
+        <p class="eyebrow" data-i18n="home.research.eyebrow"></p>
+        <h2 id="research-h" data-i18n="nav.research"></h2>
+      </div>
+      <p data-i18n="home.research.intro"></p>
+    </div>
+    <div class="projects" id="projects"></div>
+  </section>
+
+  <section class="division" id="learn" aria-labelledby="learn-h">
+    <div class="division-head">
+      <div>
+        <p class="eyebrow" data-i18n="home.learn.eyebrow"></p>
+        <h2 id="learn-h" data-i18n="nav.learn"></h2>
+      </div>
+      <p data-i18n="home.learn.intro"></p>
+    </div>
+    <div class="ladder" id="ladder"></div>
+  </section>
+
+  <footer class="foot">
+    <p class="note" id="langnote"></p>
+    <p class="note" data-i18n="home.footer"></p>
+  </footer>
+</div>
+
+<script src="assets/i18n.js" charset="utf-8"></script>
+<script src="locales/en.js" charset="utf-8"></script>
+<script src="assets/catalog.js" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t, C = window.CATALOG;
+  document.documentElement.setAttribute("data-title-key", "site.name");
+
+  function h(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function byProject(id) { return C.resources.filter(function (r) { return r.project === id; }); }
+  function byLevel(id) { return C.resources.filter(function (r) { return r.level === id; }); }
+  function levelOf(r) { return C.levels.filter(function (l) { return l.id === r.level; })[0]; }
+
+  function renderFacts() {
+    var ul = document.getElementById("facts"); ul.textContent = "";
+    [[C.projects.length, "home.facts.projects"], [C.levels.length, "home.facts.levels"],
+     [C.resources.length, "home.facts.resources"], [I18N.languages.length, "home.facts.languages"]]
+      .forEach(function (f) {
+        var li = h("li"); var b = h("b", null, f[0]);
+        li.append(b, document.createTextNode(t(f[1])));
+        ul.appendChild(li);
+      });
+  }
+
+  function renderProjects() {
+    var host = document.getElementById("projects"); host.textContent = "";
+    C.projects.forEach(function (p, i) {
+      var res = byProject(p.id);
+      var card = h("article", "project"); card.id = "project-" + p.id;
+
+      var top = h("div", "project-top");
+      top.appendChild(h("span", "pindex", t("home.projectN", { n: i + 1 })));
+      var st = h("span", "state " + (res.length ? "live" : "soon"),
+        res.length ? t("home.resourcesCount", { n: res.length }) : t("home.inPrep"));
+      top.appendChild(st);
+
+      var chips = h("div", "chips");
+      p.methods.forEach(function (m) { chips.appendChild(h("span", "chip", t("method." + m))); });
+
+      var list = h("div", "plist");
+      if (res.length) {
+        res.forEach(function (r) {
+          var a = h("a"); a.href = I18N.href(r.href);
+          a.append(h("span", "ptitle", t("resource." + r.id + ".title")),
+            h("span", "pmeta", t("home.levelShort", { n: levelOf(r).n }) + " · " + t("type." + r.type)));
+          list.appendChild(a);
+        });
+      } else {
+        list.appendChild(h("div", "empty", t("home.project.empty")));
+      }
+
+      card.append(top, h("h3", null, t("project." + p.id + ".title")),
+        h("p", "sum", t("project." + p.id + ".summary")), chips, list);
+      host.appendChild(card);
+    });
+  }
+
+  function renderLadder() {
+    var host = document.getElementById("ladder"); host.textContent = "";
+    C.levels.forEach(function (l) {
+      var res = byLevel(l.id);
+      var row = h("article", "level"); row.id = "level-" + l.id;
+
+      var num = h("div", "lnum");
+      num.append(h("small", null, t("home.level")), document.createTextNode(l.n));
+
+      var body = h("div", "lbody");
+      body.appendChild(h("h3", null, t("level." + l.id + ".title")));
+      body.appendChild(h("p", "sum", t("level." + l.id + ".summary")));
+      var chips = h("div", "chips");
+      t("level." + l.id + ".topics").split("|").forEach(function (s) { chips.appendChild(h("span", "chip", s.trim())); });
+      body.appendChild(chips);
+
+      if (res.length) {
+        var grid = h("div", "rgrid");
+        res.forEach(function (r) {
+          var a = h("a", "rcard"); a.href = I18N.href(r.href);
+          var from = h("span", "rfrom");
+          from.append(document.createTextNode(t("home.fromProject") + " "), h("b", null, t("project." + r.project + ".title")));
+          a.append(h("span", "rtype", t("type." + r.type)), h("span", "rtitle", t("resource." + r.id + ".title")),
+            h("span", "rsum", t("resource." + r.id + ".summary")), from);
+          grid.appendChild(a);
+        });
+        body.appendChild(grid);
+      } else {
+        body.appendChild(h("div", "soon-box", t("home.level.empty")));
+      }
+
+      row.append(num, body);
+      host.appendChild(row);
+    });
+  }
+
+  function renderLangNote() {
+    var names = I18N.languages.map(function (l) { return l.name; });
+    document.getElementById("langnote").textContent = t("home.langnote", { list: names.join(" · ") });
+  }
+
+  I18N.onChange(function () { renderFacts(); renderProjects(); renderLadder(); renderLangNote(); });
+})();
+</script>

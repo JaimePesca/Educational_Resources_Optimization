@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en" data-title-key="feas.title">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Feasible Region</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+  /* ---- chart ---- */
+  .plotcard { position: relative; }
+  svg#plot { display: block; width: 100%; height: auto; }
+  .plot-foot { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 10px; align-items: center; }
+  .legend-item { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink2); }
+  .swatch { width: 14px; height: 3px; border-radius: 2px; flex: none; }
+  .swatch.dash { background: repeating-linear-gradient(90deg, var(--accent) 0 4px, transparent 4px 7px); }
+  .swatch.area { width: 13px; height: 13px; border-radius: 3px; background: var(--region); border: 1px solid var(--pine); }
+  #tip {
+    position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 7px; padding: 7px 10px; font-family: "JetBrains Mono", monospace; font-size: 12px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.16); white-space: nowrap; z-index: 5; line-height: 1.5;
+  }
+  #tip .no { color: var(--crit); }
+  #tip .si { color: var(--pine-text); }
+
+  /* ---- controls ---- */
+  .stack { display: flex; flex-direction: column; gap: 18px; }
+  .obj-eq {
+    font-family: "JetBrains Mono", monospace; font-size: 14.5px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;
+  }
+  .obj-eq b { color: var(--accent-text); font-weight: 600; }
+  .ctl { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding-block: 7px; }
+  .ctl label { font-size: 13.5px; color: var(--ink2); white-space: nowrap; }
+  .ctl output {
+    font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 600;
+    min-width: 4.5ch; text-align: right; font-variant-numeric: tabular-nums;
+  }
+  input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; min-width: 60px; }
+  input[type="checkbox"] { accent-color: var(--pine); width: 16px; height: 16px; }
+
+  .rrow { border-top: 1px solid var(--border); padding-block: 11px; display: flex; flex-direction: column; gap: 7px; }
+  .rrow:first-of-type { border-top: none; padding-top: 2px; }
+  .rhead { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .rdot { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+  .rname { font-weight: 600; font-size: 14px; }
+  .req { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--ink2); }
+  .badge {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 99px;
+    border: 1px solid var(--border); color: var(--muted); margin-left: auto; white-space: nowrap;
+  }
+  .badge.on { color: var(--accent-text); border-color: currentColor; }
+  .rslide { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding-left: 20px; }
+  .rslide output { font-family: "JetBrains Mono", monospace; font-size: 12.5px; font-variant-numeric: tabular-nums; min-width: 7ch; text-align: right; }
+
+  .zrow { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-top: 8px; }
+  .zrow .ctl { padding: 0; }
+  button.btn {
+    font: 600 13.5px "Instrument Sans", system-ui, sans-serif; color: #fdfdfb;
+    background: var(--accent); border: none; border-radius: 8px; padding: 9px 14px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  .optbox {
+    margin-top: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 11px 13px; font-size: 14px;
+  }
+  .optbox .zval {
+    font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 600; color: var(--accent-text);
+    display: block; margin-top: 2px;
+  }
+  .optbox small { color: var(--ink2); }
+  #optxy { font-family: "JetBrains Mono", monospace; font-size: 13px; }
+
+  /* ---- table ---- */
+  .tblwrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 480px; }
+  th {
+    text-align: left; font-family: "JetBrains Mono", monospace; font-weight: 400; font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--axis); padding: 6px 10px;
+  }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  td.num { font-family: "JetBrains Mono", monospace; font-size: 12.5px; }
+  tr.best td { background: var(--region); font-weight: 600; }
+  tr.best td:first-child { border-left: 3px solid var(--accent); }
+  #vnote { margin-top: 14px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="feas.eyebrow"></p>
+    <h1 data-i18n="feas.title"></h1>
+    <p class="lede" data-i18n-html="feas.lede"></p>
+  </header>
+
+  <div class="layout">
+    <div class="card plotcard">
+      <h2><span class="kicker" data-i18n="feas.plot.kicker"></span><span data-i18n="feas.plot.title"></span></h2>
+      <svg id="plot" viewBox="0 0 620 560" role="img" data-i18n-attr="aria-label:feas.plot.aria"></svg>
+      <div id="tip" hidden></div>
+      <div class="plot-foot">
+        <span class="legend-item"><span class="swatch area"></span><span data-i18n="feas.legend.region"></span></span>
+        <span class="legend-item"><span class="swatch" style="background:var(--c-blue)"></span><span data-i18n="feas.c.presu"></span></span>
+        <span class="legend-item"><span class="swatch" style="background:var(--c-aqua)"></span><span data-i18n="feas.c.agua"></span></span>
+        <span class="legend-item"><span class="swatch" style="background:var(--c-violet)"></span><span data-i18n="feas.c.heli"></span></span>
+        <span class="legend-item"><span class="swatch dash"></span><span data-i18n="feas.legend.iso"></span></span>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <h2><span class="kicker" data-i18n="feas.obj.kicker"></span><span data-i18n="feas.obj.title"></span></h2>
+        <div class="obj-eq">max&nbsp; Z = <b><span id="c1v">30</span>·x</b> + <b><span id="c2v">40</span>·y</b></div>
+        <div class="ctl">
+          <label for="c1" data-i18n="feas.obj.c1"></label>
+          <input type="range" id="c1" min="5" max="80" step="5" value="30">
+          <output id="c1o">30</output>
+        </div>
+        <div class="ctl">
+          <label for="c2" data-i18n="feas.obj.c2"></label>
+          <input type="range" id="c2" min="5" max="80" step="5" value="40">
+          <output id="c2o">40</output>
+        </div>
+        <div class="zrow">
+          <div class="ctl">
+            <label for="ziso" data-i18n="feas.legend.iso"></label>
+            <input type="range" id="ziso" min="0" max="320" step="1" value="0">
+            <output id="zisoo">0</output>
+          </div>
+          <button class="btn" id="sweep" type="button" data-i18n="feas.sweep"></button>
+        </div>
+        <div class="optbox" id="optbox">
+          <small data-i18n="feas.opt.label"></small>
+          <span class="zval" id="optz"></span>
+          <span id="optxy"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="kicker" data-i18n="feas.cons.kicker"></span><span data-i18n="feas.cons.title"></span></h2>
+        <div id="rlist"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="feas.tbl.kicker"></span><span data-i18n="feas.tbl.title"></span></h2>
+    <div class="tblwrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-i18n="feas.tbl.vertex"></th>
+            <th data-i18n="feas.tbl.x"></th>
+            <th data-i18n="feas.tbl.y"></th>
+            <th data-i18n="feas.tbl.z"></th>
+            <th data-i18n="feas.tbl.binding"></th>
+          </tr>
+        </thead>
+        <tbody id="vtbody"></tbody>
+      </table>
+    </div>
+    <p class="note" id="vnote"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="feas.d1.title"></summary>
+      <div class="body">
+        <p data-i18n="feas.d1.p1"></p>
+        <div class="formula" id="modelbox"></div>
+        <p data-i18n-html="feas.d1.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="feas.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="feas.d2.p1"></p>
+        <p data-i18n-html="feas.d2.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="feas.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="feas.d3.p1"></p>
+        <p data-i18n-html="feas.d3.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="feas.d4.title"></summary>
+      <div class="body">
+        <p data-i18n-html="feas.d4.p1"></p>
+        <p data-i18n-html="feas.d4.p2"></p>
+        <p data-i18n-html="feas.d4.p3"></p>
+        <p data-i18n-html="feas.d4.p4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="feas.footer"></p>
+</div>
+
+<script src="../assets/i18n.js" charset="utf-8"></script>
+<script src="../locales/en.js" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var css = function (name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); };
+  var fmt = function (v, d) { return I18N.fmt(v, d == null ? 1 : d); };
+
+  // ---- model ----
+  var cons = [
+    { id: "presu", a: 2, b: 1, rhs: 14, min: 6,  max: 24, cvar: "--c-blue",   on: true },
+    { id: "agua",  a: 1, b: 3, rhs: 18, min: 6,  max: 30, cvar: "--c-aqua",   on: true },
+    { id: "heli",  a: 1, b: 0, rhs: 6,  min: 2,  max: 12, cvar: "--c-violet", on: true }
+  ];
+  var cname = function (r) { return t("feas.c." + r.id); };
+  var cunit = function (r) { return t("feas.unit." + r.id); };
+  var c1 = 30, c2 = 40, zIso = 0;
+
+  function eqText(r) {
+    var parts = [];
+    if (r.a) parts.push((r.a === 1 ? "" : r.a) + "x");
+    if (r.b) parts.push((r.b === 1 ? "" : r.b) + "y");
+    return parts.join(" + ") + " ≤ " + r.rhs;
+  }
+
+  function activeCons() { return cons.filter(function (r) { return r.on; }); }
+
+  function solve() {
+    var act = activeCons();
+    var lines = act.map(function (r) { return { a: r.a, b: r.b, c: r.rhs }; });
+    lines.push({ a: 1, b: 0, c: 0 });
+    lines.push({ a: 0, b: 1, c: 0 });
+    var pts = [];
+    for (var i = 0; i < lines.length; i++) for (var j = i + 1; j < lines.length; j++) {
+      var L1 = lines[i], L2 = lines[j];
+      var det = L1.a * L2.b - L2.a * L1.b;
+      if (Math.abs(det) < 1e-9) continue;
+      var x = (L1.c * L2.b - L2.c * L1.b) / det;
+      var y = (L1.a * L2.c - L2.a * L1.c) / det;
+      if (x < -1e-7 || y < -1e-7) continue;
+      var ok = act.every(function (r) { return r.a * x + r.b * y <= r.rhs + 1e-7; });
+      if (!ok) continue;
+      if (!pts.some(function (p) { return Math.abs(p.x - x) < 1e-6 && Math.abs(p.y - y) < 1e-6; })) {
+        pts.push({ x: Math.max(0, x), y: Math.max(0, y) });
+      }
+    }
+    // bounded? (c1, c2 > 0 always in this scenario)
+    var xB = act.some(function (r) { return r.a > 0; });
+    var yB = act.some(function (r) { return r.b > 0; });
+    var bounded = xB && yB;
+    var best = null;
+    pts.forEach(function (p) {
+      p.z = c1 * p.x + c2 * p.y;
+      if (bounded && (!best || p.z > best.z + 1e-9)) best = p;
+    });
+    return { pts: pts, best: best, bounded: bounded };
+  }
+
+  function binding(p) {
+    return activeCons().filter(function (r) {
+      return Math.abs(r.a * p.x + r.b * p.y - r.rhs) < 1e-6;
+    }).map(cname);
+  }
+
+  // ---- scales ----
+  var M = { l: 52, r: 18, t: 18, b: 46 }, W = 620, H = 560;
+  var xMax = 12, yMax = 12;
+  function niceCeil(v) {
+    var step = Math.pow(10, Math.floor(Math.log10(v)));
+    var m = v / step;
+    var f = m <= 2 ? 2 : m <= 4 ? 4 : m <= 5 ? 5 : m <= 8 ? 8 : 10;
+    return f * step;
+  }
+  function domain() {
+    var xs = [4], ys = [4];
+    activeCons().forEach(function (r) {
+      if (r.a > 0) xs.push(r.rhs / r.a);
+      if (r.b > 0) ys.push(r.rhs / r.b);
+    });
+    xMax = niceCeil(Math.max.apply(null, xs) * 1.12);
+    yMax = niceCeil(Math.max.apply(null, ys) * 1.12);
+  }
+  function sx(v) { return M.l + (v / xMax) * (W - M.l - M.r); }
+  function sy(v) { return H - M.b - (v / yMax) * (H - M.t - M.b); }
+  function ix(px) { return (px - M.l) / (W - M.l - M.r) * xMax; }
+  function iy(py) { return (H - M.b - py) / (H - M.t - M.b) * yMax; }
+
+  // clip a·x + b·y = c to the domain rectangle, returns [p1, p2] or null
+  function clipLine(a, b, c) {
+    var pts = [];
+    function add(x, y) {
+      if (x >= -1e-7 && x <= xMax + 1e-7 && y >= -1e-7 && y <= yMax + 1e-7) {
+        if (!pts.some(function (p) { return Math.abs(p[0] - x) < 1e-7 && Math.abs(p[1] - y) < 1e-7; }))
+          pts.push([x, y]);
+      }
+    }
+    if (Math.abs(b) > 1e-12) { add(0, c / b); add(xMax, (c - a * xMax) / b); }
+    if (Math.abs(a) > 1e-12) { add(c / a, 0); add((c - b * yMax) / a, yMax); }
+    return pts.length >= 2 ? [pts[0], pts[1]] : null;
+  }
+
+  // ---- render ----
+  var svg = document.getElementById("plot");
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, txt) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (txt != null) n.textContent = txt;
+    return n;
+  }
+  function ticks(max) {
+    var step = niceCeil(max / 6) / 2;
+    if (max / step > 9) step *= 2;
+    var out = [];
+    for (var v = 0; v <= max + 1e-9; v += step) out.push(Math.round(v * 100) / 100);
+    return out;
+  }
+
+  var state = null;
+  function render() {
+    domain();
+    state = solve();
+    svg.textContent = "";
+
+    // grid + axes
+    var g = el("g", {});
+    ticks(xMax).forEach(function (v) {
+      g.appendChild(el("line", { x1: sx(v), y1: sy(0), x2: sx(v), y2: M.t, stroke: css("--grid"), "stroke-width": 1 }));
+      g.appendChild(el("text", { x: sx(v), y: H - M.b + 18, "text-anchor": "middle", fill: css("--muted"),
+        "font-size": 11, "font-family": "JetBrains Mono, monospace" }, fmt(v, 1)));
+    });
+    ticks(yMax).forEach(function (v) {
+      g.appendChild(el("line", { x1: M.l, y1: sy(v), x2: W - M.r, y2: sy(v), stroke: css("--grid"), "stroke-width": 1 }));
+      g.appendChild(el("text", { x: M.l - 8, y: sy(v) + 4, "text-anchor": "end", fill: css("--muted"),
+        "font-size": 11, "font-family": "JetBrains Mono, monospace" }, fmt(v, 1)));
+    });
+    g.appendChild(el("line", { x1: M.l, y1: sy(0), x2: W - M.r, y2: sy(0), stroke: css("--axis"), "stroke-width": 1.2 }));
+    g.appendChild(el("line", { x1: M.l, y1: sy(0), x2: M.l, y2: M.t, stroke: css("--axis"), "stroke-width": 1.2 }));
+    g.appendChild(el("text", { x: (M.l + W - M.r) / 2, y: H - 8, "text-anchor": "middle", fill: css("--ink2"),
+      "font-size": 12.5, "font-family": "Instrument Sans, sans-serif" }, t("feas.axis.x")));
+    g.appendChild(el("text", { x: 14, y: (M.t + H - M.b) / 2, "text-anchor": "middle", fill: css("--ink2"),
+      "font-size": 12.5, "font-family": "Instrument Sans, sans-serif",
+      transform: "rotate(-90 14 " + (M.t + H - M.b) / 2 + ")" }, t("feas.axis.y")));
+    svg.appendChild(g);
+
+    // feasible polygon (clipped to domain for drawing when unbounded)
+    var poly = state.pts.slice();
+    if (!state.bounded) {
+      var clipped = [];
+      [[0, 0], [xMax, 0], [xMax, yMax], [0, yMax]].forEach(function (q) {
+        if (activeCons().every(function (r) { return r.a * q[0] + r.b * q[1] <= r.rhs + 1e-7; }))
+          clipped.push({ x: q[0], y: q[1] });
+      });
+      activeCons().forEach(function (r) {
+        var seg = clipLine(r.a, r.b, r.rhs);
+        if (seg) seg.forEach(function (p) {
+          if (activeCons().every(function (q2) { return q2.a * p[0] + q2.b * p[1] <= q2.rhs + 1e-6; }))
+            clipped.push({ x: p[0], y: p[1] });
+        });
+      });
+      poly = poly.concat(clipped);
+    }
+    if (poly.length >= 3) {
+      var cx0 = poly.reduce(function (s, p) { return s + p.x; }, 0) / poly.length;
+      var cy0 = poly.reduce(function (s, p) { return s + p.y; }, 0) / poly.length;
+      poly.sort(function (p, q) { return Math.atan2(p.y - cy0, p.x - cx0) - Math.atan2(q.y - cy0, q.x - cx0); });
+      var d = poly.map(function (p, i) { return (i ? "L" : "M") + sx(p.x) + " " + sy(p.y); }).join(" ") + " Z";
+      svg.appendChild(el("path", { d: d, fill: css("--region"), stroke: "none" }));
+    }
+
+    // constraint lines + direct labels
+    activeCons().forEach(function (r) {
+      var seg = clipLine(r.a, r.b, r.rhs);
+      if (!seg) return;
+      svg.appendChild(el("line", { x1: sx(seg[0][0]), y1: sy(seg[0][1]), x2: sx(seg[1][0]), y2: sy(seg[1][1]),
+        stroke: css(r.cvar), "stroke-width": 2, "stroke-linecap": "round" }));
+      var tt = 0.72;
+      var lx = seg[0][0] + (seg[1][0] - seg[0][0]) * tt, ly = seg[0][1] + (seg[1][1] - seg[0][1]) * tt;
+      var label = el("text", { x: sx(lx) + 6, y: sy(ly) - 7, fill: css("--ink2"), "font-size": 12,
+        "font-weight": 600, "font-family": "Instrument Sans, sans-serif",
+        stroke: css("--halo"), "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, cname(r));
+      if (sx(lx) > W - 120) { label.setAttribute("text-anchor", "end"); label.setAttribute("x", sx(lx) - 6); }
+      svg.appendChild(label);
+    });
+
+    // iso-Z line
+    if (zIso > 0) {
+      var segz = clipLine(c1, c2, zIso);
+      if (segz) {
+        svg.appendChild(el("line", { x1: sx(segz[0][0]), y1: sy(segz[0][1]), x2: sx(segz[1][0]), y2: sy(segz[1][1]),
+          stroke: css("--accent"), "stroke-width": 2.5, "stroke-dasharray": "7 6", "stroke-linecap": "round" }));
+        var mzx = (segz[0][0] + segz[1][0]) / 2, mzy = (segz[0][1] + segz[1][1]) / 2;
+        svg.appendChild(el("text", { x: sx(mzx) + 8, y: sy(mzy) - 8, fill: css("--accent-text"), "font-size": 12,
+          "font-weight": 600, "font-family": "JetBrains Mono, monospace",
+          stroke: css("--halo"), "stroke-width": 4, "paint-order": "stroke" }, "Z = " + fmt(zIso, 0)));
+      }
+    }
+
+    // vertices
+    state.pts.forEach(function (p) {
+      var isBest = state.best && Math.abs(p.x - state.best.x) < 1e-9 && Math.abs(p.y - state.best.y) < 1e-9;
+      if (isBest) {
+        svg.appendChild(el("circle", { cx: sx(p.x), cy: sy(p.y), r: 10, fill: "none",
+          stroke: css("--accent"), "stroke-width": 2 }));
+        svg.appendChild(el("circle", { cx: sx(p.x), cy: sy(p.y), r: 5, fill: css("--accent") }));
+      } else {
+        svg.appendChild(el("circle", { cx: sx(p.x), cy: sy(p.y), r: 4, fill: css("--ink"),
+          stroke: css("--surface"), "stroke-width": 1.5 }));
+      }
+    });
+
+    renderPanels();
+  }
+
+  // ---- panels ----
+  var letters = "ABCDEFGHIJKL";
+  function renderPanels() {
+    ["c1v", "c1o"].forEach(function (id) { document.getElementById(id).textContent = c1; });
+    ["c2v", "c2o"].forEach(function (id) { document.getElementById(id).textContent = c2; });
+
+    var optz = document.getElementById("optz"), optxy = document.getElementById("optxy");
+    var zslider = document.getElementById("ziso");
+    if (state.bounded && state.best) {
+      optz.textContent = fmt(state.best.z, 1) + " ha";
+      optxy.textContent = "x* = " + fmt(state.best.x, 2) + " · y* = " + fmt(state.best.y, 2);
+      zslider.max = Math.max(1, Math.ceil(state.best.z));
+      if (zIso > +zslider.max) { zIso = +zslider.max; zslider.value = zIso; }
+    } else if (!state.bounded) {
+      optz.textContent = t("feas.opt.unbounded");
+      optxy.textContent = t("feas.opt.unboundedSub");
+      zslider.max = Math.ceil(c1 * xMax + c2 * yMax);
+    } else {
+      optz.textContent = t("feas.opt.infeasible");
+      optxy.textContent = t("feas.opt.infeasibleSub");
+    }
+    document.getElementById("zisoo").textContent = fmt(zIso, 0);
+
+    // constraint rows are built once; refresh only the dynamic bits
+    cons.forEach(function (r) {
+      var ref = rowRefs[r.id];
+      var isBind = r.on && state.best && Math.abs(r.a * state.best.x + r.b * state.best.y - r.rhs) < 1e-6;
+      ref.name.textContent = cname(r);
+      ref.chk.setAttribute("aria-label", t("feas.aria.toggle", { name: cname(r) }));
+      ref.rng.setAttribute("aria-label", t("feas.aria.rhs", { name: cname(r) }));
+      ref.badge.textContent = !r.on ? t("feas.badge.off") : isBind ? t("feas.badge.binding") : t("feas.badge.slack");
+      ref.badge.classList.toggle("on", !!isBind);
+      ref.eq.textContent = eqText(r);
+      ref.out.textContent = r.rhs + " " + cunit(r);
+      ref.rng.disabled = !r.on;
+    });
+
+    // vertex table
+    var tb = document.getElementById("vtbody");
+    tb.textContent = "";
+    var sorted = state.pts.slice().sort(function (a, b) { return b.z - a.z; });
+    sorted.forEach(function (p, i) {
+      var tr = document.createElement("tr");
+      var isBest = state.bounded && state.best && p === state.best;
+      if (isBest) tr.className = "best";
+      var bind = binding(p);
+      var cells = [letters[i] || "·", fmt(p.x, 2), fmt(p.y, 2), fmt(p.z, 1),
+        bind.length ? bind.join(", ") : t("feas.tbl.nonneg")];
+      cells.forEach(function (c, j) {
+        var td = document.createElement("td");
+        if (j >= 1 && j <= 3) td.className = "num";
+        td.textContent = c + (j === 3 && isBest ? "  ← " + t("feas.tbl.optimum") : "");
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    var vn = document.getElementById("vnote");
+    if (!state.pts.length) vn.textContent = t("feas.note.empty");
+    else if (!state.bounded) vn.textContent = t("feas.note.unbounded");
+    else vn.textContent = t("feas.note.theorem", { n: state.pts.length });
+
+    // model box
+    document.getElementById("modelbox").textContent =
+      "max  Z = " + c1 + "x + " + c2 + "y        (" + t("feas.model.obj") + ")\n" +
+      t("feas.model.st") + " " + cons.map(function (r) {
+        return (r.on ? "" : "(" + t("feas.badge.off") + ") ") + eqText(r) + "   · " + cname(r).toLowerCase();
+      }).join("\n     ") +
+      "\n     x ≥ 0, y ≥ 0";
+  }
+
+  // ---- constraint rows (built once so sliders keep their drag) ----
+  var rowRefs = {};
+  (function buildRlist() {
+    var rl = document.getElementById("rlist");
+    cons.forEach(function (r) {
+      var row = document.createElement("div"); row.className = "rrow";
+      var head = document.createElement("div"); head.className = "rhead";
+      var chk = document.createElement("input"); chk.type = "checkbox"; chk.checked = r.on; chk.id = "chk-" + r.id;
+      chk.addEventListener("change", function () { r.on = chk.checked; render(); });
+      var dot = document.createElement("span"); dot.className = "rdot"; dot.style.background = "var(" + r.cvar + ")";
+      var nm = document.createElement("label"); nm.className = "rname"; nm.htmlFor = chk.id;
+      var eq = document.createElement("span"); eq.className = "req";
+      var bd = document.createElement("span"); bd.className = "badge";
+      head.append(chk, dot, nm, eq, bd);
+      var sl = document.createElement("div"); sl.className = "rslide";
+      var rng = document.createElement("input"); rng.type = "range"; rng.min = r.min; rng.max = r.max;
+      rng.step = 1; rng.value = r.rhs; rng.id = "rhs-" + r.id;
+      var out = document.createElement("output");
+      rng.addEventListener("input", function () { r.rhs = +rng.value; render(); });
+      sl.append(rng, out);
+      row.append(head, sl);
+      rl.appendChild(row);
+      rowRefs[r.id] = { name: nm, chk: chk, badge: bd, eq: eq, out: out, rng: rng };
+    });
+  })();
+
+  // ---- inputs ----
+  ["c1", "c2"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function (e) {
+      if (id === "c1") c1 = +e.target.value; else c2 = +e.target.value;
+      render();
+    });
+  });
+  document.getElementById("ziso").addEventListener("input", function (e) {
+    zIso = +e.target.value; render();
+  });
+
+  var sweeping = false;
+  document.getElementById("sweep").addEventListener("click", function () {
+    if (!state.bounded || !state.best || sweeping) return;
+    var target = state.best.z;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      zIso = Math.round(target); document.getElementById("ziso").value = zIso; render(); return;
+    }
+    sweeping = true;
+    var t0 = performance.now(), dur = 2200;
+    function step(now) {
+      var u = Math.min(1, (now - t0) / dur);
+      zIso = Math.round(target * (1 - Math.pow(1 - u, 3)));
+      document.getElementById("ziso").value = zIso;
+      render();
+      if (u < 1) requestAnimationFrame(step); else sweeping = false;
+    }
+    requestAnimationFrame(step);
+  });
+
+  // ---- hover readout ----
+  var tip = document.getElementById("tip");
+  svg.addEventListener("pointermove", function (ev) {
+    var rect = svg.getBoundingClientRect();
+    var x = ix((ev.clientX - rect.left) / rect.width * W), y = iy((ev.clientY - rect.top) / rect.height * H);
+    if (x < 0 || y < 0 || x > xMax || y > yMax) { tip.hidden = true; return; }
+    var feas = activeCons().every(function (r) { return r.a * x + r.b * y <= r.rhs + 1e-9; });
+    tip.innerHTML = "x = " + fmt(x, 1) + " · y = " + fmt(y, 1) +
+      "<br>Z = " + fmt(c1 * x + c2 * y, 0) + " ha<br>" +
+      (feas ? '<span class="si">✓ ' + t("feas.tip.yes") + "</span>" : '<span class="no">✗ ' + t("feas.tip.no") + "</span>");
+    tip.hidden = false;
+    var host = svg.parentElement.getBoundingClientRect();
+    var tx = ev.clientX - host.left + 14, ty = ev.clientY - host.top + 10;
+    if (tx + 170 > host.width) tx -= 185;
+    tip.style.left = tx + "px"; tip.style.top = ty + "px";
+  });
+  svg.addEventListener("pointerleave", function () { tip.hidden = true; });
+
+  // re-render when the OS theme flips (SVG colors are read from CSS)
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+  // first render and every language switch
+  I18N.onChange(render);
+})();
+</script>
+</body>
+</html>
