@@ -2,8 +2,8 @@
 
 Sitio estático (sin build) con dos divisiones:
 
-- **Research**: una sección por proyecto de investigación (CFLP para nanostores, localización de mercados callejeros, supresión de incendios forestales y configuración de pallets).
-- **Learning path**: cinco niveles (programación lineal, entera, entera mixta, no lineal y otros métodos de IO).
+1. **Learning path**: cinco niveles (programación lineal, entera, entera mixta, no lineal y otros métodos de IO), independientes de la investigación y abiertos a colaboradores.
+2. **Research**: una sección por caso de investigación (CFLP para nanotiendas, mercados campesinos, incendios forestales y configuración de pallets).
 
 El idioma principal es el inglés. El selector de idioma de la barra superior cambia todo el sitio a español, portugués o francés, y la elección se recuerda entre páginas.
 
@@ -31,13 +31,13 @@ Si falta una clave en un idioma, se muestra la versión en inglés.
 
 ## Añadir un recurso
 
-La guía completa para colaboradores está en [`CONTRIBUTING.md`](../CONTRIBUTING.md). En resumen:
+La guía completa para colaboradores está en [`.github/CONTRIBUTING.md`](../.github/CONTRIBUTING.md). En resumen:
 
 1. Copia `resources/_template.html` a `resources/<id>.html`.
 2. Añade una entrada en `assets/catalog.js` con `level`, `type` (`simulation`, `game` o `animation`) y `href`. `project` (caso de investigación que aplica) y `author` (quién lo aportó) son opcionales.
 3. Añade a `locales/en.js` las claves `resource.<id>.title`, `resource.<id>.summary` y los textos de la página. Los demás idiomas usan el inglés hasta que alguien los traduzca.
 
-Una entrada del catálogo sin `href` es un recurso **planeado**: aparece en la página como idea abierta para colaboradores. Los planeados actuales salen de los manuscritos y están descritos en [`docs/research-cases.md`](../docs/research-cases.md).
+Una entrada del catálogo sin `href` es un recurso **planeado**: aparece en la página como idea abierta para colaboradores. Los planeados actuales salen de los manuscritos y están descritos en [`materials/research-cases.md`](../materials/research-cases.md).
 
 ## Ver en local
 

@@ -2,10 +2,10 @@
 
 Optimization in Action is a library of small, interactive operations research resources that run in the browser. It has two divisions:
 
-- **Research**: four applied cases from Colombia (nanostores, farmers' markets, wildfire suppression, air cargo pallets). They supply real scenarios for exercises. See [`docs/research-cases.md`](docs/research-cases.md).
+- **Research**: four applied cases from Colombia (nanostores, farmers' markets, wildfire suppression, air cargo pallets). They supply real scenarios for exercises. See [`materials/research-cases.md`](../materials/research-cases.md).
 - **Learning path**: five open categories, independent of the research: 1 Linear programming, 2 Integer programming, 3 Mixed-integer programming, 4 Nonlinear programming, 5 Other OR methods.
 
-Any example, simulation, game or animation that teaches one of the five categories is welcome. It does not need to use a research case, but the planned ideas listed on the home page and in `docs/research-cases.md` are a good place to start.
+Any example, simulation, game or animation that teaches one of the five categories is welcome. It does not need to use a research case, but the planned ideas listed on the home page and in `materials/research-cases.md` are a good place to start.
 
 ## What a resource is
 
