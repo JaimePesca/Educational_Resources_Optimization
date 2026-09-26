@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="en" data-title-key="site.name">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Interactive operations research resources in five levels, and applied research cases from Colombia.">
 <title>Optimization in Action</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="assets/site.css">
@@ -153,13 +159,14 @@
 
   footer.foot { border-top: 1px solid var(--axis); margin-top: 26px; padding-top: 16px; display: grid; gap: 6px; }
 </style>
-
+</head>
+<body>
 <header class="topbar">
   <div class="topbar-in">
     <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">x*</span><span data-i18n="site.name"></span></a>
     <nav class="topnav" data-i18n-attr="aria-label:nav.sections">
-      <a href="#research" data-i18n="nav.research"></a>
       <a href="#learn" data-i18n="nav.learn"></a>
+      <a href="#research" data-i18n="nav.research"></a>
     </nav>
     <div class="lang" data-lang-switcher></div>
   </div>
@@ -173,17 +180,6 @@
     <ul class="facts" id="facts"></ul>
   </section>
 
-  <section class="division" id="research" aria-labelledby="research-h">
-    <div class="division-head">
-      <div>
-        <p class="eyebrow" data-i18n="home.research.eyebrow"></p>
-        <h2 id="research-h" data-i18n="nav.research"></h2>
-      </div>
-      <p data-i18n="home.research.intro"></p>
-    </div>
-    <div class="projects" id="projects"></div>
-  </section>
-
   <section class="division" id="learn" aria-labelledby="learn-h">
     <div class="division-head">
       <div>
@@ -193,6 +189,17 @@
       <p data-i18n="home.learn.intro"></p>
     </div>
     <div class="ladder" id="ladder"></div>
+  </section>
+
+  <section class="division" id="research" aria-labelledby="research-h">
+    <div class="division-head">
+      <div>
+        <p class="eyebrow" data-i18n="home.research.eyebrow"></p>
+        <h2 id="research-h" data-i18n="nav.research"></h2>
+      </div>
+      <p data-i18n="home.research.intro"></p>
+    </div>
+    <div class="projects" id="projects"></div>
   </section>
 
   <footer class="foot">
@@ -208,7 +215,6 @@
 (function () {
   "use strict";
   var t = I18N.t, C = window.CATALOG;
-  document.documentElement.setAttribute("data-title-key", "site.name");
 
   function h(tag, cls, text) {
     var n = document.createElement(tag);
@@ -225,8 +231,8 @@
   function renderFacts() {
     var ul = document.getElementById("facts"); ul.textContent = "";
     var live = C.resources.filter(published).length;
-    [[C.projects.length, "home.facts.projects"], [C.levels.length, "home.facts.levels"],
-     [live, "home.facts.resources"], [C.resources.length - live, "home.facts.planned"],
+    [[C.levels.length, "home.facts.levels"], [live, "home.facts.resources"],
+     [C.resources.length - live, "home.facts.planned"], [C.projects.length, "home.facts.projects"],
      [I18N.languages.length, "home.facts.languages"]]
       .forEach(function (f) {
         var li = h("li"); var b = h("b", null, f[0]);
@@ -347,3 +353,5 @@
   I18N.onChange(function () { renderFacts(); renderProjects(); renderLadder(); renderLangNote(); });
 })();
 </script>
+</body>
+</html>

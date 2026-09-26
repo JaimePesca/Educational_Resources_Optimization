@@ -1,10 +1,10 @@
 # Research cases
 
-Short briefs of the four applied cases, written for people who want to build teaching resources on them. The full manuscripts are in the repository root. Use small illustrative data in resources, and do not publish results that are not yet in print.
+Short briefs of the four applied cases, written for people who want to build teaching resources on them. The full manuscripts are in [`manuscripts/`](manuscripts/). Use small illustrative data in resources, and do not publish results that are not yet in print.
 
 ## 1. CFLP for nanostores
 
-**Manuscript:** *A Multi-product Competitive Facility Location Model for Food Purchase: Does the Store Type Matter?* (ICPR 2025, Springer LNPE). File: `A Multi-product Competitive Facility Location.pdf`.
+**Manuscript:** *A Multi-product Competitive Facility Location Model for Food Purchase: Does the Store Type Matter?* (ICPR 2025, Springer LNPE). File: [`manuscripts/nanostores-competitive-facility-location.pdf`](manuscripts/nanostores-competitive-facility-location.pdf).
 
 - **Question:** where to open a new network of nanostores (small family-run food shops) and which fresh products each one sells, to reach households in underserved areas.
 - **Case:** Chía and Cajicá, Sabana Centro region, Colombia. Household survey of 537 households (2020), 50 candidate sites, 188 existing competitors (nanostores, fruit shops, butchers, convenience stores, hard discounters, supermarkets), 3 product categories (fruits, vegetables, tubers).
@@ -18,7 +18,7 @@ Short briefs of the four applied cases, written for people who want to build tea
 
 ## 2. Locating street markets
 
-**Manuscript:** *Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP.* File: `Manuscript_IJIEC_Locating_Street_Markets.pdf`. Code and data: [JaimePesca/Locating-street-markets-Using-a-discrete-choice-model-MINLP-and-fuzzy-AHP](https://github.com/JaimePesca/Locating-street-markets-Using-a-discrete-choice-model-MINLP-and-fuzzy-AHP).
+**Manuscript:** *Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP.* File: [`manuscripts/street-markets-location.pdf`](manuscripts/street-markets-location.pdf). Code and data: [JaimePesca/Locating-street-markets-Using-a-discrete-choice-model-MINLP-and-fuzzy-AHP](https://github.com/JaimePesca/Locating-street-markets-Using-a-discrete-choice-model-MINLP-and-fuzzy-AHP).
 
 - **Question:** which parks should host Bogotá's subsidized farmers' markets (mercados campesinos), and on which days of the week, to capture the most fresh-food demand.
 - **Case:** Bosa district, Bogotá. 25 candidate parks, 271 demand zones of 300 × 300 m, 44 large competing retailers plus an aggregated "others" option, walking-distance buffer of 750 m in the base case.
@@ -32,7 +32,7 @@ Short briefs of the four applied cases, written for people who want to build tea
 
 ## 3. Wildfire suppression
 
-**Manuscript:** *The Cycle-Constrained Aerial Suppression Base and Water Point Location Problem: Joint Siting under Uncertainty with an Application to Cundinamarca, Colombia.* File: `main.pdf`.
+**Manuscript:** *The Cycle-Constrained Aerial Suppression Base and Water Point Location Problem: Joint Siting under Uncertainty with an Application to Cundinamarca, Colombia.* File: [`manuscripts/wildfire-aerial-bases-water-points.pdf`](manuscripts/wildfire-aerial-bases-water-points.pdf).
 
 - **Question:** under one budget, which aerial bases to open, how many helicopters to station and which water points to enable, so that fewer fires escape across uncertain fire days.
 - **Case:** Cundinamarca, Colombia, around the purchase of Sikorsky S-70 Firehawk helicopters. NASA FIRMS VIIRS detections for 2024 clustered into 2,425 fire events; ESA WorldCover, SRTM, NASA POWER and WorldPop layers; 120 candidate bases; 5,449 candidate water points; 200 fire-day scenarios.
@@ -49,7 +49,7 @@ Short briefs of the four applied cases, written for people who want to build tea
 
 ## 4. Optimizing pallet configuration
 
-**Manuscript:** *A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight: Integer Programming for Allocation and Online Bin Packing for Placement.* File: `manuscript_integrado_2026-09-22.pdf`.
+**Manuscript:** *A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight: Integer Programming for Allocation and Online Bin Packing for Placement.* File: [`manuscripts/flower-pallets-air-cargo.pdf`](manuscripts/flower-pallets-air-cargo.pdf).
 
 - **Question:** which flower boxes go on which pallet position of a full-charter cargo plane, and whether workers can physically stack them as boxes arrive on a conveyor.
 - **Case:** Bogotá (El Dorado) to Miami, Airbus A330-200F with 32 pallet positions, peak-season manifest of 8,500 boxes of 35 commercial types grouped into 45 classes, 65,000 kg payload and a 500 kg lateral balance limit.
