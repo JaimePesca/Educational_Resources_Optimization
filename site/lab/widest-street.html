@@ -726,8 +726,8 @@
       var wv = t < T_MORPH[1] ? 2 * lerp(BEST.h, HARD.st.h, E.inOut(seg(t, T_MORPH[0], T_MORPH[1]))) : HARD.width;
       setChip(1, fmt(wv), T("svm.k.width"), 1, "acc");
       setChip(2, String(HARD.nsv), T("svm.k.sv"), aS, "");
-      var outIn = t >= T_OUT[1];
-      setChip(3, String(outIn ? 1 : 0), T("svm.k.inside"), aS, outIn ? "hot" : "");
+      // the odd lot counts once its slack is drawn, together with the error and the infeasible objective
+      setChip(3, String(brk ? 1 : 0), T("svm.k.inside"), aS, brk ? "hot" : "");
       setChip(4, String(scan ? scan.e : (brk ? 1 : 0)), T("svm.k.err"), aS, brk ? "hot" : "");
       setChip(5, brk ? "∞" : fmt(HARD.obj, 3), T(brk ? "svm.k.objInf" : "svm.k.obj"), aS, brk ? "hot" : "acc");
       return;
@@ -938,7 +938,7 @@
       return { lab: T("svm.cmp.soft", { n: N2, c: cFmt(CS[key]) }), s: SOFT[key], key: key };
     }));
     var h = "<thead><tr><th class='rowh'>" + T("svm.cmp.case") + "</th><th class='num wide'>w₁</th><th class='num wide'>w₂</th><th class='num wide'>b</th><th class='num'>" +
-      T("svm.cmp.width") + "</th><th class='num'>" + T("svm.cmp.sv") + "</th><th class='num'>" + T("svm.cmp.in") + "</th><th class='num'>" + T("svm.cmp.err") +
+      T("svm.cmp.width") + "</th><th class='num'>" + T("svm.cmp.sv") + "</th><th class='num' style='white-space:nowrap'>" + T("svm.cmp.in") + "</th><th class='num'>" + T("svm.cmp.err") +
       "</th><th class='num'>" + T("svm.cmp.obj") + "</th></tr></thead><tbody>";
     rows.forEach(function (r) {
       var s = r.s;
