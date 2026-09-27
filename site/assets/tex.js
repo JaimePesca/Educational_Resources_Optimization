@@ -10,7 +10,8 @@
  *
  * TeX conventions: display math without delimiters, usually \begin{aligned} ... \end{aligned};
  * \text{ST} becomes the localized "s.t." (ui.st); a comma between two digits is a decimal comma
- * (so write sets as \{0, 1\} with a space). Wide formulas shrink to fit their box on phones.
+ * (so write sets as \{0, 1\} with a space). Wide formulas shrink to fit their box on phones, down to
+ * 10 px; wider ones scroll inside their box.
  */
 (function () {
   "use strict";
@@ -30,7 +31,7 @@
     var need = svg.getBoundingClientRect().width;
     if (need > box) {
       var base = parseFloat(getComputedStyle(el).fontSize);
-      el.style.fontSize = Math.max(8, Math.floor(base * box / need * 10) / 10) + "px";
+      el.style.fontSize = Math.max(10, Math.floor(base * box / need * 10) / 10) + "px"; // below 10 px the box scrolls instead
     }
   }
 
@@ -77,7 +78,7 @@
     }
     window.MathJax = {
       tex: { inlineMath: [["\\(", "\\)"]] },
-      svg: { fontCache: "global" },
+      svg: { fontCache: "global", mtextInheritFont: true }, // words in \text{} use the page font
       startup: { typeset: false, ready: function () { window.MathJax.startup.defaultReady(); start(); } }
     };
     var s = document.createElement("script");
