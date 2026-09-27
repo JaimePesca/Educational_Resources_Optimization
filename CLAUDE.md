@@ -3,6 +3,7 @@
 Static website (no build) in `site/`, published to https://learn-optimization.jaimepesca.com by `.github/workflows/pages.yml` on every push to `main` that touches `site/`. Author: Jaime Pesca (https://jaimepesca.com). The owner communicates in Spanish; reply in Spanish.
 
 ## Always
+- **Interrupted work:** if `materials/work-in-progress.md` exists, read it first: it holds the current job, its status table and the decisions already taken. Update and commit it after every step.
 - **Languages:** every visible string lives in locale files: English is the reference, plus Spanish (Colombian, "tú"), Portuguese (Brazil, "você") and French ("vous"). Shared strings in `site/locales/<lang>.js`; page strings in bundles `site/locales/<research|resources>/<id>.<lang>.js`, declared with `data-i18n-bundles` on `<html>`. Use `I18N.t()` / `I18N.fmt()` in scripts. New keys go to all four languages.
 - **Design:** MIT core palette and type through the tokens in `site/assets/site.css` (MIT Red `--accent`, Bright Red `--mit-bright`, Silver Gray `--mit-silver`, black/white ink; `var(--font-sans)` = Neue Haas Grotesk / Helvetica / Arimo). Light and dark mode, 400 px phones, square-ish corners. Never mention MIT on the site and never use its logo.
 - **Text:** no em dashes or en dashes anywhere visible. Plain, direct sentences.

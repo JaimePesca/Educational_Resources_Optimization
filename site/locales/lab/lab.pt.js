@@ -4,6 +4,8 @@ I18N.register("pt", {
   "lab.eyebrow": "Laboratório · Ideias ainda não construídas",
   "lab.lede": "Ideias para novos recursos, reunidas aqui antes que qualquer uma delas seja construída. Cada cartão diz o que o recurso mostraria e qual formato teria. Nenhuma delas foi desenvolvida ainda.",
   "lab.idea": "Ideia",
+  "lab.built": "Construído",
+  "lab.open": "Abrir",
   "lab.eqHead": "As equações",
   "lab.stepsHead": "Passo a passo",
   "lab.listLabel": "Propostas",
