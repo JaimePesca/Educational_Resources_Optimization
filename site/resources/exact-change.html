@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en" data-title-key="coin.title" data-i18n-bundles="resources/exact-change">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Exact Change</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1080px; }
+  [hidden] { display: none !important; }
+  .layout {
+    display: grid; gap: 18px; align-items: start;
+    grid-template-columns: minmax(0, 1.55fr) minmax(290px, 1fr);
+    grid-template-areas: "tbl setup" "pay eff";
+  }
+  .a-tbl { grid-area: tbl; } .a-setup { grid-area: setup; } .a-pay { grid-area: pay; } .a-eff { grid-area: eff; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "setup" "tbl" "pay" "eff"; }
+  }
+
+  /* ---- controls ---- */
+  .crow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  button.btn {
+    font: 600 14px var(--font-sans); color: var(--on-solid); background: var(--accent);
+    border: none; border-radius: 4px; padding: 10px 16px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
+  button.quiet { background: transparent; color: var(--ink2); border: 1.5px solid var(--border); }
+  #play { min-width: 112px; }
+  .sform { display: grid; gap: 14px; }
+  .field { display: grid; gap: 6px; }
+  .field > label, .flabel { font-size: 12.5px; font-weight: 600; color: var(--ink2); }
+  input[type="range"] { accent-color: var(--accent); width: 100%; }
+  .nrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+  .nrow output { font: 600 13.5px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+  .speedf { display: grid; gap: 2px; min-width: 150px; flex: 1 1 150px; max-width: 240px; }
+  .speedf label { font-size: 12px; font-weight: 600; color: var(--ink2); }
+  .speedf .nrow output { font-size: 12px; color: var(--ink2); font-weight: 400; }
+  .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .seg button {
+    font: 600 13px var(--font-sans); padding: 8px 8px; border: none; cursor: pointer; line-height: 1.3;
+    background: transparent; color: var(--ink2); text-align: center;
+  }
+  .seg button + button { border-left: 1.5px solid var(--border); }
+  .seg button:hover { background: var(--surface2); }
+  .seg button[aria-pressed="true"] { background: var(--pine); color: var(--on-solid); }
+  .desc { margin: 0; font-size: 14px; color: var(--ink2); }
+  input[type="text"] {
+    font: 500 15px var(--font-mono); color: var(--ink); background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 3px; padding: 8px 10px; width: 100%;
+  }
+  .hint { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+  .hint.err { color: var(--crit); font-weight: 600; }
+  .stepper { display: inline-flex; align-items: stretch; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; justify-self: start; }
+  .stepper button {
+    width: 40px; border: none; background: transparent; color: var(--ink); cursor: pointer;
+    font: 600 18px var(--font-mono); padding: 5px 0;
+  }
+  .stepper button:hover { background: var(--surface2); }
+  .stepper output {
+    min-width: 48px; display: grid; place-items: center; font: 600 17px var(--font-mono);
+    border-inline: 1.5px solid var(--border); color: var(--accent-text);
+  }
+  .statuspill {
+    display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+    border: 1px solid var(--border); color: var(--muted); margin-left: 6px; vertical-align: 2px;
+  }
+  .statuspill.run { color: var(--accent-text); border-color: currentColor; }
+  .statuspill.done { color: var(--pine-text); border-color: currentColor; }
+  .rmnote { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+
+  /* ---- Bellman table (inline SVG, colors from tokens) ---- */
+  .tablebox { margin-top: 14px; max-width: 100%; overflow-x: auto; }
+  svg#tbl { display: block; width: 100%; height: auto; }
+  #tbl .cr { fill: var(--surface2); stroke: var(--border); stroke-width: 1; }
+  #tbl .done .cr { fill: var(--surface); stroke: var(--axis); }
+  #tbl .cand .cr { stroke: var(--ink2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  #tbl .win .cr { stroke: var(--accent); stroke-width: 2.5; }
+  #tbl .cur .cr { fill: var(--sel); stroke: var(--accent); stroke-width: 3; }
+  #tbl .path .cr { fill: var(--accent); stroke: var(--accent); }
+  #tbl .tl { font: 10px var(--font-mono); fill: var(--muted); }
+  #tbl .tv { font: 600 19px var(--font-mono); fill: var(--ink); }
+  #tbl .tv.inf { fill: var(--muted); font-weight: 400; }
+  #tbl .pill { fill: none; stroke: var(--axis); }
+  #tbl .pt { font: 600 9.5px var(--font-mono); fill: var(--ink2); }
+  #tbl .path .tl, #tbl .path .tv, #tbl .path .pt { fill: var(--on-solid); }
+  #tbl .path .pill { stroke: var(--on-solid); }
+  #tbl .halo { fill: none; stroke: var(--halo); stroke-width: 5; }
+  #tbl .ar { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  #tbl .ar.w, #tbl .ar.b { stroke: var(--accent); stroke-width: 2.3; stroke-dasharray: none; }
+  #tbl .mk { fill: var(--muted); }
+  #tbl .mk.w { fill: var(--accent); }
+  #tbl .al { font: 600 10.5px var(--font-mono); fill: var(--ink2); paint-order: stroke; stroke: var(--halo); stroke-width: 4; }
+  #tbl .al.w { fill: var(--accent-text); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 12.5px; color: var(--ink2); }
+  .legend > span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 16px; height: 13px; border-radius: 3px; border: 1.5px solid var(--axis); background: var(--surface); flex: none; }
+  .sw.cur { background: var(--sel); border: 2.5px solid var(--accent); }
+  .sw.cand { border: 1.5px dashed var(--ink2); }
+  .sw.win { border: 2.5px solid var(--accent); }
+  .sw.path { background: var(--accent); border-color: var(--accent); }
+  .sw.pill { width: 22px; height: 11px; border-radius: 6px; border-width: 1px; background: transparent; }
+  .legend b { font: 600 14px var(--font-mono); color: var(--muted); }
+  .readout {
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--ink2);
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 3px;
+    padding: 9px 12px; line-height: 1.75; min-height: 4.2em; margin-top: 12px; overflow-wrap: anywhere;
+  }
+  .readout b { color: var(--ink); font-weight: 600; }
+  .readout .win { color: var(--accent-text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ---- coins ---- */
+  .coins { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; min-height: 48px; }
+  .coin {
+    border-radius: 50%; display: inline-grid; place-items: center; flex: none;
+    font: 600 11px var(--font-mono); color: var(--ink); background: var(--surface2);
+    border: 2px solid var(--axis); box-shadow: inset 0 0 0 2px var(--surface);
+  }
+  .coin.dp { border-color: var(--accent); background: var(--sel); }
+  .coin.gr { border-color: var(--c-aqua); }
+  .coin.pop { animation: pop 0.3s ease-out; }
+  @keyframes pop { from { transform: scale(0.3); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .coin.pop { animation: none; } }
+
+  /* ---- payment ---- */
+  .paygrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 560px) { .paygrid { grid-template-columns: minmax(0, 1fr); } }
+  .payc { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 11px 12px; }
+  .payc.dp { border-left: 4px solid var(--accent); }
+  .payc.gr { border-left: 4px solid var(--c-aqua); }
+  .ph { font-size: 13px; font-weight: 600; color: var(--ink2); margin-bottom: 8px; }
+  .pcount { font-family: var(--font-mono); font-size: 13px; color: var(--ink2); margin-top: 8px; }
+  .pcount b { font-size: 16px; color: var(--ink); }
+  .pcount .stuck, .pcount .stuck b { color: var(--crit); }
+  .pmsg { font-size: 13.5px; color: var(--muted); margin: 0; }
+  .verdict { font-weight: 700; font-size: 19px; line-height: 1.3; margin: 14px 0 4px; }
+  .verdict.good { color: var(--good-text); }
+  .verdict.bad { color: var(--accent-text); }
+  .verdict.wait { color: var(--muted); font-weight: 600; font-size: 14.5px; }
+  .guessres { color: var(--ink2); margin: 4px 0 0; font-size: 14.5px; }
+
+  /* ---- effort ---- */
+  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .tile { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 9px 11px; }
+  .tile .tl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); line-height: 1.35; }
+  .tile .tv { font-family: var(--font-mono); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 3px; overflow-wrap: anywhere; }
+  .tile .tv.best { color: var(--accent-text); }
+  .effnote { font-size: 13.5px; color: var(--ink2); margin: 12px 0 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="coin.eyebrow"></p>
+    <h1 data-i18n="coin.title"></h1>
+    <p class="lede" data-i18n-html="coin.lede"></p>
+  </header>
+
+  <div class="layout">
+    <div class="card a-tbl">
+      <h2><span class="kicker" data-i18n="coin.table.kicker"></span><span data-i18n="coin.table.title"></span> <span class="statuspill" id="status"></span></h2>
+      <div class="crow">
+        <button class="btn" id="play" type="button"></button>
+        <button class="btn quiet" id="step" type="button" data-i18n="coin.btn.step"></button>
+        <button class="btn quiet" id="finish" type="button" data-i18n="coin.btn.finish"></button>
+        <button class="btn quiet" id="restart" type="button" data-i18n="coin.btn.restart"></button>
+        <div class="speedf">
+          <label for="speed" data-i18n="coin.speed"></label>
+          <div class="nrow"><input type="range" id="speed" min="0" max="4" step="1" value="2"><output id="speedo" for="speed"></output></div>
+        </div>
+      </div>
+      <p class="rmnote" id="rmnote" data-i18n="coin.reduced" hidden></p>
+      <div class="tablebox" id="tablebox">
+        <svg id="tbl" viewBox="0 0 610 200" role="img" data-i18n-attr="aria-label:coin.table.aria"></svg>
+      </div>
+      <div class="legend">
+        <span><i class="sw cur"></i><span data-i18n="coin.legend.cur"></span></span>
+        <span><i class="sw cand"></i><span data-i18n="coin.legend.cand"></span></span>
+        <span><i class="sw win"></i><span data-i18n="coin.legend.win"></span></span>
+        <span><i class="sw path"></i><span data-i18n="coin.legend.path"></span></span>
+        <span><i class="sw pill"></i><span data-i18n="coin.legend.pill"></span></span>
+        <span><span data-i18n="coin.legend.inf"></span></span>
+      </div>
+      <div class="readout" id="readout" aria-live="polite"></div>
+    </div>
+
+    <div class="card a-setup">
+      <h2><span class="kicker" data-i18n="coin.setup.kicker"></span><span data-i18n="coin.setup.title"></span></h2>
+      <div class="sform">
+      <div class="field">
+        <span class="flabel" id="presetlbl" data-i18n="coin.preset"></span>
+        <div class="seg" role="group" aria-labelledby="presetlbl">
+          <button type="button" id="p-co" data-i18n="coin.preset.co"></button>
+          <button type="button" id="p-isl" data-i18n="coin.preset.isl"></button>
+          <button type="button" id="p-cu" data-i18n="coin.preset.cu"></button>
+        </div>
+      </div>
+      <p class="desc" id="desc"></p>
+      <div class="coins syscoins" id="syscoins" role="img"></div>
+      <div class="field" id="cufield">
+        <label for="denoms" data-i18n="coin.denoms"></label>
+        <input type="text" id="denoms" inputmode="numeric" autocomplete="off" spellcheck="false" aria-describedby="denomshint">
+        <span class="hint" id="denomshint"></span>
+      </div>
+      <div class="field">
+        <label for="amount" data-i18n="coin.amount"></label>
+        <div class="nrow"><input type="range" id="amount" min="1" max="40" step="1" value="29"><output id="amounto" for="amount"></output></div>
+      </div>
+      <div class="field">
+        <span class="flabel" id="guesslbl" data-i18n="coin.guess"></span>
+        <div class="stepper" role="group" aria-labelledby="guesslbl">
+          <button type="button" id="gdec" data-i18n-attr="aria-label:coin.guess.dec">−</button>
+          <output id="guesso" aria-live="polite">?</output>
+          <button type="button" id="ginc" data-i18n-attr="aria-label:coin.guess.inc">+</button>
+        </div>
+        <span class="hint" data-i18n="coin.guess.hint"></span>
+      </div>
+      </div>
+    </div>
+
+    <div class="card a-pay">
+      <h2><span class="kicker" data-i18n="coin.pay.kicker"></span><span id="paytitle"></span></h2>
+      <div class="paygrid">
+        <div class="payc dp">
+          <div class="ph" data-i18n="coin.pay.dp"></div>
+          <div class="coins" id="dpcoins"></div>
+          <div class="pcount" id="dpcount"></div>
+        </div>
+        <div class="payc gr">
+          <div class="ph" data-i18n="coin.pay.gr"></div>
+          <div class="coins" id="grcoins"></div>
+          <div class="pcount" id="grcount"></div>
+        </div>
+      </div>
+      <p class="verdict" id="verdict"></p>
+      <p class="guessres" id="guessres" hidden></p>
+    </div>
+
+    <div class="card a-eff">
+      <h2><span class="kicker" data-i18n="coin.eff.kicker"></span><span data-i18n="coin.eff.title"></span></h2>
+      <div class="tiles">
+        <div class="tile"><div class="tl" data-i18n="coin.eff.cells"></div><div class="tv" id="e-cells"></div></div>
+        <div class="tile"><div class="tl" data-i18n="coin.eff.cmp"></div><div class="tv best" id="e-cmp"></div></div>
+        <div class="tile"><div class="tl" data-i18n="coin.eff.box"></div><div class="tv" id="e-box"></div></div>
+        <div class="tile"><div class="tl" data-i18n="coin.eff.ways"></div><div class="tv" id="e-ways"></div></div>
+      </div>
+      <p class="effnote" id="e-note"></p>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="coin.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="coin.d1.p1"></p>
+        <div class="formula" data-i18n="coin.d1.formula"></div>
+        <p data-i18n-html="coin.d1.p2"></p>
+        <div class="formula" data-i18n="coin.d1.formula2"></div>
+        <p data-i18n-html="coin.d1.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="coin.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="coin.d2.p1"></p>
+        <p data-i18n-html="coin.d2.p2"></p>
+        <p data-i18n-html="coin.d2.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="coin.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="coin.d3.p1"></p>
+        <p data-i18n-html="coin.d3.p2"></p>
+        <p data-i18n-html="coin.d3.p3"></p>
+        <p data-i18n-html="coin.d3.p4"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="coin.d4.title"></summary>
+      <div class="body">
+        <p data-i18n-html="coin.d4.p1"></p>
+        <p data-i18n-html="coin.d4.p2"></p>
+        <p data-i18n-html="coin.d4.p3"></p>
+        <p data-i18n-html="coin.d4.p4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="coin.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/exact-change.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---- core: exact algorithms (checked against brute force enumeration with node) ----
+  // D: distinct positive integers in increasing order. A: amount (same units).
+  function solveDP(D, A) {
+    var f = [0], coin = [0], cands = [[]], pref = [0];
+    for (var a = 1; a <= A; a++) {
+      var best = Infinity, bc = 0, list = [];
+      for (var j = 0; j < D.length && D[j] <= a; j++) {
+        var v = f[a - D[j]];
+        list.push({ d: D[j], from: a - D[j], v: v });
+        if (v < Infinity && v + 1 <= best) { best = v + 1; bc = D[j]; } // ties: keep the larger coin
+      }
+      f.push(best); coin.push(bc); cands.push(list); pref.push(pref[a - 1] + list.length);
+    }
+    var path = [];
+    for (var x = A; f[A] < Infinity && x > 0; x -= coin[x]) path.push({ a: x, d: coin[x], to: x - coin[x] });
+    return { f: f, coin: coin, cands: cands, pref: pref, path: path };
+  }
+  function solveGreedy(D, A) {
+    var rem = A, out = [];
+    for (var j = D.length - 1; j >= 0; j--) while (D[j] <= rem) { out.push(D[j]); rem -= D[j]; }
+    return { coins: out, rem: rem };
+  }
+  function bruteBox(D, A) { return D.reduce(function (p, d) { return p * (Math.floor(A / d) + 1); }, 1); }
+  function countWays(D, A) {
+    var w = [1];
+    for (var a = 1; a <= A; a++) w.push(0);
+    D.forEach(function (d) { for (var b = d; b <= A; b++) w[b] += w[b - d]; });
+    return w[A];
+  }
+  // ---- end core ----
+
+  // Colombian coins 50, 100, 200, 500, 1000 pesos, stored in units of 50 pesos
+  var PRESETS = { co: [1, 2, 4, 10, 20], isl: [1, 5, 12] };
+  var SPEEDS = [0.8, 1.5, 3, 6, 12]; // steps per second
+  var AMAX = 40;
+
+  var preset = "co", amounts = { co: 29, isl: 15, cu: 9 }, cuText = "3, 5", cuCoins = [3, 5], cuErr = false;
+  var pos = 0, running = false, guess = null, speed = 2, prevBack = 0;
+  var sol = null, cols = 10;
+  var reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
+  try { var sv = +localStorage.getItem("ec-speed"); if (sv >= 0 && sv <= 4 && localStorage.getItem("ec-speed") !== null) speed = sv; } catch (e) { /* ok */ }
+
+  function coins() { return preset === "cu" ? cuCoins : PRESETS[preset]; }
+  function unit() { return preset === "co" ? 50 : 1; }
+  function amt(u) { return I18N.fmt(u * unit(), 0); }
+  function amtU(u) { return preset === "co" ? t("coin.pesos", { v: amt(u) }) : amt(u); }
+  function fv(v) { return v === Infinity ? "∞" : I18N.fmt(v, 0); }
+  function nc(n) { return t(n === 1 ? "coin.n1" : "coin.nN", { n: I18N.fmt(n, 0) }); }
+
+  function parseCoins(s) {
+    var set = [];
+    String(s).split(/[^0-9]+/).filter(Boolean).forEach(function (p) {
+      var v = parseInt(p, 10);
+      if (set.indexOf(v) < 0) set.push(v);
+    });
+    set.sort(function (a, b) { return a - b; });
+    if (!set.length || set.length > 6 || set.some(function (v) { return v < 1 || v > 40; })) return null;
+    return set;
+  }
+
+  function recompute() {
+    var D = coins(), A = amounts[preset];
+    sol = solveDP(D, A);
+    sol.D = D; sol.A = A;
+    sol.gr = solveGreedy(D, A);
+    sol.box = bruteBox(D, A);
+    sol.ways = countWays(D, A);
+    sol.total = A + sol.path.length;
+    if (pos > sol.total) pos = sol.total;
+  }
+  function stage() {
+    var A = sol.A;
+    return { filled: Math.min(pos, A), cur: pos >= 1 && pos <= A ? pos : 0, backN: Math.max(0, pos - A), done: pos >= sol.total };
+  }
+
+  // ---- SVG table ----
+  var NS = "http://www.w3.org/2000/svg";
+  var CW = 54, CH = 60, GX = 6, GY = 24, PAD = 8, PADR = 38, PADT = 44; // PADR: gutter for same-column arrows
+  function el(tag, attrs, parent) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function txt(parent, x, y, s, cls, anchor) {
+    var n = el("text", { x: x, y: y, "class": cls, "text-anchor": anchor || "start" }, parent);
+    n.textContent = s;
+    return n;
+  }
+  function fitCols() {
+    var w = ($("tablebox").clientWidth || 600) * 1.05; // allow a slight downscale
+    var c = Math.max(4, Math.min(10, Math.floor((w - PAD - PADR + GX) / (CW + GX))));
+    var changed = c !== cols;
+    cols = c;
+    return changed;
+  }
+  function box(a) {
+    var c = a % cols, r = Math.floor(a / cols);
+    return { x: PAD + c * (CW + GX), y: PADT + r * (CH + GY), c: c, r: r };
+  }
+  function arrow(g, from, to, kind, label) {
+    var p = box(from), q = box(to), s, e, c;
+    if (p.r === q.r) {
+      s = [p.x + CW / 2, p.y]; e = [q.x + CW / 2, q.y];
+      var h = Math.min(34, 10 + 0.12 * Math.abs(e[0] - s[0]));
+      c = [(s[0] + e[0]) / 2, p.y - 2 * h];
+    } else if (p.c === q.c) { // same column: run along the right edge, through the column gap
+      s = [p.x + CW, p.y + CH / 2]; e = [q.x + CW, q.y + CH / 2];
+      c = [p.x + CW + 2 * (8 + 0.03 * Math.abs(e[1] - s[1])), (s[1] + e[1]) / 2];
+    } else {
+      var down = p.r < q.r;
+      s = [p.x + CW / 2, down ? p.y + CH : p.y];
+      e = [q.x + CW / 2, down ? q.y : q.y + CH];
+      var mx = (s[0] + e[0]) / 2, my = (s[1] + e[1]) / 2;
+      var dx = e[0] - s[0], dy = e[1] - s[1], len = Math.sqrt(dx * dx + dy * dy) || 1, k = 0.16 * len;
+      c = [mx - dy / len * k, my + dx / len * k];
+    }
+    var d = "M" + s[0] + " " + s[1] + " Q" + c[0].toFixed(1) + " " + c[1].toFixed(1) + " " + e[0] + " " + e[1];
+    el("path", { d: d, "class": "halo" }, g);
+    el("path", { d: d, "class": "ar " + kind, "marker-end": "url(#ah-" + (kind === "" ? "m" : "w") + ")" }, g);
+    var lx = 0.25 * s[0] + 0.5 * c[0] + 0.25 * e[0], ly = 0.25 * s[1] + 0.5 * c[1] + 0.25 * e[1];
+    txt(g, lx, ly + 4, label, "al" + (kind === "" ? "" : " w"), "middle");
+  }
+
+  function drawTable() {
+    var svg = $("tbl");
+    svg.textContent = "";
+    var A = sol.A, st = stage(), rows = Math.ceil((A + 1) / cols);
+    var W = PAD + PADR + cols * CW + (cols - 1) * GX, H = PADT + rows * CH + (rows - 1) * GY + PAD;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var defs = el("defs", {}, svg);
+    ["m", "w"].forEach(function (k) {
+      var mk = el("marker", { id: "ah-" + k, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 8, markerHeight: 8,
+        orient: "auto", markerUnits: "userSpaceOnUse" }, defs);
+      el("path", { d: "M0,0 L10,5 L0,10 z", "class": "mk" + (k === "w" ? " w" : "") }, mk);
+    });
+
+    var cand = {}, win = -1, onPath = {};
+    if (st.cur) {
+      sol.cands[st.cur].forEach(function (c) { cand[c.from] = c; });
+      if (sol.f[st.cur] < Infinity) win = st.cur - sol.coin[st.cur];
+    }
+    if (st.backN > 0) {
+      onPath[A] = true;
+      for (var i = 0; i < st.backN; i++) onPath[sol.path[i].to] = true;
+    }
+    var gc = el("g", {}, svg);
+    for (var a = 0; a <= A; a++) {
+      var b = box(a), known = a <= st.filled, cls = known ? "done" : "";
+      if (onPath[a]) cls += " path";
+      else if (st.cur && a === st.cur) cls += " cur";
+      else if (a === win) cls += " win";
+      else if (cand[a]) cls += " cand";
+      var g = el("g", { "class": cls }, gc);
+      el("rect", { x: b.x, y: b.y, width: CW, height: CH, rx: 3, "class": "cr" }, g);
+      txt(g, b.x + 5, b.y + 13, amt(a), "tl");
+      if (!known) continue;
+      var fa = sol.f[a];
+      txt(g, b.x + CW / 2, b.y + 37, fv(fa), "tv" + (fa === Infinity ? " inf" : ""), "middle");
+      if (a > 0 && fa < Infinity) {
+        var s = amt(sol.coin[a]), pw = Math.max(20, s.length * 6.1 + 9);
+        el("rect", { x: b.x + CW / 2 - pw / 2, y: b.y + CH - 17, width: pw, height: 13, rx: 6.5, "class": "pill" }, g);
+        txt(g, b.x + CW / 2, b.y + CH - 7.5, s, "pt", "middle");
+      }
+    }
+    var ga = el("g", {}, svg);
+    if (st.cur) {
+      var list = sol.cands[st.cur].slice().sort(function (x, y) { return (x.from === win) - (y.from === win); });
+      list.forEach(function (c) { arrow(ga, c.from, st.cur, c.from === win ? "w" : "", "+" + amt(c.d)); });
+    }
+    for (var k = 0; k < st.backN; k++) {
+      var p = sol.path[k];
+      arrow(ga, p.a, p.to, "b", "−" + amt(p.d));
+    }
+  }
+
+  // ---- text panels ----
+  function fillText(a) {
+    var cs = sol.cands[a];
+    if (!cs.length) return t("coin.read.noFit", { a: amt(a) });
+    var fa = sol.f[a], win = fa < Infinity ? sol.coin[a] : -1;
+    var list = cs.map(function (c) {
+      var s = "f(" + amt(c.from) + ") = " + fv(c.v);
+      return c.d === win ? '<span class="win">' + s + "</span>" : s;
+    }).join(", ");
+    if (fa === Infinity) return t("coin.read.allInf", { a: amt(a), list: list });
+    return t("coin.read.fill", { a: amt(a), list: list, best: fv(fa - 1), val: fv(fa), coin: amt(win) });
+  }
+  function renderReadout() {
+    var st = stage(), A = sol.A, parts = [];
+    if (pos === 0) parts.push(t("coin.read.start"));
+    if (st.cur) parts.push(fillText(st.cur));
+    if (pos === A && !st.done) parts.push(t("coin.read.full", { A: amt(A), k: fv(sol.f[A]) }));
+    if (st.backN > 0) {
+      var p = sol.path[st.backN - 1];
+      parts.push(t("coin.read.back", { a: amt(p.a), d: amt(p.d), to: amt(p.to) }));
+    }
+    if (st.done) {
+      parts.push(sol.f[A] === Infinity ? t("coin.read.doneInf", { A: amt(A) }) :
+        t("coin.read.done", { A: amtU(A), n: nc(sol.f[A]), sum: sol.path.map(function (q) { return amt(q.d); }).join(" + ") }));
+    }
+    $("readout").innerHTML = parts.join("<br>");
+  }
+
+  function coinEls(host, list, cls, popFrom) {
+    host.textContent = "";
+    var D = sol.D, n = D.length;
+    list.forEach(function (d, i) {
+      var s = document.createElement("span"), rank = D.indexOf(d);
+      var size = n > 1 ? 32 + Math.round(14 * rank / (n - 1)) : 38;
+      s.className = "coin" + (cls ? " " + cls : "") + (i >= popFrom ? " pop" : "");
+      s.style.width = s.style.height = size + "px";
+      var label = amt(d);
+      if (label.length >= 4) s.style.fontSize = "9.5px";
+      s.textContent = label;
+      host.appendChild(s);
+    });
+  }
+
+  function renderPayment() {
+    var st = stage(), A = sol.A, k = sol.f[A], g = sol.gr;
+    $("paytitle").textContent = t("coin.pay.title", { A: amtU(A) });
+    coinEls($("grcoins"), g.coins, "gr", 999);
+    $("grcount").innerHTML = g.rem > 0 ?
+      '<span class="stuck">' + t("coin.pay.stuck", { r: amt(g.rem) }) + "</span>" :
+      t("coin.pay.count", { n: nc(g.coins.length) });
+
+    var dp = $("dpcoins"), dc = $("dpcount");
+    if (st.backN > 0) {
+      var got = sol.path.slice(0, st.backN).map(function (p) { return p.d; });
+      coinEls(dp, got, "dp", st.backN > prevBack && !reduceMQ.matches ? st.backN - 1 : 999);
+      dc.innerHTML = st.done ? t("coin.pay.count", { n: nc(k) }) : t("coin.pay.partial", { got: fv(st.backN), k: fv(k) });
+    } else {
+      dp.textContent = "";
+      var p = document.createElement("p");
+      p.className = "pmsg";
+      p.textContent = st.done ? t("coin.pay.none") : pos === A ? t("coin.pay.full", { n: nc(k) }) : t("coin.pay.wait");
+      dp.appendChild(p);
+      dc.textContent = "";
+    }
+    prevBack = st.backN;
+
+    var v = $("verdict"), vk, vc;
+    if (!st.done) { vk = t("coin.verdict.wait"); vc = "wait"; }
+    else if (k === Infinity) { vk = t("coin.verdict.inf", { A: amtU(A) }); vc = ""; }
+    else if (g.rem > 0) { vk = t("coin.verdict.stuck", { k: nc(k) }); vc = "bad"; }
+    else if (g.coins.length === k) { vk = t("coin.verdict.same", { n: nc(k) }); vc = "good"; }
+    else { vk = t("coin.verdict.worse", { diff: nc(g.coins.length - k), g: nc(g.coins.length), k: nc(k) }); vc = "bad"; }
+    v.textContent = vk;
+    v.className = "verdict" + (vc ? " " + vc : "");
+
+    var gr = $("guessres");
+    gr.hidden = !(st.done && guess != null);
+    if (!gr.hidden) {
+      var key = k === Infinity ? "inf" : guess === k ? "right" : guess > k ? "high" : "low";
+      gr.textContent = t("coin.guessres." + key, { g: nc(guess), k: nc(k) });
+    }
+  }
+
+  function renderEffort() {
+    var st = stage(), A = sol.A, n = sol.D.length;
+    $("e-cells").textContent = I18N.fmt(st.filled, 0) + " / " + I18N.fmt(A, 0);
+    $("e-cmp").textContent = I18N.fmt(sol.pref[st.filled], 0);
+    $("e-box").textContent = I18N.fmt(sol.box, 0);
+    $("e-ways").textContent = I18N.fmt(sol.ways, 0);
+    $("e-note").textContent = t("coin.eff.note", {
+      cells: I18N.fmt(A, 0), cmp: I18N.fmt(sol.pref[A], 0), n: I18N.fmt(n, 0), an: I18N.fmt(A * n, 0),
+      box: I18N.fmt(sol.box, 0), ways: I18N.fmt(sol.ways, 0)
+    });
+  }
+
+  function renderControls() {
+    var st = stage(), reduce = reduceMQ.matches;
+    var key = st.done ? "done" : running ? (pos > sol.A ? "back" : "running") : pos === 0 ? "ready" : "paused";
+    var pill = $("status");
+    pill.textContent = t("coin.status." + key);
+    pill.className = "statuspill" + (running ? " run" : st.done ? " done" : "");
+    $("play").textContent = running ? "❚❚ " + t("coin.btn.pause") : "▶ " + t("coin.btn.play");
+    $("play").hidden = reduce;
+    $("rmnote").hidden = !reduce;
+    $("step").disabled = st.done;
+    $("finish").disabled = st.done;
+    $("restart").disabled = pos === 0;
+    $("speed").value = speed;
+    $("speedo").textContent = I18N.fmt(SPEEDS[speed], 1) + " " + t("coin.perSec");
+  }
+
+  function renderSetup() {
+    ["co", "isl", "cu"].forEach(function (k) { $("p-" + k).setAttribute("aria-pressed", k === preset ? "true" : "false"); });
+    $("desc").textContent = t("coin.desc." + preset);
+    $("cufield").hidden = preset !== "cu";
+    if (document.activeElement !== $("denoms")) $("denoms").value = cuText;
+    var hint = $("denomshint");
+    hint.textContent = t(cuErr ? "coin.denoms.err" : "coin.denoms.hint");
+    hint.className = "hint" + (cuErr ? " err" : "");
+    coinEls($("syscoins"), sol.D, "", 999);
+    $("syscoins").setAttribute("aria-label", t("coin.sysAria") + ": " + sol.D.map(amt).join(", "));
+    var r = $("amount");
+    r.value = sol.A;
+    r.setAttribute("aria-valuetext", amtU(sol.A));
+    $("amounto").textContent = amtU(sol.A);
+    $("guesso").textContent = guess == null ? "?" : I18N.fmt(guess, 0);
+  }
+
+  function renderDyn() {
+    drawTable(); renderReadout(); renderControls(); renderEffort(); renderPayment(); persist();
+  }
+  function renderAll() {
+    fitCols(); renderSetup(); renderDyn();
+  }
+
+  // ---- animation ----
+  var lastT = 0, acc = 0;
+  function loop(now) {
+    if (!running) return;
+    var iv = 1000 / SPEEDS[speed];
+    acc = Math.min(acc + (lastT ? now - lastT : 0), 2 * iv);
+    lastT = now;
+    var moved = false;
+    while (acc >= iv && pos < sol.total) { acc -= iv; pos++; moved = true; }
+    if (pos >= sol.total) running = false;
+    if (moved || !running) renderDyn();
+    if (running) requestAnimationFrame(loop);
+  }
+  function play() {
+    if (pos >= sol.total) pos = 0;
+    running = true; lastT = 0; acc = 1000 / SPEEDS[speed];
+    renderDyn();
+    requestAnimationFrame(loop);
+  }
+  function problemChanged() { running = false; pos = 0; prevBack = 0; guess = null; recompute(); renderAll(); }
+
+  $("play").addEventListener("click", function () {
+    if (running) { running = false; renderDyn(); } else play();
+  });
+  $("step").addEventListener("click", function () {
+    running = false;
+    if (pos < sol.total) pos++;
+    renderDyn();
+  });
+  $("finish").addEventListener("click", function () { running = false; pos = sol.total; prevBack = sol.path.length; renderDyn(); });
+  $("restart").addEventListener("click", function () { running = false; pos = 0; prevBack = 0; renderDyn(); });
+  $("speed").addEventListener("input", function (e) {
+    speed = +e.target.value;
+    try { localStorage.setItem("ec-speed", String(speed)); } catch (err) { /* ok */ }
+    renderControls();
+  });
+  ["co", "isl", "cu"].forEach(function (k) {
+    $("p-" + k).addEventListener("click", function () {
+      if (preset === k) return;
+      preset = k;
+      problemChanged();
+    });
+  });
+  $("denoms").addEventListener("input", function (e) {
+    cuText = e.target.value;
+    var c = parseCoins(cuText);
+    cuErr = !c;
+    if (c && c.join(",") !== cuCoins.join(",")) { cuCoins = c; problemChanged(); }
+    else renderSetup();
+  });
+  $("denoms").addEventListener("blur", function () { if (!cuErr) { cuText = cuCoins.join(", "); renderSetup(); } });
+  $("amount").addEventListener("input", function (e) {
+    amounts[preset] = Math.max(1, Math.min(AMAX, +e.target.value));
+    problemChanged();
+  });
+  $("ginc").addEventListener("click", function () {
+    guess = guess == null ? 1 : Math.min(99, guess + 1);
+    renderSetup(); renderPayment(); persist();
+  });
+  $("gdec").addEventListener("click", function () {
+    guess = guess == null || guess <= 1 ? null : guess - 1;
+    renderSetup(); renderPayment(); persist();
+  });
+
+  window.addEventListener("resize", function () { if (fitCols()) drawTable(); });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawTable);
+  reduceMQ.addEventListener("change", function () { if (reduceMQ.matches) running = false; renderControls(); });
+
+  // ---- hot reload state (survives republish while the page is open) ----
+  function persist() {
+    if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+      try {
+        window.claude.hot.snapshot({ preset: preset, amounts: amounts, cuText: cuText, cuCoins: cuCoins, pos: pos, guess: guess });
+      } catch (e) { /* ok */ }
+    }
+  }
+  function start(data) {
+    if (data && (data.preset === "co" || data.preset === "isl" || data.preset === "cu")) {
+      preset = data.preset;
+      if (data.amounts) ["co", "isl", "cu"].forEach(function (k) {
+        var v = +data.amounts[k];
+        if (v >= 1 && v <= AMAX) amounts[k] = Math.round(v);
+      });
+      var c = parseCoins((data.cuCoins || []).join(","));
+      if (c) { cuCoins = c; cuText = typeof data.cuText === "string" ? data.cuText : c.join(", "); }
+      if (typeof data.guess === "number" && data.guess >= 1) guess = Math.round(data.guess);
+      if (typeof data.pos === "number" && data.pos >= 0) pos = Math.floor(data.pos);
+    }
+    recompute();
+    prevBack = stage().backN;
+    I18N.onChange(renderAll); // first render and every language switch
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.ready) {
+    window.claude.hot.ready(start);
+  } else {
+    start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+  }
+})();
+</script>
+</body>
+</html>

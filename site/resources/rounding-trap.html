@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en" data-title-key="rnd.title" data-i18n-bundles="resources/rounding-trap">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Rounding Is Not Enough</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1080px; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(290px, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 880px) { .layout { grid-template-columns: 1fr; } }
+
+  /* ---- presets ---- */
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pbtn {
+    font: 600 13.5px var(--font-sans); padding: 8px 14px; border-radius: 99px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink2); cursor: pointer;
+  }
+  .pbtn:hover { border-color: var(--pine); }
+  .pbtn[aria-pressed="true"] { background: var(--pine); color: var(--on-solid); border-color: var(--pine); }
+  .pbrief { margin: 0; max-width: 78ch; color: var(--ink2); font-size: 14.5px; border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; }
+
+  /* ---- plot ---- */
+  .plotcard { position: relative; }
+  svg#plot { display: block; width: 100%; height: auto; touch-action: pan-y; }
+  .plot-foot { display: flex; flex-wrap: wrap; gap: 7px 16px; margin-top: 10px; align-items: center; }
+  .li { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink2); }
+  .sw { flex: none; display: inline-block; }
+  .sw.area { width: 13px; height: 13px; border-radius: 3px; background: var(--region); border: 1px solid var(--axis); }
+  .sw.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ink2); }
+  .sw.hollow { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--axis); }
+  .sw.dia { width: 9px; height: 9px; background: var(--accent); transform: rotate(45deg); }
+  .sw.ring { width: 13px; height: 13px; border-radius: 50%; border: 2.5px solid var(--good); }
+  .sw.cell { width: 13px; height: 13px; border: 1.5px dashed var(--muted); }
+  .sw.dash { width: 16px; height: 3px; background: repeating-linear-gradient(90deg, var(--accent) 0 4px, transparent 4px 7px); }
+  .sw.hull { width: 13px; height: 13px; border: 2px solid var(--good); border-radius: 2px; }
+  .toggle { display: flex; align-items: center; gap: 9px; margin-top: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  input[type="checkbox"] { accent-color: var(--pine); width: 16px; height: 16px; margin: 0; }
+  #hullnote { margin: 6px 0 0; font-size: 13.5px; color: var(--ink2); max-width: 70ch; }
+  #tip {
+    position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 3px; padding: 7px 10px; font-family: "JetBrains Mono", monospace; font-size: 12px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.16); white-space: nowrap; z-index: 5; line-height: 1.5; color: var(--ink);
+  }
+  #tip .no { color: var(--crit); }
+  #tip .si { color: var(--good-text); }
+
+  /* ---- side panels ---- */
+  .stack { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .stat { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 9px 11px; min-width: 0; }
+  .stat small { display: block; font-size: 12px; color: var(--ink2); line-height: 1.3; }
+  .stat .v { display: block; font: 600 21px "JetBrains Mono", monospace; margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .stat .v.lp { color: var(--accent-text); }
+  .stat .v.ip { color: var(--good-text); }
+  .stat .s { display: block; font: 11.5px "JetBrains Mono", monospace; color: var(--muted); margin-top: 1px; }
+  .obj-eq {
+    font-family: "JetBrains Mono", monospace; font-size: 14px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 3px; padding: 9px 12px; margin-bottom: 10px;
+  }
+  .obj-eq b { color: var(--accent-text); font-weight: 600; }
+  .ctl { display: grid; grid-template-columns: minmax(0, auto) 1fr auto; gap: 10px; align-items: center; padding-block: 6px; }
+  .ctl label { font-size: 13.5px; color: var(--ink2); }
+  .ctl output, .rslide output {
+    font-family: "JetBrains Mono", monospace; font-size: 12.5px; font-weight: 600;
+    min-width: 4ch; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; min-width: 60px; }
+  .rrow { border-top: 1px solid var(--border); padding-block: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .rrow:first-child { border-top: none; padding-top: 2px; }
+  .rhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .rdot { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+  .rname { font-weight: 600; font-size: 14px; }
+  .req { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--ink2); }
+  .badge {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 99px;
+    border: 1px solid var(--border); color: var(--muted); margin-left: auto; white-space: nowrap;
+  }
+  .badge.on { color: var(--accent-text); border-color: currentColor; }
+  .rslide { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding-left: 19px; }
+  button.btn {
+    font: 600 13.5px var(--font-sans); color: var(--on-solid); background: var(--accent);
+    border: none; border-radius: 3px; padding: 8px 13px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.quiet { background: transparent; color: var(--ink2); border: 1.5px solid var(--border); }
+  .cardhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+
+  /* ---- rounding table ---- */
+  .tblwrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th {
+    text-align: left; font-family: "JetBrains Mono", monospace; font-weight: 400; font-size: 10.5px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--axis); padding: 6px 8px; vertical-align: bottom;
+  }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; vertical-align: top; }
+  td.num { font-family: "JetBrains Mono", monospace; font-size: 12.5px; white-space: nowrap; }
+  td .nota { display: block; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--muted); }
+  td .no { color: var(--crit); }
+  td .si { color: var(--good-text); }
+  tr.off td.num { color: var(--muted); }
+  tr.best td { background: var(--sel); }
+  tr.best td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+  tr.ipopt td { background: var(--region); font-weight: 600; }
+  tr.ipopt td:first-child { box-shadow: inset 3px 0 0 var(--good); }
+  tbody tr:hover td { outline: 1px solid var(--border); outline-offset: -1px; }
+  .tag { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 99px; background: var(--accent); color: var(--on-solid); margin-top: 3px; }
+  #verdict { margin-top: 12px; color: var(--ink2); font-size: 14.5px; max-width: 76ch; }
+  #verdict b { color: var(--ink); }
+  @media (max-width: 560px) {
+    th, td { padding: 6px 4px; }
+    th { font-size: 9.5px; letter-spacing: 0.05em; }
+    table { font-size: 12.5px; }
+    td.num { font-size: 11.5px; }
+    td.loss { white-space: normal; }
+    td.loss .lp2 { display: block; }
+    td .nota { display: none; }
+    .stat .v { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="rnd.eyebrow"></p>
+    <h1 data-i18n="rnd.title"></h1>
+    <p class="lede" data-i18n-html="rnd.lede"></p>
+  </header>
+
+  <nav class="presets" id="presets" data-i18n-attr="aria-label:rnd.presetsAria"></nav>
+  <p class="pbrief" id="pbrief"></p>
+
+  <div class="layout">
+    <div class="card plotcard">
+      <h2><span class="kicker" data-i18n="rnd.plot.kicker"></span><span data-i18n="rnd.plot.title"></span></h2>
+      <svg id="plot" viewBox="0 0 600 596" role="img" data-i18n-attr="aria-label:rnd.plot.aria"></svg>
+      <div id="tip" hidden></div>
+      <div class="plot-foot">
+        <span class="li"><span class="sw area"></span><span data-i18n="rnd.lg.region"></span></span>
+        <span class="li"><span class="sw dot"></span><span data-i18n="rnd.lg.feas"></span></span>
+        <span class="li"><span class="sw hollow"></span><span data-i18n="rnd.lg.infeas"></span></span>
+        <span class="li"><span class="sw dia"></span><span data-i18n="rnd.lg.lp"></span></span>
+        <span class="li"><span class="sw ring"></span><span data-i18n="rnd.lg.ip"></span></span>
+        <span class="li"><span class="sw cell"></span><span data-i18n="rnd.lg.cell"></span></span>
+        <span class="li"><span class="sw dash"></span><span data-i18n="rnd.lg.iso"></span></span>
+      </div>
+      <label class="toggle" for="hullchk"><input type="checkbox" id="hullchk"> <span class="sw hull"></span><span data-i18n="rnd.hull.toggle"></span></label>
+      <p id="hullnote"></p>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <h2><span class="kicker" data-i18n="rnd.sum.kicker"></span><span data-i18n="rnd.sum.title"></span></h2>
+        <div class="stats">
+          <div class="stat"><small data-i18n="rnd.sum.zlp"></small><span class="v lp" id="s-zlp"></span><span class="s" id="s-zlp2"></span></div>
+          <div class="stat"><small data-i18n="rnd.sum.zip"></small><span class="v ip" id="s-zip"></span><span class="s" id="s-zip2"></span></div>
+          <div class="stat"><small data-i18n="rnd.sum.gap"></small><span class="v" id="s-gap"></span><span class="s" id="s-gap2"></span></div>
+          <div class="stat"><small data-i18n="rnd.sum.npts"></small><span class="v" id="s-n"></span><span class="s" id="s-n2"></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardhead">
+          <h2><span class="kicker" data-i18n="rnd.obj.kicker"></span><span data-i18n="rnd.obj.title"></span></h2>
+          <button class="btn quiet" id="reset" type="button" data-i18n="rnd.reset"></button>
+        </div>
+        <div class="obj-eq">max&nbsp; Z = <b><span id="c1v"></span>·x₁</b> + <b><span id="c2v"></span>·x₂</b></div>
+        <div class="ctl">
+          <label for="c1" data-i18n="rnd.obj.c1"></label>
+          <input type="range" id="c1" min="1" max="40" step="1" value="20">
+          <output id="c1o" for="c1"></output>
+        </div>
+        <div class="ctl">
+          <label for="c2" data-i18n="rnd.obj.c2"></label>
+          <input type="range" id="c2" min="1" max="40" step="1" value="12">
+          <output id="c2o" for="c2"></output>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="kicker" data-i18n="rnd.cons.kicker"></span><span data-i18n="rnd.cons.title"></span></h2>
+        <div id="rlist"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="rnd.tbl.kicker"></span><span id="tbltitle"></span></h2>
+    <div class="tblwrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-i18n="rnd.tbl.strategy"></th>
+            <th data-i18n="rnd.tbl.point"></th>
+            <th data-i18n="rnd.tbl.feasible"></th>
+            <th>Z</th>
+            <th data-i18n="rnd.tbl.loss"></th>
+          </tr>
+        </thead>
+        <tbody id="rtbody"></tbody>
+      </table>
+    </div>
+    <p id="verdict"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="rnd.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="rnd.d1.p1"></p>
+        <div class="formula" id="modelbox"></div>
+        <p data-i18n-html="rnd.d1.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="rnd.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="rnd.d2.p1"></p>
+        <p data-i18n-html="rnd.d2.p2"></p>
+        <p data-i18n-html="rnd.d2.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="rnd.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="rnd.d3.p1"></p>
+        <p data-i18n-html="rnd.d3.p2"></p>
+        <p data-i18n-html="rnd.d3.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="rnd.d4.title"></summary>
+      <div class="body">
+        <p data-i18n-html="rnd.d4.p1"></p>
+        <p data-i18n-html="rnd.d4.p2"></p>
+        <p data-i18n-html="rnd.d4.p3"></p>
+        <p data-i18n-html="rnd.d4.p4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="rnd.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/rounding-trap.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var css = function (name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); };
+  var fmt = function (v, d) { return I18N.fmt(v, d == null ? 2 : d); };
+  var pct = function (v) { return t("rnd.pct", { v: I18N.fmt(v, 1) }); };
+  var pt = function (x, y, d) { return "(" + fmt(x, d) + t("rnd.sep") + fmt(y, d) + ")"; };
+  var SANS = "Neue Haas Grotesk Text, Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, monospace";
+
+  // ---- presets: whole trucks x1 and vans x2; data verified with node (see report) ----
+  var PRESETS = [
+    { c: [20, 12], cons: [
+      { id: "budget", a: 90, b: 30, rhs: 300, min: 150, max: 500, step: 10 },
+      { id: "parking", a: 1, b: 1, rhs: 6, min: 2, max: 10, step: 1 },
+      { id: "drivers", a: 1, b: 3, rhs: 10, min: 4, max: 20, step: 1 } ] },
+    { c: [21, 11], cons: [
+      { id: "budget", a: 70, b: 40, rhs: 200, min: 100, max: 400, step: 10 },
+      { id: "parking", a: 1, b: 1, rhs: 6, min: 2, max: 10, step: 1 } ] },
+    { c: [18, 10], cons: [
+      { id: "budget", a: 50, b: 20, rhs: 170, min: 100, max: 300, step: 10 },
+      { id: "parking", a: 1, b: 1, rhs: 5, min: 2, max: 10, step: 1 } ] }
+  ];
+  var CVAR = { budget: "--c-blue", parking: "--c-aqua", drivers: "--c-violet" };
+  var cname = function (r) { return t("rnd.c." + r.id); };
+  var pi = 0, c1 = 20, c2 = 12, cons = [], showHull = false, hl = null, S = null;
+
+  function loadPreset(i) {
+    pi = i;
+    c1 = PRESETS[i].c[0]; c2 = PRESETS[i].c[1];
+    cons = PRESETS[i].cons.map(function (r) { return Object.assign({}, r); });
+    hl = null;
+  }
+
+  // ---- exact math ----
+  function snap(v) { var r = Math.round(v); return Math.abs(v - r) < 1e-9 ? r : v; }
+  function feasible(x, y) {
+    return x >= 0 && y >= 0 && cons.every(function (r) { return r.a * x + r.b * y <= r.rhs + 1e-9; });
+  }
+  function violated(x, y) {
+    return cons.filter(function (r) { return r.a * x + r.b * y > r.rhs + 1e-9; })
+      .map(function (r) { return cname(r).toLocaleLowerCase(I18N.locale); });
+  }
+  // LP by vertex enumeration of every pair of lines (constraints plus x1 = 0 and x2 = 0)
+  function solveLP() {
+    var lines = cons.map(function (r) { return { a: r.a, b: r.b, c: r.rhs }; });
+    lines.push({ a: 1, b: 0, c: 0 }, { a: 0, b: 1, c: 0 });
+    var pts = [];
+    for (var i = 0; i < lines.length; i++) for (var j = i + 1; j < lines.length; j++) {
+      var L1 = lines[i], L2 = lines[j], det = L1.a * L2.b - L2.a * L1.b;
+      if (Math.abs(det) < 1e-12) continue;
+      var x = (L1.c * L2.b - L2.c * L1.b) / det, y = (L1.a * L2.c - L2.a * L1.c) / det;
+      if (x < -1e-7 || y < -1e-7) continue;
+      if (!cons.every(function (r) { return r.a * x + r.b * y <= r.rhs + 1e-7; })) continue;
+      x = snap(Math.max(0, x)); y = snap(Math.max(0, y));
+      if (!pts.some(function (p) { return Math.abs(p.x - x) < 1e-7 && Math.abs(p.y - y) < 1e-7; })) pts.push({ x: x, y: y });
+    }
+    // unbounded if a recession direction d >= 0 with A·d <= 0 exists (c > 0 always)
+    var rays = [[1, 0], [0, 1]];
+    cons.forEach(function (r) { if (r.a * r.b < 0) rays.push([Math.abs(r.b), Math.abs(r.a)]); });
+    var unb = pts.length > 0 && rays.some(function (d) {
+      return cons.every(function (r) { return r.a * d[0] + r.b * d[1] <= 1e-12; });
+    });
+    var best = null;
+    pts.forEach(function (p) { p.z = c1 * p.x + c2 * p.y; if (!best || p.z > best.z + 1e-9) best = p; });
+    return { pts: pts, best: unb ? null : best, unbounded: unb, empty: !pts.length };
+  }
+  // IP by enumerating every lattice point of the bounding box of the LP region
+  function solveIP(lp) {
+    var xm = 0, ym = 0;
+    lp.pts.forEach(function (p) { xm = Math.max(xm, p.x); ym = Math.max(ym, p.y); });
+    var list = [], best = null, ties = 0;
+    for (var x = 0; x <= Math.floor(xm + 1e-9); x++) for (var y = 0; y <= Math.floor(ym + 1e-9); y++) {
+      if (!feasible(x, y)) continue;
+      var z = c1 * x + c2 * y;
+      list.push({ x: x, y: y, z: z });
+      if (!best || z > best.z + 1e-9) { best = { x: x, y: y, z: z }; ties = 1; }
+      else if (Math.abs(z - best.z) < 1e-9) ties++;
+    }
+    return { pts: list, best: best, ties: ties };
+  }
+  // convex hull, Andrew's monotone chain (collinear points dropped)
+  function hull(pts) {
+    var p = pts.map(function (q) { return [q.x, q.y]; }).sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+    if (p.length < 3) return p;
+    var cr = function (o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); };
+    var lo = [], up = [], i;
+    for (i = 0; i < p.length; i++) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], p[i]) <= 0) lo.pop(); lo.push(p[i]); }
+    for (i = p.length - 1; i >= 0; i--) { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], p[i]) <= 0) up.pop(); up.push(p[i]); }
+    lo.pop(); up.pop();
+    return lo.concat(up);
+  }
+  function roundings(s) {
+    var fx = Math.floor(s.x), fy = Math.floor(s.y), cx = Math.ceil(s.x), cy = Math.ceil(s.y);
+    return [["ff", fx, fy], ["fc", fx, cy], ["cf", cx, fy], ["cc", cx, cy], ["nn", Math.floor(s.x + 0.5), Math.floor(s.y + 0.5)]]
+      .map(function (r) { return { k: r[0], x: r[1], y: r[2], ok: feasible(r[1], r[2]), z: c1 * r[1] + c2 * r[2] }; });
+  }
+  function compute() {
+    var lp = solveLP(), out = { lp: lp };
+    if (lp.best) {
+      out.ip = solveIP(lp);
+      out.hull = hull(out.ip.pts);
+      out.rounds = roundings(lp.best);
+      out.integral = Number.isInteger(lp.best.x) && Number.isInteger(lp.best.y);
+      var ok = out.rounds.filter(function (r) { return r.ok; });
+      // ties go to "nearest", the rule people actually use
+      out.bestRound = ok.length ? ok.reduce(function (m, r) {
+        return r.z > m.z + 1e-9 || (Math.abs(r.z - m.z) < 1e-9 && r.k === "nn") ? r : m;
+      }) : null;
+      out.hullBest = out.hull.reduce(function (m, v) { return Math.max(m, c1 * v[0] + c2 * v[1]); }, -Infinity);
+    }
+    return out;
+  }
+
+  // ---- scales (same unit length on both axes so the geometry is honest) ----
+  var W = 600, H = 596, M = { l: 48, r: 14, t: 14, b: 44 }, D = 6;
+  function sx(v) { return M.l + v / D * (W - M.l - M.r); }
+  function sy(v) { return H - M.b - v / D * (H - M.t - M.b); }
+  function clipLine(a, b, c) {
+    var pts = [];
+    function add(x, y) {
+      if (x >= -1e-7 && x <= D + 1e-7 && y >= -1e-7 && y <= D + 1e-7 &&
+          !pts.some(function (p) { return Math.abs(p[0] - x) < 1e-7 && Math.abs(p[1] - y) < 1e-7; })) pts.push([x, y]);
+    }
+    if (Math.abs(b) > 1e-12) { add(0, c / b); add(D, (c - a * D) / b); }
+    if (Math.abs(a) > 1e-12) { add(c / a, 0); add((c - b * D) / a, D); }
+    return pts.length >= 2 ? [pts[0], pts[1]] : null;
+  }
+
+  var svg = $("plot"), NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, txt) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (txt != null) n.textContent = txt;
+    svg.appendChild(n);
+    return n;
+  }
+  function label(x, y, txt, color, anchor) {
+    return el("text", { x: x, y: y, fill: color, "font-size": 12.5, "font-weight": 600, "font-family": SANS,
+      "text-anchor": anchor || "start", stroke: css("--halo"), "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, txt);
+  }
+
+  function renderPlot() {
+    var lp = S.lp, mx = 3;
+    lp.pts.forEach(function (p) { mx = Math.max(mx, p.x, p.y); });
+    D = Math.max(4, Math.ceil(mx + 0.6));
+    svg.textContent = "";
+    var step = D > 12 ? 2 : 1, v;
+    for (v = 0; v <= D; v += step) {
+      el("line", { x1: sx(v), y1: sy(0), x2: sx(v), y2: sy(D), stroke: css("--grid"), "stroke-width": 1 });
+      el("line", { x1: sx(0), y1: sy(v), x2: sx(D), y2: sy(v), stroke: css("--grid"), "stroke-width": 1 });
+      el("text", { x: sx(v), y: H - M.b + 18, "text-anchor": "middle", fill: css("--muted"), "font-size": 11, "font-family": MONO }, fmt(v, 0));
+      el("text", { x: M.l - 8, y: sy(v) + 4, "text-anchor": "end", fill: css("--muted"), "font-size": 11, "font-family": MONO }, fmt(v, 0));
+    }
+    el("line", { x1: M.l, y1: sy(0), x2: W - M.r, y2: sy(0), stroke: css("--axis"), "stroke-width": 1.2 });
+    el("line", { x1: M.l, y1: sy(0), x2: M.l, y2: M.t, stroke: css("--axis"), "stroke-width": 1.2 });
+    el("text", { x: (M.l + W - M.r) / 2, y: H - 8, "text-anchor": "middle", fill: css("--ink2"), "font-size": 12.5, "font-family": SANS }, t("rnd.axis.x"));
+    var my = (M.t + H - M.b) / 2;
+    el("text", { x: 14, y: my, "text-anchor": "middle", fill: css("--ink2"), "font-size": 12.5, "font-family": SANS,
+      transform: "rotate(-90 14 " + my + ")" }, t("rnd.axis.y"));
+
+    // LP region
+    if (lp.pts.length >= 3) {
+      var cx0 = 0, cy0 = 0;
+      lp.pts.forEach(function (p) { cx0 += p.x / lp.pts.length; cy0 += p.y / lp.pts.length; });
+      var poly = lp.pts.slice().sort(function (p, q) { return Math.atan2(p.y - cy0, p.x - cx0) - Math.atan2(q.y - cy0, q.x - cx0); });
+      el("path", { d: poly.map(function (p, i) { return (i ? "L" : "M") + sx(p.x) + " " + sy(p.y); }).join(" ") + " Z",
+        fill: css("--region"), stroke: "none" });
+    }
+    // integer hull
+    if (showHull && S.hull && S.hull.length >= 2) {
+      var hd = S.hull.map(function (p, i) { return (i ? "L" : "M") + sx(p[0]) + " " + sy(p[1]); }).join(" ") + (S.hull.length > 2 ? " Z" : "");
+      el("path", { d: hd, fill: css("--good"), "fill-opacity": 0.13, stroke: css("--good"), "stroke-width": 2.5, "stroke-linejoin": "round" });
+    }
+    // constraint lines with direct labels
+    cons.forEach(function (r, i) {
+      var seg = clipLine(r.a, r.b, r.rhs);
+      if (!seg) return;
+      el("line", { x1: sx(seg[0][0]), y1: sy(seg[0][1]), x2: sx(seg[1][0]), y2: sy(seg[1][1]),
+        stroke: css(CVAR[r.id]), "stroke-width": 2, "stroke-linecap": "round" });
+      var tt = [0.8, 0.62, 0.3][i] || 0.5;
+      var lx = sx(seg[0][0] + (seg[1][0] - seg[0][0]) * tt), ly = sy(seg[0][1] + (seg[1][1] - seg[0][1]) * tt);
+      label(lx > W - 130 ? lx - 6 : lx + 6, Math.max(M.t + 12, ly - 7), cname(r), css("--ink2"), lx > W - 130 ? "end" : "start");
+    });
+    if (!lp.best) return;
+    var s = lp.best, ip = S.ip.best;
+
+    // iso-Z lines through both optima
+    [[s.z, "--accent"], ip ? [ip.z, "--good"] : null].forEach(function (q) {
+      if (!q) return;
+      var sg = clipLine(c1, c2, q[0]);
+      if (sg) el("line", { x1: sx(sg[0][0]), y1: sy(sg[0][1]), x2: sx(sg[1][0]), y2: sy(sg[1][1]),
+        stroke: css(q[1]), "stroke-width": 1.8, "stroke-dasharray": "7 6", "stroke-linecap": "round" });
+    });
+    // rounding cell around x*
+    if (!S.integral) {
+      var fx = Math.floor(s.x), fy = Math.floor(s.y), gx = Math.ceil(s.x), gy = Math.ceil(s.y);
+      el("rect", { x: sx(fx) - 0.5, y: sy(gy) - 0.5, width: Math.max(1, sx(gx) - sx(fx)) + 1, height: Math.max(1, sy(fy) - sy(gy)) + 1,
+        fill: "none", stroke: css("--muted"), "stroke-width": 1.5, "stroke-dasharray": "4 4" });
+    }
+    // lattice
+    var r0 = D > 9 ? 2.6 : 3.4;
+    for (var x = 0; x <= D; x++) for (var y = 0; y <= D; y++) {
+      if (feasible(x, y)) el("circle", { cx: sx(x), cy: sy(y), r: r0, fill: css("--ink2") });
+      else el("circle", { cx: sx(x), cy: sy(y), r: r0 - 0.4, fill: "none", stroke: css("--axis"), "stroke-width": 1.3 });
+    }
+    // rounded points: infeasible ones get a cross
+    S.rounds.forEach(function (r) {
+      if (r.ok || r.x > D || r.y > D) return;
+      var X = sx(r.x), Y = sy(r.y), k = 5.5;
+      el("path", { d: "M" + (X - k) + " " + (Y - k) + "L" + (X + k) + " " + (Y + k) + "M" + (X - k) + " " + (Y + k) + "L" + (X + k) + " " + (Y - k),
+        stroke: css("--crit"), "stroke-width": 2.2, "stroke-linecap": "round" });
+    });
+    // highlighted table row
+    if (hl && hl.x <= D && hl.y <= D) {
+      el("circle", { cx: sx(hl.x), cy: sy(hl.y), r: 15, fill: "none", stroke: css("--ink"), "stroke-width": 1.5, "stroke-dasharray": "3 3" });
+    }
+    // integer optimum
+    if (ip) {
+      el("circle", { cx: sx(ip.x), cy: sy(ip.y), r: 10, fill: "none", stroke: css("--good"), "stroke-width": 2.8 });
+      el("circle", { cx: sx(ip.x), cy: sy(ip.y), r: 4.5, fill: css("--good") });
+      var ipr = sx(ip.x) > W - 90;
+      label(sx(ip.x) + (ipr ? -14 : 14), sy(ip.y) + (ip.y > s.y ? -12 : 19), t("rnd.mk.ip"), css("--good-text"), ipr ? "end" : "start");
+    }
+    // LP optimum
+    var X0 = sx(s.x), Y0 = sy(s.y), q = 7;
+    el("path", { d: "M" + X0 + " " + (Y0 - q) + "L" + (X0 + q) + " " + Y0 + "L" + X0 + " " + (Y0 + q) + "L" + (X0 - q) + " " + Y0 + "Z",
+      fill: css("--accent"), stroke: css("--surface"), "stroke-width": 1.5 });
+    var lpr = X0 > W - 90;
+    label(X0 + (lpr ? -12 : 12), Y0 - 10, t("rnd.mk.lp"), css("--accent-text"), lpr ? "end" : "start");
+  }
+
+  // ---- panels ----
+  function eqCoef(r) {
+    return (r.a === 1 ? "" : r.a) + "x₁ + " + (r.b === 1 ? "" : r.b) + "x₂ ≤ " + r.rhs;
+  }
+  var rowRefs = [];
+  function buildRows() {
+    var rl = $("rlist");
+    rl.textContent = "";
+    rowRefs = cons.map(function (r) {
+      var row = document.createElement("div"); row.className = "rrow";
+      var head = document.createElement("div"); head.className = "rhead";
+      var dot = document.createElement("span"); dot.className = "rdot"; dot.style.background = "var(" + CVAR[r.id] + ")";
+      var nm = document.createElement("label"); nm.className = "rname"; nm.htmlFor = "rhs-" + r.id;
+      var eq = document.createElement("span"); eq.className = "req";
+      var bd = document.createElement("span"); bd.className = "badge";
+      head.append(dot, nm, eq, bd);
+      var sl = document.createElement("div"); sl.className = "rslide";
+      var rng = document.createElement("input");
+      rng.type = "range"; rng.id = "rhs-" + r.id; rng.min = r.min; rng.max = r.max; rng.step = r.step; rng.value = r.rhs;
+      var out = document.createElement("output"); out.htmlFor = rng.id;
+      rng.addEventListener("input", function () { r.rhs = +rng.value; hl = null; update(); });
+      sl.append(rng, out);
+      row.append(head, sl);
+      rl.appendChild(row);
+      return { r: r, name: nm, eq: eq, badge: bd, out: out, rng: rng };
+    });
+  }
+
+  function renderPresets() {
+    var nav = $("presets");
+    nav.textContent = "";
+    PRESETS.forEach(function (P, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "pbtn";
+      b.setAttribute("aria-pressed", i === pi ? "true" : "false");
+      b.textContent = t("rnd.p" + i + ".name");
+      b.addEventListener("click", function () { loadPreset(i); renderAll(); });
+      nav.appendChild(b);
+    });
+    $("pbrief").innerHTML = t("rnd.p" + pi + ".brief");
+  }
+
+  function renderPanels() {
+    var lp = S.lp, s = lp.best;
+    $("c1v").textContent = c1; $("c2v").textContent = c2;
+    $("c1o").textContent = c1; $("c2o").textContent = c2;
+    $("c1").value = c1; $("c2").value = c2;
+    rowRefs.forEach(function (ref) {
+      var r = ref.r, bind = s && Math.abs(r.a * s.x + r.b * s.y - r.rhs) < 1e-6;
+      ref.name.textContent = cname(r);
+      ref.eq.textContent = eqCoef(r);
+      ref.badge.textContent = t(bind ? "rnd.badge.binding" : "rnd.badge.slack");
+      ref.badge.classList.toggle("on", !!bind);
+      ref.out.textContent = r.rhs + " " + t("rnd.unit." + r.id);
+      ref.rng.value = r.rhs;
+    });
+
+    // summary tiles
+    if (!s) {
+      $("s-zlp").textContent = t(lp.empty ? "rnd.sum.empty" : "rnd.sum.unbounded");
+      ["s-zlp2", "s-zip", "s-zip2", "s-gap", "s-gap2", "s-n", "s-n2"].forEach(function (id) { $(id).textContent = ""; });
+    } else {
+      var ip = S.ip.best;
+      $("s-zlp").textContent = fmt(s.z);
+      $("s-zlp2").textContent = t("rnd.sum.at", { p: pt(s.x, s.y) });
+      $("s-zip").textContent = ip ? fmt(ip.z) : "·";
+      $("s-zip2").textContent = ip ? t("rnd.sum.at", { p: pt(ip.x, ip.y) }) + (S.ip.ties > 1 ? " · " + t("rnd.sum.ties", { n: S.ip.ties }) : "") : "";
+      var gap = ip ? s.z - ip.z : 0;
+      $("s-gap").textContent = ip ? fmt(gap) : "·";
+      $("s-gap2").textContent = ip && ip.z > 0 ? t("rnd.sum.gapPct", { p: pct(gap / ip.z * 100) }) : "";
+      $("s-n").textContent = S.ip.pts.length;
+      $("s-n2").textContent = t("rnd.sum.nptsSub");
+    }
+
+    // rounding table
+    var tb = $("rtbody");
+    tb.textContent = "";
+    if (!s) {
+      $("tbltitle").textContent = t("rnd.tbl.title0");
+      $("verdict").innerHTML = t(lp.empty ? "rnd.v.empty" : "rnd.v.unbounded");
+      $("hullnote").textContent = "";
+      renderModel();
+      return;
+    }
+    var ipb = S.ip.best;
+    $("tbltitle").textContent = t("rnd.tbl.title", { p: pt(s.x, s.y) });
+    var rows = S.rounds.concat([{ k: "ip", x: ipb.x, y: ipb.y, ok: true, z: ipb.z }]);
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var isBest = r.k !== "ip" && S.bestRound && r.k === S.bestRound.k;
+      if (r.k === "ip") tr.className = "ipopt";
+      else if (isBest) tr.className = "best";
+      else if (!r.ok) tr.className = "off";
+      var c0 = document.createElement("td");
+      c0.innerHTML = "<span></span><span class=\"nota\"></span>";
+      c0.firstChild.textContent = t("rnd.r." + r.k);
+      c0.lastChild.textContent = t("rnd.r." + r.k + ".nota");
+      if (isBest) { var tg = document.createElement("span"); tg.className = "tag"; tg.textContent = t("rnd.tbl.bestTag"); c0.appendChild(tg); }
+      var cP = document.createElement("td"); cP.className = "num"; cP.textContent = pt(r.x, r.y, 0);
+      var cF = document.createElement("td");
+      var v = violated(r.x, r.y);
+      cF.innerHTML = r.ok ? '<span class="si">✓</span> ' : '<span class="no">✗</span> ';
+      cF.appendChild(document.createTextNode(r.ok ? t("rnd.tbl.yes") : t("rnd.tbl.breaks", { list: v.join(", ") })));
+      var cZ = document.createElement("td"); cZ.className = "num"; cZ.textContent = fmt(r.z);
+      var cL = document.createElement("td"); cL.className = "num loss";
+      if (!r.ok) cL.textContent = "·";
+      else if (Math.abs(ipb.z - r.z) < 1e-9) cL.textContent = t("rnd.tbl.optimal");
+      else {
+        cL.textContent = "−" + fmt(ipb.z - r.z) + " ";
+        var cp = document.createElement("span"); cp.className = "lp2";
+        cp.textContent = "(" + pct((ipb.z - r.z) / ipb.z * 100) + ")";
+        cL.appendChild(cp);
+      }
+      tr.append(c0, cP, cF, cZ, cL);
+      tr.addEventListener("mouseenter", function () { hl = { x: r.x, y: r.y }; renderPlot(); });
+      tr.addEventListener("mouseleave", function () { hl = null; renderPlot(); });
+      tb.appendChild(tr);
+    });
+
+    // verdict
+    var nInf = S.rounds.filter(function (r) { return !r.ok; }).length, br = S.bestRound, vt;
+    if (S.integral) vt = t("rnd.v.integral");
+    else if (!br) vt = t("rnd.v.none");
+    else if (Math.abs(br.z - ipb.z) < 1e-9) vt = t("rnd.v.lucky", { name: t("rnd.r." + br.k), n: nInf });
+    else vt = t("rnd.v.lose", { name: t("rnd.r." + br.k), z: fmt(br.z), loss: fmt(ipb.z - br.z), pct: pct((ipb.z - br.z) / ipb.z * 100),
+      zip: fmt(ipb.z), p: pt(ipb.x, ipb.y), n: nInf });
+    $("verdict").innerHTML = vt;
+
+    // hull note
+    if (!showHull) $("hullnote").textContent = t("rnd.hull.off");
+    else $("hullnote").textContent = t(Math.abs(S.hullBest - ipb.z) < 1e-9 ? "rnd.hull.on" : "rnd.hull.bad",
+      { n: S.hull.length, z: fmt(S.hullBest), v: S.hull.map(function (p) { return pt(p[0], p[1], 0); }).join(" ") });
+    renderModel();
+  }
+
+  function renderModel() {
+    var pad = function (s, n) { while (s.length < n) s += " "; return s; };
+    var w = Math.max.apply(null, cons.map(function (r) { return eqCoef(r).length; })) + 3;
+    $("modelbox").textContent =
+      "max  Z = " + c1 + "x₁ + " + c2 + "x₂      (" + t("rnd.model.obj") + ")\n" +
+      t("rnd.model.st") + " " + cons.map(function (r) { return pad(eqCoef(r), w) + "· " + cname(r).toLocaleLowerCase(I18N.locale); }).join("\n     ") +
+      "\n     " + t("rnd.model.int") + "\n\n" + t("rnd.model.rel");
+  }
+
+  function renderAll() {
+    renderPresets();
+    buildRows();
+    $("hullchk").checked = showHull;
+    update();
+  }
+  function update() {
+    S = compute();
+    renderPlot();
+    renderPanels();
+    persist();
+  }
+
+  // ---- inputs ----
+  ["c1", "c2"].forEach(function (id) {
+    $(id).addEventListener("input", function (e) {
+      if (id === "c1") c1 = +e.target.value; else c2 = +e.target.value;
+      hl = null; update();
+    });
+  });
+  $("hullchk").addEventListener("change", function (e) { showHull = e.target.checked; update(); });
+  $("reset").addEventListener("click", function () { loadPreset(pi); renderAll(); });
+
+  // ---- hover readout on lattice points ----
+  var tip = $("tip");
+  function onPoint(ev) {
+    if (!S || !S.lp.best) { tip.hidden = true; return; }
+    var rect = svg.getBoundingClientRect();
+    var px = (ev.clientX - rect.left) / rect.width * W, py = (ev.clientY - rect.top) / rect.height * H;
+    var x = Math.round((px - M.l) / (W - M.l - M.r) * D), y = Math.round((H - M.b - py) / (H - M.t - M.b) * D);
+    if (x < 0 || y < 0 || x > D || y > D || Math.hypot(sx(x) - px, sy(y) - py) > 16) { tip.hidden = true; return; }
+    var ok = feasible(x, y), ipb = S.ip.best;
+    var html = "(x₁" + t("rnd.sep") + "x₂) = " + pt(x, y, 0) + "<br>Z = " + fmt(c1 * x + c2 * y) + "<br>" +
+      (ok ? '<span class="si">✓ ' + t("rnd.tip.feas") + "</span>"
+          : '<span class="no">✗ ' + t("rnd.tip.infeas", { list: violated(x, y).join(", ") }) + "</span>");
+    if (ipb && ipb.x === x && ipb.y === y) html += "<br>" + t("rnd.tip.ipopt");
+    tip.innerHTML = html;
+    tip.hidden = false;
+    var host = svg.parentElement.getBoundingClientRect();
+    var tx = ev.clientX - host.left + 14, ty = ev.clientY - host.top + 12;
+    if (tx + tip.offsetWidth + 8 > host.width) tx = ev.clientX - host.left - tip.offsetWidth - 14;
+    tip.style.left = Math.max(4, tx) + "px"; tip.style.top = ty + "px";
+  }
+  svg.addEventListener("pointermove", onPoint);
+  svg.addEventListener("pointerdown", onPoint);
+  svg.addEventListener("pointerleave", function () { tip.hidden = true; });
+
+  // ---- hot state (survives a republish while the page is open) ----
+  function persist() {
+    if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+      try {
+        window.claude.hot.snapshot({ pi: pi, c1: c1, c2: c2, rhs: cons.map(function (r) { return r.rhs; }), hull: showHull });
+      } catch (e) { /* ok */ }
+    }
+  }
+  function start(data) {
+    loadPreset(0);
+    if (data && typeof data.pi === "number" && PRESETS[data.pi]) {
+      loadPreset(data.pi);
+      if (typeof data.c1 === "number") c1 = data.c1;
+      if (typeof data.c2 === "number") c2 = data.c2;
+      if (Array.isArray(data.rhs)) cons.forEach(function (r, i) { if (typeof data.rhs[i] === "number") r.rhs = data.rhs[i]; });
+      showHull = !!data.hull;
+    }
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { if (S) renderPlot(); });
+    I18N.onChange(renderAll);
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
+  else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+})();
+</script>
+</body>
+</html>
