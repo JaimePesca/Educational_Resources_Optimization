@@ -171,5 +171,36 @@ I18N.register("es", {
   "r.pallets.find.4": "<b>La Etapa 1 garantiza la admisibilidad.</b> Empacar el flujo sin ella promedia 68.583 kg, por encima de la carga útil de 65.000 kg en todas las corridas auditadas, con 7,7 posiciones por encima de su límite de peso.",
   "r.pallets.find.5": "<b>La composición le gana a la secuenciación.</b> Penalizar las estibas mixtas sube la colocación de 92,1% a 97,2% a un costo de 6 cajas, mientras que controlar el orden de llegada vale como máximo 1,4 puntos.",
 
-  "r.pallets.note": "Datos y resultados del manuscrito \"A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight\" (documento de trabajo). Las cifras reproducen el estudio con fines ilustrativos; consulta el artículo para ver el análisis completo."
+  "r.pallets.note": "Datos y resultados del manuscrito \"A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight\" (documento de trabajo). Las cifras reproducen el estudio con fines ilustrativos; consulta el artículo para ver el análisis completo.",
+
+  /* ---- animación ---- */
+  "r.pallets.anim.intro": "Todo el estudio en menos de un minuto: el manifiesto, el plan, la rampa y el ciclo que cierra la brecha.",
+  "r.pallets.anim.aria": "Animación: las 8.500 cajas del manifiesto se planean en las 32 posiciones de un Airbus A330-200F, se apilan a medida que llegan a la rampa y el llenado que de verdad se logra apilar se retroalimenta al plan.",
+  "r.pallets.anim.ctl": "Escenario",
+  "r.pallets.anim.off": "Sin retroalimentación",
+  "r.pallets.anim.on": "Con retroalimentación de factores de llenado",
+  "r.pallets.anim.ch1": "El manifiesto",
+  "r.pallets.anim.ch2": "Etapa 1: el plan",
+  "r.pallets.anim.ch3": "Etapa 2: la rampa",
+  "r.pallets.anim.ch4": "Lo que de verdad vuela",
+  "r.pallets.anim.ch5": "Cerrar la brecha",
+  "r.pallets.anim.k.manifest": "cajas en el manifiesto",
+  "r.pallets.anim.k.plan": "cajas en el plan",
+  "r.pallets.anim.k.stacked": "de las cajas planeadas, apiladas",
+  "r.pallets.anim.k.planned": "planeadas en el papel",
+  "r.pallets.anim.k.loaded": "cargadas de verdad",
+  "r.pallets.anim.k.cost": "por kg (manual US${v})",
+  "r.pallets.anim.k.costV": "US${v}",
+  "r.pallets.anim.k.pct": "{v}%",
+  "r.pallets.anim.lbl.yard": "35 tipos de caja · 45 clases",
+  "r.pallets.anim.lbl.window": "siguientes 7 cajas",
+  "r.pallets.anim.lbl.plan": "plan",
+  "r.pallets.anim.lbl.ground": "se quedan en tierra",
+  "r.pallets.anim.lbl.ff": "el llenado medido vuelve al plan",
+  "r.pallets.anim.lbl.gap": "planeado, no apilable",
+  "r.pallets.anim.lbl.balance": "desbalance {v} / 500 kg",
+  "r.pallets.anim.lg.fam": "Familias de clases de caja",
+  "r.pallets.anim.lg.plan": "Planeado por la Etapa 1",
+  "r.pallets.anim.lg.stack": "Apilado en la estiba",
+  "r.pallets.anim.lg.ground": "Se queda en tierra"
 }, "research/pallets");

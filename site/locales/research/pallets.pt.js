@@ -171,5 +171,36 @@ I18N.register("pt", {
   "r.pallets.find.4": "<b>O Estágio 1 garante a admissibilidade.</b> Empacotar o fluxo bruto sem ele dá em média 68.583 kg, acima da carga útil de 65.000 kg em todas as execuções auditadas, com 7,7 posições acima dos seus limites de peso.",
   "r.pallets.find.5": "<b>A composição vale mais que o sequenciamento.</b> Penalizar paletes mistos eleva a colocação de 92,1% para 97,2% ao custo de 6 caixas, enquanto controlar a ordem de chegada vale no máximo 1,4 ponto.",
 
-  "r.pallets.note": "Dados e resultados do manuscrito \"A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight\" (artigo em elaboração). As figuras reproduzem o estudo para fins ilustrativos; consulte o artigo para a análise completa."
+  "r.pallets.note": "Dados e resultados do manuscrito \"A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight\" (artigo em elaboração). As figuras reproduzem o estudo para fins ilustrativos; consulte o artigo para a análise completa.",
+
+  /* ---- animação ---- */
+  "r.pallets.anim.intro": "Todo o estudo em menos de um minuto: o manifesto, o plano, o pátio e o ciclo que fecha a lacuna.",
+  "r.pallets.anim.aria": "Animação: as 8.500 caixas do manifesto são planejadas nas 32 posições de um Airbus A330-200F, empilhadas à medida que chegam ao pátio, e o preenchimento que de fato pode ser empilhado é realimentado no plano.",
+  "r.pallets.anim.ctl": "Cenário",
+  "r.pallets.anim.off": "Sem realimentação",
+  "r.pallets.anim.on": "Com realimentação por fatores de preenchimento",
+  "r.pallets.anim.ch1": "O manifesto",
+  "r.pallets.anim.ch2": "Etapa 1: o plano",
+  "r.pallets.anim.ch3": "Etapa 2: o pátio",
+  "r.pallets.anim.ch4": "O que de fato voa",
+  "r.pallets.anim.ch5": "Fechando a lacuna",
+  "r.pallets.anim.k.manifest": "caixas no manifesto",
+  "r.pallets.anim.k.plan": "caixas no plano",
+  "r.pallets.anim.k.stacked": "das caixas planejadas, empilhadas",
+  "r.pallets.anim.k.planned": "planejadas no papel",
+  "r.pallets.anim.k.loaded": "de fato embarcadas",
+  "r.pallets.anim.k.cost": "por kg (manual US$ {v})",
+  "r.pallets.anim.k.costV": "US$ {v}",
+  "r.pallets.anim.k.pct": "{v}%",
+  "r.pallets.anim.lbl.yard": "35 tipos de caixa · 45 classes",
+  "r.pallets.anim.lbl.window": "próximas 7 caixas",
+  "r.pallets.anim.lbl.plan": "plano",
+  "r.pallets.anim.lbl.ground": "ficam em terra",
+  "r.pallets.anim.lbl.ff": "o preenchimento medido volta ao plano",
+  "r.pallets.anim.lbl.gap": "planejado, não empilhável",
+  "r.pallets.anim.lbl.balance": "desbalanceamento {v} / 500 kg",
+  "r.pallets.anim.lg.fam": "Famílias de classes de caixa",
+  "r.pallets.anim.lg.plan": "Planejado pela Etapa 1",
+  "r.pallets.anim.lg.stack": "Empilhado no palete",
+  "r.pallets.anim.lg.ground": "Fica em terra"
 }, "research/pallets");
