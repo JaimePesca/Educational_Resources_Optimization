@@ -20,7 +20,10 @@
 .panels { display: grid; gap: 16px; }
 .grp { display: grid; gap: 6px; min-width: 0; }
 .grp-l { font-size: 13.5px; color: var(--ink2); }
+.ctlgrid .wide { grid-column: 1 / -1; }
 .ctlgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 18px; align-items: start; }
+.panel .seg { display: flex; width: fit-content; max-width: 100%; }
+.panel .seg button { flex: 1 1 auto; }
 .seg button:disabled { opacity: 0.38; cursor: not-allowed; }
 .seg button:not(:disabled):not([aria-pressed="true"]):hover { background: var(--surface2); color: var(--ink); }
 .btn {
@@ -40,7 +43,7 @@
 @media (max-width: 860px) { .split-grid { grid-template-columns: 1fr; } }
 .sched-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
 @media (max-width: 860px) { .sched-grid { grid-template-columns: 1fr; } }
-table.sched { min-width: 380px; }
+table.sched { min-width: 0; }
 table.sched th, table.sched td { text-align: center; padding: 6px 4px; }
 table.sched th:first-child, table.sched td:first-child { text-align: left; padding-left: 8px; }
 table.sched td.hl, table.sched th.hl { background: var(--sel); }
@@ -130,7 +133,7 @@ table.crit { min-width: 560px; }
           <div class="grp"><span class="grp-l" id="lab-m" data-i18n="r.markets.sc.ctl.m"></span><div class="seg" role="group" aria-labelledby="lab-m" data-key="m"></div></div>
           <div class="grp"><span class="grp-l" id="lab-b" data-i18n="r.markets.sc.ctl.b"></span><div class="seg" role="group" aria-labelledby="lab-b" data-key="b"></div></div>
           <div class="grp"><span class="grp-l" id="lab-f" data-i18n="r.markets.sc.ctl.f"></span><div class="seg" role="group" aria-labelledby="lab-f" data-key="f"></div></div>
-          <div class="grp"><span class="grp-l" id="lab-d" data-i18n="r.markets.sc.ctl.d"></span><div class="seg" role="group" aria-labelledby="lab-d" data-key="d"></div></div>
+          <div class="grp wide"><span class="grp-l" id="lab-d" data-i18n="r.markets.sc.ctl.d"></span><div class="seg" role="group" aria-labelledby="lab-d" data-key="d"></div></div>
         </div>
         <button type="button" class="btn" id="reset" data-i18n="r.markets.sc.reset"></button>
         <p class="hint" data-i18n="r.markets.sc.disabled"></p>
@@ -228,9 +231,9 @@ table.crit { min-width: 560px; }
   var TOTAL = 1025623; // Figure 6: 68,858 + 346,458 + 327,451 + 282,856 kg
   var SPLIT = [
     { k: "sm", kg: 68858, c: "--accent" },
-    { k: "fruver", kg: 346458, c: "--c-blue" },
-    { k: "super", kg: 327451, c: "--c-violet" },
-    { k: "other", kg: 282856, c: "--mit-silver" }
+    { k: "fruver", kg: 346458, c: "--ink" },
+    { k: "super", kg: 327451, c: "--mit-silver" },
+    { k: "other", kg: 282856, c: "--axis" }
   ];
   // Reported runs: Table 5 (buffer x fuzzy AHP), Table 6 (market days), Table 7 (demand split)
   var SC = [
