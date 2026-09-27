@@ -30,7 +30,7 @@
   .ctext { font-size: 13.5px; color: var(--ink2); }
 
   /* ---- 3D chart ---- */
-  #plot3d { width: 100%; height: min(70vh, 620px); min-height: 360px; }
+  #plot3d { width: 100%; height: min(70vh, 620px, calc(100vw - 30px)); min-height: 320px; }
   .plotmsg { color: var(--muted); font-size: 14px; padding: 20px 0; }
   .plot-foot { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 10px; align-items: center; }
   .legend-item { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink2); }
@@ -456,7 +456,7 @@ z = 5/3 · 900 + 1/3 · 0 = 1500</div>
     }
     // feasible plans with exactly this utility: plane ∩ region
     var secPts = cutSegments(S.edges.map(function (s) { return [s[0].x, s[1].x]; }), zIso);
-    if (secPts.length >= 2) {
+    if (secPts.length >= 2 && Math.abs(zIso - S.zMax) > 1e-6) { // at z* the red edge already is the section
       var sec = secPts.length >= 3 ? orderPlanar(secPts, C) : secPts;
       var sl = line3d([sec], secPts.length >= 3);
       traces.push({ type: "scatter3d", mode: "lines", x: sl.x, y: sl.y, z: sl.z, hoverinfo: "skip",
@@ -464,6 +464,7 @@ z = 5/3 · 900 + 1/3 · 0 = 1500</div>
     }
     traces.push(verts);
 
+    var zoom = plotEl.clientWidth < 560 ? 1.25 : 1; // phones: step back so the axis titles fit
     var sep = I18N.fmt(1.5, 1).charAt(1) === "," ? ",." : ".,";
     var ax = function (key, d) {
       return {
@@ -479,7 +480,7 @@ z = 5/3 · 900 + 1/3 · 0 = 1500</div>
       hoverlabel: { bgcolor: css("--surface"), bordercolor: axis, font: { color: ink, family: mono, size: 12 }, align: "left" },
       scene: {
         xaxis: ax("fr3.axis.x1", 0), yaxis: ax("fr3.axis.x2", 1), zaxis: ax("fr3.axis.x3", 2),
-        aspectmode: "cube", camera: { eye: { x: 1.65, y: -1.45, z: 0.75 } }
+        aspectmode: "cube", camera: { eye: { x: 1.45 * zoom, y: -1.35 * zoom, z: 0.6 * zoom } }
       }
     };
     Plotly.react(plotEl, traces, layout, { responsive: true, displaylogo: false,
