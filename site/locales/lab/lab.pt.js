@@ -1,8 +1,8 @@
 /* Strings for lab/index.html, the hidden proposals lab (Portuguese, Brazil, "você"). */
 I18N.register("pt", {
   "lab.title": "Laboratório de propostas",
-  "lab.eyebrow": "Laboratório · Ideias ainda não construídas",
-  "lab.lede": "Ideias para novos recursos, reunidas aqui antes que qualquer uma delas seja construída. Cada cartão diz o que o recurso mostraria e qual formato teria. Nenhuma delas foi desenvolvida ainda.",
+  "lab.eyebrow": "Laboratório · Protótipos antes da trilha",
+  "lab.lede": "Novos recursos, construídos e testados aqui antes de entrarem na trilha de aprendizagem. Cada cartão diz o que a página mostra e qual formato tem; abra-o para experimentar o protótipo. Nenhum deles está ainda na página inicial.",
   "lab.idea": "Ideia",
   "lab.built": "Construído",
   "lab.open": "Abrir",
@@ -38,5 +38,5 @@ I18N.register("pt", {
   "lab.lab-svm.desc": "Uma máquina de vetores de suporte procura a rua mais larga que separa duas classes, e isso é um problema quadrático de margem máxima. Com 24 lotes de café classificados por altitude e densidade do grão, a animação destaca os vetores de suporte que seguram a rua no lugar, mostra como um lote atípico quebra a margem rígida e passa para a margem suave, em que o parâmetro C troca erros de classificação por uma margem mais larga.",
 
   "lab.lab-ml-ai-cases.title": "ML + IA em otimização",
-  "lab.lab-ml-ai-cases.desc": "Quatro casos em que o aprendizado ajuda a otimização: aprender a ramificar, prever e depois otimizar, aprendizado por reforço para roteamento de veículos e agentes de linguagem que formulam modelos de otimização a partir de um texto. Cada caso teria um pequeno exemplo interativo que roda no navegador."
+  "lab.lab-ml-ai-cases.desc": "Quatro casos pequenos em que o aprendizado ajuda a otimização, cada um rodando de verdade no navegador: um branch and bound que aprende onde ramificar, uma previsão de demanda ajustada para a decisão que ela alimenta, uma van de entregas que aprende sua rota por tentativa e erro e é comparada com o caminho mais curto, e um verificador automático que testa formulações já escritas como as que um agente de linguagem poderia produzir."
 }, "lab/lab");

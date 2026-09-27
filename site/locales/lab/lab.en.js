@@ -1,8 +1,8 @@
 /* Strings for lab/index.html, the hidden proposals lab (English, the reference). Cards come from CATALOG.lab. */
 I18N.register("en", {
   "lab.title": "Proposals Lab",
-  "lab.eyebrow": "Lab · Ideas not built yet",
-  "lab.lede": "Ideas for new resources, collected here before any of them is built. Each card says what the resource would show and which format it would take. None of them is developed yet.",
+  "lab.eyebrow": "Lab · Prototypes before the path",
+  "lab.lede": "New resources, built and tested here before they join the learning path. Each card says what the page shows and which format it takes; open it to try the prototype. None of them is on the home page yet.",
   "lab.idea": "Idea",
   "lab.built": "Built",
   "lab.open": "Open",
@@ -38,5 +38,5 @@ I18N.register("en", {
   "lab.lab-svm.desc": "A Support Vector Machine looks for the widest street that separates two classes, which is a quadratic program of maximum margin. On 24 coffee lots sorted by altitude and bean density, the animation highlights the support vectors that hold the street in place, shows how one outlier breaks the hard margin, and switches to the soft margin, where the parameter C trades classification errors for a wider margin.",
 
   "lab.lab-ml-ai-cases.title": "ML + AI in Optimization",
-  "lab.lab-ml-ai-cases.desc": "Four cases where learning helps optimization: learning to branch, predict then optimize, reinforcement learning for vehicle routing, and language agents that formulate optimization models from a text description. Each case would come with one small interactive example that runs in the browser."
+  "lab.lab-ml-ai-cases.desc": "Four small cases where learning helps optimization, each one running for real in the browser: a branch and bound that learns where to branch, a demand forecast fitted for the decision it feeds, a delivery van that learns its route by trial and error and is compared with the shortest path, and an automatic checker that tests prewritten formulations like those a language agent might produce."
 }, "lab/lab");

@@ -1,8 +1,8 @@
 /* Strings for lab/index.html, the hidden proposals lab (French, "vous"). */
 I18N.register("fr", {
   "lab.title": "Laboratoire de propositions",
-  "lab.eyebrow": "Laboratoire · Idées pas encore construites",
-  "lab.lede": "Des idées de nouvelles ressources, rassemblées ici avant qu'aucune ne soit construite. Chaque carte indique ce que la ressource montrerait et le format qu'elle prendrait. Aucune n'est encore développée.",
+  "lab.eyebrow": "Laboratoire · Prototypes avant le parcours",
+  "lab.lede": "De nouvelles ressources, construites et testées ici avant de rejoindre le parcours d'apprentissage. Chaque carte indique ce que la page montre et le format qu'elle prend ; ouvrez-la pour essayer le prototype. Aucune n'est encore sur la page d'accueil.",
   "lab.idea": "Idée",
   "lab.built": "Construit",
   "lab.open": "Ouvrir",
@@ -38,5 +38,5 @@ I18N.register("fr", {
   "lab.lab-svm.desc": "Une machine à vecteurs de support cherche la rue la plus large qui sépare deux classes, ce qui est un problème quadratique de marge maximale. Sur 24 lots de café classés par altitude et densité du grain, l'animation met en évidence les vecteurs de support qui tiennent la rue en place, montre comment un lot atypique casse la marge stricte, puis passe à la marge souple, où le paramètre C échange des erreurs de classification contre une marge plus large.",
 
   "lab.lab-ml-ai-cases.title": "ML + IA en optimisation",
-  "lab.lab-ml-ai-cases.desc": "Quatre cas où l'apprentissage aide l'optimisation : apprendre à brancher, prédire puis optimiser, apprentissage par renforcement pour les tournées de véhicules et agents de langage qui formulent des modèles d'optimisation à partir d'un texte. Chaque cas aurait un petit exemple interactif qui s'exécute dans le navigateur."
+  "lab.lab-ml-ai-cases.desc": "Quatre petits cas où l'apprentissage aide l'optimisation, chacun s'exécutant réellement dans le navigateur : un branch and bound qui apprend où brancher, une prévision de la demande ajustée pour la décision qu'elle alimente, une camionnette de livraison qui apprend son itinéraire par essais et erreurs et que l'on compare au plus court chemin, et un vérificateur automatique qui teste des formulations déjà écrites comme celles qu'un agent de langage pourrait produire."
 }, "lab/lab");

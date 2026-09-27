@@ -1,8 +1,8 @@
 /* Strings for lab/index.html, the hidden proposals lab (Spanish, Colombia, "tú"). */
 I18N.register("es", {
   "lab.title": "Laboratorio de propuestas",
-  "lab.eyebrow": "Laboratorio · Ideas aún sin construir",
-  "lab.lede": "Ideas para nuevos recursos, reunidas aquí antes de construir cualquiera de ellas. Cada tarjeta dice qué mostraría el recurso y qué formato tendría. Ninguna está desarrollada todavía.",
+  "lab.eyebrow": "Laboratorio · Prototipos antes de la ruta",
+  "lab.lede": "Nuevos recursos, construidos y probados aquí antes de entrar a la ruta de aprendizaje. Cada tarjeta dice qué muestra la página y qué formato tiene; ábrela para probar el prototipo. Ninguno está todavía en la página de inicio.",
   "lab.idea": "Idea",
   "lab.built": "Construido",
   "lab.open": "Abrir",
@@ -38,5 +38,5 @@ I18N.register("es", {
   "lab.lab-svm.desc": "Una máquina de vectores de soporte busca la calle más ancha que separa dos clases, y eso es un problema cuadrático de margen máximo. Con 24 lotes de café clasificados por altitud y densidad del grano, la animación resalta los vectores de soporte que sostienen la calle, muestra cómo un lote atípico rompe el margen duro y pasa al margen suave, donde el parámetro C cambia errores de clasificación por un margen más ancho.",
 
   "lab.lab-ml-ai-cases.title": "ML + IA en optimización",
-  "lab.lab-ml-ai-cases.desc": "Cuatro casos en los que el aprendizaje ayuda a optimizar: aprender a ramificar, predecir y luego optimizar, aprendizaje por refuerzo para el ruteo de vehículos y agentes de lenguaje que formulan modelos de optimización a partir de un texto. Cada caso tendría un pequeño ejemplo interactivo que corre en el navegador."
+  "lab.lab-ml-ai-cases.desc": "Cuatro casos pequeños en los que el aprendizaje ayuda a optimizar, cada uno corriendo de verdad en el navegador: un método de ramificación y acotamiento que aprende dónde ramificar, un pronóstico de demanda ajustado para la decisión que alimenta, una furgoneta de reparto que aprende su ruta por ensayo y error y se compara con la ruta más corta, y un verificador automático que pone a prueba formulaciones ya escritas como las que podría producir un agente de lenguaje."
 }, "lab/lab");
