@@ -101,8 +101,8 @@ a { color: var(--accent-text); }
 }
 .topnav { display: flex; gap: 4px; flex-wrap: wrap; }
 .topnav a {
-  font-size: 14px; font-weight: 600; color: var(--ink2); text-decoration: none;
-  padding: 6px 10px; border-radius: 3px;
+  font-size: 14px; font-weight: 600; color: #c9ced3; text-decoration: none;
+  padding: 6px 10px; border-radius: 0;
 }
 .topnav a:hover { background: #1b1d20; color: #ffffff; }
 .backlink {
