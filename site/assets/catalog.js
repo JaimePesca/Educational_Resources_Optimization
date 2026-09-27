@@ -75,7 +75,7 @@ window.CATALOG = {
     // Level 5 · Other OR methods (being built), in learning order
     { id: "other-queue-explode", href: "resources/why-queues-explode.html", level: "other", type: "animation" },
     { id: "other-mdp", href: "resources/replace-or-repair.html", level: "other", type: "animation" },
-    { id: "other-two-stage", level: "other", type: "animation" },
+    { id: "other-two-stage", href: "resources/plan-for-the-average.html", level: "other", type: "animation" },
     { id: "other-decision-tree", level: "other", type: "animation" },
     { id: "other-cpm", level: "other", type: "animation" },
     { id: "other-maxflow", level: "other", type: "animation" },
