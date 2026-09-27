@@ -177,7 +177,7 @@
     }
     function frame(now) {
       if (!playing) return;
-      var dt = Math.min(0.1, (now - last) / 1000);
+      var dt = Math.max(0, Math.min(0.1, (now - last) / 1000));   // the first rAF stamp can precede play()
       last = now;
       t = Math.min(duration, t + dt * speed);
       draw();
@@ -207,7 +207,8 @@
     }
     var dragging = false;
     track.addEventListener("pointerdown", function (ev) {
-      dragging = true; track.setPointerCapture(ev.pointerId); pause(); userPaused = true; seekFromEvent(ev);
+      // seek before pause(): the play glyph changes on pause, so read the track while it is where the user pressed
+      dragging = true; track.setPointerCapture(ev.pointerId); seekFromEvent(ev); pause(); userPaused = true;
     });
     track.addEventListener("pointermove", function (ev) { if (dragging) seekFromEvent(ev); });
     track.addEventListener("pointerup", function () { dragging = false; });

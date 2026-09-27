@@ -66,7 +66,7 @@ window.CATALOG = {
     // Level 4 · Nonlinear programming (being built), in learning order
     { id: "nlp-convexity", level: "nlp", type: "animation" },
     { id: "nlp-stationary", level: "nlp", type: "animation" },
-    { id: "nlp-kkt", level: "nlp", type: "animation" },
+    { id: "nlp-kkt", href: "resources/where-contours-touch.html", level: "nlp", type: "animation" },
     { id: "nlp-newton", level: "nlp", type: "animation" },
     { id: "nlp-penalty-barrier", level: "nlp", type: "animation" },
     { id: "nlp-weber", level: "nlp", type: "animation" },

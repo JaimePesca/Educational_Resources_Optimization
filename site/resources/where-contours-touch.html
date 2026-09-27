@@ -1,0 +1,1622 @@
+<!doctype html>
+<html lang="en" data-title-key="kkt.title" data-i18n-bundles="resources/nlp-kkt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Where the Contours Touch</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #kkt-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 34%)); max-width: none;
+  }
+  #kkt-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #kkt-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #kkt-sec .anim-hud .chip-stat.bad b { color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #kkt-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #kkt-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #kkt-sec .anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #kkt-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 11px; }
+    #kkt-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #kkt-sec .anim-legend span[hidden] { display: none; }
+  #kkt-sec .anim-legend i.lg-lev { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--mit-silver); background: none; }
+  #kkt-sec .anim-legend i.lg-fence { width: 18px; height: 0; border-top: 2.5px solid var(--ink); }
+  #kkt-sec .anim-legend i.lg-ghost { width: 20px; height: 0; border: 0; border-top: 1.6px dashed var(--mit-silver); background: none; }
+  #kkt-sec .anim-legend i.lg-touch { width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--accent); background: none; }
+  #kkt-sec .anim-legend i.lg-feas { background: var(--region); border: 1px solid var(--mit-silver); }
+  #kkt-sec .anim-legend i.lg-infeas { background: repeating-linear-gradient(135deg, var(--mit-bright) 0 1.5px, transparent 1.5px 4.5px); border: 1px solid var(--mit-bright); }
+  /* dark theme: accent and bright red are the same colour there, so the violation cues use the crit shade */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #kkt-sec .anim-legend i.lg-infeas { background: repeating-linear-gradient(135deg, var(--crit) 0 1.5px, transparent 1.5px 4.5px); border-color: var(--crit); }
+  }
+  :root[data-theme="dark"] #kkt-sec .anim-legend i.lg-infeas { background: repeating-linear-gradient(135deg, var(--crit) 0 1.5px, transparent 1.5px 4.5px); border-color: var(--crit); }
+  #kkt-sec .anim-legend i.lg-opt { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent); }
+  #kkt-sec .anim-legend i.lg-gf, #kkt-sec .anim-legend i.lg-gg { width: 20px; height: 10px; position: relative; background: none; }
+  #kkt-sec .anim-legend i.lg-gf::before, #kkt-sec .anim-legend i.lg-gg::before { content: ""; position: absolute; left: 0; right: 5px; top: 4px; height: 2.5px; background: var(--accent); }
+  #kkt-sec .anim-legend i.lg-gf::after, #kkt-sec .anim-legend i.lg-gg::after { content: ""; position: absolute; right: 0; top: 0; border-left: 7px solid var(--accent); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  #kkt-sec .anim-legend i.lg-gg::before { background: var(--ink); }
+  #kkt-sec .anim-legend i.lg-gg::after { border-left-color: var(--ink); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- solution ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  .stat .v.ink { color: var(--ink); }
+  .solcheck { font-size: 14px; color: var(--ink2); margin: 14px 0 0; }
+
+  /* ---- sensitivity ---- */
+  table.data { min-width: 520px; }
+  @media (max-width: 560px) {
+    table.data { min-width: 0; }
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 6px; }
+  }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.ex { color: var(--accent-text); font-weight: 600; }
+  table.data td.gap { color: var(--muted); }
+  table.data tr.big td { border-bottom-color: var(--axis); }
+  .sens-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 78ch; }
+  .sens-p b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="kkt.eyebrow"></p>
+    <h1 data-i18n="kkt.title"></h1>
+    <p class="lede" data-i18n-html="kkt.lede"></p>
+  </header>
+
+  <section class="block" id="kkt-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="kkt.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="kkt-scen-lbl" data-i18n="kkt.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="kkt-scen-lbl" id="kkt-seg">
+        <button type="button" data-sc="active" aria-pressed="true"></button>
+        <button type="button" data-sc="slack" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="anim" id="kkt-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:kkt.anim.aria">
+        <div class="anim-hud" id="kkt-hud">
+          <div class="chip-stat" id="kkt-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="kkt-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="kkt-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="kkt-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="kkt-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="kkt-c5"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-lev"></i><span data-i18n="kkt.lg.lev"></span></span>
+      <span id="kkt-lg-touch"><i class="lg-touch"></i><span data-i18n="kkt.lg.touch"></span></span>
+      <span><i class="lg-fence"></i><span data-i18n="kkt.lg.fence"></span></span>
+      <span><i class="lg-ghost"></i><span id="kkt-lg-ghost"></span></span>
+      <span><i class="lg-feas"></i><span data-i18n="kkt.lg.feas"></span></span>
+      <span><i class="lg-infeas"></i><span data-i18n="kkt.lg.infeas"></span></span>
+      <span><i class="lg-opt"></i><span data-i18n="kkt.lg.opt"></span></span>
+      <span id="kkt-lg-gf"><i class="lg-gf"></i><span data-i18n="kkt.lg.gf"></span></span>
+      <span><i class="lg-gg"></i><span id="kkt-lg-gg" data-i18n="kkt.lg.gg"></span></span>
+    </div>
+    <p class="scen-status" id="kkt-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="kkt.model.kicker"></span><span data-i18n="kkt.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" data-tex="kkt.model.tex" data-i18n="kkt.model.formula"></div>
+        <p class="mtext" id="kkt-data"></p>
+        <p class="mhead" data-i18n="kkt.closed.head"></p>
+        <div class="formula" data-tex="kkt.closed.tex" data-i18n="kkt.closed.formula"></div>
+        <p class="mtext" data-i18n="kkt.closed.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="kkt.kkt.head"></p>
+        <div class="formula" data-tex="kkt.kkt.tex" data-i18n="kkt.kkt.formula"></div>
+        <p class="mtext" data-i18n="kkt.kkt.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="kkt.sol.kicker"></span><span id="kkt-sol-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="kkt.sol.x"></div><div class="v" id="kkt-sx"></div><div class="l" id="kkt-sxl"></div></div>
+      <div class="stat"><div class="k" data-i18n="kkt.sol.lam"></div><div class="v" id="kkt-sl"></div><div class="l" id="kkt-sll"></div></div>
+      <div class="stat"><div class="k" data-i18n="kkt.sol.f"></div><div class="v" id="kkt-sf"></div><div class="l" id="kkt-sfl"></div></div>
+      <div class="stat"><div class="k" data-i18n="kkt.sol.g"></div><div class="v ink" id="kkt-sg"></div><div class="l" id="kkt-sgl"></div></div>
+    </div>
+    <p class="solcheck" data-i18n="kkt.sol.check"></p>
+    <div class="formula" id="kkt-inst"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="kkt.sens.kicker"></span><span data-i18n="kkt.sens.title"></span></h2>
+    <p class="sens-p" id="kkt-sens-intro" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="kkt-sens"></table></div>
+    <p class="sens-p" id="kkt-sens-note"></p>
+    <p class="sens-p" id="kkt-sens-lp" data-i18n="kkt.sens.lp"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="kkt.n.title"></summary>
+      <div class="body">
+        <p id="kkt-n1"></p>
+        <p id="kkt-n2"></p>
+        <p id="kkt-n3"></p>
+        <p id="kkt-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.16" data-refs="kkt.refs"></p>
+  <p class="note" data-i18n="kkt.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/nlp-kkt.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d, m) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 2 : d, m); };
+  // the sign is chosen after rounding, so a tiny value never shows as "−0" or "+0"
+  var signed = function (v, d, neg, pos) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? neg : pos) + m; };
+  var num = function (v, d) { return signed(v, d, MINUS, ""); };        // U+2212 for negatives
+  var sgn = function (v, d) { return signed(v, d, MINUS, "+"); };       // explicit sign
+  var texNum = function (v, d) { return signed(v, d, "-", ""); };
+  var pair = function (x, y, d) { return T("kkt.pair", { x: num(x, d), y: num(y, d) }); };
+
+  /* ---------- the model: min (x-a)^2 + (y-b)^2  s.t.  p x + q y <= c ---------- */
+  var A0 = 4, B0 = 3, P0 = 1, Q0 = 2, N2 = P0 * P0 + Q0 * Q0, NN = Math.sqrt(N2);
+  var CS = { active: 4, slack: 12 };             // right-hand side c of each scenario (illustrative)
+  var DC = 1;                                    // how far the fence moves in chapter 4
+  var DELTAS = [-1, -0.5, -0.1, 0.1, 0.5, 1];    // rows of the sensitivity table
+  function gOf(x, y) { return P0 * x + Q0 * y; }
+  function fOf(x, y) { return (x - A0) * (x - A0) + (y - B0) * (y - B0); }
+  // closed form of the KKT conditions for one linear constraint
+  function solve(c) {
+    var e = gOf(A0, B0) - c;
+    if (e <= 0) return { c: c, x: A0, y: B0, lam: 0, f: 0, g: gOf(A0, B0), active: false };
+    var s = e / N2, x = A0 - s * P0, y = B0 - s * Q0;
+    return { c: c, x: x, y: y, lam: 2 * s, f: fOf(x, y), g: gOf(x, y), active: true };
+  }
+  // linear expression p x + q y as text (plain uses U+2212 and no-break spaces, TeX uses -)
+  function lin(p, q, tex) {
+    var m = tex ? "-" : MINUS, sp = tex ? " " : " ", s = "";
+    function term(k, v, first) {
+      if (Math.abs(k) < 1e-12) return "";
+      var mag = Math.abs(k), coef = Math.abs(mag - 1) < 1e-12 ? "" : fmt(mag);
+      var sign = first ? (k < 0 ? m : "") : (k < 0 ? sp + m + sp : sp + "+" + sp);
+      return sign + coef + v;
+    }
+    s = term(p, "x", true);
+    s += term(q, "y", s === "");
+    return s;
+  }
+  var cache = {};
+  function scen(key) {
+    if (cache[key]) return cache[key];
+    var c0 = CS[key], o0 = solve(c0), oD = solve(c0 + DC);
+    return (cache[key] = { key: key, c0: c0, o0: o0, oD: oD, act: o0.active });
+  }
+  var state = { sc: "active" };
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed from the model above; the 3D bowl, the
+     rolling particles, the camera and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("kkt-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("kkt-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);                      // counters above the canvas
+  var DUR = 52, CH = [0, 9, 20, 31, 42];
+  var TT = 16.2;                                 // the growing circle touches the fence
+  var ARW = 0.2;                                 // arrow length per unit of gradient (world units)
+  var GMIN = 24;                                 // least screen length of the thin reference grad g arrow (px)
+  var HZ = 0.2;                                 // height scale of the tilted bowl
+  var PHI = 1.0;                                // tilt of the camera in chapter 1 (radians)
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var cam = { x: 0, y: 0, K: 1, phi: 0, tau: 0 };
+  var TAU = Math.PI * 2;
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  var font = function (w, s, mono, it) { return (it ? "italic " : "") + w + " " + s + "px " + (mono ? MONO : SANS); };
+
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait, narrow: portrait || W < 760, hudB: hy + hh, hudR: hx + hw, hudX: hx, hudW: hw };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11.5; L.fb = 12.5; L.ft = 13.5; L.lw = 2; L.dot = 5; L.head = 9;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 12; L.fb = 14; L.ft = 16; L.lw = 2.5; L.dot = 6.5; L.head = 12;
+    }
+    // room for the longest caption of either scenario, so nothing jumps between chapters
+    var tl = 1, sl = 1, tl4 = 1, sl4 = 1;
+    ["active", "slack"].forEach(function (k) {
+      CH.forEach(function (c, ci) {
+        var cap = captions(scen(k), c + 0.1), a, b;
+        ctx.font = font(700, L.ft); a = wrap(cap[0], L.capW - 12).length; tl = Math.max(tl, a);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); b = wrap(cap[1], L.capW - 12).length; sl = Math.max(sl, b);
+        if (ci >= 3) { tl4 = Math.max(tl4, a); sl4 = Math.max(sl4, b); }
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    // the inset only shows in chapters 4 and 5: it starts under the longest caption of those two
+    L.capBottom45 = L.capY + (tl4 - 1) * (L.ft + 3) + L.fs + 6 + (sl4 - 1) * (L.fs + 5) + 4;
+    if (portrait) { L.x0 = 8; L.x1 = W - 8; L.y0 = L.capBottom + 10; L.y1 = H - 8; }
+    else { L.x0 = hx + hw + 22; L.x1 = W - 14; L.y0 = 14; L.y1 = H - 14; }
+    L.ox = (L.x0 + L.x1) / 2; L.oy = (L.y0 + L.y1) / 2;
+    L.pw = L.x1 - L.x0; L.ph = L.y1 - L.y0;
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+
+  /* ---------- camera: world boxes [cx, cy, w, h] ---------- */
+  function boxes(S) {
+    var o = S.o0, home = [4, 2.6, 9.6, 8.0], bowl = [4, 3.9, 9.4, 7.6], zoom, fin;
+    if (S.act) {
+      if (L.portrait) {
+        // phones: frame the whole touching contour plus the tip of grad f, so the circle is never cut
+        var r = Math.sqrt(o.f), tx = o.x + ARW * 2 * (o.x - A0), ty = o.y + ARW * 2 * (o.y - B0);
+        var bx0 = Math.min(A0 - r, tx - 0.3) - 0.25, bx1 = Math.max(A0 + r, tx + 0.3) + 0.25;
+        var by0 = Math.min(B0 - r, ty - 0.45) - 0.1, by1 = Math.max(B0 + r, ty) + 0.15;
+        zoom = [(bx0 + bx1) / 2, (by0 + by1) / 2, bx1 - bx0, by1 - by0];
+      } else zoom = [o.x + 0.35 * (A0 - o.x), o.y + 0.35 * (B0 - o.y), 6.4, 5.6];
+      fin = [4, 2.5, 7.6, 7.2];
+    } else {
+      var fx = A0 + (S.c0 - gOf(A0, B0)) / N2 * P0, fy = B0 + (S.c0 - gOf(A0, B0)) / N2 * Q0;
+      zoom = [(A0 + fx) / 2, (B0 + fy) / 2 - 0.2, 6.4, 5.6];
+      // phones: closer in, so the short band between the fence and its ghost (and grad g in it) reads clearly
+      fin = L.portrait ? [(A0 + fx) / 2, (B0 + fy) / 2 - 0.3, 5.0, 4.6] : [(A0 + fx) / 2, (B0 + fy) / 2 - 0.4, 7.6, 7.2];
+    }
+    return { home: home, bowl: bowl, zoom: zoom, fin: fin };
+  }
+  function mixBox(a, b, u) {
+    return [lerp(a[0], b[0], u), lerp(a[1], b[1], u), Math.exp(lerp(Math.log(a[2]), Math.log(b[2]), u)), Math.exp(lerp(Math.log(a[3]), Math.log(b[3]), u))];
+  }
+  function setCam(S, t) {
+    var B = boxes(S), box = B.bowl;
+    box = mixBox(box, B.home, E.inOut(seg(t, 5.4, 8.6)));
+    box = mixBox(box, B.zoom, E.inOut(seg(t, 15.4, 18.6)));
+    box = mixBox(box, B.fin, E.inOut(seg(t, 42.4, 45.6)));
+    cam.x = box[0]; cam.y = box[1];
+    cam.K = Math.min(L.pw / box[2], L.ph / box[3]);
+    cam.tau = 1 - E.inOut(seg(t, 5.4, 8.4));
+    cam.phi = PHI * cam.tau;
+  }
+  function SX(x) { return L.ox + (x - cam.x) * cam.K; }
+  function SY(y) { return L.oy - (y - cam.y) * cam.K; }
+  function PY(y, z) {                             // screen y of a point at height z (tilted view)
+    var yy = B0 + (y - B0) * Math.cos(cam.phi) + z * HZ * Math.sin(cam.phi);
+    return L.oy - (yy - cam.y) * cam.K;
+  }
+  function worldRect() {
+    return { x0: cam.x + (0 - L.ox) / cam.K, x1: cam.x + (L.W - L.ox) / cam.K,
+      y0: cam.y - (L.H - L.oy) / cam.K, y1: cam.y + (L.oy - 0) / cam.K };
+  }
+
+  /* ---------- time model ---------- */
+  function cAt(S, t) {
+    return S.c0 + DC * E.inOut(seg(t, 33.4, 37.4)) * (1 - E.inOut(seg(t, 42.4, 45)));
+  }
+  function growR(S, t) { return S.act ? Math.sqrt(S.o0.f) * E.inOut(seg(t, 12.6, TT)) : 0; }
+  function tOpt(S) { return S.act ? TT : 12.6; }  // the optimum appears
+  function lamCount(S, t) { return S.o0.lam * E.inOut(seg(t, 24.4, 27.6)); }
+
+  /* ---------- geometry helpers ---------- */
+  function clipLine(c, R) {                      // the line p x + q y = c inside the rectangle R
+    var fx = P0 * c / N2, fy = Q0 * c / N2, dx = -Q0 / NN, dy = P0 / NN, t0 = -1e4, t1 = 1e4;
+    function edge(pp, qq) {
+      if (Math.abs(pp) < 1e-12) return qq >= 0;
+      var r = qq / pp;
+      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      return true;
+    }
+    if (!edge(-dx, fx - R.x0) || !edge(dx, R.x1 - fx) || !edge(-dy, fy - R.y0) || !edge(dy, R.y1 - fy)) return null;
+    return [fx + t0 * dx, fy + t0 * dy, fx + t1 * dx, fy + t1 * dy];
+  }
+  function clipHalf(poly, c, sign) {             // keep sign * (p x + q y - c) <= 0
+    var out = [];
+    for (var i = 0; i < poly.length; i++) {
+      var P = poly[i], Q = poly[(i + 1) % poly.length];
+      var da = sign * (gOf(P[0], P[1]) - c), db = sign * (gOf(Q[0], Q[1]) - c);
+      if (da <= 0) out.push(P);
+      if ((da < 0 && db > 0) || (da > 0 && db < 0)) {
+        var u = da / (da - db);
+        out.push([P[0] + u * (Q[0] - P[0]), P[1] + u * (Q[1] - P[1])]);
+      }
+    }
+    return out;
+  }
+  function polyPath(poly) {
+    ctx.beginPath();
+    poly.forEach(function (P, i) { if (i) ctx.lineTo(SX(P[0]), SY(P[1])); else ctx.moveTo(SX(P[0]), SY(P[1])); });
+    ctx.closePath();
+  }
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function arrow(x0, y0, x1, y1, col, lw, head, a) {
+    var dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy);
+    if (len < 0.8 || a <= 0.01) return;
+    var ux = dx / len, uy = dy / len, hl = Math.min(head, len * 0.7), hw = hl * 0.5;
+    var bx = x1 - ux * hl, by = y1 - uy * hl;
+    ctx.globalAlpha = a; ctx.lineCap = "round";
+    ctx.strokeStyle = C.surface; ctx.lineWidth = lw + 4;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(bx, by); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(bx - uy * hw, by + ux * hw); ctx.lineTo(bx + uy * hw, by - ux * hw); ctx.closePath();
+    ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.stroke();
+    ctx.fillStyle = col; ctx.fill();
+    ctx.strokeStyle = col; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(bx + ux * 0.5, by + uy * 0.5); ctx.stroke();
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+  }
+  var hatchCache = { key: "", pat: null };
+  function hatch(poly, col, a) {                  // diagonal hatch as a cached pattern (cheap to fill)
+    if (poly.length < 3 || a <= 0) return;
+    var dpr = window.devicePixelRatio || 1, step = L.portrait ? 6 : 7, key = col + ":" + step + ":" + dpr;
+    if (hatchCache.key !== key) {
+      var n = Math.round(step * dpr), tile = document.createElement("canvas");
+      tile.width = n; tile.height = n;
+      var tc = tile.getContext("2d");
+      tc.strokeStyle = col; tc.lineWidth = 1.2 * dpr; tc.lineCap = "square";
+      tc.beginPath(); tc.moveTo(0, n); tc.lineTo(n, 0); tc.moveTo(-1, 1); tc.lineTo(1, -1); tc.moveTo(n - 1, n + 1); tc.lineTo(n + 1, n - 1); tc.stroke();
+      var pat = ctx.createPattern(tile, "repeat");
+      if (pat && pat.setTransform && window.DOMMatrix) pat.setTransform(new DOMMatrix().scale(1 / dpr));
+      hatchCache = { key: key, pat: pat };
+    }
+    polyPath(poly);
+    ctx.globalAlpha = a; ctx.fillStyle = hatchCache.pat || col; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- floor grid and axes ---------- */
+  function hits(b, K) {                          // how much a tick label box is covered by a key label
+    var m = 0;
+    for (var i = 0; i < K.length; i++) {
+      var k = K[i].b;
+      if (b[0] < k[2] && b[2] > k[0] && b[1] < k[3] && b[3] > k[1]) m = Math.max(m, K[i].a);
+    }
+    return m;
+  }
+  function keyPath(k) {                          // a label's box (k.b) or, for a rotated label, its polygon (k.p)
+    if (!k.p) { var b = k.b; ctx.rect(b[0], b[1], b[2] - b[0], b[3] - b[1]); return; }
+    k.p.forEach(function (P, i) { if (i) ctx.lineTo(P[0], P[1]); else ctx.moveTo(P[0], P[1]); });
+    ctx.closePath();
+  }
+  function giveWay(K, draw) {                    // draw context lines with a gap under the key labels, fading with them
+    ctx.save();
+    K.forEach(function (k) {                     // successive clips intersect: the plot minus every label box
+      if (k.a <= 0.01) return;
+      ctx.beginPath(); ctx.rect(0, 0, L.W, L.H); keyPath(k); ctx.clip("evenodd");
+    });
+    draw(1);
+    ctx.restore();
+    K.forEach(function (k) {                     // under a label still fading in or out, what is left of the lines
+      if (k.a <= 0.01 || k.a >= 0.99) return;
+      ctx.save(); ctx.beginPath(); keyPath(k); ctx.clip(); draw(1 - k.a); ctx.restore();
+    });
+    ctx.globalAlpha = 1;
+  }
+  function rotBox(X, Y, ang, x0, y0, x1, y1) {  // a box [x0, x1] x [y0, y1] drawn rotated by ang around (X, Y): polygon and its bounds
+    var c = Math.cos(ang), s = Math.sin(ang);
+    var p = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(function (P) { return [X + P[0] * c - P[1] * s, Y + P[0] * s + P[1] * c]; });
+    var xs = p.map(function (P) { return P[0]; }), ys = p.map(function (P) { return P[1]; });
+    return { p: p, b: [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)] };
+  }
+  function textBox(o) {                          // screen box of an upright label {txt, x, y, align, f, fs}
+    ctx.font = o.f;
+    var w = ctx.measureText(o.txt).width, x0 = o.align === "center" ? o.x - w / 2 : (o.align === "right" ? o.x - w : o.x);
+    o.b = [x0 - 3, o.y - o.fs / 2 - 3, x0 + w + 3, o.y + o.fs / 2 + 3];
+    return o;
+  }
+  function nearFence(b, c, m) {                  // does the screen box b come within m px of the line g = c?
+    var lo = Infinity, hi = -Infinity;
+    [[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]].forEach(function (P) {
+      var wx = cam.x + (P[0] - L.ox) / cam.K, wy = cam.y - (P[1] - L.oy) / cam.K, d = (gOf(wx, wy) - c) / NN * cam.K;
+      lo = Math.min(lo, d); hi = Math.max(hi, d);
+    });
+    return lo < m && hi > -m;
+  }
+  function onFence(b, fences) {                  // the strongest of the fences (by opacity) that the box b comes near
+    var h = 0;
+    fences.forEach(function (F) { if (F.a > h && nearFence(b, F.c, F.m)) h = F.a; });
+    return h;
+  }
+  function drawFloor(t, clear) {                  // the grid and the axes (context lines give way under the key labels)
+    var a = E.out(seg(t, 0.05, 1.3));
+    if (a <= 0) return;
+    var tau = cam.tau, x, y;
+    giveWay(clear, function (m) {
+      for (x = -8; x <= 16; x++) {
+        ctx.globalAlpha = a * m * (x === 0 ? 0.9 : 1);
+        ctx.strokeStyle = x === 0 ? C.axis : C.grid;
+        ctx.lineWidth = x === 0 ? 1.5 : 1;
+        ctx.beginPath(); ctx.moveTo(SX(x), PY(-8, 0)); ctx.lineTo(SX(x), PY(20, 0)); ctx.stroke();
+      }
+      for (y = -8; y <= 20; y++) {
+        var far = tau * clamp((y - B0) / 10, 0, 1);
+        ctx.globalAlpha = a * m * (1 - 0.75 * far);
+        ctx.strokeStyle = y === 0 ? C.axis : C.grid;
+        ctx.lineWidth = y === 0 ? 1.5 : 1;
+        ctx.beginPath(); ctx.moveTo(SX(-8), PY(y, 0)); ctx.lineTo(SX(16), PY(y, 0)); ctx.stroke();
+      }
+    });
+    ctx.globalAlpha = 1;
+  }
+  function drawTicks(t, keep, fences) {          // tick labels once the view is flat (drawn over the tint of the two sides)
+    var a = E.out(seg(t, 0.05, 1.3)), x, y;
+    var ta = a * (1 - cam.tau);
+    if (ta <= 0.02) return;
+    var R = worldRect(), fs = L.portrait ? 11 : 10.5, x0 = SX(0), y0 = SY(0);
+    var yTickMin = L.portrait ? fs * 2 : L.x0 + 12 + fs * 2;   // desktop: past the quiet band on the left, not under it
+    var top = L.portrait ? L.y0 : 0;              // phones: nothing above the plot, under the caption
+    // muted text on a surface halo, so the small labels keep their contrast on the tinted feasible side too;
+    // a tick label also keeps a few px of air from every key label (TP), so "3" never reads as part of "x*"
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.strokeStyle = C.surface; ctx.lineWidth = 3; ctx.lineJoin = "round";
+    var step = cam.K < 40 ? 2 : 1, s, w, X, Y, h, TP = 7;
+    var tick = function (s, X, Y) { ctx.strokeText(s, X, Y); ctx.fillText(s, X, Y); };
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (x = Math.ceil(R.x0); x <= R.x1; x++) {
+      if (x === 0 || x % step) continue;
+      s = String(x).replace("-", MINUS); w = ctx.measureText(s).width; X = SX(x); Y = clamp(y0 + 4, 0, L.H - fs - 4);
+      if (Y < top) continue;
+      h = hits([X - w / 2 - TP, Y - 3, X + w / 2 + TP, Y + fs + 3], keep);
+      h = Math.max(h, onFence([X - w / 2 - 1, Y - 1, X + w / 2 + 1, Y + fs + 1], fences));
+      if (h >= 0.99) continue;
+      ctx.globalAlpha = ta * (1 - h); tick(s, X, Y);
+    }
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (y = Math.ceil(R.y0); y <= R.y1; y++) {
+      if (y === 0 || y % step) continue;
+      s = String(y).replace("-", MINUS); w = ctx.measureText(s).width; X = clamp(x0 - 5, yTickMin, L.W); Y = SY(y);
+      if (Y - fs / 2 < top) continue;
+      h = hits([X - w - TP, Y - fs / 2 - 3, X + TP, Y + fs / 2 + 3], keep);
+      h = Math.max(h, onFence([X - w - 1, Y - fs / 2 - 1, X + 1, Y + fs / 2 + 1], fences));
+      if (h >= 0.99) continue;
+      ctx.globalAlpha = ta * (1 - h); tick(s, X, Y);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- level curves ---------- */
+  function drawBowl(t) {                         // a faint body for the bowl while it is tilted
+    if (cam.tau <= 0.01) return;
+    var ba = cam.tau * E.out(seg(t, 0.6, 2));
+    ctx.globalAlpha = 0.55 * ba; ctx.fillStyle = C.region;
+    ctx.beginPath(); ctx.ellipse(SX(A0), PY(B0, 12.25), 3.5 * cam.K, Math.max(0.1, 3.5 * Math.cos(cam.phi) * cam.K), 0, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function drawContours(S, t, m) {               // m: opacity factor (giveWay draws them again, faded, under a fading label)
+    var tau = cam.tau, cosP = Math.cos(cam.phi), X = SX(A0), k, r, a;
+    ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.1;
+    // the bowl: 7 rings drawn from the bottom up
+    for (k = 1; k <= 7; k++) {
+      r = 0.5 * k;
+      var u = E.inOut(seg(t, 0.4 + 0.22 * k, 1.5 + 0.22 * k));
+      if (u <= 0) continue;
+      ctx.globalAlpha = (0.75 - 0.03 * k) * m;
+      ctx.beginPath();
+      ctx.ellipse(X, PY(B0, r * r), r * cam.K, Math.max(0.1, r * cosP * cam.K), 0, Math.PI / 2, Math.PI / 2 + TAU * u);
+      ctx.stroke();
+    }
+    // meridians of the bowl while it is tilted
+    if (tau > 0.01) {
+      var ma = 0.4 * tau * E.out(seg(t, 1.2, 2.6)) * m;
+      ctx.globalAlpha = ma;
+      for (var j = 0; j < 16; j++) {
+        var th = j * Math.PI / 8;
+        ctx.beginPath();
+        for (r = 0; r <= 3.5001; r += 0.125) {
+          var px = SX(A0 + r * Math.cos(th)), py = PY(B0 + r * Math.sin(th), r * r);
+          if (r) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+        }
+        ctx.stroke();
+      }
+    }
+    // context rings further out, once the view is flat
+    for (k = 8; k <= 22; k++) {
+      a = seg(t, 7.0 + 0.09 * (k - 8), 7.7 + 0.09 * (k - 8));
+      if (a <= 0) continue;
+      r = 0.5 * k;
+      ctx.globalAlpha = a * Math.max(0.25, 0.62 - 0.02 * k) * m;
+      ctx.beginPath(); ctx.ellipse(X, PY(B0, r * r), r * cam.K, Math.max(0.1, r * cosP * cam.K), 0, 0, TAU); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- particles rolling down the bowl (gradient flow, deterministic) ---------- */
+  var PARTS = (function () {
+    var r = A.rng(7), out = [];
+    for (var i = 0; i < 7; i++) out.push({ th: 0.5 + i * TAU / 7 + (r() - 0.5) * 0.5, r0: 3.2 + 0.3 * r(), t0: 2.2 + 0.3 * i });
+    return out;
+  })();
+  function partPos(p, s) {
+    var r = p.r0 * Math.exp(-0.8 * Math.max(0, s - p.t0));
+    var x = A0 + r * Math.cos(p.th), y = B0 + r * Math.sin(p.th);
+    return [SX(x), PY(y, r * r)];
+  }
+  function drawParticles(t) {
+    if (t < 2.3 || t > 9) return;
+    // the "ideal point (4, 3)" label: a particle fades out before its head gets near the label box, and stays out
+    var IB = idealLabel(t, 1, 0).b, near = (L.portrait ? 4.6 : 5.6) + 9;
+    var boxDist = function (P) {
+      var dx = Math.max(IB[0] - P[0], 0, P[0] - IB[2]), dy = Math.max(IB[1] - P[1], 0, P[1] - IB[3]);
+      return Math.hypot(dx, dy);
+    };
+    PARTS.forEach(function (p) {
+      var a = seg(t, p.t0, p.t0 + 0.3) * (1 - seg(t, p.t0 + 3, p.t0 + 3.7));
+      if (a <= 0) return;
+      for (var sh = p.t0; sh <= Math.min(t + 0.4, p.t0 + 3.7); sh += 0.04) {
+        if (boxDist(partPos(p, sh)) < near) { a *= 1 - seg(t, sh - 0.4, sh); break; }
+      }
+      if (a <= 0) return;
+      ctx.lineCap = "round";
+      var prev = partPos(p, t);
+      for (var k = 1; k <= 14; k++) {
+        var s = Math.max(p.t0, t - k * 0.07), q = partPos(p, s);
+        ctx.globalAlpha = a * 0.85 * (1 - k / 15); ctx.strokeStyle = C.ink; ctx.lineWidth = (L.portrait ? 3 : 4) * (1 - k / 16);
+        ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
+        prev = q;
+      }
+      var h = partPos(p, t);
+      ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(h[0], h[1], L.portrait ? 4.6 : 5.6); ctx.fill();
+      ctx.fillStyle = C.ink; circle(h[0], h[1], L.portrait ? 3.2 : 4); ctx.fill();
+      ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+    });
+  }
+
+  /* ---------- the fence and its two sides ---------- */
+  function drawSides(S, t, c) {
+    var a = E.out(seg(t, 10.4, 11.6));
+    if (a <= 0) return;
+    var R = worldRect(), rect = [[R.x0, R.y0], [R.x1, R.y0], [R.x1, R.y1], [R.x0, R.y1]];
+    var feas = clipHalf(rect, c, 1), inf = clipHalf(rect, c, -1);
+    if (feas.length > 2) { polyPath(feas); ctx.globalAlpha = a * 0.75; ctx.fillStyle = C.region; ctx.fill(); }
+    if (inf.length > 2) {
+      var flash = seg(t, 10.3, 10.9) * (1 - seg(t, 11.3, 12.6));
+      if (flash > 0) { polyPath(inf); ctx.globalAlpha = 0.16 * flash; ctx.fillStyle = HOT; ctx.fill(); }
+      hatch(inf, HOT, a * 0.2);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function fenceSeg(c) {
+    return clipLine(c, { x0: cam.x + (L.x0 - L.ox) / cam.K, x1: cam.x + (L.x1 - L.ox) / cam.K,
+      y0: cam.y - (L.y1 - L.oy) / cam.K, y1: cam.y + (L.oy - L.y0) / cam.K });
+  }
+  function drawFence(S, t, c) {
+    var u = E.inOut(seg(t, 9.4, 10.9));
+    if (u <= 0) return;
+    var s = clipLine(c, worldRect());
+    if (!s) return;
+    var x1 = lerp(s[0], s[2], u), y1 = lerp(s[1], s[3], u);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = L.lw + 0.5; ctx.globalAlpha = 1; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(SX(s[0]), SY(s[1])); ctx.lineTo(SX(x1), SY(y1)); ctx.stroke();
+    ctx.lineCap = "butt";
+    if (u < 1) {                                  // bright head while it is drawn
+      ctx.fillStyle = HOT; circle(SX(x1), SY(y1), L.lw + 2.5); ctx.fill();
+    }
+    // label along the line, near the upper left end of the plot
+    var la = seg(t, 10.8, 11.6), F = fenceLabel(c);
+    if (la > 0 && F) {
+      ctx.save(); ctx.translate(F.X, F.Y); ctx.rotate(F.ang);
+      label(F.txt, 0, 9 + L.fs / 2, "center", C.ink, F.f, la);
+      ctx.restore();
+    }
+  }
+  function lineAngle(v) {                        // screen angle of a segment, kept readable (not upside down)
+    var ang = Math.atan2(SY(v[3]) - SY(v[1]), SX(v[2]) - SX(v[0]));
+    if (ang > Math.PI / 2) ang -= Math.PI; else if (ang < -Math.PI / 2) ang += Math.PI;
+    return ang;
+  }
+  function fenceLabel(c) {                       // where the fence label sits (anchor on the line, width)
+    var v = fenceSeg(c);
+    if (!v) return null;
+    var f = font(700, L.fs + 0.5), txt = T("kkt.l.fence", { g: lin(P0, Q0), c: fmt(c) });
+    ctx.font = f;
+    return { X: SX(lerp(v[0], v[2], 0.86)), Y: SY(lerp(v[1], v[3], 0.86)), ang: lineAngle(v), txt: txt, f: f, w: ctx.measureText(txt).width };
+  }
+  function fenceKey(t, c) {                      // the rotated fence label as a key box (polygon and bounds)
+    var F = fenceLabel(c);
+    if (!F) return null;
+    var yc = 9 + L.fs / 2, hh = (L.fs + 0.5) / 2 + 3, k = rotBox(F.X, F.Y, F.ang, -F.w / 2 - 3, yc - hh, F.w / 2 + 3, yc + hh);
+    k.a = seg(t, 10.8, 11.6);
+    return k;
+  }
+  function drawGhost(c, a) {                     // dashed silver copy of the fence
+    if (a <= 0.01) return;
+    var s = clipLine(c, worldRect());
+    if (!s) return;
+    ctx.globalAlpha = a; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.6; ctx.setLineDash([6, 5]);
+    ctx.beginPath(); ctx.moveTo(SX(s[0]), SY(s[1])); ctx.lineTo(SX(s[2]), SY(s[3])); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  function ghostA(t, k) {                        // opacity of the ghost fence at c0 (k = 0, chapter 4) and at c0 + dc (k = 1, recap)
+    return k ? seg(t, 43.6, 45) : seg(t, 33.6, 34.2) * (1 - seg(t, 42.4, 43.2));
+  }
+  function sideSpec(c, ghosts, S) {
+    // near the lower end of the visible line, one label on each side, slid up the line when one would leave the plot.
+    // A dashed ghost fence on a label's side (ghosts: [{c, a}]) pushes that label out past it, so the ghost never
+    // runs through the text. In the Active scenario the touching contour is an obstacle too: the labels slide down
+    // the line, away from x*, until they clear it.
+    var v = fenceSeg(c);
+    if (!v) return null;
+    var X0 = SX(v[0]), Y0 = SY(v[1]), DX = SX(v[2]) - X0, DY = SY(v[3]) - Y0;
+    var nx = P0 / NN, ny = -Q0 / NN, off = L.portrait ? 16 : 22;     // screen normal toward g > c
+    var f = font(600, L.fs), su = L.portrait ? 0.16 : 0.1;
+    ctx.font = f;
+    var items = [
+      { txt: T("kkt.l.feas"), sd: -1, col: C.ink2 },
+      { txt: T("kkt.l.infeas"), sd: 1, col: C.crit }
+    ];
+    items.forEach(function (it) {
+      it.w = ctx.measureText(it.txt).width;
+      var ext = (it.w * P0 + L.fs * Q0) / (2 * NN);                   // half extent of the upright box across the fence
+      // the whole box (its 2 px halo included) keeps a visible gap from the fence, however long the word
+      var o = Math.max(off, ext + (L.lw + 0.5) / 2 + 2 + 5);
+      (ghosts || []).forEach(function (g) {
+        if (g.a <= 0 || (g.c - c) * it.sd <= 0) return;
+        o = Math.max(o, g.a * (Math.abs(g.c - c) / NN * cam.K + ext + 6));
+      });
+      it.ox = it.sd * nx * o; it.oy = it.sd * ny * o;
+    });
+    var place = function (it, u) {
+      it.x = X0 + u * DX + it.ox; it.y = Y0 + u * DY + it.oy;
+      it.b = [it.x - it.w / 2 - 3, it.y - L.fs / 2 - 3, it.x + it.w / 2 + 3, it.y + L.fs / 2 + 3];
+    };
+    items.forEach(function (it) {                // lo: the least su that keeps the label inside the plot
+      it.lo = 0;
+      if (DX < -1) it.lo = Math.max(it.lo, (X0 + it.ox + it.w / 2 + 8 - L.x1) / -DX);
+      if (DY < -1) it.lo = Math.max(it.lo, (Y0 + it.oy + L.fs / 2 + 8 - L.y1) / -DY);
+    });
+    su = Math.min(Math.max(su, items[0].lo, items[1].lo), 0.45);
+    items.forEach(function (it) { place(it, su); });
+    if (S && S.act) {
+      // the largest touching contour (at c0: the one after the move is a smaller circle around the same centre);
+      // a label on it slides on its own down the line toward the edge of the plot until it is clear
+      var CX = SX(A0), CY = SY(B0), RR = Math.sqrt(S.o0.f) * cam.K + L.lw / 2 + 6;
+      var onDisk = function (b) {
+        var dx = Math.max(b[0] - CX, 0, CX - b[2]), dy = Math.max(b[1] - CY, 0, CY - b[3]);
+        return Math.hypot(dx, dy) < RR;
+      };
+      items.forEach(function (it) {
+        if (!onDisk(it.b)) return;
+        for (var u = su - 0.005; u >= it.lo - 1e-9; u -= 0.005) { place(it, u); if (!onDisk(it.b)) return; }
+        place(it, su);
+      });
+    }
+    return { f: f, items: items };
+  }
+  // small stages: the side labels leave once the gradients arrive (the hatch and the legend keep the meaning)
+  function sideAlpha(t) { return seg(t, 11.4, 12.2) * (L.narrow ? 1 - seg(t, 17, 17.6) : 1); }
+  function sideGhosts(S, t) { return [{ c: S.c0, a: ghostA(t, 0) }, { c: S.c0 + DC, a: ghostA(t, 1) }]; }
+  function sideLabels(S, t, c) {
+    var a = sideAlpha(t), sp = a > 0 ? sideSpec(c, sideGhosts(S, t), S) : null;
+    if (!sp) return;
+    sp.items.forEach(function (it) { label(it.txt, it.x, it.y, "center", it.col, sp.f, a); });
+  }
+
+  /* ---------- growing circle, optimum, gradients ---------- */
+  function drawGrowing(S, t, O, m, moving) {     // moving: the growing circle and the waves (they give way to the labels)
+    if (!S.act) {
+      if (!moving || t < 12.8 || t > 18.2) return;
+      for (var w = 0; w < 3; w++) {
+        var ph = seg(t, 12.8 + w * 1.4, 15.8 + w * 1.4);
+        if (ph <= 0 || ph >= 1) continue;
+        ctx.globalAlpha = 0.7 * (1 - ph) * m; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 2;
+        circle(SX(A0), SY(B0), (0.2 + 2.2 * E.out(ph)) * cam.K); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      return;
+    }
+    if (t < 12.6) return;
+    var X = SX(A0), Y = SY(B0), K = cam.K;
+    if (t < TT) {
+      if (!moving) return;
+      var r = growR(S, t);
+      for (var e = 2; e >= 1; e--) {
+        ctx.globalAlpha = 0.28 / e * m; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+        circle(X, Y, Math.max(0, r - e * 0.13) * K); ctx.stroke();
+      }
+      ctx.globalAlpha = m; ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+      circle(X, Y, r * K); ctx.stroke();
+      ctx.globalAlpha = 1;
+      return;
+    }
+    if (moving) return;
+    // the touching contour follows the optimum (it moves with the fence in chapter 4)
+    var rr = Math.sqrt(O.f);
+    ctx.globalAlpha = 1; ctx.strokeStyle = C.accent; ctx.lineWidth = L.lw;
+    circle(X, Y, rr * K); ctx.stroke();
+    var fl = seg(t, TT, TT + 0.9);
+    if (fl < 1) { ctx.globalAlpha = 0.5 * (1 - fl); ctx.lineWidth = L.lw + 6 * (1 - fl); circle(X, Y, rr * K); ctx.stroke(); }
+    ctx.globalAlpha = 1;
+  }
+  function drawRadius(S, t, O, m) {
+    if (!S.act) return;
+    var a = seg(t, 17.2, 18.2) * (1 - 0.4 * seg(t, 42.4, 43.4)) * m;
+    if (a <= 0) return;
+    var X = SX(O.x), Y = SY(O.y), CX = SX(A0), CY = SY(B0);
+    ctx.globalAlpha = a * 0.8; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(X, Y); ctx.stroke(); ctx.setLineDash([]);
+    // right angle between the radius and the fence
+    var ux = P0 / NN, uy = -Q0 / NN, vx = Q0 / NN, vy = P0 / NN, m = L.portrait ? 12 : 15;
+    ctx.globalAlpha = a; ctx.lineWidth = 1.3; ctx.strokeStyle = C.ink;
+    ctx.beginPath(); ctx.moveTo(X + ux * m, Y + uy * m); ctx.lineTo(X + ux * m + vx * m, Y + uy * m + vy * m); ctx.lineTo(X + vx * m, Y + vy * m); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  function drawIdeal(S, t) {
+    var a = E.back(seg(t, 1.8, 2.5));
+    if (a <= 1e-3) return;
+    var X = SX(A0), Y = PY(B0, 0), r = (L.portrait ? 5.5 : 7) * a;
+    var bad = S.act ? seg(t, 11.6, 12.2) : 0;
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = C.surface; circle(X, Y, r + 2); ctx.fill();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2; circle(X, Y, r); ctx.stroke();
+    ctx.fillStyle = C.ink; circle(X, Y, r * 0.35); ctx.fill();
+    if (bad > 0) {                               // the ideal point breaks the constraint
+      var ph = ((t - 11.6) % 1.4) / 1.4, fade = 1 - seg(t, 17.5, 19);
+      ctx.globalAlpha = bad * fade * (1 - ph); ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+      circle(X, Y, r + 3 + ph * 14); ctx.stroke();
+      ctx.globalAlpha = bad; ctx.lineWidth = 2.2; ctx.beginPath();
+      var m = r * 0.75, cx = X + r + 6, cy = Y - r - 6;
+      ctx.moveTo(cx - m / 2, cy - m / 2); ctx.lineTo(cx + m / 2, cy + m / 2); ctx.moveTo(cx + m / 2, cy - m / 2); ctx.lineTo(cx - m / 2, cy + m / 2);
+      ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    // label: "ideal point (4, 3)"
+    var la = idealAlpha(S, t), I = idealLabel(t, a, bad);
+    label(T("kkt.l.ideal"), I.x, I.y1, "left", C.ink, I.f1, la);
+    label(pair(A0, B0), I.x, I.y2, "left", C.ink2, I.f2, la);
+  }
+  function idealAlpha(S, t) { return seg(t, 2.1, 2.8) * (S.act ? 1 : 1 - seg(t, 12.6, 13.4)); }
+  function idealKey(S, t) {                      // "ideal point (4, 3)" as a key box, as drawn at t
+    return { b: idealLabel(t, E.back(seg(t, 1.8, 2.5)), S.act ? seg(t, 11.6, 12.2) : 0).b, a: idealAlpha(S, t) };
+  }
+  function idealLabel(t, a, bad) {               // where "ideal point (4, 3)" sits, with its screen box
+    var X = SX(A0), Y = PY(B0, 0), r = (L.portrait ? 5.5 : 7) * a;
+    var x = X + r + (bad > 0 ? 18 : 9), y2 = Y - r - 4, y1 = y2 - L.fs - 1;
+    var f1 = font(700, L.fs + 0.5), f2 = font(400, L.fs, true), w;
+    ctx.font = f1; w = ctx.measureText(T("kkt.l.ideal")).width;
+    ctx.font = f2; w = Math.max(w, ctx.measureText(pair(A0, B0)).width);
+    return { x: x, y1: y1, y2: y2, f1: f1, f2: f2, b: [x - 3, y1 - L.fs / 2 - 3, x + w + 3, y2 + L.fs / 2 + 3] };
+  }
+  function drawOptimum(S, t, O) {
+    var t0 = tOpt(S), a = E.back(seg(t, t0, t0 + 0.6));
+    if (a <= 1e-3) return;
+    var X = SX(O.x), Y = SY(O.y), r = L.dot * a;
+    // burst of particles at the touch
+    var bu = seg(t, t0, t0 + 1.1);
+    if (bu > 0 && bu < 1) {
+      var rn = A.rng(31);
+      ctx.fillStyle = C.accent;
+      for (var i = 0; i < 16; i++) {
+        var an = rn() * TAU, sp = 14 + rn() * 26, d = sp * E.out(bu);
+        ctx.globalAlpha = (1 - bu) * 0.9;
+        ctx.fillRect(X + Math.cos(an) * d - 1.3, Y + Math.sin(an) * d - 1.3, 2.6, 2.6);
+      }
+    }
+    // pulse
+    var ph = ((t - t0) % 1.8) / 1.8;
+    ctx.globalAlpha = 0.55 * (1 - ph) * seg(t, t0, t0 + 0.3); ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
+    circle(X, Y, r + 3 + ph * (L.portrait ? 12 : 17)); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = C.surface; circle(X, Y, r + 2.5); ctx.fill();
+    ctx.fillStyle = C.accent; circle(X, Y, r); ctx.fill();
+    // labels: x* and its coordinates, on the feasible side just below the fence
+    optLabels(S, t, O).forEach(function (o) { label(o.txt, o.x, o.y, o.align, o.col, o.f, o.a); });
+  }
+  function optLabels(S, t, O) {                  // "x*" and its coordinates, with their screen boxes
+    var t0 = tOpt(S), la = seg(t, t0 + 0.3, t0 + 0.9), X = SX(O.x), Y = SY(O.y), r = L.dot;
+    var fsC = L.portrait ? 11.5 : 11, out;
+    var fx = font(700, L.fb, false, true), fc = font(400, fsC, true), pa = la * (S.act ? seg(t, 17.6, 18.4) : 1);
+    if (S.act) {
+      // on the feasible side, in the corner between grad f (down the normal) and the fence (down the line).
+      // Both lines are part of the collision check: a text box of width w and height h keeps a clear margin
+      // from the fence (Mf: halo, half the line, a visible gap) and from the shaft of grad f (Mg). In screen
+      // coordinates the fence runs along u = (q, p)/|n| and grad f along v = (-p, q)/|n|; a box centred at
+      // s u + d v clears the fence when d >= Mf + (w p + h q)/(2|n|) and the shaft when s >= Mg + (w q + h p)/(2|n|).
+      // The pair sits just deep enough for the widest coordinates it shows (while the fence moves), and each
+      // line is centred in the free stretch at its depth, so it stays equally clear of both lines.
+      var Mf = 9 + (L.lw + 0.5) / 2, Mg = 7 + (L.lw + 0.5) / 2, gap = L.fb + (L.portrait ? 4 : 3), wMax = 0, k, ok;
+      // chapter 4: the dashed ghost of the fence at c0 lies gd px deeper on the feasible side; while it shows, the
+      // pair keeps the same clearance from the ghost (so it stays put while x* and the fence move away from it)
+      var gd = ghostA(t, 0) * Math.max(0, (O.c - S.c0) / NN * cam.K);
+      ctx.font = fc;
+      for (k = 0; k <= 20; k++) { ok = solve(S.c0 + DC * k / 20); wMax = Math.max(wMax, ctx.measureText(pair(ok.x, ok.y)).width); }
+      var need = function (w, h, g) {            // least screen depth for a w x h box, and its free x range there
+        var sm = Mg + (w * Q0 + h * P0) / (2 * NN), dm = Mf + g + (w * P0 + h * Q0) / (2 * NN);
+        return { y: NN * (P0 * sm + Q0 * dm) / N2, x: function (y) { return ((sm * NN - y * P0) / Q0 + (y * Q0 - dm * NN) / P0) / 2; } };
+      };
+      ctx.font = fx; var wX = ctx.measureText(T("kkt.l.xs")).width;
+      var depths = function (g) {
+        var a1 = Math.max(r + (L.portrait ? 12 : 13), need(wX, L.fb, g).y), a2 = Math.max(a1 + gap, need(wMax, fsC, g).y);
+        return [a2 - gap, a2, a1];                // a1: the least depth of "x*" on its own
+      };
+      var dd = depths(gd), d1 = dd[0], d2 = dd[1], nX = need(wX, L.fb, gd);
+      // the x axis (y = 0) runs a fixed O.y K px under x*: where it would cross the pair in the zoomed view or in
+      // the recap, the coordinates (or both lines) step down past it, blended in with the camera move to that view
+      var d0 = depths(0), B = boxes(S), h1 = L.fb / 2 + 3, h2 = fsC / 2 + 3;
+      var pz = axisPush(d0, h1, h2, S.o0.y * viewK(B.zoom)), pf = axisPush(d0, h1, h2, S.o0.y * viewK(B.fin));
+      var uz = E.inOut(seg(t, 15.4, 18.6)), uf = E.inOut(seg(t, 42.4, 45.6));
+      d1 += lerp(pz[0] * uz, pf[0], uf); d2 += lerp(pz[1] * uz, pf[1], uf);
+      ctx.font = fc; var nNow = need(ctx.measureText(pair(O.x, O.y)).width, fsC, gd);
+      out = [{ txt: T("kkt.l.xs"), x: X + nX.x(d1), y: Y + d1, align: "center", col: C["accent-text"], f: fx, fs: L.fb, a: la },
+        { txt: pair(O.x, O.y), x: X + nNow.x(d2), y: Y + d2, align: "center", col: C.ink2, f: fc, fs: fsC, a: pa }];
+      // the "grad f" label at the tip of the arrow: a label of the pair at its depth slides down the fence, past it
+      // (s along the fence, d along grad f, both from x*; the push fades in with the overlap, so nothing jumps)
+      var fa = seg(t, 21.2, 21.8);
+      if (fa > 0) {
+        var ffs = L.fb + 1, ff = font(700, ffs, false, true);
+        ctx.font = ff;
+        var wf = ctx.measureText(T("kkt.l.gf")).width + 6, hf = ffs + 6;
+        var esF = (wf * Q0 + hf * P0) / (2 * NN), edF = (wf * P0 + hf * Q0) / (2 * NN);
+        var dF = ARW * 2 * Math.sqrt(O.f) * E.out(seg(t, 20.6, 21.8)) * cam.K + 14, push = 0;
+        out.forEach(function (o) {
+          ctx.font = o.f;
+          var w = ctx.measureText(o.txt).width + 6, h = o.fs + 6, dx = o.x - X, dy = o.y - Y;
+          var s = (Q0 * dx + P0 * dy) / NN, d = (-P0 * dx + Q0 * dy) / NN;
+          var es = (w * Q0 + h * P0) / (2 * NN), ed = (w * P0 + h * Q0) / (2 * NN);
+          var ov = clamp((edF + ed + 6 - Math.abs(d - dF)) / 6, 0, 1);
+          push = Math.max(push, fa * ov * Math.max(0, esF + es + 8 - s));
+        });
+        out.forEach(function (o) { o.x += push * Q0 / NN; o.y += push * P0 / NN; });
+      }
+    } else {
+      out = [{ txt: T("kkt.l.xs"), x: X - 10 - r, y: Y + 16 + r, align: "right", col: C["accent-text"], f: fx, fs: L.fb, a: la },
+        { txt: pair(O.x, O.y), x: X - 10 - r, y: Y + 17 + r + L.fb, align: "right", col: C.ink2, f: fc, fs: fsC, a: pa }];
+    }
+    out.forEach(function (o) {
+      ctx.font = o.f;
+      var w = ctx.measureText(o.txt).width, x0 = o.align === "center" ? o.x - w / 2 : (o.align === "right" ? o.x - w : o.x);
+      o.b = [x0 - 3, o.y - o.fs / 2 - 3, x0 + w + 3, o.y + o.fs / 2 + 3];
+    });
+    return out;
+  }
+  function viewK(box) { return Math.min(L.pw / box[2], L.ph / box[3]); }   // the camera scale of a view box
+  function axisPush(d, h1, h2, a) {              // extra depth for "x*" (d[0], at least d[2]) and its coordinates (d[1]) to clear a line a px below x*
+    var m = 3, d1 = d[0], d2 = d[1], top = a - m - h1;
+    if (a <= 0 || a + m <= d1 - h1 || a - m >= d2 + h2) return [0, 0];
+    if (top >= d[2]) return [Math.min(0, top - d1), a + m + h2 - d2];   // "x*" fits above the line: the coordinates step past it
+    var p = a + m + h1 - d1;                                  // otherwise both step past it
+    return [p, p];
+  }
+  function gradArrows(S, t, O) {
+    var X = SX(O.x), Y = SY(O.y), K = cam.K, H = L.head, lw = L.lw;
+    if (!S.act) {
+      // interior optimum: grad f vanishes, grad g lives on the (far) fence and lambda = 0
+      var za = seg(t, 20.6, 21.4) * (1 - seg(t, 42.4, 43));
+      var fa = seg(t, 42.4, 43.4);
+      if (za > 0) {
+        var ph = ((t - 20.6) % 1.6) / 1.6;
+        ctx.globalAlpha = za * (1 - ph) * 0.8; ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+        circle(X, Y, L.dot + 4 + ph * 12); ctx.stroke(); ctx.globalAlpha = 1;
+      }
+      var e = gOf(A0, B0) - O.c, fx = A0 - e / N2 * P0, fy = B0 - e / N2 * Q0;
+      var da = seg(t, 22, 22.8);
+      if (da > 0) {                               // the gap between the optimum and the fence
+        ctx.globalAlpha = da * 0.85; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(SX(fx), SY(fy)); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+      }
+      var ga = E.out(seg(t, 22.4, 23.4));
+      if (ga > 0) {
+        var gx = SX(fx), gy = SY(fy), gl = slackGLen(K, t) * ga, tx = gx + P0 / NN * gl, ty = gy - Q0 / NN * gl;
+        ctx.fillStyle = C.ink; circle(gx, gy, 3); ctx.fill();
+        arrow(gx, gy, tx, ty, C.ink2, lw - 0.5, H - 2, 1);
+      }
+      drawLabels(gradLabels(S, t, O));
+      return fa;
+    }
+    var gfx = 2 * (O.x - A0), gfy = 2 * (O.y - B0);
+    var lam = t < 31 ? lamCount(S, t) : O.lam;
+    // grad f: bright red when it first appears, accent red after
+    var ua = E.out(seg(t, 20.6, 21.8));
+    if (ua > 0) {
+      var tx = SX(O.x + ARW * gfx * ua), ty = SY(O.y + ARW * gfy * ua), cool = seg(t, 23, 24.5);
+      arrow(X, Y, tx, ty, HOT, lw + 0.5, H, 1 - cool);
+      arrow(X, Y, tx, ty, C.accent, lw + 0.5, H, cool);
+    }
+    // grad g: a thin reference arrow beside the normal, then lambda * grad g grows on it
+    var nx = -Q0 / NN, ny = -P0 / NN, sh = L.portrait ? 12 : 16;       // screen offset along the fence
+    var ga = E.out(seg(t, 22.4, 23.4)) * (1 - seg(t, 42.4, 43.4));
+    if (ga > 0) {
+      var bx = X + nx * sh, by = Y + ny * sh, gl = Math.max(ARW * NN * K, GMIN) * ga;
+      var ex = bx + P0 / NN * gl, ey = by - Q0 / NN * gl;
+      arrow(bx, by, ex, ey, C.ink2, 1.6, H - 3, ga);
+    }
+    if (lam > 0.005) {
+      var lx = SX(O.x + ARW * P0 * lam), ly = SY(O.y + ARW * Q0 * lam);
+      arrow(X, Y, lx, ly, C.ink, lw + 0.5, H, 1);
+    }
+    // the sum: a copy of grad f slides to the tip of lambda grad g and closes back on x*
+    var su = E.inOut(seg(t, 28, 29.2)), sa = seg(t, 28, 28.3) * (1 - seg(t, 29.8, 30.6));
+    if (sa > 0) {
+      var ox = ARW * P0 * S.o0.lam * su, oy = ARW * Q0 * S.o0.lam * su, off = -sh * E.inOut(seg(t, 28, 28.6));
+      var ax = SX(O.x + ox) + nx * off, ay = SY(O.y + oy) + ny * off;
+      var bx2 = SX(O.x + ox + ARW * gfx) + nx * off, by2 = SY(O.y + oy + ARW * gfy) + ny * off;
+      ctx.setLineDash([5, 4]);
+      arrow(ax, ay, bx2, by2, C.accent, lw, H, sa * 0.9);
+      ctx.setLineDash([]);
+    }
+    var za = t < 37 ? seg(t, 29.2, 29.9) * (1 - seg(t, 31, 31.8)) : seg(t, 44, 45);
+    if (za > 0) {
+      var zp = seg(t, 29.2, 30.4);
+      if (zp < 1) { ctx.globalAlpha = (1 - zp) * 0.8; ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5; circle(X, Y, L.dot + 4 + 20 * E.out(zp)); ctx.stroke(); ctx.globalAlpha = 1; }
+      var q = eqLabel(S, t, O);
+      if (q) label(q.txt, q.x, q.y, "right", C.ink, q.f, q.a);
+    }
+    drawLabels(gradLabels(S, t, O));
+    return 0;
+  }
+  function drawLabels(list) { list.forEach(function (o) { label(o.txt, o.x, o.y, o.align, o.col, o.f, o.a); }); }
+  function gradLabels(S, t, O) {                 // the labels of the gradient arrows, with their screen boxes
+    var X = SX(O.x), Y = SY(O.y), K = cam.K, out = [];
+    var add = function (txt, x, y, align, col, fs, a) {
+      if (a > 0.01) out.push(textBox({ txt: txt, x: x, y: y, align: align, col: col, f: font(700, fs, false, true), fs: fs, a: a }));
+    };
+    if (!S.act) {
+      add(T("kkt.l.fzero"), X - 12 - L.dot, Y - 14 - L.dot, "right", C["accent-text"], L.fb, seg(t, 21, 21.8));
+      var ga = E.out(seg(t, 22.4, 23.4));
+      if (ga > 0) {
+        // beside the arrow on the side of the fence without a ghost: past it in chapter 4, inside it in the recap
+        var e = gOf(A0, B0) - O.c, gsd = t < 43.4 ? 1 : -1, GL = ggLabel(SX(A0 - e / N2 * P0), SY(B0 - e / N2 * Q0), gsd);
+        add(GL.txt, GL.x, GL.y, "center", C.ink2, L.fb, seg(t, 23, 23.6) * (gsd > 0 ? 1 - seg(t, 42.4, 42.9) : seg(t, 43.9, 44.5)));
+      }
+      add(T("kkt.l.lam0"), X - 12 - L.dot, Y - 14 - L.dot + L.fb + 4, "right", C.ink, L.fb, seg(t, 24.4, 25.2));
+      return out;
+    }
+    var gfx = 2 * (O.x - A0), gfy = 2 * (O.y - B0), lam = t < 31 ? lamCount(S, t) : O.lam;
+    var ua = E.out(seg(t, 20.6, 21.8));
+    if (ua > 0) {
+      var tx = SX(O.x + ARW * gfx * ua), ty = SY(O.y + ARW * gfy * ua), dx = tx - X, dy = ty - Y, dl = Math.hypot(dx, dy) || 1;
+      add(T("kkt.l.gf"), tx + dx / dl * 14, ty + dy / dl * 14, "center", C["accent-text"], L.fb + 1, seg(t, 21.2, 21.8));
+    }
+    var nx = -Q0 / NN, ny = -P0 / NN, sh = L.portrait ? 12 : 16, gg = E.out(seg(t, 22.4, 23.4)) * (1 - seg(t, 42.4, 43.4));
+    if (gg > 0) {
+      var gl = Math.max(ARW * NN * K, GMIN) * gg, ex = X + nx * sh + P0 / NN * gl, ey = Y + ny * sh - Q0 / NN * gl;
+      add(T("kkt.l.gg"), ex + nx * 12, ey + ny * 12, "center", C.ink2, L.fs + 1, gg * seg(t, 23, 23.6));
+    }
+    if (lam > 0.005) {
+      var lx = SX(O.x + ARW * P0 * lam), ly = SY(O.y + ARW * Q0 * lam), ddx = lx - X, ddy = ly - Y, dd = Math.hypot(ddx, ddy) || 1;
+      add(T("kkt.l.lgg"), lx + ddx / dd * 16, ly + ddy / dd * 16, "center", C.ink, L.fb + 1, seg(t, 24.6, 25.4));
+    }
+    return out;
+  }
+  // Slack: grad g drawn on the fence is shorter than the band to the ghost fence of the recap (so its tip never
+  // lands on that dashed line), and its label sits beside it, down the fence, on the side with no ghost fence
+  // (side +1: toward g > c, next to the arrow; -1: just inside the feasible side)
+  var GS = 0.62;
+  function slackGLen(K, t) {                     // its screen length: at least GMIN px, and in the recap short of the ghost
+    var base = Math.max(ARW * GS * NN * K, GMIN), cap = DC / NN * K - 7;
+    return lerp(base, Math.min(base, cap), ghostA(t, 1));
+  }
+  function ggLabel(bx, by, side) {
+    var f = font(700, L.fb, false, true), txt = T("kkt.l.gg");
+    ctx.font = f;
+    var w = ctx.measureText(txt).width, h = L.fb;
+    var es = (w * Q0 + h * P0) / (2 * NN), en = (w * P0 + h * Q0) / (2 * NN);    // half extents along and across the fence
+    var ds = es + 9, dn = en + 6;
+    var x = bx + (Q0 * ds + side * P0 * dn) / NN, y = by + (P0 * ds - side * Q0 * dn) / NN;
+    return { txt: txt, f: f, x: x, y: y, b: [x - w / 2 - 3, y - h / 2 - 3, x + w / 2 + 3, y + h / 2 + 3] };
+  }
+  function eqLabel(S, t, O) {                    // the equation, in the free space on the far side of the fence
+    var za = t < 37 ? seg(t, 29.2, 29.9) * (1 - seg(t, 31, 31.8)) : seg(t, 44, 45);
+    if (!S.act || L.narrow || za <= 0) return null;
+    // left of grad f, under the fence: the first depth (px under x*) whose box keeps clear of the fence, of the
+    // shaft of grad f and of the x axis (where the axis runs in this view: chapter 3 or the recap, not mid-move)
+    var f = font(700, L.fb, false, true), txt = T("kkt.l.zero"), X0 = SX(O.x), Y0 = SY(O.y);
+    ctx.font = f;
+    var w = ctx.measureText(txt).width, hh = L.fb / 2 + 3, B = boxes(S), ax = S.o0.y * viewK(t < 37 ? B.zoom : B.fin);
+    var mf = (L.lw + 0.5) / 2 + 8, best = null;
+    [40, 34, 28, 46, 52, 22, 58, 64].some(function (dy) {
+      var right = Math.min(-36, -(dy + hh) * P0 / Q0 - 10) + 3;          // box right edge, px from x* (shaft: dx = -dy p / q)
+      var b = [right - w - 6, dy - hh, right, dy + hh];
+      var fence = Math.max((b[0] * P0 - b[1] * Q0) / NN, (b[2] * P0 - b[1] * Q0) / NN);   // signed distance, > 0 past the fence
+      if (fence > -mf || (ax > 0 && b[1] < ax + 5 && b[3] > ax - 5)) return false;
+      best = { dy: dy, right: right };
+      return true;
+    });
+    if (!best) best = { dy: 40, right: -33 };
+    var X = X0 + best.right - 3, Y = Y0 + best.dy;
+    return { txt: txt, x: X, y: Y, f: f, a: za, b: [X - w - 3, Y - hh, X + 3, Y + hh] };
+  }
+  /* ---------- the move of the fence: a bracket between the two fences and its label ----------
+     Both sit in the band between g = c0 and g = c0 + dc, at the first spot along the fence that is clear of
+     the fence label, the side labels, x* with its labels and arrows, and the touching contour. The spot is
+     found for the chapter 4 view and for the final view; the pair fades out while the fence slides back and
+     fades in again at its final spot, so it never crosses anything in between. */
+  var DW = [-Q0 / NN, P0 / NN], NW = [P0 / NN, Q0 / NN];     // world unit vectors along the fence and across it
+  function footOn(c) { var e = gOf(A0, B0) - c; return [A0 - e / N2 * P0, B0 - e / N2 * Q0]; }
+  function deltaText() { return T("kkt.l.dc", { d: sgn(DC) }); }
+  function deltaFont() { return font(700, L.fs + 0.5, false, true); }   // the sans italic of the other canvas equations
+  function deltaPlanFor(S, box, cF, level) {
+    // level 0: clear of the whole stretch of every label that sweeps the band; 1: only of the side labels where
+    // they are in this view (the fence label keeps its whole stretch); 2: the fence label too, only where it is
+    var relaxed = level > 0;
+    // screen px as (s along the fence toward its upper left end, n across it toward g > c), from the foot of (a, b)
+    var sv = { x: cam.x, y: cam.y, K: cam.K, phi: cam.phi, tau: cam.tau };
+    cam.x = box[0]; cam.y = box[1]; cam.K = Math.min(L.pw / box[2], L.ph / box[3]); cam.phi = 0; cam.tau = 0;
+    var K = cam.K, F = footOn(S.c0), FX = SX(F[0]), FY = SY(F[1]);
+    var ex = -Q0 / NN, ey = -P0 / NN, nx = P0 / NN, ny = -Q0 / NN, BIG = 1e6;
+    var toS = function (X, Y) { return (X - FX) * ex + (Y - FY) * ey; };
+    var toN = function (X, Y) { return (X - FX) * nx + (Y - FY) * ny; };
+    var polySN = function (b) {                  // a screen rectangle is a tilted rectangle in (s, n)
+      return [[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]].map(function (P) { return [toS(P[0], P[1]), toN(P[0], P[1])]; });
+    };
+    var sRange = function (q) { var a = q.map(function (P) { return P[0]; }); return [Math.min.apply(null, a), Math.max.apply(null, a)]; };
+    var bw = DC / NN * K, nF = (cF - S.c0) / NN * K, obs = [], disks = [], lo = -BIG, hi = BIG;
+    [S.c0, S.c0 + DC].forEach(function (c) {       // the stretch where both fences are in the plot
+      var v = fenceSeg(c);
+      if (!v) { lo = BIG; return; }
+      var s0 = toS(SX(v[0]), SY(v[1])), s1 = toS(SX(v[2]), SY(v[3]));
+      lo = Math.max(lo, Math.min(s0, s1)); hi = Math.min(hi, Math.max(s0, s1));
+    });
+    // the fence label and the side labels sweep across the band while the fence moves: keep their stretch free
+    // (relaxed: only where they actually are in this view)
+    var fl = fenceLabel(cF);
+    if (fl) {
+      var sf = toS(fl.X, fl.Y), nf = nF - 9 - L.fs / 2;
+      // a clear gap along the fence on both sides of it, so the two rotated labels never read as one line of text
+      // (wider on phones, where both can sit in the same narrow band at the same angle)
+      var fg = L.portrait ? 48 : 16;
+      obs.push({ b: [sf - fl.w / 2 - fg, sf + fl.w / 2 + fg, level > 1 ? nf - L.fs / 2 - 3 : -BIG, level > 1 ? nf + L.fs / 2 + 3 : BIG] });
+    }
+    if (!L.narrow) {
+      var sp = sideSpec(cF, [{ c: cF === S.c0 ? S.c0 + DC : S.c0, a: 1 }], S);   // the view's own ghost fence
+      // (with some air around them, so the side labels and the move label never read as one group of words)
+      if (sp) sp.items.forEach(function (it) {
+        var b = it.b, q = polySN([b[0] - 8, b[1] - 6, b[2] + 8, b[3] + 6]), r = sRange(q);
+        obs.push(relaxed ? { p: q } : { b: [r[0], r[1], -BIG, BIG] });
+      });
+    }
+    var O = solve(cF), tv = cF === S.c0 ? BIG : 40;   // a moment of this view (chapter 4 with the fence moved, or the recap)
+    // x* and everything around it get extra breathing room (pad), so the label never crowds that cluster
+    var pad = 5, padB = function (b) { return [b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad]; };
+    var labN = 0, OL = optLabels(S, tv, O);
+    OL.forEach(function (o) { var q = polySN(padB(o.b)); obs.push({ p: q }); q.forEach(function (P) { labN += P[1] / (4 * OL.length); }); });
+    disks.push({ s: 0, n: nF, r: L.dot + 4 + (L.portrait ? 12 : 17) + pad });          // the pulse ring around x*
+    // the labels of the gradients as they stand in this view (chapter 4 while the fence is moved, or the recap)
+    gradLabels(S, cF === S.c0 ? BIG : 40, O).forEach(function (o) { obs.push({ p: polySN(o.b) }); });
+    if (S.act) {
+      var len = ARW * 2 * Math.sqrt(O.f) * K;      // grad f and its label, down from x*
+      obs.push({ b: [-16, 16, nF - len - 32, nF + 4] });
+      obs.push({ b: [-L.dot - 9 - pad, L.dot + 9 + pad, nF - L.dot - 9 - pad, nF + L.dot + 9 + pad] });   // the x* dot and its halo
+      var sh = L.portrait ? 12 : 16, gl = Math.max(ARW * NN * K, GMIN);                // thin grad g (from its base) and its label
+      obs.push({ b: [sh - 8 - pad, sh + 34 + pad, nF - 8 - pad, nF + gl + 12 + L.fs + pad] });
+      obs.push({ b: [-26, 26, nF, nF + ARW * O.lam * NN * K + 16 + L.fb] });          // lambda grad g and its label
+      disks.push({ s: 0, n: nF + Math.sqrt(O.f) * K, r: Math.sqrt(O.f) * K + L.lw + 3 });
+    } else {
+      var tip = nF + slackGLen(K, cF === S.c0 ? BIG : 40), hw = L.head / 2 + 6;
+      obs.push({ b: [-6, 6, -BIG, tip + 8] });     // the gap from x* to the fence and grad g on it
+      obs.push({ b: [-hw, hw, tip - L.head - 2, tip + 8] });                  // the arrowhead of grad g
+      obs.push({ p: polySN(ggLabel(FX + nx * nF, FY + ny * nF, cF === S.c0 ? -1 : 1).b) });
+    }
+    cam.x = sv.x; cam.y = sv.y; cam.K = sv.K; cam.phi = sv.phi; cam.tau = sv.tau;
+    ctx.font = deltaFont();
+    var tw = ctx.measureText(deltaText()).width, th = L.fs + 6;
+    var meets = function (b, q) {                 // box [s0, s1, n0, n1] against a convex polygon (separating axes)
+      var axes = [[1, 0], [0, 1]], i, j;
+      for (i = 0; i < q.length; i++) { var P = q[i], R = q[(i + 1) % q.length]; axes.push([R[1] - P[1], P[0] - R[0]]); }
+      var bc = [[b[0], b[2]], [b[1], b[2]], [b[1], b[3]], [b[0], b[3]]];
+      for (i = 0; i < axes.length; i++) {
+        var A = axes[i], a0 = Infinity, a1 = -Infinity, c0 = Infinity, c1 = -Infinity, d;
+        for (j = 0; j < 4; j++) { d = bc[j][0] * A[0] + bc[j][1] * A[1]; a0 = Math.min(a0, d); a1 = Math.max(a1, d); }
+        for (j = 0; j < q.length; j++) { d = q[j][0] * A[0] + q[j][1] * A[1]; c0 = Math.min(c0, d); c1 = Math.max(c1, d); }
+        if (a1 < c0 || c1 < a0) return false;
+      }
+      return true;
+    };
+    var inPlot = function (b) {                  // the box [s0, s1, n0, n1] stays inside the plot
+      return [[b[0], b[2]], [b[1], b[2]], [b[1], b[3]], [b[0], b[3]]].every(function (P) {
+        var X = FX + P[0] * ex + P[1] * nx, Y = FY + P[0] * ey + P[1] * ny;
+        return X >= L.x0 + 2 && X <= L.x1 - 2 && Y >= L.y0 + 2 && Y <= L.y1 - 2;
+      });
+    };
+    var clear = function (b) {
+      if (b[0] < lo + 4 || b[1] > hi - 4 || !inPlot(b)) return false;
+      var g = [b[0] - 5, b[1] + 5, b[2] - 2, b[3] + 2];     // breathing room
+      for (var i = 0; i < obs.length; i++) {
+        var o = obs[i];
+        if (o.p ? meets(g, o.p) : (g[0] < o.b[1] && g[1] > o.b[0] && g[2] < o.b[3] && g[3] > o.b[2])) return false;
+      }
+      for (i = 0; i < disks.length; i++) {       // a box outside each disk
+        var D = disks[i], ds = D.s < b[0] ? b[0] - D.s : (D.s > b[1] ? D.s - b[1] : 0), dn = D.n < b[2] ? b[2] - D.n : (D.n > b[3] ? D.n - b[3] : 0);
+        if (Math.hypot(ds, dn) < D.r) return false;
+      }
+      return true;
+    };
+    var res = { K: K, tw: tw, lo: lo, hi: hi }, lim = Math.max(Math.abs(lo), Math.abs(hi));
+    // label next to the bracket (the bracket on the far side from x*): inside the band if it fits there with a
+    // few px to spare from both fences, otherwise outside it with a clear gap from the line (so it never seems to
+    // rest on it): first past the dashed ghost (a light line between label and bracket), then past the solid fence
+    var og = L.fs / 2 + 11, out2 = [-og, bw + og];
+    if (cF === S.c0) out2.reverse();              // recap: the ghost is the far line (n = bw); chapter 4: the near one
+    var tiers = bw < th + 6 ? out2 : (relaxed ? [bw / 2].concat(out2) : [bw / 2]);
+    tiers.forEach(function (nL) {
+      if (res[1] != null || res[-1] != null) return;
+      [1, -1].forEach(function (side) {
+        res[side] = null;
+        for (var k = 0; k <= lim; k += 2) {
+          // inside the band the bracket stands beside the label; outside it, right across the line from the label
+          var sL = side * k, sB = nL > 0 && nL < bw ? sL + side * (tw / 2 + 8) : sL;
+          if (clear([sL - tw / 2 - 2, sL + tw / 2 + 2, nL - th / 2, nL + th / 2]) && clear([sB - 4, sB + 4, -1, bw + 1])) { res[side] = k; res.n = nL; break; }
+        }
+      });
+    });
+    return res;
+  }
+  function deltaPlan(S) {                        // best spot in each view: clear of everything first, then relaxed
+    var B = boxes(S), out = {};
+    [["z", B.zoom, S.c0 + DC], ["f", B.fin, S.c0]].forEach(function (v) {
+      var best = null;
+      [0, 1, 2].forEach(function (level) {
+        if (best) return;
+        var r = deltaPlanFor(S, v[1], v[2], level);
+        [1, -1].forEach(function (sd) { if (r[sd] != null && (!best || r[sd] < best.k)) best = { side: sd, k: r[sd], K: r.K, n: r.n }; });
+        if (!best && level === 2) best = { side: 1, k: Math.max(0, r.hi - r.tw - 30), K: r.K, n: DC / NN * r.K / 2 };
+      });
+      out[v[0]] = best;
+    });
+    return out;
+  }
+  function deltaSpec(S, t) {
+    // shown while the fence sits at c0 + dc, hidden while it slides back, then shown again as the recap
+    var early = t < 44, a = early ? seg(t, 37.4, 38.2) * (1 - seg(t, 42.4, 42.6)) : seg(t, 44.8, 45.4);
+    if (a <= 0) return null;
+    var P = deltaPlan(S)[early ? "z" : "f"], sw = P.side * P.k / P.K;          // world units along the fence
+    var F = footOn(S.c0), txt = deltaText(), f = deltaFont(), hb = DC / NN;
+    ctx.font = f;
+    var inside = P.n > 0 && P.n < DC / NN * P.K;
+    var tw = ctx.measureText(txt).width, sb = sw + (inside ? P.side * (tw / 2 + 8) / cam.K : 0);
+    var nw = P.n / P.K, X = SX(F[0] + DW[0] * sw + NW[0] * nw), Y = SY(F[1] + DW[1] * sw + NW[1] * nw);
+    var ang = Math.atan2(-DW[1], DW[0]);
+    if (ang > Math.PI / 2) ang -= Math.PI; else if (ang < -Math.PI / 2) ang += Math.PI;
+    var bx = F[0] + DW[0] * sb, by = F[1] + DW[1] * sb;
+    var hw = tw / 2 + 3, hh = L.fs / 2 + 3, R = rotBox(X, Y, ang, -hw, -hh, hw, hh);
+    return { a: a, X: X, Y: Y, ang: ang, txt: txt, f: f,
+      B: [SX(bx), SY(by), SX(bx + NW[0] * hb), SY(by + NW[1] * hb)], box: R.b, poly: R.p };
+  }
+  function drawDelta(D) {                        // the size of the move between the two fences
+    if (!D) return;
+    var X0 = D.B[0], Y0 = D.B[1], X1 = D.B[2], Y1 = D.B[3];
+    ctx.globalAlpha = D.a; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(X0, Y0); ctx.lineTo(X1, Y1); ctx.stroke();
+    [[X0, Y0, X1, Y1], [X1, Y1, X0, Y0]].forEach(function (s) {
+      var dx = s[2] - s[0], dy = s[3] - s[1], d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+      ctx.fillStyle = C.ink2; ctx.beginPath(); ctx.moveTo(s[2], s[3]);
+      ctx.lineTo(s[2] - ux * 6 - uy * 3.2, s[3] - uy * 6 + ux * 3.2); ctx.lineTo(s[2] - ux * 6 + uy * 3.2, s[3] - uy * 6 - ux * 3.2); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    ctx.save(); ctx.translate(D.X, D.Y); ctx.rotate(D.ang);
+    label(D.txt, 0, 0, "center", C.ink2, D.f, D.a);
+    ctx.restore();
+  }
+
+  /* ---------- caption (top left, under the counters) ---------- */
+  function captions(S, t) {
+    var o = S.o0, pt = pair(A0, B0), k = S.act ? "act" : "slk";
+    if (t < CH[1]) return [T("kkt.cap1", { pt: pt }), T("kkt.cap1.sub")];
+    if (t < CH[2]) return [T("kkt.cap2." + k), T("kkt.cap2." + k + ".sub", { pt: pt })];
+    if (t < CH[3]) return [T("kkt.cap3." + k), T("kkt.cap3." + k + ".sub", { l: fmt(o.lam) })];
+    if (t < CH[4]) return [T("kkt.cap4", { d: sgn(DC) }), T("kkt.cap4." + k + ".sub")];
+    return [T("kkt.cap5." + k), T("kkt.cap5." + k + ".sub", { l: fmt(o.lam) })];
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function drawCaption(S, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return 0;
+    var lines = captions(S, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    var sl = wrap(lines[1], maxW);
+    sl.forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+    return y;
+  }
+
+  /* ---------- inset: f*(c) against its tangent at the original c ---------- */
+  function drawInset(S, t) {
+    var a = E.out(seg(t, 32.2, 33.2));
+    if (a <= 0) return;
+    if (L.portrait) return;                       // phones: the counters carry the two numbers
+    if (!S.act) return;                           // slack: f*(c) is flat at 0 and the counters already say 0 and 0
+    var y0 = L.capBottom45 + 14, h2 = Math.min(170, L.H - y0 - 14);
+    if (h2 < 76) return;
+    var box = { x: L.capX, y: y0, w: L.capW - 14, h: h2, card: false };
+    var c0 = S.c0, cmin = c0 - 0.6, cmax = c0 + 2.6, lam0 = S.o0.lam, f0 = S.o0.f;
+    var fmin = Infinity, fmax = -Infinity, c, v;
+    for (c = cmin; c <= cmax + 1e-9; c += 0.05) {
+      v = solve(c).f; fmin = Math.min(fmin, v, f0 - lam0 * (c - c0)); fmax = Math.max(fmax, v, f0 - lam0 * (c - c0));
+    }
+    if (fmax - fmin < 2) { fmax = fmin + 2; }
+    var pad = L.portrait ? 8 : 10, px0 = box.x + pad + 4, px1 = box.x + box.w - pad, py0 = box.y + pad + (L.portrait ? 6 : 10), py1 = box.y + box.h - pad - 12;
+    var cx = function (cc) { return px0 + (cc - cmin) / (cmax - cmin) * (px1 - px0); };
+    var fy = function (ff) { return py1 - (ff - fmin) / (fmax - fmin) * (py1 - py0); };
+    var fs = L.portrait ? 9.5 : 10.5, LG = insetLegend(S, fs, px0, px1, py0, py1, cx, fy, cmin, cmax);
+    if (!LG) return;                              // too short for a legend clear of the curve: no inset at all
+    ctx.save(); ctx.globalAlpha = a;
+    if (box.card) {
+      ctx.fillStyle = C.surface; ctx.globalAlpha = a * 0.94; ctx.fillRect(box.x, box.y, box.w, box.h);
+      ctx.globalAlpha = a; ctx.strokeStyle = C.axis; ctx.lineWidth = 1; ctx.strokeRect(box.x + 0.5, box.y + 0.5, box.w - 1, box.h - 1);
+    }
+    // axes
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px0, py0 - 4); ctx.lineTo(px0, py1); ctx.lineTo(px1, py1); ctx.stroke();
+    // tangent at c0 (slope -lambda)
+    ctx.save(); ctx.beginPath(); ctx.rect(px0, py0 - 6, px1 - px0, py1 - py0 + 6); ctx.clip();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.3; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(cx(cmin), fy(f0 - lam0 * (cmin - c0))); ctx.lineTo(cx(cmax), fy(f0 - lam0 * (cmax - c0))); ctx.stroke();
+    ctx.setLineDash([]);
+    // the curve f*(c)
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 2.2; ctx.beginPath();
+    for (c = cmin, v = 0; c <= cmax + 1e-9; c += 0.05, v++) { var X = cx(c), Y = fy(solve(c).f); if (v) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
+    ctx.stroke(); ctx.restore();
+    // probe at c(t): stays at c0 + DC after the move
+    var cp = S.c0 + DC * E.inOut(seg(t, 33.4, 37.4));
+    var yC = fy(solve(cp).f), yT = fy(f0 - lam0 * (cp - c0)), xP = cx(cp);
+    if (Math.abs(yC - yT) > 0.5) {
+      ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(xP, yC); ctx.lineTo(xP, yT); ctx.stroke();
+    }
+    ctx.fillStyle = C.accent; circle(cx(c0), fy(f0), 3.5); ctx.fill();
+    ctx.fillStyle = C.surface; circle(xP, yT, 3.5); ctx.fill(); ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = C.accent; circle(xP, yC, 3.5); ctx.fill();
+    // minimal labels
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    ctx.fillText(fmt(c0), cx(c0), py1 + 3);
+    ctx.fillText(fmt(c0 + DC), cx(c0 + DC), py1 + 3);
+    ctx.textAlign = "right"; ctx.fillText(T("kkt.l.c"), px1, py1 + 3);
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.font = font(700, fs, false, true);
+    var lx = LG.lx, ly = LG.ly;
+    ctx.font = font(700, fs, false, true); ctx.fillStyle = C["accent-text"]; ctx.fillText(T("kkt.l.fc"), lx - 4, ly);
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 20, ly); ctx.stroke();
+    ly += fs + 5;
+    ctx.font = font(400, fs); ctx.fillStyle = C.ink2; ctx.fillText(T("kkt.l.tan"), lx - 4, ly);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.3; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 20, ly); ctx.stroke(); ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  function insetLegend(S, fs, px0, px1, py0, py1, cx, fy, cmin, cmax) {
+    // the two legend rows (text right-aligned before a 20 px swatch) at the first spot that keeps clear of the
+    // curve, the tangent and the probe over the whole move: top right first (the curve falls from the top left
+    // and the tangent stays under it), then along the top, then the lower left. null when no spot is clear.
+    var c0 = S.c0, lam0 = S.o0.lam, f0 = S.o0.f, w1, w2, pts = [], c, k;
+    ctx.font = font(700, fs, false, true); w1 = ctx.measureText(T("kkt.l.fc")).width;
+    ctx.font = font(400, fs); w2 = ctx.measureText(T("kkt.l.tan")).width;
+    var tw = Math.max(w1, w2) + 4 + 20, rows = 2 * fs + 5;
+    var n = Math.max(40, Math.ceil((px1 - px0) / 2));
+    for (k = 0; k <= n; k++) {                     // curve and tangent, about every 2 px, inside the plot
+      c = cmin + (cmax - cmin) * k / n;
+      [solve(c).f, f0 - lam0 * (c - c0)].forEach(function (v) { var Y = fy(v); if (Y >= py0 - 6 && Y <= py1) pts.push([cx(c), Y, 3]); });
+    }
+    for (k = 0; k <= 10; k++) {                    // the probe dots and the gap between them while c moves
+      c = c0 + DC * k / 10;
+      pts.push([cx(c), fy(solve(c).f), 5], [cx(c), fy(f0 - lam0 * (c - c0)), 5]);
+    }
+    var clear = function (lx, ly) {                 // lx: left end of the swatches, ly: middle of the first row
+      var b = [lx - 4 - Math.max(w1, w2) - 3, ly - fs / 2 - 3, lx + 20 + 3, ly + fs + 5 + fs / 2 + 3];
+      if (b[0] < px0 + 4 || b[2] > px1 + 6 || b[1] < py0 - fs / 2 - 4 || b[3] > py1 - 2) return false;
+      for (var i = 0; i < pts.length; i++) {
+        var P = pts[i];
+        if (P[0] > b[0] - P[2] && P[0] < b[2] + P[2] && P[1] > b[1] - P[2] && P[1] < b[3] + P[2]) return false;
+      }
+      return true;
+    };
+    var cands = [], x, y;
+    for (x = px1 - 24; x >= px0 + tw - 20; x -= 6) cands.push([x, py0 + 1]);                   // along the top
+    for (y = py1 - rows - 4; y >= py0 + 1; y -= 4) cands.push([px0 + 8 + tw - 20, y]);          // up the left side
+    for (k = 0; k < cands.length; k++) if (clear(cands[k][0], cands[k][1])) return { lx: cands[k][0], ly: cands[k][1] };
+    return null;
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) {
+    var el = document.getElementById("kkt-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("bad", kind === "bad"); c.k = kind; }
+  }
+  var ghostLg = { el: null, s: null };
+  function ghostLegend(S, t) {                   // the dashed fence: its old place in chapter 4, its new place in the recap
+    var el = ghostLg.el || (ghostLg.el = document.getElementById("kkt-lg-ghost"));
+    var s = t < 43.6 ? T("kkt.lg.ghost0", { c: fmt(S.c0) }) : T("kkt.lg.ghost1", { c: fmt(S.c0 + DC) });
+    if (el && ghostLg.s !== s) { el.textContent = s; ghostLg.s = s; }
+  }
+  function hud(S, t, O) {
+    var t0 = tOpt(S), gab = gOf(A0, B0);
+    // objective
+    if (t < 12.6) setChip(0, fmt(fOf(A0, B0)), T("kkt.k.fab"), seg(t, 1.9, 2.4), "");
+    else if (t < t0) { var r = growR(S, t); setChip(0, fmt(r * r), T("kkt.k.lev"), 1, ""); }
+    else setChip(0, fmt(O.f), T("kkt.k.f"), 1, "acc");
+    // multiplier: shown from the moment it starts counting up; while the fence is moved it stays the price
+    // measured at the original fence, the rate that the estimate -lambda * dc uses, and its label says so
+    var lam = S.act ? lamCount(S, t) : 0, away = t >= 32.6 && t < 44.7;
+    setChip(3, fmt(lam), away ? T("kkt.k.lamAt", { c: fmt(S.c0) }) : T("kkt.k.lam"), seg(t, 24.7, 25.1), "acc");
+    // constraint value
+    if (t < t0) setChip(1, fmt(gab), T("kkt.k.gab"), seg(t, 10.6, 11.1), gab > O.c + 1e-9 && t > 11.6 ? "bad" : "");
+    else setChip(1, fmt(O.g), T("kkt.k.gx"), 1, "");
+    setChip(2, fmt(O.c), T("kkt.k.c"), seg(t, 10.6, 11.1), "");
+    // sensitivity: tied to the moving fence; hidden while it slides back, then the result of the move as a recap
+    var back = t >= 44.7, moved = back ? DC : O.c - S.c0, fNew = back ? S.oD.f : O.f;
+    var sa = back ? seg(t, 44.7, 45.2) : seg(t, 32.6, 33.1) * (1 - seg(t, 42.4, 42.9));
+    setChip(4, sgn(fNew - S.o0.f), T("kkt.k.df"), sa, "");
+    setChip(5, sgn(-S.o0.lam * moved), T("kkt.k.est"), sa, "");
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    // new or urgent cues use bright red; where the theme makes the accent that same red (dark), the crit shade
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var S = scen(state.sc), c = cAt(S, t), O = solve(c);
+    hud(S, t, O);
+    ghostLegend(S, t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    setCam(S, t);
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+
+    // the key labels: tick labels give way to them (by their bounds), and the context lines (grid, axes, level
+    // curves, ghost fences, dashed radius) leave a gap under each of them (rotated labels by their own outline)
+    var D = deltaSpec(S, t), keep = [], clear = [];
+    var key = function (k) { if (k && k.a > 0.01) { keep.push({ b: k.b, a: k.a }); clear.push(k); } };
+    if (t >= tOpt(S)) optLabels(S, t, O).forEach(function (o) { key({ b: o.b, a: o.a }); });
+    var Q = eqLabel(S, t, O);
+    if (Q) key({ b: Q.b, a: Q.a });
+    if (D) {
+      key({ b: D.box, p: D.poly, a: D.a });
+      var DB = D.B;                               // tick labels also keep off the bracket
+      keep.push({ b: [Math.min(DB[0], DB[2]) - 6, Math.min(DB[1], DB[3]) - 6, Math.max(DB[0], DB[2]) + 6, Math.max(DB[1], DB[3]) + 6], a: D.a });
+    }
+    var IK = idealKey(S, t);
+    key(IK);
+    key(fenceKey(t, c));
+    gradLabels(S, t, O).forEach(function (o) { key({ b: o.b, a: o.a }); });
+    var sa = sideAlpha(t), sp = sa > 0 ? sideSpec(c, sideGhosts(S, t), S) : null;
+    if (sp) sp.items.forEach(function (it) { key({ b: it.b, a: sa }); });
+    // ghosts of the fence while it moves (no ghost of the optimum: it would always sit on the shaft of grad f,
+    // since x* only slides along the normal through the ideal point; the moving contour shows the move)
+    var g0 = ghostA(t, 0), g1 = ghostA(t, 1);
+    // while the bowl is tilted its mesh runs on under "ideal point (4, 3)" (the text halo keeps it legible); the gap
+    // under that label opens only as the view flattens, so no hard-edged hole is cut in the mesh
+    var clearM = clear.map(function (k) { return k === IK ? { b: k.b, a: k.a * (1 - cam.tau) } : k; });
+    drawFloor(t, clearM);
+    drawSides(S, t, c);
+    drawBowl(t);
+    giveWay(clearM, function (m) { drawContours(S, t, m); });
+    giveWay(clear, function (m) { drawGhost(S.c0, g0 * m); drawGhost(S.c0 + DC, g1 * m); });
+    // fences: [{c, a, m}] lines the tick labels keep m px away from
+    drawTicks(t, keep, [{ c: c, a: E.inOut(seg(t, 9.4, 10.9)), m: (L.lw + 0.5) / 2 + 4 },
+      { c: S.c0, a: g0, m: 4 }, { c: S.c0 + DC, a: g1, m: 4 }]);
+    drawFence(S, t, c);
+    giveWay(clear, function (m) { drawGrowing(S, t, O, m, true); });
+    drawGrowing(S, t, O, 1, false);
+    giveWay(clear, function (m) { drawRadius(S, t, O, m); });
+    drawParticles(t);
+    drawIdeal(S, t);
+    sideLabels(S, t, c);
+    drawDelta(D);
+    gradArrows(S, t, O);
+    drawOptimum(S, t, O);
+
+    // quiet band under the counters and the caption: solid behind the text, fading out only past it
+    var gr, e1, e2;
+    if (L.portrait) {
+      e2 = L.y0 + 6; e1 = clamp((L.capBottom + 2) / e2, 0, 0.98);
+      gr = ctx.createLinearGradient(0, 0, 0, e2);
+      gr.addColorStop(0, rgba(C.surface, 1)); gr.addColorStop(e1, rgba(C.surface, 1)); gr.addColorStop(1, rgba(C.surface, 0));
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, L.W, e2);
+    } else {
+      e2 = L.x0 + 10; e1 = clamp((L.capX + L.capW + 4) / e2, 0, 0.98);
+      gr = ctx.createLinearGradient(0, 0, e2, 0);
+      gr.addColorStop(0, rgba(C.surface, 1)); gr.addColorStop(e1, rgba(C.surface, 1)); gr.addColorStop(1, rgba(C.surface, 0));
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, e2, L.H);
+    }
+    ctx.globalAlpha = 1;
+    drawCaption(S, t);
+    drawInset(S, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "kkt.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status line, model data, solution, sensitivity table, notes
+     ===================================================================================== */
+  function scenName(key) { return T("kkt.sc." + key, { c: fmt(CS[key]) }); }
+  function renderSeg() {
+    document.querySelectorAll("#kkt-seg button").forEach(function (b) { b.textContent = scenName(b.getAttribute("data-sc")); });
+  }
+  function renderScenText() {                   // the stage description and the grad g legend follow the scenario
+    var act = state.sc === "active", ka = act ? "kkt.anim.aria" : "kkt.anim.aria.slack", kg = act ? "kkt.lg.gg" : "kkt.lg.gg.slk";
+    stage.setAttribute("data-i18n-attr", "aria-label:" + ka);
+    var lg = document.getElementById("kkt-lg-gg");
+    lg.setAttribute("data-i18n", kg); lg.textContent = T(kg);
+    document.getElementById("kkt-lg-gf").hidden = !act;          // slack: grad f = 0 at x*, no arrow is drawn
+    document.getElementById("kkt-lg-touch").hidden = !act;       // slack: no level curve touches the fence
+    // the counters sit inside the image: its description carries the result numbers too
+    var S = scen(state.sc), o = S.o0;
+    stage.setAttribute("aria-label", T(ka) + " " + T("kkt.anim.aria.nums", {
+      x: pair(o.x, o.y), l: fmt(o.lam), f: fmt(o.f), c: fmt(S.c0), c1: fmt(S.c0 + DC), df: sgn(S.oD.f - o.f), est: sgn(-o.lam * DC)
+    }));
+  }
+  function renderStatus() {
+    var S = scen(state.sc), o = S.o0;
+    document.getElementById("kkt-status").innerHTML = T("kkt.st." + state.sc, {
+      pt: pair(A0, B0), gab: fmt(gOf(A0, B0)), c: fmt(S.c0), x: pair(o.x, o.y), l: fmt(o.lam), f: fmt(o.f)
+    });
+  }
+  function renderModel() {
+    document.getElementById("kkt-data").textContent = T("kkt.model.data", {
+      pt: pair(A0, B0), g: lin(P0, Q0), c1: fmt(CS.active), c2: fmt(CS.slack)
+    });
+  }
+  function renderSolution() {
+    var S = scen(state.sc), o = S.o0;
+    document.getElementById("kkt-sol-title").textContent = T("kkt.sol.title", { s: scenName(state.sc) });
+    document.getElementById("kkt-sx").textContent = pair(o.x, o.y);
+    document.getElementById("kkt-sxl").textContent = o.active ? T("kkt.sol.xAct", { g: lin(P0, Q0), c: fmt(S.c0) }) : T("kkt.sol.xSlk");
+    document.getElementById("kkt-sl").textContent = fmt(o.lam);
+    document.getElementById("kkt-sll").textContent = T(o.active ? "kkt.sol.lamAct" : "kkt.sol.lamSlk");
+    document.getElementById("kkt-sf").textContent = fmt(o.f);
+    document.getElementById("kkt-sfl").textContent = o.active ? T("kkt.sol.fAct", { pt: pair(A0, B0) }) : T("kkt.sol.fSlk");
+    document.getElementById("kkt-sg").textContent = fmt(o.g);
+    document.getElementById("kkt-sgl").textContent = o.active ? T("kkt.sol.bind") : T("kkt.sol.slack", { c: fmt(S.c0) });
+    // KKT check with the numbers of the scenario
+    var term = function (v, tex) { return v >= 0 ? (tex ? "- " : MINUS + " ") + fmt(v) : "+ " + fmt(-v); };
+    var gfx = 2 * (o.x - A0), gfy = 2 * (o.y - B0);
+    var v = {
+      ta: term(A0, true), tb: term(B0, true), gl: lin(P0, Q0, true), cc: texNum(S.c0),
+      gfx: texNum(gfx), gfy: texNum(gfy), lam: texNum(o.lam), pp: texNum(P0), qq: texNum(Q0), gx: texNum(o.g)
+    };
+    var vp = {
+      ta: term(A0, false), tb: term(B0, false), gl: lin(P0, Q0), cc: num(S.c0),
+      gfx: num(gfx), gfy: num(gfy), lam: num(o.lam), pp: num(P0), qq: num(Q0), gx: num(o.g)
+    };
+    TeX.set(document.getElementById("kkt-inst"), T("kkt.inst.tex", v), T("kkt.inst.formula", vp));
+  }
+  function renderSens() {
+    var S = scen(state.sc), o = S.o0;
+    document.getElementById("kkt-sens-intro").textContent = T("kkt.sens.intro", { c: fmt(S.c0), l: fmt(o.lam) });
+    var h = "<thead><tr><th class='num'>" + T("kkt.sens.dc") + "</th><th class='num wide'>" + T("kkt.sens.c") + "</th><th class='num wide'>" +
+      T("kkt.sens.f") + "</th><th class='num'>" + T("kkt.sens.ex") + "</th><th class='num'>" + T("kkt.sens.est") + "</th><th class='num'>" +
+      T("kkt.sens.gap") + "</th></tr></thead><tbody>";
+    DELTAS.forEach(function (d) {
+      var n = solve(S.c0 + d), ex = n.f - o.f, est = -o.lam * d;
+      h += "<tr" + (Math.abs(d) === DC ? " class='big'" : "") + "><td class='num'>" + sgn(d, 1) + "</td><td class='num wide'>" + fmt(S.c0 + d, 1) +
+        "</td><td class='num wide'>" + fmt(n.f, 3) + "</td><td class='num ex'>" + sgn(ex, 3) + "</td><td class='num'>" + sgn(est, 3) +
+        "</td><td class='num gap'>" + sgn(ex - est, 3) + "</td></tr>";
+    });
+    document.getElementById("kkt-sens").innerHTML = h + "</tbody>";
+    document.getElementById("kkt-sens-note").textContent = o.active ? T("kkt.sens.note.act", { n: fmt(N2) }) : T("kkt.sens.note.slk");
+    // the link to shadow prices: a first-order estimate while the fence binds, an exact zero while it is slack
+    var lp = document.getElementById("kkt-sens-lp"), kl = o.active ? "kkt.sens.lp" : "kkt.sens.lp.slk";
+    lp.setAttribute("data-i18n", kl); lp.textContent = T(kl, { gab: fmt(gOf(A0, B0)) });
+  }
+  function renderNotes() {
+    var a = scen("active"), s = scen("slack"), o = a.o0;
+    var gfx = 2 * (o.x - A0), gfy = 2 * (o.y - B0);
+    document.getElementById("kkt-n1").textContent = T("kkt.n.p1", { x: pair(o.x, o.y) });
+    document.getElementById("kkt-n2").textContent = T("kkt.n.p2", { gf: pair(gfx, gfy), gg: pair(P0, Q0), l: fmt(o.lam) });
+    document.getElementById("kkt-n3").textContent = T("kkt.n.p3", { gab: fmt(gOf(A0, B0)), c: fmt(s.c0) });
+    document.getElementById("kkt-n4").textContent = T("kkt.n.p4", { d: sgn(DC), df: sgn(a.oD.f - o.f), est: sgn(-o.lam * DC) });
+  }
+
+  var segBtns = document.querySelectorAll("#kkt-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderStatus(); renderSolution(); renderSens();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[1]) player.refresh();
+      else { player.seek(CH[1] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderSeg(); renderScenText(); renderStatus(); renderModel(); renderSolution(); renderSens(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>
