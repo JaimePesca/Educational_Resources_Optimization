@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="en" data-title-key="mcda.title" data-i18n-bundles="resources/other-mcda">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Weigh the Criteria</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  [hidden] { display: none !important; }
+  .hint { margin: 0 0 14px; }
+
+  /* ---- weights ---- */
+  .presets { display: grid; gap: 6px; margin-bottom: 14px; }
+  .presets .ctl-label { font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .presets .seg { justify-self: start; }
+  @media (max-width: 560px) {
+    .presets .seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); justify-self: stretch; }
+    .presets .seg button:nth-child(3) { border-left: none; }
+    .presets .seg button:nth-child(n+3) { border-top: 1px solid var(--border); }
+  }
+  .wgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
+  @media (max-width: 700px) { .wgrid { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
+  .wctl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: end; min-width: 0; }
+  .wctl label { font-weight: 600; font-size: 14px; color: var(--ink); display: flex; align-items: center; gap: 7px; min-width: 0; }
+  .wctl label small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+  .wctl output { font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--accent-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wctl input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 2px 0 0; }
+  .sw4 { width: 12px; height: 12px; flex: none; border: 1px solid var(--ink2); }
+  .sw4.k0, .wseg.k0 { background: var(--ink2); }
+  .sw4.k1, .wseg.k1 { background: repeating-linear-gradient(135deg, var(--ink2) 0 2px, transparent 2px 5px); }
+  .sw4.k2, .wseg.k2 { background: var(--mit-silver); }
+  .sw4.k3, .wseg.k3 { background: repeating-linear-gradient(45deg, var(--mit-silver) 0 2px, transparent 2px 5px); }
+  .sw4.k2, .sw4.k3 { border-color: var(--mit-silver); }
+  .wbarwrap { margin-top: 14px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 12.5px; color: var(--ink2); }
+  .wbarwrap .sum { font-family: var(--font-mono); color: var(--muted); }
+  @media (max-width: 560px) { .wbarwrap { grid-template-columns: minmax(0, 1fr) auto; } .wbarwrap .wlbl { grid-column: 1 / -1; } }
+  .wbar { display: flex; height: 22px; border: 1px solid var(--border); background: var(--surface2); overflow: hidden; }
+  .wseg { position: relative; height: 100%; transition: width 0.18s ease-out; min-width: 0; }
+  .wseg + .wseg { box-shadow: -2px 0 0 var(--surface); }
+  .wseg.k2 { border: 0; }
+
+  /* ---- stage ---- */
+  .fstage { margin-top: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 12px 14px 10px; display: grid; gap: 10px; }
+  .fhud { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .chip-stat {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 5px 9px;
+    font-size: 12px; color: var(--ink2); line-height: 1.25; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); min-width: 0;
+  }
+  .chip-stat b { display: block; font-size: 18px; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip-stat span { display: block; line-height: 1.15; overflow-wrap: anywhere; }
+  .chip-stat.accent { border-color: var(--accent); }
+  .chip-stat.accent b { color: var(--accent-text); }
+  @media (max-width: 620px) {
+    .fstage { padding: 8px 8px 6px; }
+    .fhud { gap: 4px; }
+    .chip-stat { padding: 3px 6px; font-size: 11px; }
+    .chip-stat b { font-size: 15px; }
+  }
+  .rkbox { position: relative; }
+  svg.rk { display: block; width: 100%; height: auto; overflow: visible; }
+  svg.rk text, svg.pl text { font-family: var(--font-sans); }
+  .rk-bg { fill: var(--accent); fill-opacity: 0; }
+  .rk-bg.flash { animation: rkflash 0.9s ease-out; }
+  @keyframes rkflash { 0% { fill-opacity: 0.22; } 100% { fill-opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .rk-bg.flash { animation: none; } }
+  .legend i { display: inline-block; flex: none; }
+  .legend i.lw { width: 14px; height: 11px; background: var(--accent); }
+  .legend i.lb { width: 14px; height: 11px; background: var(--ink2); }
+  .legend i.ls { width: 18px; height: 0; border-top: 1.5px dashed var(--mit-silver); }
+  .legend i.lm { width: 18px; height: 0; border-top: 2px solid var(--ink); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 12px 0 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- data ---- */
+  .dt-p { margin: 0 0 12px; color: var(--ink2); font-size: 14.5px; max-width: 80ch; }
+  .dtbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }
+  .dtbar .ctl-label { font-size: 13px; font-weight: 600; color: var(--ink2); }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data th small { display: block; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+  table.data tr.foot td { color: var(--muted); border-bottom-color: var(--axis); }
+  table.data td.win { color: var(--accent-text); font-weight: 700; }
+  table.dm { min-width: 520px; }
+  @media (max-width: 560px) {
+    table.dm, table.sol { min-width: 0; }
+    table.sol .wide { display: none; }
+    table.data th, table.data td { padding-inline: 5px; }
+    table.data td.num { font-size: 11.5px; }
+  }
+  .dt-note { font-size: 13.5px; color: var(--ink2); margin: 8px 0 0; }
+
+  /* ---- plane ---- */
+  .plgrid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px 24px; align-items: start; }
+  @media (max-width: 820px) { .plgrid { grid-template-columns: minmax(0, 1fr); } }
+  .plbox { min-width: 0; }
+  svg.pl { display: block; width: 100%; height: auto; }
+  .pl-p { margin: 0 0 10px; color: var(--ink2); font-size: 14.5px; }
+  .pl-p b { color: var(--ink); }
+  .legend i.pd { width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
+  .legend i.pw { width: 18px; height: 0; border-top: 2.5px solid var(--accent); position: relative; }
+  .legend i.pr { width: 18px; height: 0; border-top: 1.5px dotted var(--ink2); }
+  .legend i.pf { width: 18px; height: 0; border-top: 1.5px dashed var(--mit-silver); }
+
+  /* ---- sensitivity ---- */
+  .sn-p { font-size: 14px; color: var(--ink2); margin: 0 0 12px; max-width: 80ch; }
+  .sn-p b { color: var(--ink); }
+  .snrows { display: grid; gap: 10px; }
+  .snrow { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 4px 16px; align-items: center; }
+  @media (max-width: 620px) { .snrow { grid-template-columns: minmax(0, 1fr); } }
+  .snname { font-size: 13.5px; color: var(--ink); font-weight: 600; min-width: 0; }
+  .snname small { display: block; font-weight: 400; color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+  .sntrack { position: relative; display: grid; gap: 3px; padding: 0 22px 0 0; }
+  .snline { position: relative; height: 22px; display: grid; grid-template-columns: 94px minmax(0, 1fr); align-items: center; gap: 8px; }
+  @media (max-width: 620px) { .snline { grid-template-columns: 94px minmax(0, 1fr); gap: 6px; } .snline > em { font-size: 10.5px; } }
+  .snline > em { font-style: normal; font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .snbar { position: relative; height: 100%; }
+  .snbar::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--axis); }
+  .snbar .band { position: absolute; top: 4px; bottom: 4px; min-width: 2px; }
+  .snline.ws .band { background: var(--ink2); }
+  .snline.tp .band { background: repeating-linear-gradient(135deg, var(--ink2) 0 2px, transparent 2px 5px); border: 1.5px solid var(--ink2); }
+  .snbar .lab { position: absolute; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: 11px; color: var(--ink); white-space: nowrap; background: var(--surface); padding: 0 2px; font-variant-numeric: tabular-nums; }
+  .snbar .now { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2.5px solid var(--accent); margin-left: -1px; }
+  /* an edge number with no room beside the band goes under it, so it never hides the band or the red mark */
+  .snline.two { height: 38px; align-items: start; }
+  .snline.two > em { line-height: 22px; }
+  .snline.two .snbar { height: 22px; }
+  .snbar .lab.dn { top: 31px; }
+  .snaxis { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 16px; }
+  .snaxis > div { position: relative; height: 16px; margin-right: 22px; }
+  .snaxis .in { position: absolute; left: 102px; right: 0; top: 0; bottom: 0; }
+  .snaxis span { position: absolute; transform: translateX(-50%); font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  @media (max-width: 620px) { .snaxis { grid-template-columns: minmax(0, 1fr); } .snaxis > .sp { display: none; } .snaxis .in { left: 100px; } }
+  .legend i.sw { width: 14px; height: 11px; background: var(--ink2); }
+  .legend i.st { width: 14px; height: 11px; background: repeating-linear-gradient(135deg, var(--ink2) 0 2px, transparent 2px 5px); border: 1.5px solid var(--ink2); }
+  .legend i.sn { width: 0; height: 14px; border-left: 2.5px solid var(--accent); margin: 0 5px; }
+  table.sn { margin-top: 14px; min-width: 560px; }
+  table.sn td small { display: block; color: var(--muted); font-family: var(--font-sans); font-size: 12px; white-space: normal; }
+  @media (max-width: 560px) { table.sn { min-width: 0; } table.sn td.num { white-space: normal; } }
+  .sn-how { font-size: 13.5px; color: var(--ink2); margin: 10px 0 0; max-width: 80ch; }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- solution ---- */
+  @media (min-width: 561px) { table.sol { min-width: 460px; } }
+  .solcheck { font-size: 14px; color: var(--ink2); margin: 14px 0 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="mcda.eyebrow"></p>
+    <h1 data-i18n="mcda.title"></h1>
+    <p class="lede" data-i18n-html="mcda.lede"></p>
+  </header>
+
+  <div class="card" id="mcda-sim">
+    <h2><span class="kicker" data-i18n="mcda.sim.kicker"></span><span data-i18n="mcda.sim.title"></span></h2>
+    <p class="note hint" data-i18n="mcda.sim.hint"></p>
+    <div class="presets">
+      <span class="ctl-label" id="mcda-pre-lbl" data-i18n="mcda.ctl.presets"></span>
+      <div class="seg" role="group" aria-labelledby="mcda-pre-lbl" id="mcda-seg">
+        <button type="button" data-p="equal" aria-pressed="true" data-i18n="mcda.pre.equal"></button>
+        <button type="button" data-p="cov" aria-pressed="false" data-i18n="mcda.pre.cov"></button>
+        <button type="button" data-p="bud" aria-pressed="false" data-i18n="mcda.pre.bud"></button>
+        <button type="button" data-p="safe" aria-pressed="false" data-i18n="mcda.pre.safe"></button>
+      </div>
+    </div>
+    <div class="wgrid" id="mcda-wgrid"></div>
+    <div class="wbarwrap">
+      <span class="wlbl" data-i18n="mcda.ctl.wbar"></span>
+      <div class="wbar" id="mcda-wbar" role="img"></div>
+      <span class="sum" data-i18n="mcda.ctl.sum"></span>
+    </div>
+
+    <div class="fstage" id="mcda-stage">
+      <div class="fhud">
+        <div class="chip-stat accent" id="mcda-c0"><b></b><span data-i18n="mcda.hud.ws"></span></div>
+        <div class="chip-stat accent" id="mcda-c1"><b></b><span data-i18n="mcda.hud.tp"></span></div>
+        <div class="chip-stat" id="mcda-c2"><b></b><span data-i18n="mcda.hud.moved"></span></div>
+      </div>
+      <div class="rkbox" id="mcda-rk"></div>
+    </div>
+    <div class="legend">
+      <span><i class="lw"></i><span data-i18n="mcda.lg.win"></span></span>
+      <span><i class="lb"></i><span data-i18n="mcda.lg.bar"></span></span>
+      <span><i class="ls"></i><span data-i18n="mcda.lg.same"></span></span>
+      <span><i class="lm"></i><span data-i18n="mcda.lg.moved"></span></span>
+      <span data-i18n="mcda.lg.arrow"></span>
+    </div>
+    <p class="scen-status" id="mcda-status" aria-live="polite"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mcda.dt.kicker"></span><span data-i18n="mcda.dt.title"></span></h2>
+    <p class="dt-p" data-i18n="mcda.dt.p"></p>
+    <div class="dtbar">
+      <span class="ctl-label" id="mcda-dt-lbl" data-i18n="mcda.dt.view"></span>
+      <div class="seg" role="group" aria-labelledby="mcda-dt-lbl" id="mcda-dtseg">
+        <button type="button" data-v="raw" aria-pressed="true" data-i18n="mcda.dt.raw"></button>
+        <button type="button" data-v="mm" aria-pressed="false" data-i18n="mcda.dt.mm"></button>
+        <button type="button" data-v="vn" aria-pressed="false" data-i18n="mcda.dt.vn"></button>
+      </div>
+    </div>
+    <div class="tblwrap"><table class="data dm" id="mcda-dm"></table></div>
+    <p class="dt-note" id="mcda-dtnote"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mcda.pl.kicker"></span><span data-i18n="mcda.pl.title"></span></h2>
+    <div class="plgrid">
+      <div class="plbox" id="mcda-pl"></div>
+      <div>
+        <p class="pl-p" data-i18n-html="mcda.pl.intro"></p>
+        <p class="pl-p" id="mcda-plfloor"></p>
+        <div class="legend">
+          <span><i class="pd"></i><span data-i18n="mcda.pl.lg.site"></span></span>
+          <span><i class="pw"></i><span data-i18n="mcda.pl.lg.win"></span></span>
+          <span><i class="pr"></i><span data-i18n="mcda.pl.lg.ray"></span></span>
+          <span><i class="pf"></i><span data-i18n="mcda.pl.lg.floor"></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mcda.sn.kicker"></span><span data-i18n="mcda.sn.title"></span></h2>
+    <p class="sn-p" id="mcda-snintro"></p>
+    <div class="snrows" id="mcda-snrows"></div>
+    <div class="snaxis" aria-hidden="true"><div class="sp"></div><div><div class="in"><span style="left:0%">0</span><span id="mcda-ax5" style="left:50%"></span><span style="left:100%">1</span></div></div></div>
+    <div class="legend">
+      <span><i class="sw"></i><span data-i18n="mcda.sn.lg.ws"></span></span>
+      <span><i class="st"></i><span data-i18n="mcda.sn.lg.tp"></span></span>
+      <span><i class="sn"></i><span data-i18n="mcda.sn.lg.now"></span></span>
+    </div>
+    <div class="tblwrap"><table class="data sn" id="mcda-sntab"></table></div>
+    <p class="sn-how" data-i18n-html="mcda.sn.how"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mcda.md.kicker"></span><span data-i18n="mcda.md.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="mcda.md.w.head"></p>
+        <div class="formula" data-tex="mcda.md.w.tex" data-i18n="mcda.md.w.formula"></div>
+        <p class="mhead" data-i18n="mcda.md.ws.head"></p>
+        <div class="formula" data-tex="mcda.md.ws.tex" data-i18n="mcda.md.ws.formula"></div>
+        <p class="mtext" data-i18n-html="mcda.md.ws.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="mcda.md.tp.head"></p>
+        <div class="formula" data-tex="mcda.md.tp.tex" data-i18n="mcda.md.tp.formula"></div>
+        <p class="mtext" data-i18n-html="mcda.md.tp.why"></p>
+        <p class="mhead" data-i18n="mcda.md.sn.head"></p>
+        <div class="formula" data-tex="mcda.md.sn.tex" data-i18n="mcda.md.sn.formula"></div>
+        <p class="mtext" data-i18n-html="mcda.md.sn.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mcda.sol.kicker"></span><span id="mcda-soltitle"></span></h2>
+    <div class="tblwrap"><table class="data sol" id="mcda-sol"></table></div>
+    <p class="solcheck" data-i18n="mcda.sol.check"></p>
+    <div class="formula" id="mcda-inst"></div>
+    <p class="note" data-i18n-html="mcda.sol.note"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="mcda.n.title"></summary>
+      <div class="body">
+        <p id="mcda-n1"></p>
+        <p id="mcda-n2"></p>
+        <p id="mcda-n3"></p>
+        <p id="mcda-n4"></p>
+        <p id="mcda-n5"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.8" data-refs="mcda.refs"></p>
+  <p class="note" data-i18n="mcda.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-mcda.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- data (illustrative): five candidate sites, four criteria ---------- */
+  var SITES = ["esp", "hon", "mar", "lib", "cha"];
+  var X = [
+    [265, 225, 87, 22],   // Espinal
+    [205, 155, 96, 33],   // Honda
+    [262, 190, 70, 14],   // Mariquita
+    [170, 112, 52, 27],   // Líbano
+    [190, 150, 68, 11]    // Chaparral
+  ];
+  var CRIT = ["pop", "cost", "road", "risk"];
+  var BEN = [true, false, true, false];      // benefit (more is better) or cost (less is better)
+  var PRE = { equal: [25, 25, 25, 25], cov: [50, 20, 15, 15], bud: [20, 50, 15, 15], safe: [20, 15, 15, 50] };
+  var N = SITES.length, M = CRIT.length;
+
+  /* ---------- normalizations (fixed: they do not depend on the weights) ---------- */
+  var R = [], V0 = [], NORM = [], LO = [], HI = [], i, j;
+  for (j = 0; j < M; j++) {
+    var col = X.map(function (r) { return r[j]; });
+    LO[j] = Math.min.apply(null, col); HI[j] = Math.max.apply(null, col);
+    NORM[j] = Math.sqrt(col.reduce(function (s, v) { return s + v * v; }, 0));
+  }
+  for (i = 0; i < N; i++) {
+    R.push([]); V0.push([]);
+    for (j = 0; j < M; j++) {
+      R[i][j] = BEN[j] ? (X[i][j] - LO[j]) / (HI[j] - LO[j]) : (HI[j] - X[i][j]) / (HI[j] - LO[j]);
+      V0[i][j] = X[i][j] / NORM[j];
+    }
+  }
+
+  /* ---------- the two methods ---------- */
+  function wsScores(w) {
+    return R.map(function (r) { var s = 0; for (var j = 0; j < M; j++) s += w[j] * r[j]; return s; });
+  }
+  function topsis(w) {
+    var v = V0.map(function (r) { return r.map(function (x, j) { return w[j] * x; }); });
+    var ap = [], am = [], j, i;
+    for (j = 0; j < M; j++) {
+      var c = v.map(function (r) { return r[j]; }), mx = Math.max.apply(null, c), mn = Math.min.apply(null, c);
+      ap[j] = BEN[j] ? mx : mn; am[j] = BEN[j] ? mn : mx;
+    }
+    var dp = [], dm = [], C = [], ds = 0;
+    for (j = 0; j < M; j++) ds += (ap[j] - am[j]) * (ap[j] - am[j]);
+    for (i = 0; i < N; i++) {
+      var a = 0, b = 0;
+      for (j = 0; j < M; j++) { a += (v[i][j] - ap[j]) * (v[i][j] - ap[j]); b += (v[i][j] - am[j]) * (v[i][j] - am[j]); }
+      dp[i] = Math.sqrt(a); dm[i] = Math.sqrt(b); C[i] = dp[i] + dm[i] > 0 ? dm[i] / (dp[i] + dm[i]) : 0;
+    }
+    return { v: v, ap: ap, am: am, dp: dp, dm: dm, C: C, dstar: Math.sqrt(ds) };
+  }
+  function argmax(s) { var b = 0; for (var i = 1; i < s.length; i++) if (s[i] > s[b]) b = i; return b; }
+  function order(s) { return s.map(function (_, i) { return i; }).sort(function (a, b) { return s[b] - s[a] || a - b; }); }
+  function ranks(s) { var o = order(s), r = []; o.forEach(function (i, p) { r[i] = p + 1; }); return r; }
+
+  /* ---------- one weight moves, the others follow in proportion ---------- */
+  function profile(w, k) {
+    var rest = 1 - w[k];
+    return w.map(function (x, j) { return j === k ? 0 : (rest > 1e-12 ? x / rest : 1 / (M - 1)); });
+  }
+  function wAt(w, k, t) { var p = profile(w, k); return p.map(function (x, j) { return j === k ? t : (1 - t) * x; }); }
+
+  // weighted sum: S_i(t) is linear in t, so every edge is an exact tie S_b(t) = S_i(t)
+  function wsRange(w, k) {
+    var b = argmax(wsScores(w)), t0 = w[k], s0 = wsScores(wAt(w, k, 0)), s1 = wsScores(wAt(w, k, 1));
+    var lo = 0, hi = 1;
+    for (var i = 0; i < N; i++) {
+      if (i === b) continue;
+      var a = s0[b] - s0[i], beta = (s1[b] - s1[i]) - a;
+      if (Math.abs(beta) < 1e-15) continue;
+      var r = -a / beta;
+      if (beta < 0 && r >= t0 - 1e-12) hi = Math.min(hi, r);
+      if (beta > 0 && r <= t0 + 1e-12) lo = Math.max(lo, r);
+    }
+    return edgeInfo(b, lo, hi, function (t) { return argmax(wsScores(wAt(w, k, t))); });
+  }
+  // TOPSIS: sweep in steps of 0.001 from the current weight, then bisect the first sign change
+  function tpRange(w, k) {
+    var b = argmax(topsis(w).C), t0 = w[k];
+    var gap = function (t) {
+      var C = topsis(wAt(w, k, t)).C, g = Infinity;
+      for (var i = 0; i < N; i++) if (i !== b) g = Math.min(g, C[b] - C[i]);
+      return g;
+    };
+    function edge(dir) {
+      var prev = t0, h = 0.001;
+      for (var s = 1; ; s++) {
+        var t = t0 + dir * s * h, end = false;
+        if (dir > 0 && t >= 1) { t = 1; end = true; }
+        if (dir < 0 && t <= 0) { t = 0; end = true; }
+        if (gap(t) < 0) {
+          var a = prev, c = t;                       // gap(a) >= 0 > gap(c)
+          for (var n = 0; n < 60; n++) { var mid = (a + c) / 2; if (gap(mid) >= 0) a = mid; else c = mid; }
+          return a;
+        }
+        if (end) return t;
+        prev = t;
+      }
+    }
+    return edgeInfo(b, edge(-1), edge(1), function (t) { return argmax(topsis(wAt(w, k, t)).C); });
+  }
+  function edgeInfo(b, lo, hi, winAt) {
+    return {
+      b: b, lo: lo, hi: hi,
+      below: lo > 1e-9 ? winAt(Math.max(0, lo - 1e-7)) : null,
+      above: hi < 1 - 1e-9 ? winAt(Math.min(1, hi + 1e-7)) : null
+    };
+  }
+  function solveAll(w) {
+    var S = wsScores(w), tp = topsis(w);
+    return { w: w, S: S, tp: tp, C: tp.C, rS: ranks(S), rC: ranks(tp.C), bS: argmax(S), bC: argmax(tp.C) };
+  }
+
+  /* ---------- formatting ---------- */
+  // values are snapped to 1e-9 first, so float noise never decides a rounding tie (0.15 / 0.8 shows 0.188, not 0.187)
+  var fmt = function (v, d, m) { v = Math.round(v * 1e9) / 1e9; if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 2 : d, m); };
+  var f3 = function (v) { return fmt(v, 3, 3); };
+  var f4 = function (v) { return fmt(v, 4, 4); };
+  var fw = function (v) { return fmt(v, 3, 2); };
+  var fe = function (v) { return v < 1e-9 ? "0" : (v > 1 - 1e-9 ? "1" : f3(v)); };     // range ends
+  var sname = function (i) { return T("mcda.s." + SITES[i]); };
+  var cname = function (j) { return T("mcda.c." + CRIT[j]); };
+  function tx(s) { return String(s).replace(/−/g, "-").replace(/[  ]/g, "\\,"); }
+
+  /* ---------- state ---------- */
+  var state = { w: [0.25, 0.25, 0.25, 0.25], snap: [0.25, 0.25, 0.25, 0.25], view: "raw" };
+  var sol = null, prevR = null;
+
+  /* ---------- weight controls ---------- */
+  var sliders = [];
+  function buildWeights() {
+    var g = $("mcda-wgrid");
+    g.innerHTML = CRIT.map(function (c, j) {
+      return "<div class='wctl'><label for='mcda-w" + j + "'><i class='sw4 k" + j + "' aria-hidden='true'></i><span>" + cname(j) +
+        "<small>" + T("mcda.u." + c) + " · " + T(BEN[j] ? "mcda.dir.ben" : "mcda.dir.cost") + "</small></span></label>" +
+        "<output id='mcda-wo" + j + "' for='mcda-w" + j + "'></output>" +
+        "<input type='range' id='mcda-w" + j + "' min='0' max='1000' step='1'></div>";
+    }).join("");
+    sliders = CRIT.map(function (_, j) {
+      var s = $("mcda-w" + j);
+      // several input events in one frame are rendered once (the TOPSIS sweeps take a few ms)
+      s.addEventListener("input", function () { state.w = wAt(state.snap, j, +s.value / 1000); schedule(j); });
+      s.addEventListener("change", function () { state.snap = state.w.slice(); });
+      return s;
+    });
+    $("mcda-wbar").innerHTML = CRIT.map(function (_, j) { return "<div class='wseg k" + j + "'></div>"; }).join("");
+  }
+  document.querySelectorAll("#mcda-seg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var p = PRE[b.getAttribute("data-p")], s = p.reduce(function (a, c) { return a + c; }, 0);
+      state.w = p.map(function (x) { return x / s; }); state.snap = state.w.slice();
+      update(-1);
+    });
+  });
+  document.querySelectorAll("#mcda-dtseg button").forEach(function (b) {
+    b.addEventListener("click", function () { state.view = b.getAttribute("data-v"); renderData(); });
+  });
+  function renderWeights(skip) {
+    var segs = $("mcda-wbar").children;
+    state.w.forEach(function (w, j) {
+      if (j !== skip) sliders[j].value = Math.round(w * 1000);
+      $("mcda-wo" + j).textContent = T("mcda.ctl.w", { w: fw(w) });
+      sliders[j].setAttribute("aria-valuetext", T("mcda.ctl.w", { w: fw(w) }));
+      segs[j].style.width = (100 * w).toFixed(3) + "%";
+      segs[j].title = cname(j) + ": " + fw(w);
+    });
+    $("mcda-wbar").setAttribute("aria-label", CRIT.map(function (_, j) { return cname(j) + " " + fw(state.w[j]); }).join(", "));
+    document.querySelectorAll("#mcda-seg button").forEach(function (b) {
+      var p = PRE[b.getAttribute("data-p")], s = p.reduce(function (a, c) { return a + c; }, 0);
+      var on = p.every(function (x, j) { return Math.abs(x / s - state.w[j]) < 1e-9; });
+      b.setAttribute("aria-pressed", String(on));
+    });
+  }
+
+  /* ---------- rankings side by side (SVG) ---------- */
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, at, parent, txt) {
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in at) e.setAttribute(k, at[k]);
+    if (txt != null) e.textContent = txt;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  var RK = null;
+  function buildRank() {
+    var box = $("mcda-rk"), W = Math.max(300, Math.round(box.clientWidth)), narrow = W < 560;
+    var rh = narrow ? 38 : 42, top = narrow ? 24 : 28, H = top + N * rh + 2;
+    var gap = narrow ? 24 : Math.round(Math.max(56, W * 0.1)), colW = (W - gap) / 2;
+    var rankW = narrow ? 15 : 24, nameW = narrow ? 62 : 104, valW = narrow ? 38 : 48, arrW = narrow ? 26 : 34;
+    // phones: the bar goes under the name, so the column keeps room for the value and the arrow
+    var barW = narrow ? colW - rankW - valW - arrW - 6 : colW - rankW - nameW - valW - arrW - 4;
+    box.innerHTML = "";
+    var svg = el("svg", { class: "rk", viewBox: "0 0 " + W + " " + H, width: W, height: H, role: "img" }, box);
+    var gc = el("g", {}, svg);
+    RK = { W: W, H: H, rh: rh, top: top, svg: svg, rows: { ws: [], tp: [] }, conn: [], y: { ws: [], tp: [] }, ty: { ws: [], tp: [] }, barW: barW, narrow: narrow };
+    var fs = narrow ? 12 : 13.5;
+    [["ws", 0], ["tp", colW + gap]].forEach(function (c) {
+      var key = c[0], x0 = c[1];
+      el("text", { x: x0, y: narrow ? 13 : 15, "font-size": narrow ? 11.5 : 12.5, "font-weight": 700, fill: "var(--ink2)" }, svg, T(key === "ws" ? "mcda.rk.ws" : "mcda.rk.tp"));
+      for (var i = 0; i < N; i++) {
+        var g = el("g", {}, svg);
+        var bg = el("rect", { class: "rk-bg", x: x0 - 3, y: -rh / 2 + 2, width: colW + 6 - (key === "ws" ? arrW : 0), height: rh - 4 }, g);
+        var rk = el("text", { x: x0 + rankW - 6, y: 4.5, "text-anchor": "end", "font-size": fs, fill: "var(--muted)", "font-weight": 600 }, g);
+        var nm = el("text", { x: x0 + rankW, y: narrow ? 0 : 4.5, "font-size": fs, "font-weight": 600, fill: "var(--ink)" }, g, sname(i));
+        var bx = x0 + rankW + (narrow ? 0 : nameW), by = narrow ? 5 : -6, bh = narrow ? 5 : 12;
+        el("rect", { x: bx, y: by, width: barW, height: bh, fill: "var(--grid)" }, g);
+        var bar = el("rect", { x: bx, y: by, width: 0, height: bh }, g);
+        var val = el("text", { x: bx + barW + valW - 2, y: 4.5, "text-anchor": "end", "font-size": fs, "font-weight": 700, fill: "var(--ink)", "font-variant-numeric": "tabular-nums" }, g);
+        var arr = key === "tp" ? el("text", { x: x0 + colW, y: 4.5, "text-anchor": "end", "font-size": narrow ? 11.5 : 12.5, "font-weight": 700 }, g) : null;
+        RK.rows[key][i] = { g: g, bg: bg, rk: rk, bar: bar, val: val, arr: arr };
+      }
+    });
+    RK.xs = rankW + (narrow ? 0 : nameW) + barW + valW + 4;    // connectors start after the weighted-sum column
+    RK.xe = colW + gap - 3;                    // and end before the TOPSIS column
+    for (i = 0; i < N; i++) RK.conn[i] = el("path", { fill: "none" }, gc);
+  }
+  var anim = 0, lastT = 0;
+  function rowY(r) { return RK.top + (r - 0.5) * RK.rh; }
+  function renderRank(o, jump) {
+    if (!RK || Math.abs(Math.round($("mcda-rk").clientWidth) - RK.W) > 1) { buildRank(); jump = true; }
+    for (var i = 0; i < N; i++) {
+      [["ws", o.S, o.rS, o.bS], ["tp", o.C, o.rC, o.bC]].forEach(function (c) {
+        var row = RK.rows[c[0]][i], r = c[2][i];
+        row.rk.textContent = r;
+        row.bar.setAttribute("width", Math.max(0, c[1][i]) * RK.barW);
+        row.bar.setAttribute("fill", i === c[3] ? "var(--accent)" : "var(--ink2)");
+        row.val.textContent = f3(c[1][i]);
+        row.val.setAttribute("fill", i === c[3] ? "var(--accent-text)" : "var(--ink)");
+        RK.ty[c[0]][i] = rowY(r);
+        if (prevR && prevR[c[0]][i] !== r && !jump) { row.bg.classList.remove("flash"); void row.bg.getBBox(); row.bg.classList.add("flash"); }
+      });
+      var d = o.rS[i] - o.rC[i], a = RK.rows.tp[i].arr;
+      a.textContent = d > 0 ? "▲" + d : (d < 0 ? "▼" + (-d) : "=");
+      a.setAttribute("fill", d > 0 ? "var(--ink)" : (d < 0 ? "var(--ink2)" : "var(--muted)"));
+      var moved = d !== 0;
+      RK.conn[i].setAttribute("stroke", moved ? "var(--ink)" : "var(--mit-silver)");
+      RK.conn[i].setAttribute("stroke-width", moved ? 2 : 1.5);
+      RK.conn[i].setAttribute("stroke-dasharray", moved ? "none" : "4 3");
+    }
+    prevR = { ws: o.rS.slice(), tp: o.rC.slice() };
+    RK.svg.setAttribute("aria-label", T("mcda.rk.aria", {
+      ws: order(o.S).map(sname).join(", "), tp: order(o.C).map(sname).join(", ")
+    }));
+    if (jump || reduce || RK.y.ws.length === 0) {
+      ["ws", "tp"].forEach(function (k) { RK.y[k] = RK.ty[k].slice(); });
+      placeRows();
+    } else if (!anim) { lastT = performance.now(); anim = requestAnimationFrame(step); }
+  }
+  function step(now) {
+    var dt = Math.min(64, now - lastT), k = 1 - Math.exp(-dt / 70), done = true;
+    lastT = now;
+    ["ws", "tp"].forEach(function (c) {
+      for (var i = 0; i < N; i++) {
+        var d = RK.ty[c][i] - RK.y[c][i];
+        if (Math.abs(d) < 0.3) RK.y[c][i] = RK.ty[c][i]; else { RK.y[c][i] += d * k; done = false; }
+      }
+    });
+    placeRows();
+    anim = done ? 0 : requestAnimationFrame(step);
+  }
+  function placeRows() {
+    for (var i = 0; i < N; i++) {
+      RK.rows.ws[i].g.setAttribute("transform", "translate(0," + RK.y.ws[i].toFixed(2) + ")");
+      RK.rows.tp[i].g.setAttribute("transform", "translate(0," + RK.y.tp[i].toFixed(2) + ")");
+      var x1 = RK.xs, x2 = RK.xe, y1 = RK.y.ws[i], y2 = RK.y.tp[i], dx = (x2 - x1) / 2;
+      RK.conn[i].setAttribute("d", "M" + x1.toFixed(1) + " " + y1.toFixed(1) + "C" + (x1 + dx).toFixed(1) + " " + y1.toFixed(1) + " " + (x2 - dx).toFixed(1) + " " + y2.toFixed(1) + " " + x2.toFixed(1) + " " + y2.toFixed(1));
+    }
+  }
+  function renderHud(o) {
+    $("mcda-c0").querySelector("b").textContent = sname(o.bS);
+    $("mcda-c1").querySelector("b").textContent = sname(o.bC);
+    var n = 0; for (var i = 0; i < N; i++) if (o.rS[i] !== o.rC[i]) n++;
+    $("mcda-c2").querySelector("b").textContent = T("mcda.hud.movedv", { n: n });
+    var st;
+    if (o.bS !== o.bC) st = T("mcda.st.disagree", { a: sname(o.bS), s: f3(o.S[o.bS]), b: sname(o.bC), c: f3(o.C[o.bC]), ra: o.rC[o.bS], rb: o.rS[o.bC] });
+    else if (n === 0) st = T("mcda.st.same", { a: sname(o.bS), s: f3(o.S[o.bS]), c: f3(o.C[o.bC]) });
+    else st = T("mcda.st.agree", { a: sname(o.bS), s: f3(o.S[o.bS]), c: f3(o.C[o.bC]), n: n });
+    $("mcda-status").innerHTML = st;
+  }
+
+  /* ---------- data table ---------- */
+  function renderData() {
+    var v = state.view;
+    document.querySelectorAll("#mcda-dtseg button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === v)); });
+    var h = "<thead><tr><th>" + T("mcda.dt.site") + "</th>" + CRIT.map(function (c, j) {
+      return "<th class='num'>" + T("mcda.cs." + c) + "<small>" + (v === "raw" ? T("mcda.u." + c) : T(BEN[j] ? "mcda.dir.ben" : "mcda.dir.cost")) + "</small></th>";
+    }).join("") + "</tr></thead><tbody>";
+    for (var i = 0; i < N; i++) {
+      h += "<tr><td>" + sname(i) + "</td>" + CRIT.map(function (_, j) {
+        var val = v === "raw" ? fmt(X[i][j], 0) : (v === "mm" ? f3(R[i][j]) : f4(V0[i][j]));
+        return "<td class='num'>" + val + "</td>";
+      }).join("") + "</tr>";
+    }
+    if (v === "vn") h += "<tr class='foot'><td>" + T("mcda.dt.norm") + "</td>" + NORM.map(function (x) { return "<td class='num'>" + fmt(x, 2, 2) + "</td>"; }).join("") + "</tr>";
+    $("mcda-dm").innerHTML = h + "</tbody>";
+    $("mcda-dtnote").innerHTML = T("mcda.dt.note." + v);
+  }
+
+  /* ---------- TOPSIS plane (SVG) ---------- */
+  function niceStep(range, n) {
+    var raw = range / n, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+    return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7 ? 5 : 10) * p;
+  }
+  function renderPlane(o) {
+    var box = $("mcda-pl"), W = Math.max(280, Math.round(box.clientWidth)), narrow = W < 460;
+    var m = { l: narrow ? 44 : 52, r: narrow ? 12 : 18, t: 14, b: narrow ? 40 : 44 };
+    var P = Math.min(W - m.l - m.r, 440), H = P + m.t + m.b;
+    var tp = o.tp, ds = tp.dstar, top = ds * 1.1;
+    var X0 = function (d) { return m.l + d / top * P; }, Y0 = function (d) { return m.t + P - d / top * P; };
+    box.innerHTML = "";
+    var svg = el("svg", { class: "pl", viewBox: "0 0 " + W + " " + H, width: W, height: H, role: "img" }, box);
+    var fs = narrow ? 11 : 12;
+    var st = niceStep(top, narrow ? 3 : 4), dec = Math.max(0, -Math.floor(Math.log10(st) + 1e-9));
+    for (var g = 0; g <= top + 1e-12; g += st) {
+      el("line", { x1: X0(g), x2: X0(g), y1: m.t, y2: m.t + P, stroke: "var(--grid)" }, svg);
+      el("line", { x1: m.l, x2: m.l + P, y1: Y0(g), y2: Y0(g), stroke: "var(--grid)" }, svg);
+      if (Math.abs(g - ds) < 0.07 * top) continue;     // the ideal and anti-ideal markers sit there
+      el("text", { x: X0(g), y: m.t + P + 14, "text-anchor": "middle", "font-size": 10.5, fill: "var(--muted)" }, svg, fmt(g, dec, dec));
+      el("text", { x: m.l - 5, y: Y0(g) + 3.5, "text-anchor": "end", "font-size": 10.5, fill: "var(--muted)" }, svg, fmt(g, dec, dec));
+    }
+    el("line", { x1: m.l, x2: m.l + P, y1: m.t + P, y2: m.t + P, stroke: "var(--axis)", "stroke-width": 1.5 }, svg);
+    el("line", { x1: m.l, x2: m.l, y1: m.t, y2: m.t + P, stroke: "var(--axis)", "stroke-width": 1.5 }, svg);
+    el("text", { x: m.l + P / 2, y: H - 6, "text-anchor": "middle", "font-size": fs, fill: "var(--ink2)" }, svg, T("mcda.pl.x"));
+    el("text", { x: 0, y: 0, transform: "translate(" + (narrow ? 11 : 13) + "," + (m.t + P / 2) + ") rotate(-90)", "text-anchor": "middle", "font-size": fs, fill: "var(--ink2)" }, svg, T("mcda.pl.y"));
+    var occ = [];      // occupied boxes for label placement
+    // rays of equal closeness: D- = C/(1-C) D+
+    function ray(C, stroke, sw, dash, lab, bold) {
+      var k = C / (1 - C), ex, ey;
+      if (k <= 1) { ex = top; ey = k * top; } else { ey = top; ex = top / k; }
+      el("line", { x1: X0(0), y1: Y0(0), x2: X0(ex), y2: Y0(ey), stroke: stroke, "stroke-width": sw, "stroke-dasharray": dash }, svg);
+      var tx0 = X0(ex), ty0 = Y0(ey), anchor = "end", lx, ly;
+      if (k <= 1) { lx = tx0 - 3; ly = ty0 - 5; } else { lx = tx0 + 4; ly = ty0 + 12; anchor = "start"; }
+      var t = el("text", { x: lx, y: ly, "text-anchor": anchor, "font-size": 10.5, fill: bold ? "var(--accent-text)" : "var(--muted)", "font-weight": bold ? 700 : 400 }, svg, lab);
+      return t;
+    }
+    var fixed = [0.25, 0.5, 0.75].filter(function (C) { return Math.abs(C - tp.C[o.bC]) > 0.02; }).map(function (C) {
+      return ray(C, "var(--ink2)", 1, "1.5 3", T("mcda.pl.c", { c: fmt(C, 2, 2) }), false);
+    });
+    // floor: the segment from the ideal (0, d*) to the anti-ideal (d*, 0)
+    el("line", { x1: X0(0), y1: Y0(ds), x2: X0(ds), y2: Y0(0), stroke: "var(--mit-silver)", "stroke-width": 1.5, "stroke-dasharray": "6 4" }, svg);
+    var wl = ray(tp.C[o.bC], "var(--accent)", 2.2, "none", T("mcda.pl.c", { c: f3(tp.C[o.bC]) }), true).getBBox();
+    fixed.forEach(function (t) {
+      var q = t.getBBox();
+      if (q.x < wl.x + wl.width + 4 && wl.x < q.x + q.width + 4 && q.y < wl.y + wl.height && wl.y < q.y + q.height) t.remove();
+      else occ.push([q.x, q.y, q.x + q.width, q.y + q.height]);
+    });
+    occ.push([wl.x, wl.y, wl.x + wl.width, wl.y + wl.height]);
+    // ideal and anti-ideal
+    el("circle", { cx: X0(0), cy: Y0(ds), r: 6, fill: "var(--surface)", stroke: "var(--accent)", "stroke-width": 2.5 }, svg);
+    el("circle", { cx: X0(ds), cy: Y0(0), r: 6, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2.5 }, svg);
+    // labels: greedy placement among a few offsets, avoiding points, the winner's line, other labels and the plot edge
+    function place(px, py, text, attrs, cands, edgeOK) {
+      var t = el("text", attrs, svg, text), bw = t.getBBox().width, bh = fs, best = null, bestCost = Infinity;
+      cands.forEach(function (c, ci) {
+        var x = px + c[0], y = py + c[1];
+        var x1 = c[2] === "s" ? x : (c[2] === "e" ? x - bw : x - bw / 2), bx = [x1, y - bh + 2, x1 + bw, y + 2];
+        var cost = ci * 0.01;
+        occ.forEach(function (q) {
+          var ox = Math.min(bx[2], q[2]) - Math.max(bx[0], q[0]) + 3, oy = Math.min(bx[3], q[3]) - Math.max(bx[1], q[1]) + 3;   // 3 px of air
+          if (ox > 0 && oy > 0) cost += ox * oy;
+        });
+        if (bx[0] < (edgeOK ? m.l - 2 : m.l + 2) || bx[2] > W - 2 || bx[1] < 0 || bx[3] > m.t + P) cost += 1e4;
+        if (cost < bestCost) { bestCost = cost; best = [x, y, c[2], bx]; }
+      });
+      t.setAttribute("x", best[0]); t.setAttribute("y", best[1]);
+      t.setAttribute("text-anchor", best[2] === "s" ? "start" : (best[2] === "e" ? "end" : "middle"));
+      occ.push(best[3]);
+    }
+    var pts = [];
+    for (var i = 0; i < N; i++) { pts.push([X0(tp.dp[i]), Y0(tp.dm[i]), i]); occ.push([X0(tp.dp[i]) - 6, Y0(tp.dm[i]) - 6, X0(tp.dp[i]) + 6, Y0(tp.dm[i]) + 6]); }
+    occ.push([X0(0) - 7, Y0(ds) - 7, X0(0) + 7, Y0(ds) + 7], [X0(ds) - 7, Y0(0) - 7, X0(ds) + 7, Y0(0) + 7]);
+    var kw = tp.C[o.bC] / (1 - tp.C[o.bC]);
+    for (var u = 0; u <= 1; u += 0.02) {           // the winner's line, sampled
+      var rx = X0(u * (kw <= 1 ? top : top / kw)), ry = Y0(u * (kw <= 1 ? kw * top : top));
+      occ.push([rx - 1.5, ry - 1.5, rx + 1.5, ry + 1.5]);
+    }
+    pts.forEach(function (p) {
+      var win = p[2] === o.bC;
+      el("circle", { cx: p[0], cy: p[1], r: win ? 6.5 : 5, fill: win ? "var(--accent)" : "var(--ink)", stroke: "var(--surface)", "stroke-width": 1.5 }, svg);
+    });
+    var bold = { "font-size": fs, "font-weight": 700 };
+    place(X0(0), Y0(ds), T("mcda.pl.ideal"), Object.assign({ fill: "var(--accent-text)" }, bold), [[10, 4, "s"], [8, -9, "s"], [8, 17, "s"], [-2, 20, "s"]], true);
+    place(X0(ds), Y0(0), T("mcda.pl.anti"), Object.assign({ fill: "var(--ink)" }, bold), [[-4, -11, "e"], [-10, 4, "e"], [-4, -20, "e"]]);
+    var cands = [[9, 4, "s"], [-9, 4, "e"], [0, -10, "m"], [0, 17, "m"], [8, -7, "s"], [-8, -7, "e"], [8, 15, "s"], [-8, 15, "e"]];
+    pts.forEach(function (p) {
+      var win = p[2] === o.bC;
+      place(p[0], p[1], sname(p[2]), { "font-size": fs, "font-weight": win ? 700 : 600, fill: win ? "var(--accent-text)" : "var(--ink)" }, cands);
+    });
+    svg.setAttribute("aria-label", T("mcda.pl.aria", { b: sname(o.bC), c: f3(tp.C[o.bC]) }));
+    $("mcda-plfloor").innerHTML = T("mcda.pl.floor", { d: f4(ds) });
+  }
+
+  /* ---------- sensitivity ---------- */
+  function renderSens(o) {
+    var rows = "", tab = "";
+    var th = "<thead><tr><th>" + T("mcda.sn.th.c") + "</th><th class='num'>" + T("mcda.sn.th.w") + "</th><th>" + T("mcda.sn.th.ws", { a: sname(o.bS) }) +
+      "</th><th>" + T("mcda.sn.th.tp", { b: sname(o.bC) }) + "</th></tr></thead><tbody>";
+    CRIT.forEach(function (c, k) {
+      var a = wsRange(o.w, k), b = tpRange(o.w, k);
+      var line = function (cls, lbl, r) {
+        var lo = r.lo, hi = r.hi;
+        return "<div class='snline " + cls + "'><em>" + lbl + "</em><div class='snbar' data-lo='" + lo + "' data-hi='" + hi + "'><i class='band' style='left:" + (100 * lo).toFixed(2) + "%;width:" + (100 * (hi - lo)).toFixed(2) +
+          "%'></i><i class='now' style='left:" + (100 * o.w[k]).toFixed(2) + "%'></i></div></div>";
+      };
+      rows += "<div class='snrow'><div class='snname'>" + cname(k) + "<small>" + T("mcda.ctl.w", { w: fw(o.w[k]) }) + "</small></div><div class='sntrack'>" +
+        line("ws", T("mcda.sn.ws"), a) + line("tp", T("mcda.sn.tp"), b) + "</div></div>";
+      var cell = function (r) {
+        var s = T("mcda.sn.range", { lo: fe(r.lo), hi: fe(r.hi) }), ex = [];
+        if (r.below != null) ex.push(T("mcda.sn.below", { v: fe(r.lo), s: sname(r.below) }));
+        if (r.above != null) ex.push(T("mcda.sn.above", { v: fe(r.hi), s: sname(r.above) }));
+        return "<td class='num'>" + s + "<small>" + (ex.length ? ex.join(" · ") : T("mcda.sn.always")) + "</small></td>";
+      };
+      tab += "<tr><td>" + cname(k) + "</td><td class='num'>" + fw(o.w[k]) + "</td>" + cell(a) + cell(b) + "</tr>";
+    });
+    $("mcda-snrows").innerHTML = rows;
+    $("mcda-snrows").querySelectorAll(".snbar").forEach(placeEdges);
+    $("mcda-sntab").innerHTML = th + tab + "</tbody>";
+    $("mcda-snintro").innerHTML = T("mcda.sn.intro", { a: sname(o.bS), b: sname(o.bC) });
+    $("mcda-ax5").textContent = fmt(0.5, 1, 1);
+  }
+
+  // numbers at the band edges: beside the band when there is room, else under the band, centred on its edge
+  // (never on top of the band, where they would hide where it starts and the red mark of the weight now)
+  function placeEdges(bar) {
+    var W = bar.clientWidth, lo = +bar.getAttribute("data-lo"), hi = +bar.getAttribute("data-hi");
+    var hasLo = lo > 1e-9, hasHi = hi < 1 - 1e-9, G = 5, under = [];
+    function lab(text) { var s = document.createElement("span"); s.className = "lab"; s.textContent = text; bar.appendChild(s); return s; }
+    function at(s, x, anchor) { s.style.left = (anchor === "end" ? x - s.offsetWidth : x) + "px"; }
+    var xl = lo * W, xh = hi * W;
+    if (hasLo) {
+      var a = lab(fe(lo));
+      if (xl >= a.offsetWidth + G) at(a, xl - G + 2, "end"); else under.push([a, xl]);
+    }
+    if (hasHi) {
+      var b = lab(fe(hi));
+      if (W - xh >= b.offsetWidth + G) at(b, xh + G - 2, "start"); else under.push([b, xh]);
+    }
+    if (!under.length) return;
+    bar.parentNode.classList.add("two");
+    var L = under.map(function (u) {
+      u[0].classList.add("dn");
+      var w = u[0].offsetWidth;
+      return { s: u[0], w: w, x: Math.max(0, Math.min(W - w, u[1] - w / 2)) };
+    });
+    if (L.length === 2 && L[0].x + L[0].w + G > L[1].x) {      // both under: push them apart, inside the bar
+      var o = L[0].x + L[0].w + G - L[1].x;
+      L[0].x -= o / 2; L[1].x += o / 2;
+      if (L[0].x < 0) { L[1].x -= L[0].x; L[0].x = 0; }
+      if (L[1].x + L[1].w > W) { L[0].x -= L[1].x + L[1].w - W; L[1].x = W - L[1].w; }
+    }
+    L.forEach(function (l) { l.s.style.left = l.x + "px"; });
+  }
+
+  /* ---------- scores in detail ---------- */
+  function renderSol(o) {
+    $("mcda-soltitle").textContent = T("mcda.sol.title", { w: "(" + o.w.map(fw).join(T("mcda.sep")) + ")" });
+    var h = "<thead><tr><th>" + T("mcda.sol.site") + "</th><th class='num'>" + T("mcda.sol.S") + "</th><th class='num wide'>" + T("mcda.sol.rS") +
+      "</th><th class='num'>" + T("mcda.sol.dp") + "</th><th class='num'>" + T("mcda.sol.dm") + "</th><th class='num'>" + T("mcda.sol.C") +
+      "</th><th class='num wide'>" + T("mcda.sol.rC") + "</th></tr></thead><tbody>";
+    order(o.S).forEach(function (i) {
+      h += "<tr><td>" + sname(i) + "</td><td class='num" + (i === o.bS ? " win" : "") + "'>" + f3(o.S[i]) + "</td><td class='num wide'>" + o.rS[i] +
+        "</td><td class='num'>" + f4(o.tp.dp[i]) + "</td><td class='num'>" + f4(o.tp.dm[i]) + "</td><td class='num" + (i === o.bC ? " win" : "") + "'>" + f3(o.C[i]) +
+        "</td><td class='num wide'>" + o.rC[i] + "</td></tr>";
+    });
+    $("mcda-sol").innerHTML = h + "</tbody>";
+    var a = o.bS, b = o.bC;
+    var tt = CRIT.map(function (_, j) { return fw(o.w[j]) + " \\cdot " + f3(R[a][j]); });
+    var terms = tt.join(" + "), terms2 = tt.slice(0, 2).join(" + ") + " \\\\ &\\quad + " + tt.slice(2).join(" + ");
+    var termsP = CRIT.map(function (_, j) { return fw(o.w[j]) + " · " + f3(R[a][j]); }).join(" + ");
+    var narrow = $("mcda-inst").clientWidth > 0 && $("mcda-inst").clientWidth < 620;
+    TeX.set($("mcda-inst"), T(narrow ? "mcda.inst.tex.narrow" : "mcda.inst.tex", {
+      a: sname(a), b: sname(b), terms: tx(narrow ? terms2 : terms), s: tx(f3(o.S[a])), dm: tx(f4(o.tp.dm[b])), dp: tx(f4(o.tp.dp[b])), c: tx(f3(o.C[b]))
+    }), T("mcda.inst.formula", { a: sname(a), b: sname(b), terms: termsP, s: f3(o.S[a]), dm: f4(o.tp.dm[b]), dp: f4(o.tp.dp[b]), c: f3(o.C[b]) }));
+  }
+
+  /* ---------- what to notice (fixed profiles, so the text does not move with the sliders) ---------- */
+  function preW(k) { var p = PRE[k], s = p.reduce(function (a, c) { return a + c; }, 0); return p.map(function (x) { return x / s; }); }
+  function renderNotes() {
+    var eq = solveAll(preW("equal")), bud = solveAll(preW("bud"));
+    $("mcda-n1").innerHTML = T("mcda.n.p1", { a: sname(eq.bS), s: f3(eq.S[eq.bS]), b: sname(eq.bC), c: f3(eq.C[eq.bC]) });
+    var gap = CRIT.map(function (_, j) { return (HI[j] - LO[j]) / NORM[j]; });
+    var ri = CRIT.indexOf("risk"), pi = CRIT.indexOf("pop");
+    var low = 0; for (var i = 1; i < N; i++) if (X[i][ri] < X[low][ri]) low = i;
+    $("mcda-n2").innerHTML = T("mcda.n.p2", { pop: f3(gap[0]), cost: f3(gap[1]), road: f3(gap[2]), risk: f3(gap[3]), ratio: fmt(gap[ri] / gap[pi], 1, 1), cha: sname(low), r: fmt(X[low][ri], 0) });
+    var a = wsRange(eq.w, ri), b = tpRange(eq.w, ri);
+    $("mcda-n3").innerHTML = T("mcda.n.p3", { a: sname(eq.bS), lo: fe(a.lo), hi: fe(a.hi), below: a.below != null ? sname(a.below) : "", above: a.above != null ? sname(a.above) : "",
+      b: sname(eq.bC), lo2: fe(b.lo), hi2: fe(b.hi) });
+    var ci = CRIT.indexOf("cost"), c = wsRange(bud.w, ci);
+    $("mcda-n4").innerHTML = T("mcda.n.p4", { a: sname(bud.bS), b: sname(bud.bC), lo: fe(c.lo), hi: fe(c.hi) });
+    $("mcda-n5").innerHTML = T("mcda.n.p5");
+  }
+
+  /* ---------- update ---------- */
+  function update(skip, jump) {
+    sol = solveAll(state.w);
+    renderWeights(skip);
+    renderHud(sol);
+    renderRank(sol, jump);
+    renderPlane(sol);
+    renderSens(sol);
+    renderSol(sol);
+  }
+  var pending = 0;
+  function schedule(j) {
+    if (pending) cancelAnimationFrame(pending);
+    pending = requestAnimationFrame(function () { pending = 0; update(j); });
+  }
+  function renderPage() {
+    buildWeights(); RK = null; prevR = null;
+    renderData(); renderNotes();
+    update(-1, true);
+  }
+  var rsz = 0, lastW = window.innerWidth;
+  window.addEventListener("resize", function () {
+    clearTimeout(rsz);
+    rsz = setTimeout(function () { if (window.innerWidth !== lastW) { lastW = window.innerWidth; RK = null; update(-1, true); } }, 120);
+  });
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>
