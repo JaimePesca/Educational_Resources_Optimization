@@ -56,7 +56,9 @@
     return Array.prototype.slice.call(document.querySelectorAll(".vars code")).map(function (c) {
       var span = document.createElement("span");
       span.className = "sym";
-      span.textContent = "\\(" + toTex(c.textContent) + "\\)";
+      // a symbol written directly in TeX (it has a backslash, _ or ^) is used as is
+      var raw = c.textContent, tex = /[\\_^]/.test(raw) ? raw : toTex(raw);
+      span.textContent = "\\(" + tex.replace(/(\d),(\d)/g, "$1{,}$2") + "\\)";
       c.replaceWith(span);
       return span;
     });
@@ -81,8 +83,24 @@
     });
     outs = outs.concat(prepareSymbols());
     if (window.MathJax.typesetClear) window.MathJax.typesetClear(outs);
-    window.MathJax.typesetPromise(outs).catch(function (e) { console.error(e); });
+    window.MathJax.typesetPromise(outs).then(fitMath).catch(function (e) { console.error(e); });
   }
+
+  // wide formulations shrink to the width of their box on phones instead of being cut off
+  function fitMath() {
+    document.querySelectorAll(".math-out").forEach(function (out) {
+      out.style.fontSize = "";
+      var box = out.clientWidth, svg = out.querySelector("mjx-container > svg");
+      if (!svg || !box) return;
+      var need = svg.getBoundingClientRect().width;
+      if (need > box) {
+        var base = parseFloat(getComputedStyle(out).fontSize);
+        out.style.fontSize = Math.max(8, Math.floor(base * box / need * 10) / 10) + "px";
+      }
+    });
+  }
+  var fitTimer;
+  window.addEventListener("resize", function () { clearTimeout(fitTimer); fitTimer = setTimeout(fitMath, 150); });
 
   if (blocks.length) {
     window.MathJax = {

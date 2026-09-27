@@ -128,25 +128,30 @@
     <p class="section-intro" data-i18n="r.wildfire.model.intro2"></p>
     <div class="model">
       <div><div class="math"><script type="text/x-tex">\begin{aligned}
-\mathrm{cyc}(f,k) &= 2\,\tau^{fw}(f,k)+\delta\\
-d(i,f,k) &= \max\!\left(0,\ \left\lfloor \frac{W-\tau^{bf}(i,f)}{\mathrm{cyc}(f,k)} \right\rfloor\right)\\
-L(i,f,k) &= d(i,f,k)\, Q\\
-R(f) &= c\, A_0\, e^{\rho_f\, t^{arr}(f)}
+\mathrm{cyc}_{fk} &= 2\,\tau^{\mathrm{fw}}_{fk}+\delta\\
+d_{ifk} &= \max\!\left(0,\ \left\lfloor \frac{W-\tau^{\mathrm{bf}}_{if}}{\mathrm{cyc}_{fk}} \right\rfloor\right)\\
+L_{ifk} &= d_{ifk}\, Q\\
+R_f &= c\, A_0\, e^{\rho_f\, t^{\mathrm{arr}}_f}
 \end{aligned}</script></div>
       <div class="math"><script type="text/x-tex">\begin{aligned}
-\min\;& (1-\lambda)\sum_{s} p_s\,\ell_s+\lambda\left[\eta+\frac{1}{1-\alpha}\sum_{s} p_s\, t_s\right]\\[4pt]
-\text{ST}\;& \sum_{i} c^{base}\, y_i+\sum_{i} c^{air}\, n_i+\sum_{k} c^{wat}\, w_k\le B\\
-& n_i\le M\, y_i,\qquad z_{fks}\le w_k,\qquad \sum_{k} z_{fks}\le 1,\qquad \sum_{f} x_{ifs}\le n_i\\
-& q_{fs}=\sum_{i}\sum_{k} L(i,f,k)\, x_{ifs}\, z_{fks}\\
-& q_{fs}\ge R(f)\left(1-e_{fs}\right)\\
-& \ell_s=\sum_{f} D_f\, e_{fs},\qquad t_s\ge \ell_s-\eta,\qquad t_s\ge 0\\
-& y,\ w,\ z,\ e\in\{0,1\},\qquad n,\ x\in\mathbb{Z}_{+}
+\min\;& (1-\lambda)\sum_{s} p_s\,\ell_s+\lambda\left[\eta+\frac{1}{1-\alpha}\sum_{s} p_s\, t_s\right]\\[6pt]
+\text{ST}\;& \sum_{i} c^{\mathrm{base}}_i\, y_i+\sum_{i} c^{\mathrm{air}}\, n_i+\sum_{k} c^{\mathrm{wat}}_k\, w_k\le B\\
+& n_i\le M\, y_i && \forall\, i\\
+& z_{fks}\le w_k && \forall\, f,\ k,\ s\\
+& \sum_{k} z_{fks}\le 1 && \forall\, f,\ s\\
+& \sum_{f} x_{ifs}\le n_i && \forall\, i,\ s\\
+& q_{fs}=\sum_{i}\sum_{k} L_{ifk}\, x_{ifs}\, z_{fks} && \forall\, f,\ s\\
+& q_{fs}\ge R_f\left(1-e_{fs}\right) && \forall\, f,\ s\\
+& \ell_s=\sum_{f} D_f\, e_{fs} && \forall\, s\\
+& t_s\ge \ell_s-\eta,\quad t_s\ge 0 && \forall\, s\\
+& y_i,\ w_k,\ z_{fks},\ e_{fs}\in\{0,1\},\qquad n_i,\ x_{ifs}\in\mathbb{Z}_{+}
 \end{aligned}</script></div></div>
       <ul class="vars">
         <li data-i18n-html="r.wildfire.var.y"></li>
         <li data-i18n-html="r.wildfire.var.n"></li>
         <li data-i18n-html="r.wildfire.var.x"></li>
         <li data-i18n-html="r.wildfire.var.cyc"></li>
+        <li data-i18n-html="r.wildfire.var.L"></li>
         <li data-i18n-html="r.wildfire.var.q"></li>
         <li data-i18n-html="r.wildfire.var.R"></li>
         <li data-i18n-html="r.wildfire.var.D"></li>

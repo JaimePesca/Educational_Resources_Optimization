@@ -53,15 +53,15 @@ I18N.register("fr", {
   /* le modèle */
   "r.nanostores.model.title": "Le modèle",
   "r.nanostores.model.intro": "Un programme non linéaire mixte en nombres entiers (MINLP). Les décisions portent sur les sites à ouvrir parmi les 50 candidats et sur les produits vendus par chaque commerce ouvert. L'objectif est le bénéfice hebdomadaire du nouveau réseau : la marge (prix moins coût unitaire) multipliée par la demande captée, moins les coûts fixes d'exploitation hebdomadaires. La demande captée provient d'un logit multinomial : chaque ménage répartit sa demande hebdomadaire d'un produit entre tous les commerces proportionnellement à exp(utilité), l'utilité diminuant avec la distance et le prix. Les nouveaux commerces doivent être distants d'au moins dₘᵢₙ pour éviter la cannibalisation, un produit ne peut être vendu que dans un commerce ouvert, et chaque commerce ouvert doit capter une demande minimale. La contrainte non linéaire de parts est linéarisée avec la méthode de Haase et Müller (2014).",
-  "r.nanostores.v.x": "<code>xᵢ</code> : 1 si le nanostore candidat i ouvre (50 candidats, ensemble I)",
-  "r.nanostores.v.z": "<code>zᵢₚ</code> : 1 si le produit p (fruits, légumes ou tubercules) est vendu dans le commerce i",
-  "r.nanostores.v.y": "<code>yⱼᵢₚ</code> : probabilité que le ménage j achète le produit p dans le commerce i",
-  "r.nanostores.v.q": "<code>qᵢₚ</code> : demande du produit p captée par le commerce i (kg par semaine)",
-  "r.nanostores.v.d": "<code>δⱼₚ</code> : demande hebdomadaire de produits frais du ménage j pour le produit p",
+  "r.nanostores.v.x": "<code>xᵢ</code> : 1 si le nanostore candidat <code>i</code> ouvre (50 candidats, ensemble I)",
+  "r.nanostores.v.z": "<code>zᵢₚ</code> : 1 si le produit <code>p</code> (fruits, légumes ou tubercules) est vendu dans le commerce <code>i</code>",
+  "r.nanostores.v.y": "<code>yⱼᵢₚ</code> : probabilité que le ménage <code>j</code> achète le produit <code>p</code> dans le commerce <code>i</code>",
+  "r.nanostores.v.q": "<code>qᵢₚ</code> : demande du produit <code>p</code> captée par le commerce <code>i</code> (kg par semaine)",
+  "r.nanostores.v.d": "<code>δⱼₚ</code> : demande hebdomadaire de produits frais du ménage <code>j</code> pour le produit <code>p</code>",
   "r.nanostores.v.pc": "<code>pᵢₚ, cᵢₚ</code> : prix et coût unitaire en US$ par kg ; <code>fᵢ</code> : coût fixe d'exploitation hebdomadaire",
-  "r.nanostores.v.V": "<code>Vⱼᵣₚ</code> : utilité observée ; <code>γⱼᵣ</code> : distance du ménage j au commerce r ; <code>β</code> : constante et poids de la distance et du prix par type de commerce et par produit, issus de la régression logit",
+  "r.nanostores.v.V": "<code>Vⱼᵣₚ</code> : utilité observée ; <code>γⱼᵣ</code> : distance du ménage <code>j</code> au commerce <code>r</code> ; <code>β</code> : constante et poids de la distance et du prix par type de commerce et par produit, issus de la régression logit",
   "r.nanostores.v.a": "<code>aⱼᵢ</code> : facteur de couverture en distance, égal à 1 jusqu'à <code>Maxⱼᵢ</code> et décroissant jusqu'à 0 au-delà",
-  "r.nanostores.v.dmin": "<code>dₘᵢₙ, dᵢₖ</code> : distance requise et distance réelle entre deux nouveaux commerces ; <code>ndᵢₚ</code> : demande minimale qu'un commerce ouvert doit capter",
+  "r.nanostores.v.dmin": "<code>d_{\\min},\\ d_{ik}</code> : distance requise et distance réelle entre deux nouveaux commerces ; <code>ndᵢₚ</code> : demande minimale qu'un commerce ouvert doit capter",
 
   /* interactif */
   "r.nanostores.ex.title": "Illustration interactive",
