@@ -1,0 +1,1598 @@
+<!doctype html>
+<html lang="en" data-title-key="diet.title" data-i18n-bundles="resources/edu-diet">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>The Cheapest Feed</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  /* food colors: MIT red, silver and dark ink; lighter variants on dark backgrounds */
+  :root { --f-corn: #750014; --f-res: #8b959e; --f-alf: #3b4046; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --f-corn: #ff5a64; --f-res: #8b959e; --f-alf: #e2e5e8; }
+  }
+  :root[data-theme="dark"] { --f-corn: #ff5a64; --f-res: #8b959e; --f-alf: #e2e5e8; }
+
+  /* ---- statement ---- */
+  .statement { margin: 0 0 12px; color: var(--ink2); max-width: 78ch; }
+  .tblwrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  table.data { min-width: 520px; }
+  th {
+    text-align: left; font-family: var(--font-mono); font-weight: 400; font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--axis); padding: 6px 10px; vertical-align: bottom;
+  }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  td.num, th.num { text-align: right; }
+  td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  tr.costrow td { font-weight: 600; border-bottom: none; }
+  .sw { width: 11px; height: 11px; display: inline-block; flex: none; vertical-align: -1px; margin-right: 6px; border-radius: 1px; }
+  .sw.corn { background: var(--f-corn); } .sw.res { background: var(--f-res); } .sw.alf { background: var(--f-alf); }
+  .ask { margin: 10px 0 0; font-size: 14px; color: var(--ink2); }
+
+  /* ---- stages ---- */
+  .stage {
+    position: relative; width: 100%; aspect-ratio: 16 / 9; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+  }
+  @media (max-width: 620px) { .stage.mix { aspect-ratio: 4 / 5; } }
+  .stage canvas { position: absolute; inset: 0; display: block; }
+  .hud {
+    position: absolute; top: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end;
+    pointer-events: none; z-index: 2;
+  }
+  @media (max-width: 620px) { .hud { left: 8px; right: 8px; top: 8px; justify-content: flex-start; gap: 5px; } }
+  .chip-stat {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 5px 9px;
+    font-size: 12px; color: var(--ink2); line-height: 1.25; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: opacity .3s, transform .3s;
+  }
+  .chip-stat b {
+    display: block; font-size: 19px; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .chip-stat.accent b { color: var(--accent-text); }
+  .chip-stat.short b { color: var(--mit-bright); }
+  .chip-stat[hidden] { display: none; }
+  @media (max-width: 620px) { .chip-stat { padding: 3px 7px; font-size: 10.5px; } .chip-stat b { font-size: 15px; } }
+
+  /* ---- mixer controls ---- */
+  .mixctl { display: grid; gap: 8px; margin-top: 14px; }
+  .frow { display: grid; grid-template-columns: minmax(170px, 0.9fr) minmax(0, 2fr) 7.5ch; gap: 4px 14px; align-items: center; }
+  .frow label { font-size: 14px; color: var(--ink); font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; }
+  .frow .price { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+  .frow output { font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+  @media (max-width: 560px) {
+    .frow { grid-template-columns: minmax(0, 1fr) 7.5ch; }
+    .frow label { grid-column: 1 / -1; }
+  }
+  input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; min-width: 60px; }
+  .btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center; }
+  button.btn {
+    font: 600 13.5px var(--font-sans); color: var(--on-solid);
+    background: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 9px 14px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--border); }
+  button.btn.ghost:hover { background: var(--surface2); filter: none; }
+  .status {
+    margin: 12px 0 0; background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--mit-bright);
+    border-radius: 3px; padding: 10px 13px; font-size: 14px; color: var(--ink2);
+  }
+  .status.ok { border-left-color: var(--ink); color: var(--ink); }
+  .status.best { border-left-color: var(--accent); color: var(--ink); }
+  .hint { margin-top: 10px; }
+
+  /* ---- optimum panel ---- */
+  .result { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
+  .result[hidden] { display: none; }
+  .result h3 { font-size: 16px; margin: 0 0 10px; font-weight: 700; }
+  .result h3 b { color: var(--accent-text); }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 2px; font-size: 13.5px; padding: 5px 10px; border-radius: 2px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--ink2);
+  }
+  .pill b { font-family: var(--font-mono); color: var(--ink); margin-right: 5px; font-size: 13px; }
+  .pill.zero { opacity: 0.6; text-decoration: line-through; text-decoration-color: var(--muted); }
+  table.req { min-width: 480px; }
+  table.req tr.bind td { background: var(--sel); }
+  table.req tr.bind td:first-child { border-left: 3px solid var(--accent); }
+  .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
+  .tag.bind { color: var(--accent-text); }
+  .tag.slack { color: var(--muted); font-weight: 600; }
+  .dualbar { display: inline-block; height: 8px; background: var(--accent); border-radius: 1px; vertical-align: middle; margin-right: 8px; transition: width .6s; }
+  .result .note { margin-top: 10px; }
+
+  /* ---- formulation ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
+  @media (max-width: 820px) { .model-grid { grid-template-columns: 1fr; } }
+  .vars { margin: 0 0 10px; padding: 0; list-style: none; font-size: 14px; color: var(--ink2); }
+  .vars li { padding-block: 2px; }
+  .vars code, .ceq { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
+  .math {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 2px; padding: 6px 14px; overflow-x: auto; color: var(--ink);
+  }
+  .math-out { font-size: 15px; }
+  @media (max-width: 620px) { .math-out { font-size: 12px; } .math { padding: 4px 10px; } }
+  .math-out mjx-container[display="true"] { margin: 0.6em 0 !important; }
+  .math script { display: none; }
+  .clist { margin: 0; padding: 0; list-style: none; }
+  .clist li { border-top: 1px solid var(--grid); padding-block: 8px; display: flex; flex-direction: column; gap: 2px; }
+  .clist li:first-child { border-top: none; padding-top: 0; }
+  .cname { font-weight: 600; font-size: 14px; }
+  .ctext { font-size: 13.5px; color: var(--ink2); }
+  .solbox {
+    margin-top: 14px; background: var(--sel); border-left: 3px solid var(--accent); border-radius: 2px;
+    padding: 10px 13px; font-size: 14px; color: var(--ink);
+  }
+  .solbox code { font-family: var(--font-mono); font-size: 13px; }
+
+  /* ---- plane ---- */
+  .plane-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 820px) { .plane-grid { grid-template-columns: 1fr; } }
+  .stage.plane { aspect-ratio: 1 / 1; max-height: 560px; }
+  .stage.plane canvas { cursor: crosshair; }
+  .side { display: grid; gap: 12px; }
+  .isoctl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: center; }
+  .isoctl label { grid-column: 1 / -1; font-size: 13.5px; color: var(--ink2); }
+  .isoctl output { font-family: var(--font-mono); font-size: 13px; font-weight: 600; min-width: 9ch; text-align: right;
+    font-variant-numeric: tabular-nums; color: var(--accent-text); }
+  .isostate {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--mit-silver);
+    border-radius: 3px; padding: 10px 13px; font-size: 14px; color: var(--ink2);
+  }
+  .isostate.hit { border-left-color: var(--accent); color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink2); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .lg { width: 18px; height: 0; border-top: 2px solid var(--ink2); flex: none; }
+  .lg.dash { border-top-style: dashed; }
+  .lg.dot { border-top-style: dotted; border-top-width: 3px; }
+  .lg.iso { border-top: 3px solid var(--accent); }
+  .lg.area { height: 12px; width: 14px; border: 1px solid var(--mit-silver); background: var(--region); }
+  .lg.you { width: 10px; height: 10px; border: 2px solid var(--ink); border-radius: 50%; background: var(--ink); }
+
+  /* ---- pricing out ---- */
+  .rc { display: grid; gap: 14px; margin-top: 12px; }
+  .rcrow { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 4px 14px; align-items: center; }
+  .rcname { font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; }
+  .rctrack { position: relative; display: grid; gap: 4px; }
+  .rcbar { position: relative; height: 14px; background: var(--surface2); border-radius: 1px; overflow: hidden; }
+  .rcfill { position: absolute; top: 0; bottom: 0; left: 0; transition: width .45s cubic-bezier(.3,.7,.2,1), left .45s cubic-bezier(.3,.7,.2,1); }
+  .rcfill.price { background: var(--mit-silver); }
+  .rcfill.v0 { background: var(--ink); }
+  .rcfill.v1 { background: var(--ink2); opacity: 0.7; }
+  .rcfill.v2 { background: var(--muted); opacity: 0.5; }
+  .rcfill.gap {
+    background: repeating-linear-gradient(135deg, var(--mit-bright) 0 3px, transparent 3px 7px);
+    border: 1px solid var(--mit-bright);
+  }
+  .rclab { font-size: 12.5px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+  .rclab b { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
+  .rclab .gapt { color: var(--mit-bright); font-weight: 700; }
+  .rclab .usedt { color: var(--accent-text); font-weight: 700; }
+  @media (max-width: 560px) { .rcrow { grid-template-columns: 1fr; } }
+  .rckey { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
+  .rckey span { display: inline-flex; align-items: center; gap: 6px; }
+  .rckey i { width: 14px; height: 10px; display: inline-block; }
+  .rcctl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: center; margin-top: 16px;
+    padding-top: 14px; border-top: 1px solid var(--border); }
+  .rcctl label { grid-column: 1 / -1; font-size: 13.5px; color: var(--ink2); }
+  .rcctl output { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--accent-text); min-width: 8ch; text-align: right; }
+  .rcout { margin-top: 10px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="diet.eyebrow"></p>
+    <h1 data-i18n="diet.title"></h1>
+    <p class="lede" data-i18n-html="diet.lede"></p>
+  </header>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="diet.stmt.kicker"></span><span data-i18n="diet.stmt.title"></span></h2>
+    <p class="statement" data-i18n="diet.stmt.text"></p>
+    <div class="tblwrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th data-i18n="diet.tbl.nutrient"></th>
+            <th class="num"><span class="sw corn"></span><span data-i18n="diet.tbl.corn"></span></th>
+            <th class="num"><span class="sw res"></span><span data-i18n="diet.tbl.res"></span></th>
+            <th class="num"><span class="sw alf"></span><span data-i18n="diet.tbl.alf"></span></th>
+            <th class="num" data-i18n="diet.tbl.min"></th>
+          </tr>
+        </thead>
+        <tbody id="dtbody"></tbody>
+      </table>
+    </div>
+    <p class="ask" data-i18n="diet.stmt.ask"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="diet.mix.kicker"></span><span data-i18n="diet.mix.title"></span></h2>
+    <div class="stage mix" id="mixStage" role="img" data-i18n-attr="aria-label:diet.mix.aria">
+      <div class="hud">
+        <div class="chip-stat" id="chipCost"><b id="hudCost"></b><span data-i18n="diet.hud.cost"></span></div>
+        <div class="chip-stat accent" id="chipOpt" hidden><b id="hudOpt"></b><span data-i18n="diet.hud.opt"></span></div>
+      </div>
+    </div>
+    <div class="mixctl" id="mixctl"></div>
+    <div class="btnrow">
+      <button class="btn" id="btnOpt" type="button" data-i18n="diet.btn.opt"></button>
+      <button class="btn ghost" id="btnReset" type="button" data-i18n="diet.btn.reset"></button>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+    <p class="note hint" data-i18n="diet.mix.hint"></p>
+
+    <div class="result" id="result" hidden>
+      <h3 id="resTitle"></h3>
+      <div class="pills" id="resPills"></div>
+      <div class="tblwrap">
+        <table class="req">
+          <thead>
+            <tr>
+              <th data-i18n="diet.res.th.nut"></th>
+              <th class="num" data-i18n="diet.res.th.got"></th>
+              <th class="num" data-i18n="diet.res.th.min"></th>
+              <th data-i18n="diet.res.th.state"></th>
+              <th data-i18n="diet.res.th.dual"></th>
+            </tr>
+          </thead>
+          <tbody id="resBody"></tbody>
+        </table>
+      </div>
+      <p class="note" id="resNote"></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="diet.model.kicker"></span><span data-i18n="diet.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <ul class="vars">
+          <li><code>x₁</code> <span data-i18n="diet.var.x1"></span></li>
+          <li><code>x₂</code> <span data-i18n="diet.var.x2"></span></li>
+          <li><code>x₃</code> <span data-i18n="diet.var.x3"></span></li>
+        </ul>
+        <div class="math"><script type="text/x-tex">
+\begin{array}{lrcl}
+\min & z & = & 21x_1 + 18x_2 + 15x_3 \\[4pt]
+\text{ST} & 90x_1 + 20x_2 + 40x_3 & \ge & 200 \\
+ & 30x_1 + 80x_2 + 60x_3 & \ge & 180 \\
+ & 10x_1 + 20x_2 + 60x_3 & \ge & 150 \\
+ & x_1,\ x_2,\ x_3 & \ge & 0
+\end{array}
+        </script></div>
+        <div class="solbox" id="solbox"></div>
+      </div>
+      <ul class="clist" id="clist"></ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="diet.plane.kicker"></span><span data-i18n="diet.plane.title"></span></h2>
+    <div class="plane-grid">
+      <div class="stage plane" id="planeStage" role="img" data-i18n-attr="aria-label:diet.plane.aria"></div>
+      <div class="side">
+        <p class="note" style="margin:0;color:var(--ink2);font-size:14px" data-i18n-html="diet.plane.intro"></p>
+        <div class="isoctl">
+          <label for="ciso" data-i18n="diet.iso.label"></label>
+          <input type="range" id="ciso" min="20" max="100" step="0.5" value="40">
+          <output id="cisoo" for="ciso"></output>
+        </div>
+        <div><button class="btn" id="sweep" type="button" data-i18n="diet.iso.sweep"></button></div>
+        <div class="isostate" id="isostate" aria-live="polite"></div>
+        <div class="legend">
+          <span><i class="lg area"></i><span data-i18n="diet.leg.region"></span></span>
+          <span><i class="lg"></i><span id="lgc0"></span></span>
+          <span><i class="lg dash"></i><span id="lgc1"></span></span>
+          <span><i class="lg dot"></i><span id="lgc2"></span></span>
+          <span><i class="lg iso"></i><span data-i18n="diet.leg.iso"></span></span>
+          <span><i class="lg you"></i><span data-i18n="diet.leg.you"></span></span>
+        </div>
+        <p class="note" data-i18n="diet.plane.hint"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="diet.rc.kicker"></span><span data-i18n="diet.rc.title"></span></h2>
+    <p class="statement" id="rcIntro"></p>
+    <div class="rc" id="rc"></div>
+    <div class="rckey">
+      <span><i style="background:var(--mit-silver)"></i><span data-i18n="diet.rc.key.price"></span></span>
+      <span><i style="background:var(--ink)"></i><span id="rck0"></span></span>
+      <span><i style="background:var(--ink2);opacity:.7"></i><span id="rck1"></span></span>
+      <span><i style="background:var(--muted);opacity:.5"></i><span id="rck2"></span></span>
+      <span><i style="background:repeating-linear-gradient(135deg,var(--mit-bright) 0 3px,transparent 3px 7px);border:1px solid var(--mit-bright)"></i><span data-i18n="diet.rc.key.gap"></span></span>
+    </div>
+    <div class="rcctl">
+      <label for="cres" data-i18n="diet.rc.slider"></label>
+      <input type="range" id="cres" min="8" max="24" step="0.1" value="18">
+      <output id="creso" for="cres"></output>
+    </div>
+    <div class="isostate rcout" id="rcout" aria-live="polite"></div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="diet.n1.title"></summary>
+      <div class="body"><p id="n1p1"></p><p id="n1p2"></p></div>
+    </details>
+    <details>
+      <summary data-i18n="diet.n2.title"></summary>
+      <div class="body"><p id="n2p1"></p><p id="n2p2"></p></div>
+    </details>
+    <details>
+      <summary data-i18n="diet.n3.title"></summary>
+      <div class="body"><p id="n3p1"></p></div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="diet.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/edu-diet.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var fmt = function (v, d, m) { return I18N.fmt(v, d == null ? 2 : d, m); };
+  var money = function (v, d) { return t("diet.money", { v: fmt(v, d == null ? 2 : d, d == null ? 2 : d) }); };
+  var ease = Anim.ease, clamp = Anim.clamp, lerp = Anim.lerp;
+  var REDUCE = Anim.reducedMotion;
+
+  // ---- data (Problem 2) ----
+  var FOODS = [
+    { id: "corn", n: [90, 30, 10], c: 21 },
+    { id: "res",  n: [20, 80, 20], c: 18 },
+    { id: "alf",  n: [40, 60, 60], c: 15 }
+  ];
+  var NUTS = [{ id: "carb", min: 200 }, { id: "prot", min: 180 }, { id: "vit", min: 150 }];
+  var MAXKG = 6, START = [1, 1, 1], CAP = 6.5;
+
+  function problem(cres) {
+    return {
+      sense: "min",
+      c: FOODS.map(function (f, i) { return i === 1 && cres != null ? cres : f.c; }),
+      rows: NUTS.map(function (n, j) { return { a: FOODS.map(function (f) { return f.n[j]; }), op: ">=", b: n.min, name: n.id }; })
+    };
+  }
+  var SOL = LP.solve(problem());
+  // the same model with residue fixed at 0, in the corn and alfalfa plane
+  var SOL2 = LP.solve({ sense: "min", c: [21, 15], rows: NUTS.map(function (n, j) {
+    return { a: [FOODS[0].n[j], FOODS[2].n[j]], op: ">=", b: n.min };
+  }) });
+  // what a kg of each food is worth at the shadow prices; reduced cost = price minus worth
+  function worth(i, duals) { return NUTS.reduce(function (s, n, j) { return s + FOODS[i].n[j] * duals[j]; }, 0); }
+
+  function nutrients(v) { return NUTS.map(function (n, j) { return FOODS.reduce(function (s, f, i) { return s + f.n[j] * v[i]; }, 0); }); }
+  function cost(v) { return FOODS.reduce(function (s, f, i) { return s + f.c * v[i]; }, 0); }
+  var EPSN = 1e-6;
+  function feasible(v) { return nutrients(v).every(function (q, j) { return q >= NUTS[j].min - EPSN; }); }
+
+  // ---- colors from tokens ----
+  var COL = {};
+  function rgb(c) {
+    c = (c || "").trim();
+    if (c.charAt(0) === "#") {
+      if (c.length === 4) c = "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3];
+      return [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
+    }
+    var m = c.match(/[\d.]+/g) || [0, 0, 0];
+    return [+m[0], +m[1], +m[2]];
+  }
+  function readColors() {
+    var cs = getComputedStyle(document.documentElement);
+    ["--bg", "--surface", "--surface2", "--ink", "--ink2", "--muted", "--grid", "--axis", "--accent", "--accent-text",
+      "--mit-bright", "--mit-silver", "--on-solid", "--region", "--f-corn", "--f-res", "--f-alf", "--font-sans", "--font-mono"]
+      .forEach(function (k) { COL[k.slice(2)] = cs.getPropertyValue(k).trim(); });
+    COL.food = [COL["f-corn"], COL["f-res"], COL["f-alf"]];
+    COL.foodSpeck = COL.food.map(function (c) { return mix(c, COL.surface, 0.38); });
+  }
+  function mix(a, b, u) {
+    var A = rgb(a), B = rgb(b);
+    return "rgb(" + Math.round(A[0] + (B[0] - A[0]) * u) + "," + Math.round(A[1] + (B[1] - A[1]) * u) + "," + Math.round(A[2] + (B[2] - A[2]) * u) + ")";
+  }
+  function alpha(c, a) { var A = rgb(c); return "rgba(" + A[0] + "," + A[1] + "," + A[2] + "," + a + ")"; }
+  readColors();
+
+  // =====================================================================
+  //  Feed mixer
+  // =====================================================================
+  var mixStage = document.getElementById("mixStage");
+  var cv = Anim.canvas(mixStage), ctx = cv.ctx;
+  var hud = mixStage.querySelector(".hud");
+  var x = REDUCE ? START.slice() : [0, 0, 0];    // target amounts (kg)
+  var xs = x.slice();                              // displayed amounts, eased toward x
+  var flow = [0, 0, 0], pourAcc = [0, 0, 0], met = [0, 0, 0], happy = 0, chomp = 0, reveal = 0;
+  var parts = [], tween = null, revealed = false, introDone = REDUCE, T = 0;
+  var rnd = Anim.rng(7);
+  var L = {};  // layout
+
+  // sliders
+  var ctlWrap = document.getElementById("mixctl"), sliders = [], outs = [];
+  FOODS.forEach(function (f, i) {
+    var row = document.createElement("div");
+    row.className = "frow";
+    row.innerHTML = '<label for="kg' + i + '"><i class="sw ' + f.id + '"></i><span class="fname"></span><span class="price"></span></label>' +
+      '<input type="range" id="kg' + i + '" min="0" max="' + MAXKG + '" step="0.01">' +
+      '<output for="kg' + i + '"></output>';
+    ctlWrap.appendChild(row);
+    var s = row.querySelector("input");
+    s.value = x[i];
+    s.addEventListener("input", function () { tween = null; introDone = true; x[i] = +s.value; changed(); });
+    sliders.push(s);
+    outs.push(row.querySelector("output"));
+  });
+  function syncSliders() {
+    sliders.forEach(function (s, i) {
+      s.value = x[i].toFixed(2);
+      var v = t("diet.kg", { v: fmt(x[i], 2, 2) });
+      if (outs[i].textContent !== v) outs[i].textContent = v;
+      s.setAttribute("aria-valuetext", v);
+    });
+  }
+
+  function atOptimum() { return revealed && x.every(function (v, i) { return Math.abs(v - SOL.x[i]) < 0.006; }); }
+
+  function tweenTo(target, dur) {
+    if (REDUCE) { x = target.slice(); xs = x.slice(); tween = null; changed(); return; }
+    tween = { from: x.slice(), to: target.slice(), t0: performance.now(), dur: dur };
+    wake();
+  }
+
+  function layout() {
+    cv.fit();
+    var W = cv.w, H = cv.h, phone = W < 560;
+    var hudH = hud.offsetHeight;
+    L.W = W; L.H = H; L.phone = phone;
+    L.k = clamp(Math.min(W / 1000, H / 560), 0.42, 1.25) * (phone ? 1.55 : 1);
+    var scene, gauge;
+    if (!phone) {
+      scene = { x: 0, y: 0, w: W * 0.6, h: H };
+      gauge = { x: W * 0.6, y: hudH + 22, w: W * 0.4 - 12, h: H - hudH - 30 };
+    } else {
+      var top = hudH + 14, sh = (H - top) * 0.52;
+      scene = { x: 0, y: top, w: W, h: sh };
+      gauge = { x: 0, y: top + sh + 4, w: W, h: H - top - sh - 8 };
+    }
+    L.scene = scene; L.gauge = gauge;
+    // trough
+    L.tx0 = scene.x + scene.w * (phone ? 0.31 : 0.28);
+    L.tx1 = scene.x + scene.w * 0.95;
+    L.ty = scene.y + scene.h * (phone ? 0.5 : 0.52);
+    L.tb = scene.y + scene.h * (phone ? 0.83 : 0.8);
+    L.inset = (L.tb - L.ty) * 0.35;
+    L.ground = L.tb + (L.tb - L.ty) * 0.3;
+    // hoppers above the trough
+    var tw = L.tx1 - L.tx0;
+    L.hw = Math.min(118, tw / 3 - 14);
+    L.hx = [0.2, 0.5, 0.8].map(function (u) { return L.tx0 + tw * u; });
+    L.hy0 = scene.y + (phone ? 24 : 44);
+    L.hy1 = L.hy0 + Math.max(24, scene.h * (phone ? 0.15 : 0.19));
+    L.hy2 = L.hy1 + Math.max(14, scene.h * 0.08);
+    L.ow = Math.max(8, L.hw * 0.16);
+    // pig
+    L.px = scene.x + scene.w * 0.14;
+    L.ps = Math.min(scene.w * (phone ? 0.1 : 0.085), (L.tb - L.ty) * 0.85);
+    // speckle textures (absolute trough coordinates, generated once per layout)
+    var r = Anim.rng(11);
+    L.speck = FOODS.map(function () {
+      var arr = [];
+      for (var q = 0; q < 90; q++) arr.push({ u: r(), v: r(), s: 0.6 + r() * 0.6, a: r() * Math.PI * 2 });
+      return arr;
+    });
+  }
+
+  function troughPath(c, inner) {
+    var d = inner ? 3 : 0;
+    c.beginPath();
+    c.moveTo(L.tx0 + d, L.ty);
+    c.lineTo(L.tx1 - d, L.ty);
+    c.lineTo(L.tx1 - L.inset - d * 0.5, L.tb - d);
+    c.lineTo(L.tx0 + L.inset + d * 0.5, L.tb - d);
+    c.closePath();
+  }
+  // left and right wall x at height y
+  function wallsAt(y) {
+    var u = clamp((y - L.ty) / (L.tb - L.ty), 0, 1);
+    return [L.tx0 + L.inset * u, L.tx1 - L.inset * u];
+  }
+  function layerTops(v) {
+    var total = v[0] + v[1] + v[2], depth = (L.tb - L.ty) - 6, scale = depth / Math.max(total, CAP);
+    var y = L.tb - 3, tops = [];
+    for (var i = 0; i < 3; i++) { y -= v[i] * scale; tops.push(y); }
+    return tops;
+  }
+  function surfaceY(px, tops) {
+    return tops[2] + Math.sin(px * 0.045 + T * 2.4) * (1.2 + Math.min(4, (flow[0] + flow[1] + flow[2]) * 0.8));
+  }
+
+  // one food piece (kernel, fat crumb, leaf)
+  function glyph(c, fi, px, py, s, a, col) {
+    c.fillStyle = col;
+    c.save();
+    c.translate(px, py);
+    c.rotate(a);
+    c.beginPath();
+    if (fi === 0) {
+      c.moveTo(0, -s * 1.1);
+      c.bezierCurveTo(s * 0.95, -s * 0.9, s * 0.9, s * 0.9, 0, s);
+      c.bezierCurveTo(-s * 0.9, s * 0.9, -s * 0.95, -s * 0.9, 0, -s * 1.1);
+      c.fill();
+    } else if (fi === 1) {
+      for (var k = 0; k < 6; k++) {
+        var ang = k / 6 * Math.PI * 2, rr = s * (k % 2 ? 0.75 : 1.05);
+        if (k === 0) c.moveTo(Math.cos(ang) * rr, Math.sin(ang) * rr); else c.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr);
+      }
+      c.closePath();
+      c.fill();
+    } else {
+      c.ellipse(0, 0, s * 1.5, s * 0.6, 0, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.restore();
+  }
+
+  function drawHopper(c, i) {
+    var cx = L.hx[i], hw = L.hw, ow = L.ow;
+    var path = function () {
+      c.beginPath();
+      c.moveTo(cx - hw / 2, L.hy0);
+      c.lineTo(cx + hw / 2, L.hy0);
+      c.lineTo(cx + hw / 2, L.hy1);
+      c.lineTo(cx + ow / 2, L.hy2);
+      c.lineTo(cx - ow / 2, L.hy2);
+      c.lineTo(cx - hw / 2, L.hy1);
+      c.closePath();
+    };
+    path();
+    c.fillStyle = COL.surface2;
+    c.fill();
+    // contents: the hopper empties as the trough fills
+    var lvl = 0.12 + 0.78 * (1 - xs[i] / MAXKG);
+    var yTop = L.hy2 - (L.hy2 - L.hy0) * lvl;
+    c.save();
+    path();
+    c.clip();
+    c.fillStyle = COL.food[i];
+    c.beginPath();
+    c.moveTo(cx - hw, L.hy2 + 2);
+    for (var q = 0; q <= 12; q++) {
+      var px = cx - hw / 2 + hw * q / 12;
+      c.lineTo(px, yTop + Math.sin(q * 1.3 + i) * 1.4);
+    }
+    c.lineTo(cx + hw, L.hy2 + 2);
+    c.closePath();
+    c.fill();
+    var sp = L.speck[i];
+    for (var k = 0; k < 26; k++) {
+      var p = sp[k], gx = cx - hw / 2 + p.u * hw, gy = L.hy0 + p.v * (L.hy2 - L.hy0);
+      if (gy > yTop + 3) glyph(c, i, gx, gy, 2.4 * L.k * p.s, p.a, COL.foodSpeck[i]);
+    }
+    c.restore();
+    path();
+    c.lineWidth = 2;
+    c.strokeStyle = COL.ink2;
+    c.lineJoin = "round";
+    c.stroke();
+    // spout, glowing while it pours
+    var on = clamp(flow[i] * 2, 0, 1);
+    c.fillStyle = on > 0.05 ? mix(COL.ink2, COL.food[i], on) : COL.ink2;
+    c.fillRect(cx - ow / 2 - 2, L.hy2 - 1, ow + 4, 4);
+    // label
+    var fs = Math.round(clamp(12.5 * L.k, 10.5, 14));
+    c.textAlign = "center";
+    c.textBaseline = "alphabetic";
+    c.fillStyle = COL.ink;
+    c.font = "700 " + fs + "px " + COL["font-sans"];
+    c.fillText(t("diet.food." + FOODS[i].id + ".s"), cx, L.hy0 - 8 - (L.phone ? 0 : fs + 1));
+    if (!L.phone) {
+      c.fillStyle = COL.muted;
+      c.font = "400 " + (fs - 1.5) + "px " + COL["font-mono"];
+      c.fillText(t("diet.perkg", { v: fmt(FOODS[i].c, 0) }), cx, L.hy0 - 7);
+    }
+  }
+
+  function drawTrough(c) {
+    var tops = layerTops(xs);
+    // legs and ground
+    c.strokeStyle = COL.axis;
+    c.lineWidth = 1;
+    c.beginPath();
+    c.moveTo(L.scene.x + 8, L.ground);
+    c.lineTo(L.scene.x + L.scene.w - 8, L.ground);
+    c.stroke();
+    c.strokeStyle = COL.ink2;
+    c.lineWidth = 3;
+    c.lineCap = "round";
+    [[L.tx0 + L.inset * 0.7, -1], [L.tx1 - L.inset * 0.7, 1]].forEach(function (lg) {
+      c.beginPath();
+      c.moveTo(lg[0], L.tb - 6);
+      c.lineTo(lg[0] + lg[1] * L.inset * 0.35, L.ground);
+      c.stroke();
+    });
+    // interior
+    troughPath(c, false);
+    c.fillStyle = COL.surface2;
+    c.fill();
+    c.save();
+    troughPath(c, true);
+    c.clip();
+    // cumulative layers, drawn from the top one down so each wavy top shows
+    var agit = Math.min(4, (flow[0] + flow[1] + flow[2]) * 0.8);
+    for (var i = 2; i >= 0; i--) {
+      if (xs[i] < 0.002) continue;
+      var yTop = tops[i];
+      c.beginPath();
+      c.moveTo(L.tx0 - 4, L.tb + 4);
+      for (var q = 0; q <= 40; q++) {
+        var px = L.tx0 + (L.tx1 - L.tx0) * q / 40;
+        var w = i === 2 || (xs[2] < 0.002 && i === 1) || (xs[2] < 0.002 && xs[1] < 0.002)
+          ? Math.sin(px * 0.045 + T * 2.4) * (1.2 + agit) : Math.sin(px * 0.08 + i * 2) * 1.2;
+        c.lineTo(px, yTop + w);
+      }
+      c.lineTo(L.tx1 + 4, L.tb + 4);
+      c.closePath();
+      c.fillStyle = COL.food[i];
+      c.fill();
+      var y0 = i === 0 ? L.tb : tops[i - 1];
+      var sp = L.speck[i];
+      for (var k = 0; k < sp.length; k++) {
+        var p = sp[k], gy = L.ty + p.v * (L.tb - L.ty);
+        if (gy < yTop + 3 || gy > y0 - 2) continue;
+        glyph(c, i, L.tx0 + p.u * (L.tx1 - L.tx0), gy, 2.6 * L.k * p.s, p.a, COL.foodSpeck[i]);
+      }
+    }
+    c.restore();
+    // outline and rim
+    troughPath(c, false);
+    c.lineWidth = 2.5;
+    c.strokeStyle = COL.ink2;
+    c.lineJoin = "round";
+    c.stroke();
+    c.lineWidth = 5;
+    c.strokeStyle = COL.ink;
+    c.beginPath();
+    c.moveTo(L.tx0 - 6, L.ty);
+    c.lineTo(L.tx1 + 6, L.ty);
+    c.stroke();
+    // capacity marks (1 kg ticks when room allows)
+    return tops;
+  }
+
+  function drawPig(c) {
+    var s = L.ps, cx = L.px, base = L.ground;
+    var breathe = Math.sin(T * 2.2) * 0.02;
+    var bob = Math.sin(clamp(chomp, 0, 1) * Math.PI) * s * 0.12;
+    var hop = happy > 0.5 ? Math.abs(Math.sin(T * 5)) * s * 0.08 * happy : 0;
+    var bodyY = base - s * 0.75 - hop;
+    c.lineWidth = 2;
+    c.strokeStyle = COL.ink;
+    c.lineJoin = "round";
+    c.fillStyle = COL.surface2;
+    // legs
+    c.lineCap = "round";
+    [-0.5, -0.2, 0.3, 0.6].forEach(function (u) {
+      var lx = cx + u * s, lw = s * 0.2;
+      c.beginPath();
+      c.moveTo(lx - lw / 2, bodyY + s * 0.3);
+      c.lineTo(lx - lw / 2, base - 2);
+      c.quadraticCurveTo(lx, base + 1, lx + lw / 2, base - 2);
+      c.lineTo(lx + lw / 2, bodyY + s * 0.3);
+      c.fill();
+      c.stroke();
+    });
+    // body
+    c.beginPath();
+    c.ellipse(cx, bodyY, s * 0.95 * (1 + breathe), s * 0.72 * (1 + breathe), 0, 0, Math.PI * 2);
+    c.fill();
+    c.stroke();
+    // tail curl
+    c.beginPath();
+    c.arc(cx - s * 1.02, bodyY - s * 0.1, s * 0.12, 0, Math.PI * 1.6 + Math.sin(T * 6) * 0.4);
+    c.stroke();
+    // head (turned toward the trough)
+    var hx = cx + s * 0.55, hy = bodyY - s * 0.75 + bob;
+    [-1, 1].forEach(function (sd) {
+      c.beginPath();
+      c.moveTo(hx + sd * s * 0.2, hy - s * 0.5);
+      c.lineTo(hx + sd * s * 0.62, hy - s * 0.95 + Math.sin(T * 3 + sd) * s * 0.04);
+      c.lineTo(hx + sd * s * 0.6, hy - s * 0.3);
+      c.closePath();
+      c.fill();
+      c.stroke();
+    });
+    c.beginPath();
+    c.ellipse(hx, hy, s * 0.68, s * 0.6, 0, 0, Math.PI * 2);
+    c.fill();
+    c.stroke();
+    // cheeks blush when every need is met
+    if (happy > 0.02) {
+      c.fillStyle = alpha(COL["mit-bright"], 0.28 * happy);
+      c.beginPath(); c.ellipse(hx - s * 0.42, hy + s * 0.15, s * 0.13, s * 0.08, 0, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.ellipse(hx + s * 0.42, hy + s * 0.15, s * 0.13, s * 0.08, 0, 0, Math.PI * 2); c.fill();
+    }
+    // eyes: dots when hungry, happy arcs when fed
+    c.strokeStyle = COL.ink;
+    c.fillStyle = COL.ink;
+    [-1, 1].forEach(function (sd) {
+      var ex = hx + sd * s * 0.26, ey = hy - s * 0.14;
+      if (happy > 0.5) {
+        c.beginPath();
+        c.arc(ex, ey + s * 0.04, s * 0.09, Math.PI * 1.1, Math.PI * 1.9);
+        c.stroke();
+      } else {
+        c.beginPath();
+        c.arc(ex, ey, s * 0.055, 0, Math.PI * 2);
+        c.fill();
+      }
+    });
+    // snout
+    c.fillStyle = COL.surface;
+    c.beginPath();
+    c.ellipse(hx, hy + s * 0.2, s * 0.28, s * 0.19, 0, 0, Math.PI * 2);
+    c.fill();
+    c.stroke();
+    c.fillStyle = COL.ink;
+    [-1, 1].forEach(function (sd) {
+      c.beginPath(); c.ellipse(hx + sd * s * 0.1, hy + s * 0.2, s * 0.04, s * 0.065, 0, 0, Math.PI * 2); c.fill();
+    });
+    // mouth
+    c.beginPath();
+    var my = hy + s * 0.45, curve = lerp(-0.06, 0.1, happy) * s;
+    c.moveTo(hx - s * 0.16, my);
+    c.quadraticCurveTo(hx, my + curve, hx + s * 0.16, my);
+    c.stroke();
+  }
+
+  function check(c, x0, y0, s, col) {
+    c.strokeStyle = col;
+    c.lineWidth = Math.max(2, s * 0.22);
+    c.lineCap = "round";
+    c.lineJoin = "round";
+    c.beginPath();
+    c.moveTo(x0 - s * 0.45, y0);
+    c.lineTo(x0 - s * 0.1, y0 + s * 0.35);
+    c.lineTo(x0 + s * 0.5, y0 - s * 0.4);
+    c.stroke();
+  }
+
+  function drawGauges(c) {
+    var g = L.gauge, nv = nutrients(xs), phone = L.phone;
+    var fsName = Math.round(clamp(13 * L.k * (phone ? 0.75 : 1), 11, 14));
+    var fsVal = Math.round(clamp(22 * L.k * (phone ? 0.75 : 1), 15, 26));
+    var nameY = g.y + fsName;
+    var tubeTop = nameY + 12, tubeBot = g.y + g.h - fsVal - (phone ? 26 : 36);
+    var gw = Math.min(58, g.w / 3 * 0.34);
+    var SC = 1.6;
+    NUTS.forEach(function (n, j) {
+      var cx = g.x + g.w * (j * 2 + 1) / 6;
+      var x0 = cx - gw / 2, x1 = cx + gw / 2, hT = tubeBot - tubeTop;
+      var v = nv[j], frac = clamp(v / (n.min * SC), 0, 1), yL = tubeBot - frac * hT;
+      var yMin = tubeBot - hT / SC;
+      var m = met[j];
+      var fillCol = mix(COL["mit-bright"], COL.ink, m);
+      // name
+      c.textAlign = "center";
+      c.textBaseline = "alphabetic";
+      c.fillStyle = COL.ink;
+      c.font = "600 " + fsName + "px " + COL["font-sans"];
+      c.fillText(t("diet.nut." + n.id), cx, nameY);
+      // tube background
+      var r = gw / 2;
+      var tube = function () {
+        c.beginPath();
+        c.moveTo(x0, tubeTop + 4);
+        c.lineTo(x0, tubeBot - r);
+        c.arc(cx, tubeBot - r, r, Math.PI, 0, true);
+        c.lineTo(x1, tubeTop + 4);
+      };
+      tube();
+      c.closePath();
+      c.fillStyle = COL.surface2;
+      c.fill();
+      // liquid
+      c.save();
+      tube();
+      c.closePath();
+      c.clip();
+      if (v > 0.01) {
+        c.beginPath();
+        c.moveTo(x0 - 2, tubeBot + 2);
+        for (var q = 0; q <= 16; q++) {
+          var px = x0 + gw * q / 16;
+          c.lineTo(px, yL + Math.sin(q * 0.8 + T * 3.2 + j) * (1.3 + flow[0] + flow[1] + flow[2]));
+        }
+        c.lineTo(x1 + 2, tubeBot + 2);
+        c.closePath();
+        c.fillStyle = fillCol;
+        c.fill();
+        // bubbles
+        var br = Anim.rng(31 + j);
+        for (var b = 0; b < 7; b++) {
+          var bx = x0 + gw * (0.2 + 0.6 * br()), sp = 14 + br() * 18, ph = br();
+          var span = tubeBot - yL;
+          if (span < 12) break;
+          var by = tubeBot - ((T * sp / span + ph) % 1) * span;
+          c.fillStyle = alpha(COL.surface, 0.35);
+          c.beginPath();
+          c.arc(bx, by, 1.2 + br() * 2, 0, Math.PI * 2);
+          c.fill();
+        }
+      }
+      c.restore();
+      tube();
+      c.lineWidth = 2;
+      c.strokeStyle = COL.ink2;
+      c.stroke();
+      // minimum line
+      var bind = SOL.binding[j] && reveal > 0.01;
+      c.setLineDash(bind ? [] : [4, 3]);
+      c.lineWidth = bind ? lerp(1.5, 3.5, reveal) : 1.5;
+      c.strokeStyle = bind ? mix(COL.ink2, COL.accent, reveal) : COL.ink2;
+      c.beginPath();
+      c.moveTo(x0 - 8, yMin);
+      c.lineTo(x1 + 8, yMin);
+      c.stroke();
+      c.setLineDash([]);
+      if (bind) {
+        var pulse = 0.5 + 0.5 * Math.sin(T * 4);
+        c.strokeStyle = alpha(COL.accent, 0.35 * reveal * pulse);
+        c.lineWidth = 8;
+        c.beginPath();
+        c.moveTo(x0 - 10, yMin);
+        c.lineTo(x1 + 10, yMin);
+        c.stroke();
+      }
+      // min label
+      var fsMono = Math.round(clamp(11 * L.k * (phone ? 0.8 : 1), 10, 12.5));
+      c.font = "600 " + fsMono + "px " + COL["font-mono"];
+      c.textAlign = "left";
+      c.textBaseline = "middle";
+      var lab = fmt(n.min, 0);
+      if (bind) {
+        var tw = c.measureText(lab).width + 8;
+        c.fillStyle = alpha(COL.accent, reveal);
+        c.fillRect(x1 + 10, yMin - fsMono * 0.75, tw, fsMono * 1.5);
+        c.fillStyle = mix(COL.ink2, COL["on-solid"], reveal);
+        c.fillText(lab, x1 + 14, yMin + 0.5);
+      } else {
+        c.fillStyle = COL.muted;
+        c.fillText(lab, x1 + 11, yMin);
+      }
+      // slack bracket for a requirement that is met with room to spare (at the optimum)
+      if (!SOL.binding[j] && reveal > 0.01 && v > n.min) {
+        c.strokeStyle = alpha(COL.muted, reveal);
+        c.lineWidth = 1.5;
+        c.beginPath();
+        c.moveTo(x0 - 6, yMin);
+        c.lineTo(x0 - 10, yMin);
+        c.lineTo(x0 - 10, yL);
+        c.lineTo(x0 - 6, yL);
+        c.stroke();
+        c.textAlign = "right";
+        c.fillStyle = alpha(COL.muted, reveal);
+        c.fillText("+" + fmt(v - n.min, 1), x0 - 13, (yMin + yL) / 2);
+      }
+      // value and state
+      c.textAlign = "center";
+      c.textBaseline = "alphabetic";
+      c.font = "700 " + fsVal + "px " + COL["font-sans"];
+      c.fillStyle = mix(COL["mit-bright"], COL.ink, m);
+      var vy = tubeBot + fsVal + 6;
+      c.fillText(fmt(v, 0), cx, vy);
+      var sy = vy + (phone ? 12 : 16);
+      if (m > 0.5) {
+        if (bind) {
+          c.font = "700 " + fsMono + "px " + COL["font-sans"];
+          c.fillStyle = alpha(COL["accent-text"], reveal);
+          c.fillText(t("diet.g.binding"), cx, sy + 4);
+          if (reveal < 0.99) check(c, cx, sy, 9 * (1 - reveal), COL.ink);
+        } else check(c, cx, sy, 9, COL.ink);
+      } else {
+        c.font = "700 " + fsMono + "px " + COL["font-mono"];
+        c.fillStyle = COL["mit-bright"];
+        c.fillText("−" + fmt(Math.max(0, n.min - v), 0), cx, sy + 4);
+      }
+    });
+  }
+
+  function drawParticles(c) {
+    for (var k = 0; k < parts.length; k++) {
+      var p = parts[k];
+      glyph(c, p.f, p.x, p.y, p.s, p.a, COL.food[p.f]);
+    }
+  }
+
+  function drawStreams(c, tops) {
+    for (var i = 0; i < 3; i++) {
+      var on = clamp(flow[i] * 1.5, 0, 1);
+      if (on < 0.03) continue;
+      var sy = surfaceY(L.hx[i], tops);
+      var grd = c.createLinearGradient(0, L.hy2, 0, sy);
+      grd.addColorStop(0, alpha(COL.food[i], 0.5 * on));
+      grd.addColorStop(1, alpha(COL.food[i], 0.05));
+      c.fillStyle = grd;
+      c.fillRect(L.hx[i] - L.ow * 0.35, L.hy2 + 3, L.ow * 0.7, sy - L.hy2 - 3);
+    }
+  }
+
+  function drawMix() {
+    var c = ctx;
+    c.clearRect(0, 0, L.W, L.H);
+    if (!L.phone) {
+      // faint divider between the scene and the gauges
+      c.strokeStyle = COL.grid;
+      c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(L.W * 0.6, 24);
+      c.lineTo(L.W * 0.6, L.H - 24);
+      c.stroke();
+    } else {
+      c.strokeStyle = COL.grid;
+      c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(16, L.gauge.y - 2);
+      c.lineTo(L.W - 16, L.gauge.y - 2);
+      c.stroke();
+    }
+    drawPig(c);
+    var tops = layerTops(xs);
+    drawStreams(c, tops);
+    drawTrough(c);
+    drawParticles(c);
+    for (var i = 0; i < 3; i++) drawHopper(c, i);
+    drawGauges(c);
+  }
+
+  // ---- simulation step ----
+  function step(dt, now) {
+    T += dt;
+    if (tween) {
+      var u = clamp((now - tween.t0) / tween.dur, 0, 1), e = ease.inOut(u);
+      for (var i = 0; i < 3; i++) x[i] = lerp(tween.from[i], tween.to[i], e);
+      if (u >= 1) { x = tween.to.slice(); tween = null; introDone = true; }
+      syncSliders();
+      changed(true);
+    }
+    var tops = layerTops(xs);
+    for (var f = 0; f < 3; f++) {
+      var old = xs[f];
+      xs[f] += (x[f] - xs[f]) * (1 - Math.exp(-dt * 9));
+      if (Math.abs(x[f] - xs[f]) < 1e-4) xs[f] = x[f];
+      var d = xs[f] - old;
+      flow[f] += ((d > 0 ? d / Math.max(dt, 1e-3) : 0) - flow[f]) * (1 - Math.exp(-dt * 6));
+      if (d > 0) {
+        pourAcc[f] += d * 55;
+        while (pourAcc[f] >= 1 && parts.length < 420) {
+          pourAcc[f] -= 1;
+          parts.push({
+            f: f, x: L.hx[f] + (rnd() - 0.5) * L.ow * 0.8, y: L.hy2 + 2,
+            vx: (rnd() - 0.5) * 40, vy: 30 + rnd() * 80, s: (2.2 + rnd() * 1.6) * L.k, a: rnd() * 6.28, va: (rnd() - 0.5) * 8
+          });
+        }
+        if (pourAcc[f] > 1) pourAcc[f] = 0;
+      } else if (d < 0) {
+        // scooped back out: pieces fly from the trough up into the hopper
+        pourAcc[f] += -d * 40;
+        while (pourAcc[f] >= 1 && parts.length < 420) {
+          pourAcc[f] -= 1;
+          parts.push({
+            f: f, up: true, x: L.hx[f] + (rnd() - 0.5) * L.hw * 0.5, y: surfaceY(L.hx[f], tops) - 2,
+            vx: 0, vy: -(260 + rnd() * 220) * Math.max(0.6, L.H / 560), s: (2.2 + rnd() * 1.6) * L.k, a: rnd() * 6.28, va: (rnd() - 0.5) * 8
+          });
+        }
+        if (pourAcc[f] > 1) pourAcc[f] = 0;
+      }
+    }
+    var g = 1300 * Math.max(0.6, L.H / 560);
+    for (var k = parts.length - 1; k >= 0; k--) {
+      var p = parts[k];
+      if (p.up) {
+        p.y += p.vy * dt;
+        p.x += (L.hx[p.f] - p.x) * (1 - Math.exp(-dt * 5));
+        p.a += p.va * dt;
+        if (p.y <= L.hy2) parts.splice(k, 1);
+        continue;
+      }
+      p.vy += g * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.a += p.va * dt;
+      var w = wallsAt(p.y);
+      if (p.x < w[0] + 4) { p.x = w[0] + 4; p.vx = Math.abs(p.vx); }
+      if (p.x > w[1] - 4) { p.x = w[1] - 4; p.vx = -Math.abs(p.vx); }
+      if (p.y >= surfaceY(p.x, tops)) { parts.splice(k, 1); chomp = Math.max(chomp, 0.02); }
+    }
+    if (chomp > 0) { chomp += dt * 2.2; if (chomp > 1) chomp = 0; }
+    var nv = nutrients(xs);
+    for (var j = 0; j < 3; j++) met[j] += ((nv[j] >= NUTS[j].min - EPSN ? 1 : 0) - met[j]) * (1 - Math.exp(-dt * 10));
+    happy += ((feasible(xs) ? 1 : 0) - happy) * (1 - Math.exp(-dt * 6));
+    reveal += ((atOptimum() && !tween ? 1 : 0) - reveal) * (1 - Math.exp(-dt * 5));
+    hudTick();
+  }
+
+  // ---- DOM readouts ----
+  var hudCost = document.getElementById("hudCost"), chipCost = document.getElementById("chipCost");
+  var chipOpt = document.getElementById("chipOpt"), hudOpt = document.getElementById("hudOpt");
+  function hudTick() {
+    var s = money(cost(xs));
+    if (hudCost.textContent !== s) hudCost.textContent = s;
+    chipCost.classList.toggle("short", !feasible(xs));
+  }
+  var statusEl = document.getElementById("status");
+  function renderStatus() {
+    var nv = nutrients(x), shortList = [];
+    NUTS.forEach(function (n, j) {
+      if (nv[j] < n.min - EPSN) shortList.push(t("diet.st.item", { name: t("diet.nut." + n.id + ".lc"), v: fmt(n.min - nv[j], 1) }));
+    });
+    var html, cls;
+    if (shortList.length) { html = t("diet.st.short", { list: shortList.join(", ") }); cls = ""; }
+    else if (atOptimum()) { html = t("diet.st.best", { cost: money(SOL.z) }); cls = "best"; }
+    else if (revealed) { html = t("diet.st.okgap", { cost: money(cost(x)), gap: money(cost(x) - SOL.z) }); cls = "ok"; }
+    else { html = t("diet.st.ok", { cost: money(cost(x)) }); cls = "ok"; }
+    if (statusEl.innerHTML !== html) statusEl.innerHTML = html;
+    statusEl.className = "status" + (cls ? " " + cls : "");
+  }
+  var lastStatus = 0;
+  function changed(fromTween) {
+    if (!fromTween) syncSliders();
+    var now = performance.now();
+    if (!fromTween || now - lastStatus > 120 || !tween) { lastStatus = now; renderStatus(); }
+    planeDirty = true;
+    if (REDUCE) { xs = x.slice(); settleReduced(); }
+    wake();
+  }
+  function settleReduced() {
+    var nv = nutrients(xs);
+    met = nv.map(function (q, j) { return q >= NUTS[j].min - EPSN ? 1 : 0; });
+    happy = feasible(xs) ? 1 : 0;
+    reveal = atOptimum() ? 1 : 0;
+    hudTick();
+    drawMix();
+    drawPlane();
+  }
+
+  function renderResult() {
+    var box = document.getElementById("result");
+    box.hidden = !revealed;
+    chipOpt.hidden = !revealed;
+    hudOpt.textContent = money(SOL.z);
+    if (!revealed) return;
+    document.getElementById("resTitle").innerHTML = t("diet.res.title", { cost: "<b>" + money(SOL.z) + "</b>" });
+    var pills = document.getElementById("resPills");
+    pills.textContent = "";
+    FOODS.forEach(function (f, i) {
+      var sp = document.createElement("span");
+      sp.className = "pill" + (SOL.x[i] < 1e-9 ? " zero" : "");
+      sp.innerHTML = '<i class="sw ' + f.id + '"></i><b>' + t("diet.kg", { v: fmt(SOL.x[i], 3) }) + "</b>" + t("diet.food." + f.id);
+      pills.appendChild(sp);
+    });
+    var tb = document.getElementById("resBody"), nv = nutrients(SOL.x), dmax = Math.max.apply(null, SOL.duals) || 1;
+    tb.textContent = "";
+    NUTS.forEach(function (n, j) {
+      var tr = document.createElement("tr");
+      if (SOL.binding[j]) tr.className = "bind";
+      var state = SOL.binding[j] ? '<span class="tag bind">' + t("diet.res.binding") + "</span>"
+        : '<span class="tag slack">' + t("diet.res.slack", { v: fmt(nv[j] - n.min, 2) }) + "</span>";
+      tr.innerHTML = "<td>" + t("diet.nut." + n.id) + '</td><td class="num">' + fmt(nv[j], 2) + '</td><td class="num">' + fmt(n.min, 0) +
+        "</td><td>" + state + '</td><td class="num" style="text-align:left"><span class="dualbar" style="width:' +
+        Math.round(SOL.duals[j] / dmax * 60) + 'px"></span>' + t("diet.res.dualv", { v: money(SOL.duals[j], 3) }) + "</td>";
+      tb.appendChild(tr);
+    });
+    var jb = SOL.binding.indexOf(false);
+    document.getElementById("resNote").innerHTML = t("diet.res.note", {
+      d0: money(SOL.duals[0], 3), d1: money(SOL.duals[1], 3), nut: t("diet.nut." + NUTS[jb].id + ".lc"), s: fmt(nv[jb] - NUTS[jb].min, 2)
+    });
+  }
+
+  document.getElementById("btnOpt").addEventListener("click", function () {
+    revealed = true;
+    renderResult();
+    introDone = true;
+    tweenTo(SOL.x, 1700);
+    renderStatus();
+  });
+  document.getElementById("btnReset").addEventListener("click", function () {
+    introDone = true;
+    tweenTo(START, 900);
+  });
+  // tapping a hopper adds a scoop of a quarter kilogram
+  cv.el.addEventListener("click", function (ev) {
+    var r = cv.el.getBoundingClientRect(), px = ev.clientX - r.left, py = ev.clientY - r.top;
+    for (var i = 0; i < 3; i++) {
+      if (Math.abs(px - L.hx[i]) < L.hw / 2 + 6 && py > L.hy0 - 30 && py < L.hy2 + 8) {
+        tween = null; introDone = true;
+        x[i] = Math.min(MAXKG, Math.round((x[i] + 0.25) * 100) / 100);
+        changed();
+        return;
+      }
+    }
+  });
+  cv.el.addEventListener("mousemove", function (ev) {
+    var r = cv.el.getBoundingClientRect(), px = ev.clientX - r.left, py = ev.clientY - r.top, hit = false;
+    for (var i = 0; i < 3; i++) if (Math.abs(px - L.hx[i]) < L.hw / 2 + 6 && py > L.hy0 - 30 && py < L.hy2 + 8) hit = true;
+    cv.el.style.cursor = hit ? "pointer" : "default";
+  });
+
+  // =====================================================================
+  //  Corn and alfalfa plane (residue fixed at 0)
+  // =====================================================================
+  var planeStage = document.getElementById("planeStage");
+  var pv = Anim.canvas(planeStage), pc = pv.ctx, P = {};
+  var DOM = 6;
+  var LINES = NUTS.map(function (n, j) { return { a: [FOODS[0].n[j], FOODS[2].n[j]], b: n.min, id: n.id, dash: [[], [7, 5], [2, 4]][j] }; });
+  var COPT = SOL2.z, CMIN = 20, CMAX = 100;
+  var ciso = 40, sweep = null, planeDirty = true, drag = false, trail = [];
+  var ciEl = document.getElementById("ciso"), ciOut = document.getElementById("cisoo");
+
+  function clipPoly(poly, a, b) {
+    var out = [];
+    for (var i = 0; i < poly.length; i++) {
+      var p = poly[i], q = poly[(i + 1) % poly.length];
+      var fp = a[0] * p[0] + a[1] * p[1] - b, fq = a[0] * q[0] + a[1] * q[1] - b;
+      if (fp >= -1e-9) out.push(p);
+      if (fp * fq < 0) { var u = fp / (fp - fq); out.push([p[0] + u * (q[0] - p[0]), p[1] + u * (q[1] - p[1])]); }
+    }
+    return out;
+  }
+  var REGION = LINES.reduce(function (poly, l) { return clipPoly(poly, l.a, l.b); }, [[0, 0], [DOM, 0], [DOM, DOM], [0, DOM]]);
+  // true corners: two constraint lines (or an axis) meeting at a feasible point
+  var VERTS = (function () {
+    var ls = LINES.map(function (l) { return { a: l.a, b: l.b }; }).concat([{ a: [1, 0], b: 0 }, { a: [0, 1], b: 0 }]), out = [];
+    for (var i = 0; i < ls.length; i++) for (var j = i + 1; j < ls.length; j++) {
+      var A = ls[i], B = ls[j], D = A.a[0] * B.a[1] - A.a[1] * B.a[0];
+      if (Math.abs(D) < 1e-12) continue;
+      var px = (A.b * B.a[1] - A.a[1] * B.b) / D, py = (A.a[0] * B.b - A.b * B.a[0]) / D;
+      if (px < -1e-9 || py < -1e-9 || px > DOM + 1e-9 || py > DOM + 1e-9) continue;
+      if (!LINES.every(function (l) { return l.a[0] * px + l.a[1] * py >= l.b - 1e-7; })) continue;
+      if (out.some(function (v) { return Math.abs(v[0] - px) + Math.abs(v[1] - py) < 1e-7; })) continue;
+      out.push([px, py]);
+    }
+    return out;
+  })();
+
+  function playout() {
+    pv.fit();
+    P.W = pv.w; P.H = pv.h;
+    P.l = 46; P.r = 14; P.t = 14; P.b = 42;
+    P.sx = function (v) { return P.l + v / DOM * (P.W - P.l - P.r); };
+    P.sy = function (v) { return P.H - P.b - v / DOM * (P.H - P.t - P.b); };
+    P.ix = function (px) { return (px - P.l) / (P.W - P.l - P.r) * DOM; };
+    P.iy = function (py) { return (P.H - P.b - py) / (P.H - P.t - P.b) * DOM; };
+    planeDirty = true;
+  }
+  function lineInBox(a, b) {
+    // endpoints of a·p = b clipped to the plotting box
+    var pts = [];
+    [[0, 0, DOM, 0], [DOM, 0, DOM, DOM], [DOM, DOM, 0, DOM], [0, DOM, 0, 0]].forEach(function (e) {
+      var fp = a[0] * e[0] + a[1] * e[1] - b, fq = a[0] * e[2] + a[1] * e[3] - b;
+      if (Math.abs(fp) < 1e-12) pts.push([e[0], e[1]]);
+      else if (fp * fq < 0) { var u = fp / (fp - fq); pts.push([e[0] + u * (e[2] - e[0]), e[1] + u * (e[3] - e[1])]); }
+    });
+    return pts.length >= 2 ? [pts[0], pts[pts.length - 1]] : null;
+  }
+  function lineInRegion(C) {
+    var pts = [];
+    for (var i = 0; i < REGION.length; i++) {
+      var p = REGION[i], q = REGION[(i + 1) % REGION.length];
+      var fp = 21 * p[0] + 15 * p[1] - C, fq = 21 * q[0] + 15 * q[1] - C;
+      if (Math.abs(fp) < 1e-9) pts.push(p);
+      else if (fp * fq < 0) { var u = fp / (fp - fq); pts.push([p[0] + u * (q[0] - p[0]), p[1] + u * (q[1] - p[1])]); }
+    }
+    return pts;
+  }
+
+  function drawPlane() {
+    var c = pc, W = P.W, H = P.H, fs = 11;
+    c.clearRect(0, 0, W, H);
+    // grid
+    c.lineWidth = 1;
+    c.font = "400 10.5px " + COL["font-mono"];
+    for (var g = 0; g <= DOM; g++) {
+      c.strokeStyle = g === 0 ? COL.axis : COL.grid;
+      c.beginPath(); c.moveTo(P.sx(g), P.sy(0)); c.lineTo(P.sx(g), P.sy(DOM)); c.stroke();
+      c.beginPath(); c.moveTo(P.sx(0), P.sy(g)); c.lineTo(P.sx(DOM), P.sy(g)); c.stroke();
+      c.fillStyle = COL.muted;
+      c.textAlign = "center"; c.textBaseline = "top";
+      c.fillText(fmt(g, 0), P.sx(g), P.sy(0) + 5);
+      c.textAlign = "right"; c.textBaseline = "middle";
+      c.fillText(fmt(g, 0), P.sx(0) - 6, P.sy(g));
+    }
+    c.fillStyle = COL.ink2;
+    c.font = "600 12px " + COL["font-sans"];
+    c.textAlign = "right"; c.textBaseline = "bottom";
+    c.fillText(t("diet.axis.corn"), P.sx(DOM), H - 4);
+    c.save();
+    c.translate(12, P.sy(DOM));
+    c.rotate(-Math.PI / 2);
+    c.textAlign = "right"; c.textBaseline = "top";
+    c.fillText(t("diet.axis.alf"), 0, 0);
+    c.restore();
+    // feasible region
+    c.beginPath();
+    REGION.forEach(function (p, i) { if (i) c.lineTo(P.sx(p[0]), P.sy(p[1])); else c.moveTo(P.sx(p[0]), P.sy(p[1])); });
+    c.closePath();
+    c.fillStyle = COL.region;
+    c.fill();
+    // constraint lines
+    LINES.forEach(function (l, j) {
+      var seg = lineInBox(l.a, l.b);
+      if (!seg) return;
+      c.setLineDash(l.dash);
+      c.strokeStyle = COL.ink2;
+      c.lineWidth = j === 2 ? 2.5 : 2;
+      c.beginPath(); c.moveTo(P.sx(seg[0][0]), P.sy(seg[0][1])); c.lineTo(P.sx(seg[1][0]), P.sy(seg[1][1])); c.stroke();
+      c.setLineDash([]);
+      // label near the far end of each line, on its feasible side
+      var ux = [0.42, 4.7, 4.7][j], uy = (l.b - l.a[0] * ux) / l.a[1];
+      var lx = P.sx(ux), ly = P.sy(uy) - 8;
+      c.font = "600 " + fs + "px " + COL["font-sans"];
+      var txt = t("diet.nut." + l.id);
+      var tw = c.measureText(txt).width;
+      c.textAlign = "left"; c.textBaseline = "bottom";
+      if (lx + tw > W - 6) lx = W - 6 - tw;
+      c.fillStyle = COL.surface;
+      c.globalAlpha = 0.85;
+      c.fillRect(lx - 2, ly - fs - 2, tw + 4, fs + 4);
+      c.globalAlpha = 1;
+      c.fillStyle = COL.ink2;
+      c.fillText(txt, lx, ly);
+    });
+    // iso-cost trail, line, and its part inside the region
+    var draws = trail.concat([{ C: ciso, a: 1 }]);
+    draws.forEach(function (d) {
+      var seg = lineInBox([21, 15], d.C);
+      if (!seg) return;
+      c.strokeStyle = alpha(COL.accent, d.a === 1 ? 0.9 : d.a * 0.35);
+      c.lineWidth = d.a === 1 ? 2 : 1.5;
+      c.beginPath(); c.moveTo(P.sx(seg[0][0]), P.sy(seg[0][1])); c.lineTo(P.sx(seg[1][0]), P.sy(seg[1][1])); c.stroke();
+    });
+    var inR = lineInRegion(ciso);
+    if (inR.length >= 2) {
+      c.strokeStyle = COL.accent;
+      c.lineWidth = 6;
+      c.lineCap = "round";
+      c.beginPath(); c.moveTo(P.sx(inR[0][0]), P.sy(inR[0][1])); c.lineTo(P.sx(inR[inR.length - 1][0]), P.sy(inR[inR.length - 1][1])); c.stroke();
+    }
+    // arrow: the direction in which cost grows
+    var seg0 = lineInBox([21, 15], ciso);
+    if (seg0) {
+      var mx = P.sx((seg0[0][0] + seg0[1][0]) / 2), my = P.sy((seg0[0][1] + seg0[1][1]) / 2);
+      var gx = 21 / DOM * (P.W - P.l - P.r), gy = -15 / DOM * (P.H - P.t - P.b), gn = Math.hypot(gx, gy);
+      gx /= gn; gy /= gn;
+      var al = 22;
+      c.strokeStyle = COL.accent; c.fillStyle = COL.accent; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(mx, my); c.lineTo(mx + gx * al, my + gy * al); c.stroke();
+      c.beginPath();
+      c.moveTo(mx + gx * (al + 7), my + gy * (al + 7));
+      c.lineTo(mx + gx * al - gy * 5, my + gy * al + gx * 5);
+      c.lineTo(mx + gx * al + gy * 5, my + gy * al - gx * 5);
+      c.closePath(); c.fill();
+    }
+    // the mixer's current mix
+    var mxv = xs[0], myv = xs[2], onPlane = xs[1] < 0.005;
+    var dx = clamp(mxv, 0, DOM), dy = clamp(myv, 0, DOM);
+    var dpx = P.sx(dx), dpy = P.sy(dy), ok = feasible(xs);
+    var col = ok ? COL.ink : COL["mit-bright"];
+    c.lineWidth = 2.5;
+    c.strokeStyle = col;
+    if (onPlane) {
+      c.fillStyle = alpha(col, 0.18);
+      c.lineWidth = 3;
+      c.beginPath(); c.arc(dpx, dpy, drag ? 12 : 10, 0, Math.PI * 2); c.fill(); c.stroke();
+    } else {
+      c.setLineDash([3, 3]);
+      c.beginPath(); c.arc(dpx, dpy, 10, 0, Math.PI * 2); c.stroke();
+      c.setLineDash([]);
+    }
+    // corners with their cost
+    var hit = Math.abs(ciso - COPT) < 0.005;
+    VERTS.forEach(function (v) {
+      var isOpt = Math.abs(v[0] - SOL2.x[0]) + Math.abs(v[1] - SOL2.x[1]) < 1e-6;
+      var px = P.sx(v[0]), py = P.sy(v[1]);
+      if (isOpt && hit) {
+        var pulse = (T * 1.2) % 1;
+        c.strokeStyle = alpha(COL.accent, 1 - pulse);
+        c.lineWidth = 2;
+        c.beginPath(); c.arc(px, py, 7 + pulse * 18, 0, Math.PI * 2); c.stroke();
+      }
+      c.fillStyle = isOpt && hit ? COL.accent : COL.ink;
+      c.beginPath(); c.arc(px, py, isOpt && hit ? 6.5 : 4, 0, Math.PI * 2); c.fill();
+      var z = 21 * v[0] + 15 * v[1];
+      c.font = (isOpt && hit ? "700 " : "600 ") + "11.5px " + COL["font-mono"];
+      c.fillStyle = isOpt && hit ? COL["accent-text"] : COL.ink2;
+      c.textAlign = "left"; c.textBaseline = "middle";
+      var lab = money(z);
+      var off = v[0] < 0.01 ? 10 : 10;
+      c.fillText(lab, px + off, py - (v[0] < 0.01 ? 0 : 12));
+    });
+    P.dot = [dpx, dpy];
+  }
+
+  function isoState() {
+    var el = document.getElementById("isostate"), key;
+    if (ciso < COPT - 0.005) key = "below";
+    else if (Math.abs(ciso - COPT) <= 0.005) key = "opt";
+    else key = "above";
+    el.innerHTML = t("diet.iso." + key, { c: money(ciso), copt: money(COPT), a: fmt(SOL2.x[0], 2), b: fmt(SOL2.x[1], 2) });
+    el.classList.toggle("hit", key === "opt");
+    ciOut.textContent = "C = " + money(ciso);
+    ciEl.setAttribute("aria-valuetext", "C = " + money(ciso));
+  }
+
+  ciEl.addEventListener("input", function () {
+    sweep = null;
+    ciso = +ciEl.value;
+    if (Math.abs(ciso - COPT) < 0.6) ciso = COPT;   // magnetic snap to the optimum
+    isoState(); planeDirty = true; wake();
+  });
+  document.getElementById("sweep").addEventListener("click", function () {
+    var from = ciso >= COPT - 0.01 ? CMIN : ciso;
+    if (REDUCE) { ciso = COPT; ciEl.value = COPT; isoState(); drawPlane(); return; }
+    sweep = { from: from, t0: performance.now(), dur: 2200 };
+    trail = [];
+    wake();
+  });
+
+  // drag the dot (or tap anywhere) to set corn and alfalfa with residue at 0
+  function setFromPlane(px, py, animate) {
+    var a = clamp(P.ix(px), 0, DOM), b = clamp(P.iy(py), 0, DOM);
+    a = Math.round(a * 100) / 100; b = Math.round(b * 100) / 100;
+    introDone = true;
+    if (animate) tweenTo([a, 0, b], 650);
+    else { tween = null; x = [a, 0, b]; changed(); }
+  }
+  function nearDot(px, py) { return P.dot && Math.hypot(px - P.dot[0], py - P.dot[1]) < 24; }
+  var downAt = null;
+  pv.el.addEventListener("pointerdown", function (ev) {
+    var r = pv.el.getBoundingClientRect(), px = ev.clientX - r.left, py = ev.clientY - r.top;
+    downAt = [px, py];
+    if (nearDot(px, py)) { drag = true; pv.el.setPointerCapture(ev.pointerId); setFromPlane(px, py, false); }
+  });
+  pv.el.addEventListener("pointermove", function (ev) {
+    var r = pv.el.getBoundingClientRect(), px = ev.clientX - r.left, py = ev.clientY - r.top;
+    if (drag) { setFromPlane(px, py, false); return; }
+    pv.el.style.cursor = nearDot(px, py) ? "grab" : "crosshair";
+  });
+  pv.el.addEventListener("pointerup", function (ev) {
+    var r = pv.el.getBoundingClientRect(), px = ev.clientX - r.left, py = ev.clientY - r.top;
+    if (!drag && downAt && Math.hypot(px - downAt[0], py - downAt[1]) < 6) setFromPlane(px, py, true);
+    drag = false; downAt = null; planeDirty = true; wake();
+  });
+  pv.el.addEventListener("pointercancel", function () { drag = false; downAt = null; });
+  // on touch screens only a drag that starts on the dot blocks page scrolling
+  pv.el.addEventListener("touchstart", function (ev) {
+    var r = pv.el.getBoundingClientRect(), tt = ev.touches[0];
+    if (tt && nearDot(tt.clientX - r.left, tt.clientY - r.top)) ev.preventDefault();
+  }, { passive: false });
+
+  // =====================================================================
+  //  Pricing out: what each food is worth at the shadow prices
+  // =====================================================================
+  var cresEl = document.getElementById("cres"), cresOut = document.getElementById("creso");
+  var rcWrap = document.getElementById("rc"), RCMAX = 24, rcRows = [];
+  FOODS.forEach(function (f, i) {
+    var row = document.createElement("div");
+    row.className = "rcrow";
+    row.innerHTML = '<span class="rcname"><i class="sw ' + f.id + '"></i><span></span></span>' +
+      '<div class="rctrack"><div class="rcbar"><div class="rcfill price"></div></div>' +
+      '<div class="rcbar"><div class="rcfill v0"></div><div class="rcfill v1"></div><div class="rcfill v2"></div><div class="rcfill gap"></div></div>' +
+      '<div class="rclab"></div></div>';
+    rcWrap.appendChild(row);
+    rcRows.push(row);
+  });
+  function renderRC() {
+    var cres = +cresEl.value, S = LP.solve(problem(cres));
+    cresOut.textContent = t("diet.perkg", { v: fmt(cres, 2, 2) });
+    var price = [21, cres, 15];
+    rcRows.forEach(function (row, i) {
+      row.querySelector(".rcname span").textContent = t("diet.food." + FOODS[i].id);
+      var pct = function (v) { return (v / RCMAX * 100) + "%"; };
+      row.querySelector(".price").style.width = pct(price[i]);
+      var acc = 0;
+      [0, 1, 2].forEach(function (j) {
+        var part = FOODS[i].n[j] * S.duals[j], el = row.querySelector(".v" + j);
+        el.style.left = pct(acc); el.style.width = pct(part); acc += part;
+      });
+      var gapEl = row.querySelector(".gap"), rcost = price[i] - acc;
+      gapEl.style.left = pct(acc); gapEl.style.width = pct(Math.max(0, rcost));
+      gapEl.style.opacity = rcost > 1e-6 ? 1 : 0;
+      var used = S.x[i] > 1e-9;
+      row.querySelector(".rclab").innerHTML = t("diet.rc.lab", { p: "<b>" + money(price[i]) + "</b>", w: "<b>" + money(acc) + "</b>" }) + " · " +
+        (used ? '<span class="usedt">' + t("diet.rc.used", { v: fmt(S.x[i], 2) }) + "</span>"
+          : rcost > 1e-6 ? '<span class="gapt">' + t("diet.rc.unused", { v: money(rcost) }) + "</span>"
+            : '<span class="usedt">' + t("diet.rc.tie") + "</span>");
+    });
+    document.getElementById("rcout").innerHTML = t("diet.rc.mix", {
+      a: fmt(S.x[0], 2), b: fmt(S.x[1], 2), c: fmt(S.x[2], 2), z: money(S.z)
+    });
+    document.getElementById("rcout").classList.toggle("hit", S.x[1] > 1e-9);
+  }
+  cresEl.addEventListener("input", renderRC);
+
+  // =====================================================================
+  //  Static text: table, constraints, solution, notes
+  // =====================================================================
+  function renderStatic() {
+    var tb = document.getElementById("dtbody");
+    tb.textContent = "";
+    NUTS.forEach(function (n, j) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + t("diet.nut." + n.id) + "</td>" + FOODS.map(function (f) { return '<td class="num">' + fmt(f.n[j], 0) + "</td>"; }).join("") +
+        '<td class="num">' + fmt(n.min, 0) + "</td>";
+      tb.appendChild(tr);
+    });
+    var tr = document.createElement("tr");
+    tr.className = "costrow";
+    tr.innerHTML = "<td>" + t("diet.tbl.cost") + "</td>" + FOODS.map(function (f) { return '<td class="num">' + fmt(f.c, 0) + "</td>"; }).join("") + "<td></td>";
+    tb.appendChild(tr);
+
+    var ul = document.getElementById("clist");
+    ul.textContent = "";
+    var eqs = NUTS.map(function (n, j) {
+      return FOODS.map(function (f, i) { return f.n[j] + "x" + "₁₂₃"[i]; }).join(" + ") + " ≥ " + n.min;
+    });
+    NUTS.map(function (n) { return n.id; }).concat(["nn"]).forEach(function (id, j) {
+      var li = document.createElement("li");
+      li.innerHTML = '<span class="cname">' + (id === "nn" ? t("diet.c.nn") : t("diet.nut." + id)) + ' <span class="ceq">' +
+        (id === "nn" ? "x₁, x₂, x₃ ≥ 0" : eqs[j]) + '</span></span><span class="ctext">' + t("diet.c." + id + ".why") + "</span>";
+      ul.appendChild(li);
+    });
+
+    var nv = nutrients(SOL.x);
+    document.getElementById("solbox").innerHTML = t("diet.sol", {
+      x1: fmt(SOL.x[0], 3), x2: fmt(SOL.x[1], 3), x3: fmt(SOL.x[2], 3), z: money(SOL.z), it: SOL.iterations,
+      v0: fmt(nv[0], 2), v1: fmt(nv[1], 2), v2: fmt(nv[2], 2)
+    });
+
+    document.getElementById("rcIntro").innerHTML = t("diet.rc.intro", {
+      d0: money(SOL.duals[0], 3), d1: money(SOL.duals[1], 3), d2: money(SOL.duals[2], 3),
+      w: money(worth(1, SOL.duals)), p: money(FOODS[1].c), rc: money(FOODS[1].c - worth(1, SOL.duals))
+    });
+    document.getElementById("rck0").textContent = t("diet.rc.key.n", { n: t("diet.nut.carb") });
+    document.getElementById("rck1").textContent = t("diet.rc.key.n", { n: t("diet.nut.prot") });
+    document.getElementById("rck2").textContent = t("diet.rc.key.n", { n: t("diet.nut.vit") });
+    for (var j = 0; j < 3; j++) document.getElementById("lgc" + j).textContent = t("diet.leg.c", { n: t("diet.nut." + NUTS[j].id) });
+
+    var alfOnly = Math.max.apply(null, NUTS.map(function (n, j) { return n.min / FOODS[2].n[j]; }));
+    document.getElementById("n1p1").innerHTML = t("diet.n1.p1", { v: fmt(nv[2], 2), s: fmt(nv[2] - 150, 2) });
+    document.getElementById("n1p2").innerHTML = t("diet.n1.p2", { a: fmt(SOL.x[0], 3), b: fmt(SOL.x[2], 3) });
+    document.getElementById("n2p1").innerHTML = t("diet.n2.p1", { d0: money(SOL.duals[0], 3), d1: money(SOL.duals[1], 3) });
+    document.getElementById("n2p2").innerHTML = t("diet.n2.p2", {
+      w0: money(worth(0, SOL.duals)), w2: money(worth(2, SOL.duals)), w1: money(worth(1, SOL.duals)),
+      p0: money(FOODS[0].c), p1: money(FOODS[1].c), p2: money(FOODS[2].c)
+    });
+    document.getElementById("n3p1").innerHTML = t("diet.n3.p1", {
+      k: fmt(alfOnly, 0), c: money(alfOnly * 15), z: money(SOL.z), s: money(alfOnly * 15 - SOL.z)
+    });
+  }
+
+  // ---- MathJax ----
+  var blocks = Array.prototype.slice.call(document.querySelectorAll(".math script[type='text/x-tex']"));
+  var mathReady = false;
+  function renderMath() {
+    if (!mathReady) return;
+    var outsM = blocks.map(function (s) {
+      var out = s.parentNode.querySelector(".math-out");
+      if (!out) { out = document.createElement("div"); out.className = "math-out"; s.parentNode.appendChild(out); }
+      out.textContent = "\\[" + s.textContent.replace(/\\text\{ST\}/g, "\\text{" + t("ui.st") + "}") + "\\]";
+      return out;
+    });
+    if (window.MathJax.typesetClear) window.MathJax.typesetClear(outsM);
+    window.MathJax.typesetPromise(outsM).catch(function (e) { console.error(e); });
+  }
+  window.MathJax = {
+    tex: { inlineMath: [["\\(", "\\)"]] },
+    svg: { fontCache: "global" },
+    startup: { typeset: false, ready: function () { window.MathJax.startup.defaultReady(); mathReady = true; renderMath(); } }
+  };
+  var mj = document.createElement("script");
+  mj.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js";
+  mj.async = true;
+  document.head.appendChild(mj);
+
+  // =====================================================================
+  //  Loop: runs while a stage is on screen
+  // =====================================================================
+  var vis = { mix: false, plane: false }, raf = 0, last = 0, running = false;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    step(dt, now);
+    if (sweep) {
+      var u = clamp((now - sweep.t0) / sweep.dur, 0, 1);
+      ciso = lerp(sweep.from, COPT, ease.out(u));
+      if (u >= 1) { ciso = COPT; sweep = null; }
+      ciEl.value = ciso;
+      trail.push({ C: ciso, a: 1 });
+      isoState();
+      planeDirty = true;
+    }
+    if (trail.length) {
+      trail.forEach(function (d) { d.a -= dt * 1.6; });
+      trail = trail.filter(function (d) { return d.a > 0; });
+      if (trail.length > 14) trail = trail.slice(trail.length - 14);
+      planeDirty = true;
+    }
+    if (vis.mix) drawMix();
+    if (vis.plane) drawPlane();
+    if (vis.mix || vis.plane || tween || sweep) raf = requestAnimationFrame(frame);
+    else running = false;
+  }
+  function wake() {
+    if (REDUCE || running) return;
+    running = true;
+    last = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        var key = e.target === mixStage ? "mix" : "plane";
+        vis[key] = e.isIntersecting;
+        if (key === "mix" && e.isIntersecting && e.intersectionRatio >= 0.35 && !introDone && !tween) {
+          tweenTo(START, 1600);   // first time on screen: pour the starting mix
+        }
+      });
+      if (vis.mix || vis.plane) wake();
+    }, { threshold: [0, 0.35] });
+    io.observe(mixStage);
+    io.observe(planeStage);
+  } else { vis.mix = vis.plane = true; x = START.slice(); introDone = true; wake(); }
+
+  // ---- render (first time and on every language switch) ----
+  function render() {
+    sliders.forEach(function (s, i) {
+      var row = s.parentNode;
+      row.querySelector(".fname").textContent = t("diet.food." + FOODS[i].id);
+      row.querySelector(".price").textContent = t("diet.perkg", { v: fmt(FOODS[i].c, 0) });
+    });
+    syncSliders();
+    renderStatic();
+    renderStatus();
+    renderResult();
+    isoState();
+    renderRC();
+    renderMath();
+    hudTick();
+    layout();
+    playout();
+    drawMix();
+    drawPlane();
+  }
+  var rt = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () { layout(); playout(); drawMix(); drawPlane(); }, 60);
+  });
+  function retheme() { readColors(); drawMix(); drawPlane(); }
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  layout();
+  playout();
+  I18N.onChange(render);
+})();
+</script>
+</body>
+</html>
