@@ -18,7 +18,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 | 2 | Navigation dropdown | done | Browse menu in site.js + site.css, keys nav.menu etc.; 96 checks passed |
 | 3a | lab-solver "Inside the Solver" (animation) | building | site/lab/inside-the-solver.html, prefix solv. |
 | 3b | lab-cvar "Beyond VaR: CVaR" (animation) | review | site/lab/beyond-var.html, prefix cvar.; built and self-checked (4 langs, 1200/700/400, light/dark, Python numpy/scipy check of every number: 0 mismatches) |
-| 3c | lab-linearization (animation) | building | site/lab/linearizing-markets.html, prefix lin.; uses materials/lab-notes.md |
+| 3c | lab-linearization (animation) | review | site/lab/linearizing-markets.html + locales/lab/lab-linearization.*.js, prefix lin.; illustrative cell (3 parks), LP.solve live, numbers checked with scipy, 4 langs x 1200/700/400 x light/dark pass |
 | 3d | lab-ml-methods "Learning Is Optimizing" (animation) | todo | |
 | 3e | lab-svm "The Widest Street" (animation) | todo | |
 | 3f | lab-ml-ai-cases "ML + AI in Optimization" (simulation) | todo | |
@@ -35,4 +35,5 @@ Status values: todo, building, review, done. For each lab page: build agent, the
 ## Decisions already taken
 - Lab pages live in `site/lab/<file>.html` with bundles `site/locales/lab/<id>.<lang>.js`, keep `noindex, nofollow`, back link to the lab (not the home page), same player and tex.js as the learning resources, Further reading line (`data-further`) like the resources.
 - Section of Petropoulos et al. (2024) per lab page: solver 2.15 (Mixed-integer programming), cvar 2.18 (Risk analysis), linearization 2.15, ml-methods 2.1, svm 2.1, ml-ai-cases 2.1.
+- When a lab page is built, its card text (lab.<id>.desc in site/locales/lab/lab.<lang>.js) moves from the conditional ("would show") to the present and must describe what the page really shows. Done for lab-linearization; do it for each other page when it is committed.
 - Build in batches of at most 3 agents at a time (13 at once exhausted the session limit before).

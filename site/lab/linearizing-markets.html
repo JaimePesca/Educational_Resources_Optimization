@@ -619,7 +619,8 @@
     ctx.beginPath(); ctx.moveTo(L.px0, L.py0 - 4); ctx.lineTo(L.px0, L.py1); ctx.lineTo(L.px1 + 4, L.py1); ctx.stroke();
     ctx.font = font(400, fs - 0.5); ctx.fillStyle = C.muted;
     ctx.textAlign = "center"; ctx.textBaseline = "top";
-    for (v = 0; v <= RNG + 1e-9; v += step) ctx.fillText(fmt(v, 1), PX(v), L.py1 + 4);
+    var lpOn = t >= 38.6 && S.lp.y[1] < 0.03;      // the linear optimum on the y1 axis: its tick label gives way
+    for (v = 0; v <= RNG + 1e-9; v += step) { if (!(lpOn && Math.abs(PX(v) - PX(S.lp.y[0])) < 18)) ctx.fillText(fmt(v, 1), PX(v), L.py1 + 4); }
     ctx.textAlign = "right"; ctx.textBaseline = "middle";
     for (v = step; v <= RNG + 1e-9; v += step) ctx.fillText(fmt(v, 1), L.px0 - 5, PY(v));
     ctx.globalAlpha = 1;
