@@ -84,6 +84,7 @@ I18N.register("en", {
   "type.simulation": "Simulation",
   "type.game": "Game",
   "type.animation": "Animation",
+  "type.example": "Worked example",
 
   /* ---- resource cards ---- */
   "resource.feasible-region.title": "Feasible Region",
@@ -92,6 +93,14 @@ I18N.register("en", {
   "resource.critical-load.summary": "Pack a helicopter for the fire line under a weight limit, then compare your load with the exact optimum and a greedy rule.",
   "resource.patrol-route.title": "Patrol Route",
   "resource.patrol-route.summary": "Watch simulated annealing plan a drone route through watchtowers, and see why accepting worse moves helps escape local optima.",
+  "resource.two-stories.title": "Two Stories, One Model",
+  "resource.two-stories.summary": "Slide between a pharmaceutical and a beverage version of the same blending problem: the words change, the numbers and the linear program do not.",
+  "resource.feasible-region-3d.title": "Feasible Region in 3D",
+  "resource.feasible-region-3d.summary": "Explore a three-variable military procurement LP in 3D, find its vertices and see why a whole edge of optimal solutions appears.",
+  "resource.compacta.title": "Compacta",
+  "resource.compacta.summary": "A game about writing models in compact form: sets, indices, Σ and ∀, across five worlds of challenges.",
+  "resource.dijkstra.title": "Dijkstra Step by Step",
+  "resource.dijkstra.summary": "Follow Dijkstra's shortest path algorithm iteration by iteration on a worked example, then solve an exercise on an undirected graph.",
 
   /* ---- planned education resources (open for contributors) ---- */
   "resource.edu-diet.title": "The Cheapest Healthy Plate",

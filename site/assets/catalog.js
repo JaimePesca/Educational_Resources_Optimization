@@ -28,6 +28,10 @@ window.CATALOG = {
     { id: "feasible-region", href: "resources/feasible-region.html", level: "lp", type: "simulation" },
     { id: "critical-load", href: "resources/critical-load.html", level: "ip", type: "game" },
     { id: "patrol-route", href: "resources/patrol-route.html", level: "other", type: "animation" },
+    { id: "two-stories", href: "resources/two-stories.html", level: "lp", type: "example" },
+    { id: "feasible-region-3d", href: "resources/feasible-region-3d.html", level: "lp", type: "simulation" },
+    { id: "compacta", href: "compacta/index.html", level: "lp", type: "game" },
+    { id: "dijkstra", href: "resources/dijkstra.html", level: "other", type: "animation" },
 
     // Planned: open for contributors
     { id: "edu-diet", level: "lp", type: "simulation" },
