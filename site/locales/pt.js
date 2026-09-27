@@ -151,6 +151,20 @@ I18N.register("pt", {
   "resource.edu-newsvendor.title": "Quantos Jornais?",
   "resource.edu-newsvendor.summary": "Encomende o estoque antes de conhecer a demanda, jogue muitos dias simulados e descubra o tamanho do pedido que equilibra sobras e vendas perdidas.",
 
+  /* ---- Nível 3 · Programação inteira mista ---- */
+  "resource.milp-mixed-set.title": "Pontos, segmentos e regiões",
+  "resource.milp-mixed-set.summary": "Veja como as mesmas restrições geram um polígono, um conjunto de fatias ou uma malha de pontos quando algumas variáveis devem ser inteiras, e por que o PL é um limitante e arredondar é só uma heurística.",
+  "resource.milp-logic.title": "Diga com restrições",
+  "resource.milp-logic.summary": "Transforme regras de uma fábrica que misturam decisões de sim ou não e quantidades em restrições lineares, e deixe um verificador mostrar quais planos cada formulação corta ou deixa passar.",
+  "resource.milp-bigm.title": "Qual o tamanho de M?",
+  "resource.milp-bigm.summary": "Mova os valores de big-M em um modelo de um ou outro e veja como um M pequeno demais corta bons planos, um grande demais enfraquece a relaxação linear e o menor M válido coincide com a envoltória convexa.",
+  "resource.milp-piecewise.title": "Descontos por volume",
+  "resource.milp-piecewise.summary": "Custos lineares por partes de dois moinhos: veja por que preços crescentes cabem em um PL simples, enquanto descontos por volume precisam de variáveis binárias para o PL não comprar primeiro a última faixa barata.",
+  "resource.milp-lot-sizing.title": "Produzir agora ou depois",
+  "resource.milp-lot-sizing.summary": "Escolha em quais semanas uma fábrica de geleias produz um lote, equilibrando custos fixos de preparação e custos de estocagem, e descubra por que a preparação binária e um big-M justo importam.",
+  "resource.milp-runway.title": "Autorizado para pousar",
+  "resource.milp-runway.summary": "Veja as chegadas pousarem em uma pista movimentada, primeiro na ordem de chegada e depois na ordem escolhida por um modelo inteiro misto, e tente superá-lo você mesmo.",
+
   /* ================= Modelo de recurso (resources/_template.html) ================= */
   "tpl.title": "Modelo de Recurso",
   "tpl.eyebrow": "Nível 1 · Programação linear · <b>Simulação</b>",

@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="en" data-title-key="wh.title" data-i18n-bundles="resources/edu-warehouses">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Open or Close</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1080px; }
+  [hidden] { display: none !important; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .grid2.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }
+  @media (max-width: 860px) { .grid2, .grid2.even { grid-template-columns: minmax(0, 1fr); } }
+  .flabel { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .seg button { min-height: 36px; }
+
+  /* ---- map ---- */
+  svg.map { display: block; width: 100%; height: auto; touch-action: manipulation; }
+  .map .region { fill: var(--surface2); stroke: var(--grid); stroke-width: 1.5; }
+  .map .road { fill: none; stroke: var(--grid); stroke-width: 2; stroke-dasharray: 2 5; stroke-linecap: round; }
+  .map .flow { stroke: var(--ink); stroke-linecap: round; opacity: 0.78; }
+  .map .flow.split { opacity: 1; }
+  .map .flowlab { fill: var(--ink); font-family: var(--font-mono); font-weight: 600; paint-order: stroke; stroke: var(--halo); stroke-width: 3.5px; stroke-linejoin: round; }
+  .map .city circle { fill: var(--surface); stroke: var(--ink2); stroke-width: 1.6; }
+  .map .city.split circle { stroke: var(--ink); stroke-width: 2.6; }
+  .map .city .cname { fill: var(--ink); font-family: var(--font-sans); font-weight: 700; }
+  .map .city .cdem { fill: var(--muted); font-family: var(--font-mono); paint-order: stroke; stroke: var(--halo); stroke-width: 3px; stroke-linejoin: round; }
+  .map .site { cursor: pointer; }
+  .map .site rect.box { fill: var(--surface); stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: 4 3; }
+  .map .site.open rect.box { fill: var(--accent); stroke-dasharray: none; }
+  .map .site .sname { fill: var(--accent-text); font-family: var(--font-sans); font-weight: 700; }
+  .map .site.open .sname { fill: var(--on-solid); }
+  .map .site .sinfo { fill: var(--ink2); font-family: var(--font-mono); paint-order: stroke; stroke: var(--halo); stroke-width: 3px; stroke-linejoin: round; }
+  .map .site:hover rect.box { stroke-width: 3; }
+  .map .hit { fill: transparent; }
+
+  .toggles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+  .tgl {
+    font: 600 13.5px var(--font-sans); min-height: 42px; padding: 4px 2px; border-radius: 3px; cursor: pointer;
+    border: 1.5px dashed var(--accent); background: var(--surface); color: var(--accent-text);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15;
+  }
+  .tgl small { font: 400 10.5px var(--font-mono); color: var(--muted); }
+  .tgl[aria-pressed="true"] { background: var(--accent); border-style: solid; color: var(--on-solid); }
+  .tgl[aria-pressed="true"] small { color: var(--on-solid); opacity: 0.85; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+  button.btn {
+    font: 600 14px var(--font-sans); min-height: 38px; border-radius: 3px; padding: 8px 14px; cursor: pointer;
+    background: transparent; color: var(--ink2); border: 1.5px solid var(--border);
+  }
+  button.btn:hover { background: var(--surface2); }
+  button.btn.primary { background: var(--accent); color: var(--on-solid); border-color: var(--accent); }
+  button.btn.primary:hover { filter: brightness(1.08); }
+  .live {
+    margin: 12px 0 0; font-size: 14px; color: var(--ink2); line-height: 1.6;
+    border-left: 3px solid var(--accent); padding: 4px 0 4px 12px;
+  }
+  .live b { color: var(--ink); }
+  .live.bad { border-left-color: var(--crit); }
+  .legend { font-size: 12.5px; }
+  .sw.sq-open { background: var(--accent); }
+  .sw.sq-closed { border: 1.5px dashed var(--accent); background: var(--surface); }
+  .sw.circ { border-radius: 50%; border: 1.5px solid var(--ink2); background: var(--surface); }
+  .sw.line { height: 4px; width: 18px; background: var(--ink); }
+  .sw.fix { background: var(--accent); }
+  .sw.tra { background: var(--ink); }
+  .sw.tot { background: var(--mit-silver); height: 3px; width: 18px; }
+
+  /* shipments list */
+  .ships { display: grid; grid-template-columns: repeat(auto-fill, minmax(142px, 1fr)); gap: 6px; margin-top: 12px; }
+  .ship { font: 12.5px var(--font-mono); color: var(--ink2); background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; padding: 5px 8px; }
+  .ship b { color: var(--ink); }
+  .ship.split { border-color: var(--ink); background: var(--surface); }
+
+  /* ---- cost panel ---- */
+  .total { font: 700 30px var(--font-sans); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin: 2px 0 0; }
+  .total small { font: 400 13px var(--font-sans); color: var(--muted); letter-spacing: 0; }
+  .stack { display: flex; height: 14px; border-radius: 2px; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); margin: 10px 0 8px; }
+  .stack span { display: block; height: 100%; transition: width 0.25s; }
+  .stack .f { background: var(--accent); }
+  .stack .tr { background: var(--ink); }
+  .kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; font-size: 13.5px; color: var(--ink2); }
+  .kv .v { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); text-align: right; }
+  .kv .k { display: flex; align-items: center; gap: 7px; }
+  .status { margin: 10px 0 0; font-size: 13.5px; font-weight: 600; color: var(--good-text); }
+  .status.bad { color: var(--crit); }
+  .caps { display: grid; gap: 7px; margin-top: 14px; }
+  .caprow { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 12.5px; }
+  .caprow .nm { font-weight: 700; color: var(--accent-text); }
+  .captrack { height: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+  .capfill { height: 100%; background: var(--ink); transition: width 0.25s; }
+  .caprow .cv { font-family: var(--font-mono); color: var(--ink2); font-variant-numeric: tabular-nums; min-width: 84px; text-align: right; }
+  .caprow.off .nm, .caprow.off .cv { color: var(--muted); font-weight: 400; }
+  .caprow.full .cv { color: var(--ink); font-weight: 600; }
+  .cmp { margin: 12px 0 0; font-size: 13.5px; color: var(--ink2); padding-top: 10px; border-top: 1px solid var(--border); }
+  .cmp b { color: var(--ink); }
+  .cmp .ok { color: var(--good-text); font-weight: 600; }
+
+  /* ---- ranking ---- */
+  table.data { min-width: 520px; }
+  table.data td.num, table.data th.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 13px; white-space: nowrap; }
+  @media (max-width: 600px) { table.data { min-width: 400px; } table.data .mixcol { display: none; } }
+  table.data td.set { font-weight: 600; color: var(--accent-text); white-space: nowrap; }
+  table.data tr.best td { background: var(--region); font-weight: 600; }
+  table.data .mine { font: 400 11px var(--font-mono); color: var(--muted); margin-left: 6px; }
+  .mini { display: flex; height: 10px; width: 120px; border-radius: 2px; overflow: hidden; background: var(--surface2); }
+  .mini span { display: block; height: 100%; }
+  .mini .f { background: var(--accent); }
+  .mini .tr { background: var(--ink); }
+
+  /* ---- level chart ---- */
+  .ctl output { font-size: 15px; color: var(--accent-text); }
+  .ctl input[type="range"] { height: 30px; }
+  svg.chart { display: block; width: 100%; height: auto; cursor: crosshair; touch-action: pan-y; }
+  .chart .gl { stroke: var(--grid); stroke-width: 1; }
+  .chart .ax { stroke: var(--axis); stroke-width: 1; }
+  .chart .tick { fill: var(--muted); font-family: var(--font-mono); }
+  .chart .ttl { fill: var(--ink2); font-family: var(--font-sans); font-weight: 600; }
+  .chart .kline { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+  .chart .kfill { fill: var(--sel); }
+  .chart .fline { fill: none; stroke: var(--accent); stroke-width: 2.2; }
+  .chart .tline { fill: none; stroke: var(--ink); stroke-width: 2.2; }
+  .chart .totline { fill: none; stroke: var(--mit-silver); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  .chart .marker { stroke: var(--ink2); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .chart .dotf { fill: var(--accent); stroke: var(--surface); stroke-width: 1.5; }
+  .chart .dott { fill: var(--ink); stroke: var(--surface); stroke-width: 1.5; }
+  .chart .mlab { fill: var(--ink); font-family: var(--font-mono); font-weight: 600; paint-order: stroke; stroke: var(--halo); stroke-width: 3px; }
+
+  /* ---- LP relaxation ---- */
+  .ygrid { display: grid; grid-template-columns: minmax(64px, auto) repeat(5, minmax(0, 1fr)); gap: 6px 8px; align-items: center; margin-top: 12px; }
+  .ygrid .rl { font-size: 12px; color: var(--ink2); line-height: 1.25; }
+  .ygrid .hd { text-align: center; font-weight: 700; font-size: 13px; color: var(--accent-text); }
+  .ycell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .ybox { width: 44px; height: 44px; max-width: 100%; border: 1.8px solid var(--accent); border-radius: 2px; position: relative; overflow: hidden; background: var(--surface); }
+  .ybox.sm { width: 30px; height: 30px; }
+  .ybox .yf { position: absolute; left: 0; right: 0; bottom: 0; background: var(--accent); transition: height 0.3s; }
+  .ybox.q { border-style: dashed; border-color: var(--axis); display: grid; place-items: center; color: var(--muted); font: 600 13px var(--font-mono); }
+  .yv { font: 600 13px var(--font-mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+  .yv.frac { color: var(--accent-text); }
+  .bounds { display: grid; gap: 8px; margin-top: 14px; }
+  .brow { display: grid; grid-template-columns: minmax(96px, 30%) minmax(0, 1fr); gap: 10px; align-items: center; font-size: 13px; }
+  .brow .bl { color: var(--ink2); }
+  .brow.on .bl { color: var(--ink); font-weight: 700; }
+  .btrack { position: relative; height: 24px; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; }
+  .bfill { height: 100%; background: var(--mit-silver); opacity: 0.55; transition: width 0.3s; }
+  .brow.on .bfill { background: var(--ink); opacity: 1; }
+  .brow.milp .bfill { background: var(--accent); opacity: 1; }
+  .bval { position: absolute; top: 50%; transform: translateY(-50%); left: 8px; font: 600 12.5px var(--font-mono); color: var(--ink); white-space: nowrap; paint-order: stroke; }
+  .brow.on .bval, .brow.milp .bval { color: var(--on-solid); }
+  .gapline { margin: 10px 0 0; font: 600 14px var(--font-sans); }
+  .gapline .big { font-size: 22px; color: var(--accent-text); font-variant-numeric: tabular-nums; }
+
+  /* ---- model ---- */
+  .vtag { display: inline-block; font: 600 11px var(--font-mono); letter-spacing: 0.05em; padding: 1px 7px; border-radius: 2px; margin-left: 6px; vertical-align: 1px; }
+  .vtag.int { background: var(--accent); color: var(--on-solid); }
+  .vtag.cont { border: 1px solid var(--mit-silver); color: var(--ink2); }
+  .vars { grid-template-columns: minmax(0, 1fr); margin: 10px 0; }
+  details .body ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+  details .body .tblwrap { margin: 10px 0; }
+  table.cm { border-collapse: collapse; font-size: 12.5px; font-family: var(--font-mono); min-width: 360px; }
+  table.cm th, table.cm td { padding: 4px 8px; text-align: right; border-bottom: 1px solid var(--grid); }
+  table.cm th { color: var(--muted); font-weight: 600; }
+  table.cm th.w { color: var(--accent-text); }
+  table.cm td:first-child, table.cm th:first-child { text-align: left; }
+
+  @media (max-width: 480px) {
+    .total { font-size: 26px; }
+    .caprow .cv { min-width: 72px; font-size: 11.5px; }
+    .ybox { width: 38px; height: 38px; }
+    .ygrid { grid-template-columns: 58px repeat(5, minmax(0, 1fr)); gap: 6px 4px; }
+    .ygrid .rl { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="wh.eyebrow"></p>
+    <h1 data-i18n="wh.title"></h1>
+    <p class="lede" data-i18n-html="wh.lede"></p>
+  </header>
+
+  <!-- 1. map + cost panel -->
+  <div class="grid2">
+    <div class="card">
+      <h2><span class="kicker" id="wh-map-kicker"></span><span data-i18n="wh.map.title"></span></h2>
+      <div class="row" id="wh-viewrow" hidden>
+        <span class="flabel" id="wh-view-lbl" data-i18n="wh.view.label"></span>
+        <div class="seg" role="group" aria-labelledby="wh-view-lbl">
+          <button type="button" id="wh-view-plan" aria-pressed="true" data-i18n="wh.view.plan"></button>
+          <button type="button" id="wh-view-opt" aria-pressed="false" data-i18n="wh.view.opt"></button>
+        </div>
+      </div>
+      <svg class="map" id="wh-map" viewBox="0 0 420 304" role="img" data-i18n-attr="aria-label:wh.map.aria"></svg>
+      <div class="toggles" id="wh-toggles" role="group" data-i18n-attr="aria-label:wh.toggles.aria"></div>
+      <div class="legend">
+        <span><i class="sw sq-open"></i><span data-i18n="wh.leg.open"></span></span>
+        <span><i class="sw sq-closed"></i><span data-i18n="wh.leg.closed"></span></span>
+        <span><i class="sw circ"></i><span data-i18n="wh.leg.city"></span></span>
+        <span><i class="sw line"></i><span data-i18n="wh.leg.flow"></span></span>
+      </div>
+      <p class="live" id="wh-live" aria-live="polite"></p>
+      <div class="ships" id="wh-ships"></div>
+    </div>
+
+    <div class="card" id="wh-costcard">
+      <h2><span class="kicker" id="wh-cost-kicker"></span><span data-i18n="wh.cost.title"></span></h2>
+      <p class="total" id="wh-total"></p>
+      <div class="stack" id="wh-stack" aria-hidden="true"><span class="f"></span><span class="tr"></span></div>
+      <div class="kv">
+        <span class="k"><i class="sw fix"></i><span data-i18n="wh.cost.fixed"></span></span><span class="v" id="wh-fixed"></span>
+        <span class="k"><i class="sw tra"></i><span data-i18n="wh.cost.transport"></span></span><span class="v" id="wh-trans"></span>
+      </div>
+      <p class="status" id="wh-status"></p>
+      <div class="caps" id="wh-caps"></div>
+      <p class="cmp" id="wh-cmp" aria-live="polite"></p>
+      <div class="actions">
+        <button type="button" class="btn primary" id="wh-solve" data-i18n="wh.btn.optimum"></button>
+        <button type="button" class="btn" id="wh-all" data-i18n="wh.btn.all"></button>
+        <button type="button" class="btn" id="wh-none" data-i18n="wh.btn.none"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ranking (after "Show the optimum") -->
+  <div class="card" id="wh-rank" hidden>
+    <h2><span class="kicker" data-i18n="wh.rank.kicker"></span><span id="wh-rank-title"></span></h2>
+    <p class="section-intro" id="wh-rank-lead"></p>
+    <div class="tblwrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th data-i18n="wh.th.rank"></th>
+            <th data-i18n="wh.th.set"></th>
+            <th class="num" data-i18n="wh.th.fixed"></th>
+            <th class="num" data-i18n="wh.th.trans"></th>
+            <th class="num" data-i18n="wh.th.total"></th>
+            <th class="num" data-i18n="wh.th.gap"></th>
+            <th class="mixcol" data-i18n="wh.th.mix"></th>
+          </tr>
+        </thead>
+        <tbody id="wh-rank-body"></tbody>
+      </table>
+    </div>
+    <p class="live" id="wh-rank-note"></p>
+  </div>
+
+  <!-- 3. fixed-cost level -->
+  <div class="card">
+    <h2><span class="kicker" data-i18n="wh.lvl.kicker"></span><span data-i18n="wh.lvl.title"></span></h2>
+    <div class="grid2 even">
+      <div>
+        <div class="ctl">
+          <label for="wh-mult" data-i18n="wh.lvl.label"></label>
+          <output id="wh-mult-out" for="wh-mult"></output>
+          <input type="range" id="wh-mult" min="0.25" max="3" step="0.01" value="1">
+        </div>
+        <p class="live" id="wh-lvl-live" aria-live="polite"></p>
+        <p class="live" data-i18n-html="wh.lvl.lesson"></p>
+      </div>
+      <div>
+        <svg class="chart" id="wh-chart" role="img" data-i18n-attr="aria-label:wh.chart.aria"></svg>
+        <div class="legend">
+          <span><i class="sw fix"></i><span data-i18n="wh.chart.fixed"></span></span>
+          <span><i class="sw tra"></i><span data-i18n="wh.chart.trans"></span></span>
+          <span><i class="sw tot"></i><span data-i18n="wh.chart.total"></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. LP relaxation -->
+  <div class="card">
+    <h2><span class="kicker" data-i18n="wh.lp.kicker"></span><span data-i18n="wh.lp.title"></span></h2>
+    <div class="row">
+      <span class="flabel" id="wh-form-lbl" data-i18n="wh.lp.form"></span>
+      <div class="seg" role="group" aria-labelledby="wh-form-lbl">
+        <button type="button" id="wh-form-weak" aria-pressed="true" data-i18n="wh.lp.weak"></button>
+        <button type="button" id="wh-form-strong" aria-pressed="false" data-i18n="wh.lp.strong"></button>
+      </div>
+      <span class="readout" id="wh-form-eq"></span>
+    </div>
+    <div class="grid2 even">
+      <div>
+        <div class="ygrid" id="wh-ygrid" role="img" data-i18n-attr="aria-label:wh.lp.aria"></div>
+        <div class="bounds" id="wh-bounds"></div>
+        <p class="gapline" id="wh-gapline"></p>
+      </div>
+      <div>
+        <p class="live" id="wh-lp-live" aria-live="polite"></p>
+        <p class="live" id="wh-lp-live2"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. teaching blocks -->
+  <section>
+    <details>
+      <summary data-i18n="wh.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="wh.d1.p1"></p>
+        <div class="formula" data-i18n="wh.d1.formula"></div>
+        <ul class="vars">
+          <li><span class="sym"><code>y<sub>j</sub></code></span> <span data-i18n-html="wh.var.y"></span><span class="vtag int" data-i18n="wh.tag.bin"></span></li>
+          <li><span class="sym"><code>x<sub>ij</sub></code></span> <span data-i18n-html="wh.var.x"></span><span class="vtag cont" data-i18n="wh.tag.cont"></span></li>
+          <li><span class="sym"><code>f<sub>j</sub>, u<sub>j</sub></code></span> <span data-i18n-html="wh.var.fu"></span></li>
+          <li><span class="sym"><code>d<sub>i</sub>, c<sub>ij</sub></code></span> <span data-i18n-html="wh.var.dc"></span></li>
+        </ul>
+        <p id="wh-d1p2"></p>
+        <div class="tblwrap"><table class="cm" id="wh-cm"></table></div>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="wh.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="wh.d2.p1"></p>
+        <p data-i18n-html="wh.d2.p2"></p>
+        <p data-i18n-html="wh.d2.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="wh.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="wh.d3.p1"></p>
+        <div class="formula" data-i18n="wh.d3.formula"></div>
+        <p data-i18n-html="wh.d3.p2"></p>
+        <p data-i18n-html="wh.d3.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="wh.d4.title"></summary>
+      <div class="body">
+        <ol>
+          <li data-i18n-html="wh.ch.1"></li>
+          <li data-i18n-html="wh.ch.2"></li>
+          <li data-i18n-html="wh.ch.3"></li>
+          <li data-i18n-html="wh.ch.4"></li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="wh.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, txt) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (txt != null) n.textContent = txt;
+    return n;
+  }
+  function h(tag, cls, txt) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (txt != null) n.textContent = txt;
+    return n;
+  }
+
+  // ---- dense two-phase simplex (Bland's rule), min c.x, rows {a, op: "<=" | "=" | ">=", b}, x >= 0 ----
+  function simplex(c, rows) {
+    var EPS = 1e-9, n = c.length, m = rows.length, j, i;
+    var nSlack = 0, nArt = 0;
+    rows = rows.map(function (r) {
+      var a = r.a.slice(), b = r.b, op = r.op;
+      if (b < 0) { a = a.map(function (v) { return -v; }); b = -b; op = op === "<=" ? ">=" : op === ">=" ? "<=" : "="; }
+      if (op !== "=") nSlack++;
+      if (op !== "<=") nArt++;
+      return { a: a, b: b, op: op };
+    });
+    var N = n + nSlack + nArt, T = [], basis = [], isArt = new Array(N).fill(false);
+    var s = n, art = n + nSlack;
+    for (i = 0; i < m; i++) {
+      var row = new Array(N + 1).fill(0), r = rows[i];
+      for (j = 0; j < n; j++) row[j] = r.a[j];
+      row[N] = r.b;
+      if (r.op === "<=") { row[s] = 1; basis.push(s++); }
+      else {
+        if (r.op === ">=") row[s++] = -1;
+        row[art] = 1; isArt[art] = true; basis.push(art++);
+      }
+      T.push(row);
+    }
+    function pivot(pr, pc) {
+      var p = T[pr][pc], k;
+      for (k = 0; k <= N; k++) T[pr][k] /= p;
+      for (var q = 0; q < m; q++) {
+        if (q === pr) continue;
+        var f = T[q][pc];
+        if (Math.abs(f) > EPS) for (k = 0; k <= N; k++) T[q][k] -= f * T[pr][k];
+      }
+      basis[pr] = pc;
+    }
+    function run(cost, allowArt) {
+      for (var guard = 0; guard < 5000; guard++) {
+        var enter = -1; // Bland: first column with a negative reduced cost
+        for (var jj = 0; jj < N; jj++) {
+          if (!allowArt && isArt[jj]) continue;
+          var dj = cost[jj];
+          for (var ii = 0; ii < m; ii++) dj -= cost[basis[ii]] * T[ii][jj];
+          if (dj < -1e-9) { enter = jj; break; }
+        }
+        if (enter < 0) return "optimal";
+        var leave = -1, best = Infinity;
+        for (ii = 0; ii < m; ii++) {
+          if (T[ii][enter] > EPS) {
+            var ratio = T[ii][N] / T[ii][enter];
+            if (ratio < best - 1e-12 || (Math.abs(ratio - best) <= 1e-12 && basis[ii] < basis[leave])) { best = ratio; leave = ii; }
+          }
+        }
+        if (leave < 0) return "unbounded";
+        pivot(leave, enter);
+      }
+      return "limit";
+    }
+    if (nArt) {
+      var c1 = new Array(N).fill(0);
+      for (j = 0; j < N; j++) if (isArt[j]) c1[j] = 1;
+      run(c1, true);
+      var infeas = 0;
+      for (i = 0; i < m; i++) if (isArt[basis[i]]) infeas += T[i][N];
+      if (infeas > 1e-7) return { status: "infeasible" };
+      for (i = 0; i < m; i++) {
+        if (!isArt[basis[i]]) continue;
+        for (j = 0; j < n + nSlack; j++) if (Math.abs(T[i][j]) > 1e-9) { pivot(i, j); break; }
+      }
+    }
+    var c2 = new Array(N).fill(0);
+    for (j = 0; j < n; j++) c2[j] = c[j];
+    var st = run(c2, false);
+    if (st !== "optimal") return { status: st };
+    var x = new Array(n).fill(0);
+    for (i = 0; i < m; i++) if (basis[i] < n) x[basis[i]] = T[i][N];
+    var z = 0;
+    for (j = 0; j < n; j++) z += c[j] * x[j];
+    return { status: "optimal", x: x, z: z };
+  }
+
+  // ---- illustrative data: 8 cities (demand, units/week), 5 candidate sites (fixed $/week, capacity units/week) ----
+  var CITIES = [
+    { id: "A", x: 10, y: 14, d: 20 }, { id: "B", x: 22, y: 56, d: 30 }, { id: "C", x: 40, y: 30, d: 25 },
+    { id: "D", x: 54, y: 62, d: 35 }, { id: "E", x: 60, y: 10, d: 20 }, { id: "F", x: 80, y: 38, d: 30 },
+    { id: "G", x: 93, y: 12, d: 25 }, { id: "H", x: 90, y: 62, d: 30 }
+  ];
+  var SITES = [
+    { id: "1", x: 16, y: 36, f: 2800, u: 200 }, { id: "2", x: 50, y: 40, f: 2900, u: 120 },
+    { id: "3", x: 74, y: 20, f: 2400, u: 200 }, { id: "4", x: 78, y: 60, f: 800, u: 50 },
+    { id: "5", x: 34, y: 8, f: 1100, u: 160 }
+  ];
+  // transport cost per unit ($/unit): the straight-line distance on the map, rounded
+  var COST = CITIES.map(function (ci) {
+    return SITES.map(function (sj) { return Math.round(Math.hypot(ci.x - sj.x, ci.y - sj.y)); });
+  });
+  var NI = CITIES.length, NJ = SITES.length;
+  var DEMAND = CITIES.reduce(function (s, ci) { return s + ci.d; }, 0);
+  function clean(v) { var q = Math.round(v * 1e6) / 1e6; return Math.abs(q) < 1e-9 ? 0 : q; }
+
+  // transportation LP for a fixed open set: min sum c x, sum_j x_ij = d_i, sum_i x_ij <= u_j (open j only)
+  function transport(mask) {
+    var js = [];
+    for (var j = 0; j < NJ; j++) if (mask >> j & 1) js.push(j);
+    var capOpen = js.reduce(function (s, q) { return s + SITES[q].u; }, 0);
+    if (!js.length || capOpen < DEMAND) return { feasible: false, cap: capOpen };
+    var nv = NI * js.length, c = [], rows = [], i, k;
+    for (i = 0; i < NI; i++) for (k = 0; k < js.length; k++) c.push(COST[i][js[k]]);
+    for (i = 0; i < NI; i++) {
+      var a = new Array(nv).fill(0);
+      for (k = 0; k < js.length; k++) a[i * js.length + k] = 1;
+      rows.push({ a: a, op: "=", b: CITIES[i].d });
+    }
+    for (k = 0; k < js.length; k++) {
+      var a2 = new Array(nv).fill(0);
+      for (i = 0; i < NI; i++) a2[i * js.length + k] = 1;
+      rows.push({ a: a2, op: "<=", b: SITES[js[k]].u });
+    }
+    var r = simplex(c, rows);
+    if (r.status !== "optimal") return { feasible: false, cap: capOpen };
+    var x = [];
+    for (i = 0; i < NI; i++) {
+      x.push(new Array(NJ).fill(0));
+      for (k = 0; k < js.length; k++) x[i][js[k]] = clean(r.x[i * js.length + k]);
+    }
+    return { feasible: true, cap: capOpen, transport: clean(r.z), x: x };
+  }
+
+  // LP relaxation with 0 <= y_j <= 1. Weak: sum_i x_ij <= u_j y_j. Strong also: x_ij <= d_i y_j
+  function relaxation(strong, mult) {
+    var nx = NI * NJ, nv = nx + NJ, c = [], rows = [], i, j, a;
+    for (i = 0; i < NI; i++) for (j = 0; j < NJ; j++) c.push(COST[i][j]);
+    for (j = 0; j < NJ; j++) c.push(mult * SITES[j].f);
+    for (i = 0; i < NI; i++) {
+      a = new Array(nv).fill(0);
+      for (j = 0; j < NJ; j++) a[i * NJ + j] = 1;
+      rows.push({ a: a, op: "=", b: CITIES[i].d });
+    }
+    for (j = 0; j < NJ; j++) {
+      a = new Array(nv).fill(0);
+      for (i = 0; i < NI; i++) a[i * NJ + j] = 1;
+      a[nx + j] = -SITES[j].u;
+      rows.push({ a: a, op: "<=", b: 0 });
+      a = new Array(nv).fill(0); a[nx + j] = 1;
+      rows.push({ a: a, op: "<=", b: 1 });
+    }
+    if (strong) {
+      for (i = 0; i < NI; i++) for (j = 0; j < NJ; j++) {
+        a = new Array(nv).fill(0); a[i * NJ + j] = 1; a[nx + j] = -CITIES[i].d;
+        rows.push({ a: a, op: "<=", b: 0 });
+      }
+    }
+    var r = simplex(c, rows), x = [];
+    for (i = 0; i < NI; i++) x.push(r.x.slice(i * NJ, (i + 1) * NJ).map(clean));
+    return { z: r.z, y: r.x.slice(nx).map(clean), x: x };
+  }
+
+  // ---- every open set solved once: fixed cost F (at level 1) and transport cost T do not depend on the level ----
+  var SETS = [null];
+  for (var mask = 1; mask < 1 << NJ; mask++) {
+    var tr = transport(mask), F = 0, k = 0;
+    for (var j0 = 0; j0 < NJ; j0++) if (mask >> j0 & 1) { F += SITES[j0].f; k++; }
+    SETS.push({ mask: mask, F: F, k: k, feasible: tr.feasible, cap: tr.cap, T: tr.transport, x: tr.x });
+  }
+  var FEAS = SETS.filter(function (s) { return s && s.feasible; });
+  function ranked(m) {
+    return FEAS.map(function (s) { return { s: s, total: m * s.F + s.T }; })
+      .sort(function (a, b) { return a.total - b.total || a.s.k - b.s.k || a.s.mask - b.s.mask; });
+  }
+  function optAt(m) { return ranked(m)[0]; }
+
+  var MMIN = 0.25, MMAX = 3;
+  var SWEEP = [];
+  for (var q = 25; q <= 300; q++) { var mm = q / 100, b = optAt(mm); SWEEP.push({ m: mm, s: b.s, total: b.total }); }
+
+  var relaxCache = {};
+  function relaxAt(strong, m) {
+    var key = (strong ? "s" : "w") + m.toFixed(2);
+    if (!relaxCache[key]) relaxCache[key] = relaxation(strong, m);
+    return relaxCache[key];
+  }
+
+  // ---- state ----
+  var state = { mask: 31, revealed: false, view: "plan", mult: 1, strong: false };
+
+  // ---- formatting ----
+  function money(v) { return t("wh.money", { v: I18N.fmt(Math.round(v), 0) }); }
+  function num(v, d) { return I18N.fmt(v, d == null ? 0 : d); }
+  function pct(v) { return I18N.fmt(v, 1, 1); }
+  function mfmt(m) { return t("wh.lvl.value", { m: I18N.fmt(m, 2, 2) }); }
+  function siteName(j) { return t("wh.site", { n: SITES[j].id }); }
+  function cityName(i) { return t("wh.city." + CITIES[i].id); }
+  function setName(mask) {
+    var parts = [];
+    for (var j = 0; j < NJ; j++) if (mask >> j & 1) parts.push(siteName(j));
+    return parts.length ? parts.join(" + ") : t("wh.set.none");
+  }
+  function loads(x) {
+    var l = new Array(NJ).fill(0);
+    if (x) x.forEach(function (row) { row.forEach(function (v, j) { l[j] += v; }); });
+    return l;
+  }
+  function splitsOf(x) {
+    var out = [];
+    if (!x) return out;
+    x.forEach(function (row, i) {
+      var src = [];
+      row.forEach(function (v, j) { if (v > 1e-6) src.push(j); });
+      if (src.length > 1) out.push({ i: i, src: src });
+    });
+    return out;
+  }
+
+  // ---- map ----
+  var MX = function (x) { return 24 + x * 3.7; };
+  var MY = function (y) { return 30 + y * 3.7; };
+  function shownMask() { return state.view === "opt" && state.revealed ? optAt(state.mult).s.mask : state.mask; }
+
+  function renderMap() {
+    var svg = $("wh-map");
+    var w = svg.getBoundingClientRect().width || 420;
+    var sc = w / 420;
+    var fs = Math.max(11, 10.5 / sc), fsS = Math.max(10, 9.5 / sc);
+    var mask = shownMask(), set = SETS[mask];
+    var x = set && set.feasible ? set.x : null;
+    var splitCities = {};
+    splitsOf(x).forEach(function (sp) { splitCities[sp.i] = true; });
+    svg.textContent = "";
+
+    // stylized region
+    svg.appendChild(el("path", { "class": "region", d: "M18 44 L96 18 L208 34 L300 14 L398 30 L406 142 L394 282 L262 294 L150 288 L40 270 L12 170 Z" }));
+    svg.appendChild(el("path", { "class": "road", d: "M30 250 C110 200 170 210 230 160 S330 90 400 100" }));
+
+    // shipments (continuous x_ij)
+    var gF = el("g", {}), gL = el("g", {});
+    if (x) {
+      for (var i = 0; i < NI; i++) for (var j = 0; j < NJ; j++) {
+        var v = x[i][j];
+        if (v <= 1e-6) continue;
+        var c = CITIES[i], s = SITES[j];
+        gF.appendChild(el("line", {
+          "class": "flow" + (splitCities[i] ? " split" : ""), x1: MX(s.x), y1: MY(s.y), x2: MX(c.x), y2: MY(c.y),
+          "stroke-width": (1.2 + 6 * v / 35).toFixed(2)
+        }));
+        if (splitCities[i]) {
+          var lx = MX(s.x) + 0.55 * (MX(c.x) - MX(s.x)), ly = MY(s.y) + 0.55 * (MY(c.y) - MY(s.y));
+          gL.appendChild(el("text", { "class": "flowlab", x: lx, y: ly - 5, "text-anchor": "middle", "font-size": fsS }, num(v, 1)));
+        }
+      }
+    }
+    svg.appendChild(gF);
+
+    // cities (circle area grows with demand)
+    CITIES.forEach(function (c, i) {
+      var g = el("g", { "class": "city" + (splitCities[i] ? " split" : "") });
+      var r = 2.1 * Math.sqrt(c.d);
+      g.appendChild(el("circle", { cx: MX(c.x), cy: MY(c.y), r: r }));
+      g.appendChild(el("text", { "class": "cname", x: MX(c.x), y: MY(c.y), "text-anchor": "middle", "dominant-baseline": "central", "font-size": fs + 1 }, cityName(i)));
+      g.appendChild(el("text", { "class": "cdem", x: MX(c.x), y: MY(c.y) + r + fsS * 0.95, "text-anchor": "middle", "font-size": fsS }, t("wh.map.demand", { d: num(c.d) })));
+      svg.appendChild(g);
+    });
+    svg.appendChild(gL);
+
+    // candidate sites (binary y_j)
+    SITES.forEach(function (s, j) {
+      var open = !!(mask >> j & 1), S = 26;
+      var g = el("g", { "class": "site" + (open ? " open" : "") });
+      g.appendChild(el("rect", { "class": "hit", x: MX(s.x) - 22, y: MY(s.y) - 22, width: 44, height: 44 }));
+      g.appendChild(el("rect", { "class": "box", x: MX(s.x) - S / 2, y: MY(s.y) - S / 2, width: S, height: S, rx: 2 }));
+      g.appendChild(el("text", { "class": "sname", x: MX(s.x), y: MY(s.y), "text-anchor": "middle", "dominant-baseline": "central", "font-size": fs }, siteName(j)));
+      var ly = MY(s.y) + S / 2 + fsS + 1;
+      g.appendChild(el("text", { "class": "sinfo", x: MX(s.x), y: ly, "text-anchor": "middle", "font-size": fsS }, money(state.mult * s.f)));
+      g.appendChild(el("text", { "class": "sinfo", x: MX(s.x), y: ly + fsS + 1, "text-anchor": "middle", "font-size": fsS }, t("wh.map.cap", { u: num(s.u) })));
+      g.addEventListener("click", function () { toggleSite(j); });
+      svg.appendChild(g);
+    });
+  }
+
+  // buttons are built once and updated in place, so keyboard focus stays on the pressed one
+  function renderToggles() {
+    var host = $("wh-toggles"), mask = shownMask();
+    if (!host.children.length) {
+      SITES.forEach(function (s, j) {
+        var b = h("button", "tgl");
+        b.type = "button";
+        b.append(h("span"), h("small"));
+        b.addEventListener("click", function () { toggleSite(j); });
+        host.appendChild(b);
+      });
+    }
+    SITES.forEach(function (s, j) {
+      var open = !!(mask >> j & 1), b = host.children[j];
+      b.setAttribute("aria-pressed", open ? "true" : "false");
+      b.setAttribute("aria-label", t("wh.tgl.aria", { w: siteName(j), f: money(state.mult * s.f), u: num(s.u) }));
+      b.children[0].textContent = siteName(j);
+      b.children[1].textContent = t(open ? "wh.st.open" : "wh.st.closed");
+    });
+  }
+
+  function renderShips(x) {
+    var host = $("wh-ships");
+    host.textContent = "";
+    if (!x) return;
+    x.forEach(function (row, i) {
+      var parts = [];
+      row.forEach(function (v, j) { if (v > 1e-6) parts.push(t("wh.ship.part", { q: num(v, 1), w: siteName(j) })); });
+      var d = h("div", "ship" + (parts.length > 1 ? " split" : ""));
+      var b = h("b", null, cityName(i));
+      d.append(b, document.createTextNode(" " + t("wh.ship.sep") + " " + parts.join(" + ")));
+      host.appendChild(d);
+    });
+  }
+
+  function liveMap() {
+    var mask = shownMask(), set = SETS[mask], box = $("wh-live");
+    box.classList.remove("bad");
+    if (!set) { box.innerHTML = t("wh.live.none", { D: num(DEMAND) }); box.classList.add("bad"); return; }
+    if (!set.feasible) {
+      box.innerHTML = t("wh.live.infeasible", { cap: num(set.cap), D: num(DEMAND) });
+      box.classList.add("bad");
+      return;
+    }
+    var html = t(state.view === "opt" && state.revealed ? "wh.live.opt" : "wh.live.ok", {
+      set: setName(mask), n: num(NI * set.k), units: num(DEMAND), t: money(set.T)
+    });
+    var sp = splitsOf(set.x), l = loads(set.x);
+    if (sp.length) {
+      var s0 = sp[0];
+      var parts = s0.src.map(function (j) { return t("wh.live.part", { q: num(set.x[s0.i][j], 1), w: siteName(j) }); });
+      var full = s0.src.filter(function (j) { return l[j] >= SITES[j].u - 1e-6; });
+      html += " " + t(full.length ? "wh.live.split" : "wh.live.split2", {
+        c: cityName(s0.i), parts: parts.join(t("wh.live.and")), w: full.length ? siteName(full[0]) : "", u: full.length ? num(SITES[full[0]].u) : ""
+      });
+      if (sp.length > 1) html += " " + t("wh.live.splitmore", { n: num(sp.length) });
+    } else {
+      html += " " + t("wh.live.nosplit");
+    }
+    box.innerHTML = html;
+  }
+
+  // ---- cost panel ----
+  function renderCost() {
+    var mask = shownMask(), set = SETS[mask], m = state.mult;
+    var isOpt = state.view === "opt" && state.revealed;
+    $("wh-map-kicker").textContent = t(isOpt ? "wh.map.kickerOpt" : "wh.map.kicker");
+    $("wh-cost-kicker").textContent = t(isOpt ? "wh.cost.kickerOpt" : "wh.cost.kicker");
+    var F = set ? m * set.F : 0;
+    var feas = set && set.feasible;
+    var T = feas ? set.T : 0;
+    $("wh-fixed").textContent = money(F);
+    $("wh-trans").textContent = feas ? money(T) : t("wh.cost.na");
+    var tot = $("wh-total");
+    tot.textContent = "";
+    if (feas) {
+      tot.append(document.createTextNode(money(F + T) + " "), h("small", null, t("wh.perweek")));
+    } else {
+      tot.append(document.createTextNode(t("wh.cost.infeasible")));
+    }
+    var stack = $("wh-stack").children;
+    var sum = feas ? F + T : 1;
+    stack[0].style.width = feas ? (100 * F / sum) + "%" : "0%";
+    stack[1].style.width = feas ? (100 * T / sum) + "%" : "0%";
+
+    var st = $("wh-status");
+    var cap = set ? set.cap : 0;
+    st.textContent = t(feas ? "wh.status.ok" : "wh.status.bad", { cap: num(cap), D: num(DEMAND) });
+    st.className = "status" + (feas ? "" : " bad");
+
+    var caps = $("wh-caps"), l = loads(feas ? set.x : null);
+    caps.textContent = "";
+    caps.appendChild(h("span", "flabel", t("wh.cap.title")));
+    SITES.forEach(function (s, j) {
+      var open = !!(mask >> j & 1);
+      var row = h("div", "caprow" + (open ? "" : " off") + (open && feas && l[j] >= s.u - 1e-6 ? " full" : ""));
+      var tr = h("div", "captrack"), fill = h("div", "capfill");
+      fill.style.width = (open && feas ? 100 * l[j] / s.u : 0) + "%";
+      tr.appendChild(fill);
+      var val = !open ? t("wh.cap.closed") : feas ? t("wh.cap.val", { used: num(l[j], 1), u: num(s.u) }) : t("wh.cap.valNa", { u: num(s.u) });
+      if (open && feas && l[j] >= s.u - 1e-6) val += " " + t("wh.cap.full");
+      row.append(h("span", "nm", siteName(j)), tr, h("span", "cv", val));
+      caps.appendChild(row);
+    });
+
+    // comparison with the optimum
+    var cmp = $("wh-cmp");
+    var best = optAt(m), mine = SETS[state.mask];
+    if (!state.revealed) { cmp.innerHTML = t("wh.cmp.hidden"); }
+    else if (!mine || !mine.feasible) { cmp.innerHTML = t("wh.cmp.infeasible", { best: money(best.total) }); }
+    else {
+      var myTot = m * mine.F + mine.T, gap = 100 * (myTot - best.total) / best.total;
+      if (gap < 1e-9) cmp.innerHTML = t("wh.cmp.opt", { best: money(best.total) });
+      else cmp.innerHTML = t("wh.cmp.gap", { mine: money(myTot), best: money(best.total), diff: money(myTot - best.total), pct: pct(gap) }) +
+        (gap <= 2 ? " " + t("wh.cmp.close") : "");
+    }
+    $("wh-solve").textContent = t(state.revealed ? "wh.btn.hide" : "wh.btn.optimum");
+    $("wh-solve").setAttribute("aria-expanded", state.revealed ? "true" : "false");
+    $("wh-viewrow").hidden = !state.revealed;
+    $("wh-view-plan").setAttribute("aria-pressed", state.view === "plan" ? "true" : "false");
+    $("wh-view-opt").setAttribute("aria-pressed", state.view === "opt" ? "true" : "false");
+    renderShips(feas ? set.x : null);
+  }
+
+  // ---- ranking ----
+  function renderRank() {
+    var card = $("wh-rank");
+    card.hidden = !state.revealed;
+    if (!state.revealed) return;
+    var m = state.mult, list = ranked(m), best = list[0];
+    $("wh-rank-title").textContent = t("wh.rank.title", { m: mfmt(m) });
+    $("wh-rank-lead").innerHTML = t("wh.rank.lead", { nf: num(FEAS.length), ni: num(31 - FEAS.length) });
+    var body = $("wh-rank-body");
+    body.textContent = "";
+    var maxTot = list[4] ? list[4].total : best.total;
+    list.slice(0, 5).forEach(function (r, idx) {
+      var tr = h("tr", idx === 0 ? "best" : "");
+      var tdSet = h("td", "set", setName(r.s.mask));
+      if (r.s.mask === state.mask) tdSet.appendChild(h("span", "mine", t("wh.rank.mine")));
+      var mini = h("div", "mini"), f = h("span", "f"), trn = h("span", "tr");
+      f.style.width = (100 * m * r.s.F / maxTot) + "%";
+      trn.style.width = (100 * r.s.T / maxTot) + "%";
+      mini.append(f, trn);
+      var tdMini = h("td", "mixcol"); tdMini.appendChild(mini);
+      tr.append(
+        h("td", null, num(idx + 1)), tdSet,
+        h("td", "num", money(m * r.s.F)), h("td", "num", money(r.s.T)), h("td", "num", money(r.total)),
+        h("td", "num", idx === 0 ? t("wh.rank.best") : t("wh.rank.plus", { p: pct(100 * (r.total - best.total) / best.total) })),
+        tdMini
+      );
+      body.appendChild(tr);
+    });
+    // is the optimum the cheapest in either column?
+    var minF = FEAS.reduce(function (a, s) { return s.F < a.F ? s : a; });
+    var minT = FEAS.reduce(function (a, s) { return s.T < a.T ? s : a; });
+    var key = best.s === minT ? "wh.rank.noteT" : best.s === minF ? "wh.rank.noteF" : "wh.rank.note";
+    $("wh-rank-note").innerHTML = t(key, {
+      setF: setName(minF.mask), f: money(m * minF.F), totF: money(m * minF.F + minF.T),
+      setT: setName(minT.mask), tt: money(minT.T), totT: money(m * minT.F + minT.T),
+      best: money(best.total), setB: setName(best.s.mask)
+    });
+  }
+
+  // ---- fixed-cost level ----
+  function renderLevel() {
+    var m = state.mult, b = optAt(m);
+    $("wh-mult-out").textContent = mfmt(m);
+    $("wh-mult").setAttribute("aria-valuetext", mfmt(m));
+    $("wh-lvl-live").innerHTML = t(state.revealed ? "wh.lvl.liveSet" : "wh.lvl.live", {
+      m: mfmt(m), k: num(b.s.k), set: setName(b.s.mask), f: money(m * b.s.F), t: money(b.s.T), tot: money(b.total)
+    });
+    renderChart();
+  }
+
+  function renderChart() {
+    var svg = $("wh-chart");
+    var W = Math.max(280, Math.round(svg.getBoundingClientRect().width || 480));
+    var H = 304, L = 46, R = 12, fs = 11;
+    var p1 = { top: 24, bot: 110 }, p2 = { top: 146, bot: 272 };
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.textContent = "";
+    var X = function (m) { return L + (m - MMIN) / (MMAX - MMIN) * (W - L - R); };
+    var Y1 = function (k) { return p1.bot - k / 5 * (p1.bot - p1.top); };
+    var maxC = 0;
+    SWEEP.forEach(function (p) { maxC = Math.max(maxC, p.total); });
+    maxC = Math.ceil(maxC / 4000) * 4000;
+    var Y2 = function (v) { return p2.bot - v / maxC * (p2.bot - p2.top); };
+
+    svg.appendChild(el("text", { "class": "ttl", x: 0, y: 12, "font-size": fs + 1 }, t("wh.chart.count")));
+    svg.appendChild(el("text", { "class": "ttl", x: 0, y: p2.top - 14, "font-size": fs + 1 }, t("wh.chart.cost")));
+    [1, 2, 3, 4, 5].forEach(function (k) {
+      svg.appendChild(el("line", { "class": "gl", x1: L, x2: W - R, y1: Y1(k), y2: Y1(k) }));
+      svg.appendChild(el("text", { "class": "tick", x: L - 6, y: Y1(k) + 4, "text-anchor": "end", "font-size": fs - 1 }, num(k)));
+    });
+    for (var v = 0; v <= maxC; v += maxC / 4) {
+      svg.appendChild(el("line", { "class": v ? "gl" : "ax", x1: L, x2: W - R, y1: Y2(v), y2: Y2(v) }));
+      svg.appendChild(el("text", { "class": "tick", x: L - 6, y: Y2(v) + 4, "text-anchor": "end", "font-size": fs - 1 }, (v ? num(v / 1000) + t("wh.chart.k") : "0")));
+    }
+    svg.appendChild(el("line", { "class": "ax", x1: L, x2: W - R, y1: p1.bot, y2: p1.bot }));
+    [0.25, 1, 2, 3].concat(W > 360 ? [0.5, 1.5, 2.5] : []).forEach(function (m) {
+      svg.appendChild(el("text", { "class": "tick", x: X(m), y: p2.bot + 16, "text-anchor": "middle", "font-size": fs - 1 }, t("wh.lvl.value", { m: I18N.fmt(m, 2) })));
+      svg.appendChild(el("line", { "class": "gl", x1: X(m), x2: X(m), y1: p2.bot, y2: p2.bot + 4 }));
+    });
+    svg.appendChild(el("text", { "class": "tick", x: W - R, y: H - 2, "text-anchor": "end", "font-size": fs - 1 }, t("wh.chart.x")));
+
+    // step line for the number of open warehouses (integer)
+    var dk = "", area = "";
+    SWEEP.forEach(function (p, i) {
+      var xs = X(p.m), ys = Y1(p.s.k);
+      if (!i) { dk = "M" + xs + " " + ys; area = "M" + xs + " " + p1.bot + " L" + xs + " " + ys; }
+      else {
+        var prev = SWEEP[i - 1];
+        var mid = X((prev.m + p.m) / 2);
+        dk += " L" + mid + " " + Y1(prev.s.k) + " L" + mid + " " + ys + " L" + xs + " " + ys;
+        area += " L" + mid + " " + Y1(prev.s.k) + " L" + mid + " " + ys + " L" + xs + " " + ys;
+      }
+    });
+    area += " L" + X(MMAX) + " " + p1.bot + " Z";
+    svg.appendChild(el("path", { "class": "kfill", d: area }));
+    svg.appendChild(el("path", { "class": "kline", d: dk }));
+
+    function line(fn, cls) {
+      var d = "";
+      SWEEP.forEach(function (p, i) { d += (i ? " L" : "M") + X(p.m).toFixed(1) + " " + Y2(fn(p)).toFixed(1); });
+      svg.appendChild(el("path", { "class": cls, d: d }));
+    }
+    line(function (p) { return p.total; }, "totline");
+    line(function (p) { return p.s.T; }, "tline");
+    line(function (p) { return p.m * p.s.F; }, "fline");
+
+    // current level marker
+    var m = state.mult, b = optAt(m), xm = X(m);
+    svg.appendChild(el("line", { "class": "marker", x1: xm, x2: xm, y1: p1.top - 4, y2: p2.bot }));
+    svg.appendChild(el("circle", { "class": "dotf", cx: xm, cy: Y1(b.s.k), r: 4.5 }));
+    svg.appendChild(el("circle", { "class": "dotf", cx: xm, cy: Y2(m * b.s.F), r: 4.5 }));
+    svg.appendChild(el("circle", { "class": "dott", cx: xm, cy: Y2(b.s.T), r: 4.5 }));
+    var right = xm > W - 90;
+    svg.appendChild(el("text", { "class": "mlab", x: xm + (right ? -7 : 7), y: Y1(b.s.k) - 7, "text-anchor": right ? "end" : "start", "font-size": fs }, t("wh.chart.open", { k: num(b.s.k) })));
+    svg.appendChild(el("text", { "class": "mlab", x: xm + (right ? -7 : 7), y: p2.top + 2, "text-anchor": right ? "end" : "start", "font-size": fs }, mfmt(m)));
+    svg._X = X; svg._L = L; svg._W = W; svg._R = R;
+  }
+
+  // ---- LP relaxation ----
+  function renderLP() {
+    var m = state.mult, strong = state.strong, best = optAt(m);
+    var r = relaxAt(strong, m), other = relaxAt(!strong, m);
+    var weak = strong ? other : r, str = strong ? r : other;
+    $("wh-form-weak").setAttribute("aria-pressed", strong ? "false" : "true");
+    $("wh-form-strong").setAttribute("aria-pressed", strong ? "true" : "false");
+    $("wh-form-eq").innerHTML = t(strong ? "wh.lp.eqStrong" : "wh.lp.eqWeak");
+
+    var g = $("wh-ygrid");
+    g.textContent = "";
+    g.appendChild(h("span", "rl"));
+    SITES.forEach(function (s, j) { g.appendChild(h("span", "hd", siteName(j))); });
+    g.appendChild(h("span", "rl", t("wh.lp.yrow")));
+    r.y.forEach(function (y) {
+      var cell = h("div", "ycell"), bx = h("div", "ybox"), f = h("div", "yf");
+      f.style.height = (100 * y) + "%";
+      bx.appendChild(f);
+      var frac = y > 1e-6 && y < 1 - 1e-6;
+      cell.append(bx, h("span", "yv" + (frac ? " frac" : ""), num(y, 2)));
+      g.appendChild(cell);
+    });
+    g.appendChild(h("span", "rl", t("wh.lp.optrow")));
+    SITES.forEach(function (s, j) {
+      var cell = h("div", "ycell"), bx = h("div", "ybox sm");
+      if (state.revealed) {
+        var y = best.s.mask >> j & 1, f = h("div", "yf");
+        f.style.height = (100 * y) + "%";
+        bx.appendChild(f);
+        cell.append(bx, h("span", "yv", num(y)));
+      } else {
+        bx.className = "ybox sm q"; bx.textContent = "?";
+        cell.append(bx, h("span", "yv", "?"));
+      }
+      g.appendChild(cell);
+    });
+
+    var host = $("wh-bounds");
+    host.textContent = "";
+    var maxV = best.total;
+    [["weak", weak.z, "wh.lp.bWeak"], ["strong", str.z, "wh.lp.bStrong"], ["milp", best.total, "wh.lp.bMilp"]].forEach(function (row) {
+      var on = row[0] === (strong ? "strong" : "weak");
+      var d = h("div", "brow" + (on ? " on" : "") + (row[0] === "milp" ? " milp" : ""));
+      var track = h("div", "btrack"), fill = h("div", "bfill");
+      fill.style.width = (100 * row[1] / maxV) + "%";
+      track.append(fill, h("span", "bval", money(row[1])));
+      d.append(h("span", "bl", t(row[2])), track);
+      host.appendChild(d);
+    });
+    var gap = 100 * (best.total - r.z) / best.total;
+    $("wh-gapline").innerHTML = t("wh.lp.gap", { p: pct(Math.max(0, gap)) });
+
+    // live explanation
+    var l = loads(r.x), live = $("wh-lp-live");
+    var fr = [];
+    r.y.forEach(function (y, j) { if (y > 1e-6 && y < 1 - 1e-6) fr.push(j); });
+    if (!strong) {
+      if (fr.length) {
+        var jw = fr.reduce(function (a, j) { return r.y[j] > r.y[a] ? j : a; });
+        live.innerHTML = t("wh.lp.liveWeak", {
+          w: siteName(jw), p: num(100 * r.y[jw], 1), y: num(r.y[jw], 3), q: num(l[jw], 1), u: num(SITES[jw].u),
+          paid: money(m * SITES[jw].f * r.y[jw]), full: money(m * SITES[jw].f)
+        });
+      } else live.innerHTML = t("wh.lp.liveInt");
+    } else {
+      if (fr.length) {
+        var js = fr.reduce(function (a, j) { return r.y[j] > r.y[a] ? j : a; });
+        var ib = 0;
+        for (var i = 1; i < NI; i++) if (r.x[i][js] / CITIES[i].d > r.x[ib][js] / CITIES[ib].d) ib = i;
+        var byCity = r.x[ib][js] / CITIES[ib].d >= l[js] / SITES[js].u - 1e-6;
+        live.innerHTML = t(byCity ? "wh.lp.liveStrong" : "wh.lp.liveStrongCap", {
+          w: siteName(js), y: num(r.y[js], 2), q: num(r.x[ib][js], 1), d: num(CITIES[ib].d), c: cityName(ib),
+          load: num(l[js], 1), u: num(SITES[js].u)
+        });
+      } else live.innerHTML = t("wh.lp.liveStrongInt");
+    }
+    $("wh-lp-live2").innerHTML = t("wh.lp.compare", {
+      weak: money(weak.z), strong: money(str.z), best: money(best.total),
+      pw: pct(100 * (best.total - weak.z) / best.total), ps: pct(Math.max(0, 100 * (best.total - str.z) / best.total))
+    });
+  }
+
+  // ---- model data table ----
+  function renderCostMatrix() {
+    $("wh-d1p2").innerHTML = t("wh.d1.p2", { D: num(DEMAND) });
+    var tb = $("wh-cm");
+    tb.textContent = "";
+    var head = h("tr");
+    head.appendChild(h("th", null, t("wh.cm.corner")));
+    SITES.forEach(function (s, j) { head.appendChild(h("th", "w", siteName(j))); });
+    head.appendChild(h("th", null, t("wh.cm.d")));
+    tb.appendChild(head);
+    CITIES.forEach(function (c, i) {
+      var tr = h("tr");
+      tr.appendChild(h("th", null, cityName(i)));
+      COST[i].forEach(function (v) { tr.appendChild(h("td", null, num(v))); });
+      tr.appendChild(h("td", null, num(c.d)));
+      tb.appendChild(tr);
+    });
+    [["wh.cm.f", "f"], ["wh.cm.u", "u"]].forEach(function (row) {
+      var tr = h("tr");
+      tr.appendChild(h("th", null, t(row[0])));
+      SITES.forEach(function (s) { tr.appendChild(h("td", null, num(s[row[1]]))); });
+      tr.appendChild(h("td", null, row[1] === "u" ? t("wh.cm.total", { D: num(DEMAND) }) : ""));
+      tb.appendChild(tr);
+    });
+  }
+
+  function render() {
+    renderMap();
+    renderToggles();
+    liveMap();
+    renderCost();
+    renderRank();
+    renderLevel();
+    renderLP();
+    renderCostMatrix();
+  }
+
+  // ---- actions ----
+  function toggleSite(j) {
+    if (state.view === "opt") state.view = "plan";
+    state.mask ^= 1 << j;
+    render();
+  }
+  $("wh-all").addEventListener("click", function () { state.mask = 31; state.view = "plan"; render(); });
+  $("wh-none").addEventListener("click", function () { state.mask = 0; state.view = "plan"; render(); });
+  $("wh-solve").addEventListener("click", function () {
+    state.revealed = !state.revealed;
+    state.view = state.revealed ? "opt" : "plan";
+    render();
+  });
+  $("wh-view-plan").addEventListener("click", function () { state.view = "plan"; render(); });
+  $("wh-view-opt").addEventListener("click", function () { state.view = "opt"; render(); });
+  $("wh-form-weak").addEventListener("click", function () { state.strong = false; renderLP(); });
+  $("wh-form-strong").addEventListener("click", function () { state.strong = true; renderLP(); });
+
+  var slider = $("wh-mult");
+  function setMult(v) {
+    v = Math.min(MMAX, Math.max(MMIN, Math.round(v * 100) / 100));
+    state.mult = v;
+    slider.value = v;
+    render();
+  }
+  slider.addEventListener("input", function () { setMult(+slider.value); });
+  // click or drag on the chart moves the level
+  var chart = $("wh-chart"), dragging = false;
+  function chartPick(e) {
+    var rect = chart.getBoundingClientRect(), W = chart._W || rect.width;
+    var px = (e.clientX - rect.left) * W / rect.width;
+    var m = MMIN + (px - chart._L) / (W - chart._L - chart._R) * (MMAX - MMIN);
+    setMult(m);
+  }
+  chart.addEventListener("pointerdown", function (e) { dragging = true; chartPick(e); });
+  window.addEventListener("pointermove", function (e) { if (dragging) chartPick(e); });
+  window.addEventListener("pointerup", function () { dragging = false; });
+
+  var rt = null;
+  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { renderMap(); renderChart(); }, 120); });
+
+  // test hook for automated checks (read-only)
+  window.__wh = { SETS: SETS, ranked: ranked, relaxAt: relaxAt, state: state, COST: COST };
+
+  I18N.onChange(render);
+})();
+</script>
+</body>
+</html>

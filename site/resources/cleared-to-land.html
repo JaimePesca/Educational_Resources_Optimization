@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en" data-title-key="land.title" data-i18n-bundles="resources/milp-runway">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Cleared to Land</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* animation section */
+  #anim-section .anim-legend i.tick { width: 2px; height: 11px; background: var(--mit-silver); }
+  #anim-section .anim-legend i.line { height: 0; width: 16px; border-top: 2px solid var(--mit-bright); }
+  #anim-section .anim-legend i.ring { background: none; border: 2px solid var(--accent); border-radius: 50%; width: 11px; height: 11px; }
+  #anim-section .anim-legend i.hold { background: none; border: 1.5px dashed var(--mit-bright); border-radius: 50%; width: 11px; height: 11px; }
+  #anim-section .chip-stat { min-width: 70px; }
+  @media (max-width: 620px) {
+    #anim-section .anim-hud { flex-wrap: nowrap; gap: 5px; top: 8px; left: 8px; width: calc(100% - 16px); max-width: calc(100% - 16px); }
+    #anim-section .anim-hud .chip-stat { min-width: 0; flex: 1 1 0; padding: 4px 6px; font-size: 10px; line-height: 1.2; }
+    #anim-section .anim-hud .chip-stat b { font-size: 15px; }
+  }
+
+  /* try your own order */
+  .try-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; margin: 0 0 12px; }
+  .try-intro { margin: 0 0 12px; color: var(--ink2); max-width: 78ch; font-size: 14.5px; }
+  .btnrow { display: flex; flex-wrap: wrap; gap: 8px; }
+  button.btn {
+    font: 600 13.5px var(--font-sans); min-height: 36px; padding: 7px 12px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 2px;
+  }
+  button.btn:hover { background: var(--surface2); }
+  button.btn.primary { background: var(--accent); color: var(--on-solid); border-color: var(--accent); }
+  button.btn.primary:hover { filter: brightness(1.08); }
+  .try-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .try-side { position: sticky; top: 70px; display: grid; gap: 12px; }
+  @media (max-width: 860px) { .try-grid { grid-template-columns: minmax(0, 1fr); } .try-side { position: static; order: -1; } }
+
+  .seq { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .seq li {
+    display: grid; grid-template-columns: 22px 28px minmax(0, 1fr) auto auto; gap: 2px 8px; align-items: center;
+    padding: 4px 6px 4px 8px; border: 1px solid var(--border); border-left: 3px solid var(--border);
+    border-radius: 2px; background: var(--surface); font-size: 13.5px;
+  }
+  .seq li.moved { border-left-color: var(--accent); }
+  .seq li.late { background: var(--sel); }
+  .seq .pos { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+  .seq .gl { display: flex; justify-content: center; }
+  .seq .gl svg { display: block; fill: var(--ink); }
+  .seq .who b { font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+  .seq .who .tag { font-size: 12px; color: var(--muted); margin-left: 6px; white-space: nowrap; }
+  .seq .tm { display: block; font-size: 12px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+  .seq .tm .late-msg { color: var(--crit); font-weight: 600; }
+  .seq .dl { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; text-align: right; min-width: 52px; font-variant-numeric: tabular-nums; }
+  .seq .dl.pos0 { color: var(--muted); font-weight: 400; }
+  .seq .dl.neg { color: var(--crit); }
+  .seq .mv { display: inline-flex; gap: 4px; }
+  .seq .mv button {
+    width: 36px; height: 34px; font: 700 13px var(--font-sans); cursor: pointer; border-radius: 2px;
+    border: 1px solid var(--border); background: var(--surface2); color: var(--ink);
+  }
+  .seq .mv button:hover:not(:disabled) { background: var(--sel); border-color: var(--accent); }
+  .seq .mv button:disabled { opacity: 0.35; cursor: default; }
+
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .tiles .stat { padding: 10px 11px; }
+  .tiles .stat .v { font-size: 24px; }
+  .tiles .stat.you .v { color: var(--ink); }
+  .tiles .stat.opt .v { color: var(--accent-text); }
+  .tiles .stat .l { font-size: 12.5px; }
+  .verdict { padding: 10px 12px; border-radius: 3px; border: 1px solid var(--border); background: var(--surface2); font-size: 14px; color: var(--ink2); }
+  .verdict b { color: var(--ink); }
+  .verdict.best { border-color: var(--accent); }
+  .verdict.bad { border-color: var(--crit); }
+  .flips { font-size: 13px; color: var(--ink2); margin: 0; }
+  .flips b { color: var(--accent-text); font-variant-numeric: tabular-nums; }
+  .gantt { display: block; width: 100%; height: auto; }
+  .glegend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink2); }
+  .glegend span { display: inline-flex; align-items: center; gap: 6px; }
+  .glegend i { width: 10px; height: 10px; display: inline-block; }
+  .glegend i.line { height: 0; width: 14px; border-top: 2px solid var(--mit-bright); }
+
+  @media (max-width: 560px) {
+    .seq li { grid-template-columns: 18px 22px minmax(0, 1fr) auto; padding: 4px 4px 4px 6px; gap: 2px 6px; }
+    .seq .dl { grid-column: 3; grid-row: 2; text-align: left; min-width: 0; }
+    .seq .mv { grid-column: 4; grid-row: 1 / span 2; }
+    .seq .who .tag { margin-left: 4px; }
+    .tiles .stat .v { font-size: 20px; }
+  }
+
+  /* model section */
+  .vars { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); margin: 6px 0 10px; }
+  .vars li { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .type {
+    display: inline-block; font: 600 10.5px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 1px 6px; border-radius: 2px; border: 1px solid currentColor;
+  }
+  .type.bin { color: var(--accent-text); }
+  .type.cont { color: var(--ink2); }
+  .sepwrap table.data { min-width: 0; width: auto; }
+  .sepwrap td, .sepwrap th { text-align: center; }
+  .sepwrap td:first-child, .sepwrap th:first-child { text-align: left; }
+  .sepwrap caption { caption-side: top; text-align: left; font-size: 12.5px; color: var(--muted); padding-bottom: 4px; }
+  details .body ul { margin: 0 0 9px; padding-left: 20px; }
+  details .body li { margin-bottom: 5px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="land.eyebrow"></p>
+    <h1 data-i18n="land.title"></h1>
+    <p class="lede" data-i18n-html="land.lede"></p>
+  </header>
+
+  <section class="block" id="anim-section">
+    <h2 class="section-title" data-i18n="land.anim.h"></h2>
+    <p class="section-intro" data-i18n-html="land.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="land-anim-lab" data-i18n="land.anim.ctl"></span>
+      <div class="seg" id="land-seg" role="group" aria-labelledby="land-anim-lab">
+        <button type="button" data-scen="calm" aria-pressed="false" data-i18n="land.scen.calm"></button>
+        <button type="button" data-scen="busy" aria-pressed="true" data-i18n="land.scen.busy"></button>
+        <button type="button" data-scen="peak" aria-pressed="false" data-i18n="land.scen.peak"></button>
+      </div>
+    </div>
+    <div class="anim" id="anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:land.anim.aria">
+        <div class="anim-hud">
+          <div class="chip-stat" id="land-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="land-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="land-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="land-c3"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i style="background:var(--ink)"></i><span data-i18n="land.lg.fcfs"></span></span>
+      <span><i style="background:var(--accent)"></i><span data-i18n="land.lg.opt"></span></span>
+      <span><i class="tick"></i><span data-i18n="land.lg.target"></span></span>
+      <span><i class="line"></i><span data-i18n="land.lg.delay"></span></span>
+      <span><i class="hold"></i><span data-i18n="land.lg.hold"></span></span>
+      <span><i class="ring"></i><span data-i18n="land.lg.moved"></span></span>
+    </div>
+  </section>
+
+  <div class="card" id="try">
+    <h2><span class="kicker" data-i18n="land.try.kicker"></span><span data-i18n="land.try.title"></span></h2>
+    <p class="try-intro" data-i18n-html="land.try.intro"></p>
+    <div class="try-head">
+      <div class="seg" id="land-seg2" role="group" data-i18n-attr="aria-label:land.anim.ctl">
+        <button type="button" data-scen="calm" aria-pressed="false" data-i18n="land.scen.calm"></button>
+        <button type="button" data-scen="busy" aria-pressed="true" data-i18n="land.scen.busy"></button>
+        <button type="button" data-scen="peak" aria-pressed="false" data-i18n="land.scen.peak"></button>
+      </div>
+      <div class="btnrow">
+        <button type="button" class="btn" id="land-reset" data-i18n="land.try.reset"></button>
+        <button type="button" class="btn primary" id="land-best" data-i18n="land.try.best"></button>
+      </div>
+    </div>
+    <div class="try-grid">
+      <ol class="seq" id="land-seq" data-i18n-attr="aria-label:land.try.listAria"></ol>
+      <div class="try-side">
+        <div class="tiles">
+          <div class="stat you"><div class="v" id="land-v-you"></div><div class="l" data-i18n="land.try.st.you"></div></div>
+          <div class="stat"><div class="v" id="land-v-fcfs"></div><div class="l" data-i18n="land.try.st.fcfs"></div></div>
+          <div class="stat opt"><div class="v" id="land-v-opt"></div><div class="l" data-i18n="land.try.st.opt"></div></div>
+        </div>
+        <p class="note" data-i18n="land.try.st.unit"></p>
+        <div class="verdict" id="land-verdict" aria-live="polite"></div>
+        <p class="flips" id="land-flips"></p>
+        <p class="note" data-i18n="land.try.movedNote"></p>
+        <svg class="gantt" id="land-gantt" role="img"></svg>
+        <div class="glegend">
+          <span><i style="background:var(--ink)"></i><span data-i18n="land.try.g.you"></span></span>
+          <span><i style="background:var(--mit-silver)"></i><span data-i18n="land.try.g.fcfs"></span></span>
+          <span><i style="background:var(--accent)"></i><span data-i18n="land.try.g.opt"></span></span>
+          <span><i class="line"></i><span data-i18n="land.lg.delay"></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <details>
+      <summary data-i18n="land.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="land.d1.p1"></p>
+        <ul class="vars">
+          <li><span class="sym" data-i18n-html="land.d1.v.delta"></span><span class="type bin" data-i18n="land.type.binary"></span></li>
+          <li><span class="sym" data-i18n-html="land.d1.v.t"></span><span class="type cont" data-i18n="land.type.continuous"></span></li>
+          <li><span class="sym" data-i18n-html="land.d1.v.d"></span><span class="type cont" data-i18n="land.type.continuous"></span></li>
+        </ul>
+        <div class="formula" data-i18n-html="land.d1.formula"></div>
+        <p data-i18n-html="land.d1.p2"></p>
+        <div class="tblwrap sepwrap">
+          <table class="data">
+            <caption data-i18n="land.sep.caption"></caption>
+            <thead><tr><th data-i18n="land.sep.corner"></th><th data-i18n="land.cat.H"></th><th data-i18n="land.cat.M"></th><th data-i18n="land.cat.L"></th></tr></thead>
+            <tbody>
+              <tr><th data-i18n="land.cat.H"></th><td>2</td><td>3</td><td>4</td></tr>
+              <tr><th data-i18n="land.cat.M"></th><td>2</td><td>2</td><td>3</td></tr>
+              <tr><th data-i18n="land.cat.L"></th><td>2</td><td>2</td><td>2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p data-i18n-html="land.d1.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="land.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="land.d2.p1"></p>
+        <p data-i18n-html="land.d2.p2"></p>
+        <p data-i18n-html="land.d2.p3"></p>
+        <p data-i18n-html="land.d2.p4"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="land.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="land.d3.p1"></p>
+        <p data-i18n-html="land.d3.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="land.d4.title"></summary>
+      <div class="body">
+        <ul>
+          <li data-i18n-html="land.d4.c1"></li>
+          <li data-i18n-html="land.d4.c2"></li>
+          <li data-i18n-html="land.d4.c3"></li>
+          <li data-i18n-html="land.d4.c4"></li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="land.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var tr = function (k, v) { return I18N.t(k, v); };
+  function fmt(v, d) { d = d || 0; return I18N.fmt(v, d, d); }
+
+  /* Illustrative instances. Times are minutes after 18:00. Separations S[leader][follower] in minutes,
+     weights per category, windows [T, T + dmax]. FCFS lands in target order at the earliest time that keeps
+     the gap to every earlier flight. The optimal orders were solved offline with scipy.optimize.milp
+     (HiGHS, proven optimal, gap 0) and checked with an exact dynamic program (and brute force for 8 flights). */
+  var DATA = {"sep":{"H":{"H":2,"M":3,"L":4},"M":{"H":2,"M":2,"L":3},"L":{"H":2,"M":2,"L":2}},"w":{"H":3,"M":2,"L":1},"dmax":25,"scen":{"calm":{"fl":[["K806","H",4],["Q595","M",7],["T319","M",9],["Z400","H",10],["Z386","H",11],["N450","L",12],["R820","M",13],["R181","H",13]],"fcfs":{"t":[4,7,9,11,13,17,19,21],"cost":50},"opt":{"order":[0,1,2,3,4,7,6,5],"t":[4,7,9,11,13,21,18,15],"cost":34}},"busy":{"fl":[["Z435","L",5],["R811","M",7],["T782","L",8],["T642","H",9],["Z217","H",9],["T423","M",12],["T882","L",13],["N979","M",14],["R735","L",15],["K244","L",16],["K889","L",17],["R245","H",20]],"fcfs":{"t":[5,7,10,12,14,17,20,22,25,27,29,31],"cost":125},"opt":{"order":[0,1,3,4,5,7,2,11,6,8,9,10],"t":[5,7,19,9,11,14,25,16,27,29,31,21],"cost":79}},"peak":{"fl":[["N405","M",4],["R417","M",4],["R448","L",5],["Q204","H",6],["Q266","L",6],["Q778","M",7],["N168","M",8],["Z453","M",13],["N102","H",14],["Z514","M",16],["T178","L",16],["N130","M",22],["T830","M",25],["N285","L",27],["K829","L",29],["Z341","M",29]],"fcfs":{"t":[4,6,9,11,15,17,19,21,23,26,29,31,33,36,38,40],"cost":224},"opt":{"order":[0,1,5,6,3,8,7,9,2,4,11,12,15,10,13,14],"t":[4,6,22,12,24,8,10,17,14,19,33,26,28,35,37,30],"cost":126}}}};
+  var SEP = DATA.sep, WT = DATA.w, DMAX = DATA.dmax;
+
+  /* shared: the landing time of every flight for a given order (earliest time that respects the
+     target and the gap to every flight already landed) */
+  function schedule(fl, order) {
+    var t = new Array(fl.length), done = [], cost = 0, late = 0;
+    order.forEach(function (i) {
+      var x = fl[i].T;
+      done.forEach(function (j) { x = Math.max(x, t[j] + SEP[fl[j].c][fl[i].c]); });
+      t[i] = x;
+      done.push(i);
+      cost += WT[fl[i].c] * (x - fl[i].T);
+      if (x - fl[i].T > DMAX) late++;
+    });
+    return { t: t, cost: cost, late: late };
+  }
+  function clock(m) {
+    var h = 18 + Math.floor(m / 60), mm = ((m % 60) + 60) % 60;
+    return h + ":" + (mm < 10 ? "0" : "") + mm;
+  }
+  var SCEN = {};
+  Object.keys(DATA.scen).forEach(function (k) {
+    var s = DATA.scen[k];
+    var fl = s.fl.map(function (r, i) { return { id: r[0], c: r[1], T: r[2], i: i }; });
+    var fcfsOrder = fl.map(function (f, i) { return i; });
+    var fc = schedule(fl, fcfsOrder), op = schedule(fl, s.opt.order);
+    // the embedded schedules must match what the page computes
+    if (fc.cost !== s.fcfs.cost || op.cost !== s.opt.cost) console.warn("schedule mismatch", k);
+    var posF = {}, posO = {};
+    fcfsOrder.forEach(function (i, k2) { posF[i] = k2; });
+    s.opt.order.forEach(function (i, k2) { posO[i] = k2; });
+    SCEN[k] = {
+      key: k, fl: fl, n: fl.length, fcfs: { order: fcfsOrder, t: s.fcfs.t, cost: s.fcfs.cost },
+      opt: { order: s.opt.order, t: s.opt.t, cost: s.opt.cost },
+      moved: movedSet(s.opt.order, posF),
+      posF: posF, posO: posO
+    };
+  });
+  /* the fewest flights that must leave the first come line and re-enter elsewhere to get the optimal
+     order: everything outside a longest subsequence that keeps its first come order */
+  function movedSet(opt, posF) {
+    var n = opt.length, len = [], prev = [], best = -1, keep = {}, out = [];
+    for (var a = 0; a < n; a++) {
+      len[a] = 1; prev[a] = -1;
+      for (var b = 0; b < a; b++) if (posF[opt[b]] < posF[opt[a]] && len[b] + 1 > len[a]) { len[a] = len[b] + 1; prev[a] = b; }
+      if (best < 0 || len[a] >= len[best]) best = a;
+    }
+    for (var k = best; k >= 0; k = prev[k]) keep[opt[k]] = true;
+    for (var i = 0; i < n; i++) out.push(!keep[i]);
+    return out;
+  }
+  var state = { scen: "busy" };
+  var listeners = [];
+  function setScen(k) {
+    state.scen = k;
+    document.querySelectorAll("#land-seg button, #land-seg2 button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.scen === k));
+    });
+    listeners.forEach(function (fn) { fn(k); });
+  }
+  document.querySelectorAll("#land-seg button, #land-seg2 button").forEach(function (b) {
+    b.addEventListener("click", function () { if (state.scen !== b.dataset.scen) setScen(b.dataset.scen); });
+  });
+  function saved(s) { return Math.round(100 * (1 - s.opt.cost / s.fcfs.cost)); }
+
+  /* =====================================================================================
+     "See it in motion": the animation
+     ===================================================================================== */
+  var A = window.Anim;
+  if (A) (function () {
+    var seg = A.seg, ease = A.ease, lerp = A.lerp, clamp = A.clamp;
+    var P = "land.anim.";
+    var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+    var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+    var TAU = Math.PI * 2;
+    var FIN = 5, ROLL = 1.4, OMEGA = TAU / 9;           // final approach and roll (sim minutes), holding turn rate
+    var T1a = 8.6, T1b = 21.4, T3 = 22, T4 = 30, T2a = 33.6, T2b = 45.4, T5 = 46, DUR = 56;
+    var CATM = { H: 1.3, M: 1, L: 0.72 };
+
+    var root = document.getElementById("anim");
+    var stage = root.querySelector(".anim-stage");
+    var hud = stage.querySelector(".anim-hud");
+    var cv = A.canvas(stage);
+    stage.appendChild(hud);
+    var ctx = cv.ctx;
+    var chips = [0, 1, 2, 3].map(function (i) {
+      var el = document.getElementById("land-c" + i);
+      return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, a: null };
+    });
+    function setChip(i, val, label, op, acc) {
+      var c = chips[i];
+      op = Math.round(op * 20) / 20;
+      if (c.v !== val) { c.b.textContent = val; c.v = val; }
+      if (c.l !== label) { c.s.textContent = label; c.l = label; }
+      if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+      if (c.a !== !!acc) { c.el.classList.toggle("accent", !!acc); c.a = !!acc; }
+    }
+
+    /* ---- per scenario geometry (angles, sim clock range, highlighted pair) ---- */
+    var S = null, ANG = [], c0 = 0, c1 = 0, SPAN = 1, sA = 0, sB = 1, PAIR = null;
+    function prepare() {
+      S = SCEN[state.scen];
+      var fl = S.fl, n = S.n, minT = 1e9, maxT = -1e9, maxL = -1e9;
+      fl.forEach(function (f, i) {
+        minT = Math.min(minT, f.T); maxT = Math.max(maxT, f.T);
+        maxL = Math.max(maxL, S.fcfs.t[i], S.opt.t[i]);
+      });
+      c0 = minT - FIN - 1.5;
+      c1 = maxL + ROLL + 0.4;
+      SPAN = Math.max(1, maxT - FIN - c0);
+      sA = minT - 2; sB = maxL + 2;
+      // inbound directions: a golden-angle spread over the western half, deterministic per scenario
+      var R = A.rng(n * 97 + 13), off = R();
+      ANG = fl.map(function (f, k) {
+        var u = (off + k * 0.618034) % 1;
+        return (100 + 160 * u) * Math.PI / 180;
+      });
+      // the FCFS pair whose wake gap is widest and binding (the follower waits because of it)
+      PAIR = null;
+      var tf = S.fcfs.t, order = S.fcfs.order;
+      for (var k = 1; k < n; k++) {
+        var l = order[k - 1], f = order[k], s = SEP[fl[l].c][fl[f].c];
+        if (tf[f] - tf[l] === s && tf[f] > fl[f].T && (!PAIR || s > PAIR.s)) PAIR = { l: l, f: f, s: s };
+      }
+    }
+
+    /* ---- layout ---- */
+    var G = {};
+    function layout() {
+      var w = cv.w, h = cv.h, wide = w / h > 1.15;
+      G.w = w; G.h = h; G.wide = wide;
+      G.fs = wide ? 12 : 10.5;
+      G.hudH = wide ? 64 : 70;
+      G.stripTop = Math.round(h * (wide ? 0.63 : 0.57));
+      G.mapTop = G.hudH; G.mapBot = G.stripTop - 8;
+      var mapH = G.mapBot - G.mapTop;
+      G.hy = G.mapTop + mapH * 0.5;
+      G.hx = w * (wide ? 0.36 : 0.32);
+      G.rh = Math.max(14, Math.min(wide ? 50 : 28, mapH * (wide ? 0.17 : 0.15)));
+      G.thrX = w * (wide ? 0.58 : 0.6);
+      G.rwEnd = w * (wide ? 0.84 : 0.93);
+      G.rwH = wide ? 11 : 8;
+      G.fafX = G.hx + G.rh + (G.thrX - G.hx - G.rh) * 0.4;
+      G.Rx = G.hx - G.rh - (wide ? 24 : 14);
+      G.Ry = mapH / 2 - G.rh - (wide ? 12 : 8);
+      G.ps = wide ? 9 : 7;
+      G.sx0 = wide ? 18 : 12;
+      G.sx1 = w - (wide ? 70 : 46);
+      var sh = h - G.stripTop - 6;
+      G.rowA = G.stripTop + sh * 0.3;
+      G.rowB = G.stripTop + sh * 0.66;
+      G.axisY = G.stripTop + sh * 0.9;
+      var pw = wide ? Math.min(430, w * 0.44) : w - 24;
+      G.panel = { x: (w - pw) / 2, w: pw, y: G.mapTop + 6, h: mapH - 10 };
+    }
+
+    /* ---- colors ---- */
+    var col = null, colKey = "";
+    function hexRgb(c) {
+      if (c && c[0] === "#") {
+        var hh = c.slice(1);
+        if (hh.length === 3) hh = hh[0] + hh[0] + hh[1] + hh[1] + hh[2] + hh[2];
+        var n = parseInt(hh, 16);
+        return [n >> 16 & 255, n >> 8 & 255, n & 255];
+      }
+      var m = (c || "").match(/[\d.]+/g);
+      return m ? [+m[0], +m[1], +m[2]] : [0, 0, 0];
+    }
+    function palette() {
+      var c = A.colors(), key = c.accent + c.surface + c.ink;
+      if (col && key === colKey) return col;
+      colKey = key;
+      col = { c: c, bright: hexRgb(c["mit-bright"]), silver: hexRgb(c["mit-silver"]), acc: hexRgb(c.accent) };
+      return col;
+    }
+    function rgba(rgb, a) { return "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "," + a + ")"; }
+
+    /* ---- drawing helpers ---- */
+    var PLANE = [[1, 0], [0.62, -0.13], [0.12, -0.13], [-0.22, -0.9], [-0.4, -0.9], [-0.2, -0.13],
+      [-0.66, -0.13], [-0.86, -0.44], [-1, -0.44], [-0.9, 0]];
+    function plane(X, Y, ang, s, fill, alpha) {
+      if (alpha <= 0.01 || s <= 0) return;
+      ctx.save();
+      ctx.translate(X, Y); ctx.rotate(ang); ctx.scale(s, s);
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      for (var i = 0; i < PLANE.length; i++) { if (i) ctx.lineTo(PLANE[i][0], PLANE[i][1]); else ctx.moveTo(PLANE[i][0], PLANE[i][1]); }
+      for (var j = PLANE.length - 2; j > 0; j--) ctx.lineTo(PLANE[j][0], -PLANE[j][1]);
+      ctx.closePath();
+      ctx.fillStyle = fill; ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    }
+    function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+    function text(txt, X, Y, align, color, alpha, font, halo) {
+      if (alpha <= 0.01) return;
+      ctx.globalAlpha = alpha;
+      ctx.font = font; ctx.textAlign = align; ctx.textBaseline = "middle";
+      if (halo !== false) {
+        ctx.lineJoin = "round"; ctx.lineWidth = 3.5; ctx.strokeStyle = col.c.surface;
+        ctx.strokeText(txt, X, Y);
+      }
+      ctx.fillStyle = color; ctx.fillText(txt, X, Y);
+      ctx.globalAlpha = 1;
+    }
+    function F(w, px) { return w + " " + px + "px " + SANS; }
+    function quad(a, c, b, u, out) {
+      var v = 1 - u;
+      out.x = v * v * a.x + 2 * v * u * c.x + u * u * b.x;
+      out.y = v * v * a.y + 2 * v * u * c.y + u * u * b.y;
+    }
+
+    /* aircraft position at sim clock c for landing time tl; m: 0 inbound, 1 holding, 2 final, 3 roll, 4 gone */
+    var P0 = { x: 0, y: 0 }, QF = { x: 0, y: 0 }, TH = { x: 0, y: 0 };
+    function pos(i, tl, c, o) {
+      var f = S.fl[i], th = ANG[i], Aa = f.T - FIN, Lv = tl - FIN;
+      o.a = 1;
+      if (c < Aa) {
+        var rho = (Aa - c) / SPAN;
+        o.x = G.hx + Math.cos(th) * (G.rh + rho * G.Rx);
+        o.y = G.hy + Math.sin(th) * (G.rh + rho * G.Ry);
+        o.m = 0; return o;
+      }
+      if (c < Lv) {
+        var ph = th - OMEGA * (c - Aa);
+        o.x = G.hx + Math.cos(ph) * G.rh; o.y = G.hy + Math.sin(ph) * G.rh; o.m = 1; return o;
+      }
+      if (c < tl) {
+        var ph2 = th - OMEGA * (Lv - Aa);
+        P0.x = G.hx + Math.cos(ph2) * G.rh; P0.y = G.hy + Math.sin(ph2) * G.rh;
+        QF.x = G.fafX; QF.y = G.hy; TH.x = G.thrX; TH.y = G.hy;
+        quad(P0, QF, TH, (c - Lv) / FIN, o); o.m = 2; return o;
+      }
+      if (c < tl + ROLL) {
+        var u = (c - tl) / ROLL;
+        o.x = G.thrX + (G.rwEnd - G.thrX - 10) * ease.out(u); o.y = G.hy; o.m = 3;
+        o.a = 1 - seg(u, 0.6, 1); return o;
+      }
+      o.m = 4; o.a = 0; return o;
+    }
+    // greedy label placement: skip a tag that would overlap one already drawn
+    function freeBox(boxes, x, y, w, h) {
+      for (var i = 0; i < boxes.length; i++) {
+        var b = boxes[i];
+        if (x < b[0] + b[2] && b[0] < x + w && y < b[1] + b[3] && b[1] < y + h) return false;
+      }
+      boxes.push([x, y, w, h]);
+      return true;
+    }
+    function simClock(t) {
+      if (t < T4) return t < T1a ? c0 : lerp(c0, c1, seg(t, T1a, T1b));
+      return t < T2a ? c0 : lerp(c0, c1, seg(t, T2a, T2b));
+    }
+    function accrued(sch, c) {
+      var s = 0;
+      S.fl.forEach(function (f, i) { s += WT[f.c] * clamp(c - f.T, 0, sch.t[i] - f.T); });
+      return s;
+    }
+
+    var tmp = { x: 0, y: 0, m: 0, a: 1 }, tmp2 = { x: 0, y: 0, m: 0, a: 1 };
+
+    /* ---- the approach map ---- */
+    function drawMap(t, dim) {
+      var c = col.c, isOpt = t >= T4, sch = isOpt ? S.opt : S.fcfs, cc = simClock(t), n = S.n;
+      var stag = Math.min(0.24, 3.4 / n);
+      // runway
+      var rw = ease.inOut(seg(t, 0.1, 1.4));
+      if (rw > 0) {
+        ctx.globalAlpha = dim;
+        var rx0 = G.thrX, rx1 = lerp(G.thrX, G.rwEnd, rw), ry = G.hy - G.rwH / 2;
+        ctx.fillStyle = c.ink2; ctx.fillRect(rx0, ry, rx1 - rx0, G.rwH);
+        ctx.strokeStyle = c.surface; ctx.lineWidth = 1.2; ctx.setLineDash([6, 6]);
+        ctx.beginPath(); ctx.moveTo(rx0 + 14, G.hy); ctx.lineTo(rx1 - 6, G.hy); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = c.surface;
+        for (var k = 0; k < 4; k++) ctx.fillRect(rx0 + 3, ry + 1.5 + k * (G.rwH - 3) / 4, 6, (G.rwH - 3) / 4 - 1);
+        ctx.globalAlpha = 1;
+        text(tr(P + "l.runway"), (G.thrX + G.rwEnd) / 2, G.hy + G.rwH / 2 + 11, "center", c.muted, ease.out(seg(t, 1, 1.8)) * dim, F(600, G.fs - 1));
+      }
+      // extended centerline and the holding circle
+      var hl = ease.out(seg(t, 0.8, 2));
+      if (hl > 0) {
+        ctx.globalAlpha = 0.6 * hl * dim;
+        ctx.strokeStyle = c["mit-silver"]; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+        ctx.beginPath(); ctx.moveTo(G.hx + G.rh, G.hy); ctx.lineTo(G.thrX - 2, G.hy); ctx.stroke();
+        ctx.setLineDash([4, 4]);
+        circle(G.hx, G.hy, G.rh * hl); ctx.stroke(); ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+        text(tr(P + "l.hold"), G.hx, G.hy, "center", c.muted, hl * dim, F(600, G.fs - 1));
+      }
+      // clock
+      var ca = ease.out(seg(t, 1.2, 2)) * dim * (1 - seg(t, T5, T5 + 0.8));
+      if (ca > 0) {
+        var ck = clock(Math.floor(Math.max(c0, cc)));
+        if (G.wide) text(ck, G.w - 16, 24, "right", c.ink2, ca, "600 18px " + MONO);
+        else text(ck, G.w - 10, G.mapBot - 10, "right", c.ink2, ca, "600 14px " + MONO);
+      }
+      // landing flashes at the threshold
+      for (var i = 0; i < n; i++) {
+        var lu = (cc - sch.t[i]) / 0.9;
+        if (lu >= 0 && lu < 1 && (isOpt ? t >= T2a : t >= T1a)) {
+          ctx.strokeStyle = isOpt ? c.accent : c.ink; ctx.lineWidth = 2; ctx.globalAlpha = (1 - lu) * 0.8 * dim;
+          circle(G.thrX, G.hy, 6 + 22 * ease.out(lu)); ctx.stroke(); ctx.globalAlpha = 1;
+        }
+      }
+      // aircraft: entrance, trail, glyph, holding halo, labels
+      var tagA = G.wide ? ease.out(seg(t, 2.4, 3.2)) * (1 - seg(t, 7.6, 8.6)) : 0, boxes = [];
+      for (var k2 = 0; k2 < n; k2++) {
+        var idx = S.fcfs.order[k2], f = S.fl[idx];
+        var ent = isOpt ? ease.back(seg(t, T4 + 0.3 + k2 * stag * 0.6, T4 + 0.8 + k2 * stag * 0.6))
+                        : ease.back(seg(t, 1.3 + k2 * stag, 1.8 + k2 * stag));
+        if (ent <= 0) continue;
+        pos(idx, sch.t[idx], cc, tmp);
+        if (tmp.m === 4) continue;
+        var X = tmp.x, Y = tmp.y, fill = isOpt ? c.accent : c.ink, trail = isOpt ? col.acc : col.silver;
+        // trail over the last 1.6 sim minutes
+        var running = isOpt ? (t > T2a && t < T2b) : (t > T1a && t < T1b);
+        if (running) {
+          var lx = X, ly = Y;
+          ctx.lineCap = "round";
+          for (var q = 1; q <= 12; q++) {
+            pos(idx, sch.t[idx], cc - q * 0.14, tmp2);
+            if (tmp2.m === 4) break;
+            ctx.strokeStyle = rgba(trail, 0.55 * (1 - q / 13) * tmp.a * dim);
+            ctx.lineWidth = 2.4 * (1 - q / 14);
+            ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(tmp2.x, tmp2.y); ctx.stroke();
+            lx = tmp2.x; ly = tmp2.y;
+          }
+          ctx.lineCap = "butt";
+        }
+        // holding: waiting past the target time
+        if (tmp.m === 1) {
+          var pu = ((cc * 1.3 + k2 * 0.37) % 1 + 1) % 1;
+          ctx.strokeStyle = c["mit-bright"]; ctx.lineWidth = 1.4;
+          ctx.globalAlpha = (1 - pu) * 0.9 * dim;
+          circle(X, Y, G.ps * CATM[f.c] * (1.2 + pu * 1.2)); ctx.stroke(); ctx.globalAlpha = 1;
+        }
+        pos(idx, sch.t[idx], cc - 0.06, tmp2);
+        var ang = tmp.m === 3 ? 0 : Math.atan2(tmp.y - tmp2.y, tmp.x - tmp2.x);
+        if (!running && tmp.m === 0) ang = Math.atan2(G.hy - Y, G.hx - X);
+        plane(X, Y, ang, G.ps * CATM[f.c] * Math.min(1.15, ent), fill, tmp.a * dim);
+        var la = tmp.a * dim * Math.min(1, ent);
+        text(tr("land.cat." + f.c + ".s"), X + G.ps * CATM[f.c] + 2, Y + G.ps * CATM[f.c] * 0.8 + 3, "left", c.ink2, la * 0.95, F(700, G.fs - 2));
+        if (tagA > 0 && tmp.m === 0 && freeBox(boxes, X + G.ps * CATM[f.c] + 1, Y - G.ps - 10, 78, 15)) {
+          text(f.id, X + G.ps * CATM[f.c] + 3, Y - G.ps - 3, "left", c.ink, tagA * la, "600 10.5px " + MONO);
+          text(clock(f.T), X + G.ps * CATM[f.c] + 40, Y - G.ps - 3, "left", c.muted, tagA * la, "400 10.5px " + MONO);
+        }
+      }
+    }
+
+    /* ---- the landing strip under the map (two rows: first come, optimized) ---- */
+    function drawStrip(t) {
+      var c = col.c, n = S.n, fl = S.fl;
+      var ax = ease.inOut(seg(t, 1.6, 3));
+      if (ax <= 0) return;
+      // camera: chapter 3 zooms on the highlighted pair
+      var z = PAIR ? ease.inOut(seg(t, T3 + 0.2, T3 + 1.6)) * (1 - ease.inOut(seg(t, T4 - 1.4, T4 - 0.2))) : 0;
+      var za = PAIR ? S.fcfs.t[PAIR.l] - 3.5 : sA, zb = PAIR ? S.fcfs.t[PAIR.f] + 2.5 : sB;
+      if (PAIR) za = Math.min(za, fl[PAIR.f].T - 1.5);
+      var camA = lerp(sA, za, z), camB = lerp(sB, zb, z);
+      var x0 = G.sx0, x1 = G.sx1;
+      function X(m) { return x0 + (m - camA) / (camB - camA) * (x1 - x0); }
+      var ppm = (x1 - x0) / (camB - camA);
+      var fsz = G.fs;
+
+      // axis
+      ctx.strokeStyle = c.axis; ctx.lineWidth = 1; ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.moveTo(x0, G.axisY); ctx.lineTo(lerp(x0, x1, ax), G.axisY); ctx.stroke();
+      ctx.save();
+      ctx.beginPath(); ctx.rect(x0 - 8, G.stripTop - 4, x1 - x0 + 16, G.h - G.stripTop + 4); ctx.clip();
+      var step = ppm * 5 >= (G.wide ? 46 : 40) ? 5 : 10, minor = ppm >= 9 ? 1 : 5;
+      for (var m = Math.ceil(camA); m <= camB; m++) {
+        if (m % minor) continue;
+        var xx = X(m);
+        if (xx > lerp(x0, x1, ax)) break;
+        var major = m % step === 0;
+        ctx.strokeStyle = major ? c.axis : c.grid; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(xx, G.axisY); ctx.lineTo(xx, G.axisY + (major ? 5 : 3)); ctx.stroke();
+        if (major) text(clock(m), xx, G.axisY + 12, "center", c.muted, ax, "400 " + (fsz - 1) + "px " + MONO, false);
+      }
+      ctx.restore();
+
+      // rows
+      var rows = [
+        { y: G.rowA, sch: S.fcfs, key: "l.rowF", on: ease.out(seg(t, 2.4, 3.2)), c: simC(t, 0), color: c.ink, tot: seg(t, T1b - 0.2, T1b + 0.6) },
+        { y: G.rowB, sch: S.opt, key: "l.rowO", on: ease.out(seg(t, T4 + 0.1, T4 + 0.8)), c: simC(t, 1), color: c.accent, tot: seg(t, T2b - 0.2, T2b + 0.6) }
+      ];
+      var zoomDim = 1 - 0.8 * z;
+      rows.forEach(function (r, ri) {
+        if (r.on <= 0) return;
+        var rowAlpha = r.on * (ri === 1 ? zoomDim : 1);
+        text(tr(P + r.key), x0, r.y - (G.wide ? 34 : 24), "left", ri ? c["accent-text"] : c.ink, rowAlpha * (G.wide ? 1 : 1 - z), F(700, fsz), false);
+        ctx.strokeStyle = c.grid; ctx.lineWidth = 1; ctx.globalAlpha = rowAlpha;
+        ctx.beginPath(); ctx.moveTo(x0, r.y); ctx.lineTo(x1, r.y); ctx.stroke(); ctx.globalAlpha = 1;
+        ctx.save();
+        ctx.beginPath(); ctx.rect(x0 - 6, r.y - 30, x1 - x0 + 12, 50); ctx.clip();
+        for (var k = 0; k < n; k++) {
+          var i = r.sch === S.fcfs ? S.fcfs.order[k] : S.opt.order[k], f = fl[i], ti = r.sch.t[i];
+          var appear = ri === 0 ? seg(t, 2.8 + k * Math.min(0.24, 3.4 / n), 3.3 + k * Math.min(0.24, 3.4 / n)) : seg(t, T4 + 0.4 + k * 0.08, T4 + 0.8 + k * 0.08);
+          var hi = PAIR && ri === 0 && (i === PAIR.l || i === PAIR.f) ? 1 : 0;
+          var fa = rowAlpha * (hi ? 1 : 1 - 0.7 * z);
+          // target tick
+          ctx.fillStyle = c["mit-silver"]; ctx.globalAlpha = appear * fa;
+          ctx.fillRect(X(f.T) - 1, r.y - 6, 2, 12); ctx.globalAlpha = 1;
+          // delay grows while the flight waits
+          var dEnd = Math.min(r.c, ti);
+          if (dEnd > f.T) {
+            var lane = k % 3, ly = r.y + 9 + lane * 3.2;
+            ctx.strokeStyle = c["mit-bright"]; ctx.lineWidth = 2; ctx.globalAlpha = fa;
+            ctx.beginPath(); ctx.moveTo(X(f.T), ly); ctx.lineTo(X(dEnd), ly); ctx.stroke(); ctx.globalAlpha = 1;
+          }
+          // landing slot
+          if (r.c >= ti) {
+            var pop = ease.back(clamp((r.c - ti) / 0.8, 0, 1));
+            var s = G.ps * 0.85 * CATM[f.c] * pop * (hi ? 1 + 0.25 * z : 1);
+            plane(X(ti), r.y, 0, s, r.color, fa);
+            if (ri === 1 && S.moved[i]) {
+              ctx.strokeStyle = c.accent; ctx.lineWidth = G.wide ? 1.5 : 1.1; ctx.globalAlpha = fa * Math.min(1, pop);
+              circle(X(ti), r.y, G.ps * 0.85 * CATM[f.c] + (G.wide ? 4 : 2)); ctx.stroke(); ctx.globalAlpha = 1;
+            }
+            if (G.wide || z > 0.5) text(tr("land.cat." + f.c + ".s"), X(ti), r.y - 17, "center", c.ink2, fa * Math.min(1, pop), F(700, fsz - 2), false);
+          }
+        }
+        ctx.restore();
+        // the running total at the end of the row
+        var val = Math.round(accrued(r.sch, r.c));
+        if (r.c > c0 + 0.01 || r.tot > 0) {
+          text(fmt(val), x1 + (G.wide ? 12 : 8), r.y, "left", ri ? c["accent-text"] : c["mit-bright"], rowAlpha, F(700, G.wide ? 15 : 12.5), false);
+        }
+      });
+
+      // clock cursor while a sim runs
+      var runF = t > T1a && t < T1b + 0.4, runO = t > T2a && t < T2b + 0.4;
+      if (runF || runO) {
+        var cx = X(clamp(simClock(t), camA, camB));
+        var fade = runF ? 1 - seg(t, T1b, T1b + 0.4) : 1 - seg(t, T2b, T2b + 0.4);
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1; ctx.globalAlpha = 0.45 * fade;
+        ctx.beginPath(); ctx.moveTo(cx, G.rowA - 14); ctx.lineTo(cx, G.axisY); ctx.stroke(); ctx.globalAlpha = 1;
+      }
+
+      // chapter 3: bracket for the separation of the highlighted pair
+      if (PAIR && z > 0) {
+        var ba = ease.out(seg(t, T3 + 1.4, T3 + 2.2)) * (1 - seg(t, T4 - 1.6, T4 - 1));
+        if (ba > 0) {
+          var xl = X(S.fcfs.t[PAIR.l]), xf = X(S.fcfs.t[PAIR.f]), by = G.rowA - (G.wide ? 34 : 30);
+          var xm = lerp(xl, xf, ease.inOut(seg(t, T3 + 1.4, T3 + 2.4)));
+          ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.globalAlpha = ba;
+          ctx.beginPath(); ctx.moveTo(xl, by + 7); ctx.lineTo(xl, by); ctx.lineTo(xm, by); ctx.lineTo(xm, by + 7); ctx.stroke();
+          ctx.globalAlpha = 1;
+          var lbl = tr(P + "l.pair", { f: tr("land.cat." + S.fl[PAIR.f].c), l: tr("land.cat." + S.fl[PAIR.l].c), s: fmt(PAIR.s) });
+          text(lbl, (xl + xf) / 2, by - 10, "center", c.ink, ba * seg(t, T3 + 2, T3 + 2.6), F(700, fsz), true);
+          // the follower's own wait: target to landing
+          var tgt = X(S.fl[PAIR.f].T), wy = G.rowA + 22;
+          var wa = ba * seg(t, T3 + 2.8, T3 + 3.4);
+          if (wa > 0) {
+            text(tr(P + "l.wait", { d: fmt(S.fcfs.t[PAIR.f] - S.fl[PAIR.f].T) }), (tgt + xf) / 2, wy + 4, "center", c["mit-bright"], wa, F(700, fsz), false);
+          }
+        }
+      }
+
+      // chapter 4: the sequence reorders (first come order to the model's order)
+      var ra = ease.out(seg(t, T4 + 0.2, T4 + 0.8)) * (1 - seg(t, T2a - 0.7, T2a));
+      if (ra > 0) {
+        var mu = ease.inOut(seg(t, T4 + 1.1, T4 + 2.9));
+        var gx0 = x0 + 14, gx1 = x1 - 14, gap = (gx1 - gx0) / Math.max(1, n - 1);
+        ctx.fillStyle = c.surface; ctx.globalAlpha = ra;
+        ctx.fillRect(x0 - 4, G.rowB - (G.wide ? 28 : 18), x1 - x0 + 8, G.wide ? 50 : 40); ctx.globalAlpha = 1;
+        for (var k3 = 0; k3 < n; k3++) {
+          var i3 = S.fcfs.order[k3], f3 = fl[i3], pf = S.posF[i3], po = S.posO[i3];
+          var xa = gx0 + pf * gap, xb = gx0 + po * gap, mv = S.moved[i3];
+          var xx3 = lerp(xa, xb, mu), yy3 = G.rowB - (mv ? Math.sin(Math.PI * mu) * (po < pf ? 16 : -12) : 0);
+          plane(xx3, yy3, 0, G.ps * 0.85 * CATM[f3.c], mv ? c.accent : c.ink2, ra);
+          if (mv && mu > 0) {
+            ctx.strokeStyle = c.accent; ctx.lineWidth = 1.5; ctx.globalAlpha = ra * Math.min(1, mu * 2);
+            circle(xx3, yy3, G.ps * 0.85 * CATM[f3.c] + 4); ctx.stroke(); ctx.globalAlpha = 1;
+          }
+          text(tr("land.cat." + f3.c + ".s"), xx3, yy3 - G.ps * 1.3 - 5, "center", mv ? c["accent-text"] : c.ink2, ra, F(700, fsz - 2), false);
+        }
+      }
+    }
+    function simC(t, which) {
+      if (which === 0) return t < T1a ? c0 : t < T4 ? lerp(c0, c1, seg(t, T1a, T1b)) : c1;
+      return t < T2a ? c0 : lerp(c0, c1, seg(t, T2a, T2b));
+    }
+
+    /* ---- chapter 3: the separation matrix ---- */
+    function drawMatrix(t) {
+      var u = ease.out(seg(t, T3 + 0.4, T3 + 1.4)) * (1 - ease.inOut(seg(t, T4 - 1.2, T4 - 0.3)));
+      if (u <= 0) return;
+      var c = col.c, cats = ["H", "M", "L"], wide = G.wide;
+      var cw = wide ? 72 : 60, lw = wide ? 90 : 74, rh = wide ? 26 : 22;
+      var W = lw + cw * 3, H = rh * 4 + (wide ? 38 : 32);
+      var px = (G.w - W) / 2, py = G.mapTop + (G.mapBot - G.mapTop - H) / 2;
+      ctx.save();
+      ctx.globalAlpha = u; ctx.translate(0, (1 - u) * 10);
+      ctx.fillStyle = c.surface; ctx.fillRect(px - 12, py - 10, W + 24, H + 16);
+      ctx.strokeStyle = c.border; ctx.lineWidth = 1; ctx.strokeRect(px - 12.5, py - 10.5, W + 25, H + 17);
+      ctx.restore();
+      var a = u, fs = G.fs;
+      text(tr(P + "m.title"), px, py + 6, "left", c.ink, a, F(700, fs + 1), false);
+      var y0 = py + (wide ? 30 : 26);
+      text(tr(P + "m.corner"), px, y0 + rh / 2, "left", c.muted, a, F(600, fs - 1), false);
+      cats.forEach(function (cf, j) {
+        text(tr("land.cat." + cf), px + lw + cw * j + cw / 2, y0 + rh / 2, "center", c.muted, a, F(600, fs - 1), false);
+      });
+      cats.forEach(function (cl, i) {
+        var yy = y0 + rh * (i + 1);
+        ctx.strokeStyle = c.grid; ctx.globalAlpha = a; ctx.beginPath(); ctx.moveTo(px, yy); ctx.lineTo(px + W, yy); ctx.stroke(); ctx.globalAlpha = 1;
+        text(tr("land.cat." + cl), px, yy + rh / 2, "left", c.ink2, a, F(600, fs), false);
+        cats.forEach(function (cf, j) {
+          var cx = px + lw + cw * j, on = PAIR && S.fl[PAIR.l].c === cl && S.fl[PAIR.f].c === cf;
+          var pop = seg(t, T3 + 0.8 + (i * 3 + j) * 0.08, T3 + 1.2 + (i * 3 + j) * 0.08);
+          if (on) {
+            var hu = ease.out(seg(t, T3 + 2, T3 + 2.6));
+            ctx.fillStyle = c.accent; ctx.globalAlpha = a * hu;
+            ctx.fillRect(cx + 6, yy + 3, cw - 12, rh - 6); ctx.globalAlpha = 1;
+            text(fmt(SEP[cl][cf]), cx + cw / 2, yy + rh / 2, "center", hu > 0.5 ? c["on-solid"] : c.ink, a * pop, F(700, fs + 1), false);
+          } else {
+            text(fmt(SEP[cl][cf]), cx + cw / 2, yy + rh / 2, "center", c.ink, a * pop, F(600, fs + 1), false);
+          }
+        });
+      });
+    }
+
+    /* ---- chapter 5: the tally ---- */
+    function drawTally(t) {
+      var u = ease.out(seg(t, T5 + 0.4, T5 + 1.4));
+      if (u <= 0) return;
+      var c = col.c, p = G.panel, wide = G.wide, fs = G.fs;
+      var W = p.w, H = Math.min(p.h, wide ? 196 : 176), px = p.x, py = p.y + (p.h - H) / 2;
+      ctx.save();
+      ctx.globalAlpha = u; ctx.translate(0, (1 - u) * 12);
+      ctx.fillStyle = c.surface; ctx.fillRect(px, py, W, H);
+      ctx.strokeStyle = c.border; ctx.lineWidth = 1; ctx.strokeRect(px + 0.5, py + 0.5, W - 1, H - 1);
+      ctx.fillStyle = c.accent; ctx.fillRect(px, py, 3, H);
+      ctx.restore();
+      var ix = px + 16, iw = W - 32, y = py + (wide ? 20 : 16);
+      text(tr(P + "tl.title"), ix, y, "left", c.muted, u, F(600, fs), false);
+      var mx = S.fcfs.cost;
+      [[S.fcfs.cost, "tl.fcfs", c["mit-silver"], c.ink2], [S.opt.cost, "tl.opt", c.accent, c["accent-text"]]].forEach(function (b, k) {
+        var g = ease.out(seg(t, T5 + 1 + k * 0.5, T5 + 2.6 + k * 0.5));
+        var yy = y + (wide ? 24 : 20) + k * (wide ? 42 : 36);
+        text(tr(P + b[1]), ix, yy, "left", c.ink, u, F(k ? 700 : 600, fs), false);
+        text(fmt(Math.round(b[0] * g)), ix + iw, yy, "right", b[3], u, F(700, fs + 3), false);
+        ctx.globalAlpha = u; ctx.fillStyle = c.grid; ctx.fillRect(ix, yy + 10, iw, wide ? 9 : 7);
+        ctx.fillStyle = b[2]; ctx.fillRect(ix, yy + 10, iw * (b[0] / mx) * g, wide ? 9 : 7); ctx.globalAlpha = 1;
+      });
+      var pa = ease.back(seg(t, T5 + 3, T5 + 3.8)), pc = saved(S);
+      var yb = y + (wide ? 24 : 20) + 2 * (wide ? 42 : 36) + (wide ? 20 : 16);
+      if (pa > 0) {
+        ctx.save();
+        ctx.translate(ix, yb); ctx.scale(Math.max(0.01, pa), Math.max(0.01, pa));
+        text(tr(P + "tl.pct", { p: fmt(Math.round(pc * seg(t, T5 + 3, T5 + 4))) }), 0, 0, "left", c["accent-text"], Math.min(1, u * pa), F(700, wide ? 30 : 24), false);
+        ctx.restore();
+        ctx.font = F(700, wide ? 30 : 24);
+        var pw = ctx.measureText(tr(P + "tl.pct", { p: fmt(pc) })).width;
+        text(tr(P + "tl.saved"), ix + pw + 10, yb + 1, "left", c.ink2, seg(t, T5 + 3.6, T5 + 4.2) * u, F(600, fs), false);
+      }
+    }
+
+    /* ---- the frame ---- */
+    function render(t) {
+      palette();
+      var c = col.c, w = cv.w, h = cv.h, n = S.n;
+      ctx.clearRect(0, 0, w, h);
+      ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+      // separator between map and strip
+      ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, G.stripTop - 0.5); ctx.lineTo(w, G.stripTop - 0.5); ctx.stroke();
+      var dim = 1 - 0.8 * ease.inOut(seg(t, T3, T3 + 0.8)) * (1 - ease.inOut(seg(t, T4 - 0.8, T4))) - 0.8 * ease.inOut(seg(t, T5, T5 + 0.8));
+      drawMap(t, Math.max(0.12, dim));
+      drawStrip(t);
+      drawMatrix(t);
+      drawTally(t);
+
+      /* counters */
+      var stag = Math.min(0.24, 3.4 / n);
+      if (t < T1a - 0.6) {
+        var shown = 0;
+        for (var k = 0; k < n; k++) if (t >= 1.3 + k * stag) shown++;
+        setChip(0, fmt(shown), tr(P + "k.flights"), ease.out(seg(t, 1.1, 1.6)), false);
+        setChip(1, fmt(n * (n - 1)), tr(P + "k.bin"), ease.out(seg(t, 4.6, 5.1)), true);
+        setChip(2, fmt(2 * n), tr(P + "k.cont"), ease.out(seg(t, 5.4, 5.9)), false);
+        setChip(3, "", "", 0, false);
+      } else if (t < T4) {
+        setChip(0, fmt(n), tr(P + "k.flights"), 1, false);
+        setChip(1, fmt(Math.round(accrued(S.fcfs, simC(t, 0)))), tr(P + "k.fcfs"), ease.out(seg(t, T1a - 0.6, T1a)), false);
+        setChip(2, "", "", 0, false);
+        setChip(3, "", "", 0, false);
+      } else {
+        setChip(0, fmt(n), tr(P + "k.flights"), 1, false);
+        setChip(1, fmt(S.fcfs.cost), tr(P + "k.fcfs"), 1, false);
+        setChip(2, fmt(Math.round(accrued(S.opt, simC(t, 1)))), tr(P + "k.opt"), ease.out(seg(t, T4 + 0.2, T4 + 0.8)), true);
+        setChip(3, tr(P + "k.pct", { p: fmt(saved(S)) }), tr(P + "k.saved"), ease.out(seg(t, T2b, T2b + 0.6)), true);
+      }
+    }
+
+    prepare();
+    layout();
+    var player = A.create({
+      root: root,
+      duration: DUR,
+      chapters: [
+        { t: 0, key: P + "ch1" }, { t: T1a - 0.6, key: P + "ch2" }, { t: T3, key: P + "ch3" },
+        { t: T4, key: P + "ch4" }, { t: T5, key: P + "ch5" }
+      ],
+      onResize: function () { cv.fit(); layout(); },
+      render: render
+    });
+    listeners.push(function () {
+      prepare();
+      layout();
+      if (A.reducedMotion) { player.refresh(); return; }
+      if (player.time > T1a - 0.6) { player.seek(T1a - 0.6); player.play(); } else player.refresh();
+    });
+  })();
+
+  /* =====================================================================================
+     "Try your own order"
+     ===================================================================================== */
+  var seqEl = document.getElementById("land-seq");
+  var order = [];
+  var PLANE_PATH = "M10 0 L6.2 -1.3 L1.2 -1.3 L-2.2 -9 L-4 -9 L-2 -1.3 L-6.6 -1.3 L-8.6 -4.4 L-10 -4.4 L-9 0 L-10 4.4 L-8.6 4.4 L-6.6 1.3 L-2 1.3 L-4 9 L-2.2 9 L1.2 1.3 L6.2 1.3 Z";
+  var GSZ = { H: 22, M: 17, L: 12 };
+  function resetOrder() { order = SCEN[state.scen].fcfs.order.slice(); }
+  function move(k, d, focusDir) {
+    var j = k + d;
+    if (j < 0 || j >= order.length) return;
+    var x = order[k]; order[k] = order[j]; order[j] = x;
+    renderTry();
+    var li = seqEl.children[j];
+    if (li) {
+      var b = li.querySelector(focusDir < 0 ? "button.up" : "button.down");
+      if (b && b.disabled) b = li.querySelector(focusDir < 0 ? "button.down" : "button.up");
+      if (b) b.focus();
+    }
+  }
+  function renderTry() {
+    var S = SCEN[state.scen], fl = S.fl, sch = schedule(fl, order), moved = movedSet(order, S.posF);
+    // list
+    seqEl.innerHTML = "";
+    order.forEach(function (i, k) {
+      var f = fl[i], ti = sch.t[i], d = ti - f.T, late = d > DMAX;
+      var li = document.createElement("li");
+      if (moved[i]) li.classList.add("moved");
+      if (late) li.classList.add("late");
+      var sz = GSZ[f.c];
+      li.innerHTML =
+        '<span class="pos"></span>' +
+        '<span class="gl" aria-hidden="true"><svg width="' + sz + '" height="' + sz + '" viewBox="-10 -10 20 20"><path d="' + PLANE_PATH + '"/></svg></span>' +
+        '<span class="who"><b></b><span class="tag"></span><span class="tm"></span></span>' +
+        '<span class="dl"></span>' +
+        '<span class="mv"><button type="button" class="up">▲</button><button type="button" class="down">▼</button></span>';
+      li.querySelector(".pos").textContent = k + 1;
+      li.querySelector(".who b").textContent = f.id;
+      li.querySelector(".tag").textContent = tr("land.try.tag", { c: tr("land.cat." + f.c), w: fmt(WT[f.c]) });
+      var tm = li.querySelector(".tm");
+      tm.textContent = tr("land.try.times", { a: clock(f.T), b: clock(ti) });
+      if (late) {
+        var sp = document.createElement("span");
+        sp.className = "late-msg";
+        sp.textContent = " " + tr("land.try.late", { t: clock(f.T + DMAX) });
+        tm.appendChild(sp);
+      }
+      var dl = li.querySelector(".dl");
+      dl.textContent = d > 0 ? tr("land.try.delay", { d: fmt(d), wd: fmt(WT[f.c] * d) }) : tr("land.try.ontime");
+      dl.className = "dl" + (d > 0 ? " neg" : " pos0");
+      var up = li.querySelector(".up"), dn = li.querySelector(".down");
+      up.disabled = k === 0; dn.disabled = k === order.length - 1;
+      up.setAttribute("aria-label", tr("land.try.up", { code: f.id }));
+      dn.setAttribute("aria-label", tr("land.try.down", { code: f.id }));
+      up.title = up.getAttribute("aria-label"); dn.title = dn.getAttribute("aria-label");
+      up.addEventListener("click", function () { move(k, -1, -1); });
+      dn.addEventListener("click", function () { move(k, 1, 1); });
+      seqEl.appendChild(li);
+    });
+    // numbers
+    document.getElementById("land-v-you").textContent = fmt(sch.cost);
+    document.getElementById("land-v-fcfs").textContent = fmt(S.fcfs.cost);
+    document.getElementById("land-v-opt").textContent = fmt(S.opt.cost);
+    var v = document.getElementById("land-verdict"), msg, cls = "";
+    var isF = order.every(function (i, k) { return i === S.fcfs.order[k]; });
+    if (sch.late) { msg = tr(sch.late === 1 ? "land.try.msg.late1" : "land.try.msg.lateN", { n: fmt(sch.late), m: fmt(DMAX) }); cls = "bad"; }
+    else if (sch.cost === S.opt.cost) { msg = tr("land.try.msg.opt"); cls = "best"; }
+    else if (isF) msg = tr("land.try.msg.fcfs");
+    else if (sch.cost < S.fcfs.cost) msg = tr("land.try.msg.better", { p: fmt(Math.round(100 * (1 - sch.cost / S.fcfs.cost))), g: fmt(sch.cost - S.opt.cost) });
+    else if (sch.cost === S.fcfs.cost) msg = tr("land.try.msg.same");
+    else { msg = tr("land.try.msg.worse", { g: fmt(sch.cost - S.fcfs.cost) }); cls = "bad"; }
+    v.innerHTML = msg;
+    v.className = "verdict " + cls;
+    // pair decisions that differ from first come
+    var pos = {}, flips = 0, n = fl.length;
+    order.forEach(function (i, k) { pos[i] = k; });
+    for (var a = 0; a < n; a++) for (var b = a + 1; b < n; b++) if ((pos[a] < pos[b]) !== (S.posF[a] < S.posF[b])) flips++;
+    document.getElementById("land-flips").innerHTML = tr("land.try.flips", { k: fmt(flips), m: fmt(n * (n - 1) / 2), b: fmt(n * (n - 1)) });
+    drawGantt(S, sch);
+  }
+  function drawGantt(S, sch) {
+    var svg = document.getElementById("land-gantt");
+    var W = Math.max(280, Math.round(svg.getBoundingClientRect().width || 440));
+    var fl = S.fl, lo = 1e9, hi = -1e9;
+    fl.forEach(function (f, i) { lo = Math.min(lo, f.T); hi = Math.max(hi, sch.t[i], S.fcfs.t[i], S.opt.t[i]); });
+    lo -= 1; hi += 2;
+    var lab = W < 380 ? 64 : 84, x0 = lab + 6, x1 = W - 10, rowH = 34, top = 8, H = top + rowH * 3 + 26;
+    function X(m) { return x0 + (m - lo) / (hi - lo) * (x1 - x0); }
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("aria-label", tr("land.try.g.aria"));
+    var out = [];
+    var rows = [[sch, "land.try.g.you", "var(--ink)"], [S.fcfs, "land.try.g.fcfs", "var(--mit-silver)"], [S.opt, "land.try.g.opt", "var(--accent)"]];
+    rows.forEach(function (r, ri) {
+      var y = top + rowH * ri + rowH / 2;
+      out.push('<text x="0" y="' + (y + 4) + '" font-size="12" font-weight="600" fill="var(--ink2)">' + esc(tr(r[1])) + '</text>');
+      out.push('<line x1="' + x0 + '" x2="' + x1 + '" y1="' + y + '" y2="' + y + '" stroke="var(--grid)"/>');
+      fl.forEach(function (f, i) {
+        var ti = r[0].t[i], d = ti - f.T;
+        if (d > 0) out.push('<line x1="' + X(f.T).toFixed(1) + '" x2="' + X(ti).toFixed(1) + '" y1="' + (y + 9 + (i % 3) * 3) + '" y2="' + (y + 9 + (i % 3) * 3) + '" stroke="var(--mit-bright)" stroke-width="1.8"/>');
+        var s = GSZ[f.c] / 20 * 0.75;
+        out.push('<path d="' + PLANE_PATH + '" transform="translate(' + X(ti).toFixed(1) + ' ' + y + ') scale(' + s.toFixed(3) + ')" fill="' + r[2] + '"/>');
+      });
+      out.push('<text x="' + x1 + '" y="' + (y - 9) + '" font-size="11" text-anchor="end" font-weight="700" fill="' + (ri === 2 ? "var(--accent-text)" : "var(--ink2)") + '">' + esc(fmt(r[0].cost)) + '</text>');
+    });
+    var ay = top + rowH * 3 + 4;
+    out.push('<line x1="' + x0 + '" x2="' + x1 + '" y1="' + ay + '" y2="' + ay + '" stroke="var(--axis)"/>');
+    var step = (x1 - x0) / (hi - lo) * 5 > 44 ? 5 : 10;
+    for (var m = Math.ceil(lo / step) * step; m <= hi; m += step) {
+      out.push('<line x1="' + X(m) + '" x2="' + X(m) + '" y1="' + ay + '" y2="' + (ay + 4) + '" stroke="var(--axis)"/>');
+      out.push('<text x="' + X(m) + '" y="' + (ay + 16) + '" font-size="10.5" text-anchor="middle" fill="var(--muted)" font-family="var(--font-mono)">' + clock(m) + '</text>');
+    }
+    svg.innerHTML = out.join("");
+  }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  document.getElementById("land-reset").addEventListener("click", function () { resetOrder(); renderTry(); });
+  document.getElementById("land-best").addEventListener("click", function () { order = SCEN[state.scen].opt.order.slice(); renderTry(); });
+  listeners.push(function () { resetOrder(); renderTry(); });
+  var rz = 0;
+  window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(renderTry, 120); });
+  resetOrder();
+  I18N.onChange(renderTry);
+})();
+</script>
+</body>
+</html>

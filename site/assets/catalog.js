@@ -35,6 +35,15 @@ window.CATALOG = {
     { id: "edu-shifts", href: "resources/hospital-shifts.html", level: "ip", type: "game" },
     { id: "ip-assignment", href: "resources/perfect-assignment.html", level: "ip", type: "simulation" },
     { id: "patrol-route", href: "resources/patrol-route.html", level: "other", type: "animation" },
+    // Level 3 · Mixed-integer programming, in learning order
+    { id: "milp-mixed-set", href: "resources/mixed-feasible-set.html", level: "milp", type: "simulation" },
+    { id: "milp-logic", href: "resources/logic-constraints.html", level: "milp", type: "game" },
+    { id: "milp-bigm", href: "resources/big-m.html", level: "milp", type: "simulation" },
+    { id: "edu-warehouses", href: "resources/open-or-close.html", level: "milp", type: "simulation" },
+    { id: "milp-piecewise", href: "resources/bulk-discounts.html", level: "milp", type: "simulation" },
+    { id: "edu-power", href: "resources/keep-the-lights-on.html", level: "milp", type: "game" },
+    { id: "milp-lot-sizing", href: "resources/produce-now-or-later.html", level: "milp", type: "game" },
+    { id: "milp-runway", href: "resources/cleared-to-land.html", level: "milp", type: "animation" },
     { id: "two-stories", href: "resources/two-stories.html", level: "lp", type: "example" },
     { id: "feasible-region-3d", href: "resources/feasible-region-3d.html", level: "lp", type: "simulation" },
     { id: "compacta", href: "compacta/index.html", level: "lp", type: "game" },
@@ -47,8 +56,6 @@ window.CATALOG = {
     { id: "lp-workforce", href: "resources/workforce-planning.html", level: "lp", type: "animation" },
 
     // Planned: open for contributors
-    { id: "edu-warehouses", level: "milp", type: "simulation" },
-    { id: "edu-power", level: "milp", type: "game" },
     { id: "edu-portfolio", level: "nlp", type: "simulation" },
     { id: "edu-gradient", level: "nlp", type: "animation" },
     { id: "edu-queue", level: "other", type: "simulation" },
