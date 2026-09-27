@@ -25,7 +25,7 @@
     position: relative; width: 100%; aspect-ratio: 2 / 1; margin-top: 12px;
     background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
   }
-  @media (max-width: 620px) { .stage { aspect-ratio: 4 / 5; } }
+  @media (max-width: 620px) { .stage { aspect-ratio: 3 / 4; } }
   .stage canvas { position: absolute; inset: 0; display: block; }
   .hud { position: absolute; top: 10px; left: 10px; display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100% - 20px); pointer-events: none; }
   .chip-stat {
@@ -629,10 +629,12 @@
       o.push('<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + (cur ? "var(--accent)" : "var(--ink2)") +
         '" stroke-width="' + (cur ? 3.2 : 1.6) + '" stroke-linecap="round"/>');
       if (x2 - x1 > 34) {
-        var ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-        var mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - 7;
-        labels.push('<text x="' + mx + '" y="' + my + '" text-anchor="middle" font-size="10.5" font-weight="700" font-family="var(--font-sans)" fill="' +
-          (cur ? "var(--accent-text)" : "var(--muted)") + '" transform="rotate(' + ang.toFixed(1) + ' ' + mx + ' ' + (my + 7) + ')">' + money(sg.s) + '</text>');
+        var ll = Math.hypot(x2 - x1, y2 - y1), nx = (y2 - y1) / ll, ny = -(x2 - x1) / ll;
+        if (ny > 0) { nx = -nx; ny = -ny; }
+        var dd = 8 + 12 * Math.abs(nx);
+        var mx = (x1 + x2) / 2 + nx * dd, my = (y1 + y2) / 2 + ny * dd + 4;
+        labels.push('<text x="' + mx + '" y="' + my + '" text-anchor="middle" font-size="11" font-weight="700" font-family="var(--font-sans)" fill="' +
+          (cur ? "var(--accent-text)" : "var(--muted)") + '">' + money(sg.s) + '</text>');
       }
       if (sg.hi < max - 1e-9) bps.push({ v: sg.hi, z: sg.zlo + sg.s * (sg.hi - sg.lo) });
     });
@@ -901,7 +903,7 @@
       L.plot = { x: 0, y: py, w: W * 0.6, h: Hh - py };
       L.stack = { x: W * 0.6, y: 12, w: W * 0.4, h: Hh - 12 };
     } else {
-      var ph = (Hh - hudH) * 0.64;
+      var ph = (Hh - hudH) * 0.72;
       L.plot = { x: 0, y: hudH, w: W, h: ph };
       L.stack = { x: 0, y: hudH + ph, w: W, h: Hh - hudH - ph };
     }
@@ -1207,7 +1209,7 @@
       ctx.font = font(700, 16);
       var totW = ctx.measureText("= " + money(zTop)).width + 14;
       var x0 = lx + capW, Wd = R.x + R.w - 16 - totW - x0, bh = 22;
-      var yA = R.y + R.h * 0.3, yB = R.y + R.h * 0.3 + bh + 26;
+      var yA = R.y + Math.max(18, R.h / 2 - bh - 13), yB = yA + bh + 26;
       var drawRow = function (items, yy, fillFn, labelAbove) {
         var x = x0;
         items.forEach(function (s, k) {
