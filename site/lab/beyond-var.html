@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="en" data-title-key="cvar.title" data-i18n-bundles="lab/lab-cvar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Beyond VaR: CVaR</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #cvar-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(300px, max(220px, 34%)); max-width: none;
+  }
+  #cvar-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #cvar-sec .anim-hud .chip-stat.wide { grid-column: 1 / -1; }
+  #cvar-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #cvar-sec .anim-hud .chip-stat.hot b { color: var(--accent-text); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #cvar-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #cvar-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #cvar-sec .anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #cvar-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 11px; }
+    #cvar-sec .anim-hud .chip-stat b { font-size: 14px; }
+    #cvar-sec .anim-hud .chip-stat.wide { grid-column: span 2; }
+  }
+  #cvar-sec .anim-legend i.lg-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--mit-silver); }
+  #cvar-sec .anim-legend i.lg-tail { width: 10px; height: 10px; border-radius: 50%; background: var(--mit-bright); }
+  #cvar-sec .anim-legend i.lg-var { width: 3px; height: 14px; background: var(--ink); }
+  #cvar-sec .anim-legend i.lg-cvar { width: 3px; height: 14px; background: var(--accent); }
+  #cvar-sec .anim-legend i.lg-u { width: 18px; height: 2px; background: var(--mit-bright); }
+  #cvar-sec .anim-legend i.lg-ghost { width: 18px; height: 11px; border: 0; border-top: 1.6px dashed var(--mit-silver); border-right: 1.6px dashed var(--mit-silver); background: none; }
+  #cvar-sec .anim-legend i.lg-w { width: 26px; height: 10px; background: linear-gradient(90deg, var(--ink) 0 33%, var(--mit-silver) 33% 66%, var(--accent) 66%); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #cvar-sec .anim-legend i.lg-tail, :root:not([data-theme="light"]) #cvar-sec .anim-legend i.lg-u { background: var(--crit); }
+  }
+  :root[data-theme="dark"] #cvar-sec .anim-legend i.lg-tail, :root[data-theme="dark"] #cvar-sec .anim-legend i.lg-u { background: var(--crit); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 14px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- tables ---- */
+  table.data { min-width: 0; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.best { color: var(--accent-text); font-weight: 600; }
+  table.data td.dim { color: var(--muted); }
+  table.data th.rowh, table.data td.rowh { text-align: left; }
+  table.data tr.sep td { border-bottom-color: var(--axis); }
+  table.data td.wcell { white-space: normal; }
+  @media (max-width: 560px) {
+    table.data .wide { display: none; }
+    table.data td.wcell { min-width: 0; }
+    #cvar-lv th, #cvar-lv td, #cvar-assets th, #cvar-assets td { padding-inline: 4px; font-size: 11px; }
+    #cvar-lv td.num, #cvar-assets td.num { font-size: 10.5px; }
+    table.data th, table.data td { padding-inline: 6px; }
+    table.data td.num { font-size: 11.5px; }
+  }
+  .sol-p { font-size: 14px; color: var(--ink2); margin: 12px 0 0; max-width: 80ch; }
+  .sol-p b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="cvar.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="cvar.eyebrow"></p>
+    <h1 data-i18n="cvar.title"></h1>
+    <p class="lede" data-i18n-html="cvar.lede"></p>
+  </header>
+
+  <section class="block" id="cvar-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="cvar.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="cvar-scen-lbl" data-i18n="cvar.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="cvar-scen-lbl" id="cvar-seg">
+        <button type="button" data-sc="a90" aria-pressed="false"></button>
+        <button type="button" data-sc="a95" aria-pressed="true"></button>
+        <button type="button" data-sc="a99" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="anim" id="cvar-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:cvar.anim.aria">
+        <div class="anim-hud" id="cvar-hud">
+          <div class="chip-stat wide" id="cvar-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="cvar-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="cvar-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="cvar-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="cvar-c2"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-dot"></i><span id="cvar-lg-dot"></span></span>
+      <span><i class="lg-tail"></i><span id="cvar-lg-tail"></span></span>
+      <span><i class="lg-var"></i><span data-i18n="cvar.lg.var"></span></span>
+      <span><i class="lg-cvar"></i><span data-i18n="cvar.lg.cvar"></span></span>
+      <span><i class="lg-u"></i><span data-i18n-html="cvar.lg.u"></span></span>
+      <span><i class="lg-ghost"></i><span data-i18n="cvar.lg.ghost"></span></span>
+      <span><i class="lg-w"></i><span data-i18n="cvar.lg.w"></span></span>
+    </div>
+    <p class="scen-status" id="cvar-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cvar.model.kicker"></span><span data-i18n="cvar.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="cvar.def.head"></p>
+        <div class="formula" data-tex="cvar.def.tex" data-i18n="cvar.def.formula"></div>
+        <p class="mtext" data-i18n-html="cvar.def.why"></p>
+        <p class="mhead" data-i18n="cvar.ru.head"></p>
+        <div class="formula" data-tex="cvar.ru.tex" data-i18n="cvar.ru.formula"></div>
+        <p class="mtext" data-i18n="cvar.ru.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="cvar.lp.head"></p>
+        <div class="formula" data-tex="cvar.lp.tex" data-i18n="cvar.lp.formula"></div>
+        <p class="mtext" data-i18n-html="cvar.lp.why"></p>
+        <p class="mhead" data-i18n="cvar.mv.head"></p>
+        <div class="formula" data-tex="cvar.mv.tex" data-i18n="cvar.mv.formula"></div>
+        <p class="mtext" data-i18n="cvar.mv.why"></p>
+      </div>
+    </div>
+    <p class="mhead" data-i18n="cvar.data.head"></p>
+    <p class="mtext" id="cvar-data"></p>
+    <div class="tblwrap"><table class="data" id="cvar-assets"></table></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cvar.sol.kicker"></span><span id="cvar-sol-title"></span></h2>
+    <div class="tblwrap"><table class="data" id="cvar-sol"></table></div>
+    <p class="sol-p" id="cvar-lpinfo"></p>
+    <p class="sol-p" id="cvar-kkt-p"></p>
+    <div class="formula" id="cvar-kkt"></div>
+    <p class="sol-p" id="cvar-kkt-check"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cvar.lv.kicker"></span><span data-i18n="cvar.lv.title"></span></h2>
+    <div class="tblwrap"><table class="data" id="cvar-lv"></table></div>
+    <p class="sol-p" id="cvar-lv-note"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="cvar.n.title"></summary>
+      <div class="body">
+        <p id="cvar-n1"></p>
+        <p id="cvar-n2"></p>
+        <p id="cvar-n3"></p>
+        <p id="cvar-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.18" data-refs="cvar.refs"></p>
+  <p class="note" data-i18n="cvar.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-cvar.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d) { d = d == null ? 2 : d; if (Math.abs(v) < 0.5 * Math.pow(10, -d)) v = 0; return I18N.fmt(v, d, d); };
+  var num = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? MINUS : "") + m; };
+  var sgn = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? MINUS : "+") + m; };
+  var texNum = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? "-" : "") + m; };
+  var pct = function (v, d) { return T("cvar.pct", { v: num(v, d == null ? 2 : d) }); };
+  var spct = function (v, d) { return T("cvar.pct", { v: sgn(v, d == null ? 2 : d) }); };
+
+  /* =====================================================================================
+     The data: S equally likely monthly scenarios of returns (in %) for three assets, drawn from a
+     two regime mixture (calm months and stress months) with Anim.rng(SEED). Illustrative.
+     ===================================================================================== */
+  var SEED = 42, S = 200, RMIN = 0.4, PSTRESS = 0.08, NA = 3;
+  var ASSETS = ["stocks", "tes", "usd"];
+  var REG = {                                   // mean, std dev and correlation with stocks of each asset
+    calm:   { m: [1.5, 0.8, -0.2], s: [4.4, 0.6, 2.8], c: [0.25, -0.4] },
+    stress: { m: [-9, -6, 6.5],    s: [3.5, 2.0, 2.8], c: [0.5, -0.5] }
+  };
+  var ALPHA = { a90: 0.90, a95: 0.95, a99: 0.99 };
+  var KEYS = ["a90", "a95", "a99"];
+
+  var R = (function () {
+    var r = Anim.rng(SEED), out = [];
+    var z = function () { var u1 = r(), u2 = r(); return Math.sqrt(-2 * Math.log(1 - u1)) * Math.cos(2 * Math.PI * u2); };
+    var rd = function (v) { return Math.round(v * 100) / 100; };
+    for (var s = 0; s < S; s++) {
+      var g = r() < PSTRESS ? REG.stress : REG.calm, z1 = z(), z2 = z(), z3 = z();
+      var e = g.m[0] + g.s[0] * z1;
+      var b = g.m[1] + g.s[1] * (g.c[0] * z1 + Math.sqrt(1 - g.c[0] * g.c[0]) * z2);
+      var d = g.m[2] + g.s[2] * (g.c[1] * z1 + Math.sqrt(1 - g.c[1] * g.c[1]) * z3);
+      out.push([rd(e), rd(b), rd(d)]);
+    }
+    return out;
+  })();
+  var MU = [0, 1, 2].map(function (i) { var a = 0; R.forEach(function (r) { a += r[i]; }); return a / S; });
+  var SIG = [0, 1, 2].map(function (i) {        // covariance of the scenarios (equally likely, divide by S)
+    return [0, 1, 2].map(function (j) { var a = 0; R.forEach(function (r) { a += (r[i] - MU[i]) * (r[j] - MU[j]); }); return a / S; });
+  });
+  var ASTAT = [0, 1, 2].map(function (i) {
+    var w = Infinity, b = -Infinity; R.forEach(function (r) { w = Math.min(w, r[i]); b = Math.max(b, r[i]); });
+    return { mu: MU[i], sd: Math.sqrt(SIG[i][i]), worst: w, best: b };
+  });
+  var CORR = [0, 1, 2].map(function (i) { return [0, 1, 2].map(function (j) { return SIG[i][j] / Math.sqrt(SIG[i][i] * SIG[j][j]); }); });
+
+  function lossOf(x) { return R.map(function (r) { return -(r[0] * x[0] + r[1] * x[1] + r[2] * x[2]); }); }
+  function varOf(x) { var v = 0; for (var i = 0; i < NA; i++) for (var j = 0; j < NA; j++) v += x[i] * SIG[i][j] * x[j]; return v; }
+  function retOf(x) { return MU[0] * x[0] + MU[1] * x[1] + MU[2] * x[2]; }
+  // VaR, CVaR and the order of the losses of one portfolio at level alpha (alpha S is an integer here)
+  function risk(L, alpha) {
+    var m = Math.round((1 - alpha) * S), k = S - m;
+    var order = L.map(function (v, i) { return i; }).sort(function (a, b) { return L[a] - L[b] || a - b; });
+    var rank = new Array(S); order.forEach(function (s, j) { rank[s] = j; });
+    var VaR = L[order[k - 1]], tail = 0;
+    for (var j = k; j < S; j++) tail += L[order[j]];
+    var ru = 0; L.forEach(function (v) { ru += Math.max(0, v - VaR); });
+    return { L: L, m: m, k: k, order: order, rank: rank, VaR: VaR, CVaR: tail / m, ru: VaR + ru / m,
+      worst: L[order[S - 1]], best: L[order[0]] };
+  }
+  function F(L, m, eta) { var a = 0; for (var s = 0; s < S; s++) if (L[s] > eta) a += L[s] - eta; return eta + a / m; }
+
+  // Gaussian elimination with partial pivoting
+  function linsolve(A, b) {
+    var n = b.length, M = A.map(function (row, i) { return row.concat([b[i]]); }), i, j, k;
+    for (k = 0; k < n; k++) {
+      var p = k; for (i = k + 1; i < n; i++) if (Math.abs(M[i][k]) > Math.abs(M[p][k])) p = i;
+      if (Math.abs(M[p][k]) < 1e-12) return null;
+      var tmp = M[k]; M[k] = M[p]; M[p] = tmp;
+      for (i = k + 1; i < n; i++) { var f = M[i][k] / M[k][k]; for (j = k; j <= n; j++) M[i][j] -= f * M[k][j]; }
+    }
+    var x = new Array(n);
+    for (i = n - 1; i >= 0; i--) { var s = M[i][n]; for (j = i + 1; j < n; j++) s -= M[i][j] * x[j]; x[i] = s / M[i][i]; }
+    return x;
+  }
+  /* Minimum variance: min x'Σx s.t. sum x = 1, mu'x >= R, x >= 0. For every guess of the active set
+     (assets at zero, return constraint tight or not) solve the KKT linear system
+       [2Σ_F  -1  -mu_F; 1' 0 0; mu_F' 0 0] [x_F; λ; γ] = [0; 1; R]
+     and keep the guess whose solution meets every KKT sign condition (x_F >= 0, γ >= 0, ν >= 0). */
+  var MV = (function () {
+    var best = null;
+    for (var mask = 1; mask < 8; mask++) {
+      for (var ret = 0; ret < 2; ret++) {
+        var Fs = [0, 1, 2].filter(function (i) { return mask & (1 << i); }), k = Fs.length, n = k + 1 + ret;
+        var A = [], b = [], i, j;
+        for (i = 0; i < k; i++) {
+          var row = Fs.map(function (fj) { return 2 * SIG[Fs[i]][fj]; });
+          row.push(-1); if (ret) row.push(-MU[Fs[i]]);
+          A.push(row); b.push(0);
+        }
+        var r1 = Fs.map(function () { return 1; }).concat([0]); if (ret) r1.push(0);
+        A.push(r1); b.push(1);
+        if (ret) { A.push(Fs.map(function (fj) { return MU[fj]; }).concat([0, 0])); b.push(RMIN); }
+        var sol = linsolve(A, b);
+        if (!sol) continue;
+        var x = [0, 0, 0]; Fs.forEach(function (fi, q) { x[fi] = sol[q]; });
+        var lam = sol[k], gam = ret ? sol[k + 1] : 0;
+        var nu = [0, 1, 2].map(function (q) {
+          if (Fs.indexOf(q) >= 0) return 0;
+          var g = 0; for (j = 0; j < NA; j++) g += 2 * SIG[q][j] * x[j];
+          return g - lam - gam * MU[q];
+        });
+        var ok = x.every(function (v) { return v >= -1e-10; }) && gam >= -1e-10 && nu.every(function (v) { return v >= -1e-10; }) &&
+          retOf(x) >= RMIN - 1e-10;
+        if (ok) {
+          var v = varOf(x);
+          if (!best || v < best.v - 1e-12) best = { x: x, v: v, lam: lam, gam: gam, nu: nu, F: Fs, ret: !!ret, A: A, b: b, sol: sol };
+        }
+      }
+    }
+    return best;
+  })();
+  var LMV = lossOf(MV.x);
+
+  /* Minimum CVaR (Rockafellar and Uryasev 2000) as an LP over the S scenarios:
+       min eta + (1/m) sum u_s  s.t. u_s >= -r_s'x - eta, u_s >= 0, sum x = 1, mu'x >= R, x >= 0,
+     with m = (1 - alpha) S and eta free (eta = eta+ - eta-). Solved in the browser with LP.solve. */
+  function cvarLP(alpha) {
+    var m = Math.round((1 - alpha) * S), N = NA + 2 + S, c = new Array(N).fill(0), rows = [], s, i;
+    c[NA] = 1; c[NA + 1] = -1;
+    for (s = 0; s < S; s++) c[NA + 2 + s] = 1 / m;
+    for (s = 0; s < S; s++) {
+      var a = new Array(N).fill(0);
+      for (i = 0; i < NA; i++) a[i] = -R[s][i];
+      a[NA] = -1; a[NA + 1] = 1; a[NA + 2 + s] = -1;
+      rows.push({ a: a, op: "<=", b: 0 });          // -r_s'x - eta - u_s <= 0
+    }
+    var ab = new Array(N).fill(0), ar = new Array(N).fill(0);
+    for (i = 0; i < NA; i++) { ab[i] = 1; ar[i] = MU[i]; }
+    rows.push({ a: ab, op: "=", b: 1 });
+    rows.push({ a: ar, op: ">=", b: RMIN });
+    var res = LP.solve({ sense: "min", c: c, rows: rows });
+    if (res.status !== "optimal") return null;
+    var x = res.x.slice(0, NA), sx = x[0] + x[1] + x[2];
+    return { x: x.map(function (v) { return v / sx; }), eta: res.x[NA] - res.x[NA + 1], z: res.z, it: res.iterations,
+      nv: N, nr: rows.length, retDual: res.duals[S + 1] };
+  }
+
+  var cache = {};
+  function scen(key) {
+    if (cache[key]) return cache[key];
+    var alpha = ALPHA[key], lp = cvarLP(alpha), LB = lossOf(lp.x);
+    var A = risk(LMV, alpha), B = risk(LB, alpha);
+    return (cache[key] = {
+      key: key, alpha: alpha, m: A.m, k: A.k, lp: lp, xA: MV.x, xB: lp.x, A: A, B: B,
+      sdA: Math.sqrt(varOf(MV.x)), sdB: Math.sqrt(varOf(lp.x)), vA: varOf(MV.x), vB: varOf(lp.x),
+      retA: retOf(MV.x), retB: retOf(lp.x)
+    });
+  }
+  var state = { sc: "a95" };
+  scen(state.sc);
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed above; the dot layout, the path of η and
+     the timing are illustrative.
+     ===================================================================================== */
+  var A_ = window.Anim, E = A_.ease, seg = A_.seg, lerp = A_.lerp, clamp = A_.clamp;
+  var root = document.getElementById("cvar-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("cvar-hud");
+  var cv = A_.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var DUR = 54, CH = [0, 10, 20, 31, 43];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var TAU = Math.PI * 2;
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [128, 128, 128];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  function mix(c1, c2, u) {
+    var a = rgbOf(c1), b = rgbOf(c2);
+    return "rgb(" + Math.round(lerp(a[0], b[0], u)) + "," + Math.round(lerp(a[1], b[1], u)) + "," + Math.round(lerp(a[2], b[2], u)) + ")";
+  }
+  function isDark() { var s = rgbOf(C.surface); return s[0] + s[1] + s[2] < 300; }
+
+  /* ---------- time model ---------- */
+  var T_SWEEP = [11, 16.2], T_TAIL = [20.4, 21.6], T_RUN = [22, 26.6], T_CV = 27;
+  var T_ETA = [31.8, 34.8, 38.6, 41.2], T_MOVE = [45, 49.6];
+  function etaPath(S_, t) {                        // η in chapter 4: left, far right, back to VaR
+    var v = S_.A.VaR;
+    if (t < T_ETA[1]) return lerp(v, L.etaL, E.inOut(seg(t, T_ETA[0], T_ETA[1])));
+    if (t < T_ETA[2]) return lerp(L.etaL, L.etaR, E.inOut(seg(t, T_ETA[1], T_ETA[2])));
+    return lerp(L.etaR, v, E.inOut(seg(t, T_ETA[2], T_ETA[3])));
+  }
+  function sweepLoss(S_, t) { return lerp(L.lo, S_.A.VaR, E.inOut(seg(t, T_SWEEP[0], T_SWEEP[1]))); }
+  function runCount(S_, t) {                       // how many of the worst losses the running mean holds (fractional)
+    return 1 + (S_.m - 1) * E.inOut(seg(t, T_RUN[0] + 0.5, T_RUN[1]));
+  }
+  function runMean(S_, t) {
+    var q = runCount(S_, t), j = Math.floor(q), f = q - j, a = 0, A = S_.A;
+    for (var i = 0; i < j; i++) a += A.L[A.order[S - 1 - i]];
+    var mj = a / j;
+    if (f <= 0 || j >= S_.m) return mj;
+    var mj1 = (a + A.L[A.order[S - 1 - j]]) / (j + 1);
+    return lerp(mj, mj1, f);
+  }
+  function moveU(t) { return E.inOut(seg(t, T_MOVE[0], T_MOVE[1])); }
+  function dotU(S_, s, t) {                        // chapter 5: each dot moves on its own, staggered by its old rank
+    var d = S_.A.rank[s] / S * 1.6;
+    return E.inOut(seg(t, T_MOVE[0] + d, T_MOVE[0] + d + 3));
+  }
+
+  /* ---------- layout ---------- */
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function layout() {
+    var S_ = scen(state.sc);
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11; L.fb = 12; L.ft = 13.5; L.lw = 2;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 11.5; L.fb = 13; L.ft = 16; L.lw = 2.5;
+    }
+    // room for the longest caption, so nothing jumps between chapters
+    var tl = 1, sl = 1;
+    CH.forEach(function (c) {
+      var cap = captions(S_, c + 0.1);
+      ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+      ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    // the panel (weights, and F(η) in chapter 4): left column on wide stages, a band above the plot on phones
+    if (portrait) {
+      L.pb = { x: 10, y: L.capBottom + 8, w: W - 20, h: Math.round(clamp(H * 0.19, 80, 112)) };
+      L.x0 = 14; L.x1 = W - 14; L.top = L.pb.y + L.pb.h + 10; L.base = H - 38;
+    } else {
+      L.pb = { x: L.capX, y: L.capBottom + 16, w: L.capW - 10, h: Math.min(210, H - L.capBottom - 30) };
+      L.x0 = hx + hw + 30; L.x1 = W - 20; L.top = 14; L.base = H - 44;
+    }
+    L.rowH = L.fb + 5;                              // two label rows above the dots: CVaR on top, VaR and η below
+    L.histTop = L.top + 2 * L.rowH + 8;
+    // loss axis: covers both portfolios with a margin
+    var lo = Math.min(S_.A.best, S_.B.best), hi = Math.max(S_.A.worst, S_.B.worst);
+    L.lo = Math.floor(lo - 0.3); L.hi = Math.ceil(hi + 0.3);
+    L.etaL = Math.max(L.lo + 0.6, S_.A.VaR - 4); L.etaR = Math.min(L.hi - 0.6, S_.A.worst - 0.4);
+    // dot size: the largest radius for which both stacked layouts fit under the label rows
+    var rMax = portrait ? 5.5 : 8.5, r;
+    for (r = rMax; r >= 1.4; r -= 0.2) {
+      L.r = r;
+      L.dA = dotLayout(S_.A); L.dB = dotLayout(S_.B);
+      if (Math.min(L.dA.top, L.dB.top) >= L.histTop) break;
+    }
+    L.ghost = skyline(L.dA);
+    // F(η) samples for the inset
+    L.Fc = [];
+    for (var i = 0; i <= 120; i++) { var e = lerp(L.etaL, L.etaR, i / 120); L.Fc.push([e, F(S_.A.L, S_.m, e)]); }
+    L.Fmin = F(S_.A.L, S_.m, S_.A.VaR);
+    hudKey = W + "x" + H + ":" + hh + ":" + hw + ":" + state.sc;
+  }
+  function LX(v) { return L.x0 + (v - L.lo) / (L.hi - L.lo) * (L.x1 - L.x0); }
+  function dotLayout(Rk) {                        // stacked dots: a column per bin one dot wide, stacked in loss order
+    var xs = new Float64Array(S), ys = new Float64Array(S), cnt = {}, top = Infinity, bw = 2 * L.r;
+    Rk.order.forEach(function (s) {
+      var X = LX(Rk.L[s]), b = Math.floor((X - L.x0) / bw), c = cnt[b] || 0;
+      cnt[b] = c + 1;
+      xs[s] = L.x0 + (b + 0.5) * bw; ys[s] = L.base - L.r - 1 - c * bw;
+      top = Math.min(top, ys[s] - L.r);
+    });
+    return { x: xs, y: ys, top: top, cnt: cnt, bw: bw };
+  }
+  function skyline(D) {                           // outline of the stacked dots (the minimum variance ghost)
+    var keys = Object.keys(D.cnt).map(Number).sort(function (a, b) { return a - b; }), pts = [];
+    keys.forEach(function (b) {
+      var x0 = L.x0 + b * D.bw, x1 = x0 + D.bw, y = L.base - D.cnt[b] * D.bw - 1;
+      pts.push([x0, y], [x1, y]);
+    });
+    return pts;
+  }
+
+  /* ---------- drawing helpers ---------- */
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function tw(txt, f) { ctx.font = f; return ctx.measureText(txt).width; }
+  // a label beside a vertical line at X, kept inside the plot: to the right when it fits, else to the left
+  function sideLabel(txt, X, Y, col, f, a, prefer) {
+    var w = tw(txt, f), right = prefer !== "left";
+    if (right && X + 6 + w > L.x1 + 4) right = false;
+    if (!right && X - 6 - w < L.x0 - 12) right = true;
+    label(txt, right ? X + 6 : X - 6, Y, right ? "left" : "right", col, f, a);
+  }
+  function vline(X, y0, y1, col, lw, a, dash) {
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+    ctx.beginPath(); ctx.moveTo(X, y0); ctx.lineTo(X, y1); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+
+  /* ---------- axis ---------- */
+  function drawAxis(t) {
+    var a = E.out(seg(t, 0.1, 1.2));
+    if (a <= 0) return;
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(L.x0 - 6, L.base + 0.5); ctx.lineTo(L.x1 + 6, L.base + 0.5); ctx.stroke();
+    var X0 = LX(0);
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X0, L.histTop - 4); ctx.lineTo(X0, L.base); ctx.stroke();
+    var fs = L.portrait ? 10.5 : 11, step = (L.x1 - L.x0) / (L.hi - L.lo) < 24 ? 4 : 2;
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (var v = Math.ceil(L.lo / step) * step; v <= L.hi; v += step) {
+      var X = LX(v);
+      ctx.strokeStyle = C.axis; ctx.beginPath(); ctx.moveTo(X, L.base); ctx.lineTo(X, L.base + 4); ctx.stroke();
+      ctx.fillText(String(v).replace("-", MINUS), X, L.base + 6);
+    }
+    ctx.font = font(400, fs); ctx.textAlign = "right"; ctx.fillStyle = C.ink2;
+    ctx.fillText(T("cvar.l.axis"), L.x1 + 6, L.base + 8 + fs + 4);
+    ctx.textAlign = "left"; ctx.fillStyle = C.muted;
+    ctx.fillText(T("cvar.l.gain"), L.x0 - 6, L.base + 8 + fs + 4);
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- the dots ---------- */
+  function drawDots(S_, t) {
+    var A = S_.A, B = S_.B, dA = L.dA, dB = L.dB, rr = L.r * 0.84;
+    var ink = C.ink, sil = C["mit-silver"], hot = HOT;
+    var sweepX = t >= T_SWEEP[0] ? LX(sweepLoss(S_, t)) : -1e9;
+    var nonTailDim = seg(t, T_SWEEP[1] - 0.2, T_SWEEP[1] + 0.4);
+    var move = t >= T_MOVE[0];
+    for (var s = 0; s < S; s++) {
+      var x = dA.x[s], y = dA.y[s], col = ink, a = 1;
+      // chapter 1: the dots fall into place, one scenario after another
+      var t0 = 1 + s / S * 5.6, fall = seg(t, t0, t0 + 0.9);
+      if (fall <= 0) continue;
+      var tailA = A.rank[s] >= A.k;
+      if (fall < 1) {
+        var y0 = L.histTop - 30, yy = lerp(y0, y, E.in(fall) * 0.35 + E.out(fall) * 0.65);
+        a = seg(t, t0, t0 + 0.25);
+        ctx.globalAlpha = a * 0.35 * (1 - fall); ctx.strokeStyle = ink; ctx.lineWidth = rr * 0.9; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(x, Math.max(y0, yy - 22 * (1 - fall) - 4)); ctx.lineTo(x, yy); ctx.stroke(); ctx.lineCap = "butt";
+        y = yy;
+      }
+      // chapters 2 to 4: passed by the VaR sweep → context; the tail turns red in chapter 3
+      if (!tailA) col = mix(ink, sil, Math.max(clamp((sweepX - x) / 14, 0, 1), nonTailDim));
+      else {
+        var ts = T_TAIL[0] + (S - 1 - A.rank[s]) / Math.max(1, S_.m - 1) * (T_TAIL[1] - T_TAIL[0] - 0.4);
+        col = mix(ink, hot, seg(t, ts, ts + 0.4));
+      }
+      // chapter 5: to the minimum CVaR portfolio
+      if (move) {
+        var u = dotU(S_, s, t), tailB = B.rank[s] >= B.k;
+        x = lerp(x, dB.x[s], u); y = lerp(y, dB.y[s], u);
+        col = mix(tailA ? hot : sil, tailB ? hot : sil, seg(u, 0.35, 0.8));
+      }
+      ctx.globalAlpha = a; ctx.fillStyle = col; circle(x, y, rr); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function pulse(X, Y, t, t0, col, r0) {           // a ring that grows and fades
+    var u = seg(t, t0, t0 + 0.9);
+    if (u <= 0 || u >= 1) return;
+    ctx.globalAlpha = 0.8 * (1 - u); ctx.strokeStyle = col; ctx.lineWidth = 2;
+    circle(X, Y, r0 + 16 * E.out(u)); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+
+  /* ---------- VaR, CVaR, η ---------- */
+  function rowY(k) { return L.top + L.rowH * (k + 0.5); }   // k = 0: CVaR row, k = 1: VaR and η row
+  function lineTop() { return L.top + 2 * L.rowH + 2; }
+  function drawLines(S_, t) {
+    var A = S_.A, B = S_.B, u = moveU(t), fb = font(700, L.fb), fn = font(400, L.fb);
+    var p = pctA(S_);
+    // chapter 2: the sweep and its count
+    if (t >= T_SWEEP[0] && t < CH[2] + 0.6) {
+      var lv = sweepLoss(S_, t), X = LX(lv), a = seg(t, T_SWEEP[0], T_SWEEP[0] + 0.4) * (1 - seg(t, CH[2] + 0.1, CH[2] + 0.6));
+      var cnt = 0; for (var s = 0; s < S; s++) if (A.L[s] <= lv + 1e-9) cnt++;
+      if (t < T_SWEEP[1]) {
+        vline(X, lineTop(), L.base, C.ink, L.lw, a, [5, 4]);
+        sideLabel(T("cvar.l.count", { c: cnt, S: S, p: pct(cnt / S * 100, 1) }), X, rowY(1), C.ink2, fn, a, "left");
+      } else sideLabel(T("cvar.l.count", { c: cnt, S: S, p: pct(cnt / S * 100, 1) }), X, rowY(0), C.ink2, fn, a, "left");
+    }
+    // VaR line: from the end of the sweep; in chapter 5 it moves to the new portfolio
+    var va = seg(t, T_SWEEP[1] - 0.1, T_SWEEP[1] + 0.3), vVal = lerp(A.VaR, B.VaR, u), XV = LX(vVal);
+    var inEta = seg(t, T_ETA[0] - 0.4, T_ETA[0]) * (1 - seg(t, CH[4] - 0.4, CH[4]));
+    vline(XV, lineTop(), L.base, C.ink, L.lw, va * (1 - 0.65 * inEta));
+    pulse(XV, L.base - 4, t, T_SWEEP[1], C.ink, 4);
+    // CVaR line: the running mean in chapter 3, then fixed
+    var ca = seg(t, T_RUN[0], T_RUN[0] + 0.4), cVal = t < T_CV ? runMean(S_, t) : lerp(A.CVaR, B.CVaR, u), XC = LX(cVal);
+    var solid = seg(t, T_CV, T_CV + 0.5);
+    if (t < T_CV + 0.5) vline(XC, lineTop(), L.base, C.accent, 1.5, ca * (1 - solid) * (1 - 0.65 * inEta), [3, 3]);
+    vline(XC, lineTop(), L.base, C.accent, L.lw + 0.5, solid * (1 - 0.65 * inEta));
+    pulse(XC, L.base - 4, t, T_CV, C.accent, 4);
+    pulse(XC, L.base - 4, t, T_MOVE[1] - 0.2, C.accent, 4);
+    // ghosts of the minimum variance lines in chapter 5
+    var ga = seg(t, T_MOVE[0], T_MOVE[0] + 0.6);
+    if (ga > 0) {
+      vline(LX(A.VaR), lineTop(), L.base, C["mit-silver"], 1.5, ga, [5, 4]);
+      vline(LX(A.CVaR), lineTop(), L.base, C["mit-silver"], 1.5, ga, [5, 4]);
+    }
+    // labels (faded while η has the stage)
+    var la = 1 - inEta;
+    if (t < T_MOVE[0] + 0.2) {
+      sideLabel(T("cvar.l.var", { p: p, v: pct(A.VaR) }), XV, rowY(1), C.ink, fb, seg(t, T_SWEEP[1], T_SWEEP[1] + 0.5) * la, "left");
+      var cl = t < T_CV ? T("cvar.l.run", { j: Math.round(runCount(S_, t)), v: pct(cVal) }) : T("cvar.l.cvar", { p: p, v: pct(A.CVaR) });
+      sideLabel(cl, XC, rowY(0), C["accent-text"], fb, ca * la * (1 - seg(t, T_MOVE[0] - 0.4, T_MOVE[0])), "right");
+    } else {
+      var fa = seg(t, T_MOVE[0] + 0.2, T_MOVE[0] + 0.8);
+      moveLabel(T("cvar.l.var2", { p: p }), A.VaR, B.VaR, vVal, rowY(1), C.ink, fa);
+      moveLabel(T("cvar.l.cvar2", { p: p }), A.CVaR, B.CVaR, cVal, rowY(0), C["accent-text"], fa);
+    }
+  }
+  function moveLabel(name, v0, v1, v, Y, col, a) {   // "CVaR 95%  6.14% → 5.03%": arrow from the old line to the new one
+    if (a <= 0.01) return;
+    var X0 = LX(v0), X1 = LX(v), fb = font(700, L.fb);
+    var txt = name + "  " + pct(v0) + " → " + pct(v);
+    var w = tw(txt, fb), mid = (X0 + LX(v1)) / 2, x = clamp(mid - w / 2, L.x0 - 8, L.x1 + 8 - w);
+    // the text sits beside the pair of lines when there is room, else centred over them
+    if (Math.max(X0, LX(v1)) + 8 + w <= L.x1 + 8) x = Math.max(X0, LX(v1)) + 8;
+    else if (Math.min(X0, LX(v1)) - 8 - w >= L.x0 - 8) x = Math.min(X0, LX(v1)) - 8 - w;
+    label(txt, x, Y, "left", col, fb, a);
+    if (Math.abs(X1 - X0) > 8) {                   // the arrow along the line tops
+      var y = lineTop() + 4, dir = X1 > X0 ? 1 : -1;
+      ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(X0, y); ctx.lineTo(X1 - dir * 6, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X1, y); ctx.lineTo(X1 - dir * 7, y - 4); ctx.lineTo(X1 - dir * 7, y + 4); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+  function drawEta(S_, t) {                        // chapter 4: the η line and the excesses u_s = L_s - η
+    var a = seg(t, T_ETA[0] - 0.4, T_ETA[0]) * (1 - seg(t, CH[4] - 0.4, CH[4] + 0.3));
+    if (a <= 0.01) return;
+    var A = S_.A, eta = etaPath(S_, t), XE = LX(eta), n = 0, s;
+    ctx.globalAlpha = a * 0.85; ctx.strokeStyle = HOT; ctx.lineWidth = L.portrait ? 1.4 : 1.8;
+    ctx.beginPath();
+    for (s = 0; s < S; s++) {
+      if (A.L[s] <= eta) continue;
+      n++;
+      var x = L.dA.x[s], y = L.dA.y[s];
+      if (x - XE > L.r) { ctx.moveTo(XE, y); ctx.lineTo(x - L.r * 0.84, y); }
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
+    vline(XE, lineTop(), L.base, HOT, L.lw, a);
+    ctx.globalAlpha = a; ctx.fillStyle = HOT;
+    ctx.beginPath(); ctx.moveTo(XE, L.base + 1); ctx.lineTo(XE - 6, L.base + 9); ctx.lineTo(XE + 6, L.base + 9); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+    var at = seg(t, T_ETA[3] - 0.2, T_ETA[3] + 0.4);
+    var txt = at > 0.5 ? T("cvar.l.etaVar", { v: pct(eta) }) : T("cvar.l.eta", { v: pct(eta), n: n });
+    sideLabel(txt, XE, rowY(1), at > 0.5 ? C.ink : (isDark() ? C.crit : C["accent-text"]), font(700, L.fb), a, "right");
+  }
+
+  /* ---------- the panel: portfolio weights, and F(η) in chapter 4 ---------- */
+  var WCOL = function (i) { return i === 0 ? C.ink : i === 1 ? C["mit-silver"] : C.accent; };
+  function wText(i) {                             // text colour on each bar segment
+    if (i === 1) return isDark() ? C.surface : C.ink;
+    return C.surface;
+  }
+  function drawWeights(S_, t) {
+    var a = seg(t, 0.8, 1.6) * (1 - seg(t, T_ETA[0] - 0.8, T_ETA[0] - 0.2)) + seg(t, CH[4] - 0.2, CH[4] + 0.5);
+    a = clamp(a, 0, 1);
+    if (a <= 0.01) return;
+    var P = L.pb, fs = L.portrait ? 11 : 11.5, bh = L.portrait ? 16 : 18, gap = L.portrait ? 10 : 14;
+    var rows = [{ k: "cvar.l.mv", x: S_.xA, a: 1 }];
+    var ub = E.inOut(seg(t, CH[4] + 1, CH[4] + 2.6));
+    if (t >= CH[4]) rows.push({ k: "cvar.l.mc", x: [0, 1, 2].map(function (i) { return lerp(S_.xA[i], S_.xB[i], ub); }), a: seg(t, CH[4] + 0.4, CH[4] + 1) });
+    var y = P.y;
+    ctx.save();
+    rows.forEach(function (r) {
+      var ra = a * r.a;
+      if (ra <= 0.01) { y += fs + 4 + bh + gap; return; }
+      ctx.globalAlpha = ra; ctx.font = font(600, fs); ctx.fillStyle = C.ink2; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+      ctx.fillText(T(r.k), P.x, y + fs);
+      y += fs + 4;
+      var x = P.x;
+      for (var i = 0; i < NA; i++) {
+        var w = r.x[i] * P.w;
+        ctx.fillStyle = WCOL(i); ctx.fillRect(x, y, Math.max(0, w - (i < NA - 1 ? 1 : 0)), bh);
+        var s = pct(r.x[i] * 100, 0), sw = tw(s, font(600, fs - 1));
+        if (w > sw + 8) {
+          ctx.font = font(600, fs - 1); ctx.fillStyle = wText(i); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(s, x + w / 2, y + bh / 2 + 0.5);
+        }
+        x += w;
+      }
+      y += bh + gap;
+    });
+    ctx.restore();
+  }
+  function drawInset(S_, t) {
+    var a = seg(t, T_ETA[0] - 0.2, T_ETA[0] + 0.5) * (1 - seg(t, CH[4] - 0.6, CH[4] - 0.1));
+    if (a <= 0.01) return;
+    var P = L.pb, fs = L.portrait ? 10.5 : 11;
+    var px0 = P.x + 4, px1 = P.x + P.w - 6, py0 = P.y + 2 * fs + 14, py1 = P.y + P.h - fs - 8;
+    var e0 = L.etaL, e1 = L.etaR, f0 = Infinity, f1 = -Infinity;
+    L.Fc.forEach(function (q) { f0 = Math.min(f0, q[1]); f1 = Math.max(f1, q[1]); });
+    f0 -= (f1 - f0) * 0.22;
+    var X = function (e) { return px0 + (e - e0) / (e1 - e0) * (px1 - px0); };
+    var Y = function (f) { return py1 - (f - f0) / (f1 - f0) * (py1 - py0); };
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px0, py0 - 4); ctx.lineTo(px0, py1); ctx.lineTo(px1, py1); ctx.stroke();
+    ctx.font = font(700, fs); ctx.fillStyle = C["accent-text"]; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    ctx.fillText(T("cvar.l.F"), px0 + 4, P.y + fs + 1);
+    var ma = seg(t, T_ETA[3] - 0.2, T_ETA[3] + 0.4), XM = X(S_.A.VaR), YM = Y(L.Fmin), right = XM > (px0 + px1) / 2;
+    // the axis name, unless the "at η = VaR" note under the minimum would reach it
+    var an = T("cvar.l.atVar"), aw = tw(an, font(400, fs)), ax0 = right ? XM - aw : XM - aw / 2;
+    ctx.font = font(400, fs); ctx.fillStyle = C.muted; ctx.textAlign = "right"; ctx.textBaseline = "top";
+    ctx.globalAlpha = a * (1 - (right || ax0 + aw > px1 - 16 ? ma : 0)); ctx.fillText("η", px1, py1 + 3); ctx.globalAlpha = a;
+    // the curve, drawn fully faint and brighter where η has already been
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 1.2; ctx.globalAlpha = a * 0.3; ctx.beginPath();
+    L.Fc.forEach(function (q, i) { if (i) ctx.lineTo(X(q[0]), Y(q[1])); else ctx.moveTo(X(q[0]), Y(q[1])); });
+    ctx.stroke();
+    var eta = etaPath(S_, t), lo = Math.min(S_.A.VaR, eta), hi = S_.A.VaR;
+    if (t >= T_ETA[1]) { lo = L.etaL; hi = Math.max(S_.A.VaR, eta); }
+    if (t >= T_ETA[2]) hi = L.etaR;
+    ctx.globalAlpha = a; ctx.lineWidth = 2.4; ctx.beginPath();
+    var first = true;
+    L.Fc.forEach(function (q) { if (q[0] < lo - 1e-9 || q[0] > hi + 1e-9) return; if (first) { ctx.moveTo(X(q[0]), Y(q[1])); first = false; } else ctx.lineTo(X(q[0]), Y(q[1])); });
+    ctx.stroke();
+    // the minimum: F = CVaR at η = VaR
+    if (ma > 0) {
+      ctx.globalAlpha = a * ma; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(XM, YM); ctx.lineTo(XM, py1); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+      ctx.globalAlpha = a * ma; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(px0, YM); ctx.lineTo(XM, YM); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+      label(T("cvar.l.Fmin", { v: pct(L.Fmin) }), px0 + 4, P.y + 2 * fs + 5, "left", C["accent-text"], font(700, fs), a * ma, "alphabetic");
+      label(an, right ? XM + 4 : XM, py1 + 3 + fs / 2, right ? "right" : "center", C.ink2, font(400, fs), a * ma);
+    }
+    ctx.globalAlpha = a;
+    var pe = etaPath(S_, t), XP = X(pe), YP = Y(F(S_.A.L, S_.m, pe));
+    ctx.fillStyle = C.surface; circle(XP, YP, 6); ctx.fill();
+    ctx.fillStyle = ma > 0.5 ? C.accent : HOT; circle(XP, YP, 4.2); ctx.fill();
+    ctx.restore();
+    pulse(XM, YM, t, T_ETA[3], C.accent, 5);
+  }
+
+  /* ---------- the minimum variance ghost in chapter 5 ---------- */
+  function drawGhost(t) {
+    var a = seg(t, T_MOVE[0], T_MOVE[0] + 0.8);
+    if (a <= 0.01) return;
+    var P = L.ghost;
+    ctx.globalAlpha = a * 0.9; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.4; ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    P.forEach(function (q, i) {
+      if (i === 0) { ctx.moveTo(q[0], L.base); ctx.lineTo(q[0], q[1]); return; }
+      var pr = P[i - 1];
+      if (i % 2 === 0 && q[0] - pr[0] > 0.5) { ctx.lineTo(pr[0], L.base); ctx.moveTo(q[0], L.base); }
+      ctx.lineTo(q[0], q[1]);
+    });
+    if (P.length) ctx.lineTo(P[P.length - 1][0], L.base);
+    ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+
+  /* ---------- caption ---------- */
+  function pctA(S_) { return pct(S_.alpha * 100, 0); }
+  function captions(S_, t) {
+    var A = S_.A, B = S_.B, p = pctA(S_);
+    if (t < CH[1]) return [T("cvar.cap1", { S: S }), T("cvar.cap1.sub")];
+    if (t < CH[2]) return [T("cvar.cap2", { p: p }), T("cvar.cap2.sub", { k: A.k, S: S, v: pct(A.VaR) })];
+    if (t < CH[3]) return [T("cvar.cap3", { m: S_.m }), T("cvar.cap3.sub", { c: pct(A.CVaR) })];
+    if (t < CH[4]) return [T("cvar.cap4"), T("cvar.cap4.sub")];
+    return [T("cvar.cap5"), T("cvar.cap5.sub", { c0: pct(A.CVaR), c1: pct(B.CVaR), s0: pct(S_.sdA), s1: pct(S_.sdB) })];
+  }
+  function drawCaption(S_, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(S_, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4].map(function (i) {
+    var el = document.getElementById("cvar-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("hot", kind === "hot"); c.k = kind; }
+  }
+  function wStr(x) { return x.map(function (v) { return pct(v * 100, 1); }).join(" · "); }
+  function hud(S_, t) {
+    var A = S_.A, B = S_.B, u = moveU(t), p = pctA(S_);
+    setChip(0, pct(lerp(A.VaR, B.VaR, u)), T("cvar.k.var", { p: p }), seg(t, T_SWEEP[1] - 0.1, T_SWEEP[1] + 0.3), "");
+    var inF = t >= T_ETA[0] && t < T_ETA[3] + 0.3;
+    if (t < T_CV) setChip(1, pct(runMean(S_, t)), T("cvar.k.run", { j: Math.round(runCount(S_, t)) }), seg(t, T_RUN[0], T_RUN[0] + 0.4), "acc");
+    else if (inF) setChip(1, pct(F(A.L, S_.m, etaPath(S_, t))), T("cvar.k.F"), 1, "acc");
+    else setChip(1, pct(lerp(A.CVaR, B.CVaR, u)), T("cvar.k.cvar", { p: p }), 1, "acc");
+    var eta = t < CH[4] ? etaPath(S_, Math.min(t, T_ETA[3])) : lerp(A.VaR, S_.lp.eta, u);
+    setChip(2, pct(eta), T("cvar.k.eta"), seg(t, T_ETA[0] - 0.3, T_ETA[0] + 0.2), "hot");
+    setChip(3, pct(lerp(S_.sdA, S_.sdB, u)), T("cvar.k.sd"), seg(t, 7.2, 7.8), "");
+    var xw = [0, 1, 2].map(function (i) { return lerp(S_.xA[i], S_.xB[i], E.inOut(seg(t, CH[4] + 1, CH[4] + 2.6))); });
+    setChip(4, wStr(xw), T("cvar.k.w", { p: T(t >= CH[4] + 1 ? "cvar.l.mc" : "cvar.l.mv") }), seg(t, 0.8, 1.4), "");
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A_.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var S_ = scen(state.sc);
+    hud(S_, t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth + ":" + state.sc) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    drawAxis(t);
+    drawGhost(t);
+    drawLines(S_, t);
+    drawDots(S_, t);
+    drawEta(S_, t);
+    // the tail beyond VaR: a pulse on each dot as it joins the running mean
+    if (t >= T_RUN[0] && t < T_CV + 1) {
+      var q = runCount(S_, t), j = Math.min(S_.m, Math.ceil(q - 1e-9)), s = S_.A.order[S - j];
+      var tj = T_RUN[0] + 0.5 + (T_RUN[1] - T_RUN[0] - 0.5) * (S_.m > 1 ? (j - 1) / (S_.m - 1) : 0);
+      pulse(L.dA.x[s], L.dA.y[s], t, tj - 0.1, HOT, L.r);
+    }
+    // quiet band under the counters and the caption
+    var gr, e1, e2;
+    if (!L.portrait) {
+      e2 = L.x0 - 12; e1 = clamp((L.capX + L.capW + 4) / e2, 0, 0.98);
+      gr = ctx.createLinearGradient(0, 0, e2, 0);
+      gr.addColorStop(0, rgba(C.surface, 1)); gr.addColorStop(e1, rgba(C.surface, 1)); gr.addColorStop(1, rgba(C.surface, 0));
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, e2, L.H);
+    }
+    drawCaption(S_, t);
+    drawWeights(S_, t);
+    drawInset(S_, t);
+  }
+
+  layout();
+  var player = A_.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "cvar.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status line, data, solution, levels, notes
+     ===================================================================================== */
+  function aName(i) { return T("cvar.a." + ASSETS[i]); }
+  function andList(a) { return a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + T("cvar.and") + a[a.length - 1]; }
+  function renderSeg() {
+    document.querySelectorAll("#cvar-seg button").forEach(function (b) {
+      b.textContent = T("cvar.sc", { a: fmt(ALPHA[b.getAttribute("data-sc")], 2) });
+    });
+  }
+  function renderScenText() {
+    var S_ = scen(state.sc), A = S_.A, B = S_.B;
+    document.getElementById("cvar-lg-dot").textContent = T("cvar.lg.dot", { S: S });
+    document.getElementById("cvar-lg-tail").textContent = T("cvar.lg.tail", { m: S_.m });
+    stage.setAttribute("aria-label", T("cvar.anim.aria") + " " + T("cvar.anim.aria.nums", {
+      a: fmt(S_.alpha, 2), v0: pct(A.VaR), c0: pct(A.CVaR), v1: pct(B.VaR), c1: pct(B.CVaR), eta: pct(S_.lp.eta),
+      w0: wStr(S_.xA), w1: wStr(S_.xB), s0: pct(S_.sdA), s1: pct(S_.sdB)
+    }));
+    document.getElementById("cvar-status").innerHTML = T("cvar.st", {
+      a: fmt(S_.alpha, 2), m: S_.m, S: S, v0: pct(A.VaR), c0: pct(A.CVaR), v1: pct(B.VaR), c1: pct(B.CVaR), s0: pct(S_.sdA), s1: pct(S_.sdB)
+    });
+  }
+  function renderData() {
+    document.getElementById("cvar-data").textContent = T("cvar.data.p", {
+      S: S, seed: SEED, ps: pct(PSTRESS * 100, 0), R: pct(RMIN)
+    });
+    var h = "<thead><tr><th class='rowh'>" + T("cvar.data.asset") + "</th><th class='num'>" + T("cvar.data.mean") + "</th><th class='num'>" +
+      T("cvar.data.sd") + "</th><th class='num'>" + T("cvar.data.worst") + "</th><th class='num wide'>" + T("cvar.data.best") + "</th><th class='num'>" +
+      T("cvar.data.corr") + "</th></tr></thead><tbody>";
+    ASTAT.forEach(function (a, i) {
+      h += "<tr><td class='rowh'>" + aName(i) + "</td><td class='num'>" + pct(a.mu) + "</td><td class='num'>" + pct(a.sd) + "</td><td class='num'>" +
+        pct(a.worst) + "</td><td class='num wide'>" + pct(a.best) + "</td><td class='num'>" + (i === 0 ? "1" : num(CORR[0][i], 2)) + "</td></tr>";
+    });
+    document.getElementById("cvar-assets").innerHTML = h + "</tbody>";
+  }
+  function renderSolution() {
+    var S_ = scen(state.sc), A = S_.A, B = S_.B, p = pctA(S_), lp = S_.lp;
+    document.getElementById("cvar-sol-title").textContent = T("cvar.sol.title", { a: fmt(S_.alpha, 2) });
+    var row = function (name, a, b, d, better, cls) {
+      return "<tr" + (cls ? " class='" + cls + "'" : "") + "><td class='rowh'>" + name + "</td><td class='num" + (better === 0 ? " best" : "") + "'>" + a +
+        "</td><td class='num" + (better === 1 ? " best" : "") + "'>" + b + "</td><td class='num dim'>" + d + "</td></tr>";
+    };
+    var h = "<thead><tr><th class='rowh'></th><th class='num'>" + T("cvar.l.mv") + "</th><th class='num'>" + T("cvar.l.mc") + "</th><th class='num'>" +
+      T("cvar.sol.diff") + "</th></tr></thead><tbody>";
+    for (var i = 0; i < NA; i++) {
+      h += row(T("cvar.sol.w", { a: aName(i) }), pct(S_.xA[i] * 100, 1), pct(S_.xB[i] * 100, 1), T("cvar.pp", { v: sgn((S_.xB[i] - S_.xA[i]) * 100, 1) }), -1, i === NA - 1 ? "sep" : "");
+    }
+    h += row(T("cvar.sol.ret"), pct(S_.retA, 3), pct(S_.retB, 3), spct(S_.retB - S_.retA, 3), -1);
+    h += row(T("cvar.sol.var"), fmt(S_.vA, 3), fmt(S_.vB, 3), sgn(S_.vB - S_.vA, 3), 0);
+    h += row(T("cvar.sol.sd"), pct(S_.sdA), pct(S_.sdB), spct(S_.sdB - S_.sdA, 2), 0, "sep");
+    h += row(T("cvar.sol.VaR", { p: p }), pct(A.VaR), pct(B.VaR), spct(B.VaR - A.VaR, 2), B.VaR < A.VaR - 1e-9 ? 1 : A.VaR < B.VaR - 1e-9 ? 0 : -1);
+    h += row(T("cvar.sol.CVaR", { p: p }), pct(A.CVaR), pct(B.CVaR), spct(B.CVaR - A.CVaR, 2), 1);
+    h += row(T("cvar.sol.worst"), pct(A.worst), pct(B.worst), spct(B.worst - A.worst, 2), B.worst < A.worst ? 1 : 0);
+    document.getElementById("cvar-sol").innerHTML = h + "</tbody>";
+    document.getElementById("cvar-lpinfo").innerHTML = T("cvar.sol.lp", {
+      nv: lp.nv, nr: lp.nr, it: lp.it, S: S, eta: pct(lp.eta), v: pct(B.VaR), z: pct(lp.z), m: S_.m, c: pct(B.CVaR), g: fmt(lp.retDual, 2), g1: fmt(lp.retDual / 100, 2), d: fmt(0.01, 2)
+    });
+    // minimum variance: the KKT system on the active set, with its numbers
+    var Fs = MV.F, act = andList(Fs.map(aName)), zero = [0, 1, 2].filter(function (i) { return Fs.indexOf(i) < 0; });
+    document.getElementById("cvar-kkt-p").innerHTML = T(MV.ret ? "cvar.sol.kkt.ret" : "cvar.sol.kkt.noret", { f: act, R: pct(RMIN) }) +
+      (zero.length ? " " + T("cvar.sol.kkt.zero", { z: andList(zero.map(aName)) }) : "");
+    var M = MV.A.map(function (r) { return r.map(function (v) { return texNum(v, 2); }).join(" & "); }).join(" \\\\ ");
+    var xs = Fs.map(function (i) { return "x_{" + (i + 1) + "}"; }).concat(["\\lambda"]).concat(MV.ret ? ["\\gamma"] : []).join(" \\\\ ");
+    var bs = MV.b.map(function (v) { return texNum(v, 2); }).join(" \\\\ ");
+    var ss = MV.sol.map(function (v) { return texNum(v, 4); }).join(" \\\\ ");
+    var tex = "\\begin{aligned}& \\begin{pmatrix} " + M + " \\end{pmatrix}\\begin{pmatrix} " + xs + " \\end{pmatrix} \\\\ & \\qquad = \\begin{pmatrix} " + bs +
+      " \\end{pmatrix} \\\\[6pt] & \\begin{pmatrix} " + xs + " \\end{pmatrix} = \\begin{pmatrix} " + ss + " \\end{pmatrix}\\end{aligned}";
+    var plain = MV.A.map(function (r, i) { return "[" + r.map(function (v) { return num(v, 2); }).join("  ") + "] = " + num(MV.b[i], 2); }).join("\n") +
+      "\n→ (" + MV.sol.map(function (v) { return num(v, 4); }).join(", ") + ")";
+    TeX.set(document.getElementById("cvar-kkt"), tex, plain);
+    var nuTxt = zero.map(function (i) { return T("cvar.sol.nu", { a: aName(i), v: num(MV.nu[i], 3) }); }).join(", ");
+    document.getElementById("cvar-kkt-check").innerHTML = T("cvar.sol.kkt.check", {
+      x: wStr(MV.x), g: num(MV.gam, 4), v: fmt(MV.v, 3), s: pct(Math.sqrt(MV.v))
+    }) + (nuTxt ? " " + T("cvar.sol.kkt.nu", { n: nuTxt }) : "");
+  }
+  function renderLevels() {
+    var h = "<thead><tr><th class='rowh'>α</th><th class='num'>" + T("cvar.lv.mvVaR") + "</th><th class='num'>" + T("cvar.lv.mvCVaR") + "</th><th class='num'>" +
+      T("cvar.lv.mcVaR") + "</th><th class='num'>" + T("cvar.lv.mcCVaR") + "</th><th class='num'>" + T("cvar.lv.w") + "</th><th class='num wide'>" + T("cvar.lv.sd") +
+      "</th></tr></thead><tbody>";
+    KEYS.forEach(function (k) {
+      var S_ = cache[k];
+      if (!S_) { h += "<tr><td class='rowh'>" + fmt(ALPHA[k], 2) + "</td><td class='num dim' colspan='6'>…</td></tr>"; return; }
+      h += "<tr" + (k === state.sc ? " class='on'" : "") + "><td class='rowh'>" + fmt(S_.alpha, 2) + "</td><td class='num'>" + pct(S_.A.VaR) + "</td><td class='num'>" +
+        pct(S_.A.CVaR) + "</td><td class='num'>" + pct(S_.B.VaR) + "</td><td class='num best'>" + pct(S_.B.CVaR) + "</td><td class='num wcell'>" + wStr(S_.xB) +
+        "</td><td class='num wide'>" + pct(S_.sdB) + "</td></tr>";
+    });
+    document.getElementById("cvar-lv").innerHTML = h + "</tbody>";
+    var all = KEYS.every(function (k) { return cache[k]; });
+    var note = document.getElementById("cvar-lv-note");
+    if (!all) { note.textContent = ""; return; }
+    var up = KEYS.filter(function (k) { return cache[k].B.VaR > cache[k].A.VaR + 1e-9; }).map(function (k) { return fmt(ALPHA[k], 2); });
+    note.textContent = T("cvar.lv.note", { sd: pct(Math.sqrt(MV.v)), x: wStr(MV.x) }) + (up.length ? " " + T("cvar.lv.up", { a: up.join(", ") }) : "");
+  }
+  function renderNotes() {
+    var S_ = scen(state.sc), A = S_.A, B = S_.B;
+    document.getElementById("cvar-n1").textContent = T("cvar.n.p1", { k: A.k, S: S, v: pct(A.VaR), m: S_.m, c: pct(A.CVaR), w: pct(A.worst), a: fmt(S_.alpha, 2) });
+    document.getElementById("cvar-n2").textContent = T("cvar.n.p2", { S: S, nv: S_.lp.nv, nr: S_.lp.nr, it: S_.lp.it, eta: pct(S_.lp.eta), v: pct(B.VaR) });
+    document.getElementById("cvar-n3").textContent = T("cvar.n.p3", {
+      t0: pct(S_.xA[1] * 100, 1), t1: pct(S_.xB[1] * 100, 1), d0: pct(S_.xA[2] * 100, 1), d1: pct(S_.xB[2] * 100, 1),
+      e0: pct(S_.xA[0] * 100, 1), e1: pct(S_.xB[0] * 100, 1), c0: pct(A.CVaR), c1: pct(B.CVaR), s0: pct(S_.sdA), s1: pct(S_.sdB),
+      tw: pct(ASTAT[1].worst), R: pct(RMIN)
+    });
+    var up = B.VaR > A.VaR + 1e-9;
+    document.getElementById("cvar-n4").textContent = T(up ? "cvar.n.p4.up" : "cvar.n.p4.down", { a: fmt(S_.alpha, 2), v0: pct(A.VaR), v1: pct(B.VaR) });
+  }
+
+  var segBtns = document.querySelectorAll("#cvar-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      scen(state.sc); layout();
+      renderScenText(); renderSolution(); renderLevels(); renderNotes();
+      if (A_.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[1]) player.refresh();
+      else { player.seek(CH[1] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderSeg(); renderScenText(); renderData(); renderSolution(); renderLevels(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+  // the other two levels are solved after the first paint (each LP takes a fraction of a second)
+  var pend = KEYS.filter(function (k) { return !cache[k]; });
+  (function next() {
+    if (!pend.length) { renderLevels(); return; }
+    setTimeout(function () { scen(pend.shift()); renderLevels(); next(); }, 60);
+  })();
+})();
+</script>
+</body>
+</html>
