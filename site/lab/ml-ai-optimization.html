@@ -44,10 +44,10 @@
   button.btn:hover { filter: brightness(1.1); }
   button.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
   button.btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--border); }
-  .rng { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; min-width: 220px; flex: 1 1 240px; max-width: 360px; }
+  .rng { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; min-width: 220px; flex: 1 1 260px; max-width: 380px; }
   .rng label { font-size: 13px; color: var(--ink2); font-weight: 600; }
   .rng output { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); text-align: right; }
-  .rng input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 0; }
+  .rng input[type="range"] { flex: 1 1 100%; width: 100%; accent-color: var(--accent); margin: 4px 0 0; }
   .status { font-size: 13px; color: var(--muted); margin: 10px 0 0; min-height: 1.4em; }
   .status b { color: var(--ink2); }
 
@@ -760,10 +760,10 @@
     ]);
     var rowsP = ["or", "ls", "qr"];
     var h = "<thead><tr><th>" + T("mlai.c2.th.pol") + '</th><th class="num wide">' + T("mlai.c2.th.q30") + '</th><th class="num">' + T("mlai.c2.th.q34") +
-      '</th><th class="num">' + T("mlai.c2.th.cost") + '</th><th class="num">' + T("mlai.c2.th.extra") + '</th><th class="num">' + T("mlai.c2.th.out") + "</th></tr></thead><tbody>";
+      '</th><th class="num">' + T("mlai.c2.th.cost") + '</th><th class="num wide">' + T("mlai.c2.th.extra") + '</th><th class="num">' + T("mlai.c2.th.out") + "</th></tr></thead><tbody>";
     rowsP.forEach(function (key) {
       h += "<tr><td>" + T("mlai.c2.p." + key) + '</td><td class="num wide">' + fmt(R.P[key](30), 1) + '</td><td class="num">' + fmt(R.P[key](34), 1) +
-        '</td><td class="num' + (key === win ? " best" : "") + '">' + pesos(E[key].cost) + '</td><td class="num">' + (key === "or" ? T("mlai.c2.base") : pctS(ex(key))) +
+        '</td><td class="num' + (key === win ? " best" : "") + '">' + pesos(E[key].cost) + '</td><td class="num wide">' + (key === "or" ? T("mlai.c2.base") : pctS(ex(key))) +
         '</td><td class="num">' + pct(E[key].out * 100, 1) + "</td></tr>";
     });
     setHTML($("c2-table"), h + "</tbody>");

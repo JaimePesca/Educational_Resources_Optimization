@@ -3,7 +3,7 @@ I18N.register("es", {
   "mlai.title": "ML + IA en optimización",
   "mlai.back": "Laboratorio de propuestas",
   "mlai.eyebrow": "Laboratorio · Propuesta · <b>Simulación</b>",
-  "mlai.lede": "En estos cuatro casos el aprendizaje no reemplaza al solver: le ayuda a decidir. <strong>Cada ejemplo corre de verdad en tu navegador</strong>: un ramificación y acotamiento que aprende dónde ramificar, un pronóstico de demanda ajustado para la decisión que alimenta, una furgoneta de reparto que aprende su ruta por ensayo y error, y un verificador automático para un modelo que podría escribir un agente de lenguaje.",
+  "mlai.lede": "En estos cuatro casos el aprendizaje no reemplaza al solver: le ayuda a decidir. <strong>Cada ejemplo corre de verdad en tu navegador</strong>: un método de ramificación y acotamiento que aprende dónde ramificar, un pronóstico de demanda ajustado para la decisión que alimenta, una furgoneta de reparto que aprende su ruta por ensayo y error, y un verificador automático para un modelo que podría escribir un agente de lenguaje.",
   "mlai.nav.aria": "Los cuatro casos",
   "mlai.case1": "Caso 1",
   "mlai.case2": "Caso 2",
@@ -15,7 +15,7 @@ I18N.register("es", {
   "mlai.min": "{v} min",
 
   "mlai.c1.title": "Aprender a ramificar",
-  "mlai.c1.intro": "El ramificación y acotamiento debe elegir en cada nodo sobre qué variable fraccionaria ramificar. La <b>ramificación fuerte</b> prueba cada candidata y resuelve dos PL por cada una: los árboles quedan pequeños, pero los PL son muchos. Siguiendo a Khalil et al. (2016), se ajusta un puntaje barato que la imita: en instancias de entrenamiento la ramificación fuerte etiqueta cada candidata, y un puntaje lineal de tres atributos baratos se ajusta por mínimos cuadrados. Aquí un camión en Barranquilla elige cuáles de 16 envíos cargar con límites de peso, volumen y tiempo de cargue.",
+  "mlai.c1.intro": "El método de ramificación y acotamiento debe elegir en cada nodo sobre qué variable fraccionaria ramificar. La <b>ramificación fuerte</b> prueba cada candidata y resuelve dos PL por cada una: los árboles quedan pequeños, pero los PL son muchos. Siguiendo a Khalil et al. (2016), se ajusta un puntaje barato que la imita: en instancias de entrenamiento la ramificación fuerte etiqueta cada candidata, y un puntaje lineal de tres atributos baratos se ajusta por mínimos cuadrados. Aquí un camión en Barranquilla elige cuáles de 16 envíos cargar con límites de peso, volumen y tiempo de cargue.",
   "mlai.c1.feat": "Atributos que puede usar el puntaje",
   "mlai.c1.f.frac": "Fraccionalidad",
   "mlai.c1.f.val": "Valor",
