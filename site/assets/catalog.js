@@ -81,7 +81,7 @@ window.CATALOG = {
     { id: "other-maxflow", href: "resources/max-flow-min-cut.html", level: "other", type: "animation" },
     { id: "other-cournot", href: "resources/price-wars.html", level: "other", type: "animation" },
     { id: "other-smoothing", href: "resources/chasing-demand.html", level: "other", type: "animation" },
-    { id: "other-dea", level: "other", type: "animation" },
+    { id: "other-dea", href: "resources/efficient-or-not.html", level: "other", type: "animation" },
     { id: "other-complexity", level: "other", type: "animation" },
     { id: "other-abm-epidemic", level: "other", type: "simulation" },
     { id: "other-beer-game", level: "other", type: "game" },
