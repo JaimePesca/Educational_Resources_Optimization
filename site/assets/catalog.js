@@ -82,7 +82,7 @@ window.CATALOG = {
     { id: "other-cournot", href: "resources/price-wars.html", level: "other", type: "animation" },
     { id: "other-smoothing", href: "resources/chasing-demand.html", level: "other", type: "animation" },
     { id: "other-dea", href: "resources/efficient-or-not.html", level: "other", type: "animation" },
-    { id: "other-complexity", level: "other", type: "animation" },
+    { id: "other-complexity", href: "resources/easy-to-check.html", level: "other", type: "animation" },
     { id: "other-abm-epidemic", level: "other", type: "simulation" },
     { id: "other-beer-game", level: "other", type: "game" },
     { id: "other-mcda", level: "other", type: "simulation" },

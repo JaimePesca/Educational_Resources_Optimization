@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en" data-title-key="cx.title" data-i18n-bundles="resources/other-complexity">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3En!%3C/text%3E%3C/svg%3E">
+<title>Easy to Check, Hard to Find</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #cx-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(400px, 40%); max-width: none;
+  }
+  #cx-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; border-left-width: 1px; }
+  #cx-sec .anim-hud .chip-stat b, #cx-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #cx-sec .anim-hud .chip-stat b { font-size: 16px; }
+  #cx-sec .anim-hud .chip-stat.bad b { color: var(--crit); }
+  #cx-sec .anim-hud .chip-stat.k-sq { border-left: 4px solid var(--mit-silver); }
+  #cx-sec .anim-hud .chip-stat.k-cu { border-left: 4px solid var(--ink); }
+  #cx-sec .anim-hud .chip-stat.k-ex { border-left: 4px solid var(--accent); }
+  #cx-sec .anim-hud .chip-stat.k-fa { border-left: 4px solid var(--mit-bright); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #cx-sec .anim-hud .chip-stat.k-fa { border-left-color: var(--crit); }
+  }
+  :root[data-theme="dark"] #cx-sec .anim-hud .chip-stat.k-fa { border-left-color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 860px) {
+    #cx-sec .anim-hud { width: min(360px, 49%); }
+    #cx-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #cx-sec .anim-hud .chip-stat b { font-size: 13.5px; }
+  }
+  @media (max-width: 620px) {
+    #cx-sec .anim-hud { top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #cx-sec .anim-hud .chip-stat { padding: 3px 7px; font-size: 11px; }
+    #cx-sec .anim-hud .chip-stat b { font-size: 13.5px; }
+  }
+  #cx-sec .anim-legend span[hidden] { display: none; }
+  #cx-sec .anim-legend i.lg-line { width: 20px; height: 0; border-top: 3px solid var(--ink); background: none; }
+  #cx-sec .anim-legend i.lg-sq { border-top-color: var(--mit-silver); }
+  #cx-sec .anim-legend i.lg-ex { border-top-color: var(--accent); }
+  #cx-sec .anim-legend i.lg-fa, #cx-sec .anim-legend i.lg-hour { border-top-color: var(--mit-bright); }
+  #cx-sec .anim-legend i.lg-ghost { border-top: 1.6px dashed var(--mit-silver); }
+  #cx-sec .anim-legend i.lg-tried { border-top: 1.2px solid var(--mit-silver); }
+  #cx-sec .anim-legend i.lg-nn { border-top: 2px dashed var(--ink); }
+  #cx-sec .anim-legend i.lg-age { background: repeating-linear-gradient(135deg, var(--mit-bright) 0 1.5px, transparent 1.5px 4.5px); border: 1px solid var(--mit-bright); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #cx-sec .anim-legend i.lg-fa, :root:not([data-theme="light"]) #cx-sec .anim-legend i.lg-hour { border-top-color: var(--crit); }
+    :root:not([data-theme="light"]) #cx-sec .anim-legend i.lg-age { background: repeating-linear-gradient(135deg, var(--crit) 0 1.5px, transparent 1.5px 4.5px); border-color: var(--crit); }
+  }
+  :root[data-theme="dark"] #cx-sec .anim-legend i.lg-fa, :root[data-theme="dark"] #cx-sec .anim-legend i.lg-hour { border-top-color: var(--crit); }
+  :root[data-theme="dark"] #cx-sec .anim-legend i.lg-age { background: repeating-linear-gradient(135deg, var(--crit) 0 1.5px, transparent 1.5px 4.5px); border-color: var(--crit); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- stats and tables ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-size: 13px; }
+  table.data td.far { color: var(--crit); }
+  table.data.dist { min-width: 640px; font-size: 12px; }
+  table.data.dist th, table.data.dist td { padding: 5px 6px; }
+  table.data.dist td.self { color: var(--muted); }
+  .sens-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 78ch; }
+  .sens-p b { color: var(--ink); }
+  .subhead { margin: 18px 0 6px; font-size: 14px; font-weight: 700; color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="cx.eyebrow"></p>
+    <h1 data-i18n="cx.title"></h1>
+    <p class="lede" data-i18n-html="cx.lede"></p>
+  </header>
+
+  <section class="block" id="cx-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="cx.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="cx-scen-lbl" data-i18n="cx.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="cx-scen-lbl" id="cx-seg">
+        <button type="button" data-sc="x1" aria-pressed="true"></button>
+        <button type="button" data-sc="x1000" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="anim" id="cx-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:cx.anim.aria">
+        <div class="anim-hud" id="cx-hud">
+          <div class="chip-stat" id="cx-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="cx-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="cx-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="cx-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="cx-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="cx-c5"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-line lg-sq"></i><span data-i18n="cx.f.sq"></span></span>
+      <span><i class="lg-line"></i><span data-i18n="cx.f.cu"></span></span>
+      <span><i class="lg-line lg-ex"></i><span data-i18n="cx.f.ex"></span></span>
+      <span><i class="lg-line lg-fa"></i><span data-i18n="cx.f.fa"></span></span>
+      <span><i class="lg-line lg-hour"></i><span data-i18n="cx.lg.hour"></span></span>
+      <span><i class="lg-age"></i><span data-i18n="cx.lg.age"></span></span>
+      <span id="cx-lg-ghost"><i class="lg-line lg-ghost"></i><span id="cx-lg-ghost-t"></span></span>
+      <span><i class="lg-line lg-ex"></i><span data-i18n="cx.lg.opt"></span></span>
+      <span><i class="lg-line lg-tried"></i><span data-i18n="cx.lg.tried"></span></span>
+      <span><i class="lg-line lg-nn"></i><span data-i18n="cx.lg.nn"></span></span>
+    </div>
+    <p class="scen-status" id="cx-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cx.model.kicker"></span><span data-i18n="cx.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" data-tex="cx.model.tex" data-i18n="cx.model.formula"></div>
+        <p class="mtext" id="cx-units"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="cx.tsp.head"></p>
+        <div class="formula" data-tex="cx.tsp.tex" data-i18n="cx.tsp.formula"></div>
+        <p class="mtext" data-i18n="cx.tsp.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cx.race.kicker"></span><span id="cx-race-title"></span></h2>
+    <div class="tblwrap"><table class="data" id="cx-race"></table></div>
+    <p class="sens-p" id="cx-race-note"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cx.hour.kicker"></span><span data-i18n="cx.hour.title"></span></h2>
+    <div class="stats" id="cx-hour"></div>
+    <p class="sens-p" id="cx-hour-note"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cx.tsp.kicker"></span><span data-i18n="cx.tsp.title"></span></h2>
+    <div class="stats" id="cx-tsp"></div>
+    <p class="sens-p" id="cx-route-opt"></p>
+    <p class="sens-p" id="cx-route-nn"></p>
+    <p class="subhead" id="cx-grow-title"></p>
+    <div class="tblwrap"><table class="data" id="cx-grow"></table></div>
+    <p class="subhead" data-i18n="cx.tsp.dist"></p>
+    <div class="tblwrap"><table class="data dist" id="cx-dist"></table></div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="cx.n.title"></summary>
+      <div class="body">
+        <p id="cx-n1"></p>
+        <p id="cx-n2"></p>
+        <p id="cx-n3"></p>
+        <p id="cx-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.5" data-refs="cx.refs"></p>
+  <p class="note" data-i18n="cx.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-complexity.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var fmt = function (v, d, m) { return I18N.fmt(v, d == null ? 2 : d, m); };
+  var SUP = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+  function sup(e) { return String(e).replace(/-/g, "⁻").replace(/\d/g, function (c) { return SUP[+c]; }); }
+  function sci(x, d) {                           // m × 10^e with d decimals (rounding done by toExponential)
+    d = d == null ? 1 : d;
+    var p = Number(x).toExponential(d).split("e");
+    return T("cx.sci", { m: fmt(+p[0], d, d), e: sup(+p[1]) });
+  }
+  function pow10(e) { return T("cx.pow", { e: sup(e) }); }
+  function count(x, d) { x = Number(x); return x < 1e6 ? fmt(x, 0) : sci(x, d); }
+  function km(v) { return T("cx.km", { v: fmt(v, 0) }); }
+  function pct(v) { return T("cx.pct", { v: fmt(v, 1, 1) }); }
+
+  /* ---------- time units ---------- */
+  var YEAR = 365.25 * 86400, AGE = 13.8e9 * YEAR;     // 13.8 billion years, in seconds
+  var UNITS = [["ps", 1e-12], ["ns", 1e-9], ["us", 1e-6], ["ms", 1e-3], ["s", 1], ["min", 60], ["h", 3600], ["d", 86400],
+    ["yr", YEAR], ["kyr", 1e3 * YEAR], ["Myr", 1e6 * YEAR], ["Gyr", 1e9 * YEAR]];
+  function sig(v) { return fmt(v, v < 10 ? 2 : v < 100 ? 1 : 0); }
+  function dur(sec, long) {                      // readable time; past the age of the universe, a short flag or the multiple
+    if (sec > AGE) return long ? T("cx.u.ages", { v: sci(sec / AGE, 1) }) : T("cx.u.beyond");
+    var u = UNITS[0];
+    for (var i = 0; i < UNITS.length; i++) if (sec >= UNITS[i][1] * (1 - 1e-12)) u = UNITS[i];
+    return T("cx.u." + u[0], { v: sig(sec / u[1]) });
+  }
+
+  /* ---------- exact operation counts (BigInt) and their continuous logs ---------- */
+  var KEYS = ["sq", "cu", "ex", "fa"], NTOP = 60;
+  var OPSB = { sq: [], cu: [], ex: [], fa: [] }, OPS = { sq: [], cu: [], ex: [], fa: [] };
+  (function () {
+    var f = BigInt(1), two = BigInt(1);
+    for (var n = 0; n <= NTOP; n++) {
+      var b = BigInt(n);
+      if (n > 0) { f *= b; two *= BigInt(2); }
+      OPSB.sq[n] = b * b; OPSB.cu[n] = b * b * b; OPSB.ex[n] = two; OPSB.fa[n] = f;
+      KEYS.forEach(function (k) { OPS[k][n] = Number(OPSB[k][n]); });
+    }
+  })();
+  function lnGamma(z) {                          // Stirling series after shifting z up to 7
+    var acc = 0;
+    while (z < 7) { acc -= Math.log(z); z += 1; }
+    var z2 = z * z;
+    return acc + (z - 0.5) * Math.log(z) - z + 0.5 * Math.log(2 * Math.PI) + 1 / (12 * z) - 1 / (360 * z * z2) + 1 / (1260 * z * z2 * z2);
+  }
+  var LG = {                                     // log10 of the operation count, for real n
+    sq: function (n) { return 2 * Math.log10(n); },
+    cu: function (n) { return 3 * Math.log10(n); },
+    ex: function (n) { return n * Math.LOG10E * Math.LN2; },
+    fa: function (n) { return lnGamma(n + 1) * Math.LOG10E; }
+  };
+  function bigPow10(e) { var r = BigInt(1); for (var i = 0; i < e; i++) r *= BigInt(10); return r; }
+  function nmaxOf(k, budget) {                   // largest integer n with f(n) <= budget (exact)
+    if (k === "sq" || k === "cu") {
+      var p = k === "sq" ? 2 : 3, pw = function (x) { var r = BigInt(1); for (var i = 0; i < p; i++) r *= x; return r; };
+      var x = BigInt(Math.floor(Math.pow(Number(budget), 1 / p)));
+      while (pw(x) > budget) x -= BigInt(1);
+      while (pw(x + BigInt(1)) <= budget) x += BigInt(1);
+      return Number(x);
+    }
+    var n = 1;
+    while (OPSB[k][n + 1] <= budget) n++;
+    return n;
+  }
+  var SPEED = { x1: 9, x1000: 12 };              // log10 of operations per second
+  var cache = {};
+  function scen(key) {
+    if (cache[key]) return cache[key];
+    var lv = SPEED[key], B = BigInt(3600) * bigPow10(lv), B1 = BigInt(3600) * bigPow10(9), nm = {}, nm1 = {};
+    KEYS.forEach(function (k) { nm[k] = nmaxOf(k, B); nm1[k] = nmaxOf(k, B1); });
+    return (cache[key] = { key: key, lv: lv, v: Math.pow(10, lv), B: Number(B), B1: Number(B1), nm: nm, nm1: nm1, fast: lv > 9 });
+  }
+
+  /* ---------- ten Colombian cities (approximate coordinates, illustrative) ---------- */
+  var CITY = [[4.711, -74.072], [6.244, -75.581], [3.452, -76.532], [10.964, -74.796], [10.391, -75.479],
+    [7.119, -73.123], [7.894, -72.508], [1.214, -77.281], [4.142, -73.627], [4.813, -75.696]];
+  var SIDE = ["r", "l", "l", "r", "l", "b", "r", "l", "r", "l"];   // where each name sits
+  var NC = CITY.length;
+  function haversine(a, b) {
+    var R = 6371, r = Math.PI / 180, p1 = a[0] * r, p2 = b[0] * r, dp = p2 - p1, dl = (b[1] - a[1]) * r;
+    var h = Math.sin(dp / 2) * Math.sin(dp / 2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) * Math.sin(dl / 2);
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  var DIST = CITY.map(function (a) { return CITY.map(function (b) { return Math.round(haversine(a, b)); }); });
+  function tourLen(t) { var s = 0; for (var i = 0; i < t.length; i++) s += DIST[t[i]][t[(i + 1) % t.length]]; return s; }
+
+  // brute force: fix Bogotá, every order of the other nine, each undirected tour once (second city < last city)
+  var M = NC - 1, TOURS = 0, TOUR = null, TLEN = null, REC = [];
+  (function () {
+    var total = 1; for (var i = 2; i <= M; i++) total *= i;
+    total /= 2;
+    TOUR = new Uint8Array(total * M); TLEN = new Uint16Array(total);
+    var p = []; for (i = 1; i <= M; i++) p.push(i);
+    var best = Infinity;
+    for (;;) {
+      if (p[0] < p[M - 1]) {
+        var s = DIST[0][p[0]] + DIST[p[M - 1]][0];
+        for (i = 0; i < M - 1; i++) s += DIST[p[i]][p[i + 1]];
+        TOUR.set(p, TOURS * M); TLEN[TOURS] = s;
+        if (s < best) { best = s; REC.push({ k: TOURS, len: s }); }
+        TOURS++;
+      }
+      var j = M - 2;                             // next permutation in lexicographic order
+      while (j >= 0 && p[j] >= p[j + 1]) j--;
+      if (j < 0) break;
+      var l = M - 1;
+      while (p[l] <= p[j]) l--;
+      var tmp = p[j]; p[j] = p[l]; p[l] = tmp;
+      for (var a = j + 1, b = M - 1; a < b; a++, b--) { tmp = p[a]; p[a] = p[b]; p[b] = tmp; }
+    }
+  })();
+  function tourAt(k) { return [0].concat(Array.prototype.slice.call(TOUR, k * M, (k + 1) * M)); }
+  var OPT = REC[REC.length - 1], OPT_TOUR = tourAt(OPT.k), OPT_LEN = OPT.len;
+  var LIMIT = Math.ceil(OPT_LEN / 100) * 100;    // the limit L of the check: the optimum rounded up to 100 km
+  var CAND = OPT_TOUR;                           // the tour handed over for checking
+  var CAND_E = CAND.map(function (c, i) { return DIST[c][CAND[(i + 1) % NC]]; });
+  // nearest neighbour from Bogotá (ties: lowest index)
+  var NN = [0], NN_E = [], NN_LOOKS = 0;
+  (function () {
+    var seen = [true], cur = 0;
+    while (NN.length < NC) {
+      var bj = -1;
+      for (var j = 0; j < NC; j++) if (!seen[j]) { NN_LOOKS++; if (bj < 0 || DIST[cur][j] < DIST[cur][bj]) bj = j; }
+      NN_E.push(DIST[cur][bj]); NN.push(bj); seen[bj] = true; cur = bj;
+    }
+    NN_E.push(DIST[cur][0]);
+  })();
+  var NN_LEN = NN_E.reduce(function (a, b) { return a + b; }, 0), GAP = 100 * (NN_LEN - OPT_LEN) / OPT_LEN;
+  function enumOps(m) { return OPSB.fa[m] / BigInt(2); }          // n (n - 1)!/2 = n!/2 additions
+  function toursOf(m) { return OPSB.fa[m - 1] / BigInt(2); }
+
+  var state = { sc: "x1" };
+
+  /* =====================================================================================
+     "See it in motion". Counts, times, tours and gaps are computed above; the positions of
+     labels, the pace of the enumeration and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("cx-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("cx-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var DUR = 56, CH = [0, 13, 24, 34, 46];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var TAU = Math.PI * 2;
+  var font = function (w, s) { return w + " " + s + "px " + SANS; };
+  var REF = [                                    // reference lines on the time axis (log10 seconds), by priority
+    { lg: Math.log10(AGE), k: "age", p: 0 }, { lg: Math.log10(3600), k: "h", p: 1 }, { lg: 0, k: "s", p: 2 },
+    { lg: Math.log10(YEAR), k: "yr", p: 3 }, { lg: -6, k: "us", p: 4 }, { lg: -9, k: "ns", p: 5 }];
+  var RACE0 = 1.2, RACE1 = 11.2, EDGE0 = 26.8, EDGEDT = 0.55, EN0 = 35.2, EN1 = 44.2, NN0 = 47.6, NNDT = 0.5;
+
+  /* ---------- time model ---------- */
+  function nRace(t) { return 5 + 45 * E.inOut(seg(t, RACE0, RACE1)); }
+  function nEnd(t) { return t < 13 ? nRace(t) : 50 + 5 * E.inOut(seg(t, 13.3, 14.8)); }
+  function shiftU(S, t) { return S.fast ? E.inOut(seg(t, 17.2, 20.2)) : 0; }
+  function lgSpeed(S, t) { return 9 + (S.lv - 9) * shiftU(S, t); }
+  function yHi(t) { return Math.min(58, Math.max(10, LG.fa(nRace(t)) - 9 + 3)); }
+  function yLo(S, t) { return -9.6 - (S.lv - 9) * shiftU(S, t); }
+  function done(t) { var u = seg(t, EN0, EN1); return Math.min(TOURS, Math.floor(Math.pow(TOURS + 1, u) - 1 + 1e-9)); }
+  function tDone(k) { return EN0 + (EN1 - EN0) * Math.log(k + 1) / Math.log(TOURS + 1); }   // first time with done >= k
+  function bestAt(cnt) { var r = null; REC.forEach(function (x) { if (x.k < cnt) r = x; }); return r; }
+  var CROSS = [];                                // curve meets a reference line during the race (1x)
+  KEYS.forEach(function (k) {
+    REF.forEach(function (r) {
+      var lo = 5, hi = 50, g = function (n) { return LG[k](n) - 9 - r.lg; };
+      if (g(lo) >= 0 || g(hi) < 0) return;
+      for (var i = 0; i < 60; i++) { var mid = (lo + hi) / 2; if (g(mid) < 0) lo = mid; else hi = mid; }
+      var n = (lo + hi) / 2, a = RACE0, b = RACE1;
+      for (i = 0; i < 60; i++) { var m = (a + b) / 2; if (nRace(m) < n) a = m; else b = m; }
+      CROSS.push({ k: k, n: n, lg: r.lg, t: (a + b) / 2, seed: CROSS.length * 97 + 13 });
+    });
+  });
+
+  /* ---------- helpers ---------- */
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function col(k) { return k === "sq" ? C["mit-silver"] : k === "cu" ? C.ink : k === "ex" ? C.accent : HOT; }
+  function ctext(k) { return k === "ex" ? C["accent-text"] : col(k); }
+  var hatchCache = { key: "", pat: null };
+  function hatchPat(c) {
+    var dpr = window.devicePixelRatio || 1, step = 7, key = c + ":" + dpr;
+    if (hatchCache.key !== key) {
+      var n = Math.round(step * dpr), tile = document.createElement("canvas");
+      tile.width = n; tile.height = n;
+      var tc = tile.getContext("2d");
+      tc.strokeStyle = c; tc.lineWidth = 1.2 * dpr; tc.lineCap = "square";
+      tc.beginPath(); tc.moveTo(0, n); tc.lineTo(n, 0); tc.moveTo(-1, 1); tc.lineTo(1, -1); tc.moveTo(n - 1, n + 1); tc.lineTo(n + 1, n - 1); tc.stroke();
+      var pat = ctx.createPattern(tile, "repeat");
+      if (pat && pat.setTransform && window.DOMMatrix) pat.setTransform(new DOMMatrix().scale(1 / dpr));
+      hatchCache = { key: key, pat: pat };
+    }
+    return hatchCache.pat || c;
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  /* ---------- layout ---------- */
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 10.5; L.ft = 13.5; L.lw = 2;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 11.5; L.ft = 16; L.lw = 2.5;
+    }
+    var tl = 1, sl = 1;
+    ["x1", "x1000"].forEach(function (k) {
+      CH.forEach(function (c) {
+        var cap = captions(scen(k), c + 0.1);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0.5 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    if (portrait) L.reg = { x: 8, y: L.capBottom + 8, w: W - 16, h: H - L.capBottom - 16 };
+    else L.reg = { x: hx + hw + 22, y: 12, w: W - (hx + hw + 22) - 12, h: H - 24 };
+    // the final frame: the race as a small chart next to the map
+    var iy = L.capBottom + 14, ih = H - iy - 12;
+    if (portrait) {
+      // phones: the map keeps the whole panel (the counters carry the summary), as in the pilot's inset
+      L.mapF = L.reg; L.inset = null;
+    } else {
+      L.mapF = L.reg;
+      L.inset = ih >= 170 ? { x: L.capX, y: iy, w: L.capW - 6, h: ih } : null;   // too short under the caption: no small chart
+    }
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+
+  /* ---------- the race chart ---------- */
+  function drawChart(S, t, R, a, mini, dx) {
+    if (a <= 0.01) return;
+    dx = dx || 0;
+    var fs = mini ? 10 : L.fs, padR = mini ? 24 : 30, padB = fs + 10;
+    var X0 = R.x + 4 + dx, X1 = R.x + R.w - padR + dx, Y0 = R.y + 4, Y1 = R.y + R.h - padB;
+    if (X1 - X0 < 60 || Y1 - Y0 < 50) return;
+    var lo = yLo(S, t), hi = yHi(t), lv = lgSpeed(S, t), ne = nEnd(t);
+    var xOf = function (n) { return X0 + (n - 5) / 50 * (X1 - X0); };
+    var yOf = function (g) { return Y1 - (g - lo) / (hi - lo) * (Y1 - Y0); };
+    var axA = E.out(seg(t, 0.05, 1.0));
+    ctx.save();
+    ctx.globalAlpha = a;
+    // beyond the age of the universe
+    var yA = yOf(Math.log10(AGE));
+    if (yA > Y0 + 1) {
+      ctx.save(); ctx.globalAlpha = a * 0.05; ctx.fillStyle = HOT; ctx.fillRect(X0, Y0, X1 - X0, yA - Y0);
+      ctx.globalAlpha = a * 0.14; ctx.fillStyle = hatchPat(HOT); ctx.fillRect(X0, Y0, X1 - X0, yA - Y0); ctx.restore();
+    }
+    // decade grid
+    var ppd = (Y1 - Y0) / (hi - lo), step = [1, 2, 5, 10, 20].filter(function (s) { return s * ppd >= 13; })[0] || 20;
+    ctx.globalAlpha = a * axA; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    for (var g = Math.ceil(lo / step) * step; g <= hi; g += step) {
+      var yy = Math.round(yOf(g)) + 0.5; ctx.beginPath(); ctx.moveTo(X0, yy); ctx.lineTo(X1, yy); ctx.stroke();
+    }
+    [10, 20, 30, 40, 50].forEach(function (n) {
+      var xx = Math.round(xOf(n)) + 0.5; ctx.beginPath(); ctx.moveTo(xx, Y0); ctx.lineTo(xx, Y1); ctx.stroke();
+    });
+    // reference lines (a lower priority label gives way when two lines are close)
+    var hourA = seg(t, 13.6, 14.4), used = [];
+    REF.slice().sort(function (p, q) { return p.p - q.p; }).forEach(function (r) {
+      var Y = yOf(r.lg);
+      if (Y < Y0 - 1 || Y > Y1 + 1) return;
+      if (mini && (r.k === "us" || r.k === "ns" || r.k === "yr")) return;
+      var hot = r.k === "h" ? hourA : 0;
+      ctx.globalAlpha = a * axA * (r.k === "age" ? 0.95 : 0.8);
+      ctx.strokeStyle = hot > 0 ? HOT : (r.k === "age" ? HOT : C["mit-silver"]);
+      ctx.lineWidth = r.k === "age" ? 1.4 : 1 + 1.6 * hot;
+      ctx.setLineDash(hot > 0.5 || r.k === "age" ? [] : [5, 4]);
+      ctx.beginPath(); ctx.moveTo(X0, Y); ctx.lineTo(X1, Y); ctx.stroke(); ctx.setLineDash([]);
+      if (hot > 0 && t < 24) {                    // the hour line pulses once
+        var pu = seg(t, 13.6, 15.2);
+        if (pu > 0 && pu < 1) { ctx.globalAlpha = a * (1 - pu) * 0.35; ctx.lineWidth = 2 + 10 * pu; ctx.beginPath(); ctx.moveTo(X0, Y); ctx.lineTo(X1, Y); ctx.stroke(); }
+      }
+      if (used.some(function (u) { return Math.abs(u - Y) < fs + 3; })) return;
+      used.push(Y);
+      var txt = T("cx.l." + r.k), lc = r.k === "age" ? (C.accent === C["mit-bright"] ? C.crit : C["accent-text"]) : (hot > 0.5 ? (C.accent === C["mit-bright"] ? C.crit : HOT) : C.ink2);
+      label(txt, X0 + 5, Y - fs / 2 - 3, "left", lc, font(hot > 0.5 || r.k === "age" ? 700 : 400, fs), a * axA);
+    });
+    if (yA > Y0 + fs + 22 && !mini) label(T("cx.l.beyond"), X0 + 5, Y0 + fs / 2 + 5, "left", C.accent === C["mit-bright"] ? C.crit : C["accent-text"], font(700, fs), a * seg(t, 5, 6));
+    // axis and n ticks
+    ctx.globalAlpha = a * axA; ctx.strokeStyle = C.axis; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(X0, Y0); ctx.lineTo(X0, Y1); ctx.lineTo(X1, Y1); ctx.stroke();
+    var marks = markers(S, t);
+    ctx.font = font(400, fs); ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    [5, 10, 20, 30, 40, 50].forEach(function (n) {
+      var X = xOf(n);
+      if (marks.some(function (m) { return m.a > 0.3 && Math.abs(xOf(m.n) - X) < 16; })) return;
+      ctx.fillText(String(n), X, Y1 + 4);
+    });
+    ctx.textAlign = "right"; ctx.fillText(T("cx.l.n"), X1 + padR - 4, Y1 + 4);
+    // curves
+    ctx.save(); ctx.beginPath(); ctx.rect(X0, Y0, X1 - X0 + 1, Y1 - Y0); ctx.clip();
+    var su = shiftU(S, t);
+    if (su > 0) KEYS.forEach(function (k) {       // the same curves on the 1x computer
+      ctx.globalAlpha = a * 0.75 * su; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.3; ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      for (var n = 5; n <= ne + 1e-9; n += 0.25) { var X = xOf(n), Y = yOf(LG[k](n) - 9); if (n === 5) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
+      ctx.stroke(); ctx.setLineDash([]);
+    });
+    var heads = [];
+    KEYS.forEach(function (k) {
+      ctx.globalAlpha = a; ctx.strokeStyle = col(k); ctx.lineWidth = (mini ? 2 : L.lw) + (k === "fa" ? 0.5 : 0); ctx.lineJoin = "round";
+      ctx.beginPath();
+      var last = null;
+      for (var n = 5; ; n = Math.min(ne, n + 0.25)) {
+        var X = xOf(n), Y = yOf(LG[k](n) - lv);
+        if (n === 5) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+        if (Y >= Y0 + 6) last = [X, Y, n];
+        if (n >= ne) break;
+      }
+      ctx.stroke();
+      heads.push({ k: k, X: xOf(ne), Y: yOf(LG[k](ne) - lv), last: last });
+    });
+    // crossing bursts during the race
+    if (!mini && t < 13) CROSS.forEach(function (c) {
+      var u = seg(t, c.t, c.t + 1.1);
+      if (u <= 0 || u >= 1) return;
+      var X = xOf(c.n), Y = yOf(c.lg), rr = A.rng(c.seed);
+      ctx.globalAlpha = a * (1 - u); ctx.strokeStyle = col(c.k); ctx.lineWidth = 2;
+      circle(X, Y, 4 + 16 * E.out(u)); ctx.stroke();
+      ctx.fillStyle = col(c.k);
+      for (var i = 0; i < 7; i++) {
+        var ang = rr() * TAU, sp = 10 + 16 * rr(), d = sp * E.out(u);
+        circle(X + Math.cos(ang) * d, Y + Math.sin(ang) * d, 1.8 * (1 - u) + 0.4); ctx.fill();
+      }
+    });
+    ctx.restore();
+    // heads while racing
+    if (t < 13 && !mini) heads.forEach(function (h) {
+      if (h.Y < Y0 || h.Y > Y1) return;
+      ctx.globalAlpha = a * 0.25; ctx.fillStyle = col(h.k); circle(h.X, h.Y, 9); ctx.fill();
+      ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(h.X, h.Y, 5.5); ctx.fill();
+      ctx.fillStyle = col(h.k); circle(h.X, h.Y, 4); ctx.fill();
+    });
+    // curve names at their last visible point, kept apart
+    var labs = heads.map(function (h) {
+      var P = h.last || [h.X, h.Y, ne], X = P[0], Y = P[1], right = P[2] >= ne - 1e-6 && X + 6 + 22 <= X1 + padR;
+      return { k: h.k, X: right ? X + (t < 13 && !mini ? 12 : 6) : X - 8, Y: right ? Y : Y + 2, al: right ? "left" : "right" };
+    });
+    labs.sort(function (p, q) { return p.Y - q.Y; });
+    for (var i = 1; i < labs.length; i++) if (labs[i].al === labs[i - 1].al && labs[i].Y - labs[i - 1].Y < fs + 4) labs[i].Y = labs[i - 1].Y + fs + 4;
+    labs.forEach(function (l) { label(T("cx.f." + l.k), l.X, Math.min(l.Y, Y1 - 4), l.al, ctext(l.k), font(700, fs + 1), a * seg(t, 1.2, 1.8)); });
+    // markers: the largest n in one hour
+    marks.forEach(function (m) {
+      if (m.a <= 0.01) return;
+      var X = xOf(m.n), Y = yOf(LG[m.k](m.n) - lv);
+      if (Y < Y0 || X > X1 + 1) return;
+      ctx.globalAlpha = a * m.a * 0.8; ctx.strokeStyle = col(m.k); ctx.lineWidth = 1.2; ctx.setLineDash([2, 3]);
+      ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(X, Y1); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha = a * m.a; ctx.fillStyle = C.surface; circle(X, Y, 6); ctx.fill();
+      ctx.fillStyle = col(m.k); circle(X, Y, 4.2); ctx.fill();
+      label(fmt(Math.round(m.n), 0), X, Y1 + 4, "center", ctext(m.k), font(700, fs + 0.5), a * m.a, "top");
+      if (m.gain) label(T("cx.plus", { v: fmt(m.gain, 0) }), X + 7, Y + 11, "left", C.accent === C["mit-bright"] ? C.crit : HOT, font(700, fs + 0.5), a * m.ga);
+    });
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+  function markers(S, t) {
+    var su = shiftU(S, t), ma = seg(t, 14.6, 15.4);
+    return ["ex", "fa"].map(function (k) {
+      var n1 = S.nm1[k], n2 = S.nm[k];
+      return { k: k, n: lerp(n1, n2, su), a: ma, gain: S.fast ? n2 - n1 : 0, ga: seg(t, 20.2, 20.8) };
+    });
+  }
+
+  /* ---------- the map ---------- */
+  function proj(R) {
+    var cl = Math.cos(6.5 * Math.PI / 180), lon0 = Infinity, lon1 = -Infinity, la0 = Infinity, la1 = -Infinity;
+    CITY.forEach(function (c) { lon0 = Math.min(lon0, c[1]); lon1 = Math.max(lon1, c[1]); la0 = Math.min(la0, c[0]); la1 = Math.max(la1, c[0]); });
+    var padX = Math.min(L.portrait ? 74 : 96, R.w * 0.28), padY = 22;
+    var k = Math.min((R.w - 2 * padX) / ((lon1 - lon0) * cl), (R.h - 2 * padY) / (la1 - la0));
+    var cx = R.x + R.w / 2, cy = R.y + R.h / 2, mx = (lon0 + lon1) / 2, my = (la0 + la1) / 2;
+    return { k: k, P: CITY.map(function (c) { return [cx + (c[1] - mx) * cl * k, cy - (c[0] - my) * k]; }),
+      g: function (lat, lon) { return [cx + (lon - mx) * cl * k, cy - (lat - my) * k]; } };
+  }
+  function mixRect(a, b, u) { return { x: lerp(a.x, b.x, u), y: lerp(a.y, b.y, u), w: lerp(a.w, b.w, u), h: lerp(a.h, b.h, u) }; }
+  function path(P, tour, closed) {
+    ctx.beginPath();
+    tour.forEach(function (c, i) { if (i) ctx.lineTo(P[c][0], P[c][1]); else ctx.moveTo(P[c][0], P[c][1]); });
+    if (closed) ctx.closePath();
+  }
+  function seg2(P, a, b, u) {                    // a partial edge from city a toward city b
+    ctx.beginPath(); ctx.moveTo(P[a][0], P[a][1]); ctx.lineTo(lerp(P[a][0], P[b][0], u), lerp(P[a][1], P[b][1], u)); ctx.stroke();
+  }
+  function drawMap(S, t) {
+    var ma = E.out(seg(t, 24.6, 25.6));
+    if (ma <= 0.01) return;
+    var R = mixRect(L.reg, L.mapF, E.inOut(seg(t, 46, 47.4)));
+    var zoom = lerp(0.9, 1, E.out(seg(t, 24.6, 26)));
+    R = { x: R.x + R.w * (1 - zoom) / 2, y: R.y + R.h * (1 - zoom) / 2, w: R.w * zoom, h: R.h * zoom };
+    var pr = proj(R), P = pr.P, i;
+    ctx.save(); ctx.globalAlpha = ma;
+    // graticule every 2 degrees across the whole panel
+    ctx.beginPath(); ctx.rect(R.x, R.y, R.w, R.h); ctx.clip();
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    for (var la = -10; la <= 24; la += 2) { var p0 = pr.g(la, -92), p1 = pr.g(la, -58); ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke(); }
+    for (var lo = -92; lo <= -58; lo += 2) { var q0 = pr.g(-10, lo), q1 = pr.g(24, lo); ctx.beginPath(); ctx.moveTo(q0[0], q0[1]); ctx.lineTo(q1[0], q1[1]); ctx.stroke(); }
+    ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(R.x, R.y, R.w, R.h); ctx.clip();
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    var lw = L.lw + 0.5;
+    // chapter 3: the tour handed over, edge by edge
+    var ca = t < 34.2 ? 1 : 1 - seg(t, 34.2, 35);
+    if (ca > 0.01) {
+      for (i = 0; i < NC; i++) {
+        var u = seg(t, EDGE0 + i * EDGEDT, EDGE0 + (i + 1) * EDGEDT - 0.08);
+        if (u <= 0) break;
+        ctx.globalAlpha = ma * ca; ctx.strokeStyle = C.accent; ctx.lineWidth = lw;
+        seg2(P, CAND[i], CAND[(i + 1) % NC], E.inOut(u));
+        if (u < 1) {
+          var hx = lerp(P[CAND[i]][0], P[CAND[(i + 1) % NC]][0], E.inOut(u)), hy = lerp(P[CAND[i]][1], P[CAND[(i + 1) % NC]][1], E.inOut(u));
+          ctx.fillStyle = HOT; circle(hx, hy, lw + 2); ctx.fill();
+        }
+      }
+      var vp = seg(t, 32.6, 33.8);                 // verdict: the tour glows once
+      if (vp > 0 && vp < 1) { ctx.globalAlpha = ma * ca * (1 - vp) * 0.3; ctx.strokeStyle = C.accent; ctx.lineWidth = lw + 12 * vp; path(P, CAND, true); ctx.stroke(); }
+    }
+    // chapter 4: every tour, the best one so far on top
+    if (t >= EN0 - 0.2) {
+      var cnt = done(t);
+      if (t < EN1 + 0.3) for (var j = 5; j >= 0; j--) {
+        var kk = done(t - j * 0.06) - 1;
+        if (kk < 0) continue;
+        ctx.globalAlpha = ma * (0.6 - j * 0.09) * (1 - seg(t, EN1, EN1 + 0.3)); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.3;
+        path(P, tourAt(kk), true); ctx.stroke();
+      }
+      var b = bestAt(Math.max(1, cnt));
+      if (cnt > 0 && b) {
+        var fresh = 1 - seg(t, tDone(b.k + 1), tDone(b.k + 1) + 0.35);
+        ctx.globalAlpha = ma; ctx.strokeStyle = fresh > 0.5 && b !== OPT ? HOT : C.accent; ctx.lineWidth = lw;
+        path(P, tourAt(b.k), true); ctx.stroke();
+        var gp = seg(t, EN1 + 0.2, EN1 + 1.6);
+        if (gp > 0 && gp < 1) { ctx.globalAlpha = ma * (1 - gp) * 0.3; ctx.lineWidth = lw + 12 * gp; ctx.strokeStyle = C.accent; path(P, OPT_TOUR, true); ctx.stroke(); }
+      }
+    }
+    // chapter 5: nearest neighbour, step by step
+    if (t >= NN0 - 0.1) {
+      var cur = null;
+      for (i = 0; i < NC; i++) {
+        var s0 = NN0 + i * NNDT, from = NN[i], to = NN[(i + 1) % NC];
+        if (t < s0) break;
+        var ra = seg(t, s0, s0 + 0.12) * (1 - seg(t, s0 + 0.3, s0 + 0.45));
+        if (ra > 0 && i < NC - 1) {                // look at every unvisited city, then take the closest
+          ctx.globalAlpha = ma * ra * 0.7; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+          for (var q = i + 1; q < NC; q++) { ctx.beginPath(); ctx.moveTo(P[from][0], P[from][1]); ctx.lineTo(P[NN[q]][0], P[NN[q]][1]); ctx.stroke(); }
+          ctx.setLineDash([]);
+        }
+        var eu = E.inOut(seg(t, s0 + 0.15, s0 + NNDT - 0.03));
+        if (eu > 0) {
+          ctx.globalAlpha = ma; ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.setLineDash([7, 5]); ctx.lineCap = "butt";
+          seg2(P, from, to, eu); ctx.setLineDash([]); ctx.lineCap = "round";
+          if (eu < 1) cur = [lerp(P[from][0], P[to][0], eu), lerp(P[from][1], P[to][1], eu)];
+        }
+      }
+      if (cur) { ctx.globalAlpha = ma; ctx.fillStyle = C.ink; circle(cur[0], cur[1], 4); ctx.fill(); }
+    }
+    ctx.restore();
+    // cities and names
+    var fs = L.portrait ? 10.5 : 11.5;
+    for (i = 0; i < NC; i++) {
+      var pa = E.back(seg(t, 25.0 + 0.09 * i, 25.5 + 0.09 * i));
+      if (pa <= 0) continue;
+      var X = P[i][0], Y = P[i][1], r = (i === 0 ? 5.5 : 4.3) * pa;
+      ctx.globalAlpha = ma; ctx.fillStyle = C.surface; circle(X, Y, r + 2); ctx.fill();
+      ctx.fillStyle = C.ink; circle(X, Y, r); ctx.fill();
+      if (i === 0) { ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; circle(X, Y, r + 4); ctx.stroke(); }
+      var sd = SIDE[i], off = i === 0 ? 12 : 9, txt = T("cx.city." + i), la2 = ma * seg(t, 25.3 + 0.09 * i, 25.8 + 0.09 * i);
+      if (sd === "r") label(txt, X + off, Y, "left", C.ink2, font(i === 0 ? 700 : 400, fs), la2);
+      else if (sd === "l") label(txt, X - off, Y, "right", C.ink2, font(i === 0 ? 700 : 400, fs), la2);
+      else label(txt, X, Y + off + fs / 2, "center", C.ink2, font(400, fs), la2);
+    }
+    // chapter 3: each addition floats up from its edge
+    for (i = 0; i < NC; i++) {
+      var tc = EDGE0 + (i + 1) * EDGEDT - 0.08, fa = seg(t, tc, tc + 0.15) * (1 - seg(t, tc + 1.0, tc + 1.4));
+      if (fa <= 0.01) continue;
+      var e0 = P[CAND[i]], e1 = P[CAND[(i + 1) % NC]];
+      label(T("cx.plus", { v: fmt(CAND_E[i], 0) }), (e0[0] + e1[0]) / 2, (e0[1] + e1[1]) / 2 - 10 * seg(t, tc, tc + 1.4), "center",
+        C.accent === C["mit-bright"] ? C.crit : HOT, font(700, fs + 1), ma * fa);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- caption ---------- */
+  function captions(S, t) {
+    if (t < CH[1]) return [T("cx.cap1"), T("cx.cap1.sub", { s: pow10(9) })];
+    if (t < CH[2]) {
+      if (S.fast) return [T("cx.cap2.x1000"), T("cx.cap2.x1000.sub", { ex0: S.nm1.ex, ex: S.nm.ex, fa0: S.nm1.fa, fa: S.nm.fa })];
+      return [T("cx.cap2.x1"), T("cx.cap2.x1.sub", { b: sci(S.B1, 1), ex: S.nm1.ex, fa: S.nm1.fa })];
+    }
+    if (t < CH[3]) return [T("cx.cap3"), T("cx.cap3.sub", { n: NC, L: km(LIMIT) })];
+    if (t < CH[4]) return [T("cx.cap4"), T("cx.cap4.sub", { tours: fmt(TOURS, 0), n: NC })];
+    return [T("cx.cap5"), T("cx.cap5.sub", { gap: pct(GAP) })];
+  }
+  function drawCaption(S, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(S, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0.5 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) {
+    var el = document.getElementById("cx-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) {
+      c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("bad", kind === "bad");
+      KEYS.forEach(function (k) { c.el.classList.toggle("k-" + k, kind === "k-" + k); });
+      c.k = kind;
+    }
+  }
+  function chapFade(t, ci) {                     // chips fade in after a chapter starts and out before the next
+    var a = ci === 0 ? 1 : seg(t, CH[ci] + 0.1, CH[ci] + 0.6);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.35, CH[ci + 1] - 0.05);
+    return a;
+  }
+  function hud(S, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var f = chapFade(t, ci), i;
+    if (ci === 0) {
+      var n = Math.floor(nRace(t) + 1e-9);
+      setChip(0, fmt(n, 0), T("cx.k.n"), f * seg(t, 0.6, 1.1), "acc");
+      setChip(1, pow10(9), T("cx.k.speed"), f * seg(t, 0.8, 1.3), "");
+      KEYS.forEach(function (k, j) {
+        setChip(2 + j, dur(OPS[k][n] / 1e9), T("cx.k.curve", { f: T("cx.f." + k), ops: count(OPSB[k][n]) }),
+          f * seg(t, 1.0 + 0.12 * j, 1.5 + 0.12 * j), "k-" + k);
+      });
+    } else if (ci === 1) {
+      var su = shiftU(S, t), lv = lgSpeed(S, t), e = Math.round(lv);
+      setChip(0, sci(3600 * Math.pow(10, e), 1), T("cx.k.budget"), f, "acc");
+      setChip(1, pow10(e), T("cx.k.speed"), f, "");
+      KEYS.forEach(function (k, j) {
+        var n1 = S.nm1[k], n2 = S.nm[k], v = k === "sq" || k === "cu" ? Math.exp(lerp(Math.log(n1), Math.log(n2), su)) : lerp(n1, n2, su);
+        var lab = S.fast && su > 0.5 ? T("cx.k.was", { f: T("cx.f." + k), v: fmt(n1, 0) }) : T("cx.k.nmax", { f: T("cx.f." + k) });
+        setChip(2 + j, fmt(su >= 1 ? n2 : Math.round(v), 0), lab, f * seg(t, 14.6 + 0.15 * j, 15.1 + 0.15 * j), "k-" + k);
+      });
+    } else if (ci === 2) {
+      var ne = 0, sum = 0;
+      for (i = 0; i < NC; i++) if (t >= EDGE0 + (i + 1) * EDGEDT - 0.08) { ne++; sum += CAND_E[i]; }
+      var ok = t >= 32.6;
+      setChip(0, fmt(NC, 0), T("cx.k.cities"), f * seg(t, 24.8, 25.3), "");
+      setChip(1, fmt(ne, 0), T("cx.k.adds", { n: NC }), f * seg(t, 26.2, 26.7), "");
+      setChip(2, km(sum), T("cx.k.len"), f * seg(t, 26.2, 26.7), "acc");
+      setChip(3, km(LIMIT), T("cx.k.L"), f * seg(t, 25.8, 26.3), "");
+      setChip(4, T("cx.k.yes"), T("cx.k.verdict"), f * seg(t, 32.6, 33.1), ok && sum <= LIMIT ? "acc" : "");
+      setChip(5, dur(NC / S.v), T("cx.k.tcheck"), f * seg(t, 33.0, 33.5), "");
+    } else if (ci === 3) {
+      var cnt = done(t), b = bestAt(Math.max(1, cnt));
+      setChip(0, fmt(cnt, 0), T("cx.k.tours", { n: fmt(TOURS, 0) }), f * seg(t, 34.6, 35.1), "");
+      setChip(1, count(cnt * NC), T("cx.k.addsAll"), f * seg(t, 34.7, 35.2), "");
+      setChip(2, cnt > 0 ? km(b.len) : "", T("cx.k.best"), f * seg(t, EN0, EN0 + 0.4), "acc");
+      setChip(3, dur(Number(enumOps(NC)) / S.v), T("cx.k.tall", { n: NC }), f * seg(t, EN1 + 0.1, EN1 + 0.6), "");
+      setChip(4, sci(Number(toursOf(20)), 1), T("cx.k.tours20", { n: 20 }), f * seg(t, EN1 + 0.5, EN1 + 1), "");
+      setChip(5, dur(Number(enumOps(20)) / S.v), T("cx.k.time20", { n: 20 }), f * seg(t, EN1 + 0.9, EN1 + 1.4), "bad");
+    } else {
+      var nl = 0;
+      for (i = 0; i < NC; i++) if (t >= NN0 + (i + 1) * NNDT - 0.03) nl += NN_E[i];
+      setChip(0, km(nl), T("cx.k.nn"), f * seg(t, 46.8, 47.3), "");
+      setChip(1, km(OPT_LEN), T("cx.k.opt"), f * seg(t, 46.4, 46.9), "acc");
+      setChip(2, T("cx.plus", { v: pct(GAP) }), T("cx.k.gap"), f * seg(t, 52.9, 53.4), "bad");
+      setChip(3, fmt(NC, 0), T("cx.k.check"), f * seg(t, 53.3, 53.8), "");
+      setChip(4, fmt(TOURS, 0), T("cx.k.search"), f * seg(t, 53.5, 54), "");
+      setChip(5, dur(Number(enumOps(20)) / S.v), T("cx.k.time20", { n: 20 }), f * seg(t, 53.7, 54.2), "bad");
+    }
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var S = scen(state.sc);
+    hud(S, t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    // the race: full size in chapters 1 and 2, slides away for the tours, back as a small chart at the end
+    var out = E.inOut(seg(t, 24, 25));
+    if (t < 25) drawChart(S, t, L.reg, 1 - out, false, -60 * out);
+    drawMap(S, t);
+    var ia = E.out(seg(t, 46.3, 47.4));
+    if (ia > 0 && L.inset) drawChart(S, t, L.inset, ia, true, 0);
+    drawCaption(S, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "cx.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status, model notes, tables, stats, notes
+     ===================================================================================== */
+  function speedTxt(S) { return pow10(S.lv); }
+  function renderSeg() {
+    document.querySelectorAll("#cx-seg button").forEach(function (b) {
+      b.textContent = T("cx.sc." + b.getAttribute("data-sc"), { s: pow10(SPEED[b.getAttribute("data-sc")]) });
+    });
+  }
+  function routeTxt(tour) { return tour.concat([tour[0]]).map(function (c) { return T("cx.city." + c); }).join(T("cx.tsp.sep")); }
+  function renderScenText() {
+    var S = scen(state.sc);
+    document.getElementById("cx-lg-ghost").hidden = !S.fast;
+    document.getElementById("cx-lg-ghost-t").textContent = T("cx.lg.ghost", { s: pow10(9) });
+    stage.setAttribute("aria-label", T("cx.anim.aria") + " " + T("cx.anim.aria.nums", {
+      sq: dur(OPS.sq[50] / 1e9), cu: dur(OPS.cu[50] / 1e9), ex: dur(OPS.ex[50] / 1e9), fa: dur(OPS.fa[50] / 1e9, true),
+      s: speedTxt(S), nsq: fmt(S.nm.sq, 0), ncu: fmt(S.nm.cu, 0), nex: S.nm.ex, nfa: S.nm.fa,
+      opt: km(OPT_LEN), n: NC, tours: fmt(TOURS, 0), nn: km(NN_LEN), gap: pct(GAP)
+    }));
+    var st = { s: speedTxt(S), b: sci(S.B, 1) };
+    KEYS.forEach(function (k) { st[k] = fmt(S.nm[k], 0); st[k + "0"] = fmt(S.nm1[k], 0); });
+    document.getElementById("cx-status").innerHTML = T("cx.st." + state.sc, st);
+  }
+  function renderModel() {
+    document.getElementById("cx-units").textContent = T("cx.model.units", { age: sci(AGE, 2) });
+  }
+  function renderRace() {
+    var S = scen(state.sc);
+    document.getElementById("cx-race-title").textContent = T("cx.race.title", { s: speedTxt(S) });
+    var h = "<thead><tr><th class='num'>" + T("cx.race.n") + "</th>";
+    KEYS.forEach(function (k) { h += "<th class='num'>" + T("cx.f." + k) + "</th>"; });
+    h += "</tr></thead><tbody>";
+    [5, 10, 15, 20, 25, 30, 40, 50].forEach(function (n) {
+      h += "<tr><td class='num'>" + n + "</td>";
+      KEYS.forEach(function (k) {
+        var sec = OPS[k][n] / S.v;
+        h += "<td class='num" + (sec > AGE ? " far" : "") + "'>" + dur(sec, true) + "</td>";
+      });
+      h += "</tr>";
+    });
+    document.getElementById("cx-race").innerHTML = h + "</tbody>";
+    var nAge = 1; while (OPS.fa[nAge] / S.v <= AGE) nAge++;          // first n where n! outlasts the universe
+    document.getElementById("cx-race-note").textContent = T("cx.race.note", { n: nAge });
+  }
+  function renderHour() {
+    var S0 = scen("x1"), S1 = scen("x1000"), S = scen(state.sc), h = "";
+    KEYS.forEach(function (k) {
+      var a = S0.nm[k], b = S1.nm[k], g = k === "sq" || k === "cu" ? T("cx.times", { v: fmt(b / a, 1, 1) }) : T("cx.plus", { v: fmt(b - a, 0) });
+      h += "<div class='stat'><div class='k'>" + T("cx.f." + k) + "</div><div class='v" + (k === "sq" || k === "cu" ? " ink" : "") + "'>" + fmt(S.nm[k], 0) +
+        "</div><div class='l'>" + T("cx.hour.x1", { a: fmt(a, 0) }) + " · " + T("cx.hour.x1000", { b: fmt(b, 0), g: g }) + "</div></div>";
+    });
+    document.getElementById("cx-hour").innerHTML = h;
+    document.getElementById("cx-hour-note").textContent = T("cx.hour.note", {
+      rsq: fmt(Math.sqrt(1000), 1), rcu: fmt(Math.cbrt(1000), 1), lg: fmt(Math.log2(1000), 2), dfa: fmt(S1.nm.fa - S0.nm.fa, 0)
+    });
+  }
+  function renderTsp() {
+    var S = scen(state.sc);
+    var st = function (k, v, l, ink) { return "<div class='stat'><div class='k'>" + k + "</div><div class='v" + (ink ? " ink" : "") + "'>" + v + "</div><div class='l'>" + l + "</div></div>"; };
+    document.getElementById("cx-tsp").innerHTML =
+      st(T("cx.tsp.s.check"), T("cx.tsp.s.checkV", { n: NC }), T("cx.tsp.s.checkL", { v: km(tourLen(CAND)), L: km(LIMIT), t: dur(NC / S.v) }), true) +
+      st(T("cx.tsp.s.tours"), fmt(TOURS, 0), T("cx.tsp.s.toursL", { n: NC }), true) +
+      st(T("cx.tsp.s.opt"), km(OPT_LEN), T("cx.tsp.s.optL", { k: fmt(OPT.k + 1, 0), tours: fmt(TOURS, 0) })) +
+      st(T("cx.tsp.s.nn"), km(NN_LEN), T("cx.tsp.s.nnL", { gap: pct(GAP) }), true);
+    document.getElementById("cx-route-opt").innerHTML = T("cx.tsp.route.opt", { r: routeTxt(OPT_TOUR) });
+    document.getElementById("cx-route-nn").innerHTML = T("cx.tsp.route.nn", { r: routeTxt(NN) });
+    document.getElementById("cx-grow-title").textContent = T("cx.tsp.grow", { s: speedTxt(S) });
+    var h = "<thead><tr><th class='num'>" + T("cx.tsp.c.n") + "</th><th class='num'>" + T("cx.tsp.c.tours") + "</th><th class='num'>" +
+      T("cx.tsp.c.adds") + "</th><th class='num'>" + T("cx.tsp.c.time") + "</th></tr></thead><tbody>";
+    [5, 10, 15, 20, 25, 30].forEach(function (m) {
+      var sec = Number(enumOps(m)) / S.v;
+      h += "<tr" + (m === NC ? " class='on'" : "") + "><td class='num'>" + m + "</td><td class='num'>" + count(toursOf(m), 2) + "</td><td class='num'>" +
+        count(enumOps(m), 2) + "</td><td class='num" + (sec > AGE ? " far" : "") + "'>" + dur(sec, true) + "</td></tr>";
+    });
+    document.getElementById("cx-grow").innerHTML = h + "</tbody>";
+    var d = "<thead><tr><th></th>";
+    for (var i = 0; i < NC; i++) d += "<th class='num'>" + T("cx.city." + i) + "</th>";
+    d += "</tr></thead><tbody>";
+    for (i = 0; i < NC; i++) {
+      d += "<tr><th>" + T("cx.city." + i) + "</th>";
+      for (var j = 0; j < NC; j++) d += "<td class='num" + (i === j ? " self" : "") + "'>" + fmt(DIST[i][j], 0) + "</td>";
+      d += "</tr>";
+    }
+    document.getElementById("cx-dist").innerHTML = d + "</tbody>";
+  }
+  function renderNotes() {
+    var S0 = scen("x1"), S1 = scen("x1000"), v = {};
+    KEYS.forEach(function (k) { v[k + "0"] = fmt(S0.nm[k], 0); v[k] = fmt(S1.nm[k], 0); });
+    document.getElementById("cx-n1").textContent = T("cx.n.p1", {
+      sq: dur(OPS.sq[50] / 1e9), cu: dur(OPS.cu[50] / 1e9), ex: dur(OPS.ex[50] / 1e9), fa: dur(OPS.fa[50] / 1e9, true) });
+    document.getElementById("cx-n2").textContent = T("cx.n.p2", v);
+    document.getElementById("cx-n3").textContent = T("cx.n.p3", {
+      opt: km(OPT_LEN), L: km(LIMIT), n: NC, tours: fmt(TOURS, 0), adds: fmt(Number(enumOps(NC)), 0),
+      t20: sci(Number(toursOf(20)), 2), time20: dur(Number(enumOps(20)) / 1e9, true) });
+    document.getElementById("cx-n4").textContent = T("cx.n.p4", { looks: NN_LOOKS, nn: km(NN_LEN), gap: pct(GAP), opt: km(OPT_LEN) });
+  }
+
+  var segBtns = document.querySelectorAll("#cx-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderRace(); renderHour(); renderTsp();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[1]) player.refresh();
+      else { player.seek(CH[1] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderSeg(); renderScenText(); renderModel(); renderRace(); renderHour(); renderTsp(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>
