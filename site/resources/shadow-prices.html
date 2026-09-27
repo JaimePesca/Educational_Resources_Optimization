@@ -286,13 +286,13 @@
       </div>
     </div>
     <div class="tblwrap senwrap">
-          <table class="sens">
-            <thead><tr>
-              <th data-i18n="shp.tb.res"></th><th data-i18n="shp.tb.avail"></th><th data-i18n="shp.tb.used"></th>
-              <th data-i18n="shp.tb.slack"></th><th data-i18n="shp.tb.price"></th><th data-i18n="shp.tb.range"></th>
-            </tr></thead>
-            <tbody id="senbody"></tbody>
-          </table>
+      <table class="sens">
+        <thead><tr>
+          <th data-i18n="shp.tb.res"></th><th data-i18n="shp.tb.avail"></th><th data-i18n="shp.tb.used"></th>
+          <th data-i18n="shp.tb.slack"></th><th data-i18n="shp.tb.price"></th><th data-i18n="shp.tb.range"></th>
+        </tr></thead>
+        <tbody id="senbody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -514,6 +514,7 @@
       h.input.value = r.b;
       h.input.addEventListener("input", function () {
         stopSweep();
+        if ($("toast").classList.contains("hit")) setToast(t("shp.toast0"), false);
         target[i] = +h.input.value;
         tw[i] = { from: disp[i], to: target[i], t0: performance.now(), dur: reduce ? 0 : 160, ease: easeOut };
         kick();
