@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en" data-title-key="two.title" data-i18n-bundles="resources/two-stories">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Two Stories, One Model</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  :root { --p: 0; --mid: 0; }
+  .mono { font-family: var(--font-mono); font-size: 0.9em; }
+
+  /* ---- control ---- */
+  .control {
+    display: flex; align-items: center; gap: 12px 20px; flex-wrap: wrap;
+    padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid var(--border);
+  }
+  .versions { display: flex; gap: 6px 16px; flex-wrap: wrap; flex: 0 1 auto; }
+  .vname {
+    font: 600 12.5px var(--font-mono); letter-spacing: 0.02em; cursor: pointer;
+    background: none; border: 0; padding: 4px 0; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .vname .sw { width: 12px; height: 12px; border-radius: 2px; flex: none; }
+  .vname.va { color: var(--accent-text); opacity: calc(0.35 + 0.65 * (1 - var(--p))); }
+  .vname.va .sw { background: var(--accent); }
+  .vname.vb { color: var(--ink); opacity: calc(0.35 + 0.65 * var(--p)); }
+  .vname.vb .sw { background: var(--ink); }
+
+  .slider { flex: 1 1 220px; display: flex; align-items: center; min-width: 180px; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 26px;
+    background: transparent; cursor: grab; margin: 0;
+  }
+  input[type="range"]:active { cursor: grabbing; }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--ink));
+  }
+  input[type="range"]::-moz-range-track {
+    height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--ink));
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--ink); margin-top: -8.5px;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 2px solid var(--ink);
+  }
+  button.btn {
+    font: 600 13.5px var(--font-sans); color: var(--on-solid); flex: none;
+    background: var(--accent); border: none; border-radius: 3px; padding: 9px 16px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+
+  /* ---- statement ---- */
+  .statement {
+    font-size: clamp(17px, 2vw, 20px); line-height: 1.8; max-width: 70ch; margin: 0;
+    color: var(--ink2); text-wrap: pretty;
+  }
+  .swap { display: inline-grid; grid-template-areas: "s"; justify-items: center; vertical-align: baseline; }
+  .swap > i { grid-area: s; font-style: normal; font-weight: 600; white-space: nowrap; will-change: opacity, transform; }
+  .swap .a { color: var(--accent-text); opacity: calc(1 - var(--p)); transform: translateY(calc(var(--p) * -5px)); }
+  .swap .b { color: var(--ink); opacity: var(--p); transform: translateY(calc((1 - var(--p)) * 5px)); }
+
+  .num {
+    padding: 1px 2px; border-radius: 2px; color: var(--ink); font-variant-numeric: tabular-nums;
+    background: color-mix(in srgb, var(--ink) calc(5% + var(--mid) * 13%), transparent);
+    box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--ink) calc(12% + var(--mid) * 50%), transparent);
+    transition: background 0.18s;
+  }
+  .num[data-link] { cursor: pointer; }
+  .num[data-link]:hover, .num[data-link]:focus-visible, .num.lit {
+    background: var(--sel); box-shadow: inset 0 -2px 0 var(--accent); outline: none;
+  }
+
+  /* ---- ledger ---- */
+  .ledger { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .ledger > div {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 12px 14px;
+    font: 12.5px var(--font-mono); color: var(--muted);
+  }
+  .ledger b { display: block; font: 700 26px/1 var(--font-sans); color: var(--ink); margin-bottom: 6px; }
+  .ledger > div:first-child b { color: var(--accent-text); }
+  @media (max-width: 560px) { .ledger { grid-template-columns: 1fr; } }
+
+  /* ---- variables ---- */
+  .vars { display: grid; gap: 8px; font-size: 16px; color: var(--ink2); }
+  .vars .sym { display: inline-block; min-width: 3.4em; color: var(--ink); }
+  .vars .sym mjx-container { margin: 0 !important; }
+
+  /* ---- math (from research.css) ---- */
+  .math {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 2px; padding: 6px 14px; overflow-x: auto; color: var(--ink);
+  }
+  .math + .math { margin-top: 10px; }
+  .math-out { font-size: 15px; }
+  @media (max-width: 620px) { .math-out { font-size: 11.5px; } .math { padding: 4px 10px; } }
+  .math-out mjx-container[display="true"] { margin: 0.6em 0 !important; }
+  .math script { display: none; }
+
+  /* ---- model card: one row per line of the LP ---- */
+  .row {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; align-items: center;
+    padding: 0 10px; margin: 0 -10px; border-radius: 2px; transition: background 0.2s, box-shadow 0.2s;
+  }
+  .row .math { border: 0; background: transparent; padding: 0; }
+  .row .math-out mjx-container[display="true"] { margin: 0.45em 0 !important; }
+  .row.lit { background: var(--sel); box-shadow: inset 3px 0 0 var(--accent); }
+  .row.obj { border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 6px; }
+  .tag { font-size: 13.5px; color: var(--muted); text-align: right; }
+  .sol {
+    margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--border);
+    font-size: 14.5px; color: var(--ink2); max-width: 70ch;
+  }
+  .sol .mono { color: var(--ink); }
+  @media (max-width: 620px) {
+    .row { grid-template-columns: minmax(0, 1fr); padding-bottom: 6px; }
+    .tag { text-align: left; font-size: 12.5px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .swap > i { transform: none !important; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="two.eyebrow"></p>
+    <h1 data-i18n="two.title"></h1>
+    <p class="lede" data-i18n-html="two.lede"></p>
+  </header>
+
+  <div class="card">
+    <div class="control">
+      <div class="versions">
+        <button class="vname va" type="button" data-goto="0"><span class="sw" aria-hidden="true"></span><span data-i18n="two.ver.a"></span></button>
+        <button class="vname vb" type="button" data-goto="1"><span class="sw" aria-hidden="true"></span><span data-i18n="two.ver.b"></span></button>
+      </div>
+      <div class="slider">
+        <input id="scrub" type="range" min="0" max="100" value="0" step="1" data-i18n-attr="aria-label:two.scrubAria">
+      </div>
+      <button class="btn" id="play" type="button" data-i18n="two.play"></button>
+    </div>
+    <span class="kicker" data-i18n="two.stmt.kicker"></span>
+    <p class="statement" id="statement"></p>
+  </div>
+
+  <div class="ledger">
+    <div><b id="cSwap"></b><span id="lSwap"></span></div>
+    <div><b>0</b><span id="lData"></span></div>
+    <div><b>0</b><span id="lRows"></span></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="two.vars.title"></h2>
+    <div class="vars" id="vars"></div>
+  </div>
+
+  <section class="card" id="model">
+    <h2 data-i18n="two.model.title"></h2>
+    <div class="row obj" data-id="obj">
+      <div class="math"><script type="text/x-tex">\max\; z = 6(x_1+x_2) + 5(y_1+y_2) - 6(x_1+y_1) - 5(x_2+y_2)</script></div>
+      <span class="tag" data-i18n="two.m.obj"></span>
+    </div>
+    <div class="row" data-id="r1">
+      <div class="math"><script type="text/x-tex">\text{ST}\quad 0.3\,x_1 - 0.7\,x_2 \ge 0</script></div>
+      <span class="tag" data-i18n="two.m.r1"></span>
+    </div>
+    <div class="row" data-id="r2">
+      <div class="math"><script type="text/x-tex">\phantom{\text{ST}}\quad {-0.6}\,y_1 + 0.4\,y_2 \ge 0</script></div>
+      <span class="tag" data-i18n="two.m.r2"></span>
+    </div>
+    <div class="row" data-id="r3">
+      <div class="math"><script type="text/x-tex">\phantom{\text{ST}}\quad x_1 + x_2 \le 50</script></div>
+      <span class="tag" data-i18n="two.m.r3"></span>
+    </div>
+    <div class="row" data-id="r4">
+      <div class="math"><script type="text/x-tex">\phantom{\text{ST}}\quad y_1 + y_2 \le 30</script></div>
+      <span class="tag" data-i18n="two.m.r4"></span>
+    </div>
+    <div class="row" data-id="r5">
+      <div class="math"><script type="text/x-tex">\phantom{\text{ST}}\quad x_1 + y_1 \le 47</script></div>
+      <span class="tag" data-i18n="two.m.r5"></span>
+    </div>
+    <div class="row" data-id="r6">
+      <div class="math"><script type="text/x-tex">\phantom{\text{ST}}\quad x_2 + y_2 \le 40</script></div>
+      <span class="tag" data-i18n="two.m.r6"></span>
+    </div>
+    <div class="row" data-id="r7">
+      <div class="math"><script type="text/x-tex">\phantom{\text{ST}}\quad x_1,\ x_2,\ y_1,\ y_2 \ge 0</script></div>
+      <span class="tag" data-i18n="two.m.r7"></span>
+    </div>
+    <p class="sol" data-i18n-html="two.sol"></p>
+  </section>
+
+  <p class="note" data-i18n="two.hint"></p>
+  <p class="note" data-i18n="two.footer"></p>
+</div>
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/two-stories.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+
+  // ---- tokens: fixed text (F), swapped text (S, "story A || story B"), numbers linked to model rows (N) ----
+  var F = function (k) { return { t: "f", k: "two.f." + k }; };
+  var S = function (k) { return { t: "s", k: "two.s." + k }; };
+  var V = function (k) { return { t: "s", k: "two.v." + k }; };     // swapped text in the variable list
+  var VF = function (k) { return { t: "f", k: "two.v." + k }; };    // fixed text in the variable list
+  var N = function (s, id) { return { t: "n", s: s, id: id || null }; };
+
+  var TEXT = [
+    S("company"), F("uses"), S("inputs"), F("sp"), N("1"), F("and"), N("2"), F("toMake"), S("products"), F("dot"),
+    S("ProductCap"), F("sp"), N("1"), F("mustContain"), N("70%", "r1"), F("of"), S("input"), F("sp"), N("1"), F("commaAnd"),
+    S("product"), F("sp"), N("2"), F("mustContain"), N("60%", "r2"), F("of"), S("input"), F("sp"), N("2"),
+    F("sell1"), N("50", "r3"), F("sp"), S("unitsOfProduct"), F("sp"), N("1"), F("sellAt"), N("$6", "obj"), F("sp"), S("perUnit"),
+    F("sell2"), N("30", "r4"), F("sp"), S("unitsOfProduct"), F("sp"), N("2"), F("sellAt"), N("$5", "obj"), F("sp"), S("perUnit"),
+    F("buy1"), N("47", "r5"), F("sp"), S("unitsOfInput"), F("sp"), N("1"), F("buyAt"), N("$6", "obj"), F("sp"), S("perUnit"),
+    F("buy2"), N("40", "r6"), F("sp"), S("unitsOfInput"), F("sp"), N("2"), F("buyAt"), N("$5", "obj"), F("sp"), S("perUnit"),
+    F("ask"), S("companyShort"), F("end")
+  ];
+
+  function varLine(i, j) {
+    return [V("units"), VF("of"), V("input"), F("sp"), N(String(i)), F("sp"), V("usedIn"), F("sp"), N(String(j))];
+  }
+  var VARS = [
+    ["x_1", varLine(1, 1)],
+    ["x_2", varLine(2, 1)],
+    ["y_1", varLine(1, 2)],
+    ["y_2", varLine(2, 2)]
+  ];
+
+  function parts(key) {
+    var v = t(key).split("||");
+    return [v[0].trim(), (v[1] == null ? v[0] : v[1]).trim()];
+  }
+
+  function build(tokens, host) {
+    tokens.forEach(function (tk) {
+      if (tk.t === "f") {
+        host.appendChild(document.createTextNode(t(tk.k)));
+      } else if (tk.t === "s") {
+        var ab = parts(tk.k);
+        var g = document.createElement("span");
+        g.className = "swap";
+        var a = document.createElement("i"); a.className = "a"; a.textContent = ab[0];
+        var b = document.createElement("i"); b.className = "b"; b.textContent = ab[1];
+        g.appendChild(a); g.appendChild(b);
+        host.appendChild(g);
+      } else {
+        var n = document.createElement("span");
+        n.className = "num";
+        n.textContent = tk.s;
+        if (tk.id) { n.dataset.link = tk.id; n.tabIndex = 0; }
+        host.appendChild(n);
+      }
+    });
+  }
+
+  // ---- math (MathJax 3, SVG output) ----
+  var mathReady = false;
+  var mathOuts = [];
+  function renderMath() {
+    if (!mathReady) return;
+    var outs = Array.prototype.map.call(document.querySelectorAll(".math script[type='text/x-tex']"), function (s) {
+      var out = s.parentNode.querySelector(".math-out");
+      if (!out) {
+        out = document.createElement("div");
+        out.className = "math-out";
+        s.parentNode.appendChild(out);
+      }
+      var tex = s.textContent.replace(/\\text\{ST\}/g, "\\text{" + t("ui.st") + "}");
+      out.textContent = "\\[" + tex + "\\]";
+      return out;
+    });
+    outs = outs.concat(Array.prototype.slice.call(document.querySelectorAll(".vars .sym")));
+    if (window.MathJax.typesetClear) window.MathJax.typesetClear(mathOuts);
+    mathOuts = outs;
+    window.MathJax.typesetPromise(outs).catch(function (e) { console.error(e); });
+  }
+  window.MathJax = {
+    tex: { inlineMath: [["\\(", "\\)"]] },
+    svg: { fontCache: "global", displayAlign: "left", displayIndent: "0" },
+    startup: {
+      typeset: false,
+      ready: function () {
+        window.MathJax.startup.defaultReady();
+        mathReady = true;
+        renderMath();
+      }
+    }
+  };
+  var mj = document.createElement("script");
+  mj.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js";
+  mj.async = true;
+  document.head.appendChild(mj);
+
+  // ---- number to model row link ----
+  function lite(id, on) {
+    Array.prototype.forEach.call(document.querySelectorAll(".row"), function (r) {
+      if (r.dataset.id === id) r.classList.toggle("lit", on);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.num[data-link="' + id + '"]'), function (n) {
+      n.classList.toggle("lit", on);
+    });
+  }
+  function wireNums(host) {
+    Array.prototype.forEach.call(host.querySelectorAll(".num[data-link]"), function (n) {
+      var id = n.dataset.link;
+      ["mouseenter", "focus"].forEach(function (ev) { n.addEventListener(ev, function () { lite(id, true); }); });
+      ["mouseleave", "blur"].forEach(function (ev) { n.addEventListener(ev, function () { lite(id, false); }); });
+    });
+  }
+
+  // ---- render (text depends on the language) ----
+  var stmt = document.getElementById("statement");
+  var varsHost = document.getElementById("vars");
+  function render() {
+    Array.prototype.forEach.call(document.querySelectorAll(".lit"), function (e) { e.classList.remove("lit"); });
+    stmt.textContent = "";
+    build(TEXT, stmt);
+    wireNums(stmt);
+
+    varsHost.textContent = "";
+    VARS.forEach(function (v) {
+      var line = document.createElement("div");
+      var sym = document.createElement("span");
+      sym.className = "sym";
+      sym.textContent = "\\(" + v[0] + " =\\)";
+      line.appendChild(sym);
+      build(v[1], line);
+      varsHost.appendChild(line);
+    });
+
+    var nData = TEXT.filter(function (x) { return x.t === "n" && x.id; }).length;
+    var nRows = document.querySelectorAll("#model .row").length;
+    document.getElementById("cSwap").textContent = I18N.fmt(TEXT.filter(function (x) { return x.t === "s"; }).length, 0);
+    document.getElementById("lSwap").textContent = t("two.ledger.swap");
+    document.getElementById("lData").textContent = t("two.ledger.data", { n: I18N.fmt(nData, 0) });
+    document.getElementById("lRows").textContent = t("two.ledger.rows", { n: I18N.fmt(nRows, 0) });
+
+    renderMath();
+  }
+
+  // ---- transition between the two stories ----
+  var root = document.documentElement;
+  var scrub = document.getElementById("scrub");
+  var raf = null;
+  function set(p) {
+    p = Math.min(1, Math.max(0, p));
+    root.style.setProperty("--p", p.toFixed(4));
+    root.style.setProperty("--mid", (1 - Math.abs(2 * p - 1)).toFixed(4));
+  }
+  scrub.addEventListener("input", function () {
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+    set(scrub.value / 100);
+  });
+  function glide(to) {
+    if (raf) cancelAnimationFrame(raf);
+    var from = scrub.value / 100;
+    if (Math.abs(to - from) < 0.001) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { scrub.value = to * 100; set(to); return; }
+    var t0 = performance.now(), dur = 1500;
+    (function step(now) {
+      var k = Math.min(1, (now - t0) / dur);
+      var e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      var p = from + (to - from) * e;
+      scrub.value = p * 100;
+      set(p);
+      if (k < 1) raf = requestAnimationFrame(step); else raf = null;
+    })(t0);
+  }
+  document.getElementById("play").addEventListener("click", function () {
+    glide(scrub.value / 100 > 0.5 ? 0 : 1);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".vname"), function (btn) {
+    btn.addEventListener("click", function () { glide(Number(btn.dataset.goto)); });
+  });
+
+  set(0);
+  I18N.onChange(render);
+})();
+</script>
+</body>
+</html>

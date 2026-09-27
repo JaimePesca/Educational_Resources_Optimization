@@ -84,6 +84,7 @@ I18N.register("fr", {
   "type.simulation": "Simulation",
   "type.game": "Jeu",
   "type.animation": "Animation",
+  "type.example": "Exemple guidé",
 
   /* ---- cartes de ressources ---- */
   "resource.feasible-region.title": "Région Réalisable",
@@ -92,6 +93,14 @@ I18N.register("fr", {
   "resource.critical-load.summary": "Chargez un hélicoptère pour la ligne de feu sans dépasser une limite de poids, puis comparez votre chargement avec l'optimum exact et une règle gloutonne.",
   "resource.patrol-route.title": "Route de Patrouille",
   "resource.patrol-route.summary": "Regardez le recuit simulé planifier l'itinéraire d'un drone entre des tours de guet, et découvrez pourquoi accepter des mouvements moins bons aide à sortir des optima locaux.",
+  "resource.two-stories.title": "Deux histoires, un modèle",
+  "resource.two-stories.summary": "Passez d'une version pharmaceutique à une version boissons du même problème de mélange : les mots changent, pas les nombres ni le programme linéaire.",
+  "resource.feasible-region-3d.title": "Région réalisable en 3D",
+  "resource.feasible-region-3d.summary": "Explorez en 3D un PL d'achats militaires à trois variables, trouvez ses sommets et voyez pourquoi toute une arête de solutions optimales apparaît.",
+  "resource.compacta.title": "Compacta",
+  "resource.compacta.summary": "Un jeu pour écrire des modèles sous forme compacte : ensembles, indices, Σ et ∀, à travers cinq mondes de défis.",
+  "resource.dijkstra.title": "Dijkstra pas à pas",
+  "resource.dijkstra.summary": "Suivez l'algorithme du plus court chemin de Dijkstra itération par itération sur un exemple résolu, puis résolvez un exercice sur un graphe non orienté.",
 
   /* ---- ressources pédagogiques prévues (ouvertes aux contributions) ---- */
   "resource.edu-diet.title": "L'assiette saine la moins chère",

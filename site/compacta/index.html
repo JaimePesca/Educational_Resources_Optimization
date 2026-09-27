@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en" data-title-key="cmp.title" data-i18n-bundles="resources/compacta">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Compacta</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  /* Role colors of the formula renderer (all from site tokens) */
+  :root {
+    --r-var: var(--accent-text);  /* variables: MIT red */
+    --r-par: var(--ink);          /* parameters: ink */
+    --r-set: var(--muted);        /* sets and indices: silver gray */
+  }
+  .tagline { font-size: 19px; font-weight: 600; color: var(--ink2); margin: -4px 0 10px; }
+
+  /* ---- mini formula notation ---- */
+  .mx { font-size: 1.12em; line-height: 1.75; }
+  .mv, .mp, .ms { font-style: italic; font-weight: 600; }
+  .mv { color: var(--r-var); }
+  .mp { color: var(--r-par); }
+  .ms { color: var(--r-set); }
+  .mx sub, .game sub { font-size: .66em; vertical-align: -.32em; margin-left: 1px; line-height: 0; }
+  .sum { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 .12em; }
+  .sig { font-size: 1.4em; font-weight: 700; color: var(--ink); }
+  .sidx { font-size: .62em; margin-top: -.05em; }
+  .fa { color: var(--r-set); font-weight: 700; font-style: normal; margin: 0 .1em; }
+  .kw { font-weight: 700; color: var(--ink); margin-right: .35em; }
+  .cset { color: var(--r-set); } .cpar { color: var(--r-par); } .cvar { color: var(--r-var); }
+  .chl { color: var(--ink); font-size: 1.1em; }
+
+  .legend { display: flex; gap: 6px 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink2); padding: 2px 2px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { font-style: italic; font-weight: 600; font-size: 14px; }
+  .legend .lk { font-weight: 700; font-style: normal; color: var(--ink); font-size: 12.5px; }
+
+  /* ---- game frame ---- */
+  .game { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 70px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13.5px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+  .game h2, .game h3, .game p { margin: 0; }
+
+  .btn {
+    font: 600 14.5px var(--font-sans); border-radius: 3px; padding: 11px 20px; cursor: pointer;
+    background: transparent; color: var(--ink); border: 1.5px solid var(--border);
+    display: inline-flex; align-items: center; gap: 8px; line-height: 1.2;
+  }
+  .btn:hover { border-color: var(--ink2); }
+  .btn.primary { background: var(--accent); color: var(--on-solid); border-color: var(--accent); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.primary:active { transform: translateY(1px); }
+  .btn.big { font-size: 17px; padding: 14px 30px; }
+  .btn.sm { padding: 7px 12px; font-size: 13.5px; }
+
+  /* home */
+  .home { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 30px 16px; }
+  .sigma-mark { font-size: 64px; line-height: 1; font-weight: 700; color: var(--accent-text); }
+  .demo {
+    display: flex; align-items: center; justify-content: center; gap: 10px 18px; flex-wrap: wrap;
+    font-size: 21px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 12px 22px;
+  }
+  .demo .arrow { color: var(--accent-text); font-weight: 700; font-size: 24px; animation: swing 1.6s ease-in-out infinite; }
+
+  /* hud */
+  .hud { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; }
+  .hud h2 { font-size: 20px; font-weight: 700; flex: 1; }
+  .pill {
+    display: inline-flex; align-items: baseline; gap: 6px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 3px; padding: 6px 11px; font-weight: 700; font-size: 14px; white-space: nowrap;
+  }
+  .pill .lbl { font-family: var(--font-mono); font-weight: 400; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .pill.pts b { color: var(--accent-text); }
+  .pill.wname { max-width: 100%; white-space: normal; }
+  .dots { display: flex; gap: 6px; flex: 1; justify-content: center; min-width: 100px; flex-wrap: wrap; }
+  .dot { width: 12px; height: 12px; border-radius: 2px; background: var(--grid); border: 1px solid var(--axis); }
+  .dot.done { background: var(--ink); border-color: var(--ink); }
+  .dot.now { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--sel); }
+
+  /* board + challenge */
+  .layout { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 960px) {
+    .layout { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; }
+    .ctx { position: sticky; top: 70px; }
+  }
+  .ctx { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 12px 14px; min-width: 0; }
+  .panel h3 { font-family: var(--font-mono); font-weight: 400; font-size: 10.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .fline { display: flex; align-items: baseline; justify-content: space-between; gap: 2px 10px; padding: 1px 0; flex-wrap: wrap; }
+  .fline .tag { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .pnote { color: var(--ink2); font-size: 14px; padding: 2px 0; }
+  .tblwrap { overflow-x: auto; }
+  table.data { border-collapse: collapse; width: 100%; font-size: 13.5px; margin-top: 4px; min-width: 330px; }
+  table.data th, table.data td { padding: 5px 6px; text-align: center; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  table.data th { color: var(--ink2); font-weight: 600; border-bottom-color: var(--axis); }
+  table.data td:first-child, table.data th:first-child { text-align: left; font-weight: 600; }
+
+  .qcard { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 4px; padding: 20px; min-width: 0; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .qtype {
+    display: inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--on-solid); background: var(--ink); border-radius: 2px; padding: 3px 9px;
+  }
+  .game .prompt { font-size: 20px; font-weight: 700; margin-bottom: 14px; line-height: 1.35; }
+  .fbox { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 10px 14px; margin-bottom: 14px; overflow-x: auto; }
+  .fbox-l { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; font: inherit; color: var(--ink);
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px; padding: 11px 14px; cursor: pointer;
+  }
+  .opt:hover:not(:disabled), .tile:hover:not(:disabled), .cat:hover:not(:disabled) { border-color: var(--ink); background: var(--sel); }
+  .opt .key {
+    width: 28px; height: 28px; border-radius: 2px; background: var(--surface2); border: 1px solid var(--border);
+    display: grid; place-items: center; font: 600 12.5px var(--font-mono); flex: none; color: var(--ink2);
+  }
+  .opt .otext { min-width: 0; overflow-wrap: anywhere; }
+  .opt.ok, .tile.ok, .cat.ok { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .opt.ok .key { background: var(--good); border-color: var(--good); color: var(--on-solid); }
+  .opt.bad, .tile.bad, .cat.bad { border-color: var(--crit); border-style: dashed; background: var(--sel); animation: shake .4s; }
+  .opt.bad .key { color: var(--crit); border-color: var(--crit); }
+  .opt:disabled, .tile:disabled, .cat:disabled { cursor: default; }
+  .opt:disabled:not(.ok), .tile:disabled:not(.ok), .cat:disabled:not(.ok) { opacity: .55; }
+
+  .builder { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 14px; text-align: center; margin-bottom: 14px; font-size: 19px; overflow-x: auto; }
+  .slot {
+    display: inline-flex; min-width: 2.3em; justify-content: center; padding: .02em .4em; border-radius: 2px;
+    border: 2px dashed var(--axis); color: var(--muted); margin: 0 .12em; vertical-align: middle; font-size: .85em; font-weight: 700;
+  }
+  .slot.active { border-style: solid; border-color: var(--accent); color: var(--accent-text); animation: pulse 1.3s infinite; }
+  .slot.filled { border-style: solid; border-color: var(--ink2); background: var(--surface); color: var(--ink); font-size: 1em; font-weight: inherit; }
+  .stepq { font-weight: 700; margin: 4px 0 12px; font-size: 16.5px; }
+  .tiles { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .tile { font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px; padding: 8px 16px; cursor: pointer; font-size: 18px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .chip { border-radius: 2px; padding: 3px 11px; border: 1.5px solid var(--border); background: var(--surface); font-size: 15px; }
+  .chip.done { border-color: var(--good); opacity: .6; }
+  .chip.now { border-color: var(--accent); box-shadow: 0 0 0 3px var(--sel); }
+  .current { font-size: 26px; text-align: center; padding: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; margin-bottom: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+  .current.text { font-size: 18px; }
+  .cats { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+  .cat { font: inherit; padding: 13px 10px; border-radius: 3px; font-weight: 700; font-size: 16px; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--ink); }
+  .cat.c0 { border-left: 5px solid var(--r-set); }
+  .cat.c1 { border-left: 5px solid var(--r-par); }
+  .cat.c2 { border-left: 5px solid var(--r-var); }
+
+  .fb { margin-top: 14px; border-radius: 3px; padding: 12px 14px; border: 1px solid; border-left-width: 4px; }
+  .fb.bad { border-color: var(--crit); background: var(--sel); }
+  .fb.ok { border-color: var(--good); background: color-mix(in srgb, var(--good) 8%, transparent); }
+  .fb .t { font-weight: 700; margin-bottom: 4px; }
+  .fb.bad .t { color: var(--crit); }
+  .fb.ok .t { color: var(--good-text); }
+  .fb .hl { font-weight: 700; }
+  .pts-float { display: inline-block; color: var(--accent-text); font-family: var(--font-mono); animation: floatIn .5s; margin-left: 4px; }
+  .why { margin-top: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 11px 13px; line-height: 1.6; color: var(--ink2); }
+  .why b { color: var(--ink); }
+  .next { margin-top: 14px; display: flex; justify-content: flex-end; }
+
+  /* map */
+  .map { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .wcard {
+    font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--ink);
+    border-radius: 4px; padding: 16px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 5px;
+  }
+  .wcard:hover:not(:disabled) { border-top-color: var(--accent); background: var(--sel); }
+  .wcard.locked { opacity: .5; cursor: not-allowed; border-top-color: var(--axis); }
+  .wcard.done { border-top-color: var(--accent); }
+  .wcard .em { display: flex; align-items: baseline; gap: 10px; }
+  .wcard .num { font: 600 13px var(--font-mono); color: var(--muted); letter-spacing: .08em; }
+  .wcard .glyph { font-size: 30px; line-height: 1; font-weight: 700; color: var(--accent-text); }
+  .wcard h3 { font-size: 17px; font-weight: 700; margin-top: 4px; }
+  .wcard p { color: var(--ink2); font-size: 14px; flex: 1; }
+  .stars { color: var(--accent-text); letter-spacing: 2px; font-size: 17px; }
+  .stars .off { color: var(--axis); }
+  .badge {
+    display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--accent-text); color: var(--accent-text);
+    border-radius: 2px; padding: 3px 9px; font-size: 12.5px; font-weight: 700; align-self: flex-start;
+  }
+  .badge.big { font-size: 15px; padding: 7px 14px; align-self: center; }
+  .badge svg, .lock svg { width: 14px; height: 14px; flex: none; }
+  .lock { display: inline-flex; align-items: center; gap: 6px; }
+  .banner {
+    background: var(--sel); border: 1px solid var(--accent-text); border-radius: 3px; padding: 12px 16px;
+    display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; font-weight: 700;
+  }
+
+  /* centered screens */
+  .center { min-height: 46vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px; padding: 20px 0; }
+  .center .bigglyph { font-size: 60px; line-height: 1; font-weight: 700; color: var(--accent-text); }
+  .center .kick { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text); }
+  .center h2.big { font-size: clamp(28px, 6vw, 40px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+  .lead { font-size: 17px; max-width: 38rem; line-height: 1.55; color: var(--ink2); }
+  .lead b { color: var(--ink); }
+  .bigstars { font-size: 52px; letter-spacing: 8px; line-height: 1; }
+  .bigstars span { display: inline-block; color: var(--accent-text); animation: pop .5s backwards; }
+  .bigstars span:nth-child(2) { animation-delay: .25s; }
+  .bigstars span:nth-child(3) { animation-delay: .5s; }
+  .bigstars span.off { color: var(--axis); }
+  .frow { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--grid); }
+  .frow:last-child { border-bottom: 0; }
+
+  /* modal */
+  .overlay { position: fixed; inset: 0; background: var(--halo); display: grid; place-items: center; padding: 16px; z-index: 40; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 4px;
+    max-width: 760px; width: 100%; max-height: 90vh; overflow: auto; padding: 22px 22px; box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+  }
+  .modal h2 { font-size: 24px; font-weight: 700; margin: 0 0 12px; }
+  .modal h3 { font-size: 16px; font-weight: 700; margin: 18px 0 8px; }
+  .modal p { margin: 0; color: var(--ink2); }
+  .grid3 { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+  .ing { border-radius: 3px; padding: 12px; border: 1px solid var(--border); background: var(--surface2); line-height: 1.5; color: var(--ink2); min-width: 0; overflow-wrap: anywhere; }
+  .ing b { display: block; margin-bottom: 4px; font-size: 15.5px; color: var(--ink); }
+  .ing.c0 { border-left: 4px solid var(--r-set); } .ing.c0 b { color: var(--r-set); }
+  .ing.c1 { border-left: 4px solid var(--r-par); } .ing.c1 b { color: var(--r-par); }
+  .ing.c2 { border-left: 4px solid var(--r-var); } .ing.c2 b { color: var(--r-var); }
+  .steps { padding-left: 0; margin: 0; list-style: none; display: grid; gap: 10px; counter-reset: s; }
+  .steps li { display: flex; gap: 12px; align-items: flex-start; line-height: 1.5; color: var(--ink2); }
+  .steps li::before {
+    counter-increment: s; content: counter(s); flex: none; width: 28px; height: 28px; border-radius: 2px;
+    background: var(--accent); color: var(--on-solid); font: 600 13px var(--font-mono); display: grid; place-items: center;
+  }
+  .side { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 var(--sel); } 50% { box-shadow: 0 0 0 8px transparent; } }
+  @keyframes pop { from { transform: scale(0) rotate(-30deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes floatIn { from { transform: translateY(8px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+  @keyframes swing { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+  .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 60; }
+  .confetti i { position: absolute; top: -16px; width: 9px; height: 14px; border-radius: 1px; animation: fall linear forwards; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  @media (max-width: 640px) {
+    .ctx { position: static; }
+    .qcard { padding: 16px 14px; }
+    .game .prompt { font-size: 18px; }
+    .home { padding: 22px 12px; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="cmp.eyebrow"></p>
+    <h1 data-i18n="cmp.title"></h1>
+    <p class="tagline" data-i18n="cmp.tagline"></p>
+    <p class="lede" data-i18n-html="cmp.lede"></p>
+  </header>
+  <div class="game" id="app" aria-live="polite"></div>
+  <p class="note" data-i18n="cmp.footer"></p>
+</div>
+<div id="modal"></div>
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/compacta.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+
+  /* ====================================================================
+     COMPACTA: the formulation game
+     Game engine + question bank. The bank keeps its STRUCTURE here (ids, types,
+     correct answers, formula strings); every word lives in the locale bundles
+     under cmp.q.<id>.prompt / .hint / .why / .opt.<n> / .item.<n> / .cat.<n> and
+     cmp.q.<id>.s<step>.ask / .hint / .opt.<n>.
+
+     Formula mini syntax (language neutral, colored by role):
+       x_j          variable with subscript (x, y, z, w are variables)
+       a_{ij}       multi-letter subscript
+       c_j, b_i     parameters (any other letter with a subscript)
+       I, J, K      sets (lone capital);  P, B alone are parameters
+       i, j, k      lone indices
+       Σ_{j∈J}      sum with its index
+       ∀ i∈I        "for all"
+       |J|          cardinality
+       Max, Min     keywords; {st} is the "subject to" keyword, shown as t("ui.st")
+
+     Challenge types:
+       choice    pick one option          (options, answer)
+       classify  classify symbols/phrases (categories, items[{t?, c}])
+       build     build the formula        (template with {0}, {1}..., steps[{options, answer}])
+     In options / categories / items, null means "a word: take it from the bundle".
+     ==================================================================== */
+
+  /* ---------- notation renderer ---------- */
+  var VARLETTERS = "xyzw";
+  var SETLETTERS = "IJKLST";
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function isSet(l) { return SETLETTERS.indexOf(l) >= 0 || "ijk".indexOf(l) >= 0; }
+  function roleOf(l) { return VARLETTERS.indexOf(l) >= 0 ? "mv" : isSet(l) ? "ms" : "mp"; }
+  function subHtml(s) { return esc(s).replace(/[A-Z]|[ijk]/g, function (m) { return isSet(m) ? '<span class="ms">' + m + "</span>" : m; }); }
+  // Unicode letter classes so accented words (Cómo, Términos, ¿Y ...) are never mistaken for symbols
+  var RX = /(Max|Min|\{st\})(?!\p{L})|Σ_\{([^}]*)\}|([A-Za-z])_\{([^}]*)\}|([A-Za-z])_([A-Za-z0-9])|(∀)|\|([A-Z])\||(^|[^\p{L}\p{N}_])([A-Y]|[ijk])(?![\p{L}\p{N}_])/gu;
+
+  function M(str) {
+    return esc(str).replace(RX, function (m, kw, sIdx, l1, s1, l2, s2, fa, card, pre, lone) {
+      if (kw) return '<span class="kw">' + (kw === "{st}" ? esc(t("ui.st")) : kw) + "</span>";
+      if (sIdx !== undefined) return '<span class="sum"><span class="sig">Σ</span><span class="sidx">' + subHtml(sIdx) + "</span></span>";
+      if (l1) return '<span class="' + roleOf(l1) + '">' + l1 + "<sub>" + subHtml(s1) + "</sub></span>";
+      if (l2) return '<span class="' + roleOf(l2) + '">' + l2 + "<sub>" + subHtml(s2) + "</sub></span>";
+      if (fa) return '<span class="fa">∀</span>';
+      if (card) return '|<span class="ms">' + card + "</span>|";
+      if (lone !== undefined) return pre + '<span class="' + roleOf(lone) + '">' + lone + "</span>";
+      return m;
+    });
+  }
+
+  /* ====================================================================
+     QUESTION BANK (structure; texts in the bundle)
+     ==================================================================== */
+
+  /* BrewCo case (worlds 1, 2 and 4) */
+  var NOTE_BREW = { title: "cmp.panel.case", notes: ["cmp.brew.case"] };
+  var EXT_BREW = { title: "cmp.panel.extended", lines: [
+    "Max Z = 3x_1 + 5x_2 + 4x_3",
+    "{st}",
+    { f: "2x_1 + 3x_2 + x_3 ≤ 10", tag: "cmp.brew.tag.barley" },
+    { f: "x_1 + 2x_2 + 2x_3 ≤ 8", tag: "cmp.brew.tag.hours" },
+    "x_1, x_2, x_3 ≥ 0"
+  ] };
+  var COMP_BREW = { title: "cmp.panel.compact", lines: [
+    "Max Z = Σ_{j∈J} c_j x_j",
+    "{st}",
+    "Σ_{j∈J} a_{ij} x_j ≤ b_i ∀ i∈I",
+    "x_j ≥ 0 ∀ j∈J"
+  ] };
+  var DIC_BREW = { title: "cmp.panel.dict", notes: ["cmp.brew.dic.0", "cmp.brew.dic.1", "cmp.brew.dic.2", "cmp.brew.dic.3", "cmp.brew.dic.4", "cmp.brew.dic.5"] };
+  var DIC_BREW2 = { title: "cmp.panel.dict", notes: DIC_BREW.notes.concat(["cmp.brew.dic.6", "cmp.brew.dic.7"]) };
+
+  /* LogiCol case (world 3) */
+  var NOTE_LOGI = { title: "cmp.panel.case", notes: ["cmp.logi.case"] };
+  var COMP_LOGI = { title: "cmp.panel.compact", lines: [
+    "Min Z = Σ_{i∈I} Σ_{j∈J} c_{ij} x_{ij}",
+    "{st}",
+    { f: "Σ_{j∈J} x_{ij} ≤ s_i ∀ i∈I", tag: "cmp.logi.tag.supply" },
+    { f: "Σ_{i∈I} x_{ij} ≥ d_j ∀ j∈J", tag: "cmp.logi.tag.demand" },
+    "x_{ij} ≥ 0 ∀ i∈I, j∈J"
+  ] };
+  // Header and row labels are bundle keys (null = the neutral symbol c_{ij}); numbers stay here
+  var DATA_LOGI = { title: "cmp.panel.data", table: {
+    head: ["c_{ij}", "cmp.logi.th.1", "cmp.logi.th.2", "cmp.logi.th.3", "cmp.logi.th.4"],
+    rows: [["cmp.logi.row.0", "4", "6", "9", "30"], ["cmp.logi.row.1", "5", "3", "7", "20"], ["cmp.logi.row.2", "15", "20", "15", ""]]
+  } };
+  var DIC_LOGI = { title: "cmp.panel.dict", notes: ["cmp.logi.dic.0", "cmp.logi.dic.1", "cmp.logi.dic.2", "cmp.logi.dic.3", "cmp.logi.dic.4"] };
+
+  /* BancoExpress case (world 5) */
+  var NOTE_BANCO = { title: "cmp.panel.case", notes: ["cmp.banco.case"] };
+  var EXT_BANCO = { title: "cmp.panel.extendedCons", lines: [
+    { f: "x_{11} + x_{12} + x_{13} = 1", tag: "cmp.banco.tag.advisor", n: 1 },
+    { f: "x_{21} + x_{22} + x_{23} = 1", tag: "cmp.banco.tag.advisor", n: 2 },
+    { f: "x_{31} + x_{32} + x_{33} = 1", tag: "cmp.banco.tag.advisor", n: 3 },
+    { f: "x_{11} + x_{21} + x_{31} = 1", tag: "cmp.banco.tag.branch", n: 1 },
+    { f: "x_{12} + x_{22} + x_{32} = 1", tag: "cmp.banco.tag.branch", n: 2 },
+    { f: "x_{13} + x_{23} + x_{33} = 1", tag: "cmp.banco.tag.branch", n: 3 },
+    "x_{ij} ∈ {0, 1}"
+  ] };
+  var DIC_BANCO = { title: "cmp.panel.dict", notes: ["cmp.banco.dic.0", "cmp.banco.dic.1", "cmp.banco.dic.2", "cmp.banco.dic.3"] };
+
+  var ONCE = null; // "(just once)" style word options come from the bundle
+  var WORLDS = [
+    /* ---------------- World 1 ---------------- */
+    { id: "w1", glyph: "∈", context: [NOTE_BREW, EXT_BREW], questions: [
+      { id: "1-1", type: "choice", options: ["2", "3", "5"], answer: 1 },
+      { id: "1-2", type: "choice", options: ["1", "2", "3"], answer: 1 },
+      { id: "1-3", type: "classify", colored: true, panels: [EXT_BREW, COMP_BREW],
+        categories: [null, null, null],
+        items: [{ t: "J", c: 0 }, { t: "c_j", c: 1 }, { t: "x_j", c: 2 }, { t: "I", c: 0 }, { t: "a_{ij}", c: 1 }, { t: "b_i", c: 1 }] },
+      { id: "1-4", type: "choice", options: ["c_1", "c_2", "a_{12}", "x_2"], answer: 1 },
+      { id: "1-5", type: "choice", options: ["a_{23}", "a_{32}", "b_2", "c_3"], answer: 0 },
+      { id: "1-6", type: "choice", options: ["0", "1", "3"], answer: 1 }
+    ] },
+
+    /* ---------------- World 2 ---------------- */
+    { id: "w2", glyph: "Σ", context: [NOTE_BREW, EXT_BREW, DIC_BREW2], questions: [
+      { id: "2-1", type: "build", formula: "Max Z = 3x_1 + 5x_2 + 4x_3", template: "Max Z = {0} {1} {2}",
+        steps: [
+          { options: ["Σ_{j∈J}", "Σ_{i∈I}", "Σ_{j∈I}"], answer: 0 },
+          { options: ["c_j", "c_i", "b_j"], answer: 0 },
+          { options: ["x_j", "x_i", "x_{ij}"], answer: 0 }
+        ] },
+      { id: "2-2", type: "build", formula: ["2x_1 + 3x_2 + x_3 ≤ 10", "x_1 + 2x_2 + 2x_3 ≤ 8"], template: "{0} {1} {2} ≤ {3} {4}",
+        steps: [
+          { options: ["Σ_{j∈J}", "Σ_{i∈I}"], answer: 0 },
+          { options: ["a_{ij}", "a_j", "a_{ji}"], answer: 0 },
+          { options: ["x_j", "x_i", "x_{ij}"], answer: 0 },
+          { options: ["b_i", "b_j", "b"], answer: 0 },
+          { options: ["∀ i∈I", "∀ j∈J", ONCE], answer: 0 }
+        ] },
+      { id: "2-3", type: "choice", formula: "x_1 ≥ 0, x_2 ≥ 0, x_3 ≥ 0",
+        options: ["x_j ≥ 0 ∀ j∈J", "Σ_{j∈J} x_j ≥ 0", "x_j ≥ 0 ∀ i∈I"], answer: 0 },
+      { id: "2-4", type: "build", formula: "x_1 ≥ 2, x_2 ≥ 4, x_3 ≥ 1", template: "{0} ≥ {1} {2}",
+        steps: [
+          { options: ["x_j", "Σ_{j∈J} x_j", "x_i"], answer: 0 },
+          { options: ["d_j", "d_i", "d"], answer: 0 },
+          { options: ["∀ j∈J", "∀ i∈I", ONCE], answer: 0 }
+        ] },
+      { id: "2-5", type: "choice", formula: "4x_1 + 6x_2 + 5x_3 ≤ 100",
+        options: ["Σ_{j∈J} p_j x_j ≤ P", "Σ_{j∈J} p_j x_j ≤ P ∀ i∈I", "Σ_{i∈I} p_i x_i ≤ P"], answer: 0 },
+      { id: "2-6", type: "classify", textItems: true,
+        categories: ["Σ", "∀", null],
+        items: [{ c: 0 }, { c: 1 }, { c: 0 }, { c: 1 }, { c: 2 }] }
+    ] },
+
+    /* ---------------- World 3 ---------------- */
+    { id: "w3", glyph: "↦", context: [NOTE_LOGI, COMP_LOGI, DATA_LOGI, DIC_LOGI], questions: [
+      { id: "3-1", type: "choice", label: "count", options: ["5", "6", "9"], answer: 1 },
+      { id: "3-2", type: "choice", label: "count", options: ["2", "3", "6"], answer: 0 },
+      { id: "3-3", type: "choice", label: "expand",
+        options: ["x_{21} + x_{22} + x_{23} ≤ 20", "x_{12} + x_{22} ≤ 20", "x_{21} + x_{22} + x_{23} ≤ 30"], answer: 0 },
+      { id: "3-4", type: "choice", label: "expand",
+        options: ["x_{13} + x_{23} ≥ 15", "x_{31} + x_{32} ≥ 15", "x_{13} + x_{23} ≤ 15"], answer: 0 },
+      { id: "3-5", type: "choice", label: "expand", options: ["5x_{21}", "6x_{21}", "5x_{12}"], answer: 0 },
+      { id: "3-6", type: "choice", label: "count", options: ["2", "5", "6"], answer: 1 }
+    ] },
+
+    /* ---------------- World 4 ---------------- */
+    { id: "w4", glyph: "≠", context: [NOTE_BREW, EXT_BREW, DIC_BREW], questions: [
+      { id: "4-1", type: "choice", label: "review", formula: "Σ_{i∈I} a_{ij} x_j ≤ b_i ∀ i∈I", formulaLabel: "proposal",
+        options: [null, null, null, null], answer: 0 },
+      { id: "4-2", type: "choice", label: "review", formula: "Σ_{j∈J} a_{ij} x_j ≤ b_i", formulaLabel: "proposal",
+        options: [null, null, null, null], answer: 0 },
+      { id: "4-3", type: "choice", label: "review", formula: "Σ_{j∈J} a_{ij} x_j ≤ b_j ∀ i∈I", formulaLabel: "proposal",
+        options: [null, null, null, null], answer: 0 },
+      { id: "4-4", type: "choice", label: "review", formula: "Max Z = Σ_{j∈J} c_j x_j ∀ j∈J", formulaLabel: "proposal",
+        options: [null, null, null, null], answer: 0 },
+      { id: "4-5", type: "choice", label: "review", formula: "x_j ≥ 0 ∀ i∈I", formulaLabel: "proposal",
+        options: [null, null, null, null], answer: 0 },
+      { id: "4-6", type: "choice", label: "review", formula: "Σ_{j∈J} a_{ij} x_j ≤ b_i ∀ i∈I", formulaLabel: "proposal",
+        options: [null, null, null, null], answer: 3 }
+    ] },
+
+    /* ---------------- World 5 ---------------- */
+    { id: "w5", glyph: "∀", context: [NOTE_BANCO, EXT_BANCO, DIC_BANCO], questions: [
+      { id: "5-1", type: "choice", label: "count", options: ["6", "9", "3"], answer: 1 },
+      { id: "5-2", type: "build",
+        formula: ["x_{11} + x_{12} + x_{13} = 1", "x_{21} + x_{22} + x_{23} = 1", "x_{31} + x_{32} + x_{33} = 1"], template: "{0} {1} = 1 {2}",
+        steps: [
+          { options: ["Σ_{j∈J}", "Σ_{i∈I}"], answer: 0 },
+          { options: ["x_{ij}", "x_j", "x_i"], answer: 0 },
+          { options: ["∀ i∈I", "∀ j∈J", ONCE], answer: 0 }
+        ] },
+      { id: "5-3", type: "build",
+        formula: ["x_{11} + x_{21} + x_{31} = 1", "x_{12} + x_{22} + x_{32} = 1", "x_{13} + x_{23} + x_{33} = 1"], template: "{0} x_{ij} = 1 {1}",
+        steps: [
+          { options: ["Σ_{i∈I}", "Σ_{j∈J}"], answer: 0 },
+          { options: ["∀ j∈J", "∀ i∈I", ONCE], answer: 0 }
+        ] },
+      { id: "5-4", type: "choice",
+        options: ["Min Z = Σ_{i∈I} Σ_{j∈J} c_{ij} x_{ij}", "Min Z = Σ_{i∈I} c_{ij} x_{ij}", "Min Z = Σ_{i∈I} Σ_{j∈J} c_{ij} x_{ij} ∀ i∈I"], answer: 0 },
+      { id: "5-5", type: "choice", label: "expand",
+        options: ["x_{12} + x_{22} + x_{32} = 1", "x_{21} + x_{22} + x_{23} = 1", "x_{12} + x_{22} = 1"], answer: 0 },
+      { id: "5-6", type: "choice", options: [null, null, null], answer: 0 }
+    ] }
+  ];
+
+  /* ---------- bundle lookups for the bank ---------- */
+  function qk(q, k) { return t("cmp.q." + q.id + "." + k); }
+  function wk(w, k) { return t("cmp." + w.id + "." + k); }
+  function optText(q, i) { return q.options[i] === null ? qk(q, "opt." + i) : q.options[i]; }
+  function stepOpt(q, s, i) { var o = q.steps[s].options[i]; return o === null ? qk(q, "s" + (s + 1) + ".opt." + i) : o; }
+  function catText(q, i) { return q.categories[i] === null ? qk(q, "cat." + i) : q.categories[i]; }
+  function itemText(q, i) { var it = q.items[i]; return it.t === undefined ? qk(q, "item." + i) : it.t; }
+  function num(v) { return I18N.fmt(v, 0); }
+
+  /* ====================================================================
+     GAME ENGINE
+     ==================================================================== */
+  var app = document.getElementById("app");
+  var modalRoot = document.getElementById("modal");
+  var state = { screen: "home", points: 0, streak: 0, bestStreak: 0, progress: {}, play: null };
+  var lastKey = "";
+  var openModalKey = null;
+  var TOTAL_Q = WORLDS.reduce(function (s, w) { return s + w.questions.length; }, 0);
+
+  var ICON_MEDAL = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 1h6L9.5 6h-3z" fill="currentColor"/><circle cx="8" cy="10.5" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="10.5" r="1.6" fill="currentColor"/></svg>';
+  var ICON_LOCK = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="1" fill="currentColor"/><path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+
+  function legend() {
+    return '<div class="legend">' +
+      '<span><i class="ms">J</i>' + esc(t("cmp.legend.set")) + "</span>" +
+      '<span><i class="mp">c</i>' + esc(t("cmp.legend.par")) + "</span>" +
+      '<span><i class="mv">x</i>' + esc(t("cmp.legend.var")) + "</span>" +
+      '<span><i class="lk">Max</i>' + esc(t("cmp.legend.kw")) + "</span></div>";
+  }
+
+  function qInit() { return { sub: 0, filled: [], wrong: [], answered: false, subFirstTry: true, fb: null, orders: {} }; }
+  function currentQ() { return WORLDS[state.play.w].questions[state.play.qi]; }
+  function starsFor(e) { return e === 0 ? 3 : (e <= 2 ? 2 : 1); }
+  function unlocked(i) { return i === 0 || !!(state.progress[WORLDS[i - 1].id] || {}).done; }
+  function allDone() { return WORLDS.every(function (w) { return (state.progress[w.id] || {}).done; }); }
+  function shuffle(n) {
+    var a = []; for (var k = 0; k < n; k++) a.push(k);
+    for (var i = n - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = a[i]; a[i] = a[j]; a[j] = tmp; }
+    return a;
+  }
+  function orderFor(p, key, n) { if (!p.orders[key]) p.orders[key] = shuffle(n); return p.orders[key]; }
+
+  /* Points: 50 for a first-try answer, plus a streak bonus (up to +50). 20 after failed attempts. */
+  function award(first) {
+    var pts;
+    if (first) { state.streak++; state.bestStreak = Math.max(state.bestStreak, state.streak); pts = 50 + Math.min(state.streak - 1, 5) * 10; }
+    else pts = 20;
+    state.points += pts;
+    return pts;
+  }
+  function miss() { state.streak = 0; state.play.errors++; state.play.subFirstTry = false; }
+
+  function startWorld(i) {
+    state.play = Object.assign({ w: i, qi: 0, errors: 0, pointsStart: state.points, earnedNow: 0 }, qInit());
+    state.screen = "intro";
+    render();
+  }
+  // Feedback stores bundle keys (not text) so a language switch re-renders it translated
+  function pickChoice(i) {
+    var p = state.play, q = currentQ();
+    if (p.answered || p.wrong.indexOf(i) >= 0) return;
+    if (i === q.answer) { p.answered = true; p.fb = { kind: "ok", pts: award(p.subFirstTry) }; }
+    else { p.wrong.push(i); miss(); p.fb = { kind: "bad", hint: "cmp.q." + q.id + ".hint" }; }
+    render();
+  }
+  function pickCat(c) {
+    var p = state.play, q = currentQ();
+    if (p.answered || p.wrong.indexOf(c) >= 0) return;
+    var item = q.items[p.sub];
+    if (c === item.c) {
+      var pts = award(p.subFirstTry);
+      p.sub++; p.subFirstTry = true; p.wrong = [];
+      if (p.sub >= q.items.length) { p.answered = true; p.fb = { kind: "ok", pts: pts }; }
+      else p.fb = { kind: "mini", pts: pts };
+    } else { p.wrong.push(c); miss(); p.fb = { kind: "bad", hint: "cmp.q." + q.id + ".hint" }; }
+    render();
+  }
+  function pickStep(i) {
+    var p = state.play, q = currentQ(), st = q.steps[p.sub];
+    if (p.answered || p.wrong.indexOf(i) >= 0) return;
+    if (i === st.answer) {
+      var pts = award(p.subFirstTry);
+      p.filled[p.sub] = i; // option index, resolved to text at render time
+      p.sub++; p.subFirstTry = true; p.wrong = [];
+      if (p.sub >= q.steps.length) { p.answered = true; p.fb = { kind: "ok", pts: pts }; }
+      else p.fb = { kind: "mini", pts: pts };
+    } else { p.wrong.push(i); miss(); p.fb = { kind: "bad", hint: "cmp.q." + q.id + ".s" + (p.sub + 1) + ".hint" }; }
+    render();
+  }
+  function nextQ() {
+    var p = state.play, w = WORLDS[p.w];
+    p.qi++;
+    Object.assign(p, qInit());
+    if (p.qi >= w.questions.length) { finishWorld(); return; }
+    render();
+  }
+  function finishWorld() {
+    var p = state.play, w = WORLDS[p.w];
+    var earned = state.points - p.pointsStart;
+    var prev = state.progress[w.id];
+    if (prev) state.points -= Math.min(prev.earned, earned); /* replaying a world only counts the best result */
+    state.progress[w.id] = { done: true, stars: Math.max(starsFor(p.errors), prev ? prev.stars : 0), earned: Math.max(earned, prev ? prev.earned : 0) };
+    p.earnedNow = earned;
+    state.screen = "worldEnd";
+    render();
+    confetti();
+  }
+
+  /* ---------- screens ---------- */
+  function render() {
+    var s = state.screen;
+    app.innerHTML = s === "home" ? renderHome()
+      : s === "map" ? renderMap()
+      : s === "intro" ? renderIntro()
+      : s === "play" ? renderPlay()
+      : s === "worldEnd" ? renderWorldEnd()
+      : renderFinal();
+    var key = s + (state.play ? ":" + state.play.w + ":" + state.play.qi : "");
+    if (key !== lastKey) {
+      // new screen: bring the top of the game into view if we are scrolled past it
+      if (lastKey && app.getBoundingClientRect().top < 0) app.scrollIntoView({ block: "start" });
+      lastKey = key;
+    }
+  }
+
+  function renderHome() {
+    return '<div class="card home">' +
+      '<div class="sigma-mark" aria-hidden="true">Σ</div>' +
+      '<div class="demo mx"><span>' + M("3x_1 + 5x_2 + 4x_3") + '</span><span class="arrow" aria-hidden="true">⇄</span><span>' + M("Σ_{j∈J} c_j x_j") + "</span></div>" +
+      legend() +
+      '<div class="row">' +
+        '<button class="btn primary big" data-act="go-map">' + esc(t("cmp.ui.play")) + "</button>" +
+        '<button class="btn" data-act="modal" data-m="howto">' + esc(t("cmp.ui.howto")) + "</button>" +
+        '<button class="btn" data-act="modal" data-m="guide">' + esc(t("cmp.ui.guide")) + "</button>" +
+      "</div>" +
+      '<p class="muted small">' + esc(t("cmp.home.count", { w: num(WORLDS.length), q: num(TOTAL_Q) })) + "</p>" +
+    "</div>";
+  }
+
+  function starsHtml(n) { return "★".repeat(n) + '<span class="off">' + "★".repeat(3 - n) + "</span>"; }
+
+  function renderMap() {
+    var cards = WORLDS.map(function (w, i) {
+      var pr = state.progress[w.id] || {};
+      var un = unlocked(i);
+      var foot;
+      if (pr.done) foot = '<div class="stars" aria-label="' + pr.stars + '/3">' + starsHtml(pr.stars) + '</div><div class="badge">' + ICON_MEDAL + esc(wk(w, "badge")) + "</div>";
+      else if (un) foot = '<div class="muted small">' + esc(t("cmp.map.count", { n: num(w.questions.length) })) + "</div>";
+      else foot = '<div class="muted small lock">' + ICON_LOCK + esc(t("cmp.map.locked")) + "</div>";
+      return '<button class="wcard' + (un ? "" : " locked") + (pr.done ? " done" : "") + '" data-act="world" data-i="' + i + '" ' + (un ? "" : "disabled") + ">" +
+        '<div class="em"><span class="glyph" aria-hidden="true">' + w.glyph + '</span><span class="num">0' + (i + 1) + "</span></div>" +
+        "<h3>" + (i + 1) + ". " + esc(wk(w, "name")) + "</h3><p>" + esc(wk(w, "desc")) + "</p>" + foot + "</button>";
+    }).join("");
+    var banner = allDone() ? '<div class="banner"><span>' + esc(t("cmp.map.allDone")) + '</span><button class="btn primary sm" data-act="go-final">' + esc(t("cmp.map.seeTitle")) + "</button></div>" : "";
+    return '<div class="hud">' +
+        '<button class="btn sm" data-act="go-home">' + esc(t("cmp.ui.home")) + "</button>" +
+        "<h2>" + esc(t("cmp.map.title")) + "</h2>" +
+        pointsPill() +
+        '<button class="btn sm" data-act="modal" data-m="guide">' + esc(t("cmp.ui.guideShort")) + "</button>" +
+      "</div>" + banner + '<div class="map">' + cards + "</div>";
+  }
+
+  function pointsPill() { return '<span class="pill pts"><span class="lbl">' + esc(t("cmp.hud.points")) + "</span><b>★ " + num(state.points) + "</b></span>"; }
+
+  function renderIntro() {
+    var i = state.play.w, w = WORLDS[i];
+    return '<div class="card center">' +
+      '<div class="bigglyph" aria-hidden="true">' + w.glyph + "</div>" +
+      '<div class="kick">' + esc(t("cmp.intro.world", { n: i + 1, total: WORLDS.length })) + "</div>" +
+      '<h2 class="big">' + esc(wk(w, "name")) + "</h2>" +
+      '<p class="lead">' + wk(w, "lesson") + "</p>" +
+      '<div class="row">' +
+        '<button class="btn primary big" data-act="start">' + esc(t("cmp.ui.start")) + "</button>" +
+        '<button class="btn" data-act="go-map">' + esc(t("cmp.ui.backToMap")) + "</button>" +
+      "</div></div>";
+  }
+
+  function renderPanel(pn) {
+    var body = "";
+    if (pn.notes) body += pn.notes.map(function (k) { return '<div class="pnote">' + M(t(k)) + "</div>"; }).join("");
+    if (pn.lines) body += pn.lines.map(function (l) {
+      var f = typeof l === "string" ? l : l.f;
+      var tag = typeof l === "string" || !l.tag ? "" : '<span class="tag">' + esc(t(l.tag, { n: l.n })) + "</span>";
+      return '<div class="fline"><span class="mx">' + M(f) + "</span>" + tag + "</div>";
+    }).join("");
+    if (pn.table) {
+      var cell = function (c) { return /^cmp\./.test(c) ? M(t(c)) : M(c); };
+      body += '<div class="tblwrap"><table class="data"><thead><tr>' + pn.table.head.map(function (h) { return "<th>" + cell(h) + "</th>"; }).join("") +
+        "</tr></thead><tbody>" + pn.table.rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + cell(c) + "</td>"; }).join("") + "</tr>"; }).join("") +
+        "</tbody></table></div>";
+    }
+    return '<section class="panel"><h3>' + esc(t(pn.title)) + "</h3>" + body + "</section>";
+  }
+
+  function renderHud() {
+    var p = state.play, w = WORLDS[p.w], n = w.questions.length;
+    var dots = "";
+    for (var i = 0; i < n; i++) dots += '<span class="dot' + (i < p.qi ? " done" : i === p.qi ? " now" : "") + '"></span>';
+    return '<div class="hud">' +
+      '<button class="btn sm" data-act="go-map" title="' + esc(t("cmp.ui.backToMap")) + '" aria-label="' + esc(t("cmp.ui.backToMap")) + '">✕</button>' +
+      '<span class="pill wname"><span class="lbl">' + w.glyph + "</span>" + esc(wk(w, "name")) + "</span>" +
+      '<div class="dots" role="img" aria-label="' + esc(t("cmp.play.challenge", { n: p.qi + 1, total: n })) + '">' + dots + "</div>" +
+      pointsPill() +
+      '<span class="pill"><span class="lbl">' + esc(t("cmp.hud.streak")) + "</span><b>" + num(state.streak) + "</b></span>" +
+    "</div>";
+  }
+
+  function renderFormulaBox(q) {
+    var lines = Array.isArray(q.formula) ? q.formula : [q.formula];
+    return '<div class="fbox"><div class="fbox-l">' + esc(t("cmp.fbox." + (q.formulaLabel || "extended"))) + "</div>" +
+      lines.map(function (l) { return '<div class="mx">' + M(l) + "</div>"; }).join("") + "</div>";
+  }
+
+  function renderTemplate(q, filled, active) {
+    return q.template.split(/(\{\d+\})/).map(function (part) {
+      var m = part.match(/^\{(\d+)\}$/);
+      if (!m) return M(part);
+      var i = +m[1];
+      if (filled[i] !== undefined) return '<span class="slot filled">' + M(stepOpt(q, i, filled[i])) + "</span>";
+      return '<span class="slot' + (i === active ? " active" : "") + '">' + (i === active ? "?" : "…") + "</span>";
+    }).join("");
+  }
+
+  var INTERACTION = {
+    choice: function (q, p) {
+      var ord = orderFor(p, "c", q.options.length);
+      return '<div class="opts">' + ord.map(function (oi, k) {
+        var cls = p.answered && oi === q.answer ? " ok" : p.wrong.indexOf(oi) >= 0 ? " bad" : "";
+        var dis = p.answered || p.wrong.indexOf(oi) >= 0 ? "disabled" : "";
+        return '<button class="opt' + cls + '" data-act="choice" data-i="' + oi + '" ' + dis + '><span class="key">' + "ABCD"[k] +
+          '</span><span class="otext mx">' + M(optText(q, oi)) + "</span></button>";
+      }).join("") + "</div>";
+    },
+    classify: function (q, p) {
+      var chips = q.items.map(function (it, i) {
+        var st = i < p.sub ? " done" : i === p.sub ? " now" : "";
+        return q.textItems ? '<span class="chip' + st + '">' + (i + 1) + "</span>" : '<span class="chip mx' + st + '">' + M(itemText(q, i)) + "</span>";
+      }).join("");
+      var ci = Math.min(p.sub, q.items.length - 1), cur = q.items[ci];
+      var cats = q.categories.map(function (c, i) {
+        var cls = (q.colored ? " c" + i : "") + (p.wrong.indexOf(i) >= 0 ? " bad" : "") + (p.answered && i === cur.c ? " ok" : "");
+        var dis = p.answered || p.wrong.indexOf(i) >= 0 ? "disabled" : "";
+        return '<button class="cat' + cls + '" data-act="cat" data-i="' + i + '" ' + dis + ">" + M(catText(q, i)) + "</button>";
+      }).join("");
+      return '<div class="chips">' + chips + '</div><div class="current' + (q.textItems ? " text" : " mx") + '">' + M(itemText(q, ci)) + '</div><div class="cats">' + cats + "</div>";
+    },
+    build: function (q, p) {
+      var tpl = renderTemplate(q, p.filled, p.answered ? -1 : p.sub);
+      var stepHtml = "";
+      if (!p.answered) {
+        var st = q.steps[p.sub];
+        var ord = orderFor(p, "s" + p.sub, st.options.length);
+        stepHtml = '<div class="stepq">' + M(qk(q, "s" + (p.sub + 1) + ".ask")) + '</div><div class="tiles">' + ord.map(function (oi) {
+          var bad = p.wrong.indexOf(oi) >= 0;
+          return '<button class="tile mx' + (bad ? " bad" : "") + '" data-act="step" data-i="' + oi + '" ' + (bad ? "disabled" : "") + ">" + M(stepOpt(q, p.sub, oi)) + "</button>";
+        }).join("") + "</div>";
+      }
+      return '<div class="builder"><div class="fbox-l">' + esc(t("cmp.fbox.compact")) + '</div><div class="mx">' + tpl + "</div></div>" + stepHtml;
+    }
+  };
+
+  function renderFeedback(q, p) {
+    var fb = p.fb;
+    if (!fb) return "";
+    if (fb.kind === "bad") return '<div class="fb bad"><div class="t">✗ ' + esc(t("cmp.fb.wrong")) + "</div>" +
+      (fb.hint ? '<div><span class="hl">' + esc(t("cmp.fb.hint")) + "</span> " + M(t(fb.hint)) + "</div>" : "") +
+      '<div class="muted small">' + esc(t("cmp.fb.retry")) + "</div></div>";
+    if (fb.kind === "mini") return '<div class="fb ok"><div class="t">✓ ' + esc(t("cmp.fb.good")) + ' <span class="pts-float">+' + fb.pts + "</span></div>" +
+      '<div class="muted small">' + esc(t("cmp.fb.nextPiece")) + "</div></div>";
+    var last = p.qi === WORLDS[p.w].questions.length - 1;
+    return '<div class="fb ok"><div class="t">✓ ' + esc(t("cmp.fb.correct")) + ' <span class="pts-float">+' + fb.pts + "</span></div>" +
+      '<div class="why"><b>' + esc(t("cmp.fb.why")) + "</b> " + M(qk(q, "why")) + "</div>" +
+      '<div class="next"><button class="btn primary" data-act="next">' + esc(t(last ? "cmp.fb.finish" : "cmp.fb.nextQ")) + "</button></div></div>";
+  }
+
+  function renderPlay() {
+    var p = state.play, w = WORLDS[p.w], q = currentQ();
+    var panels = (q.panels || w.context).map(renderPanel).join("");
+    return renderHud() +
+      '<div class="layout">' +
+        '<aside class="ctx">' + panels + legend() + "</aside>" +
+        '<section class="qcard">' +
+          '<div class="qhead"><span class="qtype">' + esc(t(q.label ? "cmp.label." + q.label : "cmp.type." + q.type)) + '</span><span class="muted small">' +
+            esc(t("cmp.play.challenge", { n: p.qi + 1, total: w.questions.length })) + "</span></div>" +
+          '<h2 class="prompt">' + M(qk(q, "prompt")) + "</h2>" +
+          (q.formula ? renderFormulaBox(q) : "") +
+          INTERACTION[q.type](q, p) +
+          renderFeedback(q, p) +
+        "</section>" +
+      "</div>";
+  }
+
+  function renderWorldEnd() {
+    var p = state.play, w = WORLDS[p.w];
+    var s = starsFor(p.errors);
+    var hasNext = p.w + 1 < WORLDS.length;
+    var errTxt = p.errors === 0 ? t("cmp.end.err0") : p.errors === 1 ? t("cmp.end.err1") : t("cmp.end.errN", { n: num(p.errors) });
+    var stars = [1, 2, 3].map(function (k) { return '<span class="' + (k <= s ? "" : "off") + '">★</span>'; }).join("");
+    return '<div class="card center">' +
+      '<div class="kick">' + esc(t("cmp.end.done", { n: p.w + 1 })) + "</div>" +
+      '<h2 class="big">' + esc(wk(w, "name")) + "</h2>" +
+      '<div class="bigstars" role="img" aria-label="' + s + '/3">' + stars + "</div>" +
+      '<div class="badge big">' + ICON_MEDAL + esc(t("cmp.end.badge", { b: wk(w, "badge") })) + "</div>" +
+      '<p class="lead">' + t("cmp.end.summary", { pts: num(p.earnedNow), err: esc(errTxt), total: num(state.points) }) + "</p>" +
+      '<div class="row">' +
+        (hasNext ? '<button class="btn primary big" data-act="next-world">' + esc(t("cmp.end.nextWorld")) + "</button>"
+                 : '<button class="btn primary big" data-act="go-final">' + esc(t("cmp.map.seeTitle")) + "</button>") +
+        '<button class="btn" data-act="replay">' + esc(t("cmp.end.replay")) + "</button>" +
+        '<button class="btn" data-act="go-map">' + esc(t("cmp.ui.map")) + "</button>" +
+      "</div></div>";
+  }
+
+  function renderFinal() {
+    var rows = WORLDS.map(function (w) {
+      var pr = state.progress[w.id] || {};
+      return '<div class="frow"><span>' + w.glyph + " " + esc(wk(w, "badge")) + '</span><span class="stars">' + (pr.done ? "★".repeat(pr.stars) : '<span class="muted small">' + esc(t("cmp.final.pending")) + "</span>") + "</span></div>";
+    }).join("");
+    return '<div class="card center">' +
+      '<div class="bigglyph" aria-hidden="true">★</div>' +
+      '<h2 class="big">' + esc(t("cmp.final.title")) + "</h2>" +
+      '<p class="lead">' + esc(t("cmp.final.lead")) + "</p>" +
+      '<div class="panel" style="width:min(100%,440px);text-align:left">' + rows +
+        '<div class="frow"><b>' + esc(t("cmp.final.total")) + "</b><b>★ " + num(state.points) + "</b></div>" +
+        '<div class="frow"><span>' + esc(t("cmp.final.best")) + "</span><span>" + num(state.bestStreak) + "</span></div>" +
+      "</div>" +
+      '<div class="row">' +
+        '<button class="btn" data-act="go-map">' + esc(t("cmp.ui.map")) + "</button>" +
+        '<button class="btn" data-act="reset">' + esc(t("cmp.final.reset")) + "</button>" +
+      "</div></div>";
+  }
+
+  /* ---------- modals ---------- */
+  var MODALS = {
+    howto: function () {
+      return "<h2>" + esc(t("cmp.ui.howto")) + '</h2><ol class="steps">' +
+        [1, 2, 3, 4].map(function (k) { return "<li><span>" + esc(t("cmp.howto." + k)) + "</span></li>"; }).join("") + "</ol>";
+    },
+    guide: function () {
+      var becomes = "<br>" + esc(t("cmp.guide.becomes")) + "<br>";
+      return "<h2>" + esc(t("cmp.ui.guide")) + "</h2>" +
+        "<h3>" + esc(t("cmp.guide.ingredients")) + '</h3><div class="grid3">' +
+          '<div class="ing c0"><b>' + esc(t("cmp.guide.set.t")) + "</b>" + M(t("cmp.guide.set.d")) + "</div>" +
+          '<div class="ing c1"><b>' + esc(t("cmp.guide.par.t")) + "</b>" + M(t("cmp.guide.par.d")) + "</div>" +
+          '<div class="ing c2"><b>' + esc(t("cmp.guide.var.t")) + "</b>" + M(t("cmp.guide.var.d")) + "</div>" +
+        "</div>" +
+        "<h3>" + esc(t("cmp.guide.operators")) + '</h3><div class="grid3">' +
+          '<div class="ing"><b>' + esc(t("cmp.guide.sum.t")) + '</b><span class="mx">' + M("3x_1 + 5x_2 + 4x_3") + "</span>" + becomes + '<span class="mx">' + M("Σ_{j∈J} c_j x_j") + "</span></div>" +
+          '<div class="ing"><b>' + esc(t("cmp.guide.forall.t")) + '</b><span class="mx">' + M("x_1 ≥ 0, x_2 ≥ 0, x_3 ≥ 0") + "</span>" + becomes + '<span class="mx">' + M("x_j ≥ 0 ∀ j∈J") + "</span></div>" +
+        "</div>" +
+        "<h3>" + esc(t("cmp.guide.rule.t")) + "</h3><p>" + esc(t("cmp.guide.rule.d")) + "</p>" +
+        "<h3>" + esc(t("cmp.guide.side")) + '</h3><div class="side">' + renderPanel(EXT_BREW) + renderPanel(COMP_BREW) + "</div>" +
+        '<div style="margin-top:10px">' + legend() + "</div>";
+    }
+  };
+  function openModal(k) {
+    openModalKey = k;
+    modalRoot.innerHTML = '<div class="overlay" data-act="close"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">' + MODALS[k]() +
+      '<div class="next"><button class="btn primary" data-act="close">' + esc(t("cmp.ui.gotIt")) + "</button></div></div></div>";
+    var h = modalRoot.querySelector("h2"); if (h) h.id = "mtitle";
+    var b = modalRoot.querySelector(".next .btn"); if (b) b.focus({ preventScroll: true });
+  }
+  function closeModal() { modalRoot.innerHTML = ""; openModalKey = null; }
+
+  function confetti() {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var cs = getComputedStyle(document.documentElement);
+    var colors = ["--mit-red", "--mit-bright", "--mit-silver", "--ink", "--accent"].map(function (n) { return cs.getPropertyValue(n).trim(); });
+    var c = document.createElement("div");
+    c.className = "confetti";
+    for (var i = 0; i < 90; i++) {
+      var p = document.createElement("i");
+      p.style.left = Math.random() * 100 + "vw";
+      p.style.background = colors[i % colors.length];
+      p.style.animationDelay = Math.random() * 0.8 + "s";
+      p.style.animationDuration = 2 + Math.random() * 1.6 + "s";
+      p.style.transform = "rotate(" + Math.random() * 360 + "deg)";
+      c.appendChild(p);
+    }
+    document.body.appendChild(c);
+    setTimeout(function () { c.remove(); }, 4200);
+  }
+
+  /* ---------- events ---------- */
+  app.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act]");
+    if (!el || el.disabled) return;
+    handle(el.dataset.act, el.dataset);
+  });
+  modalRoot.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act]");
+    if (!el) return;
+    if (el.classList.contains("overlay") && e.target !== el) return;
+    if (el.dataset.act === "close") closeModal();
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModal(); });
+
+  function handle(act, d) {
+    switch (act) {
+      case "go-home": state.screen = "home"; break;
+      case "go-map": state.screen = "map"; break;
+      case "go-final": state.screen = "final"; break;
+      case "modal": openModal(d.m); return;
+      case "world": startWorld(+d.i); return;
+      case "start": state.screen = "play"; break;
+      case "choice": pickChoice(+d.i); return;
+      case "cat": pickCat(+d.i); return;
+      case "step": pickStep(+d.i); return;
+      case "next": nextQ(); return;
+      case "next-world": startWorld(state.play.w + 1); return;
+      case "replay": startWorld(state.play.w); return;
+      case "reset": Object.assign(state, { screen: "home", points: 0, streak: 0, bestStreak: 0, progress: {}, play: null }); break;
+      default: return;
+    }
+    render();
+  }
+
+  window.__game = { state: state, WORLDS: WORLDS, M: M };
+
+  // Runs once the language is ready and again on every switch: redraw the current screen
+  // (and any open modal) from the same state, so progress is never lost.
+  I18N.onChange(function () {
+    render();
+    if (openModalKey) openModal(openModalKey);
+  });
+})();
+</script>
+</body>
+</html>

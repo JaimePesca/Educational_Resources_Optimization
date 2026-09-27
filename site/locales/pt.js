@@ -84,6 +84,7 @@ I18N.register("pt", {
   "type.simulation": "Simulação",
   "type.game": "Jogo",
   "type.animation": "Animação",
+  "type.example": "Exemplo guiado",
 
   /* ---- cartões de recursos ---- */
   "resource.feasible-region.title": "Região Viável",
@@ -92,6 +93,14 @@ I18N.register("pt", {
   "resource.critical-load.summary": "Carregue um helicóptero para a linha de fogo respeitando um limite de peso e depois compare sua carga com o ótimo exato e com uma regra gulosa.",
   "resource.patrol-route.title": "Rota de Patrulha",
   "resource.patrol-route.summary": "Veja o recozimento simulado planejar a rota de um drone entre torres de vigia e entenda por que aceitar movimentos piores ajuda a escapar de ótimos locais.",
+  "resource.two-stories.title": "Duas histórias, um modelo",
+  "resource.two-stories.summary": "Deslize entre uma versão farmacêutica e uma de bebidas do mesmo problema de mistura: mudam as palavras, não os números nem o programa linear.",
+  "resource.feasible-region-3d.title": "Região viável em 3D",
+  "resource.feasible-region-3d.summary": "Explore em 3D um PL de compras militares com três variáveis, encontre seus vértices e veja por que surge uma aresta inteira de soluções ótimas.",
+  "resource.compacta.title": "Compacta",
+  "resource.compacta.summary": "Um jogo para escrever modelos em forma compacta: conjuntos, índices, Σ e ∀, em cinco mundos de desafios.",
+  "resource.dijkstra.title": "Dijkstra passo a passo",
+  "resource.dijkstra.summary": "Acompanhe o algoritmo de caminho mínimo de Dijkstra iteração por iteração em um exemplo resolvido e depois resolva um exercício em um grafo não direcionado.",
 
   /* ---- recursos didáticos planejados (abertos a colaboradores) ---- */
   "resource.edu-diet.title": "O Prato Saudável Mais Barato",
