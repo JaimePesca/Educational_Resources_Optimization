@@ -71,7 +71,7 @@ window.CATALOG = {
     { id: "nlp-penalty-barrier", href: "resources/walls-and-fences.html", level: "nlp", type: "animation" },
     { id: "nlp-weber", href: "resources/one-point-many-distances.html", level: "nlp", type: "animation" },
     { id: "nlp-slow-steaming", href: "resources/slow-steaming.html", level: "nlp", type: "game" },
-    { id: "nlp-fairness", level: "nlp", type: "simulation" },
+    { id: "nlp-fairness", href: "resources/fair-shares.html", level: "nlp", type: "simulation" },
     // Level 5 · Other OR methods (being built), in learning order
     { id: "other-queue-explode", level: "other", type: "animation" },
     { id: "other-mdp", level: "other", type: "animation" },
