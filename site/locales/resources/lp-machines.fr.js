@@ -70,7 +70,7 @@ I18N.register("fr", {
   "mch.st.h50": "Coût hebdomadaire optimal <b>{z}</b>. Aucune machine n'est saturée : B travaille {hB}, C travaille {hC} et A reste à l'arrêt, donc chaque taille va simplement sur sa machine la moins chère par pied.",
   "mch.st.h40": "Coût hebdomadaire optimal <b>{z}</b>, soit {d} de plus qu'avec 50 h. La machine {full} est saturée, donc une partie des très grandes poutres passe sur C, la suivante la moins chère par pied (B {hB}, C {hC}).",
   "mch.st.bdown": "Coût hebdomadaire optimal <b>{z}</b>, soit {d} de plus qu'avec B. Les choix les moins chers demanderaient {g} sur C, au-delà de ses 50 h, donc les petites poutres passent sur A ({hA}) au même coût par pied ; C travaille {hC}.",
-  "mch.st.cdown": "<b>Aucun plan réalisable.</b> Avec la machine {m} en panne, A et B ne peuvent pas couvrir la semaine même en travaillant 50 h chacune : le plan le plus proche laisse encore {s} de poutres {sizes} non fabriquées.",
+  "mch.st.cdown": "<b>Aucun plan réalisable.</b> Avec la machine {m} en panne, A et B ne peuvent pas couvrir la semaine même en travaillant 50 h chacune : le plan le plus proche laisse encore {s} non fabriqués dans la taille {sizes}.",
 
   "mch.model.kicker": "Formulation",
   "mch.model.title": "Modèle de programmation linéaire",

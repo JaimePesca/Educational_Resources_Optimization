@@ -70,7 +70,7 @@ I18N.register("es", {
   "mch.st.h50": "Costo semanal óptimo <b>{z}</b>. Ninguna máquina está llena: B trabaja {hB}, C trabaja {hC} y A queda inactiva, así que cada tamaño va simplemente a su máquina más barata por pie.",
   "mch.st.h40": "Costo semanal óptimo <b>{z}</b>, {d} más que con 50 h. La máquina {full} está llena, así que parte de las vigas extra grandes pasa a C, la siguiente más barata por pie (B {hB}, C {hC}).",
   "mch.st.bdown": "Costo semanal óptimo <b>{z}</b>, {d} más que con B. Lo más barato necesitaría {g} en C, por encima de sus 50 h, así que las vigas pequeñas pasan a A ({hA}) con el mismo costo por pie; C trabaja {hC}.",
-  "mch.st.cdown": "<b>No hay plan factible.</b> Con la máquina {m} dañada, A y B no alcanzan a cubrir la semana ni trabajando 50 h cada una: el plan más cercano aún deja sin fabricar {s} de vigas {sizes}.",
+  "mch.st.cdown": "<b>No hay plan factible.</b> Con la máquina {m} dañada, A y B no alcanzan a cubrir la semana ni trabajando 50 h cada una: el plan más cercano aún deja sin fabricar {s} del tamaño {sizes}.",
 
   "mch.model.kicker": "Formulación",
   "mch.model.title": "Modelo de programación lineal",
