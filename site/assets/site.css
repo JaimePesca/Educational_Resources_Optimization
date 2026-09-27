@@ -185,6 +185,7 @@ details .body p:last-child { margin-bottom: 0; }
 /* ---- author and copyright footer (assets/site.js) ---- */
 .site-footer {
   margin-inline: -16px; margin-top: 40px; margin-bottom: -48px; /* cancels the body bottom padding */
+  /* margin-top 40px: the home page's hidden .lab-door (index.html, bottom: -34px, 28px tall) sits in this gap; change both together */
   padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
   background: #000000; color: #c9ced3; border-top: 3px solid var(--mit-red);
 }

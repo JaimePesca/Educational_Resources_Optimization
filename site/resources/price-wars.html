@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="en" data-title-key="cour.title" data-i18n-bundles="resources/other-cournot">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Price Wars</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #cour-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 30%)); max-width: none;
+  }
+  #cour-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #cour-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #cour-sec .anim-hud .chip-stat b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #cour-sec .anim-hud .chip-stat.bad b { color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #cour-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #cour-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #cour-sec .anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #cour-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 11px; }
+    #cour-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #cour-sec .anim-legend i.lg-r1 { width: 18px; height: 0; border-top: 2.5px solid var(--accent); }
+  #cour-sec .anim-legend i.lg-r2 { width: 18px; height: 0; border-top: 2.5px solid var(--ink); }
+  #cour-sec .anim-legend i.lg-iso { width: 18px; height: 0; border-top: 1px solid var(--mit-silver); }
+  #cour-sec .anim-legend i.lg-bench { width: 20px; height: 0; border-top: 1.6px dashed var(--mit-silver); }
+  #cour-sec .anim-legend i.lg-prof { width: 18px; height: 9px; border: 1.3px solid var(--accent); border-bottom: 0; border-radius: 9px 9px 0 0; background: none; opacity: 0.8; }
+  #cour-sec .anim-legend i.lg-nash { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent); }
+  #cour-sec .anim-legend i.lg-stack { width: 9px; height: 9px; transform: rotate(45deg); border: 2.2px solid var(--accent); background: var(--surface); margin: 0 2px; }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+
+  /* ---- outcome ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  .solcheck { font-size: 14px; color: var(--ink2); margin: 14px 0 0; }
+
+  /* ---- tables ---- */
+  table.data { min-width: 520px; }
+  @media (max-width: 560px) {
+    table.data { min-width: 0; }
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 5px; }
+  }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.ex { color: var(--accent-text); font-weight: 600; }
+  table.data td.gap { color: var(--muted); }
+  table.data tr.on td { background: var(--sel); }
+  .sens-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 78ch; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="cour.eyebrow"></p>
+    <h1 data-i18n="cour.title"></h1>
+    <p class="lede" data-i18n-html="cour.lede"></p>
+  </header>
+
+  <section class="block" id="cour-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="cour.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="cour-scen-lbl" data-i18n="cour.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="cour-scen-lbl" id="cour-seg">
+        <button type="button" data-sc="c" aria-pressed="true" data-i18n="cour.sc.c"></button>
+        <button type="button" data-sc="s" aria-pressed="false" data-i18n="cour.sc.s"></button>
+      </div>
+    </div>
+    <div class="anim" id="cour-anim">
+      <div class="anim-stage" role="img">
+        <div class="anim-hud" id="cour-hud">
+          <div class="chip-stat" id="cour-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="cour-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="cour-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="cour-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="cour-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="cour-c5"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-r1"></i><span data-i18n="cour.lg.r1"></span></span>
+      <span><i class="lg-r2"></i><span data-i18n="cour.lg.r2"></span></span>
+      <span><i class="lg-iso"></i><span data-i18n="cour.lg.iso"></span></span>
+      <span><i class="lg-bench"></i><span data-i18n="cour.lg.bench"></span></span>
+      <span><i class="lg-prof"></i><span data-i18n="cour.lg.prof"></span></span>
+      <span><i class="lg-nash"></i><span data-i18n="cour.lg.nash"></span></span>
+      <span><i class="lg-stack"></i><span data-i18n="cour.lg.stack"></span></span>
+    </div>
+    <p class="scen-status" id="cour-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cour.model.kicker"></span><span data-i18n="cour.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" data-tex="cour.model.tex" data-i18n="cour.model.formula"></div>
+        <p class="mtext" id="cour-data"></p>
+        <p class="mhead" data-i18n="cour.br.head"></p>
+        <div class="formula" data-tex="cour.br.tex" data-i18n="cour.br.formula"></div>
+        <p class="mtext" data-i18n="cour.br.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="cour.nash.head"></p>
+        <div class="formula" data-tex="cour.nash.tex" data-i18n="cour.nash.formula"></div>
+        <p class="mtext" data-i18n="cour.nash.why"></p>
+        <p class="mhead" data-i18n="cour.stack.head"></p>
+        <div class="formula" data-tex="cour.stack.tex" data-i18n="cour.stack.formula"></div>
+        <p class="mtext" data-i18n="cour.stack.why"></p>
+        <p class="mhead" data-i18n="cour.bench.head"></p>
+        <div class="formula" data-tex="cour.bench.tex" data-i18n="cour.bench.formula"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cour.sol.kicker"></span><span id="cour-sol-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" id="cour-s0k"></div><div class="v" id="cour-s0"></div><div class="l" id="cour-s0l"></div></div>
+      <div class="stat"><div class="k" id="cour-s1k"></div><div class="v" id="cour-s1"></div><div class="l" id="cour-s1l"></div></div>
+      <div class="stat"><div class="k" id="cour-s2k"></div><div class="v" id="cour-s2"></div><div class="l" id="cour-s2l"></div></div>
+      <div class="stat"><div class="k" id="cour-s3k"></div><div class="v" id="cour-s3"></div><div class="l" id="cour-s3l"></div></div>
+    </div>
+    <p class="solcheck" data-i18n="cour.sol.check"></p>
+    <div class="formula" id="cour-inst"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cour.cmp.kicker"></span><span data-i18n="cour.cmp.title"></span></h2>
+    <div class="tblwrap"><table class="data" id="cour-cmp"></table></div>
+    <p class="sens-p" data-i18n="cour.cmp.units"></p>
+    <p class="sens-p" id="cour-cmp-note"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cour.it.kicker"></span><span data-i18n="cour.it.title"></span></h2>
+    <p class="sens-p" id="cour-it-intro" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="cour-it"></table></div>
+    <p class="sens-p" id="cour-it-note"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="cour.n.title"></summary>
+      <div class="body">
+        <p id="cour-n1"></p>
+        <p id="cour-n2"></p>
+        <p id="cour-n3"></p>
+        <p id="cour-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.11" data-refs="cour.refs"></p>
+  <p class="note" data-i18n="cour.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-cournot.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d, m) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 2 : d, m); };
+  var num = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? MINUS : "") + m; };
+  // numbers inside TeX: a comma is punctuation there, so it is braced; thin spaces become \,
+  var texNum = function (v, d) { return num(v, d).replace(MINUS, "-").replace(/,/g, "{,}").replace(/[   ]/g, "\\,"); };
+  var pair = function (x, y, d) { return T("cour.pair", { x: num(x, d), y: num(y, d) }); };
+
+  /* ---------- the model: P = a - b (q1 + q2), cost c per tonne (illustrative data) ---------- */
+  var A_ = 1000;     // thousand COP per tonne: the price when nothing is sold
+  var B_ = 5;        // thousand COP per tonne for each extra kt on the market
+  var C_ = 400;      // thousand COP per tonne: marginal cost of both plants
+  var TOL = 0.01;    // kt: the staircase stops when a move changes an output by less than this
+  function price(Q) { return A_ - B_ * Q; }
+  function prof(qi, Q) { return (price(Q) - C_) * qi / 1000; }          // billion COP per month
+  function BR(qj) { return Math.max(0, (A_ - C_ - B_ * qj) / (2 * B_)); } // best response
+  function outc(q1, q2) {
+    var Q = q1 + q2;
+    return { q1: q1, q2: q2, Q: Q, P: price(Q), p1: prof(q1, Q), p2: prof(q2, Q), pt: prof(Q, Q) };
+  }
+  function iterate(tol) {                        // alternating best responses from (0, 0), firm 1 first
+    var q = [0, 0], out = [], qn = (A_ - C_) / (3 * B_);
+    for (var k = 1; k <= 500; k++) {
+      var i = (k - 1) % 2, from = [q[0], q[1]], nq = BR(q[1 - i]), d = Math.abs(nq - q[i]);
+      q[i] = nq;
+      out.push({ k: k, i: i, from: from, to: [q[0], q[1]], d: d, gap: Math.max(Math.abs(q[0] - qn), Math.abs(q[1] - qn)) });
+      if (d < tol) break;
+    }
+    return out;
+  }
+  var M = (function () {
+    var qn = (A_ - C_) / (3 * B_), qL = (A_ - C_) / (2 * B_), Qm = (A_ - C_) / (2 * B_), Qk = (A_ - C_) / B_;
+    return {
+      qn: qn, nash: outc(qn, qn), stack: outc(qL, BR(qL)),
+      mono: outc(Qm / 2, Qm / 2), comp: outc(Qk / 2, Qk / 2), Qm: Qm, Qk: Qk,
+      moves: iterate(TOL), n10: iterate(TOL / 10).length
+    };
+  })();
+  var NM = M.moves.length;
+  var state = { sc: "c" };
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed from the model above; the scans, the
+     camera and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("cour-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("cour-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);                      // counters above the canvas
+  var DUR = 54, CH = [0, 8, 18, 32, 44];
+  var CHS = [{ t: 0, key: "cour.ch1" }, { t: 8, key: "cour.ch2" }, { t: 18, key: "cour.ch3.c" }, { t: 32, key: "cour.ch4.c" }, { t: 44, key: "cour.ch5" }];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var TAU = Math.PI * 2;
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var cam = { x: 0, y: 0, K: 1 };
+  var font = function (w, s, it) { return (it ? "italic " : "") + w + " " + s + "px " + SANS; };
+
+  // the time slots of the staircase: the first six moves in chapter 3, the rest while the camera zooms in
+  var SLOT = (function () {
+    var out = [], s = 18.8, D = [2.5, 2.3, 2.1, 2.0, 1.9, 1.8], n1 = Math.min(6, NM);
+    for (var j = 0; j < n1; j++) { out.push({ s: s, d: D[j] }); s += D[j]; }
+    var rest = NM - n1, dr = rest > 0 ? 8 / rest : 1;
+    for (j = 0; j < rest; j++) out.push({ s: 33.4 + j * dr, d: dr });
+    return out;
+  })();
+  var T_CONV = NM > 6 ? SLOT[NM - 1].s + SLOT[NM - 1].d : 32;   // the last move has landed
+  var ZW = 3.9;                                   // deep zoom: the view is ZW times the current step wide
+
+  /* ---------- layout ---------- */
+  function captions(sc, ci) {
+    var nash = M.nash, st = M.stack;
+    if (ci === 0) return [T("cour.cap1"), T("cour.cap1.sub", { a: fmt(A_), b: fmt(B_) })];
+    if (ci === 1) return [T("cour.cap2"), T("cour.cap2.sub")];
+    if (ci === 2) return sc === "c" ? [T("cour.cap3.c"), T("cour.cap3.c.sub")] : [T("cour.cap3.s"), T("cour.cap3.s.sub")];
+    if (ci === 3) return sc === "c" ? [T("cour.cap4.c"), T("cour.cap4.c.sub", { tol: fmt(TOL), n: NM })]
+      : [T("cour.cap4.s", { q: fmt(st.q1) }), T("cour.cap4.s.sub", { q2: fmt(st.q2) })];
+    return [T("cour.cap5"), T("cour.cap5.sub")];
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11; L.ft = 13.5; L.lw = 2; L.dot = 4.5;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 12; L.ft = 16; L.lw = 2.5; L.dot = 6;
+    }
+    // room for the longest caption of either scenario, so nothing jumps between chapters
+    var tl = 1, sl = 1;
+    ["c", "s"].forEach(function (sc) {
+      for (var ci = 0; ci < 5; ci++) {
+        var cap = captions(sc, ci);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0.5 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      }
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    if (portrait) { L.x0 = 6; L.x1 = W - 8; L.y0 = L.capBottom + 8; L.y1 = H - 6; }
+    else { L.x0 = hx + hw + 18; L.x1 = W - 12; L.y0 = 12; L.y1 = H - 10; }
+    L.pw = L.x1 - L.x0; L.ph = L.y1 - L.y0; L.ox = (L.x0 + L.x1) / 2; L.oy = (L.y0 + L.y1) / 2;
+    // full view: the quadrant q >= 0 up to a bit past the competitive output, origin at the lower left
+    var mL = portrait ? 30 : 36, mB = portrait ? 20 : 24, mT = 10, span = M.Qk * 1.06;
+    var K = Math.min((L.pw - mL - 8) / span, (L.ph - mB - mT) / span);
+    L.full = { x: (L.ox - L.x0 - mL) / K, y: (L.y1 - mB - L.oy) / K, K: K };
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+
+  /* ---------- camera ---------- */
+  function SX(x) { return L.ox + (x - cam.x) * cam.K; }
+  function SY(y) { return L.oy - (y - cam.y) * cam.K; }
+  function viewAt(cx, cy, w, h) { return { x: cx, y: cy, K: Math.min(L.pw / w, L.ph / h) }; }
+  function mixAt(a, b, u, P) {                    // zoom from view a to view b keeping the world point P on a straight screen path
+    var K = Math.exp(lerp(Math.log(a.K), Math.log(b.K), u));
+    var sx = lerp((P[0] - a.x) * a.K, (P[0] - b.x) * b.K, u), sy = lerp((P[1] - a.y) * a.K, (P[1] - b.y) * b.K, u);
+    return { x: P[0] - sx / K, y: P[1] - sy / K, K: K };
+  }
+  function deepView(t) {                          // Cournot: the view follows the size of the current step
+    var n1 = Math.min(6, NM);
+    if (NM <= n1) return viewAt(M.qn, M.qn, 12, 12);
+    var dr = SLOT[n1].d, x = clamp(n1 + (t - 33.4) / dr, n1, NM - 1), j = Math.floor(x), f = x - j;
+    var ld = j + 1 < NM ? lerp(Math.log(M.moves[j].d), Math.log(M.moves[j + 1].d), f) : Math.log(M.moves[j].d);
+    var w = ZW * Math.exp(ld);
+    return viewAt(M.qn, M.qn, w, w);
+  }
+  function stackView() { return viewAt(51, 36, 50, 44); }
+  function setCam(sc, t) {
+    var F = L.full, N = [M.qn, M.qn], v = F;
+    if (sc === "c") {
+      if (t >= 32 && t < 44) v = t < 33.4 ? mixAt(F, deepView(33.4), E.inOut(seg(t, 32, 33.4)), N) : deepView(t);
+      else if (t >= 44) v = mixAt(deepView(T_CONV), F, E.inOut(seg(t, 44, 46.4)), N);
+    } else {
+      var P = [51, 36];
+      if (t >= 32 && t < 44) v = mixAt(F, stackView(), E.inOut(seg(t, 32, 33.6)), P);
+      else if (t >= 44) v = mixAt(stackView(), F, E.inOut(seg(t, 44, 46)), P);
+    }
+    cam.x = v.x; cam.y = v.y; cam.K = v.K;
+  }
+  function zoomOf() { return cam.K / L.full.K; }
+  function worldRect() {
+    return { x0: cam.x + (L.x0 - L.ox) / cam.K, x1: cam.x + (L.x1 - L.ox) / cam.K,
+      y0: cam.y - (L.y1 - L.oy) / cam.K, y1: cam.y + (L.oy - L.y0) / cam.K };
+  }
+
+  /* ---------- drawing helpers ---------- */
+  function clipSeg(x0, y0, x1, y1, R) {           // Liang-Barsky clip of a world segment to R
+    var dx = x1 - x0, dy = y1 - y0, u0 = 0, u1 = 1;
+    var P = [-dx, dx, -dy, dy], Q = [x0 - R.x0, R.x1 - x0, y0 - R.y0, R.y1 - y0];
+    for (var i = 0; i < 4; i++) {
+      if (Math.abs(P[i]) < 1e-15) { if (Q[i] < 0) return null; continue; }
+      var r = Q[i] / P[i];
+      if (P[i] < 0) { if (r > u1) return null; if (r > u0) u0 = r; } else { if (r < u0) return null; if (r < u1) u1 = r; }
+    }
+    return [x0 + u0 * dx, y0 + u0 * dy, x0 + u1 * dx, y0 + u1 * dy];
+  }
+  function wline(x0, y0, x1, y1) {                // stroke a world segment (clipped, so deep zooms stay finite)
+    var R = worldRect(), m = 4 / cam.K;
+    var s = clipSeg(x0, y0, x1, y1, { x0: R.x0 - m, x1: R.x1 + m, y0: R.y0 - m, y1: R.y1 + m });
+    if (!s) return;
+    ctx.beginPath(); ctx.moveTo(SX(s[0]), SY(s[1])); ctx.lineTo(SX(s[2]), SY(s[3])); ctx.stroke();
+  }
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function arrow(x0, y0, x1, y1, col, lw, head, a) {
+    var dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy);
+    if (len < 0.8 || a <= 0.01) return;
+    var ux = dx / len, uy = dy / len, hl = Math.min(head, len * 0.7), hw = hl * 0.5;
+    var bx = x1 - ux * hl, by = y1 - uy * hl;
+    ctx.globalAlpha = a; ctx.lineCap = "round";
+    ctx.strokeStyle = C.surface; ctx.lineWidth = lw + 4;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(bx, by); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(bx - uy * hw, by + ux * hw); ctx.lineTo(bx + uy * hw, by - ux * hw); ctx.closePath();
+    ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.stroke();
+    ctx.fillStyle = col; ctx.fill();
+    ctx.strokeStyle = col; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(bx + ux * 0.5, by + uy * 0.5); ctx.stroke();
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+  }
+  function dot(X, Y, col, r, a) {                 // a point with a surface ring
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = C.surface; circle(X, Y, r + 2); ctx.fill();
+    ctx.fillStyle = col; circle(X, Y, r); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function diamond(X, Y, r, a, fill) {
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a;
+    ctx.beginPath(); ctx.moveTo(X, Y - r); ctx.lineTo(X + r, Y); ctx.lineTo(X, Y + r); ctx.lineTo(X - r, Y); ctx.closePath();
+    ctx.fillStyle = fill || C.surface; ctx.fill();
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 2.6; ctx.lineJoin = "round"; ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  function pulse(X, Y, u, col, r0) {              // an expanding ring, u in 0..1
+    if (u <= 0 || u >= 1) return;
+    ctx.globalAlpha = 0.9 * (1 - u); ctx.strokeStyle = col; ctx.lineWidth = 2;
+    circle(X, Y, r0 + 20 * E.out(u)); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  function isoProfit(firm, pi, col, lw, a, dash) {  // the curve of equal profit pi (billion COP) of one firm
+    if (a <= 0.01 || pi <= 1e-6) return;
+    var S = (A_ - C_) / B_, Kp = pi * 1000 / B_, disc = S * S - 4 * Kp;
+    if (disc <= 0) return;
+    var r0 = (S - Math.sqrt(disc)) / 2, r1 = (S + Math.sqrt(disc)) / 2, n = 90;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+    ctx.beginPath();
+    for (var k = 0; k <= n; k++) {
+      var u = k / n, x = r0 + (r1 - r0) * (0.5 - 0.5 * Math.cos(Math.PI * u)), y = Math.max(0, S - x - Kp / x);
+      var X = firm === 1 ? SX(x) : SX(y), Y = firm === 1 ? SY(y) : SY(x);
+      if (k) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+    }
+    ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+
+  /* ---------- time model ---------- */
+  function probeQ(t) {                            // chapter 1: both firms grow together along q1 = q2
+    if (t < 2.6) return 0;
+    if (t < 4.2) return M.Qm * E.out(seg(t, 2.6, 4.2));
+    if (t < 4.9) return M.Qm;
+    return lerp(M.Qm, M.Qk, E.inOut(seg(t, 4.9, 6.4)));
+  }
+  function scan1(t) { return M.Qk * E.inOut(seg(t, 8.4, 12.4)); }    // firm 1 answers every q2
+  function scan2(t) { return M.Qk * E.inOut(seg(t, 12.8, 16.8)); }   // firm 2 answers every q1
+  function stairAt(t) {                           // where the staircase is: point, moves started, the move in progress
+    var p = [0, 0], k = 0, cur = -1, w = 1;
+    for (var j = 0; j < NM; j++) {
+      var s = SLOT[j];
+      if (t < s.s) break;
+      var mv = M.moves[j];
+      k = j + 1;
+      w = E.inOut(seg(t, s.s, s.s + 0.62 * s.d));
+      p = [lerp(mv.from[0], mv.to[0], w), lerp(mv.from[1], mv.to[1], w)];
+      cur = j;
+    }
+    return { p: p, k: k, cur: cur, w: w };
+  }
+  function leaderX(t) {                           // Stackelberg: firm 1 tries outputs along R2, then settles
+    var qL = M.stack.q1, hi = Math.min(M.Qk * 0.84, 2 * qL);
+    if (t < 25.6) return hi * E.inOut(seg(t, 19.4, 25.6));
+    return lerp(hi, qL, E.inOut(seg(t, 25.9, 28.4)));
+  }
+  function stackPath(t) {                         // chapter 4: from Cournot the leader moves, then the follower answers
+    var qn = M.qn, st = M.stack;
+    if (t < 33.8) return [qn, qn];
+    if (t < 35.6) return [lerp(qn, st.q1, E.inOut(seg(t, 33.8, 35.4))), qn];
+    return [st.q1, lerp(qn, st.q2, E.inOut(seg(t, 35.8, 37.3)))];
+  }
+  function pointAt(sc, t) {                       // the state the counters describe
+    if (t < 8) { var Q = probeQ(t); return { q: [Q / 2, Q / 2] }; }
+    if (t < 12.6) { var s1 = scan1(t); return { q: [BR(s1), s1] }; }
+    if (t < 18) { var s2 = scan2(t); return { q: [s2, BR(s2)] }; }
+    if (sc === "c") { var st = stairAt(t); return { q: st.p, k: st.k, deep: t >= 32 }; }
+    if (t < 32) { var x = leaderX(t); return { q: [x, BR(x)] }; }
+    return { q: stackPath(t) };
+  }
+
+  /* ---------- the plane: grid, axes, ticks ---------- */
+  function niceStep(span, n) {
+    var raw = span / n, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p;
+  }
+  function drawGrid(t) {
+    var a = E.out(seg(t, 0.05, 1.2));
+    if (a <= 0) return;
+    var R = worldRect(), st = niceStep(Math.min(R.x1 - R.x0, R.y1 - R.y0), L.portrait ? 5 : 6), v;
+    ctx.globalAlpha = a; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    for (v = Math.max(0, Math.ceil(R.x0 / st)) * st; v <= R.x1; v += st) wline(v, Math.max(0, R.y0), v, R.y1);
+    for (v = Math.max(0, Math.ceil(R.y0 / st)) * st; v <= R.y1; v += st) wline(Math.max(0, R.x0), v, R.x1, v);
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5;
+    wline(0, 0, 0, R.y1 + 1); wline(0, 0, R.x1 + 1, 0);
+    ctx.globalAlpha = 1;
+    return st;
+  }
+  function drawTicks(t, st) {
+    var a = E.out(seg(t, 0.4, 1.4));
+    if (a <= 0 || !st) return;
+    var R = worldRect(), fs = L.portrait ? 10 : 10.5, dec = Math.max(0, -Math.floor(Math.log10(st) + 1e-9)), v, s;
+    var tick = function (s, X, Y) { ctx.strokeText(s, X, Y); ctx.fillText(s, X, Y); };
+    ctx.font = font(400, fs); ctx.fillStyle = C.muted; ctx.strokeStyle = C.surface; ctx.lineWidth = 3; ctx.lineJoin = "round";
+    ctx.globalAlpha = a;
+    var Yb = clamp(SY(0) + 5, L.y0 + 4, L.y1 - fs - 2);
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (v = Math.max(0, Math.ceil(R.x0 / st)) * st; v <= R.x1; v += st) {
+      var X = SX(v);
+      if (X < L.x0 + 30 || X > L.x1 - 14) continue;
+      s = fmt(v, dec, dec); tick(s, X, Yb);
+    }
+    var Xl = clamp(SX(0) - 6, L.x0 + 26, L.x1);
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (v = Math.max(0, Math.ceil(R.y0 / st)) * st; v <= R.y1; v += st) {
+      var Y = SY(v);
+      if (Y > L.y1 - 26 || Y < L.y0 + 24) continue;
+      s = fmt(v, dec, dec); ctx.font = font(400, fs);
+      var w = ctx.measureText(s).width;
+      tick(s, Math.max(Xl, L.x0 + 4 + w), Y);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawAxisTitles(t) {
+    var a = E.out(seg(t, 0.8, 1.6)), f = font(700, L.fs + 0.5);
+    var fs = L.portrait ? 10 : 10.5, Yx = Math.min(clamp(SY(0), L.y0 + 20, L.y1 - 2) - 8, L.y1 - fs - 8), Xy = clamp(SX(0), L.x0 + 34, L.x1) + 8;
+    label(T("cour.l.q1"), L.x1 - 6, Yx, "right", C["accent-text"], f, a, "bottom");
+    label(T("cour.l.q2"), Xy, L.y0 + 10, "left", C.ink, f, a, "middle");
+  }
+
+  /* ---------- lines of equal total output (equal price) and the two benchmarks ---------- */
+  function flatA() { return 1 - clamp(Math.log(zoomOf()) / Math.log(5), 0, 1); }   // context fades in deep zooms
+  function drawDiagonals(t) {
+    var fa = flatA(), Qk = M.Qk;
+    if (fa <= 0.01) return;
+    ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1;
+    for (var i = 1; i <= 6; i++) {
+      var Q = Qk * i / 6, a = seg(t, 1.2 + 0.22 * i, 1.8 + 0.22 * i) * fa;
+      if (a <= 0) continue;
+      ctx.globalAlpha = 0.4 * a; wline(0, Q, Q, 0);
+    }
+    ctx.globalAlpha = 1;
+    // monopoly and competition: dashed, with a short pulse when the probe of chapter 1 reaches them
+    [[M.Qm, seg(t, 3.9, 4.5), seg(t, 4.2, 5.1)], [Qk, seg(t, 6.1, 6.7), seg(t, 6.4, 7.3)]].forEach(function (b) {
+      var a = b[1] * fa, pu = b[2] > 0 && b[2] < 1 ? Math.sin(Math.PI * b[2]) : 0;
+      if (a <= 0) return;
+      ctx.globalAlpha = a; ctx.strokeStyle = pu > 0 ? C.ink : C["mit-silver"]; ctx.lineWidth = 1.6 + 1.4 * pu; ctx.setLineDash([6, 5]);
+      wline(0, b[0], b[0], 0); ctx.setLineDash([]);
+    });
+    ctx.globalAlpha = 1;
+  }
+  function drawBenchLabels(t) {                   // along the two dashed diagonals: monopoly inside, competition outside
+    // context while the moves of chapters 3 and 4 play, full strength again in the recap
+    var busy = seg(t, 18, 18.8) * (1 - seg(t, 44.4, 45.4));
+    var fa = (1 - seg(zoomOf(), 1.04, 1.25)) * (1 - 0.55 * busy), f = font(700, L.fs), ang = Math.atan2(SY(0) - SY(1), SX(1) - SX(0));
+    [[M.Qm, 0.25, 1, T("cour.l.mono", { p: fmt(price(M.Qm)) }), seg(t, 4.2, 4.8)],
+      [M.Qk, 0.32, -1, T("cour.l.comp", { p: fmt(price(M.Qk)) }), seg(t, 6.4, 7.0)]].forEach(function (b) {
+      var a = b[4] * fa;
+      if (a <= 0.01) return;
+      var x = b[0] * b[1], y = b[0] - x;
+      ctx.save(); ctx.translate(SX(x), SY(y)); ctx.rotate(ang);
+      label(b[3], 0, b[2] * 9, "center", C.ink2, f, a, b[2] > 0 ? "top" : "bottom");
+      ctx.restore();
+    });
+  }
+
+  /* ---------- reaction lines ---------- */
+  function drawReaction(sc, t) {
+    var q0 = (A_ - C_) / (2 * B_), Qk = M.Qk, lw = L.lw;
+    // R1 is drawn up to where the scan of firm 1 has reached; R2 the same with the scan of firm 2
+    var s1 = t < 8.4 ? 0 : (t < 12.4 ? scan1(t) : Qk), s2 = t < 12.8 ? 0 : (t < 16.8 ? scan2(t) : Qk);
+    var dim1 = sc === "s" && t >= 18 && t < 44 ? 1 - 0.65 * E.inOut(seg(t, 18.2, 19.2)) : 1;
+    if (sc === "s" && t >= 44) dim1 = 0.35 + 0.65 * E.inOut(seg(t, 44, 45));
+    if (s1 > 0) { ctx.globalAlpha = dim1; ctx.strokeStyle = C.accent; ctx.lineWidth = lw; ctx.lineCap = "round"; wline(q0, 0, BR(s1), s1); }
+    if (s2 > 0) { ctx.globalAlpha = 1; ctx.strokeStyle = C.ink; ctx.lineWidth = lw; ctx.lineCap = "round"; wline(0, q0, s2, BR(s2)); }
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+    // names, once the line has passed them
+    var f = font(700, L.fs + 2), yR = Qk * 0.85, xR = Qk * 0.85;
+    var z = flatA();
+    label(T("cour.l.r1"), SX(BR(yR)) + 9, SY(yR), "left", C["accent-text"], f, seg(s1, yR, yR + 6) * dim1 * z);
+    label(T("cour.l.r2"), SX(xR), SY(BR(xR)) - 11, "center", C.ink, f, seg(s2, xR, xR + 6) * z, "bottom");
+  }
+
+  /* ---------- chapter 1 and 2: the probe and the two scans ---------- */
+  function drawProbe(t) {
+    var a = seg(t, 2.3, 2.7) * (1 - seg(t, 7.2, 7.8));
+    if (a <= 0) return;
+    var Q = probeQ(t), X = SX(Q / 2), Y = SY(Q / 2);
+    ctx.lineCap = "round";
+    for (var k = 1; k <= 12; k++) {               // a short trail
+      var q2 = probeQ(Math.max(2.6, t - k * 0.06)) / 2, q1 = probeQ(Math.max(2.6, t - (k - 1) * 0.06)) / 2;
+      ctx.globalAlpha = a * 0.7 * (1 - k / 13); ctx.strokeStyle = C.ink2; ctx.lineWidth = 4 * (1 - k / 14);
+      ctx.beginPath(); ctx.moveTo(SX(q1), SY(q1)); ctx.lineTo(SX(q2), SY(q2)); ctx.stroke();
+    }
+    ctx.lineCap = "butt";
+    dot(X, Y, C.ink2, L.dot - 1, a);
+    pulse(SX(M.Qm / 2), SY(M.Qm / 2), seg(t, 4.2, 5.0), HOT, L.dot);
+    pulse(SX(M.Qk / 2), SY(M.Qk / 2), seg(t, 6.4, 7.2), HOT, L.dot);
+  }
+  function drawScans(t) {
+    var Qk = M.Qk, a1 = seg(t, 8.2, 8.6) * (1 - seg(t, 12.4, 12.9)), a2 = seg(t, 12.6, 13.0) * (1 - seg(t, 16.8, 17.4));
+    ctx.setLineDash([3, 4]); ctx.lineWidth = 1.2; ctx.strokeStyle = C["mit-silver"];
+    if (a1 > 0) {
+      var s1 = scan1(t), x1 = BR(s1);
+      ctx.globalAlpha = a1; wline(0, s1, Qk * 1.05, s1); ctx.setLineDash([]);
+      if (x1 > 0.5) isoProfit(1, prof(x1, x1 + s1), C.accent, 1.3, a1 * 0.85);
+      dot(SX(x1), SY(s1), C.accent, L.dot, a1);
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.2;
+    }
+    if (a2 > 0) {
+      var s2 = scan2(t), y2 = BR(s2);
+      ctx.globalAlpha = a2; wline(s2, 0, s2, Qk * 1.05); ctx.setLineDash([]);
+      if (y2 > 0.5) isoProfit(2, prof(y2, y2 + s2), C.ink, 1.3, a2 * 0.75);
+      dot(SX(s2), SY(y2), C.ink, L.dot, a2);
+    }
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+    pulse(SX(M.qn), SY(M.qn), seg(t, 17.0, 18.0), C.accent, L.dot);
+  }
+
+  /* ---------- Cournot: the staircase ---------- */
+  function drawStairs(t, fade) {
+    var st = stairAt(t), lw = L.lw, a0 = seg(t, 18.1, 18.6);
+    if (a0 <= 0) return;
+    var col = function (i) { return i === 0 ? C.accent : C.ink; };
+    ctx.lineCap = "round";
+    for (var j = 0; j <= st.cur; j++) {
+      var mv = M.moves[j], w = j === st.cur ? st.w : 1;
+      ctx.globalAlpha = fade; ctx.strokeStyle = col(mv.i); ctx.lineWidth = lw;
+      wline(mv.from[0], mv.from[1], lerp(mv.from[0], mv.to[0], w), lerp(mv.from[1], mv.to[1], w));
+    }
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+    if (fade < 1) return;
+    for (j = 0; j <= st.cur; j++) {               // landings on the reaction lines, each with a short pulse
+      var m2 = M.moves[j], s = SLOT[j], land = s.s + 0.62 * s.d;
+      if (t < land) continue;
+      dot(SX(m2.to[0]), SY(m2.to[1]), col(m2.i), L.dot - 2.5, 1);
+      pulse(SX(m2.to[0]), SY(m2.to[1]), seg(t, land, land + 0.8), HOT, L.dot - 1);
+    }
+    if (t < T_CONV) {
+      var mover = st.cur >= 0 ? M.moves[st.cur].i : 0;
+      dot(SX(st.p[0]), SY(st.p[1]), st.cur >= 0 && st.w < 1 ? col(mover) : C.ink2, L.dot, a0);
+    }
+  }
+  function drawZoomTag(sc, t) {
+    if (sc !== "c") return;
+    var a = seg(t, 32.6, 33.4) * (1 - seg(t, 44, 44.8));
+    if (a <= 0) return;
+    label(T("cour.l.zoom", { z: fmt(Math.round(zoomOf()), 0) }), L.x1 - 8, L.y0 + 12, "right", C.ink2, font(700, L.fs + 1), a);
+  }
+
+  /* ---------- Stackelberg: the leader slides along R2 ---------- */
+  function drawLeader(t) {
+    var a = seg(t, 19.2, 19.7);
+    if (a <= 0 || t >= 32) return;
+    var x = leaderX(t), y = BR(x);
+    isoProfit(1, prof(x, x + y), C.accent, 1.4, 0.85 * a);
+    // guides to the axes, so the two outputs can be read
+    ctx.setLineDash([3, 4]); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.1; ctx.globalAlpha = 0.9 * a;
+    wline(x, 0, x, y); wline(0, y, x, y); ctx.setLineDash([]);
+    ctx.lineCap = "round";
+    for (var k = 1; k <= 12; k++) {               // trail along R2
+      var ta = Math.max(19.4, t - k * 0.06), tb = Math.max(19.4, t - (k - 1) * 0.06), xa = leaderX(ta), xb = leaderX(tb);
+      ctx.globalAlpha = a * 0.7 * (1 - k / 13); ctx.strokeStyle = C.accent; ctx.lineWidth = 5 * (1 - k / 14);
+      ctx.beginPath(); ctx.moveTo(SX(xb), SY(BR(xb))); ctx.lineTo(SX(xa), SY(BR(xa))); ctx.stroke();
+    }
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+    if (t < 28.4) dot(SX(x), SY(y), C.accent, L.dot, a);
+    else diamond(SX(x), SY(y), L.dot + 2, 1);
+    pulse(SX(x), SY(y), seg(t, 28.4, 29.6), HOT, L.dot + 2);
+  }
+  function drawCommit(t) {                        // chapter 4: from Cournot, the leader's move and the follower's answer
+    if (t < 32) return;
+    var st = M.stack, qn = M.qn, lw = L.lw, h = L.portrait ? 9 : 12;
+    var fin = t >= 44 ? 0.55 : 1;
+    // the commitment: a vertical line at the leader's output
+    var ca = seg(t, 33.8, 34.4) * (t >= 44 ? 0.5 : 1);
+    if (ca > 0) {
+      ctx.globalAlpha = ca * 0.9; ctx.strokeStyle = C.accent; ctx.lineWidth = 1.4; ctx.setLineDash([6, 5]);
+      wline(st.q1, 0, st.q1, M.Qk); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+    isoProfit(1, st.p1, C.accent, t >= 37.3 ? 2 : 1.4, 0.85 * (t >= 44 ? 0.7 : 1));
+    var u1 = E.inOut(seg(t, 33.8, 35.4)), u2 = E.inOut(seg(t, 35.8, 37.3));
+    if (u1 > 0) arrow(SX(qn), SY(qn), SX(lerp(qn, st.q1, u1)), SY(qn), C.accent, lw, h, fin);
+    if (u2 > 0) arrow(SX(st.q1), SY(qn), SX(st.q1), SY(lerp(qn, st.q2, u2)), C.ink, lw, h, fin);
+    if (t < 44) {
+      var p = stackPath(t);
+      if (t >= 33.8 && t < 37.3) dot(SX(p[0]), SY(p[1]), t < 35.6 ? C.accent : C.ink, L.dot - 1, 1);
+    }
+    diamond(SX(st.q1), SY(st.q2), L.dot + 2, 1);
+    pulse(SX(st.q1), SY(st.q2), seg(t, 37.3, 38.5), HOT, L.dot + 2);
+  }
+
+  /* ---------- the two equilibria ---------- */
+  function drawPoints(sc, t) {
+    var N = M.nash, S = M.stack, f = font(700, L.fs + 0.5), nx = SX(N.q1), ny = SY(N.q2), sx = SX(S.q1), sy = SY(S.q2);
+    var na, sa, nl, sl;
+    if (sc === "c") {
+      na = seg(t, T_CONV, T_CONV + 0.5); sa = seg(t, 45.4, 46);
+      nl = seg(t, 45.4, 46); sl = seg(t, 45.8, 46.4);
+    } else {
+      na = seg(t, 32.6, 33.4) * (t < 44 ? 0.55 : 1) + (t >= 44 ? 0.45 * seg(t, 44.4, 45.2) : 0); sa = 0;
+      nl = seg(t, 32.8, 33.6); sl = seg(t, 38.2, 38.8);
+    }
+    if (t >= 44) { var ar = E.inOut(seg(t, 46.2, 47.4)); if (ar > 0) arrow(nx, ny, lerp(nx, sx, ar), lerp(ny, sy, ar), C.accent, 1.8, L.portrait ? 8 : 10, 0.9); }
+    if (na > 0) {
+      ctx.globalAlpha = na; ctx.fillStyle = C.surface; circle(nx, ny, L.dot + 3.5); ctx.fill();
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 1.5; circle(nx, ny, L.dot + 3.5); ctx.stroke();
+      ctx.fillStyle = C.accent; circle(nx, ny, L.dot); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    if (sc === "c") {
+      pulse(nx, ny, seg(t, T_CONV, T_CONV + 1.1), C.accent, L.dot + 3);
+      if (sa > 0) diamond(sx, sy, L.dot + 2, sa);
+    }
+    pulse(nx, ny, seg(t, 46.4, 47.4), C.accent, L.dot + 3);
+    pulse(sx, sy, seg(t, 46.8, 47.8), C.accent, L.dot + 3);
+    // names: Cournot above right of its point, Stackelberg to the right (clear of R1, R2 and the moves)
+    var dz = flatA();
+    label(T("cour.l.nash"), nx + 11, ny - 11, "left", C["accent-text"], f, nl * (sc === "c" ? 1 : Math.max(dz, t < 44 ? 1 : 0)), "bottom");
+    label(T("cour.l.stack"), sx + 12, sy - 12, "left", C["accent-text"], f, sl, "bottom");
+    if (sc === "c" && t >= T_CONV && t < 44) label(pair(N.q1, N.q2), nx + 12, ny - 12, "left", C["accent-text"], f, seg(t, T_CONV + 0.3, T_CONV + 0.9), "bottom");
+  }
+
+  /* ---------- the caption and the profit inset ---------- */
+  function chapterOf(t) { var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; }); return ci; }
+  function drawCaption(sc, t) {
+    var ci = chapterOf(t);
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(sc, ci), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0.5 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+  function drawInset(t) {                         // chapter 5 on wide stages: the profits of both firms, Cournot against Stackelberg
+    if (L.portrait || t < 44) return;
+    var a = E.out(seg(t, 45.2, 46));
+    var x0 = L.capX, w = L.capW, y = L.capBottom + 26, fs = L.fs;
+    var rowH = 44, need = 22 + 2 * rowH + 30;
+    if (a <= 0 || L.H - 12 - y < need) return;
+    var N = M.nash, S = M.stack, vmax = Math.max(N.p1, N.p2, S.p1, S.p2) * 1.02;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.font = font(700, fs); ctx.fillStyle = C.ink2; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    ctx.fillText(T("cour.in.title"), x0, y, w);
+    y += 12;
+    ctx.font = font(700, fs);
+    var lw = Math.max(ctx.measureText(T("cour.in.f1")).width, ctx.measureText(T("cour.in.f2")).width) + 10;
+    var bx = x0 + lw, bw = w - lw - 42;
+    [[T("cour.in.f1"), C.accent, N.p1, S.p1, 0], [T("cour.in.f2"), C.ink, N.p2, S.p2, 1]].forEach(function (r) {
+      var yy = y + r[4] * rowH, g = E.out(seg(t, 45.6 + 0.35 * r[4], 46.8 + 0.35 * r[4]));
+      ctx.font = font(700, fs); ctx.fillStyle = r[4] ? C.ink : C["accent-text"]; ctx.textBaseline = "middle";
+      ctx.fillText(r[0], x0, yy + 16);
+      // Cournot: outline; Stackelberg: solid
+      var wc = bw * r[2] / vmax * g, ws = bw * r[3] / vmax * g;
+      ctx.strokeStyle = r[1]; ctx.lineWidth = 1.5; ctx.strokeRect(bx + 0.75, yy + 3.75, Math.max(0, wc - 1.5), 10.5);
+      ctx.fillStyle = r[1]; ctx.fillRect(bx, yy + 18, ws, 12);
+      ctx.font = font(400, fs - 0.5); ctx.fillStyle = C.ink2;
+      ctx.fillText(fmt(r[2]), bx + wc + 6, yy + 9);
+      ctx.font = font(700, fs - 0.5); ctx.fillStyle = r[4] ? C.ink : C["accent-text"];
+      ctx.fillText(fmt(r[3]), bx + ws + 6, yy + 24);
+    });
+    // key: outline = Cournot, solid = Stackelberg
+    var ky = y + 2 * rowH + 8;
+    ctx.font = font(400, fs - 0.5); ctx.fillStyle = C.ink2; ctx.textBaseline = "middle";
+    ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.3; ctx.strokeRect(x0 + 0.65, ky - 4.35, 13, 8.7);
+    ctx.fillText(T("cour.in.c"), x0 + 19, ky);
+    var kx = x0 + 19 + ctx.measureText(T("cour.in.c")).width + 16;
+    ctx.fillStyle = C.ink2; ctx.fillRect(kx, ky - 5, 14, 10);
+    ctx.fillText(T("cour.in.s"), kx + 20, ky);
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) {
+    var el = document.getElementById("cour-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("bad", kind === "bad"); c.k = kind; }
+  }
+  function hud(sc, t) {
+    var op = function (i) { return seg(t, 0.9 + 0.12 * i, 1.4 + 0.12 * i); };
+    if (t >= 44) {                                // the comparison: Cournot to Stackelberg
+      var N = M.nash, S = M.stack, ar = function (a, b, d) { return T("cour.k.arrow", { a: fmt(a, d), b: fmt(b, d) }); };
+      setChip(0, ar(N.q1, S.q1), T("cour.k.q1"), 1, "");
+      setChip(1, ar(N.q2, S.q2), T("cour.k.q2"), 1, "");
+      setChip(2, ar(N.P, S.P, 1), T("cour.k.P"), 1, "");
+      setChip(3, ar(N.p1, S.p1), T("cour.k.p1"), 1, "acc");
+      setChip(4, ar(N.p2, S.p2), T("cour.k.p2"), 1, "bad");
+      setChip(5, ar(N.Q, S.Q), T("cour.k.Q"), 1, "");
+      return;
+    }
+    var st = pointAt(sc, t), o = outc(st.q[0], st.q[1]), d = st.deep ? 3 : 2;
+    setChip(0, fmt(o.q1, d), T("cour.k.q1"), op(0), "");
+    setChip(1, fmt(o.q2, d), T("cour.k.q2"), op(1), "");
+    setChip(2, fmt(o.P, d - 1), T("cour.k.P"), op(2), "");
+    setChip(3, fmt(o.p1, d), T("cour.k.p1"), op(3), "");
+    setChip(4, fmt(o.p2, d), T("cour.k.p2"), op(4), "");
+    if (sc === "c" && t >= 18) setChip(5, String(st.k), T("cour.k.moves"), 1, t >= T_CONV ? "acc" : "");
+    else setChip(5, fmt(o.Q, d), T("cour.k.Q"), op(5), "");
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    // new or urgent cues use bright red; where the theme makes the accent that same red (dark), the crit shade
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var sc = state.sc;
+    hud(sc, t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    setCam(sc, t);
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(L.x0, L.y0, L.pw, L.ph); ctx.clip();
+    var st = drawGrid(t);
+    drawDiagonals(t);
+    drawTicks(t, st);
+    drawScans(t);
+    if (sc === "s" && t >= 44) isoProfit(1, M.stack.p1, C.accent, 1.4, 0.6);
+    drawReaction(sc, t);
+    drawProbe(t);
+    if (sc === "c") drawStairs(t, t >= 44 ? 0.35 + 0.65 * (1 - E.inOut(seg(t, 44, 45.4))) : 1);
+    else { drawLeader(t); drawCommit(t); }
+    drawPoints(sc, t);
+    drawBenchLabels(t);
+    drawAxisTitles(t);
+    drawZoomTag(sc, t);
+    ctx.restore();
+
+    drawCaption(sc, t);
+    drawInset(t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CHS,
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status line, model data, outcome, comparison, iterations, notes
+     ===================================================================================== */
+  function setChapters() {                        // chapters 3 and 4 tell a different story in each scenario
+    CHS[2].key = "cour.ch3." + state.sc; CHS[3].key = "cour.ch4." + state.sc;
+    root.querySelectorAll(".anim-chap").forEach(function (b, i) { b.textContent = (i + 1) + ". " + T(CHS[i].key); });
+  }
+  function renderScenText() {
+    var N = M.nash, S = M.stack;
+    stage.setAttribute("aria-label", T("cour.anim.aria." + state.sc) + " " + T("cour.anim.aria.nums", {
+      qn: fmt(N.q1), pn: fmt(N.P), pin: fmt(N.p1), n: NM, ql: fmt(S.q1), qf: fmt(S.q2), ps: fmt(S.P), p1: fmt(S.p1), p2: fmt(S.p2)
+    }));
+  }
+  function renderStatus() {
+    var N = M.nash, S = M.stack, el = document.getElementById("cour-status");
+    el.innerHTML = state.sc === "c"
+      ? T("cour.st.c", { q: fmt(N.q1), n: NM, tol: fmt(TOL), P: fmt(N.P), pi: fmt(N.p1) })
+      : T("cour.st.s", { ql: fmt(S.q1), qf: fmt(S.q2), P: fmt(S.P), p1: fmt(S.p1), p2: fmt(S.p2) });
+  }
+  function renderModel() {
+    document.getElementById("cour-data").textContent = T("cour.model.data", { a: fmt(A_), b: fmt(B_), c: fmt(C_) });
+  }
+  function stat(i, k, v, l) {
+    document.getElementById("cour-s" + i + "k").textContent = k;
+    document.getElementById("cour-s" + i).textContent = v;
+    document.getElementById("cour-s" + i + "l").textContent = l;
+  }
+  function renderSolution() {
+    var N = M.nash, S = M.stack, c = state.sc === "c";
+    document.getElementById("cour-sol-title").textContent = T("cour.sol.title", { s: T("cour.sc." + state.sc) });
+    if (c) {
+      stat(0, T("cour.sol.qn"), fmt(N.q1), T("cour.sol.qnl"));
+      stat(1, T("cour.sol.P"), fmt(N.P), T("cour.sol.Pl"));
+      stat(2, T("cour.sol.pin"), fmt(N.p1), T("cour.sol.pinl"));
+      stat(3, T("cour.sol.n"), String(NM), T("cour.sol.nl", { tol: fmt(TOL) }));
+      TeX.set(document.getElementById("cour-inst"), T("cour.inst.c.tex", {
+        va: texNum(A_), vb: texNum(B_), vc: texNum(C_), vq: texNum(N.q1), vP: texNum(N.P), vpm: texNum(N.p1 * 1000)
+      }), T("cour.inst.c.formula", { va: num(A_), vb: num(B_), vc: num(C_), vq: num(N.q1), vP: num(N.P), vpm: num(N.p1 * 1000) }));
+    } else {
+      var sl = function (a, b) { return T("cour.sol.pair", { a: fmt(a), b: fmt(b) }); };
+      stat(0, T("cour.sol.q"), sl(S.q1, S.q2), T("cour.sol.ql"));
+      stat(1, T("cour.sol.P"), fmt(S.P), T("cour.sol.Pl"));
+      stat(2, T("cour.sol.pis"), sl(S.p1, S.p2), T("cour.sol.pisl"));
+      stat(3, T("cour.sol.Q"), fmt(S.Q), T("cour.sol.Ql", { Q: fmt(N.Q) }));
+      var v = { va: texNum(A_), vb: texNum(B_), vc: texNum(C_), vL: texNum(S.q1), vF: texNum(S.q2), vP: texNum(S.P), vp1: texNum(S.p1 * 1000), vp2: texNum(S.p2 * 1000) };
+      var vp = { va: num(A_), vb: num(B_), vc: num(C_), vL: num(S.q1), vF: num(S.q2), vP: num(S.P), vp1: num(S.p1 * 1000), vp2: num(S.p2 * 1000) };
+      TeX.set(document.getElementById("cour-inst"), T("cour.inst.s.tex", v), T("cour.inst.s.formula", vp));
+    }
+  }
+  function renderCompare() {
+    var rows = [["mono", M.mono], ["nash", M.nash], ["stack", M.stack], ["comp", M.comp]];
+    var h = "<thead><tr><th>" + T("cour.cmp.out") + "</th><th class='num'>q₁</th><th class='num'>q₂</th><th class='num wide'>Q</th><th class='num'>P</th>" +
+      "<th class='num'>π₁</th><th class='num'>π₂</th><th class='num wide'>" + T("cour.cmp.tot") + "</th></tr></thead><tbody>";
+    rows.forEach(function (r) {
+      var o = r[1], on = (r[0] === "nash" && state.sc === "c") || (r[0] === "stack" && state.sc === "s");
+      h += "<tr" + (on ? " class='on'" : "") + "><td>" + T("cour.cmp." + r[0]) + "</td><td class='num'>" + fmt(o.q1) + "</td><td class='num'>" + fmt(o.q2) +
+        "</td><td class='num wide'>" + fmt(o.Q) + "</td><td class='num'>" + fmt(o.P) + "</td><td class='num ex'>" + fmt(o.p1) + "</td><td class='num ex'>" +
+        fmt(o.p2) + "</td><td class='num wide'>" + fmt(o.pt) + "</td></tr>";
+    });
+    document.getElementById("cour-cmp").innerHTML = h + "</tbody>";
+    var N = M.nash, S = M.stack;
+    document.getElementById("cour-cmp-note").textContent = T("cour.cmp.note", {
+      g: fmt(S.p1 - N.p1), l: fmt(N.p2 - S.p2), Qc: fmt(N.Q), Qs: fmt(S.Q), Pc: fmt(N.P), Ps: fmt(S.P), tc: fmt(N.pt), ts: fmt(S.pt)
+    });
+  }
+  function renderIter() {
+    document.getElementById("cour-it-intro").textContent = T("cour.it.intro", { tol: fmt(TOL) });
+    var h = "<thead><tr><th class='num'>" + T("cour.it.k") + "</th><th>" + T("cour.it.who") + "</th><th class='num'>q₁</th><th class='num'>q₂</th><th class='num'>" +
+      T("cour.it.d") + "</th><th class='num wide'>" + T("cour.it.gap") + "</th></tr></thead><tbody>";
+    M.moves.forEach(function (m, j) {
+      h += "<tr" + (j === NM - 1 ? " class='on'" : "") + "><td class='num'>" + m.k + "</td><td>" + T(m.i ? "cour.in.f2" : "cour.in.f1") + "</td><td class='num" + (m.i ? "" : " ex") + "'>" +
+        fmt(m.to[0], 4) + "</td><td class='num" + (m.i ? " ex" : "") + "'>" + fmt(m.to[1], 4) + "</td><td class='num'>" + fmt(m.d, 4) +
+        "</td><td class='num gap wide'>" + fmt(m.gap, 4) + "</td></tr>";
+    });
+    document.getElementById("cour-it").innerHTML = h + "</tbody>";
+    var r = M.moves[NM - 1].d / M.moves[NM - 2].d;
+    document.getElementById("cour-it-note").textContent = T("cour.it.note", { r: fmt(r, 3), tol: fmt(TOL), n: NM, n10: M.n10 });
+  }
+  function renderNotes() {
+    var N = M.nash, S = M.stack, mo = M.mono, m1 = M.moves[0], m2 = M.moves[1];
+    var qh = mo.q2, br = BR(qh), dev = outc(br, qh);
+    document.getElementById("cour-n1").textContent = T("cour.n.p1", { qm: fmt(m1.to[0]), q2: fmt(m2.to[1]), q: fmt(N.q1) });
+    document.getElementById("cour-n2").textContent = T("cour.n.p2", { pn: fmt(N.p1), pm: fmt(mo.p1), qh: fmt(qh), br: fmt(br), pd: fmt(dev.p1) });
+    document.getElementById("cour-n3").textContent = T("cour.n.p3", { ql: fmt(S.q1), qf: fmt(S.q2), g: fmt(S.p1 - N.p1), l: fmt(N.p2 - S.p2) });
+    document.getElementById("cour-n4").textContent = T("cour.n.p4", {
+      Qc: fmt(N.Q), Qs: fmt(S.Q), Pc: fmt(N.P), Ps: fmt(S.P), Qm: fmt(M.Qm), Pm: fmt(price(M.Qm)), Qk: fmt(M.Qk), c: fmt(C_)
+    });
+  }
+
+  var segBtns = document.querySelectorAll("#cour-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      setChapters(); renderScenText(); renderStatus(); renderSolution(); renderCompare();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[2]) player.refresh();
+      else { player.seek(CH[2] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    setChapters(); renderScenText(); renderStatus(); renderModel(); renderSolution(); renderCompare(); renderIter(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

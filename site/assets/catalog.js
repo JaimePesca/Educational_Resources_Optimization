@@ -13,6 +13,15 @@
  * Research: each case links to its page in research/, whose own strings live in
  * locales/research/<id>.<lang>.js. `paper` (optional) is the published article's link; when present the
  * case page shows a "Read the paper" button.
+ * A research entry without `href` is a placeholder for a coming project: the home page shows it as a
+ * dimmed, unlinked card with only its title (project.<id>.title).
+ *
+ * Lab: `lab` lists proposals { id, type } for the hidden proposals lab (lab/index.html). They are ideas
+ * only, nothing is built, the cards link nowhere and they are not part of the education catalog. Their
+ * text lives in locales/lab/lab.<lang>.js: lab.<id>.title / .desc, plus lab.<id>.step1, step2… when a
+ * proposal has numbered steps, and lab.<id>.eq1.tex / .formula / .cap, eq2… (+ .eqNote) for key equations,
+ * typeset by assets/tex.js in a closed "The equations" box (lab.eqHead). The home page reaches the lab through an invisible door above the footer.
+ * `labInNav` (default false) also shows a "Lab" link (nav.lab) in the home page's top menu when true.
  */
 window.CATALOG = {
   levels: [
@@ -54,6 +63,29 @@ window.CATALOG = {
     { id: "lp-shadow", href: "resources/shadow-prices.html", level: "lp", type: "simulation" },
     { id: "lp-machines", href: "resources/machine-scheduling.html", level: "lp", type: "animation" },
     { id: "lp-workforce", href: "resources/workforce-planning.html", level: "lp", type: "animation" },
+    // Level 4 · Nonlinear programming (being built), in learning order
+    { id: "nlp-convexity", href: "resources/chord-test.html", level: "nlp", type: "animation" },
+    { id: "nlp-stationary", href: "resources/flat-is-not-a-bottom.html", level: "nlp", type: "animation" },
+    { id: "nlp-kkt", href: "resources/where-contours-touch.html", level: "nlp", type: "animation" },
+    { id: "nlp-newton", href: "resources/zigzag-or-leap.html", level: "nlp", type: "animation" },
+    { id: "nlp-penalty-barrier", href: "resources/walls-and-fences.html", level: "nlp", type: "animation" },
+    { id: "nlp-weber", href: "resources/one-point-many-distances.html", level: "nlp", type: "animation" },
+    { id: "nlp-slow-steaming", href: "resources/slow-steaming.html", level: "nlp", type: "game" },
+    { id: "nlp-fairness", href: "resources/fair-shares.html", level: "nlp", type: "simulation" },
+    // Level 5 · Other OR methods (being built), in learning order
+    { id: "other-queue-explode", href: "resources/why-queues-explode.html", level: "other", type: "animation" },
+    { id: "other-mdp", href: "resources/replace-or-repair.html", level: "other", type: "animation" },
+    { id: "other-two-stage", href: "resources/plan-for-the-average.html", level: "other", type: "animation" },
+    { id: "other-decision-tree", href: "resources/roll-back-the-tree.html", level: "other", type: "animation" },
+    { id: "other-cpm", href: "resources/critical-path.html", level: "other", type: "animation" },
+    { id: "other-maxflow", href: "resources/max-flow-min-cut.html", level: "other", type: "animation" },
+    { id: "other-cournot", href: "resources/price-wars.html", level: "other", type: "animation" },
+    { id: "other-smoothing", href: "resources/chasing-demand.html", level: "other", type: "animation" },
+    { id: "other-dea", href: "resources/efficient-or-not.html", level: "other", type: "animation" },
+    { id: "other-complexity", href: "resources/easy-to-check.html", level: "other", type: "animation" },
+    { id: "other-abm-epidemic", href: "resources/agents-and-outbreaks.html", level: "other", type: "simulation" },
+    { id: "other-beer-game", href: "resources/beer-game.html", level: "other", type: "game" },
+    { id: "other-mcda", href: "resources/weigh-the-criteria.html", level: "other", type: "simulation" },
 
     // Planned: open for contributors
     { id: "edu-portfolio", level: "nlp", type: "simulation" },
@@ -66,6 +98,19 @@ window.CATALOG = {
     { id: "nanostores", href: "research/nanostores.html", paper: "https://doi.org/10.1007/978-3-032-19656-9_4", methods: ["cfl", "logit", "minlp", "linearization"] },
     { id: "markets", href: "research/markets.html", methods: ["cfl", "logit", "minlp", "fahp"] },
     { id: "wildfire", href: "research/wildfire.html", methods: ["twostage", "cvar", "matheuristic"] },
-    { id: "pallets", href: "research/pallets.html", methods: ["ilp", "packing", "drl"] }
-  ]
+    { id: "pallets", href: "research/pallets.html", methods: ["ilp", "packing", "drl"] },
+    { id: "ml-opt" }
+  ],
+
+  // Hidden proposals lab (lab/index.html), in display order. Ideas only: no href, nothing is built.
+  lab: [
+    { id: "lab-solver", type: "animation" },
+    { id: "lab-cvar", type: "animation" },
+    { id: "lab-linearization", type: "animation" },
+    { id: "lab-ml-methods", type: "animation" },
+    { id: "lab-svm", type: "animation" },
+    { id: "lab-ml-ai-cases", type: "simulation" }
+  ],
+  // true adds a "Lab" link to the home page's top menu; false keeps the lab reachable only by its door
+  labInNav: false
 };

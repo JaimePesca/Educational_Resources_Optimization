@@ -18,10 +18,24 @@
     '<p class="site-copy">© <span class="sf-year"></span> ' + AUTHOR + '. <span class="sf-rights"></span></p>' +
     "</div>";
 
+  // "Further reading" line of a learning resource, the same citation on every page:
+  //   <p class="note further" data-further="2.6" data-refs="kkt.refs"></p>
+  // data-further is the section of Petropoulos, Laporte et al. (2024); data-refs (optional) is a key with
+  // the classic references of that resource.
+  function renderFurther() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-further]"), function (p) {
+      var refs = p.getAttribute("data-refs");
+      p.innerHTML = "<b>" + I18N.t("ref.further") + ".</b> " +
+        I18N.t("ref.orma", { sec: I18N.t("ref.section", { n: p.getAttribute("data-further") }) }) +
+        (refs ? " " + I18N.t(refs) : "");
+    });
+  }
+
   function render() {
     footer.querySelector(".sf-by").textContent = I18N.t("footer.by");
     footer.querySelector(".sf-rights").textContent = I18N.t("footer.rights");
     footer.querySelector(".sf-year").textContent = String(new Date().getFullYear());
+    renderFurther();
   }
 
   function mount() {

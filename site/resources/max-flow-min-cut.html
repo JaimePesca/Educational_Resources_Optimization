@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en" data-title-key="mf.title" data-i18n-bundles="resources/other-maxflow">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Max Flow, Min Cut</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #mf-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 30%)); max-width: none;
+  }
+  #mf-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #mf-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (min-width: 621px) and (max-width: 960px) {
+    #mf-sec .anim-hud { width: min(290px, max(230px, 30%)); }
+    #mf-sec .anim-hud .chip-stat { padding: 4px 6px; font-size: 10.5px; }
+    #mf-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #mf-sec .anim-hud { top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #mf-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 11px; }
+    #mf-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #mf-sec .anim-legend i.lg-pipe { width: 22px; height: 9px; background: var(--region); border: 1px solid var(--axis); border-radius: 5px; }
+  #mf-sec .anim-legend i.lg-flow { width: 22px; height: 9px; background: var(--accent); border-radius: 5px; }
+  #mf-sec .anim-legend i.lg-path { width: 22px; height: 0; border-top: 3px solid var(--accent); }
+  #mf-sec .anim-legend i.lg-back { width: 22px; height: 0; border-top: 3px dashed var(--mit-bright); }
+  #mf-sec .anim-legend i.lg-neck { width: 20px; height: 7px; border-radius: 4px; background: var(--region); box-shadow: 0 0 0 3px var(--mit-bright); margin: 0 3px; }
+  #mf-sec .anim-legend i.lg-S { width: 18px; height: 13px; border-radius: 7px; background: var(--sel); border: 1px solid var(--accent); }
+  #mf-sec .anim-legend i.lg-cut { width: 22px; height: 0; border-top: 2.5px dashed var(--mit-bright); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #mf-sec .anim-legend i.lg-back,
+    :root:not([data-theme="light"]) #mf-sec .anim-legend i.lg-cut { border-top-color: var(--crit); }
+    :root:not([data-theme="light"]) #mf-sec .anim-legend i.lg-neck { box-shadow: 0 0 0 3px var(--crit); }
+  }
+  :root[data-theme="dark"] #mf-sec .anim-legend i.lg-back, :root[data-theme="dark"] #mf-sec .anim-legend i.lg-cut { border-top-color: var(--crit); }
+  :root[data-theme="dark"] #mf-sec .anim-legend i.lg-neck { box-shadow: 0 0 0 3px var(--crit); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+
+  /* ---- solution ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  .sub-h { margin: 18px 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  table.data { min-width: 0; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.path { font-family: var(--font-mono); font-size: 12.5px; }
+  table.data td.path .bk { color: var(--crit); font-weight: 600; }
+  table.data td.ex { color: var(--accent-text); font-weight: 600; }
+  @media (max-width: 560px) {
+    table.data th, table.data td { padding-inline: 6px; }
+    table.data td.path, table.data td.num { font-size: 11.5px; }
+  }
+  .sens-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 78ch; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="mf.eyebrow"></p>
+    <h1 data-i18n="mf.title"></h1>
+    <p class="lede" data-i18n-html="mf.lede"></p>
+  </header>
+
+  <section class="block" id="mf-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="mf.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="mf-scen-lbl" data-i18n="mf.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="mf-scen-lbl" id="mf-seg">
+        <button type="button" data-sc="ek" aria-pressed="true"></button>
+        <button type="button" data-sc="long" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="anim" id="mf-anim">
+      <div class="anim-stage" role="img">
+        <div class="anim-hud" id="mf-hud">
+          <div class="chip-stat" id="mf-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="mf-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="mf-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="mf-c3"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-pipe"></i><span data-i18n="mf.lg.pipe"></span></span>
+      <span><i class="lg-flow"></i><span data-i18n="mf.lg.flow"></span></span>
+      <span><i class="lg-path"></i><span data-i18n="mf.lg.path"></span></span>
+      <span><i class="lg-back"></i><span data-i18n="mf.lg.back"></span></span>
+      <span><i class="lg-neck"></i><span data-i18n="mf.lg.neck"></span></span>
+      <span><i class="lg-S"></i><span data-i18n="mf.lg.S"></span></span>
+      <span><i class="lg-cut"></i><span data-i18n="mf.lg.cut"></span></span>
+    </div>
+    <p class="scen-status" id="mf-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mf.model.kicker"></span><span data-i18n="mf.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" data-tex="mf.model.tex" data-i18n="mf.model.formula"></div>
+        <p class="mtext" id="mf-data"></p>
+        <p class="mhead" data-i18n="mf.cut.head"></p>
+        <div class="formula" data-tex="mf.cut.tex" data-i18n="mf.cut.formula"></div>
+        <p class="mtext" data-i18n="mf.cut.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="mf.res.head"></p>
+        <div class="formula" data-tex="mf.res.tex" data-i18n="mf.res.formula"></div>
+        <p class="mtext" data-i18n="mf.res.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mf.sol.kicker"></span><span id="mf-sol-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="mf.sol.v"></div><div class="v" id="mf-sv"></div><div class="l" id="mf-svl"></div></div>
+      <div class="stat"><div class="k" data-i18n="mf.sol.cut"></div><div class="v" id="mf-sc"></div><div class="l" id="mf-scl"></div></div>
+      <div class="stat"><div class="k" data-i18n="mf.sol.lp"></div><div class="v ink" id="mf-slp"></div><div class="l" data-i18n="mf.sol.lpl"></div></div>
+      <div class="stat"><div class="k" data-i18n="mf.sol.trap"></div><div class="v ink" id="mf-st"></div><div class="l" id="mf-stl"></div></div>
+    </div>
+    <p class="sub-h" data-i18n="mf.paths.head"></p>
+    <div class="tblwrap"><table class="data" id="mf-paths"></table></div>
+    <p class="sens-p" data-i18n="mf.paths.note"></p>
+    <p class="sub-h" id="mf-cuts-h"></p>
+    <div class="tblwrap"><table class="data" id="mf-cuts"></table></div>
+    <p class="sens-p" id="mf-cuts-note"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="mf.n.title"></summary>
+      <div class="body">
+        <p id="mf-n1"></p>
+        <p id="mf-n2"></p>
+        <p id="mf-n3"></p>
+        <p id="mf-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.12" data-refs="mf.refs"></p>
+  <p class="note" data-i18n="mf.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-maxflow.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var fmt = function (v) { return I18N.fmt(Math.round(v), 0); };
+  var ARR = " → ", BARR = " ⇢ ";
+
+  /* =====================================================================================
+     The two networks. Capacities of the gas network and every position are illustrative;
+     the trap network is the classic example (four arcs of capacity C and a middle arc of 1).
+     Nodes are handled in alphabetical order, so every tie is broken alphabetically.
+     ===================================================================================== */
+  var C_TRAP = 1000;
+  var GAS = prep({ src: "s", snk: "t",
+    pos: { s: [0, 1.3], a: [1.15, 2.2], b: [1.15, 0.35], c: [2.45, 2.0], d: [2.45, 0.35], e: [2.3, 3.05], t: [3.6, 1.3] },
+    arcs: [["s", "a", 300], ["s", "b", 250], ["a", "c", 250], ["a", "e", 150], ["b", "d", 300],
+      ["c", "t", 250], ["d", "c", 50], ["d", "t", 150], ["e", "t", 200]] });
+  var TRAP = prep({ src: "s", snk: "t",
+    pos: { s: [0, 1], a: [1.5, 2], b: [1.5, 0], t: [3, 1] },
+    arcs: [["s", "a", C_TRAP], ["s", "b", C_TRAP], ["a", "b", 1], ["a", "t", C_TRAP], ["b", "t", C_TRAP]] });
+
+  function prep(net) {
+    var names = Object.keys(net.pos).sort(), n = names.length, id = {}, i;
+    names.forEach(function (k, j) { id[k] = j; });
+    var arc = [];
+    for (i = 0; i < n; i++) arc.push(new Array(n).fill(-1));
+    var cmax = 0, cmin = Infinity;
+    net.A = net.arcs.map(function (a, k) {
+      var u = id[a[0]], v = id[a[1]]; arc[u][v] = k; cmax = Math.max(cmax, a[2]); cmin = Math.min(cmin, a[2]);
+      return { u: u, v: v, c: a[2] };
+    });
+    net.names = names; net.n = n; net.id = id; net.arc = arc; net.cmax = cmax; net.cmin = cmin;
+    net.s = id[net.src]; net.t = id[net.snk];
+    return net;
+  }
+  function zeros(net) { return net.A.map(function () { return 0; }); }
+  function resid(net, f, u, v, fwdOnly) {        // residual capacity of u -> v (forward spare + backward flow)
+    var r = 0, k = net.arc[u][v], j = net.arc[v][u];
+    if (k >= 0) r += net.A[k].c - f[k];
+    if (j >= 0 && !fwdOnly) r += f[j];
+    return r;
+  }
+  function value(net, f) {
+    var v = 0;
+    net.A.forEach(function (a, k) { if (a.u === net.s) v += f[k]; if (a.v === net.s) v -= f[k]; });
+    return v;
+  }
+  function bfsPath(net, f, fwdOnly) {             // Edmonds-Karp: breadth-first search, fewest arcs
+    var prev = new Array(net.n).fill(-2), q = [net.s], u, v;
+    prev[net.s] = -1;
+    while (q.length) {
+      u = q.shift();
+      for (v = 0; v < net.n; v++) if (prev[v] === -2 && resid(net, f, u, v, fwdOnly) > 0) { prev[v] = u; q.push(v); }
+    }
+    if (prev[net.t] === -2) return null;
+    var p = [net.t];
+    while (prev[p[p.length - 1]] !== -1) p.push(prev[p[p.length - 1]]);
+    return p.reverse();
+  }
+  function longestPath(net, f, fwdOnly) {         // the unlucky rule: the simple path with the most arcs
+    var best = null, p = [net.s], on = new Array(net.n).fill(false);
+    on[net.s] = true;
+    (function dfs() {
+      var u = p[p.length - 1];
+      if (u === net.t) { if (!best || p.length > best.length) best = p.slice(); return; }
+      for (var v = 0; v < net.n; v++) {
+        if (!on[v] && resid(net, f, u, v, fwdOnly) > 0) { on[v] = true; p.push(v); dfs(); p.pop(); on[v] = false; }
+      }
+    })();
+    return best;
+  }
+  function run(net, rule, fwdOnly) {
+    var f = zeros(net), log = [], guard = 0;
+    while (guard++ < 100000) {
+      var p = rule === "ek" ? bfsPath(net, f, fwdOnly) : longestPath(net, f, fwdOnly);
+      if (!p) break;
+      var d = Infinity, neck = 0, back = [], i;
+      for (i = 0; i + 1 < p.length; i++) {
+        var r = resid(net, f, p[i], p[i + 1], fwdOnly);
+        if (r < d) { d = r; neck = i; }
+        back.push(net.arc[p[i]][p[i + 1]] < 0);
+      }
+      var f0 = f.slice();
+      for (i = 0; i + 1 < p.length; i++) {
+        var u = p[i], v = p[i + 1], j = net.arc[v][u], k = net.arc[u][v], left = d;
+        if (j >= 0 && f[j] > 0 && !fwdOnly) { var c = Math.min(f[j], left); f[j] -= c; left -= c; }
+        if (left > 0) f[k] += left;
+      }
+      log.push({ path: p, d: d, neck: neck, back: back, anyBack: back.indexOf(true) >= 0, f0: f0, f1: f.slice(), v: value(net, f) });
+    }
+    return { log: log, f: f, v: value(net, f) };
+  }
+  function reach(net, f) {                        // breadth-first search from s in the final residual network
+    var depth = new Array(net.n).fill(-1), par = new Array(net.n).fill(-1), q = [net.s], order = [net.s], u, v;
+    depth[net.s] = 0;
+    while (q.length) {
+      u = q.shift();
+      for (v = 0; v < net.n; v++) if (depth[v] < 0 && resid(net, f, u, v) > 0) { depth[v] = depth[u] + 1; par[v] = u; q.push(v); order.push(v); }
+    }
+    var cut = [], cap = 0;
+    net.A.forEach(function (a, k) { if (depth[a.u] >= 0 && depth[a.v] < 0) { cut.push(k); cap += a.c; } });
+    return { depth: depth, par: par, order: order, cut: cut, cap: cap, maxDepth: Math.max.apply(null, depth) };
+  }
+  function allCuts(net) {                         // every s-t cut, by brute force
+    var inner = [], out = [];
+    for (var i = 0; i < net.n; i++) if (i !== net.s && i !== net.t) inner.push(i);
+    for (var m = 0; m < 1 << inner.length; m++) {
+      var inS = new Array(net.n).fill(false), cap = 0, arcs = [];
+      inS[net.s] = true;
+      inner.forEach(function (x, b) { if (m >> b & 1) inS[x] = true; });
+      net.A.forEach(function (a, k) { if (inS[a.u] && !inS[a.v]) { cap += a.c; arcs.push(k); } });
+      out.push({ inS: inS, cap: cap, arcs: arcs, size: inS.filter(Boolean).length });
+    }
+    out.sort(function (x, y) { return x.cap - y.cap || x.size - y.size; });
+    return out;
+  }
+  function lpValue(net) {                         // the maximum flow LP, solved with LP.solve
+    var m = net.A.length, rows = [], i;
+    for (i = 0; i < net.n; i++) {
+      if (i === net.t) continue;
+      var a = new Array(m + 1).fill(0);
+      net.A.forEach(function (e, k) { if (e.u === i) a[k] += 1; if (e.v === i) a[k] -= 1; });
+      if (i === net.s) a[m] = -1;
+      rows.push({ a: a, op: "=", b: 0 });
+    }
+    net.A.forEach(function (e, k) { var a = new Array(m + 1).fill(0); a[k] = 1; rows.push({ a: a, op: "<=", b: e.c }); });
+    var c = new Array(m + 1).fill(0); c[m] = 1;
+    var r = LP.solve({ sense: "max", c: c, rows: rows });
+    return r.status === "optimal" ? r.z : NaN;
+  }
+
+  var RES = {};
+  ["ek", "long"].forEach(function (k) { RES[k] = { gas: run(GAS, k), trap: run(TRAP, k) }; });
+  var GREEDY = run(GAS, "ek", true);               // the same order without backward arcs
+  var GR = reach(GAS, RES.ek.gas.f), TR = reach(TRAP, RES.ek.trap.f);
+  var CUTS = allCuts(GAS), LPV = lpValue(GAS);
+  var state = { sc: "ek" };
+  function setName(net, R) {                      // the reached set, s first and then alphabetical
+    var inS = net.names.map(function (nm, i) { return R.depth[i] >= 0; });
+    return setOf(net, inS);
+  }
+  function setOf(net, inS) { var o = [net.names[net.s]]; net.names.forEach(function (nm, i) { if (inS[i] && i !== net.s) o.push(nm); }); return "{" + o.join(", ") + "}"; }
+  function arcName(net, k) { var a = net.A[k]; return net.names[a.u] + ARR + net.names[a.v]; }
+  function pathText(net, L, html) {
+    var s = net.names[L.path[0]];
+    for (var i = 1; i < L.path.length; i++) {
+      var b = L.back[i - 1];
+      s += (b && html ? "<span class='bk'>" + BARR + "</span>" : (b ? BARR : ARR)) + net.names[L.path[i]];
+    }
+    return s;
+  }
+
+  /* =====================================================================================
+     "See it in motion"
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("mf-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("mf-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var DUR = 56, CH = [0, 6, 22, 35, 44];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var TAU = Math.PI * 2;
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+
+  /* ---------- schedules (depend on the scenario only) ---------- */
+  var G0 = 6.6, G1 = 21.6;                        // gas augmentations
+  var sched = {};
+  function buildSched(sc) {
+    var g = RES[sc].gas.log, n = g.length, D = (G1 - G0) / n, gs = [], k;
+    for (k = 0; k < n; k++) gs.push([G0 + k * D, G0 + (k + 1) * D]);
+    var tl = RES[sc].trap.log, ts = [], fast = null;
+    if (tl.length <= 4) {
+      var TD = (32.4 - 24.6) / tl.length;
+      for (k = 0; k < tl.length; k++) ts.push([24.6 + k * TD + 0.1, 24.6 + (k + 1) * TD - 0.1]);
+    } else {
+      ts = [[24.6, 26.6], [26.6, 28.6], [28.6, 29.8], [29.8, 30.8]];
+      fast = [30.8, 34.2];
+    }
+    // caption phases
+    var ph = [{ a: 0, k: "c1" }], cur = null;
+    g.forEach(function (Lg, i) {
+      var key = Lg.anyBack ? "c2b" : "c2", a = i === 0 ? 6 : gs[i][0];
+      if (key !== cur) { ph.push({ a: a, k: key }); cur = key; }
+    });
+    ph.push({ a: 22, k: "c3a" }, { a: 25, k: "c3" }, { a: 35, k: "c4a" }, { a: 38.4, k: "c4b" }, { a: 44, k: "c5a" }, { a: 47.4, k: "c5b" });
+    for (k = 0; k < ph.length; k++) ph[k].b = k + 1 < ph.length ? ph[k + 1].a : DUR;
+    sched[sc] = { gas: { slots: gs, fast: null }, trap: { slots: ts, fast: fast }, ph: ph };
+  }
+  buildSched("ek"); buildSched("long");
+
+  function augPhase(t, a, b) {
+    var D = b - a;
+    return { search: E.inOut(seg(t, a, a + 0.36 * D)), neck: seg(t, a + 0.3 * D, a + 0.5 * D),
+      push: E.inOut(seg(t, a + 0.46 * D, a + 0.84 * D)), fade: seg(t, a + 0.86 * D, b - 0.02 * D) };
+  }
+  function stateAt(net, R, S, t) {
+    var log = R.log, n = log.length, sl = S.slots, k;
+    if (!n || t < sl[0][0]) return { f: zeros(net), cnt: 0, v: 0, cur: null, d: null };
+    for (k = 0; k < sl.length; k++) {
+      if (t < sl[k][1]) {
+        var ph = augPhase(t, sl[k][0], sl[k][1]), Lk = log[k];
+        return { f: Lk.f0.map(function (x, i) { return lerp(x, Lk.f1[i], ph.push); }),
+          cnt: k + (ph.push > 0 ? 1 : 0), v: lerp(k ? log[k - 1].v : 0, Lk.v, ph.push),
+          cur: { L: Lk, ph: ph }, d: ph.neck > 0 ? Lk.d : (k ? log[k - 1].d : null) };
+      }
+    }
+    if (S.fast && sl.length < n) {
+      var u = seg(t, S.fast[0], S.fast[1]), m = sl.length, kk = Math.min(n, m + Math.round((n - m) * u * u));
+      if (u < 1 && kk <= m) kk = m;
+      var Lf = log[kk - 1];
+      return { f: Lf.f1, cnt: kk, v: Lf.v, d: Lf.d,
+        cur: u > 0 && u < 1 && kk < n ? { L: log[kk], fast: true } : null };
+    }
+    var Ll = log[n - 1];
+    return { f: Ll.f1, cnt: n, v: Ll.v, cur: null, d: Ll.d };
+  }
+
+  /* ---------- layout ---------- */
+  function captions(sc, key) {
+    var g = RES[sc].gas, tr = RES[sc].trap, other = RES[sc === "ek" ? "long" : "ek"];
+    switch (key) {
+      case "c1": return [T("mf.cap1"), T("mf.cap1.sub")];
+      case "c2": return [T("mf.cap2"), T("mf.cap2." + sc + ".sub")];
+      case "c2b": return [T("mf.cap2b"), T("mf.cap2b.sub")];
+      case "c3a": return [T("mf.cap3a"), T("mf.cap3a.sub", { C: fmt(TRAP.cmax), c: fmt(TRAP.cmin) })];
+      case "c3": return [T("mf.cap3." + sc), T("mf.cap3." + sc + ".sub", { n: fmt(tr.log.length), v: fmt(tr.v),
+        d: fmt(Math.min.apply(null, tr.log.map(function (x) { return x.d; }))) })];
+      case "c4a": return [T("mf.cap4a"), T("mf.cap4a.sub")];
+      case "c4b": return [T("mf.cap4b"), T("mf.cap4b.sub", { S: setName(GAS, GR) })];
+      case "c5a": return [T("mf.cap5a"), T("mf.cap5a.sub")];
+      default: return [T("mf.cap5b", { v: fmt(g.v) }), T("mf.cap5b.sub", { n: fmt(g.log.length), m: fmt(tr.log.length) })];
+    }
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function fitNet(net) {                          // world -> screen transform of a network inside the plot
+    var xs = [], ys = [];
+    Object.keys(net.pos).forEach(function (k) { xs.push(net.pos[k][0]); ys.push(net.pos[k][1]); });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    var pad = L.portrait ? 30 : 36;
+    var padL = pad + (L.portrait && net === GAS ? 16 : 0);   // room on phones for the set S around s and its label
+    var K = Math.min((L.pw - pad - padL) / (x1 - x0), (L.ph - 2 * pad) / (y1 - y0));
+    return { K: K, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, ox: L.x0 + padL + (L.pw - pad - padL) / 2, oy: L.y0 + L.ph / 2 };
+  }
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) { L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx; L.fs = 11.5; L.ft = 13.5; L.nr = 11; L.lf = 9.5; }
+    else { L.capX = hx; L.capY = hy + hh + 26; L.capW = hw; L.fs = 12; L.ft = 15; L.nr = W < 760 ? 12 : 15; L.lf = W < 760 ? 10 : 11; }
+    var tl = 1, sl = 1;
+    ["ek", "long"].forEach(function (sc) {
+      sched[sc].ph.forEach(function (p) {
+        var cap = captions(sc, p.k);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    if (portrait) { L.x0 = 6; L.x1 = W - 6; L.y0 = L.capBottom + 4; L.y1 = H - 6; }
+    else { L.x0 = hx + hw + 18; L.x1 = W - 12; L.y0 = 10; L.y1 = H - 10; }
+    L.pw = L.x1 - L.x0; L.ph = L.y1 - L.y0;
+    L.gas = fitNet(GAS); L.trap = fitNet(TRAP);
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+
+  /* ---------- drawing helpers ---------- */
+  function P(net, F, i, sc) {                     // screen position of node i, scaled by sc about the plot centre
+    var p = net.pos[net.names[i]], x = F.ox + (p[0] - F.cx) * F.K, y = F.oy - (p[1] - F.cy) * F.K;
+    return [F.ox + (x - F.ox) * sc, F.oy + (y - F.oy) * sc];
+  }
+  function circle(x, y, r) { ctx.beginPath(); ctx.arc(x, y, Math.max(0, r), 0, TAU); }
+  function label(txt, x, y, col, f, a, align) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "center"; ctx.textBaseline = "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, x, y);
+    ctx.fillStyle = col; ctx.fillText(txt, x, y);
+    ctx.globalAlpha = 1;
+  }
+  function head(x, y, ux, uy, size, col, a) {     // arrowhead with its tip at (x, y) pointing along (ux, uy)
+    var bx = x - ux * size, by = y - uy * size, w = size * 0.55;
+    ctx.globalAlpha = a; ctx.fillStyle = col;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(bx - uy * w, by + ux * w); ctx.lineTo(bx + uy * w, by - ux * w); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function geom(net, F, k, sc) {                  // the visible part of arc k between the two node circles
+    var a = net.A[k], p = P(net, F, a.u, sc), q = P(net, F, a.v, sc), dx = q[0] - p[0], dy = q[1] - p[1], len = Math.hypot(dx, dy);
+    var ux = dx / len, uy = dy / len, r = L.nr * sc + 2;
+    return { x0: p[0] + ux * r, y0: p[1] + uy * r, x1: q[0] - ux * r, y1: q[1] - uy * r, ux: ux, uy: uy, rx: -uy, ry: ux,
+      len: len - 2 * r, mx: (p[0] + q[0]) / 2, my: (p[1] + q[1]) / 2 };
+  }
+  function pipeW(net, c) { return (L.portrait ? 0.72 : 1) * (3 + 11 * Math.sqrt(c / net.cmax)); }
+  function labelSide(net, F, k, sc) {             // the side of an arc (+1 right, -1 left) away from the centre of the network
+    var g = geom(net, F, k, sc), ox = F.ox, oy = F.oy;
+    var s = (g.mx - ox) * g.rx + (g.my - oy) * g.ry;
+    if (net === GAS && net.names[net.A[k].u] === "d" && net.names[net.A[k].v] === "c") return g.rx > 0 ? 1 : -1;
+    return s >= 0 ? 1 : -1;
+  }
+  function roundedHull(pts, pad) {                // path of the convex hull of pts grown by pad (rounded corners)
+    ctx.beginPath();
+    if (pts.length === 1) { ctx.arc(pts[0][0], pts[0][1], pad, 0, TAU); return; }
+    var p = pts.slice().sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }), lower = [], upper = [], i;
+    var cr = function (o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); };
+    for (i = 0; i < p.length; i++) { while (lower.length >= 2 && cr(lower[lower.length - 2], lower[lower.length - 1], p[i]) <= 0) lower.pop(); lower.push(p[i]); }
+    for (i = p.length - 1; i >= 0; i--) { while (upper.length >= 2 && cr(upper[upper.length - 2], upper[upper.length - 1], p[i]) <= 0) upper.pop(); upper.push(p[i]); }
+    var h = lower.slice(0, -1).concat(upper.slice(0, -1)), n = h.length;
+    for (i = 0; i < n; i++) {
+      var a = h[i], b = h[(i + 1) % n], z = h[(i + n - 1) % n];
+      var e0 = Math.atan2(a[1] - z[1], a[0] - z[0]) - Math.PI / 2, e1 = Math.atan2(b[1] - a[1], b[0] - a[0]) - Math.PI / 2;
+      ctx.arc(a[0], a[1], pad, e0, e1, false);
+    }
+    ctx.closePath();
+  }
+
+  function lane(net, F, k, sc, sgn, rev) {        // a lane beside pipe k (sgn: side), reversed for a backward arc
+    var g = geom(net, F, k, sc), off = pipeW(net, net.A[k].c) * sc / 2 + (L.portrait ? 4 : 5);
+    var ox = g.rx * off * sgn, oy = g.ry * off * sgn, xa = g.x0 + ox, ya = g.y0 + oy, xb = g.x1 + ox, yb = g.y1 + oy;
+    if (rev) { var tx = xa, ty = ya; xa = xb; ya = yb; xb = tx; yb = ty; }
+    var hs = L.portrait ? 7 : 8.5, ux = rev ? -g.ux : g.ux, uy = rev ? -g.uy : g.uy;
+    return { xa: xa, ya: ya, xb: xb - ux * hs, yb: yb - uy * hs, ux: ux, uy: uy, len: Math.max(1, g.len - hs),
+      mx: g.mx + ox, my: g.my + oy, rx: g.rx, ry: g.ry, sgn: sgn, off: 0 };
+  }
+  function offLabel(x, y, nx, ny, gap, txt, f, fs) {  // centre of a label placed gap px from (x, y) along the unit normal (nx, ny)
+    ctx.font = f;
+    var hw = ctx.measureText(txt).width / 2 + 2, hh = fs / 2 + 1;
+    var d = gap + Math.abs(nx) * hw + Math.abs(ny) * hh;
+    return [x + nx * d, y + ny * d];
+  }
+
+  var placed = [];                                // label boxes already drawn in this network (per frame)
+  function place(g, nx, ny, gap, txt, f, fs) {      // offLabel, slid along the arc when it would overlap a placed box
+    ctx.font = f;
+    var hw = ctx.measureText(txt).width / 2 + 2, hh = fs / 2 + 1, best = null;
+    var tries = [0, 0.16, -0.16, 0.3, -0.3];
+    for (var i = 0; i < tries.length; i++) {
+      var sh = tries[i] * g.len, q = offLabel(g.mx + g.ux * sh, g.my + g.uy * sh, nx, ny, gap, txt, f, fs);
+      var b = [q[0] - hw, q[1] - hh, q[0] + hw, q[1] + hh], hit = false;
+      for (var j = 0; j < placed.length && !hit; j++) { var o = placed[j]; hit = b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1]; }
+      if (!hit) { best = q; placed.push(b); break; }
+    }
+    if (!best) { best = offLabel(g.mx, g.my, nx, ny, gap, txt, f, fs); placed.push([best[0] - hw, best[1] - hh, best[0] + hw, best[1] + hh]); }
+    return best;
+  }
+
+  /* ---------- one network ---------- */
+  function drawNet(net, F, o) {
+    // o: { a, sc, f, cur, res, lit, blocked, hull, ring, cutHi, cutK, t }
+    if (o.a <= 0.01) return;
+    var sc = o.sc, a = o.a, i, k, g;
+    var nodes = []; for (i = 0; i < net.n; i++) nodes.push(P(net, F, i, sc));
+    placed = nodes.map(function (q) { var r = L.nr * sc + 2; return [q[0] - r, q[1] - r, q[0] + r, q[1] + r]; });
+    // the set S reached from s, and the cut around it
+    if (o.hull && o.hull.pts.length) {
+      var pts = o.hull.pts.map(function (j) { return nodes[j]; }), pad = L.nr * sc + (L.portrait ? 10 : 14);
+      roundedHull(pts, pad);
+      ctx.globalAlpha = a * o.hull.a; ctx.fillStyle = C.sel; ctx.fill();
+      ctx.globalAlpha = a * o.hull.a * 0.6; ctx.strokeStyle = C.accent; ctx.lineWidth = 1; ctx.stroke();
+      if (o.ring > 0) {
+        var cx = 0, cy = 0; pts.forEach(function (q) { cx += q[0]; cy += q[1]; }); cx /= pts.length; cy /= pts.length;
+        ctx.save(); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 4000, -Math.PI / 2, -Math.PI / 2 + TAU * o.ring); ctx.closePath(); ctx.clip();
+        roundedHull(pts, pad + 5);
+        ctx.globalAlpha = a; ctx.strokeStyle = HOT; ctx.lineWidth = 2.5; ctx.setLineDash([8, 5]); ctx.stroke(); ctx.setLineDash([]);
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+      if (o.hull.a > 0.5) {
+        var sp = nodes[net.s];
+        label(T("mf.l.S"), sp[0] - L.nr * sc - (L.portrait ? 8 : 12), sp[1] + L.nr * sc + (L.portrait ? 8 : 12), C["accent-text"], "italic " + font(700, L.lf + 3), a * seg(o.hull.a, 0.5, 1));
+      }
+    }
+    var pipeA0 = a * (1 - 0.7 * o.res);
+    // pipes, flow and particles
+    net.A.forEach(function (arc, k) {
+      g = geom(net, F, k, sc);
+      var gr = o.grow ? o.grow(k) : 1;
+      if (gr <= 0) return;
+      if (gr < 1) { g.x1 = lerp(g.x0, g.x1, gr); g.y1 = lerp(g.y0, g.y1, gr); g.len *= gr; }
+      var w = pipeW(net, arc.c) * sc, fl = o.f[k], hi = o.cutHi ? o.cutHi[k] || 0 : 0;
+      var pipeA = pipeA0 * (o.dim && !(o.cutHi && o.cutHi[k] !== undefined) ? 1 - 0.6 * o.dim : 1);
+      ctx.lineCap = "round";
+      if (hi > 0) { ctx.globalAlpha = a * hi; ctx.strokeStyle = HOT; ctx.lineWidth = w + 6; ctx.beginPath(); ctx.moveTo(g.x0, g.y0); ctx.lineTo(g.x1, g.y1); ctx.stroke(); }
+      ctx.globalAlpha = pipeA; ctx.strokeStyle = C.axis; ctx.lineWidth = w + 2; ctx.beginPath(); ctx.moveTo(g.x0, g.y0); ctx.lineTo(g.x1, g.y1); ctx.stroke();
+      ctx.strokeStyle = C.surface; ctx.lineWidth = w; ctx.stroke();
+      ctx.strokeStyle = C.region; ctx.stroke();
+      if (fl > 1e-9) {
+        var fw = Math.max(1.5, w * fl / arc.c);
+        ctx.strokeStyle = C.accent; ctx.lineWidth = fw; ctx.beginPath(); ctx.moveTo(g.x0, g.y0); ctx.lineTo(g.x1, g.y1); ctx.stroke();
+        // particles: evenly spaced dots moving downstream (a pure function of t), only where the band is wide enough
+        if (fw >= 4) {
+        var spc = L.portrait ? 18 : 24, off = (o.t * 38) % spc, pr = Math.max(0.9, Math.min(fw * 0.28, 2.4));
+        ctx.fillStyle = C.surface; ctx.globalAlpha = pipeA * 0.85;
+        for (var s = off; s < g.len; s += spc) { circle(g.x0 + g.ux * s, g.y0 + g.uy * s, pr); ctx.fill(); }
+        }
+      }
+      ctx.lineCap = "butt";
+      head(g.x1, g.y1, g.ux, g.uy, (L.portrait ? 7 : 9) * sc, C.ink, pipeA * gr);
+    });
+    // residual arcs: forward (spare capacity, solid ink) and backward (flow that can be sent back, dashed)
+    if (o.res > 0.01) {
+      net.A.forEach(function (arc, k) {
+        g = geom(net, F, k, sc);
+        var w = pipeW(net, arc.c) * sc, off = w / 2 + (L.portrait ? 4 : 5), fr = arc.c - o.f[k], br = o.f[k], side = labelSide(net, F, k, sc);
+        var lane = function (sgn, rev, val, col, dash, glow) {
+          var ox = g.rx * off * sgn, oy = g.ry * off * sgn, xa = g.x0 + ox, ya = g.y0 + oy, xb = g.x1 + ox, yb = g.y1 + oy;
+          if (rev) { var tx = xa, ty = ya; xa = xb; ya = yb; xb = tx; yb = ty; }
+          var ux = rev ? -g.ux : g.ux, uy = rev ? -g.uy : g.uy, hs = L.portrait ? 6 : 7;
+          if (glow > 0) {
+            ctx.globalAlpha = a * o.res * glow; ctx.strokeStyle = C.accent; ctx.lineWidth = 5; ctx.lineCap = "round";
+            ctx.beginPath(); ctx.moveTo(xa, ya); ctx.lineTo(lerp(xa, xb, Math.min(1, glow * 1.02)), lerp(ya, yb, Math.min(1, glow * 1.02))); ctx.stroke(); ctx.lineCap = "butt";
+          }
+          ctx.globalAlpha = a * o.res; ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.setLineDash(dash ? [5, 4] : []);
+          ctx.beginPath(); ctx.moveTo(xa, ya); ctx.lineTo(xb - ux * hs * 0.8, yb - uy * hs * 0.8); ctx.stroke(); ctx.setLineDash([]);
+          head(xb, yb, ux, uy, hs, col, a * o.res);
+          var fr2 = font(600, L.lf, true), ql2 = place(g, g.rx * sgn, g.ry * sgn, off + 5, fmt(val), fr2, L.lf);
+          label(fmt(val), ql2[0], ql2[1], col === C.ink ? C.ink : C["accent-text"], fr2, a * o.res);
+        };
+        var gl = o.glow ? o.glow[k] || 0 : 0;
+        if (fr > 1e-9) lane(side, false, fr, C.ink, false, gl);
+        if (br > 1e-9) lane(-side, true, br, C.accent, true, 0);
+        var bl = o.blocked ? o.blocked[k] || 0 : 0;
+        if (bl > 0) {                             // a full arc leaving S: nothing more can go that way
+          var xs = L.portrait ? 5 : 6, px = g.mx + g.rx * off * side, py = g.my + g.ry * off * side;
+          ctx.globalAlpha = a * o.res * bl; ctx.strokeStyle = C.surface; ctx.lineWidth = 6; ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(px - xs, py - xs); ctx.lineTo(px + xs, py + xs); ctx.moveTo(px + xs, py - xs); ctx.lineTo(px - xs, py + xs); ctx.stroke();
+          ctx.strokeStyle = HOT; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineCap = "butt";
+        }
+      });
+    }
+    // the augmenting path being searched and pushed: a lane beside the pipes (it lives in the residual network)
+    var cur = o.cur;
+    if (cur) {
+      var Lp = cur.L, ph = cur.ph || { search: 1, neck: 0, push: 0, fade: 0 }, pa = a * (cur.fast ? 0.6 : 1 - ph.fade);
+      var segs = [], tot = 0;
+      for (i = 0; i + 1 < Lp.path.length; i++) {
+        var bk = Lp.back[i], kk = bk ? net.arc[Lp.path[i + 1]][Lp.path[i]] : net.arc[Lp.path[i]][Lp.path[i + 1]];
+        var ln = lane(net, F, kk, sc, -labelSide(net, F, kk, sc), bk);
+        ln.back = bk; ln.k = kk; segs.push(ln); tot += ln.len;
+      }
+      // the bottleneck: its pipe glows
+      if (!cur.fast && ph.neck > 0) {
+        var gN = geom(net, F, segs[Lp.neck].k, sc), wN = pipeW(net, net.A[segs[Lp.neck].k].c) * sc;
+        var pulse = 0.5 + 0.5 * Math.sin(Math.min(1, ph.neck) * Math.PI * 3 - Math.PI / 2);
+        ctx.globalAlpha = pa * Math.min(1, ph.neck * 2) * (0.55 + 0.45 * pulse); ctx.strokeStyle = HOT; ctx.lineWidth = wN + 7; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(gN.x0, gN.y0); ctx.lineTo(gN.x1, gN.y1); ctx.stroke();
+        ctx.globalAlpha = pa; ctx.strokeStyle = C.region; ctx.lineWidth = wN; ctx.stroke();
+        var flN = o.f[segs[Lp.neck].k];
+        if (flN > 1e-9) { ctx.strokeStyle = C.accent; ctx.lineWidth = Math.max(1.5, wN * flN / net.A[segs[Lp.neck].k].c); ctx.stroke(); }
+        ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+      }
+      var reachL = tot * ph.search, acc = 0;
+      ctx.lineCap = "round";
+      segs.forEach(function (sg) {
+        if (acc >= reachL) { acc += sg.len; return; }
+        var u = Math.min(1, (reachL - acc) / sg.len), x1 = lerp(sg.xa, sg.xb, u), y1 = lerp(sg.ya, sg.yb, u);
+        ctx.globalAlpha = pa; ctx.strokeStyle = C.surface; ctx.lineWidth = 6.5; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(sg.xa, sg.ya); ctx.lineTo(x1, y1); ctx.stroke();
+        ctx.strokeStyle = sg.back ? HOT : C.accent; ctx.lineWidth = 3; ctx.setLineDash(sg.back ? [6, 4] : []);
+        ctx.beginPath(); ctx.moveTo(sg.xa, sg.ya); ctx.lineTo(x1, y1); ctx.stroke(); ctx.setLineDash([]);
+        if (u >= 1) head(sg.xb + sg.ux * 3, sg.yb + sg.uy * 3, sg.ux, sg.uy, L.portrait ? 7 : 8.5, sg.back ? HOT : C.accent, pa);
+        acc += sg.len;
+      });
+      ctx.lineCap = "butt";
+      var along = function (d) {                  // point at distance d along the path lanes
+        var a2 = 0;
+        for (var j = 0; j < segs.length; j++) {
+          if (a2 + segs[j].len >= d || j === segs.length - 1) { var uu = clamp((d - a2) / segs[j].len, 0, 1); return [lerp(segs[j].xa, segs[j].xb, uu), lerp(segs[j].ya, segs[j].yb, uu)]; }
+          a2 += segs[j].len;
+        }
+      };
+      if (!cur.fast && ph.search > 0 && ph.search < 1) {       // bright head of the search
+        var hp = along(reachL);
+        ctx.globalAlpha = pa; ctx.fillStyle = HOT; circle(hp[0], hp[1], 4.5); ctx.fill();
+      }
+      if (!cur.fast && ph.push > 0 && ph.push < 1) {             // the pushed amount travels along the path
+        for (var q = 0; q < 3; q++) {
+          var pp2 = along(clamp(ph.push * 1.25 - q * 0.12, 0, 1) * tot);
+          ctx.globalAlpha = pa * (1 - q * 0.3); ctx.fillStyle = C.surface; circle(pp2[0], pp2[1], 5.5 - q); ctx.fill();
+          ctx.fillStyle = C.accent; circle(pp2[0], pp2[1], 3.8 - q); ctx.fill();
+        }
+      }
+      if (!cur.fast && ph.neck > 0) {                            // delta next to the bottleneck lane
+        var sN = segs[Lp.neck], txt = T("mf.l.delta", { d: fmt(Lp.d) }), fN = font(700, L.lf + 2);
+        var qN = offLabel(sN.mx, sN.my, sN.rx * sN.sgn, sN.ry * sN.sgn, sN.off + 6, txt, fN, L.lf + 2);
+        label(txt, qN[0], qN[1], C["accent-text"], fN, pa * Math.min(1, ph.neck * 2));
+      }
+      ctx.globalAlpha = 1;
+    }
+    // nodes
+    for (i = 0; i < net.n; i++) {
+      var pp = o.pop ? o.pop(i) : 1;
+      if (pp <= 0) continue;
+      var pn = nodes[i], r = L.nr * sc * (o.pop ? E.back(pp) : 1), st = i === net.s || i === net.t, lit = o.lit ? o.lit[i] || 0 : 0;
+      ctx.globalAlpha = a * Math.min(1, pp * 1.5);
+      ctx.fillStyle = st ? C.ink : C.surface; circle(pn[0], pn[1], r); ctx.fill();
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.8; ctx.stroke();
+      if (lit > 0) { ctx.globalAlpha = a * lit; ctx.strokeStyle = C.accent; ctx.lineWidth = 3; circle(pn[0], pn[1], r + 3.5 + 3 * (1 - lit)); ctx.stroke(); }
+      ctx.globalAlpha = a * Math.min(1, pp * 1.5); ctx.fillStyle = st ? C.surface : C.ink; ctx.font = "italic " + font(700, Math.round(r * 1.05)); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(net.names[i], pn[0], pn[1] + 0.5);
+    }
+    ctx.globalAlpha = 1;
+    // flow / capacity labels
+    var la = a * o.lab * (1 - o.res);
+    if (la > 0.01) {
+      net.A.forEach(function (arc, k) {
+        g = geom(net, F, k, sc);
+        var side = labelSide(net, F, k, sc), hi = o.cutHi ? o.cutHi[k] || 0 : 0;
+        var txt = (o.capOnly ? "" : fmt(o.f[k]) + "/") + fmt(arc.c), fl = font(hi > 0.5 ? 700 : 600, L.lf + (hi > 0.5 ? 1 : 0), true);
+        var ql = place(g, g.rx * side, g.ry * side, pipeW(net, arc.c) * sc / 2 + 4, txt, fl, L.lf + 1);
+        label(txt, ql[0], ql[1], hi > 0.5 ? C["accent-text"] : C.ink2, fl, la);
+      });
+    }
+  }
+
+  /* ---------- caption ---------- */
+  function drawCaption(sc, t) {
+    var ph = sched[sc].ph, P0 = ph[0];
+    for (var i = 0; i < ph.length; i++) if (t >= ph[i].a) P0 = ph[i];
+    var idx = ph.indexOf(P0), a = idx === 0 ? seg(t, 0.4, 1.1) : seg(t, P0.a + 0.15, P0.a + 0.7);
+    if (idx < ph.length - 1) a *= 1 - seg(t, P0.b - 0.45, P0.b - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(sc, P0.k), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3].map(function (i) {
+    var el = document.getElementById("mf-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.k = kind; }
+  }
+
+  /* ---------- the frame ---------- */
+  var TB = 38.6, LV = 1.0;
+  var XS = GAS.names.map(function (nm) { return GAS.pos[nm][0]; }), XMAX = Math.max.apply(null, XS);
+  function xn(i) { return XS[i] / XMAX; }            // 0 at s, 1 at t: the order in which the network appears                         // breadth-first search from s in chapter 4
+  function render(t) {
+    C = A.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    var sc = state.sc, R = RES[sc], S = sched[sc];
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+
+    // which network is on stage
+    var gOut = E.inOut(seg(t, 22, 23.2)), gIn = E.inOut(seg(t, 35.4, 36.8));
+    var gasA = t < 30 ? 1 - gOut : gIn, gasSc = t < 30 ? 1 - 0.06 * gOut : 1.06 - 0.06 * gIn;
+    var tIn = E.inOut(seg(t, 23, 24.4)), tOut = E.inOut(seg(t, 35, 36));
+    var trapA = tIn * (1 - tOut), trapSc = t < 30 ? 1.06 - 0.06 * tIn : 1 - 0.06 * tOut;
+    var gs = t < 22 ? stateAt(GAS, R.gas, S.gas, t) : stateAt(GAS, R.gas, S.gas, DUR);
+    var ts = stateAt(TRAP, R.trap, S.trap, t);
+
+    // chapter 4 and 5 cues on the gas network
+    var res = E.inOut(seg(t, 36.8, 38.2)) * (1 - E.inOut(seg(t, 44.2, 45.4)));
+    var lit = [], glow = [], blocked = [], hullPts = [], cutHi = [], k;
+    var litAt = function (i) { return GR.depth[i] < 0 ? 0 : E.out(seg(t, TB + GR.depth[i] * LV - 0.15, TB + GR.depth[i] * LV + 0.35)); };
+    for (k = 0; k < GAS.n; k++) { lit[k] = t >= TB - 0.2 ? litAt(k) : 0; if (lit[k] > 0.05) hullPts.push(k); }
+    GAS.A.forEach(function (arc, j) {
+      if (GR.depth[arc.v] > 0 && GR.par[arc.v] === arc.u) glow[j] = seg(t, TB + (GR.depth[arc.v] - 1) * LV + 0.3, TB + GR.depth[arc.v] * LV - 0.15);
+    });
+    var tBl = TB + GR.maxDepth * LV + 0.5;
+    GR.cut.forEach(function (j) { blocked[j] = E.out(seg(t, tBl, tBl + 0.5)); });
+    var ring = E.inOut(seg(t, 45.4, 47.2)), tc0 = 47.5, tcs = 1.2, cutSum = 0, cutN = 0;
+    GR.cut.forEach(function (j, i) { var u = E.out(seg(t, tc0 + i * tcs, tc0 + i * tcs + 0.5)); cutHi[j] = u; if (t >= tc0 + i * tcs) { cutSum += GAS.A[j].c; cutN++; } });
+    var hullA = t >= TB - 0.2 ? E.out(seg(t, TB - 0.2, TB + 0.4)) : 0;
+
+    var lab = E.out(seg(t, 2.8, 4.2));
+    drawNet(TRAP, L.trap, { a: trapA, sc: trapSc, f: ts.f, cur: t < 35 ? ts.cur : null, res: 0, lab: 1, t: t });
+    drawNet(GAS, L.gas, { a: gasA, sc: gasSc, f: gs.f, cur: t < 22 ? gs.cur : null, res: res, lab: lab, capOnly: t < 6.3, t: t,
+      lit: lit, glow: glow, blocked: blocked, hull: { pts: hullPts, a: hullA }, ring: ring, cutHi: cutHi, dim: E.inOut(seg(t, 47.2, 48.4)),
+      pop: t < 3.5 ? function (i) { return E.out(seg(t, 0.3 + 1.9 * xn(i), 0.8 + 1.9 * xn(i))); } : null,
+      grow: t < 3.5 ? function (j) { var a0 = 0.6 + 1.9 * xn(GAS.A[j].u); return E.inOut(seg(t, a0, a0 + 0.9)); } : null });
+
+    drawCaption(sc, t);
+
+    // counters
+    var onTrap = t >= 22.6 && t < 35.7, st = onTrap ? ts : gs;
+    var vis = seg(t, 1.2, 1.7);
+    setChip(0, fmt(st.v), T("mf.k.flow"), vis, "acc");
+    setChip(1, fmt(st.cnt), T("mf.k.aug"), vis, "");
+    if (t < 36.5) setChip(2, st.d == null ? " " : fmt(st.d), T("mf.k.delta"), seg(t, 6.6, 7.1) * (st.d == null ? 0.5 : 1), "");
+    else if (t < 44) {
+      var nl = 0; for (k = 0; k < GAS.n; k++) if (t >= TB + GR.depth[k] * LV && GR.depth[k] >= 0) nl++;
+      setChip(2, T("mf.k.reachV", { n: fmt(nl), m: fmt(GAS.n) }), T("mf.k.reach"), seg(t, 38.2, 38.6), "");
+    } else setChip(2, fmt(cutN), T("mf.k.arcs"), seg(t, 44.2, 44.6), "");
+    setChip(3, fmt(cutSum), T("mf.k.cut"), seg(t, 47.2, 47.6), "acc");
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "mf.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text
+     ===================================================================================== */
+  function scenName(key) { return T("mf.sc." + key); }
+  function renderSeg() { document.querySelectorAll("#mf-seg button").forEach(function (b) { b.textContent = scenName(b.getAttribute("data-sc")); }); }
+  function renderScenText() {
+    var sc = state.sc, R = RES[sc], ka = sc === "ek" ? "mf.anim.aria" : "mf.anim.aria.long";
+    stage.setAttribute("aria-label", T(ka) + " " + T("mf.anim.aria.nums", {
+      v: fmt(R.gas.v), n: fmt(R.gas.log.length), S: setName(GAS, GR), c: fmt(GR.cap), m: fmt(R.trap.log.length) }));
+    document.getElementById("mf-status").innerHTML = T("mf.st." + sc, {
+      v: fmt(R.gas.v), n: fmt(R.gas.log.length), tv: fmt(R.trap.v), tn: fmt(R.trap.log.length) });
+  }
+  function renderModel() {
+    document.getElementById("mf-data").textContent = T("mf.model.data", {
+      arcs: GAS.A.map(function (a, k) { return arcName(GAS, k) + " " + fmt(a.c); }).join(", "), C: fmt(TRAP.cmax), c: fmt(TRAP.cmin) });
+  }
+  function renderSolution() {
+    var sc = state.sc, R = RES[sc], O = RES[sc === "ek" ? "long" : "ek"];
+    document.getElementById("mf-sol-title").textContent = T("mf.sol.title", { s: scenName(sc) });
+    document.getElementById("mf-sv").textContent = fmt(R.gas.v);
+    document.getElementById("mf-svl").textContent = T("mf.sol.vl", { n: fmt(R.gas.log.length) });
+    document.getElementById("mf-sc").textContent = fmt(GR.cap);
+    document.getElementById("mf-scl").textContent = T("mf.sol.cutl", { S: setName(GAS, GR), arcs: GR.cut.map(function (k) { return arcName(GAS, k); }).join(", ") });
+    document.getElementById("mf-slp").textContent = fmt(LPV);
+    document.getElementById("mf-st").textContent = fmt(R.trap.log.length);
+    document.getElementById("mf-stl").textContent = T("mf.sol.trapl", { v: fmt(R.trap.v), m: fmt(O.trap.log.length) });
+    var h = "<thead><tr><th class='num'>" + T("mf.paths.n") + "</th><th>" + T("mf.paths.p") + "</th><th class='num'>" + T("mf.paths.d") +
+      "</th><th class='num'>" + T("mf.paths.v") + "</th></tr></thead><tbody>";
+    R.gas.log.forEach(function (Lg, i) {
+      h += "<tr><td class='num'>" + fmt(i + 1) + "</td><td class='path'>" + pathText(GAS, Lg, true) + "</td><td class='num'>" + fmt(Lg.d) +
+        "</td><td class='num ex'>" + fmt(Lg.v) + "</td></tr>";
+    });
+    document.getElementById("mf-paths").innerHTML = h + "</tbody>";
+    var K = 6;
+    document.getElementById("mf-cuts-h").textContent = T("mf.cuts.head", { k: fmt(K), n: fmt(CUTS.length) });
+    h = "<thead><tr><th>" + T("mf.cuts.S") + "</th><th>" + T("mf.cuts.arcs") + "</th><th class='num'>" + T("mf.cuts.c") + "</th></tr></thead><tbody>";
+    CUTS.slice(0, K).forEach(function (c, i) {
+      h += "<tr" + (i === 0 ? " class='on'" : "") + "><td class='path'>" + setOf(GAS, c.inS) + "</td><td class='path'>" +
+        c.arcs.map(function (k) { return arcName(GAS, k); }).join(", ") + "</td><td class='num" + (i === 0 ? " ex" : "") + "'>" + fmt(c.cap) + "</td></tr>";
+    });
+    document.getElementById("mf-cuts").innerHTML = h + "</tbody>";
+    document.getElementById("mf-cuts-note").textContent = T("mf.cuts.note", { c: fmt(CUTS[0].cap) });
+  }
+  function renderNotes() {
+    var out = 0; GAS.A.forEach(function (a) { if (a.u === GAS.s) out += a.c; });
+    document.getElementById("mf-n1").textContent = T("mf.n.p1", { c0: fmt(out), S: setName(GAS, GR), c: fmt(GR.cap) });
+    var ek = RES.ek.gas.log, bi = -1;
+    for (var i = 0; i < ek.length; i++) if (ek[i].anyBack) { bi = i; break; }
+    var p2 = document.getElementById("mf-n2");
+    if (bi >= 0) {
+      var Lb = ek[bi], s = Lb.back.indexOf(true), u = Lb.path[s + 1], w = Lb.path[s];   // the pipe u -> w is run backward
+      p2.textContent = T("mf.n.p2", { k: fmt(bi + 1), p: pathText(GAS, Lb, false), d: fmt(Lb.d), u: GAS.names[u], w: GAS.names[w], g: fmt(GREEDY.v), v: fmt(RES.ek.gas.v) });
+    } else p2.textContent = "";
+    document.getElementById("mf-n3").textContent = T("mf.n.p3", { a: fmt(RES.ek.trap.log.length), b: fmt(RES.long.trap.log.length) });
+    document.getElementById("mf-n4").textContent = T("mf.n.p4", { S: setName(GAS, GR), arcs: GR.cut.map(function (k) { return arcName(GAS, k); }).join(", "), c: fmt(GR.cap) });
+  }
+
+  var segBtns = document.querySelectorAll("#mf-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderSolution();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[1]) player.refresh();
+      else { player.seek(CH[1] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderSeg(); renderScenText(); renderModel(); renderSolution(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

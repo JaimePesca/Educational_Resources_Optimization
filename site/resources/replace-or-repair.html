@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="en" data-title-key="mdp.title" data-i18n-bundles="resources/other-mdp">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Replace or Repair?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #mdp-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 34%)); max-width: none;
+  }
+  #mdp-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #mdp-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* when a label of this language does not fit on one line, every chip keeps two lines (the height never jumps) */
+  #mdp-sec .anim-hud.two .chip-stat span { white-space: normal; text-overflow: clip; overflow-wrap: break-word; line-height: 1.2; height: 2.4em; }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #mdp-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #mdp-sec .anim-hud .chip-stat b { font-size: 15px; }
+    #mdp-sec .anim-hud.two .chip-stat { padding: 3px 7px; }
+    #mdp-sec .anim-hud.two .chip-stat b { font-size: 14px; }
+    #mdp-sec .anim-hud.two .chip-stat span { font-size: 10.5px; line-height: 1.15; height: 2.3em; }
+  }
+  @media (max-width: 620px) {
+    #mdp-sec .anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #mdp-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 11px; }
+    #mdp-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #mdp-sec .anim-legend i.lg-heat { width: 34px; background: linear-gradient(90deg, var(--surface2), var(--accent)); border: 1px solid var(--border); }
+  #mdp-sec .anim-legend i.lg-keep, #mdp-sec .anim-legend i.lg-rep {
+    width: 16px; height: 16px; font: 700 10px/14px var(--font-sans); font-style: normal; text-align: center;
+    border: 1px solid var(--mit-silver); background: var(--surface); color: var(--ink);
+  }
+  #mdp-sec .anim-legend i.lg-rep { background: var(--accent); border-color: var(--accent); color: var(--on-solid); }
+  #mdp-sec .anim-legend i.lg-thr { width: 3px; height: 16px; background: var(--accent); }
+  #mdp-sec .anim-legend i.lg-cost { width: 12px; height: 14px; background: var(--mit-silver); }
+  #mdp-sec .anim-legend i.lg-repl { width: 20px; height: 0; border-top: 2.5px solid var(--accent); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- solution ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  .sens-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 78ch; }
+  .sens-p b { color: var(--ink); }
+
+  /* ---- tables ---- */
+  table.data { min-width: 520px; }
+  @media (max-width: 560px) {
+    table.data { min-width: 0; }
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 6px; }
+  }
+  @media (max-width: 420px) {
+    table.data th, table.data td { padding-inline: 4px; }
+    table.data td.num { font-size: 12px; }
+  }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.best { color: var(--accent-text); font-weight: 600; }
+  table.data td.dec { font-weight: 600; }
+  table.data td.dec.rep { color: var(--accent-text); }
+  table.data tr.last td { border-bottom-color: var(--axis); }
+  .pol { display: inline-flex; gap: 3px; }
+  .pol i {
+    display: inline-block; width: 18px; height: 18px; font: 700 11px/16px var(--font-sans); font-style: normal; text-align: center;
+    border: 1px solid var(--mit-silver); background: var(--surface); color: var(--ink); border-radius: 1px;
+  }
+  .pol i.r { background: var(--accent); border-color: var(--accent); color: var(--on-solid); }
+  @media (max-width: 400px) { .pol { gap: 2px; } .pol i { width: 15px; height: 16px; line-height: 14px; font-size: 10px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="mdp.eyebrow"></p>
+    <h1 data-i18n="mdp.title"></h1>
+    <p class="lede" data-i18n-html="mdp.lede"></p>
+  </header>
+
+  <section class="block" id="mdp-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" id="mdp-intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="mdp-scen-lbl" data-i18n="mdp.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="mdp-scen-lbl" id="mdp-seg">
+        <button type="button" data-sc="lo" aria-pressed="false"></button>
+        <button type="button" data-sc="hi" aria-pressed="true"></button>
+      </div>
+    </div>
+    <div class="anim" id="mdp-anim">
+      <div class="anim-stage" role="img">
+        <div class="anim-hud" id="mdp-hud">
+          <div class="chip-stat" id="mdp-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="mdp-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="mdp-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="mdp-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="mdp-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="mdp-c5"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-heat"></i><span data-i18n="mdp.lg.heat"></span></span>
+      <span><i class="lg-keep" id="mdp-lg-ks"></i><span id="mdp-lg-keep"></span></span>
+      <span><i class="lg-rep" id="mdp-lg-rs"></i><span id="mdp-lg-rep"></span></span>
+      <span><i class="lg-thr"></i><span data-i18n="mdp.lg.thr"></span></span>
+      <span><i class="lg-cost"></i><span data-i18n="mdp.lg.cost"></span></span>
+      <span><i class="lg-repl"></i><span data-i18n="mdp.lg.repl"></span></span>
+    </div>
+    <p class="scen-status" id="mdp-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mdp.model.kicker"></span><span data-i18n="mdp.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" data-tex="mdp.model.tex" data-i18n="mdp.model.formula"></div>
+        <p class="mtext" data-i18n="mdp.model.why"></p>
+        <p class="mtext" id="mdp-data"></p>
+        <div class="tblwrap" style="margin-top:10px"><table class="data" id="mdp-dtab"></table></div>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="mdp.vi.head"></p>
+        <div class="formula" data-tex="mdp.vi.tex" data-i18n="mdp.vi.formula"></div>
+        <p class="mhead" data-i18n="mdp.pi.head"></p>
+        <div class="formula" data-tex="mdp.pi.tex" data-i18n="mdp.pi.formula"></div>
+        <p class="mtext" data-i18n="mdp.pi.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mdp.sol.kicker"></span><span id="mdp-sol-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="mdp.sol.thr"></div><div class="v" id="mdp-s-thr"></div><div class="l" id="mdp-s-thrl"></div></div>
+      <div class="stat"><div class="k" data-i18n="mdp.sol.K"></div><div class="v ink" id="mdp-s-k"></div><div class="l" id="mdp-s-kl"></div></div>
+      <div class="stat"><div class="k" data-i18n="mdp.sol.v0"></div><div class="v" id="mdp-s-v0"></div><div class="l" data-i18n="mdp.sol.v0L"></div></div>
+      <div class="stat"><div class="k" data-i18n="mdp.sol.gap"></div><div class="v ink" id="mdp-s-gap"></div><div class="l" id="mdp-s-gapl"></div></div>
+    </div>
+    <p class="sens-p" data-i18n="mdp.sol.intro"></p>
+    <div class="tblwrap"><table class="data" id="mdp-stab"></table></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mdp.pit.kicker"></span><span data-i18n="mdp.pit.title"></span></h2>
+    <p class="sens-p" data-i18n="mdp.pit.intro" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="mdp-ptab"></table></div>
+    <p class="sens-p" id="mdp-pnote"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="mdp.n.title"></summary>
+      <div class="body">
+        <p id="mdp-n1"></p>
+        <p id="mdp-n2"></p>
+        <p id="mdp-n3"></p>
+        <p id="mdp-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.9" data-refs="mdp.refs"></p>
+  <p class="note" data-i18n="mdp.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-mdp.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var fmt = function (v, d) { if (Math.abs(v) < 5e-10) v = 0; d = d == null ? 1 : d; return I18N.fmt(v, d, d); };
+  var fmtD = function (v) { return fmt(v, v >= 10 ? 1 : v >= 1 ? 2 : v >= 0.1 ? 3 : 4); };   // a change or a gap
+  var fmtP = function (v) { return fmt(v, 1); };
+
+  /* ---------- the model (illustrative data, million COP per quarter) ---------- */
+  var N = 6;
+  var COST = [4, 6, 10, 16, 25, 50];        // running and maintenance cost c(x) of keeping the roaster in state x
+  var RCOST = 22;                           // replacement R (new roaster minus the resale of the old one)
+  var PK = [0.7, 0.2, 0.1];                 // kept: stay, up one state, up two states (never past 5)
+  var TOL = 0.01;                           // stopping tolerance on the largest change
+  var BETA = { lo: 0.5, hi: 0.95 };
+  var P = [];
+  (function () {
+    for (var x = 0; x < N; x++) {
+      var row = []; for (var y = 0; y < N; y++) row.push(0);
+      if (x === N - 1) row[x] = 1;
+      else PK.forEach(function (q, d) { row[Math.min(x + d, N - 1)] += q; });
+      P.push(row);
+    }
+  })();
+  function bell(V, b) {                     // one application of the Bellman operator
+    var s0 = 0, y, x, qk = [], v = [], pol = [];
+    for (y = 0; y < N; y++) s0 += P[0][y] * V[y];
+    var qr = RCOST + COST[0] + b * s0;
+    for (x = 0; x < N; x++) {
+      var s = 0; for (y = 0; y < N; y++) s += P[x][y] * V[y];
+      qk.push(COST[x] + b * s);
+      pol.push(qr < qk[x] - 1e-12);       // replace only when strictly cheaper
+      v.push(Math.min(qk[x], qr));
+    }
+    return { qk: qk, qr: qr, v: v, pol: pol };
+  }
+  function thrOf(pol) { for (var x = 0; x < N; x++) if (pol[x]) return x; return N; }
+  function solveLin(A, r) {                 // Gaussian elimination with partial pivoting
+    var n = r.length, M = A.map(function (row, i) { return row.slice().concat([r[i]]); }), i, j, k;
+    for (i = 0; i < n; i++) {
+      var p = i; for (k = i + 1; k < n; k++) if (Math.abs(M[k][i]) > Math.abs(M[p][i])) p = k;
+      var tmp = M[i]; M[i] = M[p]; M[p] = tmp;
+      for (k = i + 1; k < n; k++) { var f = M[k][i] / M[i][i]; for (j = i; j <= n; j++) M[k][j] -= f * M[i][j]; }
+    }
+    var out = new Array(n);
+    for (i = n - 1; i >= 0; i--) { var s = M[i][n]; for (j = i + 1; j < n; j++) s -= M[i][j] * out[j]; out[i] = s / M[i][i]; }
+    return out;
+  }
+  function evalPol(pol, b) {                // V = (I - b P_pi)^-1 c_pi
+    var A = [], r = [];
+    for (var x = 0; x < N; x++) {
+      var row = pol[x] ? P[0] : P[x], a = [];
+      for (var y = 0; y < N; y++) a.push((x === y ? 1 : 0) - b * row[y]);
+      A.push(a); r.push(pol[x] ? RCOST + COST[0] : COST[x]);
+    }
+    return solveLin(A, r);
+  }
+  var cache = {};
+  function scen(key) {
+    if (cache[key]) return cache[key];
+    var b = BETA[key], V = [0, 0, 0, 0, 0, 0], Vs = [V], sup = [0], thr = [N], pols = [null], k, x;
+    for (k = 1; k < 5000; k++) {
+      var r = bell(V, b), d = 0;
+      for (x = 0; x < N; x++) d = Math.max(d, Math.abs(r.v[x] - V[x]));
+      Vs.push(r.v); sup.push(d); thr.push(thrOf(r.pol)); pols.push(r.pol); V = r.v;
+      if (d < TOL) break;
+    }
+    var K = Vs.length - 1, pol = pols[K], ex = evalPol(pol, b), chk = bell(ex, b), gap = 0;
+    for (x = 0; x < N; x++) gap = Math.max(gap, Math.abs(Vs[K][x] - ex[x]));
+    // policy iteration from "always keep"
+    var pi = [false, false, false, false, false, false], steps = [];
+    for (k = 0; k < 50; k++) {
+      var Vp = evalPol(pi, b), rp = bell(Vp, b), chg = [];
+      for (x = 0; x < N; x++) if (rp.pol[x] !== pi[x]) chg.push(x);
+      steps.push({ pol: pi.slice(), V: Vp, chg: chg });
+      if (!chg.length) break;
+      pi = rp.pol.slice();
+    }
+    var kst = K; while (kst > 1 && thr[kst - 1] === thr[K]) kst--;
+    var seq = [thr[1]]; for (k = 2; k <= K; k++) if (thr[k] !== seq[seq.length - 1]) seq.push(thr[k]);
+    var vmax = 0; Vs[K].forEach(function (v) { vmax = Math.max(vmax, v); });
+    return (cache[key] = { key: key, b: b, Vs: Vs, sup: sup, thr: thr, pols: pols, K: K, pol: pol, m: thr[K], ex: ex, chk: chk,
+      gap: gap, bnd: b / (1 - b) * sup[K], steps: steps, kst: kst, seq: seq, vmax: vmax });
+  }
+  var state = { sc: "hi" };
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed from the model above; the sample path of
+     the roaster, the layout and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("mdp-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("mdp-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var DUR = 54, CH = [0, 9, 17, 29, 41];
+  var TA0 = 17.6, ITA = 2.2, TB0 = 29.4, TB1 = 38.4;     // slow sweeps, then fast ones
+  var TP0 = 42.2, ITP = 1.5;                             // policy iteration rows
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var C = null, HOT = "", L = {}, hudKey = "", TAU = Math.PI * 2;
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  function mix(c1, c2, u) {
+    var a = rgbOf(c1), b = rgbOf(c2);
+    return "rgb(" + Math.round(lerp(a[0], b[0], u)) + "," + Math.round(lerp(a[1], b[1], u)) + "," + Math.round(lerp(a[2], b[2], u)) + ")";
+  }
+  function heat(u) { return mix(C.surface2, C.accent, Math.pow(clamp(u, 0, 1), 1.4)); }
+
+  /* ---------- illustrative sample path of a kept roaster (deterministic) ---------- */
+  var PATH = (function () {
+    // the first seed whose path, drawn with the real probabilities, ends broken after 9 quarters
+    for (var seed = 1; seed < 5000; seed++) {
+      var r = A.rng(seed), x = 0, p = [0];
+      for (var i = 0; i < 9; i++) {
+        var u = r(), acc = 0, y;
+        for (y = 0; y < N; y++) { acc += P[x][y]; if (u < acc) break; }
+        x = Math.min(y, N - 1); p.push(x);
+      }
+      if (x === N - 1 && p[4] <= 2 && p[8] === N - 1 && p[7] < N - 1) return p;
+    }
+    return [0, 0, 1, 1, 2, 3, 3, 4, 5, 5];
+  })();
+  var HOP0 = 3.0, HOP = 0.62;                // first hop and time between hops
+  function pathAt(t) {                       // {from, to, u} of the hop in progress
+    var i = Math.floor((t - HOP0) / HOP);
+    if (t < HOP0) return { from: PATH[0], to: PATH[0], u: 0, i: -1 };
+    if (i >= PATH.length - 1) return { from: PATH[PATH.length - 1], to: PATH[PATH.length - 1], u: 0, i: PATH.length - 1 };
+    var u = E.inOut(clamp(((t - HOP0) - i * HOP) / (HOP * 0.62), 0, 1));
+    return { from: PATH[i], to: PATH[i + 1], u: u, i: i };
+  }
+
+  /* ---------- time model ---------- */
+  function kF(S, t) {                        // iterations done, as a continuous number
+    var NA = Math.min(S.K, 5);
+    if (t < TA0) return 0;
+    if (t < TB0) return Math.min(NA, (t - TA0) / ITA);
+    var u = seg(t, TB0, TB1), rest = S.K - NA;
+    return NA + rest * (rest > 20 ? Math.pow(u, 1.7) : u);
+  }
+  function kInt(S, t) { return Math.min(S.K, Math.floor(kF(S, t) + 1e-9)); }
+  function cellA(kf, r, x) { return clamp((kf - (r - 1)) * 1.5 - x * 0.1, 0, 1); }   // row r sweeps left to right
+  function piRows(S, t) { return clamp(Math.floor((t - TP0) / ITP) + 1, 0, S.steps.length); }
+  function tExact(S) { return TP0 + S.steps.length * ITP + 0.9; }
+  function arcCollapse(t) { return E.inOut(seg(t, 16.4, 18.4)); }
+
+  /* ---------- layout ---------- */
+  function captions(S, t) {
+    if (t < CH[1]) return [T("mdp.cap1"), T("mdp.cap1.sub")];
+    if (t < CH[2]) return [T("mdp.cap2"), T("mdp.cap2.sub", { m: S.thr[1] })];
+    if (t < CH[3]) return [T("mdp.cap3", { b: fmt(S.b, 2) }), T("mdp.cap3.sub")];
+    if (t < CH[4]) return [T("mdp.cap4", { tol: fmt(TOL, 2) }), T("mdp.cap4.sub")];
+    return [T("mdp.cap5", { m: S.m }), T("mdp.cap5.sub")];
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11.5; L.ft = 13.5; L.fn = 10.5;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 12; L.ft = 16; L.fn = W < 760 ? 11 : 12.5;
+    }
+    var tl = 1, sl = 1;
+    ["lo", "hi"].forEach(function (k) {
+      CH.forEach(function (c) {
+        var cap = captions(scen(k), c + 0.1);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    // the main area: tiles, heat map, value row and policy strip
+    var mx0, mx1, my0, my1;
+    if (portrait) { mx0 = 8; mx1 = W - 8; my0 = L.capBottom + 8; my1 = H - 6; }
+    else { mx0 = hx + hw + 24; mx1 = W - 14; my0 = 12; my1 = H - 10; }
+    var lm = portrait ? 46 : (W < 760 ? 50 : 58);
+    L.colW = Math.min(portrait ? 62 : 96, (mx1 - mx0 - lm - 4) / N);
+    L.gx0 = mx0 + lm + Math.max(0, (mx1 - mx0 - lm - N * L.colW) / 2);
+    L.gx1 = L.gx0 + N * L.colW;
+    L.arcH = portrait ? 38 : (H < 420 ? 40 : 58);
+    L.tile = Math.min(L.colW * 0.6, portrait ? 32 : (H < 420 ? 34 : 44));
+    L.labH = portrait ? 13 : 15;
+    L.polH = portrait ? 20 : (H < 420 ? 20 : 24);
+    L.vrH = portrait ? 20 : (H < 420 ? 21 : 26);
+    L.tagH = portrait ? 15 : 17;
+    L.my0 = my0;
+    L.polY = my1 - L.tagH - L.polH;
+    L.vrY = L.polY - 5 - L.vrH;
+    L.hy1 = L.vrY - 8;
+    // desktop inset under the caption: convergence plot, then the policy iteration list
+    L.inset = null;
+    if (!portrait) {
+      var iy0 = L.capBottom + 16, iy1 = H - 12, avail = iy1 - iy0;
+      var rowH = W < 760 ? 16 : 19, listH = 18 + 4 * rowH + 4;
+      var plotH = Math.min(150, avail - listH - 14);
+      if (plotH >= 84) L.inset = { x: L.capX, w: L.capW - 8, py: iy0, ph: plotH, ly: iy0 + plotH + 16, rowH: rowH, both: true };
+      else if (avail >= 84) L.inset = { x: L.capX, w: L.capW - 8, py: iy0, ph: Math.min(150, avail), ly: iy0, rowH: Math.min(rowH, (avail - 22) / 4), both: false };
+    }
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+  function colX(x) { return L.gx0 + (x + 0.5) * L.colW; }
+  function tileY(t) { return L.my0 + L.arcH * (1 - arcCollapse(t)); }
+  function heatTop(t) { return tileY(t) + L.tile + L.labH + 10; }
+
+  /* ---------- small drawing helpers ---------- */
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function text(txt, X, Y, align, col, f, a, base, halo) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    if (halo !== false) { ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y); }
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function rrect(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r); ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r); ctx.lineTo(x, y + r); ctx.arcTo(x, y, x + r, y, r); ctx.closePath();
+  }
+  function arrowHead(x, y, ang, s, col, a) {
+    ctx.globalAlpha = a; ctx.fillStyle = col; ctx.beginPath();
+    ctx.moveTo(x, y); ctx.lineTo(x - s * Math.cos(ang - 0.45), y - s * Math.sin(ang - 0.45));
+    ctx.lineTo(x - s * Math.cos(ang + 0.45), y - s * Math.sin(ang + 0.45)); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- the six wear states ---------- */
+  function drawTiles(S, t) {
+    var ty = tileY(t), s = L.tile, x;
+    for (x = 0; x < N; x++) {
+      var a = E.out(seg(t, 0.3 + 0.18 * x, 1.0 + 0.18 * x));
+      if (a <= 0) continue;
+      var X = colX(x), y0 = ty + (1 - a) * 8;
+      ctx.globalAlpha = a;
+      rrect(X - s / 2, y0, s, s, 3);
+      ctx.fillStyle = C.surface; ctx.fill();
+      ctx.lineWidth = x === N - 1 ? 2 : 1.4; ctx.strokeStyle = x === N - 1 ? HOT : C.ink; ctx.stroke();
+      // wear gauge along the bottom of the tile
+      var gw = (s - 8) * x / (N - 1);
+      ctx.fillStyle = C.grid; ctx.fillRect(X - s / 2 + 4, y0 + s - 7, s - 8, 3);
+      if (gw > 0) { ctx.fillStyle = mix(C["mit-silver"], HOT, x / (N - 1)); ctx.fillRect(X - s / 2 + 4, y0 + s - 7, gw, 3); }
+      ctx.globalAlpha = 1;
+      text(String(x), X, y0 + (s - 5) / 2, "center", C.ink, font(700, Math.round(s * 0.42)), a, "middle", false);
+    }
+    var la = E.out(seg(t, 1.4, 2.0)), fl = L.portrait ? 10.5 : 11.5;
+    text(T("mdp.l.new"), colX(0), ty + s + 6, "center", C.muted, font(400, fl), la, "top", false);
+    text(T("mdp.l.broken"), colX(N - 1), ty + s + 6, "center", HOT, font(600, fl), la, "top", false);
+  }
+  function arcPts(x0, x1, ty) {              // quadratic arc between two tiles, above them
+    var X0 = colX(x0), X1 = colX(x1), d = Math.abs(x1 - x0);
+    var h = Math.min(L.arcH - 6, 12 + d * L.arcH * 0.3);
+    return { X0: X0 + (x1 > x0 ? 4 : -4), X1: X1 - (x1 > x0 ? 4 : -4), Y: ty - 2, cx: (X0 + X1) / 2, cy: ty - 2 - 2 * h };
+  }
+  function qpt(A, u) {
+    var a = (1 - u) * (1 - u), b = 2 * u * (1 - u), c = u * u;
+    return [a * A.X0 + b * A.cx + c * A.X1, a * A.Y + b * A.cy + c * A.Y];
+  }
+  function loopPts(x, ty) {                  // self loop above a tile
+    var X = colX(x), r = Math.min(L.arcH * 0.28, 13);
+    return { X: X, Y: ty - r - 1, r: r };
+  }
+  function drawArcs(S, t) {                  // chapter 1: where a kept roaster can go from its current state
+    var a = E.out(seg(t, 2.2, 3.0)) * (1 - E.inOut(seg(t, 9.0, 9.8)));
+    if (a <= 0.01) return;
+    var ty = tileY(t), h = pathAt(t), cur = h.u < 0.5 ? h.from : h.to;
+    var fa = h.u > 0 && h.u < 1 ? 0.35 + 0.65 * Math.abs(1 - 2 * h.u) : 1;   // arcs dip while the roaster hops
+    var row = P[cur], fsz = L.portrait ? 10 : 11;
+    for (var y = 0; y < N; y++) {
+      var p = row[y];
+      if (p <= 0) continue;
+      var lw = 1 + 5 * p, al = a * fa * (0.35 + 0.5 * p);
+      ctx.strokeStyle = C.ink; ctx.lineWidth = lw; ctx.globalAlpha = al; ctx.lineCap = "round";
+      var lx, ly;
+      if (y === cur) {
+        var Lp = loopPts(cur, ty);
+        ctx.beginPath(); ctx.arc(Lp.X, Lp.Y, Lp.r, 0.72 * Math.PI, 2.28 * Math.PI); ctx.stroke();
+        lx = Lp.X; ly = Lp.Y - Lp.r - 8;
+        // particles circulating on the loop
+        for (var k = 0; k < 3; k++) {
+          var ang = 0.72 * Math.PI + 1.56 * Math.PI * (((t * 0.9 + k / 3) % 1));
+          ctx.globalAlpha = a * fa * 0.9; ctx.fillStyle = C.ink; circle(Lp.X + Lp.r * Math.cos(ang), Lp.Y + Lp.r * Math.sin(ang), 2.2); ctx.fill();
+        }
+      } else {
+        var Q = arcPts(cur, y, ty);
+        ctx.beginPath(); ctx.moveTo(Q.X0, Q.Y); ctx.quadraticCurveTo(Q.cx, Q.cy, Q.X1, Q.Y); ctx.stroke();
+        var e = qpt(Q, 0.97), e0 = qpt(Q, 0.9);
+        arrowHead(e[0], e[1], Math.atan2(e[1] - e0[1], e[0] - e0[0]), 7 + p * 4, C.ink, al);
+        var m = qpt(Q, 0.5); lx = m[0]; ly = m[1] - 8;
+        var np = Math.max(1, Math.round(p * 6));
+        for (var j = 0; j < np; j++) {
+          var u = ((t * 0.55 + j / np) % 1), pp = qpt(Q, u);
+          ctx.globalAlpha = a * fa * 0.9 * Math.sin(Math.PI * u); ctx.fillStyle = C.ink; circle(pp[0], pp[1], 2.2); ctx.fill();
+        }
+      }
+      ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+      text(fmtP(p), lx, ly, "center", C.ink2, font(600, fsz, true), a * fa, "middle");
+    }
+  }
+  function drawMarker(S, t) {                // the roaster moving along its illustrative path, then replaced
+    var a = E.out(seg(t, 2.0, 2.6)) * (1 - E.inOut(seg(t, 16.0, 16.8)));
+    if (a <= 0.01) return;
+    var ty = tileY(t), s = L.tile, h = pathAt(t), X, Y;
+    var rep = E.inOut(seg(t, 14.0, 15.0));   // chapter 2: replaced, back to state 0 along the replace arc
+    if (rep > 0) {
+      var p = qpt(arcPts(N - 1, 0, ty), rep);
+      X = p[0]; Y = p[1];
+    } else if (h.from === h.to || h.u <= 0 || h.u >= 1) {
+      X = colX(h.u >= 1 ? h.to : h.from); Y = ty + s / 2;
+    } else {
+      var up = Math.sin(Math.PI * h.u) * (h.from === h.to ? 16 : 10 + 6 * Math.abs(h.to - h.from));
+      X = lerp(colX(h.from), colX(h.to), h.u); Y = ty + s / 2 - up;
+    }
+    var cur = rep > 0 ? (rep < 1 ? -1 : 0) : (h.u < 0.5 ? h.from : h.to);
+    // ring around the occupied tile
+    if (cur >= 0) {
+      ctx.globalAlpha = a; ctx.strokeStyle = cur === N - 1 && rep <= 0 ? HOT : C.ink; ctx.lineWidth = 2.5;
+      rrect(colX(cur) - s / 2 - 4, ty - 4, s + 8, s + 8, 4); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    if (rep > 0 && rep < 1) {
+      ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(X, Y, 7); ctx.fill();
+      ctx.fillStyle = C.accent; circle(X, Y, 5); ctx.fill(); ctx.globalAlpha = 1;
+    } else if (h.u > 0 && h.u < 1 && rep <= 0) {
+      ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(X, Y, 7); ctx.fill();
+      ctx.fillStyle = C.ink; circle(X, Y, 5); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    // a pulse when it breaks down
+    var tb = HOP0 + (PATH.indexOf(N - 1) - 1) * HOP + HOP * 0.62, pu = seg(t, tb, tb + 0.9);
+    if (pu > 0 && pu < 1 && rep <= 0) {
+      ctx.globalAlpha = a * (1 - pu); ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+      rrect(colX(N - 1) - s / 2 - 4 - 12 * pu, ty - 4 - 12 * pu, s + 8 + 24 * pu, s + 8 + 24 * pu, 4); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+  }
+  function drawTrace(S, t) {                 // chapter 1: the sample path, one row per quarter, in the grid of the heat map
+    var a = E.out(seg(t, 2.4, 3.0)) * (1 - E.inOut(seg(t, 8.9, 9.7)));
+    if (a <= 0.01) return;
+    var top = heatTop(t), rh = (L.hy1 - top) / 12, h = pathAt(t), last = h.i < 0 ? 0 : h.i + (h.u > 0 ? 1 : 0);
+    var Y = function (q) { return top + (q + 0.5) * rh; }, q;
+    // faint column guides
+    ctx.globalAlpha = a * 0.5; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    for (q = 0; q < N; q++) { ctx.beginPath(); ctx.moveTo(colX(q), top); ctx.lineTo(colX(q), top + 10 * rh); ctx.stroke(); }
+    // the path
+    ctx.globalAlpha = a; ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(colX(PATH[0]), Y(0));
+    for (q = 1; q <= last && q < PATH.length; q++) {
+      var u = q === last && h.i === q - 1 ? h.u : 1;
+      ctx.lineTo(lerp(colX(PATH[q - 1]), colX(PATH[q]), u), lerp(Y(q - 1), Y(q), u));
+    }
+    ctx.stroke();
+    for (q = 0; q <= Math.min(last, PATH.length - 1); q++) {
+      if (q === last && h.i === q - 1 && h.u < 1) continue;
+      var br = PATH[q] === N - 1;
+      ctx.fillStyle = C.surface; circle(colX(PATH[q]), Y(q), 5.5); ctx.fill();
+      ctx.fillStyle = br ? HOT : C.ink; circle(colX(PATH[q]), Y(q), br ? 4.5 : 3.5); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    var qs = Math.min(last, PATH.length - 1), fk = L.portrait ? 10 : 11;
+    text(T("mdp.l.q", { q: 0 }), L.gx0 - 7, Y(0), "right", C.muted, font(400, fk, true), a, "middle", false);
+    if (qs >= 1 && rh * qs >= fk + 3) text(T("mdp.l.q", { q: qs }), L.gx0 - 7, Y(qs), "right", C.ink2, font(400, fk, true), a, "middle", false);
+  }
+  function drawReplaceArc(S, t) {            // chapter 2: replacing sends the roaster back to state 0
+    var u = E.inOut(seg(t, 12.8, 13.8)), a = 1 - E.inOut(seg(t, 16.0, 16.8));
+    if (u <= 0 || a <= 0.01) return;
+    var ty = tileY(t), Q = arcPts(N - 1, 0, ty), n = 40, k;
+    ctx.globalAlpha = a; ctx.strokeStyle = C.accent; ctx.lineWidth = 2.2; ctx.setLineDash([7, 5]);
+    ctx.beginPath();
+    for (k = 0; k <= n * u; k++) { var p = qpt(Q, k / n); if (k) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }
+    ctx.stroke(); ctx.setLineDash([]);
+    if (u > 0.95) { var e = qpt(Q, 1), e0 = qpt(Q, 0.93); arrowHead(e[0], e[1], Math.atan2(e[1] - e0[1], e[0] - e0[0]), 10, C.accent, a); }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- chapter 2: cost bars against the replacement line ---------- */
+  function drawBars(S, t) {
+    var a = E.out(seg(t, 9.4, 10.2)) * (1 - E.inOut(seg(t, 17.0, 17.9)));
+    if (a <= 0.01) return;
+    var top = heatTop(t) + (L.portrait ? 16 : 22), bot = L.hy1, hgt = bot - top, cmax = COST[N - 1];
+    var bw = Math.min(L.colW * 0.5, 40), line = RCOST + COST[0], ly = bot - hgt * line / cmax;
+    var cap = E.inOut(seg(t, 14.0, 15.2)), fsz = L.portrait ? 10 : 11.5;
+    for (var x = 0; x < N; x++) {
+      var g = E.out(seg(t, 9.6 + 0.25 * x, 10.6 + 0.25 * x));
+      if (g <= 0) continue;
+      var c = COST[x], hb = hgt * c / cmax * g, X = colX(x);
+      var over = c > line;                    // one quarter ahead, replacing is cheaper here
+      if (over && cap > 0) {
+        ctx.globalAlpha = a * (1 - 0.75 * cap); ctx.fillStyle = C["mit-silver"];
+        ctx.fillRect(X - bw / 2, bot - hb, bw, hb - (bot - ly));
+        ctx.globalAlpha = a; ctx.fillStyle = mix(C["mit-silver"], C.accent, cap);
+        ctx.fillRect(X - bw / 2, ly, bw, bot - ly);
+      } else {
+        ctx.globalAlpha = a; ctx.fillStyle = C["mit-silver"]; ctx.fillRect(X - bw / 2, bot - hb, bw, hb);
+      }
+      ctx.globalAlpha = 1;
+      // the value above its bar, or inside it when the replacement line runs just above the bar
+      var near = !over && ly > bot - hb - fsz - 8 && ly < bot - hb + 2 && seg(t, 11.8, 12.8) > 0;
+      if (near) text(fmt(c, 0), X, bot - hb + 4, "center", C["on-solid"], font(600, fsz, true), a * g, "top", false);
+      else text(fmt(c, 0), X, bot - hb - 3, "center", C.ink2, font(600, fsz, true), a * g, "bottom");
+    }
+    // the replacement line R + c(0)
+    var u = E.inOut(seg(t, 11.8, 12.8));
+    if (u > 0) {
+      var x0 = L.gx0 + 2, x1 = lerp(x0, L.gx1 - 2, u);
+      ctx.globalAlpha = a; ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(x0, ly); ctx.lineTo(x1, ly); ctx.stroke(); ctx.globalAlpha = 1;
+      // label in the gap between the columns 3 and 4, above the line (bars there stay below it)
+      text(T("mdp.l.repLine", { v: fmt(line, 0) }), L.gx0 + 3.5 * L.colW, ly - 12, "center", C["accent-text"], font(700, fsz + 0.5), a * seg(t, 12.4, 13.0), "middle");
+    }
+    // axis: baseline
+    ctx.globalAlpha = a; ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(L.gx0, bot + 0.5); ctx.lineTo(L.gx1, bot + 0.5); ctx.stroke(); ctx.globalAlpha = 1;
+    text(T("mdp.l.cost"), L.gx0 - 8, bot - 8, "right", C.muted, font(600, L.portrait ? 10 : 11.5), a, "middle", false);
+  }
+
+  /* ---------- the heat map of V_k(x) ---------- */
+  function rowGeom(S, t) {
+    var kf = kF(S, t), top = heatTop(t), bot = L.hy1, rows = Math.max(12, kf);
+    return { kf: kf, top: top, bot: bot, rh: (bot - top) / rows };
+  }
+  function drawHeat(S, t) {
+    var G = rowGeom(S, t), kf = G.kf;
+    if (kf <= 0) return;
+    var nr = Math.min(S.K, Math.ceil(kf - 1e-9)), gap = G.rh > 5 ? 1.5 : 0, cg = 2;
+    for (var r = 1; r <= nr; r++) {
+      var y0 = G.top + (r - 1) * G.rh, V = S.Vs[r];
+      for (var x = 0; x < N; x++) {
+        var ca = cellA(kf, r, x);
+        if (ca <= 0) continue;
+        ctx.globalAlpha = ca; ctx.fillStyle = heat(V[x] / S.vmax);
+        ctx.fillRect(L.gx0 + x * L.colW + cg / 2, y0, L.colW - cg, G.rh - gap + (gap ? 0 : 0.6));
+      }
+    }
+    ctx.globalAlpha = 1;
+    // the row being computed (slow sweeps only): a bright outline
+    var fr = kf - Math.floor(kf), cur = Math.floor(kf) + 1;
+    if (t < TB0 && fr > 0 && cur <= S.K) {
+      var ya = G.top + (cur - 1) * G.rh, ow = 1 - seg(fr, 0.8, 1);
+      ctx.globalAlpha = ow; ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+      ctx.strokeRect(L.gx0 + 0.5, ya - 1, L.colW * N - 1, G.rh - gap + 2); ctx.globalAlpha = 1;
+    }
+    // k labels on the left
+    var fk = L.portrait ? 10 : 11, lx = L.gx0 - 7, ki = kInt(S, t);
+    var y1 = G.top + G.rh / 2, yk = G.top + (Math.max(1, ki) - 0.5) * G.rh;
+    if (G.rh < 14) { y1 = G.top + 6; yk = G.top + Math.max(1, ki) * G.rh - 6; }
+    text(T("mdp.l.k", { k: 1 }), lx, y1, "right", C.muted, font(400, fk, true), seg(kf, 0.3, 0.8), "middle", false);
+    if (ki >= 2 && yk - y1 >= fk + 3) text(T("mdp.l.k", { k: ki }), lx, yk, "right", ki === S.K ? C["accent-text"] : C.ink2, font(ki === S.K ? 700 : 400, fk, true), 1, "middle", false);
+    // stop marker when the tolerance is met
+    var st = seg(t, TB1, TB1 + 0.8);
+    if (st > 0 && st < 1) {
+      var yl = G.top + (S.K - 1) * G.rh;
+      ctx.globalAlpha = 1 - st; ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
+      ctx.strokeRect(L.gx0 - 3 * st, yl - 3 * st, L.colW * N + 6 * st, G.rh + 6 * st); ctx.globalAlpha = 1;
+    }
+  }
+  function curV(S, t) {                      // the value row: V_k, sweeping in cell by cell; exact values at the end
+    var kf = kF(S, t), ki = Math.floor(kf + 1e-9), out = [];
+    for (var x = 0; x < N; x++) {
+      var r = Math.min(S.K, ki + 1), v = S.Vs[Math.min(ki, S.K)][x];
+      if (t < TB0 && ki < S.K && cellA(kf, r, x) >= 1) v = S.Vs[r][x];   // slow sweeps: cell by cell
+      out.push(v);
+    }
+    return out;
+  }
+  function drawValueRow(S, t) {
+    var a = E.out(seg(t, TA0 + ITA * 0.6, TA0 + ITA));
+    if (a <= 0.01) return;
+    var V = curV(S, t), ex = seg(t, tExact(S), tExact(S) + 0.8), y = L.vrY, h = L.vrH, fsz = L.portrait ? 10.5 : L.fn;
+    for (var x = 0; x < N; x++) {
+      var v = lerp(V[x], S.ex[x], ex), u = v / S.vmax, x0 = L.gx0 + x * L.colW + 1;
+      ctx.globalAlpha = a; ctx.fillStyle = heat(u); ctx.fillRect(x0, y, L.colW - 2, h);
+      ctx.globalAlpha = 1;
+      var col = u > 0.55 ? C["on-solid"] : C.ink;
+      text(fmt(ex >= 1 ? S.ex[x] : V[x], 1), colX(x), y + h / 2 + 0.5, "center", col, font(600, fsz, true), a, "middle", false);
+    }
+    var lb = ex > 0.5 ? T("mdp.l.vex") : T("mdp.l.v"), la = ex > 0 && ex < 1 ? Math.abs(1 - 2 * ex) : 1;
+    text(lb, L.gx0 - 7, y + h / 2, "right", ex > 0.5 ? C["accent-text"] : C.ink2, font(600, L.portrait ? 10 : 11.5), a * la, "middle", false);
+    if (ex >= 1) {                            // a check mark: the exact solve confirms the values
+      var cx = L.gx1 + 10, cy = y + h / 2, ca = seg(t, tExact(S) + 0.6, tExact(S) + 1.2);
+      if (cx + 12 < L.W) {
+        ctx.globalAlpha = ca; ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(cx - 1, cy); ctx.lineTo(cx + 3, cy + 4); ctx.lineTo(cx + 10, cy - 5); ctx.stroke();
+        ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+      }
+    }
+  }
+  function polAt(S, t) {                     // the policy shown in the strip, and its threshold
+    if (t < TA0 + ITA) return { pol: S.pols[1], thr: S.thr[1] };   // chapter 2: one quarter ahead (the same as iteration 1)
+    var ki = Math.max(1, kInt(S, t));
+    return { pol: S.pols[ki], thr: S.thr[ki] };
+  }
+  function thrX(S, t) {                      // where the threshold line sits (it glides when the policy changes)
+    var kf = kF(S, t), ki = Math.max(1, Math.floor(kf + 1e-9));
+    var m0 = S.thr[Math.max(1, ki - 1)], m1 = S.thr[ki];
+    if (t >= TB0 || ki <= 1) return L.gx0 + S.thr[Math.max(1, Math.min(S.K, ki))] * L.colW;
+    var g = E.inOut(seg(kf - ki, 0, 0.35));
+    return L.gx0 + lerp(m0, m1, g) * L.colW;
+  }
+  function drawPolicy(S, t) {
+    var a = E.out(seg(t, 15.0, 15.8));
+    if (a <= 0.01) return;
+    var Pc = polAt(S, t), y = L.polY, h = L.polH, fsz = L.portrait ? 11 : 12.5;
+    for (var x = 0; x < N; x++) {
+      var rep = Pc.pol[x], x0 = L.gx0 + x * L.colW + 3, w = L.colW - 6;
+      var d = E.out(seg(t, 15.0 + 0.1 * x, 15.6 + 0.1 * x));
+      ctx.globalAlpha = a * d;
+      if (rep) { ctx.fillStyle = C.accent; ctx.fillRect(x0, y, w, h); }
+      else { ctx.fillStyle = C.surface; ctx.fillRect(x0, y, w, h); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y + 0.5, w - 1, h - 1); }
+      ctx.globalAlpha = 1;
+      text(T(rep ? "mdp.l.repS" : "mdp.l.keepS"), colX(x), y + h / 2 + 0.5, "center", rep ? C["on-solid"] : C.ink, font(700, fsz), a * d, "middle", false);
+    }
+    text(T("mdp.l.pol"), L.gx0 - 7, y + h / 2, "right", C.ink2, font(600, L.portrait ? 10 : 11.5), a, "middle", false);
+    // threshold line through the heat map, the value row and the strip
+    if (Pc.thr >= N) return;
+    var X = thrX(S, t), y0 = t < TA0 ? heatTop(t) + (L.portrait ? 16 : 22) : heatTop(t) - 3, y1 = y + h + 3;
+    var la = a * E.out(seg(t, 15.4, 16.0));
+    // pulse when the threshold moves (slow sweeps) and at the end
+    var kf = kF(S, t), ki = Math.floor(kf + 1e-9), pu = 0;
+    if (t < TB0 && ki >= 2 && S.thr[ki] !== S.thr[ki - 1]) pu = 1 - seg(kf - ki, 0, 0.6);
+    pu = Math.max(pu, seg(t, 49.8, 50.4) * (1 - seg(t, 50.4, 51.6)));
+    ctx.globalAlpha = la; ctx.strokeStyle = C.surface; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(X, y0); ctx.lineTo(X, y1); ctx.stroke();
+    ctx.strokeStyle = pu > 0 ? mix(C.accent, HOT, pu) : C.accent; ctx.lineWidth = 3 + 2 * pu;
+    ctx.beginPath(); ctx.moveTo(X, y0); ctx.lineTo(X, y1); ctx.stroke(); ctx.globalAlpha = 1;
+    // tag below the strip
+    ctx.font = font(700, fsz);
+    var tag = T("mdp.l.thr", { m: Pc.thr }), tw = ctx.measureText(tag).width;
+    var tx = clamp(X, L.gx0 + tw / 2, Math.min(L.W - 4, L.gx1 + 20) - tw / 2);
+    text(tag, tx, y1 + 2, "center", C["accent-text"], font(700, fsz), la, "top", false);
+  }
+
+  /* ---------- desktop inset: largest change on a log scale, then policy iteration ---------- */
+  function drawInset(S, t) {
+    var I = L.inset;
+    if (!I) return;
+    var pa = E.out(seg(t, TA0 + ITA, TA0 + ITA + 0.6));
+    if (!I.both) pa *= 1 - E.inOut(seg(t, TP0 - 0.8, TP0 - 0.2));
+    if (pa > 0.01) drawConv(S, t, I, pa);
+    var la = E.out(seg(t, TP0 - 0.4, TP0 + 0.2));
+    if (la > 0.01) drawPI(S, t, I, la);
+  }
+  function drawConv(S, t, I, a) {
+    var fs = L.W < 760 ? 10 : 11, x0 = I.x + 30, x1 = I.x + I.w - 4, y0 = I.py + fs + 8, y1 = I.py + I.ph - fs - 6;
+    var lo = Math.log10(Math.min(TOL, S.sup[S.K])) - 0.35, hi = Math.log10(S.sup[1]) + 0.15;
+    var X = function (k) { return lerp(x0, x1, (k - 1) / Math.max(1, S.K - 1)); };
+    var Y = function (v) { return lerp(y1, y0, (Math.log10(v) - lo) / (hi - lo)); };
+    text(T("mdp.l.sup"), I.x, I.py + fs / 2, "left", C.ink2, font(600, fs), a, "middle", false);
+    ctx.globalAlpha = a; ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0, y0 - 4); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
+    // decades on the y axis
+    ctx.font = font(400, fs - 1, true); ctx.fillStyle = C.muted; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (var e = Math.ceil(lo); e <= Math.floor(hi); e++) {
+      var yy = Y(Math.pow(10, e));
+      ctx.globalAlpha = a * 0.6; ctx.strokeStyle = C.grid; ctx.beginPath(); ctx.moveTo(x0, yy); ctx.lineTo(x1, yy); ctx.stroke();
+      ctx.globalAlpha = a; ctx.fillText(e >= 0 ? fmt(Math.pow(10, e), 0) : fmt(Math.pow(10, e), -e), x0 - 4, yy);
+    }
+    // tolerance
+    var yt = Y(TOL);
+    ctx.globalAlpha = a; ctx.strokeStyle = C.accent; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(x0, yt); ctx.lineTo(x1, yt); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    text(T("mdp.l.tol", { v: fmt(TOL, 2) }), x0 + 5, yt - 7, "left", C["accent-text"], font(600, fs), a, "middle");
+    // the curve up to the current iteration
+    var kf = kF(S, t), n = Math.min(S.K, kf);
+    if (n >= 1) {
+      ctx.globalAlpha = a; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.8; ctx.beginPath();
+      for (var k = 1; k <= Math.floor(n); k++) { if (k === 1) ctx.moveTo(X(k), Y(S.sup[k])); else ctx.lineTo(X(k), Y(S.sup[k])); }
+      ctx.stroke();
+      var kl = Math.floor(n), done = kl >= S.K;
+      ctx.fillStyle = done ? C.accent : C.ink; circle(X(kl), Y(S.sup[kl]), done ? 4 : 3); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    // x axis: 1 and K
+    text("1", x0, y1 + 4, "center", C.muted, font(400, fs - 1, true), a, "top", false);
+    text(String(S.K), x1, y1 + 4, "center", C.muted, font(400, fs - 1, true), a * seg(t, TB1, TB1 + 0.5), "top", false);
+    text(T("mdp.l.iters"), (x0 + x1) / 2, y1 + 4, "center", C.muted, font(400, fs - 1), a, "top", false);
+  }
+  function drawPI(S, t, I, a) {
+    var fs = L.W < 760 ? 10 : 11, y = I.ly, rh = I.rowH, cs = Math.min(rh - 4, 14), n = piRows(S, t);
+    text(T("mdp.l.piHead"), I.x, y + fs / 2, "left", C.ink2, font(600, fs), a, "middle", false);
+    y += fs + 8;
+    for (var i = 0; i < n; i++) {
+      var st = S.steps[i], ra = a * E.out(seg(t, TP0 + i * ITP, TP0 + i * ITP + 0.5)), yy = y + i * rh, cy = yy + cs / 2;
+      text(T("mdp.l.pi", { i: i }), I.x, cy, "left", C.ink, font(700, fs, true), ra, "middle", false);
+      var cx0 = I.x + 26;
+      for (var x = 0; x < N; x++) {
+        var rep = st.pol[x], xx = cx0 + x * (cs + 2);
+        ctx.globalAlpha = ra;
+        if (rep) { ctx.fillStyle = C.accent; ctx.fillRect(xx, yy, cs, cs); }
+        else { ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1; ctx.strokeRect(xx + 0.5, yy + 0.5, cs - 1, cs - 1); }
+        if (st.chg.indexOf(x) >= 0 && i < n - 1) {  // states that switch at the next step
+          ctx.fillStyle = HOT; circle(xx + cs / 2, yy + cs + 2, 1.6); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+      var tx = cx0 + N * (cs + 2) + 6;
+      text(fmt(st.V[0], 1), tx, cy, "left", C.ink2, font(400, fs, true), ra, "middle", false);
+      if (!st.chg.length) {
+        ctx.font = font(400, fs, true);
+        var w = ctx.measureText(fmt(st.V[0], 1)).width;
+        text(T("mdp.l.stable"), tx + w + 8, cy, "left", C["accent-text"], font(700, fs), ra * seg(t, TP0 + i * ITP + 0.4, TP0 + i * ITP + 0.9), "middle", false);
+      }
+    }
+  }
+
+  /* ---------- caption ---------- */
+  function drawCaption(S, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(S, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) {
+    var el = document.getElementById("mdp-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.k = kind; }
+  }
+  var HUD_LABELS = [["mdp.k.rep", "mdp.k.it"], ["mdp.k.sup"], ["mdp.k.myo", "mdp.k.thr"], ["mdp.k.v0", "mdp.k.v0ex"], ["mdp.k.pi"], ["mdp.k.gap"]];
+  function fitHud() {                        // two-line labels for the whole HUD if any label would be cut
+    var need = false;
+    hudEl.classList.remove("two");
+    chips.forEach(function (c, i) {
+      HUD_LABELS[i].forEach(function (k) { c.s.textContent = T(k); if (c.s.scrollWidth > c.s.clientWidth + 0.5) need = true; });
+      c.s.textContent = c.l == null ? "" : c.l;
+    });
+    hudEl.classList.toggle("two", need);
+  }
+  function thrTxt(m) { return m >= N ? T("mdp.l.none") : T("mdp.l.thr", { m: m }); }
+  function hud(S, t) {
+    var ki = kInt(S, t), row1 = TA0 + ITA;
+    // slot 0: the replacement cost in chapter 2, then the iteration counter
+    if (t < 17.3) setChip(0, fmt(RCOST + COST[0], 0), T("mdp.k.rep"), seg(t, 12.2, 12.7) * (1 - seg(t, 16.9, 17.3)), "");
+    else setChip(0, String(ki), T("mdp.k.it"), seg(t, 17.4, 17.8), ki === S.K ? "acc" : "");
+    // slot 1: the largest change
+    setChip(1, ki >= 1 ? fmtD(S.sup[ki]) : fmtD(S.sup[1]), T("mdp.k.sup"), seg(t, row1 - 0.2, row1 + 0.2), ki === S.K ? "acc" : "");
+    // slot 2: the one quarter rule, then the threshold of the current policy
+    if (t < 17.3) setChip(2, thrTxt(S.thr[1]), T("mdp.k.myo"), seg(t, 15.4, 15.9) * (1 - seg(t, 16.9, 17.3)), "acc");
+    else setChip(2, thrTxt(S.thr[Math.max(1, ki)]), T("mdp.k.thr"), seg(t, row1 - 0.2, row1 + 0.2), "acc");
+    // slot 3: V(0), then the exact value
+    var te = tExact(S);
+    if (t < te) setChip(3, fmt(S.Vs[Math.max(1, ki)][0], 1), T("mdp.k.v0"), seg(t, row1 - 0.2, row1 + 0.2), "");
+    else setChip(3, fmt(S.ex[0], 1), T("mdp.k.v0ex"), 1, "acc");
+    // slots 4 and 5: policy iteration and the gap to the exact values
+    var n = piRows(S, t);
+    setChip(4, String(Math.max(1, n)), T("mdp.k.pi"), seg(t, TP0, TP0 + 0.4), n >= S.steps.length ? "acc" : "");
+    setChip(5, fmtD(S.gap), T("mdp.k.gap"), seg(t, te, te + 0.4), "");
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var S = scen(state.sc);
+    hud(S, t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    drawArcs(S, t);
+    drawReplaceArc(S, t);
+    drawTrace(S, t);
+    drawTiles(S, t);
+    drawMarker(S, t);
+    drawBars(S, t);
+    drawHeat(S, t);
+    drawValueRow(S, t);
+    drawPolicy(S, t);
+    drawInset(S, t);
+    drawCaption(S, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "mdp.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); fitHud(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: controls, status, model data, solution, policy iteration, notes
+     ===================================================================================== */
+  function scenName(key) { return T("mdp.sc." + key, { b: fmt(BETA[key], 2) }); }
+  function polHtml(pol) {
+    return "<span class='pol'>" + pol.map(function (r) { return "<i" + (r ? " class='r'" : "") + ">" + T(r ? "mdp.l.repS" : "mdp.l.keepS") + "</i>"; }).join("") + "</span>";
+  }
+  function renderStatic() {
+    document.querySelectorAll("#mdp-seg button").forEach(function (b) { b.textContent = scenName(b.getAttribute("data-sc")); });
+    document.getElementById("mdp-intro").textContent = T("mdp.anim.intro", { tol: fmt(TOL, 2) });
+    document.getElementById("mdp-lg-ks").textContent = T("mdp.l.keepS");
+    document.getElementById("mdp-lg-rs").textContent = T("mdp.l.repS");
+    document.getElementById("mdp-lg-keep").textContent = T("mdp.lg.keep", { s: T("mdp.l.keepS") });
+    document.getElementById("mdp-lg-rep").textContent = T("mdp.lg.rep", { s: T("mdp.l.repS") });
+    document.getElementById("mdp-data").textContent = T("mdp.data", {
+      c: COST.map(function (v) { return fmt(v, 0); }).join("; "), R: fmt(RCOST, 0), rc: fmt(RCOST + COST[0], 0),
+      p0: fmtP(PK[0]), p1: fmtP(PK[1]), p2: fmtP(PK[2]), tol: fmt(TOL, 2)
+    });
+    var h = "<thead><tr><th class='num'>" + T("mdp.tbl.x") + "</th><th>" + T("mdp.tbl.cond") + "</th><th class='num'>" + T("mdp.tbl.c") +
+      "</th><th class='num'>" + T("mdp.tbl.p0") + "</th><th class='num'>" + T("mdp.tbl.p1") + "</th><th class='num'>" + T("mdp.tbl.p2") + "</th></tr></thead><tbody>";
+    for (var x = 0; x < N; x++) {
+      var pr = [0, 1, 2].map(function (d) { return x + d < N ? P[x][x + d] : 0; });
+      h += "<tr><td class='num'>" + x + "</td><td>" + T("mdp.cond." + x) + "</td><td class='num'>" + fmt(COST[x], 0) + "</td>" +
+        pr.map(function (q) { return "<td class='num'>" + fmtP(q) + "</td>"; }).join("") + "</tr>";
+    }
+    document.getElementById("mdp-dtab").innerHTML = h + "</tbody>";
+    renderNotes();
+  }
+  function renderScen() {
+    var S = scen(state.sc), b = fmt(S.b, 2);
+    stage.setAttribute("aria-label", T("mdp.anim.aria") + " " + T("mdp.anim.aria.nums", {
+      b: b, K: S.K, d: fmtD(S.sup[S.K]), m: S.m, v0: fmt(S.ex[0], 1), pi: S.steps.length
+    }));
+    document.getElementById("mdp-status").innerHTML = T("mdp.st", {
+      b: b, K: S.K, d: fmtD(S.sup[S.K]), tol: fmt(TOL, 2), m1: S.m - 1, m: S.m, v0: fmt(S.ex[0], 1)
+    });
+    // solution
+    document.getElementById("mdp-sol-title").textContent = T("mdp.sol.title", { b: b });
+    document.getElementById("mdp-s-thr").textContent = thrTxt(S.m);
+    document.getElementById("mdp-s-thrl").textContent = T("mdp.sol.thrL", { m1: S.m - 1, m: S.m });
+    document.getElementById("mdp-s-k").textContent = String(S.K);
+    document.getElementById("mdp-s-kl").textContent = T("mdp.sol.KL", { d: fmtD(S.sup[S.K]), tol: fmt(TOL, 2) });
+    document.getElementById("mdp-s-v0").textContent = fmt(S.ex[0], 1);
+    document.getElementById("mdp-s-gap").textContent = fmtD(S.gap);
+    document.getElementById("mdp-s-gapl").textContent = T("mdp.sol.gapL", { bnd: fmtD(S.bnd) });
+    var h = "<thead><tr><th class='num'>" + T("mdp.tbl.x") + "</th><th class='num wide'>" + T("mdp.sol.vk") + "</th><th class='num'>" + T("mdp.sol.vex") +
+      "</th><th class='num'>" + T("mdp.sol.qk") + "</th><th class='num'>" + T("mdp.sol.qr") + "</th><th>" + T("mdp.sol.dec") + "</th></tr></thead><tbody>";
+    for (var x = 0; x < N; x++) {
+      var rep = S.chk.pol[x];
+      h += "<tr" + (x === S.m - 1 ? " class='last'" : "") + "><td class='num'>" + x + "</td><td class='num wide'>" + fmt(S.Vs[S.K][x], 3) + "</td><td class='num'>" +
+        fmt(S.ex[x], 3) + "</td><td class='num" + (rep ? "" : " best") + "'>" + fmt(S.chk.qk[x], 3) + "</td><td class='num" + (rep ? " best" : "") + "'>" +
+        fmt(S.chk.qr, 3) + "</td><td class='dec" + (rep ? " rep" : "") + "'>" + T(rep ? "mdp.sol.rep" : "mdp.sol.keep") + "</td></tr>";
+    }
+    document.getElementById("mdp-stab").innerHTML = h + "</tbody>";
+    // policy iteration
+    h = "<thead><tr><th class='num'>" + T("mdp.pit.step") + "</th><th>" + T("mdp.pit.pol") + "</th><th class='num'>" + T("mdp.pit.v0") +
+      "</th><th>" + T("mdp.pit.chg") + "</th></tr></thead><tbody>";
+    S.steps.forEach(function (st, i) {
+      h += "<tr><td class='num'>" + i + "</td><td>" + polHtml(st.pol) + "</td><td class='num'>" + fmt(st.V[0], 1) + "</td><td>" +
+        (st.chg.length ? st.chg.join(", ") : T("mdp.pit.none")) + "</td></tr>";
+    });
+    document.getElementById("mdp-ptab").innerHTML = h + "</tbody>";
+    document.getElementById("mdp-pnote").textContent = T("mdp.pit.note", { n: S.steps.length, K: S.K, gap: fmtD(S.gap) });
+  }
+  function renderNotes() {
+    var lo = scen("lo"), hi = scen("hi"), arrow = " → ";
+    var seqTxt = function (S) { return S.seq.map(function (m) { return T("mdp.l.thr", { m: m }); }).join(arrow); };
+    document.getElementById("mdp-n1").textContent = T("mdp.n.p1", { slo: seqTxt(lo), shi: seqTxt(hi), blo: fmt(lo.b, 2), bhi: fmt(hi.b, 2) });
+    document.getElementById("mdp-n2").textContent = T("mdp.n.p2", { bhi: fmt(hi.b, 2), blo: fmt(lo.b, 2), mhi: hi.m, mlo: lo.m });
+    document.getElementById("mdp-n3").textContent = T("mdp.n.p3", { Klo: lo.K, Khi: hi.K, blo: fmt(lo.b, 2), bhi: fmt(hi.b, 2), kst: hi.kst });
+    document.getElementById("mdp-n4").textContent = T("mdp.n.p4", { bhi: fmt(hi.b, 2), bnd: fmtD(hi.bnd), gap: fmtD(hi.gap), pi: hi.steps.length });
+  }
+
+  var segBtns = document.querySelectorAll("#mdp-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScen();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[2]) player.refresh();
+      else { player.seek(CH[2] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderStatic(); renderScen();
+    fitHud();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitHud(); hudKey = ""; player.refresh(); });
+})();
+</script>
+</body>
+</html>

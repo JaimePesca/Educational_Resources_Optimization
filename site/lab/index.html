@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" data-title-key="lab.title" data-i18n-bundles="lab/lab">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Proposals Lab</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  /* ---- proposal cards (from CATALOG.lab): ideas only, nothing links anywhere ---- */
+  .lab-grid {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;
+  }
+  @media (max-width: 760px) { .lab-grid { grid-template-columns: 1fr; } }
+  .lab-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+    padding: 18px; display: grid; gap: 14px 30px; align-content: start;
+  }
+  .lab-card.wide { grid-column: 1 / -1; }
+  /* a normal card left alone in its row (before a wide card or at the end) fills the row */
+  .lab-card.fill { grid-column: 1 / -1; }
+  .lab-card.fill .lab-desc { max-width: 78ch; }
+  @media (min-width: 900px) {
+    .lab-card.wide { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); }
+    /* the equations span the whole wide card, under the text and the steps */
+    .lab-card.wide > .lab-eq { grid-column: 1 / -1; grid-row: 2; }
+  }
+  .lab-main, .lab-more { display: grid; gap: 10px; align-content: start; }
+  .lab-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .lab-type {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--accent-text); font-weight: 600;
+  }
+  .lab-idea {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); border: 1.5px dashed var(--axis); border-radius: 2px; padding: 2px 8px;
+  }
+  .lab-card h2 {
+    font-family: var(--font-sans); font-weight: 600;
+    font-size: 21px; line-height: 1.15; margin: 0; text-wrap: balance;
+  }
+  .lab-desc { margin: 0; color: var(--ink2); font-size: 14.5px; }
+  .lab-steps-head {
+    margin: 0; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .lab-steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: grid; gap: 9px; }
+  .lab-steps li {
+    counter-increment: step; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px;
+    font-size: 13.5px; line-height: 1.5; color: var(--ink2);
+  }
+  .lab-steps li::before {
+    content: counter(step); width: 22px; height: 22px; display: grid; place-items: center;
+    font: 600 11.5px var(--font-mono); color: var(--on-solid); background: var(--accent); border-radius: 2px;
+  }
+  /* key equations of a proposal (lab.<id>.eq1.tex…), typeset by assets/tex.js inside a closed <details> */
+  .lab-eq { background: var(--surface2); min-width: 0; }
+  .lab-eq summary { padding: 10px 14px; font-size: 13.5px; }
+  .lab-eq .body { padding: 0 14px 12px; max-width: none; min-width: 0; }
+  .lab-eq-cap { margin: 8px 0 0; font-size: 12.5px; color: var(--muted); }
+  .lab-eq .formula { margin: 4px 0 0; }
+  .lab-eq .note { margin-top: 10px; font-size: 12px; }
+  .lab-eq .note .sym { font-family: "Times New Roman", Times, serif; font-size: 1.12em; }
+  .lab-eq .note sub { font-size: 0.85em; line-height: 0; }
+  @media (max-width: 620px) { .lab-eq .body { padding: 0 10px 10px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n="lab.eyebrow"></p>
+    <h1 data-i18n="lab.title"></h1>
+    <p class="lede" data-i18n="lab.lede"></p>
+  </header>
+
+  <ul class="lab-grid" id="lab-grid" data-i18n-attr="aria-label:lab.listLabel"></ul>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/catalog.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t, C = window.CATALOG;
+
+  function h(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  // Numbered steps of a proposal: lab.<id>.step1, step2… until a key is missing
+  function steps(id) {
+    var out = [];
+    for (var n = 1; n < 20; n++) {
+      var key = "lab." + id + ".step" + n, s = t(key);
+      if (s === key) break;
+      out.push(s);
+    }
+    return out;
+  }
+
+  // Plain text with symbols written as a_{sj}: the letter in italics and the index as a real <sub>,
+  // so notes do not depend on the tiny Unicode subscript glyphs of fallback fonts
+  function symbols(el, text) {
+    var re = /([A-Za-zφ])_\{([^}]+)\}/g, last = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > last) el.appendChild(document.createTextNode(text.slice(last, m.index)));
+      el.append(h("i", "sym", m[1]), h("sub", null, m[2]));
+      last = re.lastIndex;
+    }
+    if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
+    return el;
+  }
+
+  // Key equations of a proposal: lab.<id>.eq1.tex (+ .formula fallback, .cap caption), eq2… until a key is missing
+  function equations(id) {
+    var n, pre, box = null, body;
+    for (n = 1; n < 10; n++) {
+      pre = "lab." + id + ".eq" + n;
+      if (t(pre + ".tex") === pre + ".tex") break;
+      if (!box) {
+        box = h("details", "lab-eq");
+        box.appendChild(h("summary", null, t("lab.eqHead")));
+        body = h("div", "body"); box.appendChild(body);
+      }
+      body.appendChild(h("p", "lab-eq-cap", t(pre + ".cap")));
+      var f = h("div", "formula", t(pre + ".formula"));
+      f.setAttribute("data-tex", pre + ".tex"); f.setAttribute("data-i18n", pre + ".formula");
+      body.appendChild(f);
+    }
+    if (box && t("lab." + id + ".eqNote") !== "lab." + id + ".eqNote") body.appendChild(symbols(h("p", "note"), t("lab." + id + ".eqNote")));
+    // a closed <details> has no width, so fit the formulas to their box once it opens
+    if (box) box.addEventListener("toggle", function () {
+      if (box.open && window.TeX) box.querySelectorAll(".formula.tex-on").forEach(TeX.fit);
+    });
+    return box;
+  }
+
+  function render() {
+    var host = document.getElementById("lab-grid"); host.textContent = "";
+    var pending = null; // normal card that is so far alone in its two-column row
+    C.lab.forEach(function (p) {
+      var card = h("li", "lab-card"); card.id = p.id;
+      var main = h("div", "lab-main");
+      var top = h("div", "lab-top");
+      top.append(h("span", "lab-type", t("type." + p.type)), h("span", "lab-idea", t("lab.idea")));
+      main.append(top, h("h2", null, t("lab." + p.id + ".title")), h("p", "lab-desc", t("lab." + p.id + ".desc")));
+      card.appendChild(main);
+
+      var list = steps(p.id);
+      if (list.length) {
+        card.classList.add("wide");
+        var more = h("div", "lab-more");
+        var ol = h("ol", "lab-steps");
+        list.forEach(function (s) { ol.appendChild(h("li", null, s)); });
+        more.append(h("p", "lab-steps-head", t("lab.stepsHead")), ol);
+        card.appendChild(more);
+        if (pending) pending.classList.add("fill");
+        pending = null;
+      } else {
+        pending = pending ? null : card;
+      }
+      // equations last, so phones read them after the steps, in the same order as the desktop grid
+      var eq = equations(p.id);
+      if (eq) card.appendChild(eq);
+      host.appendChild(card);
+    });
+    if (pending) pending.classList.add("fill");
+  }
+
+  I18N.onChange(render);
+})();
+</script>
+<!-- after the page script, so each language switch first rebuilds the cards and then typesets their [data-tex] formulas -->
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+</body>
+</html>

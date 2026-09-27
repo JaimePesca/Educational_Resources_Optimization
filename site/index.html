@@ -96,6 +96,8 @@
     background: var(--accent); padding: 9px 14px; border-radius: 2px;
   }
   .case-link:hover { filter: brightness(1.12); }
+  .project.soon { opacity: 0.55; border-style: dashed; justify-content: center; min-height: 140px; }
+  .project.soon h3 { color: var(--ink2); }
 
   /* ---- learning path ---- */
   .ladder { display: grid; gap: 0; }
@@ -142,6 +144,20 @@
   }
 
   footer.foot { border-top: 1px solid var(--axis); margin-top: 26px; padding-top: 16px; display: grid; gap: 6px; }
+
+  /* ---- door to the proposals lab: invisible, bottom right, in the gap just above the black footer bar.
+     Out of the flow, so it moves nothing; hover shows a faint dot, keyboard focus the standard outline. ---- */
+  .wrap { position: relative; }
+  .lab-door {
+    /* -34px = 28px door + 6px, inside the 40px margin-top of .site-footer (site.css); change both together */
+    position: absolute; right: 0; bottom: -34px; width: 28px; height: 28px;
+    display: block; background: transparent; border-radius: 2px; cursor: pointer;
+  }
+  .lab-door::after {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+    border-radius: 50%; background: var(--mit-silver); opacity: 0; transition: opacity 0.25s;
+  }
+  .lab-door:hover::after, .lab-door:focus-visible::after { opacity: 0.35; }
 </style>
 </head>
 <body>
@@ -190,6 +206,7 @@
     <p class="note" id="langnote"></p>
     <p class="note" data-i18n="home.footer"></p>
   </footer>
+  <a class="lab-door" href="lab/index.html" data-keep-lang data-i18n-attr="aria-label:lab.door"></a>
 </div>
 
 <script src="assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
@@ -214,7 +231,7 @@
     var ul = document.getElementById("facts"); ul.textContent = "";
     var live = C.education.filter(published).length;
     [[C.levels.length, "home.facts.levels"], [live, "home.facts.resources"],
-     [C.education.length - live, "home.facts.planned"], [C.research.length, "home.facts.projects"],
+     [C.education.length - live, "home.facts.planned"], [C.research.filter(published).length, "home.facts.projects"],
      [I18N.languages.length, "home.facts.languages"]]
       .forEach(function (f) {
         var li = h("li"); var b = h("b", null, f[0]);
@@ -227,6 +244,12 @@
     var host = document.getElementById("projects"); host.textContent = "";
     C.research.forEach(function (p, i) {
       var card = h("article", "project"); card.id = "project-" + p.id;
+      if (!p.href) { // placeholder for a coming project: same card, dimmed, title only, no link
+        card.classList.add("soon");
+        card.appendChild(h("h3", null, t("project." + p.id + ".title")));
+        host.appendChild(card);
+        return;
+      }
 
       var top = h("div", "project-top");
       top.appendChild(h("span", "pindex", t("home.projectN", { n: i + 1 })));
@@ -312,7 +335,26 @@
     document.getElementById("langnote").textContent = t("home.langnote", { list: names.join(" \u00b7 ") });
   }
 
-  I18N.onChange(function () { renderFacts(); renderProjects(); renderLadder(); renderLangNote(); });
+  // "Lab" link in the top menu, only when CATALOG.labInNav is true. Created once after the existing
+  // links and relabelled on every language switch, so it is never duplicated.
+  function renderLabNav() {
+    var nav = document.querySelector(".topnav");
+    if (!nav) return;
+    var a = nav.querySelector("a[data-nav-lab]");
+    if (!C.labInNav) { if (a) a.remove(); return; }
+    if (!a) {
+      a = h("a");
+      a.setAttribute("data-nav-lab", "");
+      a.setAttribute("data-keep-lang", "");
+      a.setAttribute("data-i18n", "nav.lab");
+      a.dataset.baseHref = "lab/index.html";
+      nav.appendChild(a);
+    }
+    a.setAttribute("href", I18N.href(a.dataset.baseHref));
+    a.textContent = t("nav.lab");
+  }
+
+  I18N.onChange(function () { renderFacts(); renderProjects(); renderLadder(); renderLangNote(); renderLabNav(); });
 })();
 </script>
 </body>

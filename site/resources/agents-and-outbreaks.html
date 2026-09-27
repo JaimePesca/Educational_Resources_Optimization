@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="en" data-title-key="abm.title" data-i18n-bundles="resources/other-abm-epidemic">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Agents and Outbreaks</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  .intro { font-size: 14.5px; color: var(--ink2); margin: 0 0 12px; max-width: 78ch; }
+  .intro b { color: var(--ink); }
+
+  /* ---- controls ---- */
+  .abm-ctl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 26px; margin-bottom: 12px; }
+  @media (max-width: 620px) { .abm-ctl { grid-template-columns: minmax(0, 1fr); } }
+  .abm-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 12px; }
+  button.abm-b {
+    font: 700 14px var(--font-sans); height: 34px; padding: 0 14px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 2px;
+  }
+  button.abm-b.primary { background: var(--accent); color: var(--on-solid); border-color: var(--accent); min-width: 108px; }
+  button.abm-b:hover { filter: brightness(1.08); }
+  .seedtag { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+  .abm-btns .spacer { flex: 1 1 auto; }
+  .abm-btns .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .abm-btns .seg button { padding: 6px 10px; font-family: var(--font-mono); font-size: 12px; }
+
+  /* ---- counters ---- */
+  .abm-hud.anim-hud {
+    position: static; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-width: none; margin-bottom: 10px;
+  }
+  @media (max-width: 760px) { .abm-hud.anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .abm-hud .chip-stat { min-width: 0; box-shadow: none; }
+  .abm-hud .chip-stat span { display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .abm-hud .chip-stat.acc b { color: var(--accent-text); }
+  @media (max-width: 420px) {
+    .abm-hud .chip-stat { padding: 4px 6px; font-size: 11px; }
+    .abm-hud .chip-stat b { font-size: 15px; }
+    .abm-hud .chip-stat span { white-space: normal; overflow: visible; line-height: 1.2; }
+  }
+
+  /* state shapes: ring, disc, square, frame (shape and colour, never colour alone) */
+  i.sh { display: inline-block; flex: none; width: 11px; height: 11px; }
+  i.sh.s { border-radius: 50%; border: 1.6px solid var(--ink); background: var(--surface); }
+  i.sh.i { border-radius: 50%; background: var(--accent); }
+  i.sh.r { width: 9px; height: 9px; background: var(--mit-silver); }
+  i.sh.h { width: 13px; height: 13px; border: 1.3px solid var(--mit-silver); background: none; }
+  i.sh.rad { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--accent); background: var(--sel); position: relative; }
+  i.sh.rad::after { content: ""; position: absolute; left: 4px; top: 4px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  i.sh.spark { width: 18px; height: 0; border-top: 2px solid var(--mit-bright); background: none; }
+  i.ln { display: inline-block; flex: none; width: 20px; height: 0; }
+  i.ln.s { border-top: 1.6px solid var(--ink); }
+  i.ln.i { border-top: 3px solid var(--accent); }
+  i.ln.r { border-top: 2.4px solid var(--mit-silver); }
+  i.ln.ode { border-top: 1.8px dashed var(--ink); }
+  i.ln.run { border-top: 1px solid var(--mit-silver); }
+  i.dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink2); background: var(--surface); display: inline-block; flex: none; }
+  i.dot.live { background: var(--accent); border-color: var(--accent); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) i.sh.spark { border-top-color: var(--crit); }
+  }
+  :root[data-theme="dark"] i.sh.spark { border-top-color: var(--crit); }
+
+  /* ---- stage ---- */
+  .abm-stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 12px; }
+  @media (max-width: 760px) { .abm-stage { grid-template-columns: minmax(0, 1fr); } }
+  .cv-box { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .cv-box canvas { position: absolute; inset: 0; display: block; }
+  .cv-world { aspect-ratio: 1 / 1; }
+  .cv-live { min-height: 260px; }
+  @media (max-width: 760px) { .cv-live { aspect-ratio: 4 / 3; min-height: 0; } }
+  .cv-reps { aspect-ratio: 16 / 7; }
+  @media (max-width: 620px) { .cv-reps { aspect-ratio: 4 / 3; } }
+  .cv-dist { height: 250px; margin-top: 10px; }
+  .abm-scrub { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; margin-top: 10px; }
+  .abm-scrub label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .abm-scrub input { width: 100%; accent-color: var(--accent); margin: 0; }
+  .abm-scrub output { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 7ch; text-align: right; }
+  .anim-legend { margin-top: 10px; }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 12px 0 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- replications ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); margin-top: 14px; }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  details.runs { margin-top: 14px; }
+  table.data { min-width: 0; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data tr.on td { background: var(--sel); }
+  table.data td.acc { color: var(--accent-text); font-weight: 600; }
+  @media (max-width: 560px) {
+    table.data th, table.data td { padding-inline: 5px; }
+    table.data .wide { display: none; }
+  }
+  .sw-note { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="abm.eyebrow"></p>
+    <h1 data-i18n="abm.title"></h1>
+    <p class="lede" data-i18n-html="abm.lede"></p>
+  </header>
+
+  <!-- the live run -->
+  <div class="card" id="abm-sim">
+    <h2><span class="kicker" data-i18n="abm.sim.kicker"></span><span data-i18n="abm.sim.title"></span></h2>
+    <p class="intro" id="abm-sim-intro"></p>
+    <div class="abm-ctl">
+      <div class="ctl">
+        <label for="abm-d" data-i18n="abm.ctl.d"></label><output id="abm-d-out" for="abm-d"></output>
+        <input type="range" id="abm-d" min="0" max="90" step="10" value="0">
+      </div>
+      <div class="ctl">
+        <label for="abm-p" data-i18n="abm.ctl.p"></label><output id="abm-p-out" for="abm-p"></output>
+        <input type="range" id="abm-p" min="0.02" max="0.3" step="0.01" value="0.15">
+      </div>
+    </div>
+    <div class="abm-btns">
+      <button type="button" class="abm-b primary" id="abm-run"></button>
+      <button type="button" class="abm-b" id="abm-reset" data-i18n="abm.btn.reset"></button>
+      <button type="button" class="abm-b" id="abm-new" data-i18n="abm.btn.new"></button>
+      <span class="seedtag" id="abm-seed"></span>
+      <span class="spacer"></span>
+      <span class="ctl-label" id="abm-speed-lbl" data-i18n="abm.speed"></span>
+      <div class="seg" role="group" aria-labelledby="abm-speed-lbl" id="abm-speed">
+        <button type="button" data-v="1" aria-pressed="true">1×</button>
+        <button type="button" data-v="2" aria-pressed="false">2×</button>
+        <button type="button" data-v="4" aria-pressed="false">4×</button>
+      </div>
+    </div>
+    <div class="anim-hud abm-hud" id="abm-hud">
+      <div class="chip-stat" id="abm-c0"><b></b><span data-i18n="abm.k.step"></span></div>
+      <div class="chip-stat" id="abm-c1"><b></b><span><i class="sh s"></i><span data-i18n="abm.k.s"></span></span></div>
+      <div class="chip-stat acc" id="abm-c2"><b></b><span><i class="sh i"></i><span data-i18n="abm.k.i"></span></span></div>
+      <div class="chip-stat" id="abm-c3"><b></b><span><i class="sh r"></i><span data-i18n="abm.k.r"></span></span></div>
+      <div class="chip-stat acc" id="abm-c4"><b></b><span data-i18n="abm.k.peak"></span></div>
+      <div class="chip-stat" id="abm-c5"><b></b><span data-i18n="abm.k.c"></span></div>
+    </div>
+    <div class="abm-stage">
+      <div class="cv-box cv-world" id="abm-world" role="img"></div>
+      <div class="cv-box cv-live" id="abm-live" role="img"></div>
+    </div>
+    <div class="abm-scrub">
+      <label for="abm-t" data-i18n="abm.ctl.t"></label>
+      <input type="range" id="abm-t" min="0" max="400" step="1" value="0">
+      <output id="abm-t-out" for="abm-t"></output>
+    </div>
+    <div class="anim-legend">
+      <span><i class="sh s"></i><span data-i18n="abm.lg.s"></span></span>
+      <span><i class="sh rad"></i><span data-i18n="abm.lg.i"></span></span>
+      <span><i class="sh r"></i><span data-i18n="abm.lg.r"></span></span>
+      <span><i class="sh h"></i><span data-i18n="abm.lg.home"></span></span>
+      <span><i class="sh spark"></i><span data-i18n="abm.lg.new"></span></span>
+      <span><i class="ln s"></i><span data-i18n="abm.cl.s"></span></span>
+      <span><i class="ln i"></i><span data-i18n="abm.cl.i"></span></span>
+      <span><i class="ln r"></i><span data-i18n="abm.cl.r"></span></span>
+      <span><i class="ln ode"></i><span data-i18n="abm.cl.ode"></span></span>
+    </div>
+    <p class="scen-status" id="abm-status" aria-live="polite"></p>
+  </div>
+
+  <!-- replications -->
+  <div class="card" id="abm-reps">
+    <h2><span class="kicker" data-i18n="abm.rep.kicker"></span><span data-i18n="abm.rep.title"></span></h2>
+    <p class="intro" id="abm-rep-intro"></p>
+    <div class="cv-box cv-reps" id="abm-repcv" role="img"></div>
+    <div class="cv-box cv-dist" id="abm-distcv" role="img"></div>
+    <div class="anim-legend">
+      <span><i class="ln run"></i><span data-i18n="abm.rl.run"></span></span>
+      <span><i class="ln i"></i><span id="abm-rl-live"></span></span>
+      <span><i class="ln ode"></i><span data-i18n="abm.rl.ode"></span></span>
+      <span><i class="dot"></i><span data-i18n="abm.rl.dot"></span></span>
+      <span><i class="dot live"></i><span id="abm-rl-dlive"></span></span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="abm.s.peak"></div><div class="v" id="abm-s-peak"></div><div class="l" id="abm-s-peak-l"></div></div>
+      <div class="stat"><div class="k" data-i18n="abm.s.tpeak"></div><div class="v ink" id="abm-s-tpeak"></div><div class="l" id="abm-s-tpeak-l"></div></div>
+      <div class="stat"><div class="k" data-i18n="abm.s.final"></div><div class="v" id="abm-s-final"></div><div class="l" id="abm-s-final-l"></div></div>
+      <div class="stat"><div class="k" data-i18n="abm.s.fizz"></div><div class="v ink" id="abm-s-fizz"></div><div class="l" id="abm-s-fizz-l"></div></div>
+      <div class="stat"><div class="k" data-i18n="abm.s.c"></div><div class="v ink" id="abm-s-c"></div><div class="l" id="abm-s-c-l"></div></div>
+      <div class="stat"><div class="k" data-i18n="abm.s.r0"></div><div class="v" id="abm-s-r0"></div><div class="l" id="abm-s-r0-l"></div></div>
+    </div>
+    <details class="runs">
+      <summary id="abm-runs-sum"></summary>
+      <div class="body" style="max-width:none">
+        <div class="tblwrap"><table class="data" id="abm-runs"></table></div>
+      </div>
+    </details>
+  </div>
+
+  <!-- distancing sweep -->
+  <div class="card" id="abm-sweep">
+    <h2><span class="kicker" data-i18n="abm.sw.kicker"></span><span data-i18n="abm.sw.title"></span></h2>
+    <p class="intro" id="abm-sw-intro"></p>
+    <div class="tblwrap"><table class="data" id="abm-sw"></table></div>
+    <p class="sw-note" id="abm-sw-note"></p>
+  </div>
+
+  <!-- the model -->
+  <div class="card">
+    <h2><span class="kicker" data-i18n="abm.model.kicker"></span><span data-i18n="abm.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="abm.rules.head"></p>
+        <div class="formula" data-tex="abm.rules.tex" data-i18n="abm.rules.formula"></div>
+        <p class="mtext" id="abm-data"></p>
+        <p class="mhead" data-i18n="abm.ode.head"></p>
+        <div class="formula" data-tex="abm.ode.tex" data-i18n="abm.ode.formula"></div>
+        <p class="mtext" id="abm-ode-text"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="abm.map.head"></p>
+        <div class="formula" data-tex="abm.map.tex" data-i18n="abm.map.formula"></div>
+        <p class="mtext" data-i18n="abm.map.why"></p>
+        <div class="formula" id="abm-inst"></div>
+        <p class="mhead" data-i18n="abm.fs.head"></p>
+        <div class="formula" data-tex="abm.fs.tex" data-i18n="abm.fs.formula"></div>
+        <p class="mtext" id="abm-fs-text"></p>
+      </div>
+    </div>
+    <p class="mhead" data-i18n="abm.lim.head"></p>
+    <p class="mtext" data-i18n="abm.lim.p1"></p>
+    <p class="mtext" data-i18n="abm.lim.p2"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="abm.n.title"></summary>
+      <div class="body">
+        <p id="abm-n1"></p>
+        <p id="abm-n2"></p>
+        <p id="abm-n3"></p>
+        <p id="abm-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.19" data-refs="abm.refs"></p>
+  <p class="note" data-i18n="abm.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-abm-epidemic.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t, A = window.Anim;
+  var fmt = function (v, d, m) { return I18N.fmt(v, d == null ? 0 : d, m); };
+  var tnum = function (v, d, m) { return String(I18N.fmt(v, d, m)).replace(/\s/g, ""); };   // no spaces inside TeX numbers
+
+  /* ---------- the agent-based model (all parameters illustrative) ---------- */
+  var N = 300;            // people in the box
+  var I0 = 3;             // infectious at step 0 (the last three, always moving)
+  var RAD = 0.035;        // contagion radius (box side 1)
+  var V = 0.05;           // length of one step of a moving person
+  var D = 20;             // mean infectious time in steps (recovery probability 1/D per step)
+  var TMAX = 400;         // longest run
+  var RUNS = 20;          // replications
+  var SPS = 6;            // steps per second at 1x
+  var FIZZ = Math.round(0.1 * N);   // "fizzled": fewer than this many ever infected
+  var SWEEP = [0, 20, 40, 60, 80];
+  var ODE_H = 0.05, ODE_END = 3000;
+  var G = Math.floor(1 / RAD), RR = RAD * RAD, PREC = 1 / D;
+
+  var head = new Int32Array(G * G), next = new Int32Array(N), buf = new Int32Array(N);
+  function cellOf(v) { var c = Math.floor(v * G); return c >= G ? G - 1 : (c < 0 ? 0 : c); }
+
+  // One run. The order of the random draws is part of the model: positions and directions of every
+  // person first; then, each step, one draw per (susceptible, infectious neighbour) pair in index order
+  // until the susceptible is infected, then one recovery draw per infectious person in index order.
+  function simulate(seed, pct, p, rec) {
+    var rnd = A.rng(seed), x = new Float64Array(N), y = new Float64Array(N), vx = new Float64Array(N), vy = new Float64Array(N);
+    var i, j, k, t, a, b, q;
+    for (i = 0; i < N; i++) {
+      x[i] = rnd(); y[i] = rnd();
+      do { a = 2 * rnd() - 1; b = 2 * rnd() - 1; q = a * a + b * b; } while (!(q > 0 && q <= 1));
+      var ln = Math.sqrt(q);
+      vx[i] = a / ln * V; vy[i] = b / ln * V;
+    }
+    var nStat = Math.floor(pct * N / 100 + 0.5);
+    for (i = 0; i < nStat; i++) { vx[i] = 0; vy[i] = 0; }
+    var st = new Uint8Array(N);                 // 0 S, 1 I, 2 R
+    var infT = new Int16Array(N).fill(-1), recT = new Int16Array(N).fill(-1), by = new Int16Array(N).fill(-1);
+    for (i = N - I0; i < N; i++) { st[i] = 1; infT[i] = 0; }
+    var Sc = [N - I0], Ic = [I0], Rc = [0], pairsAt = [0];
+    var nS = N - I0, nI = I0, nR = 0, pairsTot = 0, fixedTot = 0, steps = 0, end = TMAX;
+    var X, Y, VX, VY;
+    if (rec) {
+      X = new Float32Array((TMAX + 1) * N); Y = new Float32Array((TMAX + 1) * N);
+      VX = new Float32Array((TMAX + 1) * N); VY = new Float32Array((TMAX + 1) * N);
+      for (i = 0; i < N; i++) { X[i] = x[i]; Y[i] = y[i]; VX[i] = vx[i]; VY[i] = vy[i]; }
+    }
+    var newI = [], newBy = [], recL = [];
+    for (t = 1; t <= TMAX; t++) {
+      // 1. move and bounce off the walls
+      for (i = nStat; i < N; i++) {
+        x[i] += vx[i]; y[i] += vy[i];
+        if (x[i] < 0) { x[i] = -x[i]; vx[i] = -vx[i]; } else if (x[i] > 1) { x[i] = 2 - x[i]; vx[i] = -vx[i]; }
+        if (y[i] < 0) { y[i] = -y[i]; vy[i] = -vy[i]; } else if (y[i] > 1) { y[i] = 2 - y[i]; vy[i] = -vy[i]; }
+      }
+      // 2. grid of cells at least r wide
+      head.fill(-1);
+      for (i = N - 1; i >= 0; i--) { var c0 = cellOf(y[i]) * G + cellOf(x[i]); next[i] = head[c0]; head[c0] = i; }
+      // 3. contacts: pairs within r
+      var pairs = 0, fixed = 0;
+      for (i = 0; i < N; i++) {
+        var gx = cellOf(x[i]), gy = cellOf(y[i]);
+        for (var yy = Math.max(0, gy - 1); yy <= Math.min(G - 1, gy + 1); yy++) for (var xx = Math.max(0, gx - 1); xx <= Math.min(G - 1, gx + 1); xx++) {
+          for (j = head[yy * G + xx]; j >= 0; j = next[j]) {
+            if (j <= i) continue;
+            var dx = x[i] - x[j], dy = y[i] - y[j];
+            if (dx * dx + dy * dy <= RR) { pairs++; if (j < nStat) fixed++; }
+          }
+        }
+      }
+      // 4. contagion: each susceptible, its infectious neighbours in index order, one draw each
+      newI.length = 0; newBy.length = 0; recL.length = 0;
+      for (i = 0; i < N; i++) {
+        if (st[i] !== 0) continue;
+        var gx2 = cellOf(x[i]), gy2 = cellOf(y[i]), n = 0;
+        for (var y2 = Math.max(0, gy2 - 1); y2 <= Math.min(G - 1, gy2 + 1); y2++) for (var x2 = Math.max(0, gx2 - 1); x2 <= Math.min(G - 1, gx2 + 1); x2++) {
+          for (j = head[y2 * G + x2]; j >= 0; j = next[j]) {
+            if (st[j] !== 1) continue;
+            var ex = x[i] - x[j], ey = y[i] - y[j];
+            if (ex * ex + ey * ey <= RR) buf[n++] = j;
+          }
+        }
+        for (a = 1; a < n; a++) { k = buf[a]; for (b = a - 1; b >= 0 && buf[b] > k; b--) buf[b + 1] = buf[b]; buf[b + 1] = k; }
+        for (a = 0; a < n; a++) if (rnd() < p) { newI.push(i); newBy.push(buf[a]); break; }
+      }
+      // 5. recovery of those infectious at the start of the step
+      for (i = 0; i < N; i++) if (st[i] === 1 && rnd() < PREC) recL.push(i);
+      for (a = 0; a < newI.length; a++) { st[newI[a]] = 1; infT[newI[a]] = t; by[newI[a]] = newBy[a]; }
+      for (a = 0; a < recL.length; a++) { st[recL[a]] = 2; recT[recL[a]] = t; }
+      nS -= newI.length; nI += newI.length - recL.length; nR += recL.length;
+      Sc.push(nS); Ic.push(nI); Rc.push(nR); pairsAt.push(pairs);
+      pairsTot += pairs; fixedTot += fixed; steps++;
+      if (rec) {
+        var o = t * N;
+        for (i = 0; i < N; i++) { X[o + i] = x[i]; Y[o + i] = y[i]; VX[o + i] = vx[i]; VY[o + i] = vy[i]; }
+      }
+      if (nI === 0) { end = t; break; }
+    }
+    var peak = 0, tpeak = 0;
+    for (t = 0; t < Ic.length; t++) if (Ic[t] > peak) { peak = Ic[t]; tpeak = t; }
+    return {
+      seed: seed, pct: pct, p: p, nStat: nStat, S: Sc, I: Ic, R: Rc, pairs: pairsAt, end: end, peak: peak, tpeak: tpeak,
+      final: N - nS, pairsTot: pairsTot, fixedTot: fixedTot, steps: steps, cbar: 2 * pairsTot / (N * steps),
+      infT: infT, recT: recT, by: by, X: X, Y: Y, VX: VX, VY: VY
+    };
+  }
+
+  /* ---------- SIR equations, classic RK4 ---------- */
+  function sir(beta, gamma) {
+    var S = N - I0, I = I0, h = ODE_H, n, per = Math.round(0.5 / h), steps = Math.round(ODE_END / h);
+    var pk = I, tpk = 0, curve = [I], tEnd = 0;
+    function f(s, i) { var inf = beta * s * i / N; return [-inf, inf - gamma * i]; }
+    for (n = 1; n <= steps; n++) {
+      var k1 = f(S, I), k2 = f(S + h / 2 * k1[0], I + h / 2 * k1[1]), k3 = f(S + h / 2 * k2[0], I + h / 2 * k2[1]), k4 = f(S + h * k3[0], I + h * k3[1]);
+      S += h / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]);
+      I += h / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]);
+      var t = n * h;
+      if (I > pk) { pk = I; tpk = t; }
+      if (n % per === 0 && t <= TMAX + 1e-9) curve.push(I);
+      if (!tEnd && I < 0.5 && I < pk) tEnd = t;
+    }
+    // final-size equation S_inf = S0 exp(-R0 (N - S_inf) / N), by bisection
+    var R0 = beta / gamma, S0 = N - I0, lo = 0, hi = S0;
+    for (n = 0; n < 200; n++) { var m = (lo + hi) / 2; if (m - S0 * Math.exp(-R0 * (N - m) / N) < 0) lo = m; else hi = m; }
+    return { peak: pk, tpeak: tpk, finalRK: N - S, finalEq: N - (lo + hi) / 2, curve: curve, tEnd: tEnd || ODE_END, beta: beta, gamma: gamma, R0: R0 };
+  }
+  var geomC = (N - 1) * (Math.PI * RR - 8 / 3 * RR * RAD + RR * RR / 2);   // expected contacts in a unit square
+
+  function median(a) { var s = a.slice().sort(function (u, v) { return u - v; }), h = s.length >> 1; return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; }
+  function batch(seed, pct, p, recFirst) {
+    var runs = [], pt = 0, ft = 0, st = 0;
+    for (var r = 0; r < RUNS; r++) {
+      var o = simulate(seed + r, pct, p, recFirst && r === 0);
+      runs.push(o); pt += o.pairsTot; ft += o.fixedTot; st += o.steps;
+    }
+    var cbar = 2 * pt / (N * st), ode = sir(cbar * p, 1 / D);
+    var pk = runs.map(function (o) { return o.peak; }), fi = runs.map(function (o) { return o.final; }), tp = runs.map(function (o) { return o.tpeak; });
+    return {
+      runs: runs, cbar: cbar, fixedShare: pt ? ft / pt : 0, ode: ode, p: p, pct: pct, seed: seed,
+      medPeak: median(pk), minPeak: Math.min.apply(null, pk), maxPeak: Math.max.apply(null, pk),
+      medFinal: median(fi), minFinal: Math.min.apply(null, fi), maxFinal: Math.max.apply(null, fi),
+      medT: median(tp), minT: Math.min.apply(null, tp), maxT: Math.max.apply(null, tp),
+      fizz: fi.filter(function (v) { return v < FIZZ; }).length
+    };
+  }
+
+  /* ---------- state ---------- */
+  var state = { pct: 0, p: 0.15, seed: 1, speed: 1 };
+  var B = null, live = null, xMax = 200;
+  var sweep = { key: "", rows: {}, gen: 0 };
+  function recompute() {
+    B = batch(state.seed, state.pct, state.p, true);
+    live = B.runs[0];
+    var e = Math.max(B.ode.tEnd, 60);
+    B.runs.forEach(function (o) { e = Math.max(e, o.end); });
+    xMax = Math.min(TMAX, Math.ceil(e / 50) * 50);
+    // the sweep only depends on p and the seeds: reuse it when only the share staying put changed
+    var key = state.p + ":" + state.seed;
+    if (sweep.key !== key) { sweep = { key: key, rows: {}, gen: sweep.gen + 1 }; }
+    if (SWEEP.indexOf(state.pct) >= 0) sweep.rows[state.pct] = B;
+    runSweep();
+  }
+  function runSweep() {
+    var gen = sweep.gen;
+    var todo = SWEEP.filter(function (d) { return !sweep.rows[d]; });
+    renderSweep(); renderNotes();
+    if (!todo.length) return;
+    setTimeout(function () {
+      if (gen !== sweep.gen) return;
+      sweep.rows[todo[0]] = batch(state.seed, todo[0], state.p, false);
+      runSweep();
+    }, 15);
+  }
+
+  /* ---------- drawing helpers ---------- */
+  var C = null, HOT = "";
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif", MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function colors() {
+    C = A.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+  }
+  function mkCanvas(id) { var el = document.getElementById(id); return { box: el, cv: A.canvas(el) }; }
+  var W = mkCanvas("abm-world"), LV = mkCanvas("abm-live"), RP = mkCanvas("abm-repcv"), DS = mkCanvas("abm-distcv");
+  function clear(o) { var c = o.cv.ctx; c.clearRect(0, 0, o.cv.w, o.cv.h); c.fillStyle = C.surface; c.fillRect(0, 0, o.cv.w, o.cv.h); c.setLineDash([]); c.globalAlpha = 1; return c; }
+  function halo(ctx, txt, X, Y, col, f, align, base) {
+    ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+  }
+  function niceMax(v) { var s = [10, 20, 25, 50, 100, 150, 200, 250, 300]; for (var i = 0; i < s.length; i++) if (v <= s[i]) return s[i]; return Math.ceil(v / 50) * 50; }
+  function tickStep(max, px) { var c = [10, 20, 25, 50, 100, 200]; for (var i = 0; i < c.length; i++) if (px / (max / c[i]) >= 34) return c[i]; return 200; }
+
+  // axes of a time chart; returns the mapping
+  function frame(ctx, w, h, yMax, pad) {
+    var x0 = pad.l, x1 = w - pad.r, y0 = pad.t, y1 = h - pad.b;
+    var sx = function (t) { return x0 + t / xMax * (x1 - x0); }, sy = function (v) { return y1 - v / yMax * (y1 - y0); };
+    var fs = w < 420 ? 10 : 10.5, xs = tickStep(xMax, x1 - x0), ys = yMax <= 30 ? 10 : (yMax <= 60 ? 20 : (yMax <= 150 ? 50 : 100));
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    for (var v = ys; v <= yMax + 1e-9; v += ys) { ctx.beginPath(); ctx.moveTo(x0, sy(v) + 0.5); ctx.lineTo(x1, sy(v) + 0.5); ctx.stroke(); }
+    ctx.strokeStyle = C.axis; ctx.beginPath(); ctx.moveTo(x0 + 0.5, y0 - 4); ctx.lineTo(x0 + 0.5, y1 + 0.5); ctx.lineTo(x1, y1 + 0.5); ctx.stroke();
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted;
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (v = 0; v <= yMax + 1e-9; v += ys) ctx.fillText(fmt(v), x0 - 5, sy(v));
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (v = 0; v <= xMax + 1e-9; v += xs) ctx.fillText(fmt(v), sx(v), y1 + 5);
+    ctx.font = font(400, fs); ctx.textAlign = "right"; ctx.fillText(T("abm.l.step"), x1, y1 + 5 + fs + 3);
+    ctx.textAlign = "left"; ctx.textBaseline = "bottom"; ctx.fillText(T("abm.l.people"), x0 - 2, y0 - 6);
+    return { sx: sx, sy: sy, x0: x0, x1: x1, y0: y0, y1: y1, fs: fs };
+  }
+  function polyline(ctx, arr, sx, sy, upto, stepPer) {
+    ctx.beginPath();
+    var n = Math.min(arr.length - 1, Math.floor(upto / stepPer));
+    for (var k = 0; k <= n; k++) { var X = sx(k * stepPer), Y = sy(arr[k]); if (k) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
+    if (upto / stepPer > n && n < arr.length - 1) { var f = upto / stepPer - n; ctx.lineTo(sx(upto), sy(arr[n] + f * (arr[n + 1] - arr[n]))); }
+    ctx.stroke();
+  }
+  function valAt(arr, t) {                       // a curve at step t (it stays at its last value after the end)
+    if (t >= arr.length - 1) return arr[arr.length - 1];
+    var k = Math.floor(t), f = t - k; return arr[k] + f * (arr[k + 1] - arr[k]);
+  }
+  // end labels pushed apart so they never overlap
+  function spread(items, gap, lo, hi) {
+    items.sort(function (a, b) { return a.y - b.y; });
+    for (var i = 1; i < items.length; i++) if (items[i].y - items[i - 1].y < gap) items[i].y = items[i - 1].y + gap;
+    var over = items.length ? items[items.length - 1].y - hi : 0;
+    if (over > 0) { items[items.length - 1].y -= over; for (i = items.length - 2; i >= 0; i--) if (items[i + 1].y - items[i].y < gap) items[i].y = items[i + 1].y - gap; }
+    if (items.length && items[0].y < lo) { var d = lo - items[0].y; items.forEach(function (it) { it.y += d; }); }
+    return items;
+  }
+
+  /* ---------- the world ---------- */
+  function stateAt(i, k) {
+    var a = live.infT[i], r = live.recT[i];
+    if (a < 0 || a > k) return 0;
+    if (r >= 0 && r <= k) return 2;
+    return 1;
+  }
+  function posAt(i, tau) {
+    var k = Math.min(Math.floor(tau), live.end), f = tau - k, o = k * N + i, x = live.X[o], y = live.Y[o];
+    if (f > 0 && k < live.end) {
+      x += f * live.VX[o]; y += f * live.VY[o];
+      if (x < 0) x = -x; else if (x > 1) x = 2 - x;
+      if (y < 0) y = -y; else if (y > 1) y = 2 - y;
+    }
+    return [x, y];
+  }
+  function drawWorld(tau) {
+    var ctx = clear(W), w = W.cv.w, h = W.cv.h, m = 12, side = Math.min(w, h) - 2 * m, ox = (w - side) / 2, oy = (h - side) / 2;
+    var k = Math.min(Math.floor(tau + 1e-9), live.end), ar = Math.max(2.4, side * 0.0068), rp = RAD * side, i, P;
+    var SX = function (x) { return ox + x * side; }, SY = function (y) { return oy + (1 - y) * side; };
+    ctx.save(); ctx.beginPath(); ctx.rect(ox - ar - 2, oy - ar - 2, side + 2 * ar + 4, side + 2 * ar + 4); ctx.clip();
+    var pos = new Array(N), sts = new Uint8Array(N);
+    for (i = 0; i < N; i++) { pos[i] = posAt(i, tau); sts[i] = stateAt(i, k); }
+    // contagion radius around the infectious
+    ctx.fillStyle = C.accent;
+    for (i = 0; i < N; i++) if (sts[i] === 1) {
+      P = pos[i]; ctx.globalAlpha = 0.07; ctx.beginPath(); ctx.arc(SX(P[0]), SY(P[1]), rp, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 0.45; ctx.strokeStyle = C.accent; ctx.lineWidth = 1;
+    for (i = 0; i < N; i++) if (sts[i] === 1) { P = pos[i]; ctx.beginPath(); ctx.arc(SX(P[0]), SY(P[1]), rp, 0, 6.2832); ctx.stroke(); }
+    // short trails behind the infectious who move
+    ctx.lineCap = "round";
+    for (i = live.nStat; i < N; i++) if (sts[i] === 1) {
+      var t0 = Math.max(live.infT[i], tau - 2.5);
+      if (tau - t0 < 0.05) continue;
+      ctx.strokeStyle = C.accent; ctx.lineWidth = ar * 0.9;
+      var prev = pos[i];
+      for (var s = 1; s <= 5; s++) {
+        var tt = Math.max(t0, tau - s * 0.5), Q = posAt(i, tt);
+        if (Math.abs(Q[0] - prev[0]) > 0.2 || Math.abs(Q[1] - prev[1]) > 0.2) break;
+        ctx.globalAlpha = 0.3 * (1 - s / 6);
+        ctx.beginPath(); ctx.moveTo(SX(prev[0]), SY(prev[1])); ctx.lineTo(SX(Q[0]), SY(Q[1])); ctx.stroke();
+        prev = Q; if (tt <= t0) break;
+      }
+    }
+    ctx.globalAlpha = 1; ctx.lineCap = "butt";
+    // frames of the people staying put
+    ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.2;
+    var fr = ar + 3;
+    for (i = 0; i < live.nStat; i++) { P = pos[i]; ctx.strokeRect(Math.round(SX(P[0]) - fr) + 0.5, Math.round(SY(P[1]) - fr) + 0.5, 2 * fr, 2 * fr); }
+    // recovered: squares
+    ctx.fillStyle = C["mit-silver"];
+    for (i = 0; i < N; i++) if (sts[i] === 2) { P = pos[i]; ctx.fillRect(SX(P[0]) - ar * 0.85, SY(P[1]) - ar * 0.85, ar * 1.7, ar * 1.7); }
+    // susceptible: rings
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.3; ctx.fillStyle = C.surface;
+    for (i = 0; i < N; i++) if (sts[i] === 0) { P = pos[i]; ctx.beginPath(); ctx.arc(SX(P[0]), SY(P[1]), ar - 0.4, 0, 6.2832); ctx.fill(); ctx.stroke(); }
+    // new infections: a spark from the source and a pulse
+    for (i = 0; i < N; i++) {
+      var ti = live.infT[i];
+      if (ti <= 0 || tau < ti || tau > ti + 2) continue;
+      var u = (tau - ti) / 2, Pi = pos[i], j = live.by[i];
+      if (j >= 0) {
+        var Pj = pos[j];
+        ctx.globalAlpha = 1 - u; ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(SX(Pj[0]), SY(Pj[1])); ctx.lineTo(SX(Pi[0]), SY(Pi[1])); ctx.stroke();
+      }
+      ctx.globalAlpha = 0.9 * (1 - u); ctx.strokeStyle = HOT; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.arc(SX(Pi[0]), SY(Pi[1]), ar + 2 + u * 3 * ar, 0, 6.2832); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // infectious: discs
+    ctx.fillStyle = C.accent;
+    for (i = 0; i < N; i++) if (sts[i] === 1) { P = pos[i]; ctx.beginPath(); ctx.arc(SX(P[0]), SY(P[1]), ar + 0.5, 0, 6.2832); ctx.fill(); }
+    ctx.restore();
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1; ctx.strokeRect(ox - ar - 1.5, oy - ar - 1.5, side + 2 * ar + 3, side + 2 * ar + 3);
+  }
+
+  /* ---------- live curves ---------- */
+  function drawLive(tau) {
+    var ctx = clear(LV), w = LV.cv.w, h = LV.cv.h, narrow = w < 420;
+    var F = frame(ctx, w, h, N, { l: narrow ? 34 : 40, r: narrow ? 50 : 60, t: 22, b: 36 });
+    // the equations: dashed I, the whole horizon
+    ctx.save(); ctx.beginPath(); ctx.rect(F.x0, 0, F.x1 - F.x0, h); ctx.clip();
+    ctx.globalAlpha = 0.75; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]);
+    polyline(ctx, B.ode.curve, F.sx, F.sy, xMax, 0.5); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    ctx.restore();
+    // the run up to now
+    var up = Math.min(tau, live.end);
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 2.4; polyline(ctx, live.R, F.sx, F.sy, up, 1);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6; polyline(ctx, live.S, F.sx, F.sy, up, 1);
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 3; polyline(ctx, live.I, F.sx, F.sy, up, 1);
+    // now line
+    var xn = F.sx(up);
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xn + 0.5, F.y0); ctx.lineTo(xn + 0.5, F.y1); ctx.stroke();
+    // end labels (letter and count), never overlapping
+    var items = [
+      { t: "S", v: valAt(live.S, up), c: C.ink },
+      { t: "I", v: valAt(live.I, up), c: C["accent-text"] },
+      { t: "R", v: valAt(live.R, up), c: C.ink2 }
+    ];
+    items.forEach(function (it) { it.y = F.sy(it.v); it.y0 = it.y; });
+    spread(items, F.fs + 5, F.y0, F.y1);
+    var k = Math.min(Math.floor(up + 1e-9), live.end);
+    items.forEach(function (it) {
+      var lx = xn + 8, n = it.t === "S" ? live.S[k] : (it.t === "I" ? live.I[k] : live.R[k]), txt = it.t + " " + fmt(n);
+      ctx.font = font(700, F.fs + 0.5); var tw = ctx.measureText(txt).width;
+      if (lx + tw > w - 3) lx = w - 3 - tw;
+      halo(ctx, txt, lx, it.y, it.c, font(700, F.fs + 0.5));
+    });
+    ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(xn, F.sy(valAt(live.I, up)), 3.5, 0, 6.2832); ctx.fill();
+    // label of the equations' curve next to its peak: right of it, else left of it, then higher up; never across
+    // the now line or an end label
+    var ol = T("abm.l.ode"), of = font(700, F.fs + 0.5); ctx.font = of;
+    var ow = ctx.measureText(ol).width, px = F.sx(Math.min(B.ode.tpeak, xMax)), py = F.sy(B.ode.peak) - 6;
+    var boxes = items.map(function (it) { ctx.font = of; return [xn + 6, it.y - F.fs / 2 - 3, xn + 12 + ctx.measureText(it.t + " 000").width, it.y + F.fs / 2 + 3]; });
+    boxes.push([xn - 4, F.y0, xn + 4, F.y1]);
+    var free = function (x, yb) {
+      if (x < F.x0 + 2 || x + ow > w - 2 || yb - F.fs - 2 < 0) return false;
+      for (var q = 0; q < boxes.length; q++) { var bx = boxes[q]; if (x < bx[2] && x + ow > bx[0] && yb - F.fs - 2 < bx[3] && yb + 2 > bx[1]) return false; }
+      return true;
+    };
+    var opx = px + 6, opy = py;
+    found: for (var up = 0; up < 8; up++) {
+      var cands = [px + 6, px - 6 - ow, px - ow / 2];
+      for (var q = 0; q < cands.length; q++) if (free(cands[q], py - up * (F.fs + 3))) { opx = cands[q]; opy = py - up * (F.fs + 3); break found; }
+    }
+    halo(ctx, ol, opx, Math.max(F.y0 + F.fs, opy), C.ink2, of, "left", "bottom");
+  }
+
+  /* ---------- replications ---------- */
+  function drawReps() {
+    var ctx = clear(RP), w = RP.cv.w, h = RP.cv.h, narrow = w < 420;
+    var yMax = niceMax(Math.max(B.maxPeak, B.ode.peak) * 1.08);
+    var F = frame(ctx, w, h, yMax, { l: narrow ? 34 : 40, r: 14, t: 22, b: 36 });
+    ctx.save(); ctx.beginPath(); ctx.rect(F.x0, 0, F.x1 - F.x0 + 2, h); ctx.clip();
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.1; ctx.globalAlpha = 0.8;
+    B.runs.forEach(function (o, r) { if (r) polyline(ctx, o.I, F.sx, F.sy, Math.min(xMax, o.end), 1); });
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.8; ctx.setLineDash([5, 4]); polyline(ctx, B.ode.curve, F.sx, F.sy, xMax, 0.5); ctx.setLineDash([]);
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 2.6; polyline(ctx, live.I, F.sx, F.sy, Math.min(xMax, live.end), 1);
+    ctx.restore();
+    // labels: the equations at their peak, the highlighted run at its peak
+    var f = font(700, F.fs + 0.5);
+    var ox = F.sx(B.ode.tpeak), oyv = F.sy(B.ode.peak), lx = F.sx(live.tpeak), ly = F.sy(live.peak);
+    var ol = T("abm.l.ode"), sl = T("abm.l.seed", { s: live.seed });
+    ctx.font = f;
+    var ow = ctx.measureText(ol).width, sw = ctx.measureText(sl).width;
+    var oxL = Math.min(ox + 8, F.x1 - ow), sxL = Math.min(lx + 8, F.x1 - sw);
+    var oyL = oyv - 8, syL = ly - 8;
+    if (Math.abs(oyL - syL) < F.fs + 4 && Math.abs(oxL - sxL) < Math.max(ow, sw) + 8) { if (oyL <= syL) syL = oyL + F.fs + 6; else oyL = syL + F.fs + 6; }
+    halo(ctx, ol, oxL, Math.max(F.y0 + 4, oyL), C.ink, f, "left", "bottom");
+    halo(ctx, sl, sxL, Math.max(F.y0 + 4, syL), C["accent-text"], f, "left", "bottom");
+  }
+  function drawDist() {
+    var ctx = clear(DS), w = DS.cv.w, h = DS.cv.h, narrow = w < 420, fs = narrow ? 10 : 10.5;
+    var x0 = narrow ? 12 : 16, x1 = w - (narrow ? 12 : 16), sx = function (v) { return x0 + v / N * (x1 - x0); };
+    var rows = [
+      { key: "abm.dist.peak", vals: B.runs.map(function (o) { return o.peak; }), ode: B.ode.peak },
+      { key: "abm.dist.final", vals: B.runs.map(function (o) { return o.final; }), ode: B.ode.finalRK }
+    ];
+    var rowH = (h - 26) / 2, dr = narrow ? 3.4 : 4;
+    ctx.font = font(700, fs + 0.5);
+    rows.forEach(function (R, ri) {
+      var top = 6 + ri * rowH, base = top + rowH - dr - 6, avail = base - (top + fs + 12);
+      ctx.font = font(700, fs + 0.5); ctx.fillStyle = C.ink2; ctx.textAlign = "left"; ctx.textBaseline = "top";
+      var title = T(R.key); ctx.fillText(title, x0, top);
+      var titleEnd = x0 + ctx.measureText(title).width;
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, base + dr + 2.5); ctx.lineTo(x1, base + dr + 2.5); ctx.stroke();
+      // stacked dots (dot plot); columns that grow too tall are packed closer so they stay inside the row
+      var bw = 2 * dr + 1, cols = {}, pos = [], hmax = 1;
+      R.vals.forEach(function (v) { var b = Math.round(sx(v) / bw), n = cols[b] || 0; cols[b] = n + 1; pos.push(n); hmax = Math.max(hmax, n + 1); });
+      var dy = Math.min(2 * dr + 1, (avail - 2 * dr) / Math.max(1, hmax - 1));
+      // equations: dashed vertical line and its label on the title line
+      var X = sx(R.ode);
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(X, top + fs + 4); ctx.lineTo(X, base + dr + 2); ctx.stroke(); ctx.setLineDash([]);
+      var ol = T("abm.l.odeV", { v: fmt(R.ode, 1, 1) }); ctx.font = font(700, fs);
+      var ow = ctx.measureText(ol).width, tx = X - ow / 2;
+      tx = Math.max(titleEnd + 12, Math.min(x1 - ow, tx));
+      halo(ctx, ol, tx, top + (fs + 0.5) / 2, C.ink, font(700, fs), "left", "middle");
+      R.vals.forEach(function (v, r) {
+        if (r === 0) return;
+        ctx.beginPath(); ctx.arc(sx(v), base - pos[r] * dy, dr, 0, 6.2832);
+        ctx.fillStyle = C.surface; ctx.fill(); ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.3; ctx.stroke();
+      });
+      ctx.beginPath(); ctx.arc(sx(R.vals[0]), base - pos[0] * dy, dr + 0.6, 0, 6.2832);
+      ctx.fillStyle = C.accent; ctx.fill(); ctx.strokeStyle = C.surface; ctx.lineWidth = 1.2; ctx.stroke();
+    });
+    // shared axis (people)
+    var ay = h - 20;
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, ay + 0.5); ctx.lineTo(x1, ay + 0.5); ctx.stroke();
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    var st = narrow ? 100 : 50;
+    for (var v = 0; v <= N; v += st) {
+      ctx.fillRect(sx(v) - 0.5, ay, 1, 4);
+      var a = v === 0 ? "left" : (v === N ? "right" : "center");
+      ctx.textAlign = a; ctx.fillText(fmt(v), sx(v), ay + 6);
+    }
+  }
+
+  /* ---------- playback of the live run ---------- */
+  var play = { on: false, tau: 0, last: 0, raf: 0, userPaused: false, seen: false };
+  var runBtn = document.getElementById("abm-run"), scrub = document.getElementById("abm-t"), scrubOut = document.getElementById("abm-t-out");
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) { var el = document.getElementById("abm-c" + i); return { b: el.querySelector("b"), v: null }; });
+  function setChip(i, v) { if (chips[i].v !== v) { chips[i].b.textContent = v; chips[i].v = v; } }
+  var lastK = -1;
+  function showFrame() {
+    colors();
+    var tau = play.tau, k = Math.min(Math.floor(tau + 1e-9), live.end);
+    drawWorld(tau); drawLive(tau);
+    var pk = 0; for (var s = 0; s <= k; s++) pk = Math.max(pk, live.I[s]);
+    setChip(0, fmt(k)); setChip(1, fmt(live.S[k])); setChip(2, fmt(live.I[k])); setChip(3, fmt(live.R[k]));
+    setChip(4, fmt(pk)); setChip(5, k ? fmt(2 * live.pairs[k] / N, 2, 2) : "·");
+    if (+scrub.value !== k) scrub.value = k;
+    scrubOut.textContent = T("abm.ctl.tv", { k: fmt(k), e: fmt(live.end) });
+    if (k !== lastK || !play.on) { lastK = k; renderStatus(k); }
+    syncRun();
+  }
+  function syncRun() {
+    var atEnd = play.tau >= live.end - 1e-9;
+    var key = play.on ? "abm.btn.pause" : (atEnd ? "abm.btn.again" : (play.tau > 0 ? "abm.btn.resume" : "abm.btn.run"));
+    var txt = (play.on ? "❚❚ " : (atEnd ? "↻ " : "▶ ")) + T(key);
+    if (runBtn.textContent !== txt) runBtn.textContent = txt;
+  }
+  function tick(now) {
+    if (!play.on) return;
+    var dt = Math.max(0, Math.min(0.1, (now - play.last) / 1000)); play.last = now;
+    play.tau = Math.min(live.end, play.tau + dt * SPS * state.speed);
+    if (play.tau >= live.end) { play.on = false; showFrame(); renderAria(); return; }
+    showFrame();
+    play.raf = requestAnimationFrame(tick);
+  }
+  function start() {
+    if (play.on) return;
+    if (play.tau >= live.end - 1e-9) play.tau = 0;
+    play.on = true; play.last = performance.now(); syncRun();
+    play.raf = requestAnimationFrame(tick);
+  }
+  function stop() { play.on = false; cancelAnimationFrame(play.raf); showFrame(); renderAria(); }
+  runBtn.addEventListener("click", function () { if (play.on) { play.userPaused = true; stop(); } else { play.userPaused = false; start(); } });
+  document.getElementById("abm-reset").addEventListener("click", function () { stop(); play.tau = 0; showFrame(); renderAria(); });
+  document.getElementById("abm-new").addEventListener("click", function () {
+    state.seed += RUNS; recompute(); play.tau = 0; renderAll(); if (!A.reducedMotion) { play.userPaused = false; start(); } else { play.tau = live.end; showFrame(); }
+  });
+  scrub.addEventListener("input", function () { if (play.on) { play.userPaused = true; play.on = false; cancelAnimationFrame(play.raf); } play.tau = Math.min(+scrub.value, live.end); showFrame(); });
+  scrub.addEventListener("change", renderAria);
+  document.querySelectorAll("#abm-speed button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.speed = +b.getAttribute("data-v");
+      document.querySelectorAll("#abm-speed button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+    });
+  });
+  var dIn = document.getElementById("abm-d"), pIn = document.getElementById("abm-p"), deb = 0;
+  function readInputs() { state.pct = Math.round(+dIn.value); state.p = Math.round(+pIn.value * 100) / 100; renderOutputs(); }
+  function onParam() {
+    readInputs();
+    clearTimeout(deb);
+    deb = setTimeout(function () {
+      var was = play.on || !play.userPaused;
+      cancelAnimationFrame(play.raf); play.on = false;
+      recompute(); play.tau = 0; renderAll();
+      if (A.reducedMotion) { play.tau = live.end; showFrame(); renderAria(); } else if (was) start();
+    }, 90);
+  }
+  dIn.addEventListener("input", onParam); pIn.addEventListener("input", onParam);
+
+  // autoplay while the box is on screen (not with reduced motion: then the final state shows)
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting && e.intersectionRatio >= 0.35) {
+          if (!A.reducedMotion && !play.userPaused && (!play.seen || play.tau < live.end)) start();
+          play.seen = true;
+        } else if (play.on) { play.on = false; cancelAnimationFrame(play.raf); syncRun(); }
+      });
+    }, { threshold: [0, 0.35, 0.6] }).observe(W.box);
+  }
+  // refit the canvases whenever their boxes change size (layout settling, resize, fonts)
+  var rt = 0;
+  function refit() {
+    var changed = false;
+    [W, LV, RP, DS].forEach(function (o) {
+      var r = o.box.getBoundingClientRect();
+      if (Math.round(r.width) !== o.cv.w || Math.round(r.height) !== o.cv.h) { o.cv.fit(); changed = true; }
+    });
+    if (changed && B) { colors(); showFrame(); drawReps(); drawDist(); }
+  }
+  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(refit, 60); });
+  if ("ResizeObserver" in window) {
+    var ro = new ResizeObserver(function () { clearTimeout(rt); rt = setTimeout(refit, 30); });
+    [W, LV, RP, DS].forEach(function (o) { ro.observe(o.box); });
+  }
+  function redrawAll() { colors(); showFrame(); drawReps(); drawDist(); }
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { setTimeout(redrawAll, 0); });
+  new MutationObserver(function () { setTimeout(redrawAll, 0); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  /* ---------- page text ---------- */
+  function pct(v, d) { return fmt(100 * v / N, d == null ? 0 : d); }
+  function renderOutputs() {
+    var ns = Math.floor(state.pct * N / 100 + 0.5);
+    document.getElementById("abm-d-out").textContent = T("abm.ctl.dv", { v: fmt(state.pct), n: fmt(ns), N: fmt(N) });
+    document.getElementById("abm-p-out").textContent = fmt(state.p, 2, 2);
+  }
+  function renderStatus(k) {
+    var el = document.getElementById("abm-status"), o = live, v = { s: o.seed, e: fmt(o.end), pk: fmt(o.peak), tp: fmt(o.tpeak), f: fmt(o.final), N: fmt(N), fp: pct(o.final), i: fmt(o.I[o.end]) };
+    var key;
+    if (k < o.end) {
+      var pk = 0, tp = 0; for (var s = 0; s <= k; s++) if (o.I[s] > pk) { pk = o.I[s]; tp = s; }
+      key = "abm.st.run"; v.pk = fmt(pk); v.tp = fmt(tp);
+    } else if (o.I[o.end] > 0) key = "abm.st.cap";
+    else key = o.final < FIZZ ? "abm.st.fizz" : "abm.st.end";
+    var h = T(key, v);
+    if (el._h !== h) { el.innerHTML = h; el._h = h; }
+  }
+  function renderAria() {
+    var k = Math.min(Math.floor(play.tau + 1e-9), live.end);
+    W.box.setAttribute("aria-label", T("abm.world.aria", { N: fmt(N), k: fmt(k), s: fmt(live.S[k]), i: fmt(live.I[k]), r: fmt(live.R[k]), h: fmt(live.nStat) }));
+    LV.box.setAttribute("aria-label", T("abm.live.aria", { s: live.seed, k: fmt(k), pk: fmt(live.peak), tp: fmt(live.tpeak), o: fmt(B.ode.peak, 1, 1) }));
+  }
+  function range(lo, hi) { return lo === hi ? fmt(lo) : T("abm.range", { a: fmt(lo), b: fmt(hi) }); }
+  function renderReps() {
+    var o = B.ode, a = B.seed, b = B.seed + RUNS - 1;
+    document.getElementById("abm-sim-intro").textContent = T("abm.sim.intro", { N: fmt(N), D: fmt(D), i0: fmt(I0) });
+    document.getElementById("abm-seed").textContent = T("abm.seed", { s: live.seed });
+    document.getElementById("abm-rep-intro").textContent = T("abm.rep.intro", { a: a, b: b, n: RUNS });
+    document.getElementById("abm-rl-live").textContent = T("abm.rl.live", { s: a });
+    document.getElementById("abm-rl-dlive").textContent = T("abm.rl.dlive", { s: a });
+    document.getElementById("abm-s-peak").textContent = fmt(B.medPeak, 1);
+    document.getElementById("abm-s-peak-l").textContent = T("abm.s.l", { r: range(B.minPeak, B.maxPeak), o: fmt(o.peak, 1, 1) });
+    document.getElementById("abm-s-tpeak").textContent = fmt(B.medT, 1);
+    document.getElementById("abm-s-tpeak-l").textContent = T("abm.s.l", { r: range(B.minT, B.maxT), o: fmt(o.tpeak, 1, 1) });
+    document.getElementById("abm-s-final").textContent = fmt(B.medFinal, 1);
+    document.getElementById("abm-s-final-l").textContent = T("abm.s.l", { r: range(B.minFinal, B.maxFinal), o: fmt(o.finalRK, 1, 1) });
+    document.getElementById("abm-s-fizz").textContent = T("abm.s.fizzV", { k: fmt(B.fizz), n: fmt(RUNS) });
+    document.getElementById("abm-s-fizz-l").textContent = T(o.R0 > 1 ? "abm.s.fizzL" : "abm.s.fizzL1", { t: fmt(FIZZ) });
+    document.getElementById("abm-s-c").textContent = fmt(B.cbar, 3, 3);
+    document.getElementById("abm-s-c-l").textContent = T("abm.s.cL", { g: fmt(geomC, 3, 3) });
+    document.getElementById("abm-s-r0").textContent = fmt(o.R0, 2, 2);
+    document.getElementById("abm-s-r0-l").textContent = T("abm.s.r0L", { b: fmt(o.beta, 4, 4), g: fmt(o.gamma, 2, 2) });
+    // table of the runs
+    var hh = "<thead><tr><th class='num'>" + T("abm.t.seed") + "</th><th class='num'>" + T("abm.t.peak") + "</th><th class='num'>" + T("abm.t.tpeak") +
+      "</th><th class='num'>" + T("abm.t.final") + "</th><th class='num'>" + T("abm.t.end") + "</th><th class='num wide'>" + T("abm.t.c") + "</th></tr></thead><tbody>";
+    B.runs.forEach(function (r, i) {
+      hh += "<tr" + (i === 0 ? " class='on'" : "") + "><td class='num'>" + r.seed + "</td><td class='num" + (i === 0 ? " acc" : "") + "'>" + fmt(r.peak) + "</td><td class='num'>" + fmt(r.tpeak) +
+        "</td><td class='num'>" + fmt(r.final) + "</td><td class='num'>" + fmt(r.end) + "</td><td class='num wide'>" + fmt(r.cbar, 3, 3) + "</td></tr>";
+    });
+    hh += "<tr><td class='num'>" + T("abm.t.ode") + "</td><td class='num acc'>" + fmt(o.peak, 1, 1) + "</td><td class='num'>" + fmt(o.tpeak, 1, 1) + "</td><td class='num'>" + fmt(o.finalRK, 1, 1) +
+      "</td><td class='num'>" + "·" + "</td><td class='num wide'>" + fmt(B.cbar, 3, 3) + "</td></tr>";
+    document.getElementById("abm-runs").innerHTML = hh + "</tbody>";
+    document.getElementById("abm-runs-sum").textContent = T("abm.runs.title", { n: RUNS, a: a, b: b });
+    document.getElementById("abm-reps").querySelector(".cv-reps").setAttribute("aria-label", T("abm.rep.aria", { n: RUNS, lo: fmt(B.minPeak), hi: fmt(B.maxPeak), o: fmt(o.peak, 1, 1) }));
+    DS.box.setAttribute("aria-label", T("abm.dist.aria", { m: fmt(B.medPeak, 1), o: fmt(o.peak, 1, 1), f: fmt(B.medFinal, 1), of: fmt(o.finalRK, 1, 1) }));
+  }
+  function renderModel() {
+    var o = B.ode;
+    document.getElementById("abm-data").textContent = T("abm.data", {
+      N: fmt(N), i0: fmt(I0), r: fmt(RAD, 3), v: fmt(V, 2), D: fmt(D), T: fmt(TMAX), p: fmt(state.p, 2, 2), h: fmt(live.nStat)
+    });
+    document.getElementById("abm-ode-text").textContent = T("abm.ode.text", { h: fmt(ODE_H, 2), s: fmt(N - I0), i: fmt(I0) });
+    var v = { c: tnum(B.cbar, 3, 3), g: tnum(geomC, 3, 3), p: tnum(state.p, 2, 2), b: tnum(o.beta, 4, 4), D: D, ga: tnum(o.gamma, 2, 2), R0: tnum(o.R0, 2, 2) };
+    var vp = { c: fmt(B.cbar, 3, 3), g: fmt(geomC, 3, 3), p: fmt(state.p, 2, 2), b: fmt(o.beta, 4, 4), D: fmt(D), ga: fmt(o.gamma, 2, 2), R0: fmt(o.R0, 2, 2) };
+    TeX.set(document.getElementById("abm-inst"), T("abm.inst.tex", v), T("abm.inst.formula", vp));
+    document.getElementById("abm-fs-text").textContent = T("abm.fs.text", { eq: fmt(o.finalEq, 1, 1), rk: fmt(o.finalRK, 1, 1), T: fmt(ODE_END), R0: fmt(o.R0, 2, 2) });
+  }
+  function renderSweep() {
+    var ready = SWEEP.every(function (d) { return sweep.rows[d]; });
+    document.getElementById("abm-sw-intro").textContent = T("abm.sw.intro", { n: RUNS, p: fmt(state.p, 2, 2), a: state.seed, b: state.seed + RUNS - 1 });
+    var h = "<thead><tr><th class='num'>" + T("abm.sw.d") + "</th><th class='num'>" + T("abm.sw.c") + "</th><th class='num wide'>" + T("abm.sw.fix") +
+      "</th><th class='num wide'>" + T("abm.sw.po") + "</th><th class='num wide'>" + T("abm.sw.pa") + "</th><th class='num'>" + T("abm.sw.fo") +
+      "</th><th class='num'>" + T("abm.sw.fa") + "</th><th class='num wide'>" + T("abm.sw.fz") + "</th></tr></thead><tbody>";
+    SWEEP.forEach(function (d) {
+      var R = sweep.rows[d], on = d === state.pct ? " class='on'" : "";
+      if (!R) { h += "<tr" + on + "><td class='num'>" + T("abm.pct", { v: fmt(d) }) + "</td><td colspan='7'>" + T("abm.sw.wait") + "</td></tr>"; return; }
+      h += "<tr" + on + "><td class='num'>" + T("abm.pct", { v: fmt(d) }) + "</td><td class='num'>" + fmt(R.cbar, 3, 3) + "</td><td class='num wide'>" + T("abm.pct", { v: fmt(100 * R.fixedShare, 1, 1) }) + "</td><td class='num wide'>" +
+        fmt(R.ode.peak, 1, 1) + "</td><td class='num wide acc'>" + fmt(R.medPeak, 1) + "</td><td class='num'>" + fmt(R.ode.finalRK, 1, 1) + "</td><td class='num acc'>" + fmt(R.medFinal, 1) +
+        "</td><td class='num wide'>" + fmt(R.fizz) + "</td></tr>";
+    });
+    document.getElementById("abm-sw").innerHTML = h + "</tbody>";
+    document.getElementById("abm-sw-note").textContent = ready ? T("abm.sw.note", { t: fmt(FIZZ) }) : T("abm.sw.wait");
+  }
+  function renderNotes() {
+    var a = sweep.rows[0], z = sweep.rows[80];
+    var ids = ["abm-n1", "abm-n2", "abm-n3", "abm-n4"];
+    if (!a || !z) { ids.slice(0, 3).forEach(function (id) { document.getElementById(id).textContent = T("abm.sw.wait"); }); }
+    else {
+      // the wording follows the numbers: agents close to the equations or not, below the threshold, a clear drop or not
+      var close = Math.abs(a.medFinal - a.ode.finalRK) <= 0.05 * N && Math.abs(a.medPeak - a.ode.peak) <= Math.max(0.15 * a.ode.peak, 5);
+      var k1 = a.ode.R0 <= 1 ? "abm.n.p1c" : (close ? "abm.n.p1" : "abm.n.p1b");
+      document.getElementById("abm-n1").textContent = T(k1, { p: fmt(state.p, 2, 2), pa: fmt(a.medPeak, 1), po: fmt(a.ode.peak, 1, 1), fa: fmt(a.medFinal, 1), fo: fmt(a.ode.finalRK, 1, 1),
+        r0: fmt(a.ode.R0, 2, 2), k: fmt(a.fizz), n: fmt(RUNS), pc: fmt(1 / (a.cbar * D), 3, 3) });
+      var k2 = a.medFinal - z.medFinal >= 0.05 * N ? "abm.n.p2" : "abm.n.p2b";
+      document.getElementById("abm-n2").textContent = T(k2, { c0: fmt(a.cbar, 3, 3), c8: fmt(z.cbar, 3, 3), sh: fmt(100 * z.fixedShare, 1, 1), f8: fmt(z.medFinal, 1), f0: fmt(a.medFinal, 1) });
+      document.getElementById("abm-n3").textContent = T("abm.n.p3", { o8: fmt(z.ode.finalRK, 1, 1), o0: fmt(a.ode.finalRK, 1, 1), r8: fmt(z.ode.R0, 2, 2) });
+    }
+    var pc = 1 / (B.cbar * D);
+    document.getElementById("abm-n4").textContent = T("abm.n.p4", { lo: fmt(B.minPeak), hi: fmt(B.maxPeak), r0: fmt(B.ode.R0, 2, 2), k: fmt(B.fizz), n: fmt(RUNS), pc: fmt(pc, 3, 3) });
+  }
+  function renderAll() {
+    renderOutputs(); renderReps(); renderModel(); renderSweep(); renderNotes();
+    scrub.max = live.end;
+    colors(); showFrame(); drawReps(); drawDist(); renderAria();
+  }
+
+  readInputs();
+  recompute();
+  if (A.reducedMotion) play.tau = live.end;
+  I18N.onChange(function () { renderAll(); });
+})();
+</script>
+</body>
+</html>

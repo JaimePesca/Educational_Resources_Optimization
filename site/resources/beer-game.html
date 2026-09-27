@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en" data-title-key="beer.title" data-i18n-bundles="resources/other-beer-game">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>The Beer Game</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- setup ---- */
+  .gtop { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }
+  .gtop .ctl-label { font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .gtop .grp { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-right: 10px; }
+  .seg button { font: 600 13px var(--font-sans); }
+  .rnote { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; }
+  .brief { margin: 0 0 6px; color: var(--ink2); font-size: 14.5px; max-width: 80ch; }
+  .brief b { color: var(--ink); }
+  .facts { margin: 0 0 14px; font-size: 13px; color: var(--muted); max-width: 80ch; }
+
+  /* ---- the chain diagram ---- */
+  .chain { display: flex; align-items: stretch; margin: 6px 0 8px; }
+  .node {
+    flex: 1 1 0; min-width: 0; background: var(--surface); border: 1.5px solid var(--ink2); border-radius: 3px;
+    padding: 8px 9px; display: grid; gap: 3px; align-content: start;
+    grid-template-areas: "nm" "st" "bk" "bar" "cs";
+  }
+  .node.me { border-color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); background: var(--sel); }
+  .node.end { flex: 0 0 86px; border: 1.5px dashed var(--mit-silver); background: var(--surface2); }
+  .node .nm { grid-area: nm; font-weight: 700; font-size: 14px; color: var(--ink); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; line-height: 1.2; }
+  .badge { font: 600 10.5px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 5px; border-radius: 2px; border: 1px solid var(--border); color: var(--muted); }
+  .node.me .badge { background: var(--accent); border-color: var(--accent); color: var(--on-solid); }
+  .node .st { grid-area: st; font-size: 12px; color: var(--ink2); white-space: nowrap; }
+  .node .st b { font: 700 22px var(--font-mono); color: var(--ink); font-variant-numeric: tabular-nums; margin-right: 4px; }
+  .node .bk { grid-area: bk; font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .node .bk b { font: 600 14px var(--font-mono); margin-right: 4px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+  .node .bk.on, .node .bk.on b { color: var(--crit); }
+  .node .cs { grid-area: cs; font: 400 11.5px var(--font-mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .node .sub { font-size: 11.5px; color: var(--muted); line-height: 1.25; }
+  .nbar { grid-area: bar; position: relative; height: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 1px; margin: 2px 0; }
+  .nbar i { position: absolute; top: 0; bottom: 0; display: block; }
+  .nbar i.p { left: 50%; background: var(--ink2); }
+  .nbar i.n { right: 50%; background: var(--crit); }
+  .nbar::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; border-left: 1.5px solid var(--ink); }
+  .lane { flex: 0 0 84px; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 0 3px; }
+  .lane.c { flex-basis: 26px; }
+  .lane .row { display: flex; align-items: center; justify-content: center; gap: 3px; }
+  .slot {
+    min-width: 25px; height: 24px; padding: 0 3px; display: inline-grid; place-items: center; border-radius: 2px;
+    font: 600 12.5px var(--font-mono); font-variant-numeric: tabular-nums;
+  }
+  .slot.sh { background: var(--surface2); border: 1px solid var(--ink2); color: var(--ink); }
+  .slot.or { background: var(--surface); border: 1.5px solid var(--accent); color: var(--accent-text); }
+  .slot.nw { border-style: dashed; }
+  .slot.nw.mine { background: var(--sel); }
+  .arr { color: var(--ink2); font-size: 15px; line-height: 1; }
+  .arr.v { display: none; }
+  .dlegend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink2); margin: 2px 0 14px; }
+  .dlegend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dlegend .slot { min-width: 16px; height: 14px; font-size: 0; padding: 0; }
+  .dlegend .nb { width: 26px; height: 8px; position: relative; background: var(--surface2); border: 1px solid var(--border); }
+  .dlegend .nb::before { content: ""; position: absolute; left: 50%; right: 0; top: 0; bottom: 0; background: var(--ink2); }
+  .dlegend .nb::after { content: ""; position: absolute; left: 20%; right: 50%; top: 0; bottom: 0; background: var(--crit); }
+  @media (max-width: 940px) {
+    .chain { flex-direction: column; }
+    .node, .node.end { flex: none; grid-template-areas: "nm st bk cs" "bar bar bar bar"; grid-template-columns: minmax(0, 1.3fr) auto auto minmax(0, 1fr); align-items: baseline; gap: 2px 10px; }
+    .node.end { grid-template-areas: "nm st bk cs"; }
+    .node .cs { text-align: right; }
+    .lane, .lane.c { flex: none; flex-direction: row; gap: 26px; padding: 5px 0; }
+    .arr.h { display: none; }
+    .arr.v { display: inline; }
+  }
+  @media (max-width: 480px) {
+    .node, .node.end { grid-template-areas: "nm nm cs" "st bk bk" "bar bar bar"; grid-template-columns: auto auto minmax(0, 1fr); }
+    .node.end { grid-template-areas: "nm nm cs" "st bk bk"; }
+    .node .st b { font-size: 19px; }
+  }
+
+  /* ---- turn panel ---- */
+  .turnbox { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 22px; align-items: end; background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 2px; padding: 12px 14px; }
+  @media (max-width: 760px) { .turnbox { grid-template-columns: minmax(0, 1fr); } }
+  .turnbox h3 { margin: 0 0 4px; font-size: 16px; }
+  .turn { margin: 0; font-size: 14px; color: var(--ink2); max-width: 70ch; }
+  .turn b { color: var(--ink); font-family: var(--font-mono); }
+  form.ord { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+  form.ord label { display: block; width: 100%; font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .stepper { display: inline-flex; border: 1.5px solid var(--ink2); border-radius: 2px; overflow: hidden; background: var(--surface); }
+  .stepper button { width: 38px; min-height: 40px; border: 0; background: var(--surface); color: var(--ink); font: 700 18px var(--font-sans); cursor: pointer; }
+  .stepper input { width: 72px; min-height: 40px; border: 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; font: 700 18px var(--font-mono); color: var(--ink); background: var(--surface); -moz-appearance: textfield; }
+  .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  button.btn {
+    font: 600 14px var(--font-sans); color: var(--on-solid); background: var(--accent);
+    border: 1.5px solid var(--accent); border-radius: 2px; padding: 9px 16px; min-height: 40px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.ghost { background: transparent; color: var(--accent-text); border-color: var(--accent-text); }
+  button.quiet { background: transparent; color: var(--ink2); border-color: var(--border); }
+  button[hidden], .turnbox[hidden] { display: none; }
+  button:disabled { opacity: 0.45; cursor: default; }
+  :is(button, input, summary):focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .kbd { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+  .done { margin: 0; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 14px; }
+  @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { font-size: 22px; }
+  .stat.acc .v { color: var(--accent-text); }
+  @media (max-width: 560px) { .stat { padding: 10px 11px; } .stat .v { font-size: 18px; } .stat .l { font-size: 12px; } }
+
+  /* ---- charts ---- */
+  .charts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 22px; margin-top: 16px; }
+  @media (max-width: 760px) { .charts { grid-template-columns: minmax(0, 1fr); } }
+  .charts > div { min-width: 0; }
+  .charts h3, .solh { font-size: 14.5px; margin: 0 0 6px; font-weight: 600; }
+  .solh { margin-top: 20px; }
+  .chartbox svg { display: block; width: 100%; overflow: visible; }
+  svg text { font-family: var(--font-sans); }
+  svg .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .legend span[hidden] { display: none; }
+  .sw.you { height: 3px; width: 18px; background: var(--accent); }
+  .sw.bot { height: 2px; width: 18px; background: var(--ink); }
+  .sw.dem { height: 0; width: 18px; border-top: 2px dashed var(--mit-silver); }
+  .sw.pos { background: var(--mit-silver); }
+  .sw.neg { background: var(--crit); }
+  .sw.bl { width: 10px; height: 10px; border-radius: 50%; background: var(--mit-silver); }
+  .sw.bs { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
+  .sw.by { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+
+  /* ---- results ---- */
+  #res .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 0; }
+  @media (max-width: 900px) { #res .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  #res .stat .v { color: var(--ink); }
+  #res .stat.acc .v { color: var(--accent-text); }
+  #res h2:focus { outline: none; }
+  .verdict { margin: 14px 0 0; border-left: 4px solid var(--accent); background: var(--surface2); padding: 10px 14px; border-radius: 2px; font-size: 14.5px; color: var(--ink2); }
+  .verdict b { color: var(--ink); }
+  .solp { font-size: 14px; color: var(--ink2); margin: 8px 0 0; max-width: 80ch; }
+  .tblwrap { margin-top: 6px; }
+  table.data { min-width: 0; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data th.num { vertical-align: bottom; }
+  table.data tr.me td { background: var(--sel); color: var(--accent-text); font-weight: 600; }
+  table.data tr.tot td { font-weight: 700; color: var(--ink); border-top: 1.5px solid var(--axis); }
+  @media (max-width: 560px) { table.data th, table.data td { padding-inline: 5px; } table.data { font-size: 12.5px; } table.data td.num { font-size: 11.5px; } }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 14px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="beer.eyebrow"></p>
+    <h1 data-i18n="beer.title"></h1>
+    <p class="lede" data-i18n-html="beer.lede"></p>
+  </header>
+
+  <div class="card" id="game">
+    <div class="gtop">
+      <div class="grp">
+        <span class="ctl-label" id="role-lbl" data-i18n="beer.role.label"></span>
+        <div class="seg" role="group" aria-labelledby="role-lbl" id="role-seg">
+          <button type="button" data-role="0" aria-pressed="false" data-i18n="beer.link0"></button>
+          <button type="button" data-role="1" aria-pressed="true" data-i18n="beer.link1"></button>
+          <button type="button" data-role="2" aria-pressed="false" data-i18n="beer.link2"></button>
+          <button type="button" data-role="3" aria-pressed="false" data-i18n="beer.link3"></button>
+        </div>
+      </div>
+      <div class="grp">
+        <span class="ctl-label" id="info-lbl" data-i18n="beer.info.label"></span>
+        <div class="seg" role="group" aria-labelledby="info-lbl" id="info-seg">
+          <button type="button" data-sh="0" aria-pressed="true" data-i18n="beer.info.local"></button>
+          <button type="button" data-sh="1" aria-pressed="false" data-i18n="beer.info.shared"></button>
+        </div>
+      </div>
+    </div>
+    <p class="rnote" data-i18n="beer.restartNote"></p>
+    <p class="brief" id="brief"></p>
+    <p class="facts" id="facts"></p>
+    <p class="facts" id="bots"></p>
+
+    <div class="chain" id="chain" role="group"></div>
+    <div class="dlegend">
+      <span><i class="slot sh"></i><span data-i18n="beer.lg.ship"></span></span>
+      <span><i class="slot or"></i><span data-i18n="beer.lg.ord"></span></span>
+      <span><i class="slot or nw"></i><span data-i18n="beer.lg.new"></span></span>
+      <span><i class="nb"></i><span data-i18n="beer.lg.net"></span></span>
+    </div>
+
+    <div class="turnbox" id="turnbox">
+      <div>
+        <h3 id="wk"></h3>
+        <p class="turn" id="turn"></p>
+      </div>
+      <form class="ord" id="ordform" novalidate>
+        <label for="q" data-i18n="beer.order.label"></label>
+        <div class="stepper">
+          <button type="button" id="minus" data-i18n-attr="aria-label:beer.btn.minus">−</button>
+          <input type="number" id="q" min="0" max="999" step="1" inputmode="numeric" value="4">
+          <button type="button" id="plus" data-i18n-attr="aria-label:beer.btn.plus">+</button>
+        </div>
+        <button class="btn" type="submit" id="next" data-i18n="beer.btn.next"></button>
+      </form>
+    </div>
+    <p class="done" id="done" hidden></p>
+    <div class="actions">
+      <button class="btn ghost" type="button" id="rule"></button>
+      <button class="btn quiet" type="button" id="auto" data-i18n="beer.btn.auto"></button>
+      <button class="btn quiet" type="button" id="restart" data-i18n="beer.btn.restart"></button>
+    </div>
+    <p class="kbd" data-i18n="beer.kbd"></p>
+    <p class="sr" id="live" aria-live="polite"></p>
+
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="beer.k.week"></div><div class="v" id="v-week"></div><div class="l" id="l-week"></div></div>
+      <div class="stat acc"><div class="k" data-i18n="beer.k.you"></div><div class="v" id="v-you"></div><div class="l" id="l-you"></div></div>
+      <div class="stat"><div class="k" data-i18n="beer.k.chain"></div><div class="v" id="v-chain"></div><div class="l" data-i18n="beer.l.chain"></div></div>
+      <div class="stat"><div class="k" data-i18n="beer.k.demand"></div><div class="v" id="v-dem"></div><div class="l" id="l-dem"></div></div>
+    </div>
+
+    <div class="charts">
+      <div>
+        <h3 data-i18n="beer.ch.orders"></h3>
+        <div class="chartbox"><svg id="ch-ord" role="img"></svg></div>
+        <div class="legend">
+          <span><i class="sw you"></i><span data-i18n="beer.lg.you"></span></span>
+          <span><i class="sw bot"></i><span data-i18n="beer.lg.bot"></span></span>
+          <span id="lg-dem"><i class="sw dem"></i><span data-i18n="beer.lg.demand"></span></span>
+        </div>
+      </div>
+      <div>
+        <h3 data-i18n="beer.ch.net"></h3>
+        <div class="chartbox"><svg id="ch-net" role="img"></svg></div>
+        <div class="legend">
+          <span><i class="sw pos"></i><span data-i18n="beer.lg.pos"></span></span>
+          <span><i class="sw neg"></i><span data-i18n="beer.lg.neg"></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="res" hidden>
+    <h2 id="res-h" tabindex="-1"><span class="kicker" data-i18n="beer.res.kicker"></span><span id="res-title"></span></h2>
+    <div class="stats">
+      <div class="stat acc"><div class="k" data-i18n="beer.r.you"></div><div class="v" id="r-you"></div><div class="l" id="r-youl"></div></div>
+      <div class="stat"><div class="k" data-i18n="beer.r.bots"></div><div class="v" id="r-bots"></div><div class="l" id="r-botsl"></div></div>
+      <div class="stat"><div class="k" data-i18n="beer.r.best"></div><div class="v" id="r-best"></div><div class="l" id="r-bestl"></div></div>
+      <div class="stat"><div class="k" id="r-otherk"></div><div class="v" id="r-other"></div><div class="l" data-i18n="beer.r.otherL"></div></div>
+    </div>
+    <p class="verdict" id="verdict"></p>
+    <h3 class="solh" id="tbl-h"></h3>
+    <div class="tblwrap"><table class="data" id="costTable"></table></div>
+    <p class="solp" id="bestNote"></p>
+
+    <h3 class="solh" data-i18n="beer.bw.head"></h3>
+    <p class="solp" id="bwIntro" style="margin-top:0"></p>
+    <div class="chartbox" style="margin-top:8px"><svg id="ch-bw" role="img" data-i18n-attr="aria-label:beer.bw.aria"></svg></div>
+    <div class="legend">
+      <span><i class="sw bl"></i><span data-i18n="beer.bw.botsL"></span></span>
+      <span><i class="sw bs"></i><span data-i18n="beer.bw.botsS"></span></span>
+      <span><i class="sw by"></i><span id="lg-bwyou"></span></span>
+    </div>
+    <h3 class="solh" data-i18n="beer.bw.tbl"></h3>
+    <div class="tblwrap"><table class="data" id="bwTable"></table></div>
+    <p class="solp" id="bwZero" hidden></p>
+    <div class="actions"><button class="btn" type="button" id="again" data-i18n="beer.btn.again"></button></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="beer.model.kicker"></span><span data-i18n="beer.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" data-tex="beer.model.tex" data-i18n="beer.model.formula"></div>
+        <p class="mtext" data-i18n-html="beer.model.why"></p>
+        <p class="mtext" id="mdata"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="beer.rule.head"></p>
+        <div class="formula" data-tex="beer.rule.tex" data-i18n="beer.rule.formula"></div>
+        <p class="mtext" data-i18n-html="beer.rule.why"></p>
+        <div class="formula" data-tex="beer.bw.tex" data-i18n="beer.bw.formula"></div>
+        <p class="mtext" data-i18n="beer.bw.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="beer.n.title"></summary>
+      <div class="body">
+        <p id="n1"></p>
+        <p id="n2"></p>
+        <p id="n3"></p>
+        <p id="n4"></p>
+        <p id="n5"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="3.24" data-refs="beer.refs"></p>
+  <p class="note" data-i18n="beer.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-beer-game.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+
+  /* ---------- the game's data (Sterman's setup) and the bots' rule (illustrative) ---------- */
+  var N = 30;                  // weeks
+  var D0 = 4, D1 = 8, W1 = 5;  // customer demand: D0 in weeks 1..W1-1, D1 from week W1
+  var INV0 = 12, PIPE0 = 4;    // starting stock, cases in each order and shipment slot
+  var OD = 2, SD = 2;          // order delay, shipping (or brewing) delay, weeks
+  var HC = 0.5, BC = 1;        // cost per case and week: stock, backlog
+  var ALPHA = 0.2;             // bots' smoothing constant
+  var KW = OD + SD + 1;        // weeks covered by the base stock: lead time + review period
+  var SS = 8;                  // bots' safety stock, cases
+  var SSMAX = 40;              // grid of the best-rule search: alpha 0, 0.1, ..., 1 and safety stock 0..SSMAX
+  var QMAX = 999;
+
+  function demand(t) { return t < W1 - 1 ? D0 : D1; }   // t = 0..N-1
+
+  function newChain(shared, rules) {
+    var c = { t: 0, shared: shared, rules: rules, inv: [], back: [], ship: [], ordq: [], F: [], onord: [],
+      week: null, h: { q: [[], [], [], []], inv: [[], [], [], []], back: [[], [], [], []], cost: [[], [], [], []], D: [] }, cum: [0, 0, 0, 0] };
+    for (var i = 0; i < 4; i++) {
+      c.inv.push(INV0); c.back.push(0); c.ship.push([PIPE0, PIPE0]); c.F.push(D0);
+      c.onord.push(2 * PIPE0 + 2 * PIPE0);              // two order slots and two shipment slots
+    }
+    for (i = 0; i < 5; i++) c.ordq.push([PIPE0, PIPE0]);  // ordq[4]: the factory's production requests
+    return c;
+  }
+  // steps of week c.t up to the ordering decision: receive, read the new order, ship, update the forecast
+  function prepare(c) {
+    var t = c.t, d = demand(t), i, w = { r: [], d: [], s: [], D: d };
+    for (i = 0; i < 4; i++) { var r = c.ship[i][0]; c.ship[i] = [c.ship[i][1], 0]; c.inv[i] += r; c.onord[i] -= r; w.r.push(r); }
+    var inc = [];
+    for (i = 0; i < 5; i++) { inc.push(c.ordq[i][0]); c.ordq[i] = [c.ordq[i][1], 0]; }
+    inc[0] = d;
+    c.ship[3][1] = inc[4];                                 // production brews exactly what was requested
+    for (i = 0; i < 4; i++) {
+      var need = c.back[i] + inc[i], s = Math.min(c.inv[i], need);
+      c.inv[i] -= s; c.back[i] = need - s;
+      if (i > 0) c.ship[i - 1][1] = s;
+      w.d.push(inc[i]); w.s.push(s);
+      var x = (c.shared || i === 0) ? d : inc[i];
+      c.F[i] = c.F[i] + c.rules[i].a * (x - c.F[i]);
+    }
+    c.week = w;
+  }
+  function ruleOrder(c, i) {
+    var q = Math.floor(KW * c.F[i] + c.rules[i].ss - (c.inv[i] - c.back[i] + c.onord[i]) + 0.5);
+    return Math.max(0, q);
+  }
+  // place the orders (a number for a human seat, null for the rule) and book the week's costs
+  function commit(c, orders) {
+    var q = [];
+    for (var i = 0; i < 4; i++) q.push(orders && orders[i] != null ? orders[i] : ruleOrder(c, i));
+    for (i = 0; i < 4; i++) {
+      c.ordq[i + 1][1] = q[i]; c.onord[i] += q[i];
+      var cost = HC * c.inv[i] + BC * c.back[i];
+      c.cum[i] += cost;
+      c.h.q[i].push(q[i]); c.h.inv[i].push(c.inv[i]); c.h.back[i].push(c.back[i]); c.h.cost[i].push(cost);
+    }
+    c.h.D.push(c.week.D);
+    c.t++;
+  }
+  function botRules() { return [0, 1, 2, 3].map(function () { return { a: ALPHA, ss: SS }; }); }
+  function variance(x) {
+    var m = 0, v = 0, i;
+    for (i = 0; i < x.length; i++) m += x[i];
+    m /= x.length;
+    for (i = 0; i < x.length; i++) v += (x[i] - m) * (x[i] - m);
+    return v / x.length;
+  }
+  function summary(c) {
+    var vd = variance(c.h.D), tot = c.cum[0] + c.cum[1] + c.cum[2] + c.cum[3];
+    return { cost: c.cum.slice(), total: tot, bw: c.h.q.map(function (q) { return variance(q) / vd; }), h: c.h,
+      peak: c.h.q.map(function (q) { return Math.max.apply(null, q); }), vd: vd,
+      md: c.h.D.reduce(function (a, b) { return a + b; }, 0) / c.h.D.length };
+  }
+  function run(shared, rules) {
+    var c = newChain(shared, rules);
+    while (c.t < N) { prepare(c); commit(c, null); }
+    return summary(c);
+  }
+  var cache = {};
+  function bots(shared) { var k = "b" + shared; return cache[k] || (cache[k] = run(shared, botRules())); }
+  function best(shared, seat) {
+    var k = "x" + shared + seat;
+    if (cache[k]) return cache[k];
+    var b = null;
+    for (var ai = 0; ai <= 10; ai++) for (var ss = 0; ss <= SSMAX; ss++) {
+      var rules = botRules(); rules[seat] = { a: ai / 10, ss: ss };
+      var r = run(shared, rules);
+      if (!b || r.total < b.total - 1e-9) { b = r; b.a = ai / 10; b.ss = ss; }
+    }
+    return (cache[k] = b);
+  }
+
+  /* ---------- formatting ---------- */
+  var fx = function (v, d, m) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 1 : d, m); };
+  var money = function (v) { return fx(v, 1); };
+  var ratio = function (v) { return fx(v, 2, 2); };
+  var linkName = function (i) { return T("beer.link" + i); };
+  var roleLow = function (i) { return linkName(i).toLowerCase(); };
+
+  /* ---------- state ---------- */
+  var state = { seat: 1, shared: false, game: null, over: false };
+  function newGame() {
+    var rules = botRules();
+    state.game = newChain(state.shared, rules);
+    state.over = false;
+    prepare(state.game);
+    qIn.value = ruleOrder(state.game, state.seat);
+    maxNet = 20;
+  }
+  function demandVisible() { return state.shared || state.seat === 0 || state.over; }
+
+  /* ---------- the chain diagram ---------- */
+  var chainEl = document.getElementById("chain"), qIn = document.getElementById("q");
+  var maxNet = 20;
+  function slot(v, cls) { return "<span class='slot " + cls + "'>" + (v == null ? "" : fx(v, 0)) + "</span>"; }
+  function renderChain() {
+    var c = state.game, h = "", tw = Math.min(c.t + 1, N);
+    for (var i = 0; i < 4; i++) maxNet = Math.max(maxNet, c.inv[i], c.back[i]);
+    chainEl.setAttribute("aria-label", T("beer.dia.aria", { t: tw }));
+    h += "<div class='node end'><div class='nm'>" + T("beer.prod") + "</div><div class='sub'>" + T("beer.prod.sub") + "</div></div>";
+    for (var j = 3; j >= 0; j--) {
+      // lane from the link upstream of j (production when j = 3) down to j
+      var up = j === 3 ? T("beer.prod") : linkName(j + 1), mine = j === state.seat;
+      var pend = state.over ? null : (mine ? (qIn.value === "" ? null : Math.max(0, Math.min(QMAX, Math.round(+qIn.value)))) : null);
+      var aria = T("beer.lane.aria", { up: up, down: linkName(j), s1: fx(c.ship[j][0], 0), s2: fx(c.ship[j][1], 0), o1: fx(c.ordq[j + 1][0], 0) }) +
+        (pend != null ? T("beer.lane.pending", { o: fx(pend, 0) }) : "");
+      h += "<div class='lane' role='img' aria-label='" + aria.replace(/'/g, "&#39;") + "'>" +
+        "<div class='row'>" + slot(c.ship[j][1], "sh") + slot(c.ship[j][0], "sh") + "<span class='arr h'>→</span><span class='arr v'>↓</span></div>" +
+        "<div class='row'><span class='arr h'>←</span><span class='arr v'>↑</span>" + slot(c.ordq[j + 1][0], "or") + slot(pend, "or nw" + (mine ? " mine" : "")) + "</div></div>";
+      var inv = c.inv[j], bk = c.back[j], net = inv - bk, wpct = Math.min(50, Math.abs(net) / maxNet * 50);
+      h += "<div class='node" + (mine ? " me" : "") + "'><div class='nm'>" + linkName(j) + " <span class='badge'>" + T(mine ? "beer.you" : "beer.bot") + "</span></div>" +
+        "<div class='st'><b>" + fx(inv, 0) + "</b>" + T("beer.stock") + "</div>" +
+        "<div class='bk" + (bk > 0 ? " on" : "") + "'><b>" + fx(bk, 0) + "</b>" + T("beer.backlog") + "</div>" +
+        "<div class='nbar' aria-hidden='true'>" + (net > 0 ? "<i class='p' style='width:" + wpct + "%'></i>" : net < 0 ? "<i class='n' style='width:" + wpct + "%'></i>" : "") + "</div>" +
+        "<div class='cs'>" + T("beer.cost", { v: money(c.cum[j]) }) + "</div></div>";
+    }
+    var dv = demandVisible(), w = c.week;
+    h += "<div class='lane c'><div class='row'><span class='arr h'>→</span><span class='arr v'>↓</span></div></div>";
+    h += "<div class='node end'><div class='nm'>" + T("beer.cust") + "</div>" +
+      "<div class='st'><b>" + (dv ? fx(w.D, 0) : T("beer.hidden")) + "</b>" + T("beer.demand") + "</div>" +
+      "<div class='sub'>" + (dv ? T("beer.delivered", { v: fx(w.s[0], 0) }) : T("beer.hiddenSub")) + "</div></div>";
+    chainEl.innerHTML = h;
+  }
+
+  /* ---------- turn panel and counters ---------- */
+  function orderValue() {
+    var v = Math.round(+qIn.value);
+    if (!isFinite(v) || qIn.value === "") v = 0;
+    return Math.max(0, Math.min(QMAX, v));
+  }
+  function renderTurn() {
+    var c = state.game, w = c.week, s = state.seat;
+    document.getElementById("turnbox").hidden = state.over;
+    document.getElementById("done").hidden = !state.over;
+    document.getElementById("done").textContent = T("beer.done", { n: N });
+    document.getElementById("rule").hidden = state.over;
+    document.getElementById("auto").hidden = state.over;
+    if (!state.over) {
+      document.getElementById("wk").textContent = T("beer.week", { t: c.t + 1, n: N });
+      document.getElementById("turn").innerHTML = T("beer.turn", {
+        r: fx(w.r[s], 0), d: fx(w.d[s], 0), s: fx(w.s[s], 0), i: fx(c.inv[s], 0), b: fx(c.back[s], 0), o: fx(c.onord[s], 0)
+      });
+      document.getElementById("rule").textContent = T("beer.btn.rule", { q: fx(ruleOrder(c, s), 0) });
+    }
+    var played = c.t;
+    document.getElementById("v-week").textContent = fx(played, 0);
+    document.getElementById("l-week").textContent = T("beer.l.week", { n: N });
+    document.getElementById("v-you").textContent = money(c.cum[s]);
+    document.getElementById("l-you").textContent = T("beer.l.you", { role: linkName(s) });
+    document.getElementById("v-chain").textContent = money(c.cum[0] + c.cum[1] + c.cum[2] + c.cum[3]);
+    var dv = demandVisible();
+    document.getElementById("v-dem").textContent = dv ? fx(w.D, 0) : T("beer.hidden");
+    document.getElementById("l-dem").textContent = dv ? T("beer.l.demand") : T("beer.l.hidden");
+  }
+
+  /* ---------- charts: small multiples, one strip per link (retailer on top) ---------- */
+  var NS = "http://www.w3.org/2000/svg";
+  function niceMax(v) {
+    if (v <= 0) return 1;
+    var p = Math.pow(10, Math.floor(Math.log10(v))), m = v / p;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+  }
+  function strips(svg, kind) {
+    var c = state.game, W = svg.parentNode.clientWidth || 360, narrow = W < 420;
+    var fs = narrow ? 11 : 11.5, M = { l: 36, r: 10, t: 6, b: 30 }, SH = narrow ? 58 : 64, GAP = 20;
+    var H = M.t + 4 * (SH + GAP) - GAP + M.b + 6;
+    var sx = function (t) { return M.l + (t - 1) / (N - 1) * (W - M.l - M.r); };
+    var g = [], i, t, lo = 0, hi = 0;
+    var dv = demandVisible();
+    for (i = 0; i < 4; i++) for (t = 0; t < c.t; t++) {
+      if (kind === "ord") hi = Math.max(hi, c.h.q[i][t]);
+      else { var n = c.h.inv[i][t] - c.h.back[i][t]; hi = Math.max(hi, n); lo = Math.min(lo, n); }
+    }
+    if (kind === "ord") { hi = niceMax(Math.max(hi, D1 + 4)); lo = 0; }
+    else { hi = niceMax(Math.max(hi, INV0 + 4)); lo = lo < 0 ? -niceMax(-lo) : 0; }
+    for (i = 0; i < 4; i++) {
+      var y0 = M.t + 14 + i * (SH + GAP), y1 = y0 + SH - 14, me = i === state.seat;
+      var sy = function (v) { return y1 - (v - lo) / (hi - lo) * (y1 - y0); };
+      if (me) g.push("<rect x='" + (M.l - 2) + "' y='" + (y0 - 16) + "' width='" + (W - M.l - M.r + 4) + "' height='" + (SH + 6) + "' fill='var(--sel)'/>");
+      g.push("<text x='" + M.l + "' y='" + (y0 - 4) + "' font-size='" + fs + "' font-weight='" + (me ? 700 : 600) + "' fill='" + (me ? "var(--accent-text)" : "var(--ink2)") + "'>" +
+        linkName(i) + (me ? " · " + T("beer.you") : "") + "</text>");
+      // scale: 0 (and the bottom when negative) and the top value
+      // grid lines at 0, the bottom (when negative) and the top; a label is left out when it would touch one already placed
+      var placed = [];
+      [0].concat(lo < 0 ? [lo] : [], [hi]).forEach(function (v) {
+        g.push("<line x1='" + M.l + "' x2='" + (W - M.r) + "' y1='" + sy(v) + "' y2='" + sy(v) + "' stroke='" + (v === 0 ? "var(--axis)" : "var(--grid)") + "'" + (v === 0 ? " stroke-width='1.3'" : "") + "/>");
+        if (placed.some(function (y) { return Math.abs(y - sy(v)) < fs + 4; })) return;
+        placed.push(sy(v));
+        g.push("<text class='num' x='" + (M.l - 5) + "' y='" + (sy(v) + 4) + "' text-anchor='end' font-size='" + (fs - 0.5) + "' fill='var(--muted)'>" + fx(v, 0) + "</text>");
+      });
+      if (kind === "ord") {
+        if (dv && c.t > 0) {
+          var dp = [];
+          for (t = 0; t < c.t; t++) dp.push(sx(t + 1).toFixed(1) + "," + sy(c.h.D[t]).toFixed(1));
+          g.push("<polyline points='" + dp.join(" ") + "' fill='none' stroke='var(--mit-silver)' stroke-width='2' stroke-dasharray='5 4'/>");
+        }
+        var pts = [];
+        for (t = 0; t < c.t; t++) pts.push(sx(t + 1).toFixed(1) + "," + sy(c.h.q[i][t]).toFixed(1));
+        if (pts.length) {
+          g.push("<polyline points='" + pts.join(" ") + "' fill='none' stroke='" + (me ? "var(--accent)" : "var(--ink)") + "' stroke-width='" + (me ? 2.6 : 1.7) + "' stroke-linejoin='round'/>");
+          var last = pts[pts.length - 1].split(",");
+          g.push("<circle cx='" + last[0] + "' cy='" + last[1] + "' r='3.2' fill='" + (me ? "var(--accent)" : "var(--ink)") + "'/>");
+        }
+      } else {
+        var bw = Math.max(2, (W - M.l - M.r) / (N - 1) * 0.66);
+        for (t = 0; t < c.t; t++) {
+          var nv = c.h.inv[i][t] - c.h.back[i][t];
+          if (!nv) continue;
+          var ya = sy(Math.max(nv, 0)), yb = sy(Math.min(nv, 0));
+          g.push("<rect x='" + (sx(t + 1) - bw / 2).toFixed(1) + "' y='" + ya.toFixed(1) + "' width='" + bw.toFixed(1) + "' height='" + Math.max(0.8, yb - ya).toFixed(1) +
+            "' fill='" + (nv > 0 ? "var(--mit-silver)" : "var(--crit)") + "'/>");
+        }
+      }
+    }
+    var yb2 = H - M.b + 2;
+    g.push("<line x1='" + M.l + "' x2='" + (W - M.r) + "' y1='" + (yb2 - 2) + "' y2='" + (yb2 - 2) + "' stroke='var(--axis)'/>");
+    [1, 5, 10, 15, 20, 25, 30].forEach(function (x) {
+      g.push("<text class='num' x='" + sx(x) + "' y='" + (yb2 + 12) + "' text-anchor='middle' font-size='" + (fs - 0.5) + "' fill='var(--muted)'>" + x + "</text>");
+    });
+    g.push("<text x='" + (W - M.r) + "' y='" + (yb2 + 26) + "' text-anchor='end' font-size='" + fs + "' fill='var(--ink2)'>" + T("beer.ch.x") + "</text>");
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("height", H);
+    svg.setAttribute("aria-label", T(kind === "ord" ? "beer.ch.orders.aria" : "beer.ch.net.aria"));
+    svg.innerHTML = g.join("");
+  }
+  function renderCharts() {
+    strips(document.getElementById("ch-ord"), "ord");
+    strips(document.getElementById("ch-net"), "net");
+    document.getElementById("lg-dem").hidden = !demandVisible();
+  }
+
+  /* ---------- results ---------- */
+  function scName(sh) { return T(sh ? "beer.sc.shared" : "beer.sc.local"); }
+  function renderResults() {
+    var res = document.getElementById("res");
+    res.hidden = !state.over;
+    if (!state.over) return;
+    var s = state.seat, sh = state.shared, you = summary(state.game), b = bots(sh), bo = bots(!sh), x = best(sh, s);
+    document.getElementById("res-title").textContent = T("beer.res.title", { n: N, role: roleLow(s), sc: scName(sh) });
+    document.getElementById("r-you").textContent = money(you.total);
+    document.getElementById("r-youl").textContent = T("beer.r.youL", { c: money(you.cost[s]) });
+    document.getElementById("r-bots").textContent = money(b.total);
+    document.getElementById("r-botsl").textContent = T("beer.r.botsL", { c: money(b.cost[s]) });
+    document.getElementById("r-best").textContent = money(x.total);
+    document.getElementById("r-bestl").textContent = T("beer.r.bestL", { a: fx(x.a, 1), ss: fx(x.ss, 0), c: money(x.cost[s]) });
+    document.getElementById("r-otherk").textContent = T("beer.r.other", { sc: scName(!sh) });
+    document.getElementById("r-other").textContent = money(bo.total);
+    var d = you.total - b.total, v = d < 0 ? T("beer.v.better", { d: money(-d) }) : d > 0 ? T("beer.v.worse", { d: money(d) }) : T("beer.v.same");
+    var gp = you.total - x.total;
+    v += gp > 0 ? T("beer.v.gap", { g: money(gp) }) : T("beer.v.beat", { g: money(-gp) });
+    document.getElementById("verdict").innerHTML = v;
+    // cost table
+    document.getElementById("tbl-h").textContent = T("beer.tbl.cost", { n: N });
+    var cols = [[T("beer.r.you"), you], [T("beer.r.bots"), b], [T("beer.r.best"), x], [T("beer.r.other", { sc: scName(!sh) }), bo]];
+    var h = transposed(cols, function (r, k) { return money(r.cost[k]); }, function (r) { return money(r.total); });
+    document.getElementById("costTable").innerHTML = h;
+    document.getElementById("bestNote").textContent = T("beer.best.note", { max: SSMAX, k: fx(11 * (SSMAX + 1), 0) });
+    // bullwhip
+    document.getElementById("bwIntro").textContent = T("beer.bw.intro", { n: N, m: fx(you.md, 2), v: fx(you.vd, 3) });
+    var ser = [[T("beer.bw.botsL"), bots(false)], [T("beer.bw.botsS"), bots(true)], [T("beer.bw.youSc", { sc: scName(sh) }), you]];
+    document.getElementById("lg-bwyou").textContent = ser[2][0];
+    h = transposed(ser, function (r, k) { return ratio(r.bw[k]); }, null);
+    document.getElementById("bwTable").innerHTML = h;
+    var z = document.getElementById("bwZero");
+    z.hidden = you.bw[s] > 0; z.textContent = T("beer.bw.zero");
+    bwChart(ser);
+  }
+  // rows: the four links (and the total); columns: the chains compared
+  function transposed(cols, cell, total) {
+    var s = state.seat, h = "<thead><tr><th>" + T("beer.tbl.link") + "</th>";
+    cols.forEach(function (c) { h += "<th class='num'>" + c[0] + "</th>"; });
+    h += "</tr></thead><tbody>";
+    for (var k = 0; k < 4; k++) {
+      h += "<tr" + (k === s ? " class='me'" : "") + "><td>" + linkName(k) + (k === s ? " · " + T("beer.you") : "") + "</td>";
+      cols.forEach(function (c) { h += "<td class='num'>" + cell(c[1], k) + "</td>"; });
+      h += "</tr>";
+    }
+    if (total) {
+      h += "<tr class='tot'><td>" + T("beer.tbl.total") + "</td>";
+      cols.forEach(function (c) { h += "<td class='num'>" + total(c[1]) + "</td>"; });
+      h += "</tr>";
+    }
+    return h + "</tbody>";
+  }
+  function bwChart(ser) {
+    var svg = document.getElementById("ch-bw"), W = svg.parentNode.clientWidth || 360, narrow = W < 520;
+    var fs = narrow ? 11 : 12, LW = narrow ? 84 : 110, M = { l: LW, r: 16, t: 26, b: 30 }, RH = 13, GH = 12;
+    var H = M.t + 4 * (3 * RH + GH) - GH + M.b;
+    var vals = [], i, k;
+    ser.forEach(function (r) { r[1].bw.forEach(function (v) { if (v > 0) vals.push(v); }); });
+    var lo = Math.pow(10, Math.floor(Math.log10(Math.min(1, Math.min.apply(null, vals)))));
+    var hi = Math.pow(10, Math.ceil(Math.log10(Math.max(10, Math.max.apply(null, vals)) * 1.0001)));
+    var sx = function (v) { return M.l + (Math.log10(Math.max(v, lo)) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo)) * (W - M.l - M.r); };
+    var g = [], col = ["var(--mit-silver)", "var(--ink)", "var(--accent)"];
+    for (var p = lo; p <= hi * 1.0001; p *= 10) {
+      g.push("<line x1='" + sx(p) + "' x2='" + sx(p) + "' y1='" + (M.t - 6) + "' y2='" + (H - M.b) + "' stroke='" + (Math.abs(p - 1) < 1e-9 ? "var(--ink2)" : "var(--grid)") + "'" +
+        (Math.abs(p - 1) < 1e-9 ? " stroke-width='1.5' stroke-dasharray='4 3'" : "") + "/>");
+      g.push("<text class='num' x='" + sx(p) + "' y='" + (H - M.b + 16) + "' text-anchor='middle' font-size='" + fs + "' fill='var(--muted)'>" + fx(p, 1) + "</text>");
+    }
+    g.push("<text x='" + (sx(1) + 5) + "' y='" + (M.t - 12) + "' font-size='" + fs + "' fill='var(--ink2)'>" + T("beer.bw.one") + "</text>");
+    for (i = 0; i < 4; i++) {
+      var yg = M.t + i * (3 * RH + GH);
+      g.push("<text x='" + (M.l - 10) + "' y='" + (yg + 1.5 * RH + 4) + "' text-anchor='end' font-size='" + fs + "' font-weight='" + (i === state.seat ? 700 : 600) + "' fill='" +
+        (i === state.seat ? "var(--accent-text)" : "var(--ink)") + "'>" + linkName(i) + "</text>");
+      for (k = 0; k < 3; k++) {
+        var v = ser[k][1].bw[i], y = yg + k * RH + RH / 2, X = sx(v), X1 = sx(1);
+        g.push("<line x1='" + X1 + "' x2='" + X + "' y1='" + y + "' y2='" + y + "' stroke='" + col[k] + "' stroke-width='2'/>");
+        g.push("<circle cx='" + X + "' cy='" + y + "' r='4.5' fill='" + col[k] + "' stroke='var(--surface)' stroke-width='1.5'/>");
+        var lab = ratio(v), tw = lab.length * fs * 0.62, right = X + 8 + tw < W - 2;
+        if (X < X1) right = false;
+        if (!right && X - 8 - tw < M.l) right = true;
+        g.push("<text class='num' x='" + (right ? X + 8 : X - 8) + "' y='" + (y + 4) + "' text-anchor='" + (right ? "start" : "end") + "' font-size='" + (fs - 1) +
+          "' fill='var(--ink2)' stroke='var(--surface)' stroke-width='3' paint-order='stroke'>" + lab + "</text>");
+      }
+    }
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("height", H);
+    svg.innerHTML = g.join("");
+  }
+
+  /* ---------- page text ---------- */
+  function renderText() {
+    var s = state.seat;
+    document.getElementById("brief").innerHTML = T("beer.brief", { the: T("beer.the" + s), h: fx(HC, 1), b: fx(BC, 0) });
+    var fv = { inv: INV0, p: PIPE0, d0: D0, od: OD, sd: SD, L: OD + SD };
+    document.getElementById("facts").textContent = T(state.shared ? "beer.facts.shared" : "beer.facts.local", fv);
+    document.getElementById("bots").textContent = T(state.shared ? "beer.bots.shared" : "beer.bots.local", { a: fx(ALPHA, 1), k: KW, ss: SS });
+    document.getElementById("mdata").textContent = T("beer.model.data", {
+      d0: D0, d1: D1, w0: W1 - 1, w1: W1, inv: INV0, p: PIPE0, a: fx(ALPHA, 1), h: fx(HC, 1), b: fx(BC, 0)
+    });
+    var bl = bots(false), bs = bots(true), x = best(state.shared, s);
+    document.getElementById("n1").textContent = T("beer.n.p1", { d0: D0, d1: D1, r0: ratio(bl.bw[0]), r1: ratio(bl.bw[1]), r2: ratio(bl.bw[2]), r3: ratio(bl.bw[3]), pk: fx(bl.peak[3], 0) });
+    document.getElementById("n2").textContent = T("beer.n.p2");
+    document.getElementById("n3").textContent = T("beer.n.p3", { r0: ratio(bs.bw[0]), r1: ratio(bs.bw[1]), r2: ratio(bs.bw[2]), r3: ratio(bs.bw[3]), c0: money(bl.total), c1: money(bs.total) });
+    var b = bots(state.shared);
+    document.getElementById("n4").textContent = T(x.a === 0 ? "beer.n.p4a" : "beer.n.p4b", { role: roleLow(s), sc: scName(state.shared), a: fx(x.a, 1), ss: x.ss, c: money(x.total), cb: money(b.total) });
+    document.getElementById("n5").textContent = T("beer.n.p5");
+  }
+  function renderAll() { renderText(); renderChain(); renderTurn(); renderCharts(); renderResults(); }
+
+  /* ---------- events ---------- */
+  function announce(msg) { var l = document.getElementById("live"); l.textContent = ""; setTimeout(function () { l.textContent = msg; }, 30); }
+  function finish(fromKeyboard) {
+    state.over = true;
+    renderAll();
+    var you = summary(state.game);
+    announce(T("beer.live.end", { n: N, c: money(you.total) }));
+    document.getElementById("res-h").focus({ preventScroll: !fromKeyboard });
+  }
+  function step(q) {
+    var c = state.game, orders = [null, null, null, null];
+    orders[state.seat] = q;
+    commit(c, orders);
+    if (c.t >= N) { finish(true); return; }
+    prepare(c);
+    var s = state.seat, w = c.week;
+    renderChain(); renderTurn(); renderCharts();
+    announce(T("beer.live", { t: c.t + 1, r: w.r[s], d: w.d[s], s: w.s[s], i: c.inv[s], b: c.back[s] }));
+  }
+  document.getElementById("ordform").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (state.over) return;
+    var q = orderValue();
+    qIn.value = q;
+    step(q);
+    if (!state.over) qIn.select();
+  });
+  qIn.addEventListener("input", function () { renderChain(); });
+  document.getElementById("minus").addEventListener("click", function () { qIn.value = Math.max(0, orderValue() - 1); renderChain(); });
+  document.getElementById("plus").addEventListener("click", function () { qIn.value = Math.min(QMAX, orderValue() + 1); renderChain(); });
+  document.getElementById("rule").addEventListener("click", function () { qIn.value = ruleOrder(state.game, state.seat); renderChain(); qIn.focus(); });
+  document.getElementById("auto").addEventListener("click", function () {
+    var c = state.game;
+    while (c.t < N) { commit(c, null); if (c.t < N) prepare(c); }
+    finish(true);
+  });
+  function restart(focusEl) { newGame(); renderAll(); if (focusEl) focusEl.focus(); }
+  document.getElementById("restart").addEventListener("click", function () { restart(qIn); });
+  document.getElementById("again").addEventListener("click", function () { restart(qIn); });
+  function segs(id, attr, key) {
+    var btns = document.querySelectorAll("#" + id + " button");
+    btns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var v = +b.getAttribute(attr);
+        if ((key === "seat" ? state.seat : +state.shared) === v) return;
+        if (key === "seat") state.seat = v; else state.shared = !!v;
+        btns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+        restart(null);
+      });
+    });
+  }
+  segs("role-seg", "data-role", "seat");
+  segs("info-seg", "data-sh", "shared");
+
+  var rsT = null, lastW = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(rsT);
+    rsT = setTimeout(function () {
+      var w = document.getElementById("game").clientWidth;
+      if (w === lastW) return;
+      lastW = w; renderCharts(); renderResults();
+    }, 120);
+  });
+
+  newGame();
+  I18N.onChange(function () { renderAll(); lastW = document.getElementById("game").clientWidth; });
+})();
+</script>
+</body>
+</html>

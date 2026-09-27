@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="en" data-title-key="chord.title" data-i18n-bundles="resources/nlp-convexity">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>The Chord Test</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #chord-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(300px, max(236px, 31%)); max-width: none;
+  }
+  #chord-sec .anim-hud .hud-h {
+    opacity: 0; min-width: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink2); padding: 0 2px 0 9px; border-left: 3px solid var(--ink2); line-height: 1.3;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #chord-sec .anim-hud .hud-h.nc { border-left-color: var(--hot); }
+  #chord-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #chord-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #chord-sec .anim-hud .chip-stat.bad b { color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #chord-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #chord-sec .anim-hud .chip-stat b { font-size: 15px; }
+    #chord-sec .anim-hud .chip-stat span { white-space: normal; }
+  }
+  @media (max-width: 620px) {
+    #chord-sec .anim-hud { top: 8px; left: 8px; right: 8px; width: auto; gap: 4px 6px; }
+    #chord-sec .anim-hud .hud-h { font-size: 10.5px; }
+    #chord-sec .anim-hud .chip-stat { padding: 2px 7px 3px; font-size: 10.5px; line-height: 1.2; }
+    #chord-sec .anim-hud .chip-stat b { font-size: 13.5px; }
+  }
+  /* bright red cue: the dark theme makes the accent that same red, so the violations use the crit shade there */
+  #chord-sec { --hot: var(--mit-bright); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #chord-sec { --hot: var(--crit); } }
+  :root[data-theme="dark"] #chord-sec { --hot: var(--crit); }
+  #chord-sec .anim-legend i.lg-curve { width: 18px; height: 0; border-top: 2.5px solid var(--ink); }
+  #chord-sec .anim-legend i.lg-region { background: var(--region); border: 1px solid var(--mit-silver); }
+  #chord-sec .anim-legend i.lg-pass { width: 20px; height: 0; border-top: 1.8px solid var(--ink2); opacity: 0.75; }
+  #chord-sec .anim-legend i.lg-fail { width: 20px; height: 10px; background: repeating-linear-gradient(135deg, var(--hot) 0 1.5px, transparent 1.5px 4.5px); border-bottom: 3px solid var(--hot); }
+  #chord-sec .anim-legend i.lg-glob { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent); }
+  #chord-sec .anim-legend i.lg-loc { width: 13px; height: 13px; border-radius: 50%; border: 2.5px solid var(--hot); background: none; }
+  #chord-sec .anim-legend i.lg-run { width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- definitions ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 14px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .model-grid > div > .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- results ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  .stat .v.bad { color: var(--crit); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 19px; }
+    .stat .l { font-size: 12px; }
+  }
+  .solcheck { font-size: 14px; color: var(--ink2); margin: 14px 0 0; }
+
+  /* ---- chord log ---- */
+  table.data { min-width: 520px; }
+  @media (max-width: 560px) {
+    table.data { min-width: 0; }
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 6px; }
+  }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.fail { color: var(--crit); font-weight: 600; }
+  table.data td.pass { color: var(--ink2); }
+  table.data tr.split td { border-top: 1px solid var(--axis); }
+  .sens-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 78ch; }
+  .sens-p b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="chord.eyebrow"></p>
+    <h1 data-i18n="chord.title"></h1>
+    <p class="lede" data-i18n-html="chord.lede"></p>
+  </header>
+
+  <section class="block" id="chord-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="chord.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="chord-scen-lbl" data-i18n="chord.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="chord-scen-lbl" id="chord-seg">
+        <button type="button" data-sc="fn" aria-pressed="true" data-i18n="chord.sc.fn"></button>
+        <button type="button" data-sc="sets" aria-pressed="false" data-i18n="chord.sc.sets"></button>
+      </div>
+    </div>
+    <div class="anim" id="chord-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:chord.anim.aria.fn">
+        <div class="anim-hud" id="chord-hud">
+          <div class="hud-h" id="chord-h0"></div>
+          <div class="hud-h nc" id="chord-h1"></div>
+          <div class="chip-stat" id="chord-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="chord-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="chord-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="chord-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="chord-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="chord-c5"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-curve"></i><span id="chord-lg-curve"></span></span>
+      <span><i class="lg-region"></i><span id="chord-lg-region"></span></span>
+      <span><i class="lg-pass"></i><span data-i18n="chord.lg.pass"></span></span>
+      <span><i class="lg-fail"></i><span data-i18n="chord.lg.fail"></span></span>
+      <span><i class="lg-run"></i><span data-i18n="chord.lg.run"></span></span>
+      <span><i class="lg-glob"></i><span data-i18n="chord.lg.glob"></span></span>
+      <span><i class="lg-loc"></i><span data-i18n="chord.lg.loc"></span></span>
+    </div>
+    <p class="scen-status" id="chord-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="chord.model.kicker"></span><span data-i18n="chord.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="chord.def.fn.head"></p>
+        <div class="formula" data-tex="chord.def.fn.tex" data-i18n="chord.def.fn.formula"></div>
+        <p class="mtext" data-i18n="chord.def.fn.why"></p>
+        <p class="mhead" data-i18n="chord.def.set.head"></p>
+        <div class="formula" data-tex="chord.def.set.tex" data-i18n="chord.def.set.formula"></div>
+        <p class="mtext" data-i18n="chord.def.set.why"></p>
+        <p class="mhead" data-i18n="chord.def.epi.head"></p>
+        <div class="formula" data-tex="chord.def.epi.tex" data-i18n="chord.def.epi.formula"></div>
+        <p class="mtext" data-i18n="chord.def.epi.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="chord.def.prob.head"></p>
+        <div class="formula" data-tex="chord.def.prob.tex" data-i18n="chord.def.prob.formula"></div>
+        <p class="mtext" data-i18n="chord.def.prob.why"></p>
+        <p class="mhead" data-i18n="chord.def.thm.head"></p>
+        <div class="formula" data-tex="chord.def.thm.tex" data-i18n="chord.def.thm.formula"></div>
+        <p class="mtext" data-i18n="chord.def.thm.why"></p>
+        <p class="mhead" data-i18n="chord.data.head"></p>
+        <div class="formula" id="chord-data"></div>
+        <p class="mtext" id="chord-data-why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="chord.res.kicker"></span><span id="chord-res-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" id="chord-r0k"></div><div class="v ink" id="chord-r0"></div><div class="l" id="chord-r0l"></div></div>
+      <div class="stat"><div class="k" id="chord-r1k"></div><div class="v bad" id="chord-r1"></div><div class="l" id="chord-r1l"></div></div>
+      <div class="stat"><div class="k" data-i18n="chord.res.worst"></div><div class="v bad" id="chord-r2"></div><div class="l" id="chord-r2l"></div></div>
+      <div class="stat"><div class="k" id="chord-r3k"></div><div class="v" id="chord-r3"></div><div class="l" id="chord-r3l"></div></div>
+      <div class="stat"><div class="k" id="chord-r4k"></div><div class="v" id="chord-r4"></div><div class="l" id="chord-r4l"></div></div>
+      <div class="stat"><div class="k" id="chord-r5k"></div><div class="v bad" id="chord-r5"></div><div class="l" id="chord-r5l"></div></div>
+    </div>
+    <p class="solcheck" id="chord-check-p"></p>
+    <div class="formula" id="chord-inst"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="chord.log.kicker"></span><span data-i18n="chord.log.title"></span></h2>
+    <p class="sens-p" id="chord-log-intro" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="chord-log"></table></div>
+    <p class="sens-p" id="chord-log-note"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="chord.n.title"></summary>
+      <div class="body">
+        <p id="chord-n1"></p>
+        <p id="chord-n2"></p>
+        <p id="chord-n3"></p>
+        <p id="chord-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.16" data-refs="chord.refs"></p>
+  <p class="note" data-i18n="chord.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/nlp-convexity.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d, m) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 2 : d, m); };
+  var signed = function (v, d, neg, m) { var s = fmt(Math.abs(v), d, m); return s === fmt(0, d, m) ? s : (v < 0 ? neg : "") + s; };
+  var num = function (v, d, m) { return signed(v, d, MINUS, m); };         // U+2212 for negatives
+  var texNum = function (v, d, m) { return signed(v, d, "-", m); };
+  var cnt = function (v) { return I18N.fmt(v, 0); };
+  var pair = function (x, y, d, m) { return T("chord.pair", { x: num(x, d, m), y: num(y, d, m) }); };
+  var pairTex = function (x, y, d, m) { return T("chord.pairTex", { x: texNum(x, d, m), y: texNum(y, d, m) }); };
+  var ofN = function (k, n) { return T("chord.k.of", { k: cnt(k), n: cnt(n) }); };
+
+  /* =====================================================================================
+     The shapes. Functions: f1 is convex, f2 has two valleys. Sets: C1 is a sheared ellipse,
+     C2 is the union of two overlapping disks. All four are illustrative.
+     ===================================================================================== */
+  var M = 200;                                   // each chord is checked at M + 1 evenly spaced points
+  var TOL = 1e-9;
+  var D1 = [-1.6, 2.9], D2 = [-2.2, 2.1];        // domains of f1 and f2
+  var K1 = { c: [-0.5, 0.9], r: 0.85 }, K2 = { c: [0.45, -0.55], r: 1 };   // the two disks of C2
+  var NRUN = 6;                                  // descents per shape
+  var SEEDS = {                                  // Anim.rng seeds of each group of chords and of the descents
+    fn: { g1: 11, g2: 175, g3: 21, g4: 5, run: 3 },
+    sets: { g1: 12, g2: 9, g3: 22, g4: 6, run: 4 }
+  };
+
+  function f1(x) { return x * x / 2 + Math.exp(-x); }
+  function d1(x) { return x - Math.exp(-x); }
+  function f2(x) { return x * x * x * x / 2 - 2 * x * x + x / 2 + 3; }
+  function d2(x) { return 2 * x * x * x - 4 * x + 0.5; }
+  function g1(x, y) { var u = y - x / 2; return x * x + u * u / 2 - 1; }          // C1: g1 <= 0
+  function g2(x, y) {                                                            // C2: g2 <= 0 (signed distance)
+    return Math.min(Math.hypot(x - K1.c[0], y - K1.c[1]) - K1.r, Math.hypot(x - K2.c[0], y - K2.c[1]) - K2.r);
+  }
+
+  function fnObj(f, df, dom) {
+    var lo = Infinity, i, x, n = 400;
+    for (i = 0; i <= n; i++) { x = dom[0] + (dom[1] - dom[0]) * i / n; lo = Math.min(lo, f(x)); }
+    var top = Math.max(f(dom[0]), f(dom[1])), pad = 0.05 * (top - lo), padB = 0.16 * (top - lo);   // room below for the minima labels
+    var pts = [];
+    for (i = 0; i <= 240; i++) { x = dom[0] + (dom[1] - dom[0]) * i / 240; pts.push([x, f(x)]); }
+    return { kind: "fn", f: f, df: df, dom: dom, top: top, pts: pts,
+      box: [(dom[0] + dom[1]) / 2, (lo - padB + top + pad) / 2, (dom[1] - dom[0]) * 1.04, top - lo + pad + padB] };
+  }
+  function setObj(g, bb, outline, arcs) {
+    var pad = 0.14 * Math.max(bb[2] - bb[0], bb[3] - bb[1]);
+    return { kind: "set", g: g, bb: bb, pts: outline, arcs: arcs,
+      box: [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2, bb[2] - bb[0] + 2 * pad, bb[3] - bb[1] + 2 * pad] };
+  }
+  function ellipseOutline() {                    // C1: x = cos s, y = cos s / 2 + sqrt(2) sin s, from the bottom
+    var out = [], s0 = Math.atan2(-Math.SQRT2, -0.5), i;
+    for (i = 0; i <= 240; i++) { var s = s0 + 2 * Math.PI * i / 240; out.push([Math.cos(s), Math.cos(s) / 2 + Math.SQRT2 * Math.sin(s)]); }
+    return out;
+  }
+  function diskArcs() {                          // C2: the outer arc of each disk (the part outside the other disk)
+    var dx = K2.c[0] - K1.c[0], dy = K2.c[1] - K1.c[1], d = Math.hypot(dx, dy);
+    var a = (d * d + K1.r * K1.r - K2.r * K2.r) / (2 * d), h = Math.sqrt(K1.r * K1.r - a * a);
+    var mx = K1.c[0] + a * dx / d, my = K1.c[1] + a * dy / d;
+    var P = [mx + h * dy / d, my - h * dx / d], Q = [mx - h * dy / d, my + h * dx / d];
+    function arc(K, other) {
+      var aP = Math.atan2(P[1] - K.c[1], P[0] - K.c[0]), aQ = Math.atan2(Q[1] - K.c[1], Q[0] - K.c[0]);
+      var sweep = aQ - aP; while (sweep <= 0) sweep += 2 * Math.PI;
+      var mid = aP + sweep / 2, px = K.c[0] + K.r * Math.cos(mid), py = K.c[1] + K.r * Math.sin(mid);
+      if (Math.hypot(px - other.c[0], py - other.c[1]) < other.r) { aP = aQ; sweep = 2 * Math.PI - sweep; }
+      var out = [];
+      for (var i = 0; i <= 160; i++) { var s = aP + sweep * i / 160; out.push([K.c[0] + K.r * Math.cos(s), K.c[1] + K.r * Math.sin(s)]); }
+      return out;
+    }
+    return [arc(K1, K2), arc(K2, K1)];
+  }
+
+  /* ---------- the chord check: sample, flag, refine ---------- */
+  function golden(fn, a, b) {                    // maximise fn on [a, b]
+    var gr = (Math.sqrt(5) - 1) / 2, c = b - gr * (b - a), d = a + gr * (b - a), fc = fn(c), fd = fn(d);
+    for (var i = 0; i < 80; i++) {
+      if (fc > fd) { b = d; d = c; fd = fc; c = b - gr * (b - a); fc = fn(c); }
+      else { a = c; c = d; fc = fd; d = a + gr * (b - a); fd = fn(d); }
+    }
+    return (a + b) / 2;
+  }
+  function bisect(fn, a, b) {                    // fn(a) <= TOL < fn(b) (or the reverse): the crossing
+    var fa = fn(a) > TOL;
+    for (var i = 0; i < 60; i++) { var m = (a + b) / 2; if ((fn(m) > TOL) === fa) a = m; else b = m; }
+    return (a + b) / 2;
+  }
+  function check(o, A, B) {
+    // excess(u) > 0 means the point of the chord at u is outside: below the curve, or outside the set
+    var excess = o.kind === "fn"
+      ? function (u) { var x = A[0] + u * (B[0] - A[0]); return o.f(x) - (A[1] + u * (B[1] - A[1])); }
+      : function (u) { return o.g(A[0] + u * (B[0] - A[0]), A[1] + u * (B[1] - A[1])); };
+    var runs = [], k, start = -1, best = 0, bestV = -Infinity, e;
+    for (k = 0; k <= M; k++) {
+      e = excess(k / M);
+      if (e > bestV) { bestV = e; best = k; }
+      if (e > TOL) { if (start < 0) start = k; }
+      else if (start >= 0) { runs.push([start, k - 1]); start = -1; }
+    }
+    if (start >= 0) runs.push([start, M]);
+    var len = Math.hypot(B[0] - A[0], B[1] - A[1]);
+    var c = { A: A, B: B, bad: runs.length > 0, runs: [], len: len, measure: 0, wu: 0, wv: 0 };
+    if (!c.bad) return c;
+    c.runs = runs.map(function (r) {
+      var u0 = r[0] > 0 ? bisect(excess, (r[0] - 1) / M, r[0] / M) : 0;
+      var u1 = r[1] < M ? bisect(excess, r[1] / M, (r[1] + 1) / M) : 1;
+      return [u0, u1];
+    });
+    c.wu = golden(excess, Math.max(0, (best - 1) / M), Math.min(1, (best + 1) / M));
+    c.wv = excess(c.wu);
+    // functions: how far the curve rises above the chord; sets: the length of the chord outside the set
+    c.measure = o.kind === "fn" ? c.wv : c.runs.reduce(function (s, r) { return s + (r[1] - r[0]) * len; }, 0);
+    return c;
+  }
+
+  /* ---------- deterministic random chords ---------- */
+  function pointIn(o, r) {
+    if (o.kind === "fn") {
+      var x = o.dom[0] + r() * (o.dom[1] - o.dom[0]);
+      return [x, o.f(x) + r() * (o.top - o.f(x))];
+    }
+    for (;;) {
+      var px = o.bb[0] + r() * (o.bb[2] - o.bb[0]), py = o.bb[1] + r() * (o.bb[3] - o.bb[1]);
+      if (o.g(px, py) <= 0) return [px, py];
+    }
+  }
+  function graphChord(o, r) {                    // two points on the graph, at least 15% of the domain apart
+    var w = o.dom[1] - o.dom[0], a, b;
+    do { a = o.dom[0] + 0.05 * w + r() * 0.9 * w; b = o.dom[0] + 0.05 * w + r() * 0.9 * w; } while (Math.abs(a - b) < 0.15 * w);
+    if (a > b) { var s = a; a = b; b = s; }
+    return [[a, o.f(a)], [b, o.f(b)]];
+  }
+  function group(o, p, n, seed, graph, t0, dt, big) {
+    var r = A.rng(seed), out = [];
+    for (var i = 0; i < n; i++) {
+      var P = graph && o.kind === "fn" ? graphChord(o, r) : [pointIn(o, r), pointIn(o, r)];
+      var c = check(o, P[0], P[1]);
+      c.p = p; c.big = big; c.graph = graph && o.kind === "fn";
+      c.t0 = t0 + dt * i; c.t1 = c.t0 + (big ? 0.35 : 0.18); c.t2 = c.t1 + (big ? 0.45 : 0.25);
+      out.push(c);
+    }
+    return out;
+  }
+
+  /* ---------- descents: gradient steps on f, or "go down" steps projected back onto the set ---------- */
+  function resample(pts, box) {                  // equal steps of length along the path (in box units)
+    var cum = [0], i;
+    for (i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot((pts[i][0] - pts[i - 1][0]) / box[2], (pts[i][1] - pts[i - 1][1]) / box[3]));
+    var tot = cum[cum.length - 1], out = [], j = 0;
+    for (i = 0; i <= 120; i++) {
+      var s = tot * i / 120;
+      while (j < cum.length - 2 && cum[j + 1] < s) j++;
+      var u = cum[j + 1] > cum[j] ? (s - cum[j]) / (cum[j + 1] - cum[j]) : 0;
+      u = Math.max(0, Math.min(1, u));
+      out.push([pts[j][0] + u * (pts[j + 1 < pts.length ? j + 1 : j][0] - pts[j][0]), pts[j][1] + u * (pts[j + 1 < pts.length ? j + 1 : j][1] - pts[j][1])]);
+    }
+    return out;
+  }
+  function project(o, q) {
+    if (o.g(q[0], q[1]) <= 0) return q;
+    if (o.g === g2) {                            // nearest point of the nearer disk
+      var K = Math.hypot(q[0] - K1.c[0], q[1] - K1.c[1]) - K1.r < Math.hypot(q[0] - K2.c[0], q[1] - K2.c[1]) - K2.r ? K1 : K2;
+      var dist = Math.hypot(q[0] - K.c[0], q[1] - K.c[1]);
+      return [K.c[0] + K.r * (q[0] - K.c[0]) / dist, K.c[1] + K.r * (q[1] - K.c[1]) / dist];
+    }
+    // C1 = {p : p'Qp <= 1}: the nearest point is (I + mu Q)^-1 q for the mu >= 0 that lands on the boundary
+    var a = 9 / 8, b = -1 / 4, dd = 1 / 2, lo = 0, hi = 1;
+    var at = function (mu) {
+      var m11 = 1 + mu * a, m12 = mu * b, m22 = 1 + mu * dd, det = m11 * m22 - m12 * m12;
+      return [(m22 * q[0] - m12 * q[1]) / det, (m11 * q[1] - m12 * q[0]) / det];
+    };
+    while (o.g(at(hi)[0], at(hi)[1]) > 0) hi *= 2;
+    for (var i = 0; i < 80; i++) { var mid = (lo + hi) / 2, P = at(mid); if (o.g(P[0], P[1]) > 0) lo = mid; else hi = mid; }
+    return at(hi);
+  }
+  function descend(o, start) {
+    var pts = [start], p = start, i;
+    if (o.kind === "fn") {
+      var x = start[0];
+      for (i = 0; i < 40000; i++) {
+        var nx = x - 0.02 * o.df(x);
+        if (Math.abs(nx - x) < 1e-10) { x = nx; break; }
+        x = nx; if (i % 4 === 0) pts.push([x, o.f(x)]);
+      }
+      pts.push([x, o.f(x)]);
+      return { pts: pts, end: [x, o.f(x)], val: o.f(x) };
+    }
+    // steps of 0.01 straight down, each projected back onto the set (projected gradient descent on y)
+    for (i = 0; i < 20000; i++) {
+      var q = project(o, [p[0], p[1] - 0.01]);
+      var mv = Math.hypot(q[0] - p[0], q[1] - p[1]);
+      p = q; if (i % 3 === 0) pts.push(p);
+      if (mv < 1e-13) break;
+    }
+    pts.push(p);
+    return { pts: pts, end: p, val: p[1] };
+  }
+  function globalMin(o) {
+    var best = null, i, n = 20000;
+    if (o.kind === "fn") {
+      for (i = 0; i <= n; i++) { var x = o.dom[0] + (o.dom[1] - o.dom[0]) * i / n, v = o.f(x); if (!best || v < best.val) best = { x: x, val: v }; }
+      for (i = 0; i < 30; i++) {                // Newton on f' from the best grid point
+        var h = 1e-5, dd = (o.df(best.x + h) - o.df(best.x - h)) / (2 * h);
+        best.x -= o.df(best.x) / dd;
+      }
+      return [best.x, o.f(best.x)];
+    }
+    // lowest point of the set: its boundary, sampled and then refined
+    var cand = o.arcs ? o.arcs[0].concat(o.arcs[1]) : o.pts, bi = 0;
+    for (i = 1; i < cand.length; i++) if (cand[i][1] < cand[bi][1]) bi = i;
+    if (o.arcs) {                                // union of disks: the bottom of the lower disk (if it is on the outline)
+      var K = K1.c[1] - K1.r < K2.c[1] - K2.r ? K1 : K2;
+      return [K.c[0], K.c[1] - K.r];
+    }
+    var s0 = Math.atan2(-Math.SQRT2, -0.5), yOf = function (s) { return -(Math.cos(s) / 2 + Math.SQRT2 * Math.sin(s)); };
+    var s = golden(yOf, s0 + 2 * Math.PI * (bi - 1) / 240, s0 + 2 * Math.PI * (bi + 1) / 240);
+    return [Math.cos(s), Math.cos(s) / 2 + Math.SQRT2 * Math.sin(s)];
+  }
+  function runs(o, seed) {
+    var r = A.rng(seed), out = [], i;
+    for (i = 0; i < NRUN; i++) {
+      var st;
+      if (o.kind === "fn") {
+        var w = o.dom[1] - o.dom[0], x = o.dom[0] + w * (i + 0.5 + 0.7 * (r() - 0.5)) / NRUN;
+        st = [x, o.f(x)];
+      } else st = pointIn(o, r);
+      var d = descend(o, st);
+      d.start = st; d.path = resample(d.pts, o.box);
+      d.tm = 35 + 0.32 * i; d.te = d.tm + 3.2;
+      out.push(d);
+    }
+    return out;
+  }
+
+  var cache = {};
+  function scen(key) {
+    if (cache[key]) return cache[key];
+    var sd = SEEDS[key];
+    var O = key === "fn" ? [fnObj(f1, d1, D1), fnObj(f2, d2, D2)]
+      : [setObj(g1, [-1, -1.5, 1, 1.5], ellipseOutline(), null),
+        setObj(g2, [Math.min(K1.c[0] - K1.r, K2.c[0] - K2.r), Math.min(K1.c[1] - K1.r, K2.c[1] - K2.r),
+          Math.max(K1.c[0] + K1.r, K2.c[0] + K2.r), Math.max(K1.c[1] + K1.r, K2.c[1] + K2.r)], null, diskArcs())];
+    var ch = [].concat(
+      group(O[0], 0, 7, sd.g1, true, 2.4, 0.95, true),
+      group(O[1], 1, 7, sd.g2, true, 12.6, 0.8, true),
+      group(O[0], 0, 24, sd.g3, false, 22.4, 0.28, false),
+      group(O[1], 1, 24, sd.g4, false, 22.5, 0.28, false));
+    var S = { key: key, O: O, chords: ch, runs: [], gmin: [], feat: null };
+    [0, 1].forEach(function (p) {
+      var o = O[p], gm = globalMin(o), rs = runs(o, sd.run + 7 * p + 1);
+      rs.forEach(function (d) { d.trapped = d.val > gm[1] + 1e-6; });
+      S.runs.push(rs); S.gmin.push(gm);
+    });
+    // the chord the camera zooms in on: the largest failure of the first test on the non-convex shape
+    ch.forEach(function (c) { if (c.p === 1 && c.big && c.bad && (!S.feat || c.measure > S.feat.measure)) S.feat = c; });
+    S.tot = [0, 1].map(function (p) {
+      var cs = ch.filter(function (c) { return c.p === p; });
+      return { n: cs.length, v: cs.filter(function (c) { return c.bad; }).length,
+        v1: cs.filter(function (c) { return c.bad && c.big; }).length, v3: cs.filter(function (c) { return c.bad && !c.big; }).length,
+        trap: S.runs[p].filter(function (d) { return d.trapped; }).length };
+    });
+    return (cache[key] = S);
+  }
+  var state = { sc: "fn" };
+
+  /* =====================================================================================
+     "See it in motion". The counters are counted from the chords drawn; the shapes, the
+     random chords and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("chord-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("chord-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);                      // counters above the canvas
+  var DUR = 52, CH = [0, 10, 21, 33, 44];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var C = null, HOT = "", TEST = "", L = {}, hudKey = "";
+  var TAU = Math.PI * 2;
+  var font = function (w, s) { return w + " " + s + "px " + SANS; };
+
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11.5; L.ft = 13.5; L.lw = 2; L.tag = 10.5; L.dot = 5; L.ball = 3.6;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 28; L.capW = hw;
+      L.fs = 12; L.ft = 16; L.lw = 2.6; L.tag = 11.5; L.dot = 6; L.ball = 4.6;
+    }
+    // room for the longest caption of either scenario, so nothing jumps between chapters
+    var tl = 1, sl = 1;
+    ["fn", "sets"].forEach(function (k) {
+      CH.forEach(function (c) {
+        var cap = captions(k, c + 0.1);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    if (portrait) { L.x0 = 8; L.x1 = W - 8; L.y0 = L.capBottom + 10; L.y1 = H - 8; L.gap = 10; L.tagH = 16; }
+    else { L.x0 = hx + hw + 26; L.x1 = W - 14; L.y0 = 12; L.y1 = H - 12; L.gap = 22; L.tagH = 24; }
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+
+  /* ---------- panels and camera ---------- */
+  function panelRects(t) {
+    var u = E.inOut(seg(t, 9.4, 10.9));
+    var full = [L.x0, L.y0, L.x1, L.y1], mid = (L.x0 + L.x1) / 2;
+    var left = [L.x0, L.y0, mid - L.gap / 2, L.y1], right = [mid + L.gap / 2, L.y0, L.x1, L.y1];
+    var shift = (1 - u) * (right[2] - right[0] + 40);
+    return [
+      { r: full.map(function (v, i) { return lerp(v, left[i], u); }), a: 1 },
+      { r: [right[0] + shift, right[1], right[2] + shift, right[3]], a: u }
+    ];
+  }
+  function mixBox(a, b, u) {
+    return [lerp(a[0], b[0], u), lerp(a[1], b[1], u), Math.exp(lerp(Math.log(a[2]), Math.log(b[2]), u)), Math.exp(lerp(Math.log(a[3]), Math.log(b[3]), u))];
+  }
+  function zoomU(t) { return E.inOut(seg(t, 18.4, 19.4)) * (1 - E.inOut(seg(t, 20.1, 21))); }
+  function view(S, p, R, t) {                    // world box -> screen, uniform scale, centred in the content rect
+    var o = S.O[p], box = o.box, z = p === 1 && S.feat ? zoomU(t) : 0;
+    if (z > 0) {
+      var c = S.feat, wx = c.A[0] + c.wu * (c.B[0] - c.A[0]), wy = c.A[1] + c.wu * (c.B[1] - c.A[1]);
+      var zy = o.kind === "fn" ? wy + c.wv / 2 : wy;
+      box = mixBox(box, [wx, zy, box[2] * 0.42, box[3] * 0.42], z);
+    }
+    var x0 = R[0], y0 = R[1] + L.tagH, x1 = R[2], y1 = R[3];
+    var K = Math.min((x1 - x0) / box[2], (y1 - y0) / box[3]);
+    return { K: K, ox: (x0 + x1) / 2, oy: (y0 + y1) / 2, cx: box[0], cy: box[1], box: box, R: R,
+      X: function (x) { return this.ox + (x - this.cx) * this.K; }, Y: function (y) { return this.oy - (y - this.cy) * this.K; } };
+  }
+
+  /* ---------- drawing helpers ---------- */
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function polyline(V, pts, u) {                 // the first fraction u of a world polyline
+    var n = pts.length - 1, m = u * n, k = Math.floor(m), i;
+    ctx.beginPath();
+    for (i = 0; i <= Math.min(k, n); i++) { if (i) ctx.lineTo(V.X(pts[i][0]), V.Y(pts[i][1])); else ctx.moveTo(V.X(pts[i][0]), V.Y(pts[i][1])); }
+    if (k < n && m > k) {
+      var f = m - k, P = pts[k], Q = pts[k + 1];
+      ctx.lineTo(V.X(P[0] + f * (Q[0] - P[0])), V.Y(P[1] + f * (Q[1] - P[1])));
+    }
+  }
+  function headOf(V, pts, u) {
+    var n = pts.length - 1, m = u * n, k = Math.min(n - 1, Math.floor(m)), f = m - k, P = pts[k], Q = pts[k + 1];
+    return [V.X(P[0] + f * (Q[0] - P[0])), V.Y(P[1] + f * (Q[1] - P[1]))];
+  }
+  var hatchCache = { key: "", pat: null };
+  function hatchFill(a) {                        // fill the current path with a diagonal hatch of the bright red
+    var dpr = window.devicePixelRatio || 1, step = L.portrait ? 5 : 6, key = HOT + ":" + step + ":" + dpr;
+    if (hatchCache.key !== key) {
+      var n = Math.round(step * dpr), tile = document.createElement("canvas");
+      tile.width = n; tile.height = n;
+      var tc = tile.getContext("2d");
+      tc.strokeStyle = HOT; tc.lineWidth = 1.2 * dpr; tc.lineCap = "square";
+      tc.beginPath(); tc.moveTo(0, n); tc.lineTo(n, 0); tc.moveTo(-1, 1); tc.lineTo(1, -1); tc.moveTo(n - 1, n + 1); tc.lineTo(n + 1, n - 1); tc.stroke();
+      var pat = ctx.createPattern(tile, "repeat");
+      if (pat && pat.setTransform && window.DOMMatrix) pat.setTransform(new DOMMatrix().scale(1 / dpr));
+      hatchCache = { key: key, pat: pat };
+    }
+    ctx.globalAlpha = a * 0.16; ctx.fillStyle = HOT; ctx.fill();
+    ctx.globalAlpha = a * 0.7; ctx.fillStyle = hatchCache.pat || HOT; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- time model ---------- */
+  function shapeT(p) { return p ? 10.9 : 0.4; }  // when each shape starts drawing
+  function dimF(t) { return 1 - 0.62 * seg(t, 33.2, 34.2) + 0.32 * seg(t, 44.2, 45.2); }
+
+  /* ---------- the shape ---------- */
+  function drawRegion(S, p, V, t) {
+    var o = S.O[p], a;
+    if (o.kind === "fn") {
+      a = E.out(seg(t, 21.3, 22.3));
+      if (a <= 0) return;
+      ctx.beginPath();
+      o.pts.forEach(function (P, i) { var X = V.X(P[0]), Y = V.Y(P[1]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+      ctx.lineTo(V.X(o.dom[1]), V.R[1] - 10); ctx.lineTo(V.X(o.dom[0]), V.R[1] - 10); ctx.closePath();
+      // the region goes on upwards: it fades out towards the top of the panel
+      var gr = ctx.createLinearGradient(0, V.Y(o.top), 0, V.R[1] + L.tagH);
+      gr.addColorStop(0, C.region); gr.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.globalAlpha = a * 0.9; ctx.fillStyle = C.region; ctx.save(); ctx.clip();
+      ctx.fillRect(V.R[0], V.Y(o.top), V.R[2] - V.R[0], V.R[3] - V.Y(o.top));
+      ctx.fillStyle = gr; ctx.fillRect(V.R[0], V.R[1], V.R[2] - V.R[0], V.Y(o.top) - V.R[1]);
+      ctx.restore(); ctx.globalAlpha = 1;
+      return;
+    }
+    a = E.out(seg(t, shapeT(p) + 0.6, shapeT(p) + 1.6));
+    if (a <= 0) return;
+    ctx.beginPath();
+    if (o.arcs) {
+      [K1, K2].forEach(function (K) { ctx.moveTo(V.X(K.c[0] + K.r), V.Y(K.c[1])); ctx.arc(V.X(K.c[0]), V.Y(K.c[1]), K.r * V.K, 0, TAU); });
+    } else {
+      o.pts.forEach(function (P, i) { var X = V.X(P[0]), Y = V.Y(P[1]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+      ctx.closePath();
+    }
+    ctx.globalAlpha = a * 0.9; ctx.fillStyle = C.region; ctx.fill("nonzero"); ctx.globalAlpha = 1;
+  }
+  function drawShape(S, p, V, t) {
+    var o = S.O[p], u = E.inOut(seg(t, shapeT(p), shapeT(p) + 1.5));
+    if (u <= 0) return;
+    ctx.strokeStyle = C.ink; ctx.lineWidth = L.lw; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    var lists = o.arcs ? o.arcs : [o.pts], heads = [];
+    lists.forEach(function (pts) { polyline(V, pts, u); ctx.stroke(); if (u < 1) heads.push(headOf(V, pts, u)); });
+    ctx.lineCap = "butt";
+    heads.forEach(function (h) { ctx.fillStyle = HOT; circle(h[0], h[1], L.lw + 2.2); ctx.fill(); });
+  }
+
+  /* ---------- chords ---------- */
+  function drawChord(c, V, t, dim) {
+    if (t < c.t0) return;
+    var A_ = c.A, B_ = c.B, X = function (u) { return V.X(A_[0] + u * (B_[0] - A_[0])); }, Y = function (u) { return V.Y(A_[1] + u * (B_[1] - A_[1])); };
+    var grow = E.out(seg(t, c.t0, c.t1)), sweep = seg(t, c.t1, c.t2), done = t >= c.t2;
+    var settle = seg(t, c.t2, c.t2 + 0.6);
+    var lw = c.big ? 1.9 : 1.2, aPass = (c.big ? 0.62 : 0.4) * dim;
+    // the chord: accent while it is drawn and tested, then a quiet grey
+    var a = lerp(1, aPass, settle);
+    ctx.lineCap = "round";
+    ctx.globalAlpha = a; ctx.strokeStyle = settle < 0.5 ? TEST : C.ink2; ctx.lineWidth = lw;
+    if (settle > 0 && settle < 1) {              // cross-fade accent -> grey
+      ctx.globalAlpha = a * (1 - settle); ctx.strokeStyle = TEST;
+      ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(grow), Y(grow)); ctx.stroke();
+      ctx.globalAlpha = a * settle; ctx.strokeStyle = C.ink2;
+    }
+    ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(grow), Y(grow)); ctx.stroke();
+    // endpoints
+    var er = c.big ? 3.2 : 2.1;
+    ctx.globalAlpha = Math.min(1, a + 0.2); ctx.fillStyle = settle < 1 ? TEST : C.ink2;
+    circle(X(0), Y(0), er); ctx.fill();
+    if (grow > 0.98) { circle(X(1), Y(1), er); ctx.fill(); }
+    ctx.globalAlpha = 1; ctx.lineCap = "butt";
+  }
+  function drawFail(S, c, V, t, dim) {           // the part of a chord that fails, revealed by the sweep
+    if (!c.bad || t < c.t1) return;
+    var o = S.O[c.p], sweep = seg(t, c.t1, c.t2), A_ = c.A, B_ = c.B;
+    var PX = function (u) { return A_[0] + u * (B_[0] - A_[0]); }, PY = function (u) { return A_[1] + u * (B_[1] - A_[1]); };
+    var a = (0.95 - 0.3 * seg(t, 33.2, 34.2) + 0.3 * seg(t, 44.2, 45.2)) * (c.big ? 1 : 0.9);
+    c.runs.forEach(function (r) {
+      if (sweep < r[0]) return;
+      var u1 = Math.min(r[1], sweep), u0 = r[0], k, n = 28;
+      if (u1 <= u0) return;
+      if (o.kind === "fn") {                     // the sliver between the chord and the curve above it
+        ctx.beginPath();
+        for (k = 0; k <= n; k++) { var u = u0 + (u1 - u0) * k / n; if (k) ctx.lineTo(V.X(PX(u)), V.Y(o.f(PX(u)))); else ctx.moveTo(V.X(PX(u)), V.Y(o.f(PX(u)))); }
+        for (k = n; k >= 0; k--) { var w = u0 + (u1 - u0) * k / n; ctx.lineTo(V.X(PX(w)), V.Y(PY(w))); }
+        ctx.closePath();
+        hatchFill(a);
+      }
+      ctx.lineCap = "round";
+      ctx.globalAlpha = a * 0.22; ctx.strokeStyle = HOT; ctx.lineWidth = c.big ? 10 : 7;          // a soft glow under the failing part
+      ctx.beginPath(); ctx.moveTo(V.X(PX(u0)), V.Y(PY(u0))); ctx.lineTo(V.X(PX(u1)), V.Y(PY(u1))); ctx.stroke();
+      ctx.globalAlpha = a; ctx.lineWidth = c.big ? 3.6 : 2.6;
+      ctx.beginPath(); ctx.moveTo(V.X(PX(u0)), V.Y(PY(u0))); ctx.lineTo(V.X(PX(u1)), V.Y(PY(u1))); ctx.stroke();
+      ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+    });
+    // a pulse where the failure is largest, when the sweep reaches it
+    var tp = lerp(c.t1, c.t2, c.wu), q = seg(t, tp, tp + 0.8);
+    if (q > 0 && q < 1) {
+      ctx.globalAlpha = (1 - q) * 0.9; ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+      circle(V.X(PX(c.wu)), V.Y(PY(c.wu)), 4 + q * (c.big ? 22 : 14)); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+  }
+  function drawSweep(c, V, t) {                  // the test point running along the chord
+    if (t < c.t1 || t >= c.t2) return;
+    var u = seg(t, c.t1, c.t2), X = V.X(c.A[0] + u * (c.B[0] - c.A[0])), Y = V.Y(c.A[1] + u * (c.B[1] - c.A[1]));
+    var out = c.runs.some(function (r) { return u >= r[0] && u <= r[1]; });
+    ctx.fillStyle = C.surface; circle(X, Y, c.big ? 5.5 : 4); ctx.fill();
+    ctx.fillStyle = out ? HOT : C.ink; circle(X, Y, c.big ? 3.8 : 2.8); ctx.fill();
+  }
+
+  /* ---------- descents and minima ---------- */
+  function pathAt(d, s) {
+    var n = d.path.length - 1, m = clamp(s, 0, 1) * n, k = Math.min(n - 1, Math.floor(m)), f = m - k, P = d.path[k], Q = d.path[k + 1];
+    return [P[0] + f * (Q[0] - P[0]), P[1] + f * (Q[1] - P[1])];
+  }
+  function runS(d, t) { return E.inOut(seg(t, d.tm, d.te)); }
+  function drawRuns(S, p, V, t) {
+    S.runs[p].forEach(function (d, i) {
+      var a = seg(t, 33.8 + 0.1 * i + 0.05 * p, 34.3 + 0.1 * i + 0.05 * p);
+      if (a <= 0) return;
+      var s = runS(d, t);
+      // the trail: where the run was a moment ago
+      if (s > 0 && s < 1) {
+        ctx.lineCap = "round"; var prev = pathAt(d, s);
+        for (var k = 1; k <= 12; k++) {
+          var q = pathAt(d, runS(d, t - k * 0.06));
+          ctx.globalAlpha = a * 0.8 * (1 - k / 13); ctx.strokeStyle = C.ink; ctx.lineWidth = (L.portrait ? 3 : 4) * (1 - k / 14);
+          ctx.beginPath(); ctx.moveTo(V.X(prev[0]), V.Y(prev[1])); ctx.lineTo(V.X(q[0]), V.Y(q[1])); ctx.stroke();
+          prev = q;
+        }
+        ctx.lineCap = "butt";
+      }
+      // a faint trace of the whole route once the run is over
+      if (s >= 1) {
+        ctx.globalAlpha = 0.35 * seg(t, d.te, d.te + 0.6); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.2; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); d.path.forEach(function (P, j) { if (j) ctx.lineTo(V.X(P[0]), V.Y(P[1])); else ctx.moveTo(V.X(P[0]), V.Y(P[1])); }); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      var h = pathAt(d, s);
+      ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(V.X(h[0]), V.Y(h[1]), L.ball + 1.6); ctx.fill();
+      ctx.fillStyle = C.ink; circle(V.X(h[0]), V.Y(h[1]), L.ball); ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+  }
+  function trapEnd(S, p) {                       // where the trapped runs stop (they all stop at the same local minimum)
+    var tr = S.runs[p].filter(function (d) { return d.trapped; });
+    return tr.length ? tr[0].end : null;
+  }
+  function drawMinima(S, p, V, t) {
+    var gm = S.gmin[p], a = E.back(seg(t, 40.0, 40.6)), la = seg(t, 40.3, 40.9);
+    var ft = font(700, L.portrait ? 10.5 : 11.5);
+    if (a > 0.001) {
+      var X = V.X(gm[0]), Y = V.Y(gm[1]), r = L.dot * a;
+      var ph = ((t - 40) % 1.8) / 1.8;
+      ctx.globalAlpha = 0.5 * (1 - ph) * seg(t, 40, 40.3); ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
+      circle(X, Y, r + 3 + ph * (L.portrait ? 10 : 15)); ctx.stroke();
+      ctx.globalAlpha = 1; ctx.fillStyle = C.surface; circle(X, Y, r + 2.5); ctx.fill();
+      ctx.fillStyle = C.accent; circle(X, Y, r); ctx.fill();
+      label(T("chord.l.glob"), X, Y + L.dot + 13, "center", C["accent-text"], ft, la);
+    }
+    var te = trapEnd(S, p), b = E.back(seg(t, 40.4, 41));
+    if (te && b > 0.001) {
+      var X2 = V.X(te[0]), Y2 = V.Y(te[1]);
+      var ph2 = ((t - 40.4) % 1.4) / 1.4;
+      ctx.globalAlpha = 0.6 * (1 - ph2) * seg(t, 40.4, 40.7); ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+      circle(X2, Y2, L.dot + 4 + ph2 * (L.portrait ? 10 : 15)); ctx.stroke();
+      ctx.globalAlpha = 1; ctx.strokeStyle = HOT; ctx.lineWidth = 2.6;
+      circle(X2, Y2, (L.dot + 2.5) * b); ctx.stroke();
+      label(T("chord.l.loc"), X2, Y2 + L.dot + 14, "center", HOT, ft, seg(t, 40.7, 41.3));
+    }
+  }
+
+  /* ---------- panel tag and verdict ---------- */
+  function drawTag(S, p, R, t, a) {
+    var ta = a * seg(t, shapeT(p) + 0.2, shapeT(p) + 0.8);
+    if (ta <= 0.01) return;
+    var txt = T("chord.h." + (p ? "nc." : "cv.") + S.key), f = font(700, L.tag), x = R[0] + 2, y = R[1] + L.tagH / 2 - 2;
+    ctx.globalAlpha = ta; ctx.fillStyle = p ? HOT : C.ink2; ctx.fillRect(x, y - L.tag / 2 - 1, 3, L.tag + 2);
+    ctx.font = f; ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillStyle = C.ink2;
+    var tx = txt.toUpperCase();
+    ctx.fillText(tx, x + 9, y);
+    var w = ctx.measureText(tx).width, v = E.back(seg(t, 45 + 0.3 * p, 45.6 + 0.3 * p));
+    if (v > 0.001) {                             // the verdict: a tick (no chord failed) or a cross
+      var cx = x + 9 + w + 12, s = (L.portrait ? 5 : 6) * v;
+      ctx.lineWidth = 2.4; ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.beginPath();
+      if (S.tot[p].v === 0) { ctx.strokeStyle = C.accent; ctx.moveTo(cx - s, y); ctx.lineTo(cx - s * 0.3, y + s * 0.7); ctx.lineTo(cx + s, y - s * 0.8); }
+      else { ctx.strokeStyle = HOT; ctx.moveTo(cx - s * 0.8, y - s * 0.8); ctx.lineTo(cx + s * 0.8, y + s * 0.8); ctx.moveTo(cx + s * 0.8, y - s * 0.8); ctx.lineTo(cx - s * 0.8, y + s * 0.8); }
+      ctx.stroke(); ctx.lineCap = "butt";
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- caption (under the counters) ---------- */
+  function captions(key, t) {
+    var k = key === "fn" ? "fn" : "sets", i = 0;
+    CH.forEach(function (c, j) { if (t >= c) i = j; });
+    return [T("chord.cap" + (i + 1) + "." + k), T("chord.cap" + (i + 1) + "." + k + ".sub")];
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function drawCaption(S, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(S.key, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD ---------- */
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) {
+    var el = document.getElementById("chord-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  var heads = [0, 1].map(function (i) { return { el: document.getElementById("chord-h" + i), v: null, o: null }; });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("bad", kind === "bad"); c.k = kind; }
+  }
+  function setHead(i, txt, op) {
+    var h = heads[i]; op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (h.v !== txt) { h.el.textContent = txt; h.v = txt; }
+    if (h.o !== op) { h.el.style.opacity = op; h.o = op; }
+  }
+  function counts(S, p, t) {
+    var n = 0, v = 0;
+    S.chords.forEach(function (c) { if (c.p === p && t >= c.t2) { n++; if (c.bad) v++; } });
+    var tr = S.runs[p].filter(function (d) { return d.trapped && t >= d.te; }).length;
+    return { n: n, v: v, tr: tr };
+  }
+  function hud(S, t) {
+    [0, 1].forEach(function (p) {
+      var a = p ? seg(t, 11.0, 11.5) : seg(t, 1.6, 2.1), k = counts(S, p, t);
+      setHead(p, T("chord.h." + (p ? "nc." : "cv.") + S.key), a);
+      setChip(p, cnt(k.n), T("chord.k.tested"), a, "");
+      setChip(2 + p, cnt(k.v), T("chord.k.viol"), a, k.v > 0 ? "bad" : "");
+      setChip(4 + p, ofN(k.tr, NRUN), T("chord.k.trap"), seg(t, 34.6, 35.0), k.tr > 0 ? "bad" : "");
+    });
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    var same = C.accent.toLowerCase() === C["mit-bright"].toLowerCase();
+    HOT = same ? C.crit : C["mit-bright"];
+    TEST = same ? C.ink : C.accent;               // a chord under test; in the dark theme red is kept for failures
+    var S = scen(state.sc);
+    hud(S, t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    var P = panelRects(t), dim = dimF(t);
+    [0, 1].forEach(function (p) {
+      var R = P[p].r, pa = P[p].a;
+      if (pa <= 0.01) return;
+      var V = view(S, p, R, t);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(R[0], R[1] + L.tagH - 2, R[2] - R[0], R[3] - R[1] - L.tagH + 2); ctx.clip();
+      ctx.globalAlpha = 1;
+      if (pa < 1) { ctx.globalAlpha = pa; }
+      drawRegion(S, p, V, t);
+      var cs = S.chords.filter(function (c) { return c.p === p; });
+      cs.forEach(function (c) { drawChord(c, V, t, dim); });
+      drawShape(S, p, V, t);
+      cs.forEach(function (c) { drawFail(S, c, V, t, dim); });
+      cs.forEach(function (c) { drawSweep(c, V, t); });
+      drawRuns(S, p, V, t);
+      drawMinima(S, p, V, t);
+      ctx.restore();
+      drawTag(S, p, R, t, pa);
+    });
+    // a quiet divider between the two panels
+    var du = E.inOut(seg(t, 9.8, 10.9));
+    if (du > 0) {
+      var mx = (P[0].r[2] + P[1].r[0]) / 2;
+      ctx.globalAlpha = du * 0.7; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(mx, L.y0 + 4); ctx.lineTo(mx, L.y1 - 4); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    drawCaption(S, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "chord.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status line, data, results, chord log, notes
+     ===================================================================================== */
+  function isFn() { return state.sc === "fn"; }
+  function renderScenText() {
+    var S = scen(state.sc), k = S.key, ka = "chord.anim.aria." + k;
+    stage.setAttribute("data-i18n-attr", "aria-label:" + ka);
+    document.getElementById("chord-lg-curve").textContent = T("chord.lg.curve." + k);
+    document.getElementById("chord-lg-region").textContent = T("chord.lg.region." + k);
+    stage.setAttribute("aria-label", T(ka) + " " + T("chord.anim.aria.nums", {
+      n0: cnt(S.tot[0].n), v0: cnt(S.tot[0].v), n1: cnt(S.tot[1].n), v1: cnt(S.tot[1].v), r: cnt(NRUN), tr: cnt(S.tot[1].trap)
+    }));
+  }
+  function renderStatus() {
+    var S = scen(state.sc), t0 = S.tot[0], t1 = S.tot[1];
+    document.getElementById("chord-status").innerHTML = T("chord.st." + S.key, {
+      n0: cnt(t0.n), v0: cnt(t0.v), n1: cnt(t1.n), v1: cnt(t1.v), m: cnt(M + 1), g: fmt(S.feat ? S.feat.measure : 0)
+    });
+  }
+  function renderData() {
+    var q = Math.sqrt(2 / 3);
+    var v = {
+      a1: texNum(D1[0], 1), b1: texNum(D1[1], 1), a2: texNum(D2[0], 1), b2: texNum(D2[1], 1),
+      c1: pairTex(K1.c[0], K1.c[1]), r1: texNum(K1.r), c2: pairTex(K2.c[0], K2.c[1]), r2: texNum(K2.r)
+    };
+    var vp = {
+      a1: num(D1[0], 1), b1: num(D1[1], 1), a2: num(D2[0], 1), b2: num(D2[1], 1),
+      c1: pair(K1.c[0], K1.c[1]), r1: num(K1.r), c2: pair(K2.c[0], K2.c[1]), r2: num(K2.r)
+    };
+    TeX.set(document.getElementById("chord-data"), T("chord.data.tex", v), T("chord.data.formula", vp));
+    document.getElementById("chord-data-why").textContent = T("chord.data.why", { q: fmt(q) });
+  }
+  function renderResults() {
+    var S = scen(state.sc), k = S.key, t0 = S.tot[0], t1 = S.tot[1], fn = isFn();
+    var set = function (id, txt) { document.getElementById(id).textContent = txt; };
+    set("chord-res-title", T("chord.res.title", { s: T("chord.sc." + k) }));
+    set("chord-r0k", T("chord.res.cv." + k)); set("chord-r0", ofN(t0.v, t0.n)); set("chord-r0l", T(fn ? "chord.res.cvL" : "chord.res.cvL.sets", { m: cnt(M + 1) }));
+    set("chord-r1k", T("chord.res.nc." + k)); set("chord-r1", ofN(t1.v, t1.n)); set("chord-r1l", T(fn ? "chord.res.ncL" : "chord.res.ncL.sets", { a: cnt(t1.v1), b: cnt(t1.v3) }));
+    var F = S.feat, fx = F ? F.A[0] + F.wu * (F.B[0] - F.A[0]) : 0, fy = F ? F.A[1] + F.wu * (F.B[1] - F.A[1]) : 0;
+    set("chord-r2", F ? fmt(F.measure) : fmt(0));
+    set("chord-r2l", F ? T("chord.res.worstL." + k, { x: num(fx), p: pair(fx, fy) }) : "");
+    // minima
+    var gm0 = S.gmin[0], gm1 = S.gmin[1], te = trapEnd(S, 1);
+    var val = function (P) { return fn ? P[1] : P[1]; };
+    set("chord-r3k", T("chord.res.min0." + k)); set("chord-r3", pair(gm0[0], gm0[1]));
+    set("chord-r3l", T("chord.res.min0L." + k, { n: ofN(NRUN - t0.trap, NRUN) }));
+    set("chord-r4k", T("chord.res.min1." + k)); set("chord-r4", pair(gm1[0], gm1[1]));
+    set("chord-r4l", T("chord.res.min1L." + k, { n: ofN(NRUN - t1.trap, NRUN) }));
+    set("chord-r5k", T("chord.res.loc." + k)); set("chord-r5", te ? pair(te[0], te[1]) : MINUS);
+    set("chord-r5l", te ? T("chord.res.locL." + k, { n: ofN(t1.trap, NRUN), d: fmt(val(te) - val(gm1)) }) : "");
+    // the largest failure, in numbers
+    set("chord-check-p", T("chord.res.check." + k));
+    if (!F) return;
+    var th = 1 - F.wu, v, vp;
+    if (fn) {
+      var o = S.O[1], cy = th * o.f(F.A[0]) + (1 - th) * o.f(F.B[0]);
+      v = { a: texNum(F.A[0], 3, 3), b: texNum(F.B[0], 3, 3), th: texNum(th, 3, 3), x: texNum(fx, 3, 3), fx: texNum(o.f(fx), 3, 3), cy: texNum(cy, 3, 3) };
+      vp = { a: num(F.A[0], 3, 3), b: num(F.B[0], 3, 3), th: num(th, 3, 3), x: num(fx, 3, 3), fx: num(o.f(fx), 3, 3), cy: num(cy, 3, 3) };
+    } else {
+      var e1 = Math.hypot(fx - K1.c[0], fy - K1.c[1]), e2 = Math.hypot(fx - K2.c[0], fy - K2.c[1]);
+      v = { a: pairTex(F.A[0], F.A[1], 3, 3), b: pairTex(F.B[0], F.B[1], 3, 3), th: texNum(th, 3, 3), p: pairTex(fx, fy, 3, 3),
+        e1: texNum(e1, 3, 3), r1: texNum(K1.r), e2: texNum(e2, 3, 3), r2: texNum(K2.r) };
+      vp = { a: pair(F.A[0], F.A[1], 3, 3), b: pair(F.B[0], F.B[1], 3, 3), th: num(th, 3, 3), p: pair(fx, fy, 3, 3),
+        e1: num(e1, 3, 3), r1: num(K1.r), e2: num(e2, 3, 3), r2: num(K2.r) };
+    }
+    TeX.set(document.getElementById("chord-inst"), T("chord.inst." + k + ".tex", v), T("chord.inst." + k + ".formula", vp));
+  }
+  function renderLog() {
+    var S = scen(state.sc), k = S.key, fn = isFn();
+    document.getElementById("chord-log-intro").textContent = T("chord.log.intro." + k, { m: cnt(M + 1) });
+    var f2d = function (v) { var m = I18N.fmt(Math.abs(v), 2, 2); return (v < 0 && m !== I18N.fmt(0, 2, 2) ? MINUS : "") + m; };
+    var pt = function (P) { return fn ? f2d(P[0]) : T("chord.pair", { x: f2d(P[0]), y: f2d(P[1]) }); };
+    var h = "<thead><tr><th class='num'>#</th><th>" + T("chord.log.shape") + "</th><th class='num wide'>" + T("chord.log.from." + k) +
+      "</th><th class='num wide'>" + T("chord.log.to." + k) + "</th><th class='num'>" + T("chord.log.meas." + k) + "</th><th>" +
+      T("chord.log.verdict") + "</th></tr></thead><tbody>";
+    var i = 0;
+    S.chords.forEach(function (c) {
+      if (!c.big) return;
+      i++;
+      h += "<tr" + (i === 8 ? " class='split'" : "") + "><td class='num'>" + cnt(i) + "</td><td>" + T("chord.h." + (c.p ? "nc." : "cv.") + k) +
+        "</td><td class='num wide'>" + pt(c.A) + "</td><td class='num wide'>" + pt(c.B) + "</td><td class='num'>" + fmt(c.measure, 3, 3) +
+        "</td><td class='" + (c.bad ? "fail" : "pass") + "'>" + T(c.bad ? "chord.log.fails" : "chord.log.passes") + "</td></tr>";
+    });
+    document.getElementById("chord-log").innerHTML = h + "</tbody>";
+    var t1 = S.tot[1];
+    document.getElementById("chord-log-note").textContent = T("chord.log.note." + k, { v: cnt(t1.v1), n: cnt(7) });
+  }
+  function renderNotes() {
+    var S = scen(state.sc), k = S.key, t0 = S.tot[0], t1 = S.tot[1], te = trapEnd(S, 1), gm1 = S.gmin[1];
+    var v = {
+      n0: cnt(t0.n), n1: cnt(t1.n), v1: cnt(t1.v), m: cnt(M + 1), r: cnt(NRUN), tr: cnt(t1.trap),
+      loc: te ? pair(te[0], te[1]) : "", glob: pair(gm1[0], gm1[1]), d: te ? fmt(te[1] - gm1[1]) : ""
+    };
+    ["n1", "n2", "n3", "n4"].forEach(function (id, i) {
+      document.getElementById("chord-" + id).textContent = T("chord.n.p" + (i + 1) + "." + k, v);
+    });
+  }
+
+  var segBtns = document.querySelectorAll("#chord-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderStatus(); renderResults(); renderLog(); renderNotes();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < 0.5) player.refresh();
+      else { player.seek(0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderScenText(); renderStatus(); renderData(); renderResults(); renderLog(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en" data-title-key="steam.title" data-i18n-bundles="resources/nlp-slow-steaming">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Slow Steaming</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- the game ---- */
+  .gtop { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 12px; }
+  .gtop .ctl-label { font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .brief { margin: 0 0 4px; color: var(--ink2); font-size: 14.5px; max-width: 78ch; }
+  .brief b { color: var(--ink); }
+  .facts { margin: 0 0 14px; font-size: 13px; color: var(--muted); max-width: 78ch; }
+
+  .play { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 22px; align-items: start; }
+  @media (max-width: 760px) { .play { grid-template-columns: minmax(0, 1fr); } }
+  .play > div { min-width: 0; }
+  .mapbox { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; }
+  .mapbox svg { display: block; width: 100%; }
+  svg text { font-family: var(--font-sans); }
+  svg .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  .legs { display: grid; gap: 14px; }
+  .leg { display: grid; gap: 3px; }
+  .leg .row { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 10px; flex-wrap: wrap; }
+  .leg .nm { font-size: 14px; font-weight: 600; color: var(--ink); display: inline-flex; align-items: center; gap: 7px; }
+  .leg .sub { font-size: 12.5px; color: var(--muted); }
+  .leg output { font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .track { position: relative; padding-top: 2px; }
+  .track input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); display: block; }
+  .opt-tick {
+    position: absolute; top: -3px; width: 0; height: 28px; border-left: 2px dashed var(--ink2); pointer-events: none;
+    left: calc(8px + (100% - 16px) * var(--f, 0));
+  }
+  .opt-tick span {
+    position: absolute; top: 26px; left: 0; transform: translateX(-50%); font-size: 11px; color: var(--ink2); white-space: nowrap;
+    background: var(--halo); padding: 0 3px;
+  }
+  .scale { display: flex; justify-content: space-between; font: 400 11px var(--font-mono); color: var(--muted); }
+  .leg.revealed .scale { margin-top: 14px; }
+  .sw.l1 { background: var(--accent); height: 4px; width: 18px; }
+  .sw.l2 { background: var(--ink); height: 4px; width: 18px; }
+  .sw.l3 { height: 0; width: 18px; border-top: 3px dashed var(--mit-silver); }
+
+  /* time strip */
+  .strip { margin-top: 18px; }
+  .strip-head { display: flex; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; font-size: 13px; color: var(--ink2); margin-bottom: 5px; }
+  .strip-head b { color: var(--ink); font-family: var(--font-mono); }
+  .bar { position: relative; height: 22px; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; }
+  .bar i { position: absolute; top: 0; bottom: 0; display: block; }
+  .bar i.s1 { background: var(--accent); }
+  .bar i.s2 { background: var(--ink); }
+  .bar i.s3 { background: repeating-linear-gradient(135deg, var(--mit-silver) 0 5px, var(--region) 5px 8px); }
+  .bar i.over { background: repeating-linear-gradient(135deg, var(--crit) 0 2px, transparent 2px 6px); border-left: 0; }
+  .bar .dl { position: absolute; top: -6px; bottom: -6px; width: 0; border-left: 2.5px solid var(--ink); }
+  .bar .gap { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--surface); }
+  .baraxis { position: relative; height: 16px; font: 400 11px var(--font-mono); color: var(--muted); }
+  .baraxis span { position: absolute; top: 2px; transform: translateX(-50%); white-space: nowrap; }
+  .baraxis span.dlab { color: var(--ink); font-family: var(--font-sans); font-weight: 600; font-size: 12px; }
+
+  .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 16px; }
+  @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { font-size: 22px; }
+  .stat.tot .v { color: var(--accent-text); }
+  .stat .l.opt { color: var(--ink); font-weight: 600; }
+  .stat.bad .v { color: var(--crit); }
+  @media (max-width: 560px) {
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 18px; }
+    .stat .l { font-size: 12px; }
+  }
+  .msg { margin: 12px 0 0; font-size: 14px; color: var(--ink2); }
+  .msg b { color: var(--ink); }
+  .msg.bad, .msg.bad b { color: var(--crit); }
+
+  .score { margin-top: 14px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 14px; align-items: center;
+    border-left: 4px solid var(--accent); background: var(--surface2); padding: 10px 14px; border-radius: 2px; }
+  .score.late { border-left-color: var(--crit); }
+  .stars { font-size: 21px; letter-spacing: 3px; color: var(--accent-text); grid-row: span 2; }
+  .stars .off { color: var(--axis); }
+  .verdict { font-weight: 700; font-size: 16px; margin: 0; color: var(--ink); }
+  .score .rsub { margin: 0; font-size: 13.5px; color: var(--ink2); }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+  button.btn {
+    font: 600 14px var(--font-sans); color: var(--on-solid); background: var(--accent);
+    border: 1.5px solid var(--accent); border-radius: 2px; padding: 9px 16px; min-height: 40px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.ghost { background: transparent; color: var(--accent-text); border-color: var(--accent-text); }
+  button.quiet { background: transparent; color: var(--ink2); border-color: var(--border); }
+  button[hidden] { display: none; }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 14px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- solution ---- */
+  #sol .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  @media (max-width: 560px) { #sol .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  #sol .stat .v { color: var(--accent-text); }
+  #sol .stat .v.ink { color: var(--ink); }
+  .solp { font-size: 14px; color: var(--ink2); margin: 16px 0 0; max-width: 80ch; }
+  .solp b { color: var(--ink); }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.ex { color: var(--accent-text); font-weight: 600; }
+  table.data td.muted { color: var(--muted); }
+  table.data tr.base td { background: var(--sel); font-weight: 600; }
+  .tblwrap { margin-top: 8px; }
+  #legTable { min-width: 560px; }
+  #legTable td.lg { white-space: nowrap; }
+  @media (max-width: 560px) { #legTable { min-width: 0; } }
+  #bisTable, #sensTable { min-width: 0; }
+  @media (max-width: 560px) {
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 6px; }
+  }
+  .tag { font-size: 11.5px; color: var(--muted); font-family: var(--font-sans); display: block; }
+
+  .bars { display: grid; gap: 8px; max-width: 720px; margin-top: 8px; }
+  .brow { display: grid; grid-template-columns: minmax(96px, 150px) 1fr; gap: 10px; align-items: center; font-size: 13.5px; }
+  .brow .lbl { color: var(--ink2); text-align: right; line-height: 1.2; }
+  @media (max-width: 560px) {               /* phones: label above its bar, so a long total never covers it */
+    .brow { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+    .brow .lbl { text-align: left; }
+  }
+  .brow.opt .lbl { color: var(--ink); font-weight: 600; }
+  .btrack { position: relative; height: 26px; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; }
+  .btrack i { position: absolute; top: 0; bottom: 0; display: block; }
+  .btrack i.cf { background: var(--accent); }
+  .btrack i.ci { background: var(--mit-silver); }
+  .bval {
+    position: absolute; top: 50%; transform: translateY(-50%); font: 600 12.5px var(--font-mono);
+    color: var(--ink); background: var(--halo); padding: 0 4px; border-radius: 2px; white-space: nowrap;
+  }
+  .sw.cf { background: var(--accent); }
+  .sw.ci { background: var(--mit-silver); }
+
+  .charts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 22px; margin-top: 8px; }
+  @media (max-width: 760px) { .charts { grid-template-columns: minmax(0, 1fr); } }
+  .charts > div { min-width: 0; }
+  .charts h3, .solh { font-size: 14.5px; margin: 18px 0 6px; font-weight: 600; }
+  .charts h3 { margin-top: 10px; }
+  .chartbox svg { display: block; width: 100%; overflow: visible; }
+  .sw.lt { width: 9px; height: 9px; border-radius: 50%; background: var(--mit-silver); }
+  .sw.ls { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .sw.ld { height: 0; width: 18px; border-top: 2px dashed var(--ink2); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="steam.eyebrow"></p>
+    <h1 data-i18n="steam.title"></h1>
+    <p class="lede" data-i18n-html="steam.lede"></p>
+  </header>
+
+  <div class="card" id="game">
+    <div class="gtop">
+      <span class="ctl-label" id="sc-lbl" data-i18n="steam.sc.label"></span>
+      <div class="seg" role="group" aria-labelledby="sc-lbl" id="sc-seg">
+        <button type="button" data-sc="cheap" aria-pressed="true" data-i18n="steam.sc.cheap"></button>
+        <button type="button" data-sc="expensive" aria-pressed="false" data-i18n="steam.sc.expensive"></button>
+      </div>
+    </div>
+    <p class="brief" id="brief"></p>
+    <p class="facts" id="facts"></p>
+
+    <div class="play">
+      <div class="mapbox" id="mapbox"><svg id="map" role="img"></svg></div>
+      <div class="legs" id="legs"></div>
+    </div>
+
+    <div class="strip">
+      <div class="strip-head"><span data-i18n="steam.strip.head"></span><b id="strip-num"></b></div>
+      <div class="bar" id="bar" role="img" data-i18n-attr="aria-label:steam.strip.aria"></div>
+      <div class="baraxis" id="baraxis"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="steam.k.fuel"></div><div class="v" id="v-fuel"></div><div class="l" id="l-fuel"></div><div class="l opt" id="o-fuel" hidden></div></div>
+      <div class="stat"><div class="k" data-i18n="steam.k.inv"></div><div class="v" id="v-inv"></div><div class="l" data-i18n="steam.l.inv"></div><div class="l opt" id="o-inv" hidden></div></div>
+      <div class="stat tot"><div class="k" data-i18n="steam.k.total"></div><div class="v" id="v-tot"></div><div class="l" data-i18n="steam.l.total"></div><div class="l opt" id="o-tot" hidden></div></div>
+      <div class="stat" id="st-time"><div class="k" data-i18n="steam.k.time"></div><div class="v" id="v-time"></div><div class="l" id="l-time"></div><div class="l opt" id="o-time" hidden></div></div>
+    </div>
+    <p class="msg" id="msg" aria-live="polite"></p>
+
+    <div class="score" id="score">
+      <div class="stars" id="stars" role="img"></div>
+      <p class="verdict" id="verdict"></p>
+      <p class="rsub" id="rsub"></p>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="reveal" type="button" data-i18n="steam.btn.reveal"></button>
+      <button class="btn ghost" id="use" type="button" data-i18n="steam.btn.use" hidden></button>
+      <button class="btn quiet" id="reset" type="button" data-i18n="steam.btn.reset"></button>
+    </div>
+  </div>
+
+  <div class="card" id="sol" hidden>
+    <h2><span class="kicker" data-i18n="steam.sol.kicker"></span><span id="sol-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="steam.sol.lam"></div><div class="v" id="s-lam"></div><div class="l" id="s-laml"></div></div>
+      <div class="stat"><div class="k" data-i18n="steam.sol.cost"></div><div class="v" id="s-cost"></div><div class="l" id="s-costl"></div></div>
+      <div class="stat"><div class="k" data-i18n="steam.sol.time"></div><div class="v ink" id="s-time"></div><div class="l" id="s-timel"></div></div>
+      <div class="stat"><div class="k" data-i18n="steam.sol.gain"></div><div class="v ink" id="s-gain"></div><div class="l" id="s-gainl"></div></div>
+    </div>
+    <div class="tblwrap"><table class="data" id="legTable"></table></div>
+
+    <p class="solp" data-i18n-html="steam.check"></p>
+    <div class="formula" id="inst"></div>
+
+    <h3 class="solh" data-i18n="steam.bars.head"></h3>
+    <div class="bars" id="bars"></div>
+    <div class="legend">
+      <span><i class="sw cf"></i><span data-i18n="steam.lg.fuel"></span></span>
+      <span><i class="sw ci"></i><span data-i18n="steam.lg.inv"></span></span>
+    </div>
+
+    <div class="charts">
+      <div>
+        <h3 data-i18n="steam.ch1.head"></h3>
+        <div class="chartbox" id="ch1box"><svg id="ch1" role="img" data-i18n-attr="aria-label:steam.ch1.aria"></svg></div>
+        <div class="legend">
+          <span><i class="sw lt"></i><span data-i18n="steam.lg.tried"></span></span>
+          <span><i class="sw ls"></i><span data-i18n="steam.lg.star"></span></span>
+          <span><i class="sw ld"></i><span data-i18n="steam.lg.dead"></span></span>
+        </div>
+      </div>
+      <div>
+        <h3 data-i18n="steam.ch2.head"></h3>
+        <div class="chartbox" id="ch2box"><svg id="ch2" role="img" data-i18n-attr="aria-label:steam.ch2.aria"></svg></div>
+        <div class="legend" id="ch2leg"></div>
+      </div>
+    </div>
+
+    <h3 class="solh" data-i18n="steam.bis.head"></h3>
+    <div class="tblwrap"><table class="data" id="bisTable"></table></div>
+    <p class="solp" id="bisNote" style="margin-top:8px"></p>
+
+    <h3 class="solh" data-i18n="steam.sens.head"></h3>
+    <p class="solp" id="sensIntro" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="sensTable"></table></div>
+    <p class="solp" data-i18n="steam.sens.note"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="steam.model.kicker"></span><span data-i18n="steam.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" data-tex="steam.model.tex" data-i18n="steam.model.formula"></div>
+        <p class="mtext" data-i18n-html="steam.model.why"></p>
+        <p class="mtext" id="mdata"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="steam.kkt.head"></p>
+        <div class="formula" data-tex="steam.kkt.tex" data-i18n="steam.kkt.formula"></div>
+        <p class="mtext" data-i18n-html="steam.kkt.why"></p>
+        <p class="mhead" data-i18n="steam.closed.head"></p>
+        <div class="formula" data-tex="steam.closed.tex" data-i18n="steam.closed.formula"></div>
+        <p class="mtext" data-i18n-html="steam.closed.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="steam.n.title"></summary>
+      <div class="body">
+        <p id="n1"></p>
+        <p id="n2"></p>
+        <p id="n3"></p>
+        <p id="n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="3.29" data-refs="steam.refs"></p>
+  <p class="note" data-i18n="steam.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/nlp-slow-steaming.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+
+  /* ---------- data (illustrative but plausible) ---------- */
+  var D = [470, 1220, 1580];                 // nautical miles: Cartagena-Kingston, Kingston-Houston, Houston-Cartagena
+  var P = 600;                               // USD per tonne of fuel
+  var Q14 = 28;                              // tonnes per day, laden, at 14 knots
+  var CUT = 0.35;                            // ballast burns 35% less at the same speed
+  var VMIN = 10, VMAX = 16, V0 = 13;         // knots
+  var TDL = 11;                              // deadline, days at sea
+  var RATE = 0.0003;                         // daily holding rate of the cargo value
+  var SHARE = [1, 0.6, 0];                   // share of the cargo aboard on each leg (40% unloaded in Kingston)
+  var VAL = { cheap: 6e6, expensive: 9e7 };  // cargo value, USD
+  var KL = Q14 / Math.pow(14, 3), K = [KL, KL, KL * (1 - CUT)];
+  var DT = [-1, -0.5, 0, 0.5, 1];            // deadline changes in the sensitivity table
+  var LEGCOL = ["var(--accent)", "var(--ink)", "var(--mit-silver)"];
+
+  var state = { sc: "cheap", v: [V0, V0, V0], revealed: false };
+
+  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+  function hOf(sc) { return SHARE.map(function (s) { return VAL[sc] * RATE * s; }); }
+  function plan(sc, v) {                     // cost and time of a set of speeds
+    var h = hOf(sc), r = { v: v.slice(), t: [], ft: [], fuel: [], inv: [], F: 0, I: 0, time: 0, fuelT: 0 };
+    for (var i = 0; i < 3; i++) {
+      r.t[i] = D[i] / (24 * v[i]);
+      r.ft[i] = K[i] * D[i] * v[i] * v[i] / 24;
+      r.fuel[i] = P * r.ft[i];
+      r.inv[i] = h[i] * r.t[i];
+      r.F += r.fuel[i]; r.I += r.inv[i]; r.time += r.t[i]; r.fuelT += r.ft[i];
+    }
+    r.C = r.F + r.I;
+    return r;
+  }
+  function vOf(h, k, lam) { return clamp(Math.cbrt((h + lam) / (2 * P * k)), VMIN, VMAX); }
+  function speeds(sc, lam) { var h = hOf(sc); return [0, 1, 2].map(function (i) { return vOf(h[i], K[i], lam); }); }
+  function timeAt(sc, lam) { var v = speeds(sc, lam), s = 0; for (var i = 0; i < 3; i++) s += D[i] / (24 * v[i]); return s; }
+  // KKT: closed-form speed per leg for a given lambda, bisection on lambda for the deadline
+  var cache = {};
+  function solve(sc, Tdl) {
+    var key = sc + ":" + Tdl;
+    if (cache[key]) return cache[key];
+    var h = hOf(sc), log = [], lam, lo = 0, hi = 0, hi0 = 0, zero = false, i;
+    if (timeAt(sc, 0) <= Tdl) { lam = 0; zero = true; }
+    else {
+      for (i = 0; i < 3; i++) hi = Math.max(hi, 2 * P * K[i] * Math.pow(VMAX, 3) - h[i]);
+      hi0 = hi;
+      while (hi - lo >= 1) {
+        var mid = (lo + hi) / 2, tm = timeAt(sc, mid), late = tm > Tdl;
+        log.push({ lo: lo, hi: hi, mid: mid, t: tm, late: late });
+        if (late) lo = mid; else hi = mid;
+      }
+      for (i = 0; i < 80; i++) { var m2 = (lo + hi) / 2; if (timeAt(sc, m2) > Tdl) lo = m2; else hi = m2; }
+      lam = (lo + hi) / 2;
+    }
+    var v = speeds(sc, lam), r = plan(sc, v);
+    r.lam = lam; r.log = log; r.zero = zero; r.hi0 = hi0; r.h = h;
+    r.clip = v.map(function (x) { return x <= VMIN + 1e-9 || x >= VMAX - 1e-9; });
+    return (cache[key] = r);
+  }
+  function constPlan(sc) { var vc = clamp((D[0] + D[1] + D[2]) / (24 * TDL), VMIN, VMAX); return plan(sc, [vc, vc, vc]); }
+
+  /* ---------- formatting ---------- */
+  var fx = function (v, d) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d, d); };
+  var signed = function (v, d, neg, pos) { var m = fx(Math.abs(v), d); return m === fx(0, d) ? m : (v < 0 ? neg : pos) + m; };
+  var sgn = function (v, d) { return signed(v, d, MINUS, "+"); };
+  var usd = function (v) { return T("steam.usd", { v: fx(Math.round(v), 0) }); };
+  var kn = function (v) { return fx(v, 1); };
+  function texNum(v, d) {                    // locale number for TeX: thin space for thousands, decimal mark kept
+    var s = fx(v, d), dec = fx(1.5, 1).charAt(1);
+    return s.replace(/[^0-9\-−]/g, function (c) { return c === dec ? c : "\\,"; }).replace(MINUS, "-");
+  }
+
+  /* ---------- the sliders ---------- */
+  var legsEl = document.getElementById("legs"), inputs = [], outs = [], ticks = [], legBoxes = [];
+  (function buildLegs() {
+    for (var i = 0; i < 3; i++) {
+      var box = document.createElement("div"); box.className = "leg";
+      box.innerHTML = '<div class="row"><span class="nm"><i class="sw l' + (i + 1) + '"></i><label for="v' + i + '"></label></span><output for="v' + i + '"></output></div>' +
+        '<span class="sub"></span>' +
+        '<div class="track"><input type="range" id="v' + i + '" min="' + VMIN + '" max="' + VMAX + '" step="0.1" value="' + V0 + '">' +
+        '<div class="opt-tick" hidden><span></span></div></div>' +
+        '<div class="scale"><span></span><span></span></div>';
+      legsEl.appendChild(box);
+      legBoxes.push(box);
+      inputs.push(box.querySelector("input")); outs.push(box.querySelector("output")); ticks.push(box.querySelector(".opt-tick"));
+      (function (k) {
+        inputs[k].addEventListener("input", function () { state.v[k] = +inputs[k].value; renderGame(); });
+      })(i);
+    }
+  })();
+  function renderLegText() {
+    legBoxes.forEach(function (box, i) {
+      box.querySelector("label").textContent = T("steam.leg" + (i + 1));
+      box.querySelector(".sub").textContent = SHARE[i] > 0 ? T("steam.laden", { d: fx(D[i], 0), p: fx(SHARE[i] * 100, 0) }) : T("steam.ballast", { d: fx(D[i], 0) });
+      var sc = box.querySelectorAll(".scale span");
+      sc[0].textContent = T("steam.kn", { v: fx(VMIN, 0) }); sc[1].textContent = T("steam.kn", { v: fx(VMAX, 0) });
+      ticks[i].querySelector("span").textContent = T("steam.tick");
+    });
+  }
+
+  /* ---------- the map (schematic, positions approximate) ---------- */
+  var PORTS = [[-75.51, 10.42, "car"], [-76.79, 17.97, "kin"], [-94.95, 29.45, "hou"]];
+  var BOW = [0.3, 0.22, 0.2];              // bow of each leg's arc (share of its length, sign picks the side)
+  var mapSvg = document.getElementById("map"), mapL = null;
+  var NS = "http://www.w3.org/2000/svg";
+  function mapLayout() {
+    var W = mapSvg.parentNode.clientWidth || 400, narrow = W < 460;
+    var H = Math.round(clamp(W * 0.78, 250, 380));
+    var lon0 = narrow ? -100.5 : -99, lon1 = narrow ? -64.5 : -63, lat0 = 8, lat1 = 32, cosL = Math.cos(20 * Math.PI / 180);
+    var sx = (W - 24) / ((lon1 - lon0) * cosL), sy = (H - 24) / (lat1 - lat0), s = Math.min(sx, sy);
+    var ox = (W - (lon1 - lon0) * cosL * s) / 2, oy = (H - (lat1 - lat0) * s) / 2;
+    var pr = function (lon, lat) { return [ox + (lon - lon0) * cosL * s, oy + (lat1 - lat) * s]; };
+    mapL = { W: W, H: H, pr: pr, narrow: narrow, fs: narrow ? 11.5 : 13 };
+  }
+  function el(tag, attrs, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function keepIn(t, W) {                   // shift a label back inside the map if it would stick out
+    var bb = t.getBBox ? t.getBBox() : null;
+    if (!bb || !bb.width) return;
+    var dx = bb.x < 6 ? 6 - bb.x : (bb.x + bb.width > W - 6 ? W - 6 - bb.x - bb.width : 0);
+    if (!dx) return;
+    t.setAttribute("x", +t.getAttribute("x") + dx);
+    Array.prototype.forEach.call(t.querySelectorAll("tspan"), function (s) { s.setAttribute("x", +s.getAttribute("x") + dx); });
+  }
+  function renderMap() {
+    if (!mapL || Math.abs((mapSvg.parentNode.clientWidth || 400) - mapL.W) > 1) mapLayout();
+    var W = mapL.W, H = mapL.H, pr = mapL.pr, fs = mapL.fs;
+    var r = plan(state.sc, state.v);
+    mapSvg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    mapSvg.setAttribute("height", H);
+    mapSvg.setAttribute("aria-label", T("steam.map.aria"));
+    while (mapSvg.firstChild) mapSvg.removeChild(mapSvg.firstChild);
+    // graticule every 5 degrees
+    var g = el("g", { stroke: "var(--grid)", "stroke-width": 1 });
+    for (var lo = -95; lo <= -65; lo += 5) { var a = pr(lo, 32), b = pr(lo, 7); g.appendChild(el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1] })); }
+    for (var la = 10; la <= 30; la += 5) { var c = pr(-99, la), d = pr(-63, la); g.appendChild(el("line", { x1: c[0], y1: c[1], x2: d[0], y2: d[1] })); }
+    mapSvg.appendChild(g);
+    // sea names (context)
+    // legs
+    var pts = PORTS.map(function (p) { return pr(p[0], p[1]); });
+    for (var i = 0; i < 3; i++) {
+      var A = pts[i], B = pts[(i + 1) % 3], mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2;
+      var dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy), nx = -dy / len, ny = dx / len;
+      var cx = mx + nx * BOW[i] * len, cy = my + ny * BOW[i] * len;
+      var path = "M" + A[0] + "," + A[1] + " Q" + cx + "," + cy + " " + B[0] + "," + B[1];
+      var at = { d: path, fill: "none", stroke: LEGCOL[i], "stroke-width": i === 2 ? 3 : 3.5, "stroke-linecap": "round" };
+      if (i === 2) at["stroke-dasharray"] = "7 6";
+      mapSvg.appendChild(el("path", at));
+      // arrow at the middle of the curve (t = 0.5)
+      var px = 0.25 * A[0] + 0.5 * cx + 0.25 * B[0], py = 0.25 * A[1] + 0.5 * cy + 0.25 * B[1];
+      var tx = B[0] - A[0], ty = B[1] - A[1], tl = Math.hypot(tx, ty); tx /= tl; ty /= tl;
+      var hs = 8, arr = [[px + tx * hs, py + ty * hs], [px - tx * hs * 0.6 - ty * hs * 0.75, py - ty * hs * 0.6 + tx * hs * 0.75], [px - tx * hs * 0.6 + ty * hs * 0.75, py - ty * hs * 0.6 - tx * hs * 0.75]];
+      mapSvg.appendChild(el("polygon", { points: arr.map(function (q) { return q.join(","); }).join(" "), fill: i === 2 ? "var(--ink2)" : LEGCOL[i], stroke: "var(--surface2)", "stroke-width": 1.5 }));
+      // label on the outer side of the bow
+      var sd = BOW[i] > 0 ? 1 : -1, off = 14;
+      var lx = px + nx * sd * off, ly = py + ny * sd * off;
+      var anchor = Math.abs(nx * sd) < 0.35 ? "middle" : (nx * sd > 0 ? "start" : "end");
+      var yb = ny * sd > 0.35 ? fs : (ny * sd < -0.35 ? -4 : fs / 2 - 2);
+      var gl = el("g", {});
+      var lab = T("steam.map.lab", { v: kn(r.v[i]), t: fx(r.t[i], 2) }), parts = lab.split(" · ");
+      var two = mapL.narrow && parts.length === 2;       // phones: speed over days, so the label stays clear of the route
+      if (two && ny * sd < -0.35) yb -= fs + 2; else if (two && Math.abs(ny * sd) <= 0.35) yb -= (fs + 2) / 2;
+      var t1 = el("text", { x: lx, y: ly + yb, "text-anchor": anchor, "font-size": fs, "font-weight": 700, fill: "var(--ink)", class: "num",
+        stroke: "var(--surface2)", "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, two ? null : lab);
+      if (two) {
+        t1.appendChild(el("tspan", { x: lx }, parts[0]));
+        t1.appendChild(el("tspan", { x: lx, dy: fs + 2, "font-weight": 400 }, parts[1]));
+      }
+      gl.appendChild(t1);
+      mapSvg.appendChild(gl);
+      keepIn(t1, W);
+    }
+    // sea names (context), just west of the ballast leg, above and below its label
+    var P3 = pts[2], P0 = pts[0], m3x = (P3[0] + P0[0]) / 2, m3y = (P3[1] + P0[1]) / 2, l3 = Math.hypot(P0[0] - P3[0], P0[1] - P3[1]);
+    var c3x = m3x + (-(P0[1] - P3[1]) / l3) * BOW[2] * l3, c3y = m3y + ((P0[0] - P3[0]) / l3) * BOW[2] * l3;
+    [[0.22, "sea2"], [0.8, "sea1"]].forEach(function (q) {
+      var u = q[0], x = (1 - u) * (1 - u) * P3[0] + 2 * u * (1 - u) * c3x + u * u * P0[0], y = (1 - u) * (1 - u) * P3[1] + 2 * u * (1 - u) * c3y + u * u * P0[1];
+      var st = el("text", { x: x - 12, y: y + 4, "text-anchor": "end", "font-size": fs - 1, "font-style": "italic", fill: "var(--muted)" }, T("steam.map." + q[1]));
+      mapSvg.insertBefore(st, mapSvg.childNodes[1]);
+      var sb = st.getBBox ? st.getBBox() : null;
+      if (sb && sb.width && sb.x < 4) mapSvg.removeChild(st);   // no room on a narrow map: the context label is left out
+    });
+    // ports
+    var LBL = { car: [0, 1], kin: [1, 0], hou: [0, -1] };
+    PORTS.forEach(function (p, j) {
+      var q = pts[j];
+      mapSvg.appendChild(el("circle", { cx: q[0], cy: q[1], r: 6, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2.5 }));
+      var o = LBL[p[2]], an = o[0] > 0 ? "start" : (o[0] < 0 ? "end" : "middle");
+      var yy = q[1] + (o[1] > 0 ? fs + 9 : (o[1] < 0 ? -11 : fs / 2 - 2));
+      mapSvg.appendChild(el("text", { x: q[0] + o[0] * 12, y: yy, "text-anchor": an, "font-size": fs + 0.5, "font-weight": 600, fill: "var(--ink)",
+        stroke: "var(--surface2)", "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, T("steam.map." + p[2])));
+    });
+  }
+
+  /* ---------- time strip ---------- */
+  var SMAX = 14;                             // days shown on the strip
+  function renderStrip(r) {
+    var bar = document.getElementById("bar"), h = "", x = 0;
+    for (var i = 0; i < 3; i++) {
+      var w = r.t[i] / SMAX * 100;
+      h += '<i class="s' + (i + 1) + '" style="left:' + x + '%;width:' + w + '%"></i>';
+      x += w;
+      if (i < 2) h += '<i class="gap" style="left:calc(' + x + '% - 1px)"></i>';
+    }
+    if (r.time > TDL) h += '<i class="over" style="left:' + (TDL / SMAX * 100) + '%;width:' + ((Math.min(r.time, SMAX) - TDL) / SMAX * 100) + '%"></i>';
+    h += '<span class="dl" style="left:' + (TDL / SMAX * 100) + '%"></span>';
+    bar.innerHTML = h;
+    var ax = "";
+    for (var d = 0; d <= SMAX; d += 2) {
+      if (Math.abs(d - TDL) < (bar.clientWidth < 520 ? 3.2 : 1.2)) continue;
+      ax += '<span style="left:' + (d / SMAX * 100) + '%' + (d === 0 ? ';transform:none' : d === SMAX ? ';transform:translateX(-100%)' : '') + '">' + T("steam.strip.axis", { v: fx(d, 0) }) + "</span>";
+    }
+    ax += '<span class="dlab" style="left:' + (TDL / SMAX * 100) + '%">' + T("steam.strip.dead", { T: fx(TDL, 0) }) + "</span>";
+    document.getElementById("baraxis").innerHTML = ax;
+    document.getElementById("strip-num").textContent = T("steam.days", { v: fx(r.time, 2) }) + " / " + T("steam.days", { v: fx(TDL, 0) });
+  }
+
+  /* ---------- the game readout ---------- */
+  function stars(n) {
+    var s = "";
+    for (var i = 0; i < 3; i++) s += i < n ? "★" : '<span class="off">★</span>';
+    return s;
+  }
+  function renderGame() {
+    var r = plan(state.sc, state.v), o = solve(state.sc, TDL), late = r.time > TDL + 1e-9;
+    for (var i = 0; i < 3; i++) {
+      outs[i].textContent = T("steam.out", { v: kn(r.v[i]), t: fx(r.t[i], 2) });
+      if (+inputs[i].value !== state.v[i]) inputs[i].value = state.v[i];
+      ticks[i].hidden = !state.revealed;
+      ticks[i].style.setProperty("--f", (o.v[i] - VMIN) / (VMAX - VMIN));
+      legBoxes[i].classList.toggle("revealed", state.revealed);
+    }
+    renderMap();
+    renderStrip(r);
+    document.getElementById("v-fuel").textContent = usd(r.F);
+    document.getElementById("l-fuel").textContent = T("steam.l.fuel", { t: fx(r.fuelT, 1) });
+    document.getElementById("v-inv").textContent = usd(r.I);
+    document.getElementById("v-tot").textContent = usd(r.C);
+    document.getElementById("v-time").textContent = T("steam.days", { v: fx(r.time, 2) });
+    document.getElementById("l-time").textContent = T("steam.l.time", { T: fx(TDL, 0) });
+    document.getElementById("st-time").classList.toggle("bad", late);
+    var ov = { "o-fuel": usd(o.F), "o-inv": usd(o.I), "o-tot": usd(o.C), "o-time": T("steam.days", { v: fx(o.time, 2) }) };
+    Object.keys(ov).forEach(function (id) { var e = document.getElementById(id); e.hidden = !state.revealed; e.textContent = T("steam.l.opt", { v: ov[id] }); });
+    var msg = document.getElementById("msg"), spare = (TDL - r.time) * 24;
+    msg.classList.toggle("bad", late);
+    if (late) msg.innerHTML = T("steam.msg.late", { h: fx(Math.ceil((r.time - TDL) * 240 - 1e-9) / 10, 1), T: fx(TDL, 0) });
+    else if (spare < 0.05) msg.innerHTML = T("steam.msg.exact");
+    else msg.innerHTML = T("steam.msg.ok", { h: fx(Math.floor(spare * 10 + 1e-9) / 10, 1) });
+    // score
+    var sc = document.getElementById("score"), n = 0, gap = (r.C - o.C) / o.C * 100;
+    sc.classList.toggle("late", late);
+    if (late) {
+      document.getElementById("verdict").textContent = T("steam.score.late");
+      document.getElementById("rsub").textContent = T("steam.score.lateSub");
+    } else {
+      n = gap <= 0.5 ? 3 : gap <= 2 ? 2 : gap <= 5 ? 1 : 0;
+      document.getElementById("verdict").textContent = T("steam.score.s" + n);
+      document.getElementById("rsub").textContent = gap < 0.005 ? T("steam.score.gap0") : T("steam.score.gap", { g: fx(gap, 2), c: usd(r.C - o.C) });
+    }
+    var st = document.getElementById("stars");
+    st.innerHTML = stars(n); st.setAttribute("aria-label", T("steam.score.aria", { n: n }));
+    document.getElementById("use").hidden = !state.revealed;
+    document.getElementById("reveal").hidden = state.revealed;
+    if (state.revealed) renderBars();
+  }
+
+  /* ---------- solution ---------- */
+  function scName(sc) { return T("steam.sc." + sc); }
+  function renderSolution() {
+    var solEl = document.getElementById("sol");
+    solEl.hidden = !state.revealed;
+    if (!state.revealed) return;
+    var o = solve(state.sc, TDL), cp = constPlan(state.sc), you = plan(state.sc, state.v);
+    document.getElementById("sol-title").textContent = T("steam.sol.title", { s: scName(state.sc) });
+    document.getElementById("s-lam").textContent = usd(o.lam);
+    document.getElementById("s-laml").textContent = o.zero ? T("steam.sol.lamZero") : T("steam.sol.lamL");
+    document.getElementById("s-cost").textContent = usd(o.C);
+    document.getElementById("s-costl").textContent = T("steam.sol.costL", { f: usd(o.F), i: usd(o.I) });
+    document.getElementById("s-time").textContent = T("steam.days", { v: fx(o.time, 2) });
+    document.getElementById("s-timel").textContent = o.zero ? T("steam.sol.timeSlack") : T("steam.sol.timeBind");
+    document.getElementById("s-gain").textContent = usd(cp.C - o.C);
+    document.getElementById("s-gainl").textContent = T("steam.sol.gainL", { v: kn(cp.v[0]), c: usd(cp.C) });
+    // leg table
+    var h = "<thead><tr><th>" + T("steam.tbl.leg") + "</th><th class='num wide'>" + T("steam.tbl.h") + "</th><th class='num'>" + T("steam.tbl.vopt") +
+      "</th><th class='num wide'>" + T("steam.tbl.vyou") + "</th><th class='num'>" + T("steam.tbl.days") + "</th><th class='num'>" + T("steam.tbl.fuel") +
+      "</th><th class='num'>" + T("steam.tbl.inv") + "</th></tr></thead><tbody>";
+    for (var i = 0; i < 3; i++) {
+      h += "<tr><td class='lg'>" + T("steam.legShort", { n: i + 1 }) + "<span class='tag'>" + T(SHARE[i] > 0 ? "steam.tbl.lad" : "steam.tbl.bal") +
+        (o.clip[i] ? " · " + T("steam.tbl.clip") : "") + "</span></td><td class='num wide'>" + fx(Math.round(o.h[i]), 0) +
+        "</td><td class='num ex'>" + T("steam.kn", { v: fx(o.v[i], 2) }) + "</td><td class='num wide'>" + T("steam.kn", { v: kn(you.v[i]) }) +
+        "</td><td class='num'>" + fx(o.t[i], 2) + "</td><td class='num'>" + fx(Math.round(o.fuel[i]), 0) + "</td><td class='num'>" + fx(Math.round(o.inv[i]), 0) + "</td></tr>";
+    }
+    document.getElementById("legTable").innerHTML = h + "</tbody>";
+    // stationarity with the numbers
+    var rows = [], plain = [], narrow = document.getElementById("sol").clientWidth < 560;
+    for (i = 0; i < 3; i++) {
+      var vv = { n: i + 1, P: texNum(P, 0), k: texNum(K[i], 6), v: texNum(o.v[i], 3), lhs: texNum(2 * P * K[i] * Math.pow(o.v[i], 3), 0),
+        h: texNum(Math.round(o.h[i]), 0), lam: texNum(Math.round(o.lam), 0) };
+      var vp = { n: i + 1, P: fx(P, 0), k: fx(K[i], 6), v: fx(o.v[i], 3), lhs: fx(2 * P * K[i] * Math.pow(o.v[i], 3), 0),
+        h: fx(Math.round(o.h[i]), 0), lam: fx(Math.round(o.lam), 0) };
+      var row = T(o.clip[i] ? "steam.inst.rowClip" : "steam.inst.row", vv);
+      if (narrow && !o.clip[i]) row = row.replace("&&=", "\\\\ & \\qquad =");
+      rows.push(row);
+      plain.push(T(o.clip[i] ? "steam.inst.plainClip" : "steam.inst.plain", vp));
+    }
+    TeX.set(document.getElementById("inst"), "\\begin{aligned}" + rows.join("\\\\ ") + "\\end{aligned}", plain.join("\n"));
+    renderBars();
+    renderCharts();
+    // bisection table
+    var bt = document.getElementById("bisTable"), bn = document.getElementById("bisNote");
+    if (o.zero) { bt.innerHTML = ""; bn.textContent = T("steam.bis.zero"); }
+    else {
+      h = "<thead><tr><th class='num'>" + T("steam.bis.n") + "</th><th class='num wide'>" + T("steam.bis.lo") + "</th><th class='num wide'>" + T("steam.bis.hi") +
+        "</th><th class='num'>" + T("steam.bis.mid") + "</th><th class='num'>" + T("steam.bis.t") + "</th><th>" + T("steam.bis.then") + "</th></tr></thead><tbody>";
+      o.log.forEach(function (s, j) {
+        // one decimal on lambda and five on days, so the last steps (bracket under USD 10) stay distinguishable
+        h += "<tr><td class='num'>" + (j + 1) + "</td><td class='num wide'>" + fx(s.lo, 1) + "</td><td class='num wide'>" + fx(s.hi, 1) +
+          "</td><td class='num ex'>" + fx(s.mid, 1) + "</td><td class='num'>" + fx(s.t, 5) + "</td><td class='muted'>" + T(s.late ? "steam.bis.late" : "steam.bis.early") + "</td></tr>";
+      });
+      bt.innerHTML = h + "</tbody>";
+      bn.textContent = T("steam.bis.note", { n: o.log.length, l: usd(o.lam), hi: usd(o.hi0) });
+    }
+    // sensitivity
+    document.getElementById("sensIntro").textContent = T("steam.sens.intro", { l: usd(o.lam), T: fx(TDL, 0) });
+    h = "<thead><tr><th class='num'>" + T("steam.sens.T") + "</th><th class='num'>" + T("steam.sens.c") + "</th><th class='num wide'>" + T("steam.sens.l") +
+      "</th><th class='num'>" + T("steam.sens.ex") + "</th><th class='num'>" + T("steam.sens.est") + "</th></tr></thead><tbody>";
+    DT.forEach(function (d) {
+      var s = solve(state.sc, TDL + d);
+      h += "<tr" + (d === 0 ? " class='base'" : "") + "><td class='num'>" + fx(TDL + d, 1) + "</td><td class='num'>" + fx(Math.round(s.C), 0) +
+        "</td><td class='num wide'>" + fx(Math.round(s.lam), 0) + "</td><td class='num ex'>" + (d === 0 ? "" : sgn(Math.round(s.C - o.C), 0)) +
+        "</td><td class='num'>" + (d === 0 ? "" : sgn(Math.round(-o.lam * d), 0)) + "</td></tr>";
+    });
+    document.getElementById("sensTable").innerHTML = h + "</tbody>";
+  }
+  function renderBars() {
+    var o = solve(state.sc, TDL), cp = constPlan(state.sc), you = plan(state.sc, state.v);
+    var items = [["you", you], ["const", cp], ["opt", o]], mx = Math.max(you.C, cp.C, o.C) * 1.3, h = "";
+    items.forEach(function (it) {
+      var r = it[1], lab = it[0] === "const" ? T("steam.bars.const", { v: kn(cp.v[0]) }) : T("steam.bars." + it[0]);
+      var late = r.time > TDL + 1e-9;
+      var wf = r.F / mx * 100, wi = r.I / mx * 100;
+      h += "<div class='brow" + (it[0] === "opt" ? " opt" : "") + "'><span class='lbl'>" + lab + "</span><div class='btrack'>" +
+        "<i class='cf' style='left:0;width:" + wf + "%'></i><i class='ci' style='left:calc(" + wf + "% + 2px);width:" + wi + "%'></i>" +
+        "<span class='bval' style='right:6px'>" + usd(r.C) + (late ? " · " + T("steam.bars.late") : "") + "</span></div></div>";
+    });
+    document.getElementById("bars").innerHTML = h;
+  }
+
+  /* ---------- charts (px-sized SVG) ---------- */
+  function niceStep(span, n) {
+    var raw = span / n, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+    return (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p;
+  }
+  function frame(svg, W, H, M, X, Y, xt, yt, xlab, ylab) {
+    var g = [];
+    var sx = function (x) { return M.l + (x - X[0]) / (X[1] - X[0]) * (W - M.l - M.r); };
+    var sy = function (y) { return H - M.b - (y - Y[0]) / (Y[1] - Y[0]) * (H - M.t - M.b); };
+    var fs = W < 420 ? 11 : 11.5;
+    xt.forEach(function (x) {
+      g.push("<line x1='" + sx(x) + "' x2='" + sx(x) + "' y1='" + M.t + "' y2='" + (H - M.b) + "' stroke='var(--grid)'/>");
+      g.push("<text class='num' x='" + sx(x) + "' y='" + (H - M.b + 15) + "' text-anchor='middle' font-size='" + fs + "' fill='var(--muted)'>" + fx(x / 1000, 0) + "</text>");
+    });
+    yt.forEach(function (y) {
+      g.push("<line x1='" + M.l + "' x2='" + (W - M.r) + "' y1='" + sy(y) + "' y2='" + sy(y) + "' stroke='var(--grid)'/>");
+      g.push("<text class='num' x='" + (M.l - 6) + "' y='" + (sy(y) + 4) + "' text-anchor='end' font-size='" + fs + "' fill='var(--muted)'>" + fx(y, 0) + "</text>");
+    });
+    g.push("<line x1='" + M.l + "' x2='" + (W - M.r) + "' y1='" + (H - M.b) + "' y2='" + (H - M.b) + "' stroke='var(--axis)' stroke-width='1.5'/>");
+    g.push("<text x='" + ((M.l + W - M.r) / 2) + "' y='" + (H - 4) + "' text-anchor='middle' font-size='" + fs + "' fill='var(--ink2)'>" + xlab + "</text>");
+    g.push("<text x='" + M.l + "' y='" + (M.t - 8) + "' text-anchor='start' font-size='" + fs + "' fill='var(--ink2)'>" + ylab + "</text>");
+    return { g: g, sx: sx, sy: sy, fs: fs };
+  }
+  function renderCharts() {
+    var o = solve(state.sc, TDL), sc = state.sc;
+    var xmax = o.zero ? 50000 : o.hi0;
+    var xt = [], st = niceStep(xmax, 5);
+    for (var x = 0; x <= xmax + 1e-6; x += st) xt.push(x);
+    // chart 1: total time against lambda
+    var svg1 = document.getElementById("ch1"), W = svg1.parentNode.clientWidth || 360, H = Math.round(clamp(W * 0.62, 220, 290));
+    var M = { l: 34, r: 14, t: 22, b: 36 };
+    var tmin = timeAt(sc, xmax), tmax = timeAt(sc, 0), y0 = Math.floor(Math.min(tmin, TDL) - 0.3), y1 = Math.ceil(Math.max(tmax, TDL) + 0.2);
+    var yt = []; for (var y = y0; y <= y1; y += (y1 - y0 > 6 ? 2 : 1)) yt.push(y);
+    var F = frame(svg1, W, H, M, [0, xmax], [y0, y1], xt, yt, T("steam.ch1.x"), T("steam.days", { v: "" }).trim());
+    var g = F.g, pts = [], i;
+    for (i = 0; i <= 160; i++) { var l = xmax * i / 160; pts.push(F.sx(l).toFixed(1) + "," + F.sy(timeAt(sc, l)).toFixed(1)); }
+    g.push("<line x1='" + M.l + "' x2='" + (W - M.r) + "' y1='" + F.sy(TDL) + "' y2='" + F.sy(TDL) + "' stroke='var(--ink2)' stroke-width='1.6' stroke-dasharray='6 5'/>");
+    g.push("<text x='" + (W - M.r) + "' y='" + (F.sy(TDL) - 6) + "' text-anchor='end' font-size='" + F.fs + "' fill='var(--ink2)'>" + T("steam.ch1.dead") + "</text>");
+    g.push("<polyline points='" + pts.join(" ") + "' fill='none' stroke='var(--ink)' stroke-width='2'/>");
+    // box of the lambda* label (drawn below), so the step numbers never land on it or on the red dot
+    var SX0 = F.sx(o.lam), SY0 = F.sy(o.time), right0 = SX0 < W * 0.55;
+    var starW = (T("steam.ch1.star", { l: fx(Math.round(o.lam), 0) }).length) * (F.fs + 1) * 0.62;
+    var sbx0 = right0 ? SX0 - 8 : SX0 - 14 - starW, sbx1 = right0 ? SX0 + 14 + starW : SX0 + 8, sby0 = SY0 - 10, sby1 = SY0 + 24;
+    o.log.forEach(function (s, j) {
+      var X = F.sx(s.mid), Y = F.sy(s.t);
+      g.push("<circle cx='" + X + "' cy='" + Y + "' r='4.5' fill='var(--mit-silver)' stroke='var(--surface)' stroke-width='2'/>");
+      if (j >= 3) return;
+      // first free spot among up-right, up-left, down-left, down-right
+      var spots = [[7, -7, "start"], [-7, -7, "end"], [-7, 16, "end"], [7, 16, "start"]], pick = null;
+      spots.forEach(function (q) {
+        if (pick) return;
+        var tx = X + q[0], ty = Y + q[1], x0 = q[2] === "start" ? tx - 1 : tx - 10, x1 = x0 + 11;
+        if (!(x1 > sbx0 && x0 < sbx1 && ty > sby0 && ty - 12 < sby1)) pick = q;
+      });
+      if (pick) g.push("<text class='num' x='" + (X + pick[0]) + "' y='" + (Y + pick[1]) + "' text-anchor='" + pick[2] + "' font-size='" + F.fs + "' fill='var(--ink2)' stroke='var(--surface)' stroke-width='3' paint-order='stroke'>" + (j + 1) + "</text>");
+    });
+    var SX = F.sx(o.lam), SY = F.sy(o.time);
+    g.push("<circle cx='" + SX + "' cy='" + SY + "' r='6' fill='var(--accent)' stroke='var(--surface)' stroke-width='2'/>");
+    var right = SX < W * 0.55;
+    g.push("<text class='num' x='" + (SX + (right ? 10 : -10)) + "' y='" + (SY + 18) + "' text-anchor='" + (right ? "start" : "end") + "' font-size='" + (F.fs + 1) +
+      "' font-weight='700' fill='var(--accent-text)' stroke='var(--surface)' stroke-width='4' paint-order='stroke'>" + T("steam.ch1.star", { l: fx(Math.round(o.lam), 0) }) + "</text>");
+    svg1.setAttribute("viewBox", "0 0 " + W + " " + H); svg1.setAttribute("height", H); svg1.innerHTML = g.join("");
+
+    // chart 2: speed of each leg against lambda
+    var svg2 = document.getElementById("ch2"), W2 = svg2.parentNode.clientWidth || 360, H2 = Math.round(clamp(W2 * 0.62, 220, 290));
+    var M2 = { l: 34, r: 14, t: 22, b: 36 };
+    var F2 = frame(svg2, W2, H2, M2, [0, xmax], [VMIN - 1, VMAX + 1], xt, [VMIN, 12, 14, VMAX], T("steam.ch1.x"), T("steam.ch2.y"));
+    var g2 = F2.g, h = hOf(sc);
+    [VMIN, VMAX].forEach(function (b) {
+      g2.push("<line x1='" + M2.l + "' x2='" + (W2 - M2.r) + "' y1='" + F2.sy(b) + "' y2='" + F2.sy(b) + "' stroke='var(--ink2)' stroke-width='1.6' stroke-dasharray='6 5'/>");
+    });
+    g2.push("<line x1='" + F2.sx(o.lam) + "' x2='" + F2.sx(o.lam) + "' y1='" + M2.t + "' y2='" + (H2 - M2.b) + "' stroke='var(--accent)' stroke-width='1.5'/>");
+    for (i = 2; i >= 0; i--) {
+      var p2 = [];
+      for (var j = 0; j <= 160; j++) { var l2 = xmax * j / 160; p2.push(F2.sx(l2).toFixed(1) + "," + F2.sy(vOf(h[i], K[i], l2)).toFixed(1)); }
+      g2.push("<polyline points='" + p2.join(" ") + "' fill='none' stroke='" + LEGCOL[i] + "' stroke-width='" + (i === 2 ? 2.5 : 2.2) + "'" + (i === 2 ? " stroke-dasharray='6 4'" : "") + "/>");
+    }
+    for (i = 0; i < 3; i++) {
+      g2.push("<circle cx='" + F2.sx(o.lam) + "' cy='" + F2.sy(o.v[i]) + "' r='5' fill='" + LEGCOL[i] + "' stroke='var(--surface)' stroke-width='2'/>");
+    }
+    svg2.setAttribute("viewBox", "0 0 " + W2 + " " + H2); svg2.setAttribute("height", H2); svg2.innerHTML = g2.join("");
+    document.getElementById("ch2leg").innerHTML = [0, 1, 2].map(function (k) {
+      return "<span><i class='sw l" + (k + 1) + "'></i><span>" + (k === 2 ? T("steam.ch2.bal") : T("steam.legShort", { n: k + 1 })) + "</span></span>";
+    }).join("") + "<span><i class='sw ld'></i><span>" + T("steam.lg.dead") + "</span></span>";
+  }
+
+  /* ---------- page text ---------- */
+  function renderText() {
+    var h = hOf(state.sc);
+    document.getElementById("brief").innerHTML = T("steam.brief", {
+      V: usd(VAL[state.sc]), drop: fx((1 - SHARE[1]) * 100, 0), T: fx(TDL, 0), P: usd(P), r: fx(RATE * 100, 2)
+    });
+    document.getElementById("facts").textContent = T("steam.facts", {
+      qL: fx(Q14, 1), qB: fx(Q14 * (1 - CUT), 1), cut: fx(CUT * 100, 0), vmin: fx(VMIN, 0), vmax: fx(VMAX, 0)
+    });
+    document.getElementById("mdata").textContent = T("steam.model.data", {
+      d1: fx(D[0], 0), d2: fx(D[1], 0), d3: fx(D[2], 0), P: usd(P), kL: fx(K[0], 6), kB: fx(K[2], 6), T: fx(TDL, 0),
+      vmin: fx(VMIN, 0), vmax: fx(VMAX, 0), h1: fx(h[0], 0), h2: fx(h[1], 0)
+    });
+    var c = solve("cheap", TDL), e = solve("expensive", TDL);
+    document.getElementById("n1").textContent = T("steam.n.p1", { f: fx(1 - CUT, 2), x: fx(Math.cbrt(1 / (1 - CUT)), 3) });
+    document.getElementById("n2").textContent = T("steam.n.p2", { vc: kn(c.v[2]), vl: kn(c.v[0]), ve: kn(e.v[0]), vb: kn(e.v[2]) });
+    document.getElementById("n3").textContent = T("steam.n.p3", { lc: usd(c.lam), le: usd(e.lam) });
+    document.getElementById("n4").innerHTML = T("steam.n.p4");
+  }
+
+  /* ---------- events ---------- */
+  var segBtns = document.querySelectorAll("#sc-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      renderText(); renderGame(); renderSolution();
+    });
+  });
+  document.getElementById("reveal").addEventListener("click", function () {
+    state.revealed = true; renderGame(); renderSolution();
+    document.getElementById("use").focus();
+  });
+  document.getElementById("use").addEventListener("click", function () {
+    var o = solve(state.sc, TDL);
+    // the sliders move in steps of 0.1 knots: round each optimal speed down or up, keeping the cheapest plan that is on time
+    var best = null;
+    for (var m = 0; m < 8; m++) {
+      var v = o.v.map(function (x, i) { return clamp(Math.floor(x * 10 + 1e-9) / 10 + ((m >> i) & 1) / 10, VMIN, VMAX); });
+      v = v.map(function (x) { return Math.round(x * 10) / 10; });
+      var r = plan(state.sc, v);
+      if (r.time <= TDL + 1e-9 && (!best || r.C < best.C)) best = { C: r.C, v: v };
+    }
+    state.v = best ? best.v : o.v.map(function (x) { return clamp(Math.ceil(x * 10 - 1e-9) / 10, VMIN, VMAX); });
+    renderGame(); renderSolution();
+  });
+  document.getElementById("reset").addEventListener("click", function () {
+    state.v = [V0, V0, V0]; renderGame(); if (state.revealed) renderSolution();
+  });
+  var rsT = null, lastW = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(rsT);
+    rsT = setTimeout(function () {
+      var w = document.getElementById("game").clientWidth;
+      if (w === lastW) return;
+      lastW = w; mapL = null; renderGame(); renderSolution();
+    }, 120);
+  });
+
+  I18N.onChange(function () {
+    renderLegText(); renderText(); mapL = null; renderGame(); renderSolution();
+    lastW = document.getElementById("game").clientWidth;
+  });
+})();
+</script>
+</body>
+</html>

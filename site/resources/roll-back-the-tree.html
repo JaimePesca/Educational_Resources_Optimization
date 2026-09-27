@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en" data-title-key="dtree.title" data-i18n-bundles="resources/other-decision-tree">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Roll Back the Tree</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #dt-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 30%)); max-width: none;
+  }
+  #dt-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #dt-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #dt-sec .anim-hud .chip-stat.bad b { color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #dt-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #dt-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #dt-sec .anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #dt-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 11px; }
+    #dt-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #dt-sec .anim-legend i.lg-dec { width: 12px; height: 12px; background: var(--accent); }
+  #dt-sec .anim-legend i.lg-chance { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--ink); background: var(--surface); }
+  #dt-sec .anim-legend i.lg-end { width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-right: 10px solid var(--ink); }
+  #dt-sec .anim-legend i.lg-flow { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+  #dt-sec .anim-legend i.lg-prune { width: 22px; height: 12px; position: relative; background: none; }
+  #dt-sec .anim-legend i.lg-prune::before { content: ""; position: absolute; left: 0; right: 0; top: 5px; border-top: 2px solid var(--mit-silver); }
+  #dt-sec .anim-legend i.lg-prune::after { content: ""; position: absolute; left: 7px; top: 0; width: 5px; height: 11px; border-left: 2px solid var(--mit-bright); border-right: 2px solid var(--mit-bright); transform: skewX(-25deg); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #dt-sec .anim-legend i.lg-prune::after { border-color: var(--crit); }
+  }
+  :root[data-theme="dark"] #dt-sec .anim-legend i.lg-prune::after { border-color: var(--crit); }
+  #dt-sec .anim-legend i.lg-best { width: 22px; height: 0; border-top: 4px solid var(--accent); }
+  #dt-sec .anim-legend i.lg-val { width: 18px; height: 12px; border: 1px solid var(--axis); background: var(--surface); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- solution ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  .solcheck { font-size: 14px; color: var(--ink2); margin: 14px 0 0; }
+
+  /* ---- tables ---- */
+  table.data { min-width: 520px; }
+  @media (max-width: 560px) {
+    table.data { min-width: 0; }
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 6px; }
+  }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.ex { color: var(--accent-text); font-weight: 600; }
+  table.data td.gap { color: var(--muted); }
+  table.data td.leaf { color: var(--ink2); }
+  table.data tr.sep td { border-top: 1px solid var(--axis); }
+  .sens-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 78ch; }
+  .sens-p b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="dtree.eyebrow"></p>
+    <h1 data-i18n="dtree.title"></h1>
+    <p class="lede" data-i18n-html="dtree.lede"></p>
+  </header>
+
+  <section class="block" id="dt-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="dtree.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="dt-scen-lbl" data-i18n="dtree.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="dt-scen-lbl" id="dt-seg">
+        <button type="button" data-sc="neutral" aria-pressed="true"></button>
+        <button type="button" data-sc="averse" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="anim" id="dt-anim">
+      <div class="anim-stage" role="img" aria-label="">
+        <div class="anim-hud" id="dt-hud">
+          <div class="chip-stat" id="dt-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="dt-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="dt-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="dt-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="dt-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="dt-c5"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-dec"></i><span data-i18n="dtree.lg.dec"></span></span>
+      <span><i class="lg-chance"></i><span data-i18n="dtree.lg.chance"></span></span>
+      <span><i class="lg-end"></i><span data-i18n="dtree.lg.end"></span></span>
+      <span><i class="lg-flow"></i><span data-i18n="dtree.lg.flow"></span></span>
+      <span><i class="lg-prune"></i><span data-i18n="dtree.lg.prune"></span></span>
+      <span><i class="lg-best"></i><span data-i18n="dtree.lg.best"></span></span>
+      <span><i class="lg-val"></i><span id="dt-lg-val"></span></span>
+    </div>
+    <p class="scen-status" id="dt-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="dtree.model.kicker"></span><span data-i18n="dtree.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" data-tex="dtree.model.tex" data-i18n="dtree.model.formula"></div>
+        <p class="mtext" data-i18n="dtree.model.why"></p>
+        <p class="mtext" id="dt-data"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="dtree.risk.head"></p>
+        <div class="formula" data-tex="dtree.risk.tex" data-i18n="dtree.risk.formula"></div>
+        <p class="mtext" data-i18n="dtree.risk.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="dtree.sol.kicker"></span><span id="dt-sol-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="dtree.sol.root"></div><div class="v" id="dt-s-root"></div><div class="l" id="dt-s-rootl"></div></div>
+      <div class="stat"><div class="k" data-i18n="dtree.sol.move"></div><div class="v" id="dt-s-move"></div><div class="l" id="dt-s-movel"></div></div>
+      <div class="stat"><div class="k" data-i18n="dtree.sol.rej"></div><div class="v ink" id="dt-s-rej"></div><div class="l" id="dt-s-rejl"></div></div>
+      <div class="stat"><div class="k" data-i18n="dtree.sol.prem"></div><div class="v ink" id="dt-s-prem"></div><div class="l" id="dt-s-preml"></div></div>
+    </div>
+    <p class="mhead" style="margin-top:16px" data-i18n="dtree.tbl.head"></p>
+    <div class="tblwrap"><table class="data" id="dt-tbl"></table></div>
+    <p class="sens-p" id="dt-tbl-note"></p>
+    <p class="solcheck" data-i18n="dtree.inst.head"></p>
+    <div class="formula" id="dt-inst"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="dtree.sens.kicker"></span><span data-i18n="dtree.sens.title"></span></h2>
+    <p class="sens-p" data-i18n="dtree.sens.intro" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="dt-sens"></table></div>
+    <p class="sens-p" id="dt-sens-note"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="dtree.n.title"></summary>
+      <div class="body">
+        <p id="dt-n1"></p>
+        <p id="dt-n2"></p>
+        <p id="dt-n3"></p>
+        <p id="dt-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.8" data-refs="dtree.refs"></p>
+  <p class="note" data-i18n="dtree.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-decision-tree.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d, m) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 1 : d, m); };
+  var signed = function (v, d, m, neg, pos) { var s = fmt(Math.abs(v), d, m); return s === fmt(0, d, m) ? s : (v < 0 ? neg : pos) + s; };
+  var f1 = function (v) { return fmt(v, 1, 1); };             // money values: one decimal
+  var f0 = function (v) { return fmt(v, 0); };                // payoffs: integers
+  var fp = function (v) { return fmt(v, 2); };                // probabilities
+  var f4 = function (v) { return fmt(v, 4, 4); };             // utilities
+  var sg1 = function (v) { return signed(v, 1, 1, MINUS, "+"); };
+
+  /* ---------- the tree (illustrative, plausible data; millions of COP for one container lot) ---------- */
+  var P_OK = 0.8, P_HI = 0.6, R_AV = 250;
+  var NODES = {
+    D1: { t: "d", kids: [["C1", "export"], ["L6", "local"]] },
+    C1: { t: "c", kids: [["C2", "ok", P_OK], ["D2", "rej", 1 - P_OK]] },
+    C2: { t: "c", kids: [["L1", "hi", P_HI], ["L2", "lo", 1 - P_HI]] },
+    D2: { t: "d", kids: [["C3", "cert"], ["L5", "disc"]] },
+    C3: { t: "c", kids: [["L3", "hi", P_HI], ["L4", "lo", 1 - P_HI]] },
+    L1: { t: "l", x: 880 }, L2: { t: "l", x: 400 }, L3: { t: "l", x: 740 },
+    L4: { t: "l", x: 220 }, L5: { t: "l", x: 420 }, L6: { t: "l", x: 600 }
+  };
+  var LEAVES = ["L1", "L2", "L3", "L4", "L5", "L6"];
+  var INNER = ["D1", "C1", "C2", "D2", "C3"];
+  var PARENT = {};
+  Object.keys(NODES).forEach(function (id) { (NODES[id].kids || []).forEach(function (k, i) { PARENT[k[0]] = { id: id, i: i, br: k[1], p: k[2] }; }); });
+  function util(x, R) { return 1 - Math.exp(-x / R); }
+  // rollback: neutral (R = Infinity) rolls back money, otherwise expected utility. For every node:
+  // v (EV or EU), ce (certainty equivalent; = EV when neutral), ev (EV under the chosen strategy), best (decision)
+  function rollback(R) {
+    var neutral = !isFinite(R), out = {};
+    (function go(id) {
+      var n = NODES[id], r;
+      if (n.t === "l") r = { v: neutral ? n.x : util(n.x, R), ev: n.x };
+      else {
+        var ks = n.kids.map(function (k) { return go(k[0]); });
+        if (n.t === "c") {
+          r = { v: 0, ev: 0 };
+          n.kids.forEach(function (k, i) { r.v += k[2] * ks[i].v; r.ev += k[2] * ks[i].ev; });
+        } else {
+          var b = 0;
+          ks.forEach(function (s, i) { if (s.v > ks[b].v) b = i; });
+          r = { v: ks[b].v, ev: ks[b].ev, best: b };
+        }
+      }
+      r.ce = neutral ? r.v : -R * Math.log(1 - r.v);
+      out[id] = r;
+      return r;
+    })("D1");
+    return out;
+  }
+  var cache = {};
+  function scen(key) {
+    if (cache[key]) return cache[key];
+    var R = key === "neutral" ? Infinity : R_AV;
+    return (cache[key] = { key: key, R: R, neutral: key === "neutral", rb: rollback(R) });
+  }
+  // strategy outcome lottery (for the probability of ending below the sure local sale)
+  function lottery(rb) {
+    var out = [];
+    (function go(id, p) {
+      var n = NODES[id];
+      if (n.t === "l") { out.push([p, n.x]); return; }
+      if (n.t === "d") { go(n.kids[rb[id].best][0], p); return; }
+      n.kids.forEach(function (k) { go(k[0], p * k[2]); });
+    })(NODES.D1.kids[0][0], 1);                   // the export branch
+    return out;
+  }
+  function bisect(g, lo, hi) {                   // g(lo) < 0 < g(hi)
+    for (var i = 0; i < 200; i++) { var m = (lo + hi) / 2; if (g(m) < 0) lo = m; else hi = m; }
+    return (lo + hi) / 2;
+  }
+  var state = { sc: "neutral" };
+
+  /* =====================================================================================
+     "See it in motion". Every value is computed by the rollback above; the layout, the
+     moving dots and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("dt-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("dt-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var DUR = 54, CH = [0, 9, 18, 31, 42];
+  // when each node appears (chapter 1)
+  var POP = { D1: 0.5, C1: 2.2, L6: 2.6, C2: 3.6, D2: 3.8, L1: 4.8, L2: 5.0, C3: 5.2, L5: 5.4, L3: 6.2, L4: 6.4 };
+  // when each leaf is valued (chapter 2)
+  var VAL = { L1: 10.2, L2: 11.1, L3: 12.0, L4: 12.9, L5: 13.8, L6: 14.7 };
+  // when each inner node is solved (chapters 3 to 5)
+  var SOLVE = { C2: 18.8, C3: 24.0, D2: 31.6, C1: 36.4, D1: 42.6 };
+  var PD = 1.8, PJ = 0.5, PI = 0.25;             // particle flight, spacing within a branch, between branches
+  var SWEEP = 47.2;                              // the best strategy is traced from the root
+  function doneT(id) { return NODES[id].t === "c" ? SOLVE[id] + PI + 2 * PJ + PD + 0.35 : SOLVE[id] + 4.2; }
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var TAU = Math.PI * 2;
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function mix(c1, c2, u) {
+    var a = rgbOf(c1), b = rgbOf(c2);
+    return "rgb(" + Math.round(lerp(a[0], b[0], u)) + "," + Math.round(lerp(a[1], b[1], u)) + "," + Math.round(lerp(a[2], b[2], u)) + ")";
+  }
+
+  /* ---------- layout: node positions, edge polylines, sizes ---------- */
+  var ROW = { L1: 0, L2: 1, L3: 2, L4: 3, L5: 4, L6: 5.3, C2: 0.5, C3: 2.5, D2: 2.5, C1: 1.5, D1: 1.5 };
+  var COL = { D1: 0, C1: 1, C2: 2, D2: 2, C3: 3 };
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11.5; L.ft = 13.5;
+      L.r = 8; L.sq = 7.5; L.tri = 7; L.elb = 13; L.lw = 1.8;
+      L.fName = 10; L.fProb = 9.5; L.fVal = 11; L.fSmall = 8.5; L.leafW = 36;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 12; L.ft = 16;
+      L.r = 11; L.sq = 10; L.tri = 9; L.elb = 18; L.lw = 2.2;
+      L.fName = 12.5; L.fProb = 11.5; L.fVal = 14; L.fSmall = 10.5; L.leafW = 58;
+    }
+    // room for the longest caption of either scenario
+    var tl = 1, sl = 1;
+    ["neutral", "averse"].forEach(function (k) {
+      CH.forEach(function (c) {
+        var cap = captions(scen(k), c + 0.1);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    // tree box
+    var tx0, tx1, ty0, ty1;
+    if (portrait) { tx0 = 8; tx1 = W - 8; ty0 = L.capBottom + 6; ty1 = H - 8; }
+    else { tx0 = hx + hw + 30; tx1 = W - 14; ty0 = 12; ty1 = H - 12; }
+    var topPad = portrait ? 34 : 48, botPad = portrait ? 24 : 30;
+    var rowH = (ty1 - ty0 - topPad - botPad) / 5.3;
+    L.leafX = tx1 - L.leafW;
+    var rootX = tx0 + L.sq + (portrait ? 2 : 6);
+    var g = (L.leafX - L.tri - rootX) / 3.75;     // three wide columns and one narrower column before the endings
+    // narrow trees (phones, tablets): one line per value label and smaller type, so neighbouring labels never touch
+    L.compact = portrait || g < 125;
+    if (L.compact && !portrait) { L.fVal = 12; L.fSmall = 9.5; L.fName = 11; L.fProb = 10.5; }
+    var colX = [rootX, rootX + g, rootX + 2 * g, rootX + 3 * g];
+    L.P = {};
+    Object.keys(NODES).forEach(function (id) {
+      var n = NODES[id];
+      L.P[id] = { x: n.t === "l" ? L.leafX : colX[COL[id]], y: ty0 + topPad + ROW[id] * rowH,
+        r: n.t === "c" ? L.r : n.t === "d" ? L.sq : 0 };
+    });
+    // edges: polyline from the parent's right edge to the child's left edge (diagonal, then horizontal)
+    L.E = {};
+    Object.keys(PARENT).forEach(function (id) {
+      var P = L.P[PARENT[id].id], K = L.P[id];
+      var x0 = P.x + P.r, xe = NODES[id].t === "l" ? K.x - L.tri : K.x - K.r, xk = P.x + P.r + L.elb;
+      var pts = Math.abs(K.y - P.y) < 0.5 ? [[x0, P.y], [xe, K.y]] : [[x0, P.y], [xk, K.y], [xe, K.y]];
+      L.E[id] = { pts: pts, len: plen(pts), lx: xk + 5, y: K.y };
+    });
+    L.tx0 = tx0; L.ty0 = ty0; L.tx1 = tx1; L.ty1 = ty1;
+    // inset (desktop only): under the caption, in the left column
+    L.inset = null;
+    if (!portrait) {
+      var iy = L.capBottom + 16, ih = Math.min(200, H - iy - 16);
+      if (ih >= 120) L.inset = { x: L.capX, y: iy, w: L.capW - 6, h: ih };
+    }
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+  function plen(p) { var s = 0; for (var i = 1; i < p.length; i++) s += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); return s; }
+  function pointAt(p, u) {                       // point at fraction u of the polyline length
+    var total = plen(p), d = clamp(u, 0, 1) * total;
+    for (var i = 1; i < p.length; i++) {
+      var l = Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]);
+      if (d <= l || i === p.length - 1) { var v = l ? clamp(d / l, 0, 1) : 0; return [lerp(p[i - 1][0], p[i][0], v), lerp(p[i - 1][1], p[i][1], v)]; }
+      d -= l;
+    }
+    return p[p.length - 1];
+  }
+  function strokePart(p, u) {                    // the first fraction u of a polyline
+    if (u <= 0) return;
+    var total = plen(p), d = clamp(u, 0, 1) * total;
+    ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
+    for (var i = 1; i < p.length; i++) {
+      var l = Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]);
+      if (d >= l) { ctx.lineTo(p[i][0], p[i][1]); d -= l; }
+      else { var v = l ? d / l : 0; ctx.lineTo(lerp(p[i - 1][0], p[i][0], v), lerp(p[i - 1][1], p[i][1], v)); break; }
+    }
+    ctx.stroke();
+  }
+
+  /* ---------- time model ---------- */
+  function popA(id, t) { return E.out(seg(t, POP[id] - 0.15, POP[id] + 0.35)); }
+  function growU(id, t) { return E.inOut(seg(t, POP[id] - 0.85, POP[id] - 0.05)); }
+  function valued(id, t) { return seg(t, VAL[id], VAL[id] + 0.5); }
+  // a decision node: compare its children, cross out the loser, send the winner's value back
+  function decPhase(id, t) {
+    var s = SOLVE[id];
+    return { cmp: seg(t, s, s + 1.2) * (1 - seg(t, s + 2.2, s + 2.8)), slash: E.inOut(seg(t, s + 1.3, s + 2.0)),
+      fade: E.inOut(seg(t, s + 1.9, s + 2.9)), fly: E.inOut(seg(t, s + 2.7, s + 3.8)), badge: E.out(seg(t, s + 3.6, s + 4.0)) };
+  }
+  // pruned share of a node: the strongest crossing out of a losing branch on its way to the root
+  function dimOf(id, S, t) {
+    var d = 0, k = id;
+    while (PARENT[k]) {
+      var pa = PARENT[k];
+      if (NODES[pa.id].t === "d" && S.rb[pa.id].best !== pa.i) d = Math.max(d, decPhase(pa.id, t).fade);
+      k = pa.id;
+    }
+    return d;
+  }
+  function inStrategy(id, S) {                   // is the node reached by the best strategy?
+    var k = id;
+    while (PARENT[k]) {
+      var pa = PARENT[k];
+      if (NODES[pa.id].t === "d" && S.rb[pa.id].best !== pa.i) return false;
+      k = pa.id;
+    }
+    return true;
+  }
+  function depth(id) { var d = 0; while (PARENT[id]) { id = PARENT[id].id; d++; } return d; }
+  // the value shown at an inner node at time t (null before the rollback reaches it)
+  function chanceCount(id, S, t) {                // running sum while the particles arrive
+    var s = SOLVE[id], v = 0;
+    NODES[id].kids.forEach(function (k, i) {
+      var a0 = s + PI * i + PD, a1 = a0 + 2 * PJ;
+      v += k[2] * S.rb[k[0]].v * E.inOut(seg(t, a0 - 0.05, a1 + 0.05));
+    });
+    return v;
+  }
+  function nodeShown(id, S, t) {                 // { v, ce, a, done } or null
+    var n = NODES[id];
+    if (n.t === "l") return null;
+    var s = SOLVE[id], dn = doneT(id);
+    if (n.t === "c") {
+      if (t < s + PD - 0.05) return null;
+      var a = E.out(seg(t, s + PD - 0.05, s + PD + 0.3));
+      return t >= dn ? { v: S.rb[id].v, ce: S.rb[id].ce, a: 1, done: 1 } : { v: chanceCount(id, S, t), ce: null, a: a, done: 0 };
+    }
+    var ph = decPhase(id, t);
+    if (ph.badge <= 0) return null;
+    return { v: S.rb[id].v, ce: S.rb[id].ce, a: ph.badge, done: t >= dn ? 1 : 0 };
+  }
+
+  /* ---------- drawing helpers ---------- */
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function ring(X, Y, r, col, lw, a) {
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw; circle(X, Y, r); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+
+  /* ---------- edges, branch labels, pruning marks ---------- */
+  function edgeColor(id, S, t) {
+    var pa = PARENT[id], col = C.ink, lw = L.lw;
+    if (NODES[pa.id].t === "d") {
+      var ph = decPhase(pa.id, t), win = S.rb[pa.id].best === pa.i;
+      if (win) { col = mix(C.ink, C.accent, ph.fade); lw = L.lw + 0.8 * ph.fade; }
+    }
+    var dim = dimOf(id, S, t);
+    if (dim > 0) col = mix(col, C["mit-silver"], dim);
+    return { col: col, lw: lw, dim: dim };
+  }
+  function drawEdges(S, t) {
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    Object.keys(L.E).forEach(function (id) {
+      var e = L.E[id], u = growU(id, t);
+      if (u <= 0) return;
+      var st = edgeColor(id, S, t);
+      ctx.globalAlpha = 1 - 0.45 * st.dim; ctx.strokeStyle = st.col; ctx.lineWidth = st.lw;
+      strokePart(e.pts, u);
+      // best strategy traced from the root in the last chapter
+      var sw = E.inOut(seg(t, SWEEP + 0.55 * (depth(id) - 1), SWEEP + 0.55 * depth(id)));
+      if (sw > 0 && inStrategy(id, S)) {
+        ctx.globalAlpha = 1; ctx.strokeStyle = C.accent; ctx.lineWidth = L.lw + 2.2;
+        strokePart(e.pts, sw);
+      }
+    });
+    ctx.globalAlpha = 1; ctx.lineCap = "butt";
+  }
+  function drawBranchLabels(S, t) {
+    Object.keys(L.E).forEach(function (id) {
+      var e = L.E[id], pa = PARENT[id], a = seg(t, POP[id] - 0.25, POP[id] + 0.35);
+      if (a <= 0) return;
+      var dim = dimOf(id, S, t), K = L.P[id];
+      var nameCol = mix(C.ink2, C["mit-silver"], dim), probCol = mix(C.muted, C["mit-silver"], dim);
+      var aa = a * (1 - 0.35 * dim);
+      // the name sits under the horizontal part of the branch, below the child's node
+      var ny = e.y + Math.max(5, K.r + 2) + L.fName / 2 + 1;
+      label(T("dtree.br." + pa.br), e.lx, ny, "left", nameCol, font(600, L.fName), aa);
+      if (pa.p != null) label(fp(pa.p), e.lx, e.y - 4 - L.fProb / 2, "left", probCol, font(600, L.fProb, true), aa);
+    });
+  }
+  function drawSlashes(S, t) {                   // "//" across the losing branch of each decision node
+    ["D2", "D1"].forEach(function (id) {
+      var ph = decPhase(id, t);
+      if (ph.slash <= 0) return;
+      var lose = 1 - S.rb[id].best, kid = NODES[id].kids[lose][0], p = L.E[kid].pts;
+      // on the stub (straight branch) or halfway down the diagonal
+      var P0 = p[0], P1 = p[1], m = p.length === 2 ? [lerp(P0[0], P1[0], 0.42), P0[1]] : [lerp(P0[0], P1[0], 0.5), lerp(P0[1], P1[1], 0.5)];
+      var ang = Math.atan2(P1[1] - P0[1], P1[0] - P0[0]), n = ang + Math.PI / 2 - 0.45;
+      var hl = L.portrait ? 6.5 : 8.5, gap = L.portrait ? 3.2 : 4;
+      var dim = dimOf(id, S, t);                   // pruned by an earlier decision: the marks fade with the branch
+      ctx.save(); ctx.lineCap = "round"; ctx.strokeStyle = HOT; ctx.lineWidth = L.portrait ? 2 : 2.5;
+      ctx.globalAlpha = 1 - 0.55 * dim;
+      [-1, 1].forEach(function (sd, j) {
+        var u = clamp(ph.slash * 2 - j, 0, 1);
+        if (u <= 0) return;
+        var cx = m[0] + Math.cos(ang) * sd * gap, cy = m[1] + Math.sin(ang) * sd * gap;
+        var ax = cx - Math.cos(n) * hl, ay = cy - Math.sin(n) * hl;
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(lerp(ax, cx + Math.cos(n) * hl, u), lerp(ay, cy + Math.sin(n) * hl, u)); ctx.stroke();
+      });
+      ctx.restore();
+    });
+  }
+
+  /* ---------- nodes and endings ---------- */
+  function drawNodes(S, t) {
+    Object.keys(NODES).forEach(function (id) {
+      var n = NODES[id], P = L.P[id], a = popA(id, t);
+      if (a <= 0) return;
+      var dim = dimOf(id, S, t), sc = 0.4 + 0.6 * E.back(seg(t, POP[id] - 0.15, POP[id] + 0.45));
+      ctx.globalAlpha = 1 - 0.45 * dim;
+      if (n.t === "d") {
+        var h = P.r * sc;
+        ctx.fillStyle = mix(C.accent, C["mit-silver"], dim);
+        ctx.fillRect(P.x - h, P.y - h, 2 * h, 2 * h);
+      } else if (n.t === "c") {
+        ctx.fillStyle = C.surface; circle(P.x, P.y, P.r * sc); ctx.fill();
+        ctx.strokeStyle = mix(C.ink, C["mit-silver"], dim); ctx.lineWidth = L.lw; ctx.stroke();
+      } else {
+        var tr = L.tri * sc;
+        ctx.fillStyle = mix(C.ink, C["mit-silver"], dim);
+        ctx.beginPath(); ctx.moveTo(P.x - tr, P.y); ctx.lineTo(P.x, P.y - tr * 0.72); ctx.lineTo(P.x, P.y + tr * 0.72); ctx.closePath(); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    });
+  }
+  function drawLeafLabels(S, t) {
+    LEAVES.forEach(function (id) {
+      var P = L.P[id], a = seg(t, POP[id] - 0.1, POP[id] + 0.4);
+      if (a <= 0) return;
+      var dim = dimOf(id, S, t), x = P.x + 5, ua = S.neutral ? 0 : valued(id, t);
+      var col = mix(C.ink, C["mit-silver"], dim), aa = a * (1 - 0.35 * dim);
+      var yv = P.y - (L.fSmall / 2 + 1) * ua;
+      label(f0(NODES[id].x), x, yv, "left", col, font(700, L.fVal), aa);
+      if (ua > 0) label(f4(S.rb[id].v), x, P.y + L.fVal / 2 + 2 - (1 - ua) * 3, "left", mix(C.muted, C["mit-silver"], dim), font(400, L.fSmall, true), aa * ua);
+      // chapter 2: a pulse as the ending is valued
+      var pu = seg(t, VAL[id], VAL[id] + 0.9);
+      if (pu > 0 && pu < 1) ring(P.x - L.tri * 0.45, P.y, 5 + 16 * E.out(pu), HOT, 2, (1 - pu) * 0.9);
+    });
+  }
+  function badgeBox(id, lines) {                 // where a node's value label sits: above the node
+    var P = L.P[id], dec = NODES[id].t === "d";
+    var w = 0;
+    lines.forEach(function (ln) { ctx.font = ln.f; w = Math.max(w, ctx.measureText(ln.s).width); });
+    w += L.compact ? 8 : 12;
+    var h = lines.reduce(function (s, ln) { return s + ln.h; }, 0) + (L.compact ? 4 : 6);
+    // decisions (in line with their first child): starts at the node and extends right over the straight branch;
+    // chance nodes: ends at the node's right edge, extends left over the incoming branch
+    var x0 = dec ? P.x - P.r : P.x + P.r * 0.3 - w;
+    x0 = Math.max(L.tx0, x0);
+    return { x: x0, y: P.y - P.r - 5 - h, w: w, h: h };
+  }
+  function badgeLines(S, sh) {
+    var big = { f: font(700, L.fVal), h: L.fVal + 3 }, small = { f: font(400, L.fSmall, true), h: L.fSmall + 3 };
+    if (S.neutral) return [{ s: f1(sh.v), f: big.f, h: big.h, big: true }];
+    var out = [];
+    if (sh.ce != null) out.push({ s: f1(sh.ce), f: big.f, h: big.h, big: true });
+    if (!L.compact || sh.ce == null) out.push({ s: f4(sh.v), f: small.f, h: small.h, big: false });
+    return out;
+  }
+  function drawBadges(S, t) {
+    INNER.forEach(function (id) {
+      var sh = nodeShown(id, S, t);
+      if (!sh) return;
+      var dim = dimOf(id, S, t), lines = badgeLines(S, sh), b = badgeBox(id, lines);
+      var isRoot = id === "D1", pulse = sh.done ? seg(t, doneT(id) - 0.35, doneT(id) + 0.6) : 0;
+      ctx.globalAlpha = sh.a * (1 - 0.4 * dim);
+      ctx.fillStyle = C.surface; ctx.fillRect(b.x, b.y, b.w, b.h);
+      ctx.strokeStyle = isRoot && sh.done ? C.accent : mix(C.axis, C["mit-silver"], dim); ctx.lineWidth = isRoot && sh.done ? 2 : 1;
+      ctx.strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);
+      var y = b.y + (L.compact ? 2 : 3);
+      lines.forEach(function (ln) {
+        ctx.font = ln.f; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillStyle = ln.big ? (sh.done && NODES[id].t === "d" && dim < 0.5 ? C["accent-text"] : mix(C.ink, C["mit-silver"], dim)) : mix(C.muted, C["mit-silver"], dim);
+        ctx.fillText(ln.s, b.x + b.w / 2, y + ln.h / 2);
+        y += ln.h;
+      });
+      ctx.globalAlpha = 1;
+      if (pulse > 0 && pulse < 1) {
+        ctx.globalAlpha = (1 - pulse) * 0.9; ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+        var g = 2 + 8 * E.out(pulse);
+        ctx.strokeRect(b.x - g, b.y - g, b.w + 2 * g, b.h + 2 * g);
+        ctx.globalAlpha = 1;
+      }
+    });
+  }
+
+  /* ---------- values rolling back: particles into chance nodes, the winner into decision nodes ---------- */
+  var JIT = (function () { var r = A.rng(11), o = []; for (var i = 0; i < 12; i++) o.push(r()); return o; })();
+  function revPath(kid) {                        // from the child back to the parent's centre
+    var e = L.E[kid], K = L.P[kid], P = L.P[PARENT[kid].id];
+    var start = NODES[kid].t === "l" ? [K.x - L.tri * 0.5, K.y] : [K.x, K.y];
+    var pts = [start].concat(e.pts.slice().reverse()).concat([[P.x, P.y]]);
+    return pts;
+  }
+  function drawParticles(S, t) {
+    ["C2", "C3", "C1"].forEach(function (id, ni) {
+      var s = SOLVE[id];
+      if (t < s || t > s + PI + 2 * PJ + PD + 0.4) return;
+      NODES[id].kids.forEach(function (k, i) {
+        var path = revPath(k[0]), rad = (L.portrait ? 2.2 : 2.8) + (L.portrait ? 3.2 : 4.2) * Math.sqrt(k[2]);
+        for (var j = 0; j < 3; j++) {
+          var t0 = s + PI * i + PJ * j + 0.12 * JIT[(ni * 4 + i * 2 + j) % 12];
+          var u = (t - t0) / PD;
+          if (u <= 0 || u >= 1.08) continue;
+          var ue = E.inOut(clamp(u, 0, 1)), a = Math.min(1, u * 6) * (1 - seg(u, 0.96, 1.08));
+          ctx.lineCap = "round";
+          for (var q = 1; q <= 8; q++) {             // short trail
+            var ub = E.inOut(clamp(u - q * 0.022, 0, 1)), pa = pointAt(path, ub), pb = pointAt(path, E.inOut(clamp(u - (q - 1) * 0.022, 0, 1)));
+            ctx.globalAlpha = a * 0.5 * (1 - q / 9); ctx.strokeStyle = C.accent; ctx.lineWidth = rad * 1.3 * (1 - q / 10);
+            ctx.beginPath(); ctx.moveTo(pb[0], pb[1]); ctx.lineTo(pa[0], pa[1]); ctx.stroke();
+          }
+          var h = pointAt(path, ue);
+          ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(h[0], h[1], rad + 1.5); ctx.fill();
+          ctx.fillStyle = C.accent; circle(h[0], h[1], rad); ctx.fill();
+          ctx.globalAlpha = 1; ctx.lineCap = "butt";
+        }
+      });
+    });
+  }
+  function childPoint(kid) { var K = L.P[kid]; return NODES[kid].t === "l" ? [K.x - L.tri * 0.5, K.y] : [K.x, K.y]; }
+  function drawDecisionFlow(S, t) {
+    ["D2", "D1"].forEach(function (id) {
+      var ph = decPhase(id, t);
+      // compare: rings around both children
+      if (ph.cmp > 0) {
+        NODES[id].kids.forEach(function (k, i) {
+          var c = childPoint(k[0]), win = S.rb[id].best === i, rr = (L.portrait ? 12 : 16) + 3 * Math.sin(ph.cmp * Math.PI * 2);
+          ring(c[0], c[1], rr, win && ph.slash > 0 ? C.accent : C.ink, 2, ph.cmp * 0.8);
+        });
+      }
+      // the winner's value travels back to the decision node
+      if (ph.fly > 0 && ph.fly < 1) {
+        var kid = NODES[id].kids[S.rb[id].best][0], path = revPath(kid), p = pointAt(path, ph.fly);
+        var txt = S.neutral ? f1(S.rb[kid].v) : f1(S.rb[kid].ce);
+        ctx.font = font(700, L.fVal);
+        var w = ctx.measureText(txt).width + 10, h = L.fVal + 6;
+        ctx.globalAlpha = Math.min(1, ph.fly * 5) * (1 - seg(ph.fly, 0.85, 1));
+        ctx.fillStyle = C.accent; ctx.fillRect(p[0] - w / 2, p[1] - h / 2, w, h);
+        ctx.fillStyle = C["on-solid"]; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(txt, p[0], p[1] + 0.5);
+        ctx.globalAlpha = 1;
+      }
+    });
+  }
+
+  /* ---------- inset (desktop): the value of money, u(x) or x itself ---------- */
+  function drawInset(S, t) {
+    var B = L.inset;
+    if (!B) return;
+    var a = E.out(seg(t, 9.2, 10.0));
+    if (a <= 0) return;
+    var XMAX = 1000, fs = 10.5;
+    var px0 = B.x + 34, px1 = B.x + B.w - 10, py0 = B.y + 12, py1 = B.y + B.h - 24;
+    var X = function (x) { return px0 + x / XMAX * (px1 - px0); };
+    var yOf = function (x) { return S.neutral ? x / XMAX : util(x, S.R); };
+    var ymax = S.neutral ? 1 : 1;
+    var Y = function (v) { return py1 - v / ymax * (py1 - py0); };
+    ctx.save(); ctx.globalAlpha = a;
+    // axes and ticks
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px0, py0 - 4); ctx.lineTo(px0, py1); ctx.lineTo(px1 + 4, py1); ctx.stroke();
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted;
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    [0, 500, 1000].forEach(function (x) { ctx.fillText(f0(x), X(x), py1 + 4); });
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    (S.neutral ? [[0, f0(0)], [0.5, f0(500)], [1, f0(1000)]] : [[0, fmt(0, 1)], [0.5, fmt(0.5, 1)], [1, fmt(1, 1)]]).forEach(function (q) { ctx.fillText(q[1], px0 - 5, Y(q[0])); });
+    // the curve
+    var u = E.inOut(seg(t, 9.3, 10.8)), n = 80;
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath();
+    for (var i = 0; i <= Math.round(n * u); i++) { var x = XMAX * i / n; if (i) ctx.lineTo(X(x), Y(yOf(x))); else ctx.moveTo(X(x), Y(yOf(x))); }
+    ctx.stroke();
+    ctx.font = font(700, fs + 0.5); ctx.fillStyle = C.ink; ctx.textAlign = "right"; ctx.textBaseline = "bottom";
+    ctx.globalAlpha = a * seg(t, 10.4, 11);
+    ctx.fillText(T(S.neutral ? "dtree.l.v" : "dtree.l.u"), px1, Y(yOf(XMAX)) - (S.neutral ? 8 : 6));
+    ctx.globalAlpha = a;
+    ctx.font = font(400, fs); ctx.fillStyle = C.muted; ctx.textAlign = "right"; ctx.textBaseline = "top";
+    // the endings rise from the axis to the curve as they are valued
+    LEAVES.forEach(function (id) {
+      var v = seg(t, VAL[id], VAL[id] + 0.7);
+      if (v <= 0) return;
+      var x = NODES[id].x, yy = lerp(0, yOf(x), E.out(v));
+      ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(X(x), py1); ctx.lineTo(X(x), Y(yy)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = v < 1 ? HOT : C.ink; circle(X(x), Y(yy), 3.2); ctx.fill();
+    });
+    // once the export branch is solved: its EU read back as a CE on the axis (averse), or its EV (neutral)
+    var ex = S.rb.C1, sa = E.out(seg(t, doneT("C1") - 0.2, doneT("C1") + 0.6));
+    if (sa > 0) {
+      ctx.globalAlpha = a * sa;
+      var yv = S.neutral ? ex.v / XMAX : ex.v;
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 1.4; ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(px0, Y(yv)); ctx.lineTo(X(ex.ce), Y(yv)); ctx.lineTo(X(ex.ce), py1); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = C.accent; circle(X(ex.ce), Y(yv), 4); ctx.fill();
+      ctx.font = font(700, fs); ctx.fillStyle = C["accent-text"]; ctx.textBaseline = "bottom";
+      if (S.neutral) {
+        ctx.textAlign = "right"; ctx.fillText(T("dtree.l.ev"), X(ex.ce) - 6, Y(yv) - 3);
+      } else {
+        // CE and, on the axis, the EV of the same strategy: the gap is the risk premium
+        ctx.textAlign = "right"; ctx.fillText(T("dtree.l.ce"), X(ex.ce) - 4, py1 - 3);
+        ctx.fillStyle = C.surface; circle(X(ex.ev), py1, 4); ctx.fill();
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6; circle(X(ex.ev), py1, 4); ctx.stroke();
+        ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.fillText(T("dtree.l.ev"), X(ex.ev) + 5, py1 - 3);
+      }
+    }
+    // the sure local sale, compared at the root
+    var la = E.out(seg(t, SOLVE.D1, SOLVE.D1 + 0.8));
+    if (la > 0) {
+      var xl = NODES.L6.x, win = S.rb.D1.best === 1;
+      ctx.globalAlpha = a * la;
+      ctx.fillStyle = win ? C.accent : C.ink; circle(X(xl), Y(yOf(xl)), 4.5); ctx.fill();
+      ctx.strokeStyle = C.surface; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.font = font(700, fs); ctx.fillStyle = win ? C["accent-text"] : C.ink;
+      // neutral: under the line (the EV guide runs above it); averse: above the curve, left of the point
+      if (S.neutral) { ctx.textAlign = "left"; ctx.textBaseline = "top"; ctx.fillText(T("dtree.l.local"), X(xl) + 6, Y(yOf(xl)) + 4); }
+      else { ctx.textAlign = "right"; ctx.textBaseline = "bottom"; ctx.fillText(T("dtree.l.local"), X(xl) - 6, Y(yOf(xl)) - 4); }
+    }
+    ctx.restore();
+  }
+
+  /* ---------- caption (top left, under the counters) ---------- */
+  function actName(S, id) { var k = NODES[id].kids[S.rb[id].best][1]; return T("dtree.act." + k); }
+  function vOf(S, id) { return f1(S.neutral ? S.rb[id].v : S.rb[id].ce); }
+  function captions(S, t) {
+    var k = S.key, R = f0(S.R);
+    if (t < CH[1]) return [T("dtree.cap1"), T("dtree.cap1.sub")];
+    if (t < CH[2]) return [T("dtree.cap2." + k), T("dtree.cap2." + k + ".sub", { R: R })];
+    if (t < CH[3]) return [T("dtree.cap3." + k), T("dtree.cap3." + k + ".sub")];
+    if (t < CH[4]) {
+      var b = S.rb.D2.best;
+      return [T("dtree.cap4"), T("dtree.cap4.sub", { act: actName(S, "D2"), v: vOf(S, NODES.D2.kids[b][0]), w: vOf(S, NODES.D2.kids[1 - b][0]) })];
+    }
+    return [T("dtree.cap5", { act: T("dtree.act." + NODES.D1.kids[S.rb.D1.best][1]) }), T("dtree.cap5." + k + ".sub", { x: vOf(S, "C1"), f: vOf(S, "L6") })];
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function drawCaption(S, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(S, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) {
+    var el = document.getElementById("dt-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("bad", kind === "bad"); c.k = kind; }
+  }
+  function hud(S, t) {
+    var solved = INNER.filter(function (id) { return t >= doneT(id); }).length;
+    setChip(0, T("dtree.k.frac", { n: solved, m: INNER.length }), T("dtree.k.solved"), seg(t, 17.6, 18.1), "");
+    setChip(1, f1(S.rb.L6.ce), T("dtree.k.local"), seg(t, POP.L6, POP.L6 + 0.4), "");
+    var ev = S.neutral ? "ev" : "ce", dC1 = doneT("C1");
+    setChip(2, f1(S.rb.C1.ce), T("dtree.k.export." + ev), seg(t, dC1 - 0.35, dC1), "");
+    var gap = S.rb.C1.ce - S.rb.L6.ce;
+    setChip(3, sg1(gap), T("dtree.k.gap"), seg(t, SOLVE.D1 + 0.2, SOLVE.D1 + 0.7), gap < 0 ? "bad" : "");
+    var dR = doneT("D1");
+    setChip(4, f1(S.rb.D1.ce), T("dtree.k.root." + ev), seg(t, dR - 0.4, dR), "acc");
+    setChip(5, T("dtree.act." + NODES.D1.kids[S.rb.D1.best][1]), T("dtree.k.move"), seg(t, dR - 0.4, dR), "acc");
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var S = scen(state.sc);
+    hud(S, t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    drawEdges(S, t);
+    drawSlashes(S, t);
+    drawParticles(S, t);
+    drawNodes(S, t);
+    drawBranchLabels(S, t);
+    drawLeafLabels(S, t);
+    drawBadges(S, t);
+    drawDecisionFlow(S, t);
+    drawCaption(S, t);
+    drawInset(S, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "dtree.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status line, data, solution, node table, sensitivity, notes
+     ===================================================================================== */
+  function scenName(key) { return T("dtree.sc." + key, { R: f0(R_AV) }); }
+  function actOf(S, id) { return T("dtree.act." + NODES[id].kids[S.rb[id].best][1]); }
+  function kidV(S, id, i) { return f1(S.rb[NODES[id].kids[i][0]].ce); }
+  function renderSeg() {
+    document.querySelectorAll("#dt-seg button").forEach(function (b) { b.textContent = scenName(b.getAttribute("data-sc")); });
+  }
+  function nums(S) {
+    return { x: f1(S.rb.C1.ce), f: f1(S.rb.L6.ce), c: f1(S.rb.C3.ce), e: f1(S.rb.L5.ce), R: f0(R_AV) };
+  }
+  function renderScenText() {
+    var S = scen(state.sc);
+    stage.setAttribute("aria-label", T("dtree.anim.aria") + " " + T("dtree.anim.aria." + state.sc, nums(S)));
+    document.getElementById("dt-lg-val").textContent = T("dtree.lg.val." + state.sc);
+  }
+  function renderStatus() {
+    document.getElementById("dt-status").innerHTML = T("dtree.st." + state.sc, nums(scen(state.sc)));
+  }
+  function renderModel() {
+    var X = function (id) { return f0(NODES[id].x); };
+    document.getElementById("dt-data").textContent = T("dtree.model.data", {
+      f: X("L6"), pA: fp(P_OK), pH: fp(P_HI), a: X("L1"), b: X("L2"), c: X("L3"), d: X("L4"), e: X("L5")
+    });
+  }
+  function renderSolution() {
+    var S = scen(state.sc), rb = S.rb, N = scen("neutral").rb, V = scen("averse").rb;
+    document.getElementById("dt-sol-title").textContent = T("dtree.sol.title", { s: scenName(state.sc) });
+    document.getElementById("dt-s-root").textContent = f1(rb.D1.ce);
+    document.getElementById("dt-s-rootl").textContent = T("dtree.sol.root.l." + state.sc);
+    document.getElementById("dt-s-move").textContent = actOf(S, "D1");
+    document.getElementById("dt-s-movel").textContent = T("dtree.sol.move.l", { a: kidV(S, "D1", rb.D1.best), b: kidV(S, "D1", 1 - rb.D1.best) });
+    var d2 = T("dtree.act." + NODES.D2.kids[rb.D2.best][1]);
+    document.getElementById("dt-s-rej").textContent = d2.charAt(0).toLocaleUpperCase(I18N.locale) + d2.slice(1);
+    document.getElementById("dt-s-rejl").textContent = T("dtree.sol.rej.l", { a: kidV(S, "D2", rb.D2.best), b: kidV(S, "D2", 1 - rb.D2.best) });
+    document.getElementById("dt-s-prem").textContent = f1(rb.C1.ev - rb.C1.ce);
+    document.getElementById("dt-s-preml").textContent = S.neutral ? T("dtree.sol.prem.l.neutral") : T("dtree.sol.prem.l.averse", { ev: f1(rb.C1.ev), ce: f1(rb.C1.ce) });
+    // node table: both attitudes side by side
+    var h = "<thead><tr><th>" + T("dtree.tbl.node") + "</th><th class='num'>" + T("dtree.tbl.ev") + "</th><th class='wide'>" + T("dtree.tbl.chN") +
+      "</th><th class='num wide'>" + T("dtree.tbl.eu") + "</th><th class='num'>" + T("dtree.tbl.ce") + "</th><th class='wide'>" + T("dtree.tbl.chA") + "</th></tr></thead><tbody>";
+    var keep = function (rbx, id) { return NODES[id].t === "d" ? T("dtree.br." + NODES[id].kids[rbx[id].best][1]) : ""; };
+    INNER.concat(LEAVES).forEach(function (id, i) {
+      var leaf = NODES[id].t === "l", dcls = NODES[id].t === "d" ? " ex" : "";
+      h += "<tr" + (i === INNER.length ? " class='sep'" : "") + "><td" + (leaf ? " class='leaf'" : "") + ">" + id + " · " + T("dtree.n." + id) + "</td>" +
+        "<td class='num" + (state.sc === "neutral" ? dcls : "") + "'>" + f1(N[id].v) + "</td><td class='wide'>" + keep(N, id) + "</td>" +
+        "<td class='num wide'>" + f4(V[id].v) + "</td><td class='num" + (state.sc === "averse" ? dcls : "") + "'>" + f1(V[id].ce) + "</td><td class='wide'>" + keep(V, id) + "</td></tr>";
+    });
+    document.getElementById("dt-tbl").innerHTML = h + "</tbody>";
+    document.getElementById("dt-tbl-note").textContent = T("dtree.tbl.note", { R: f0(R_AV) });
+    // the risk neutral rollback with its numbers
+    var tx = function (v, d) { return fmt(v, d, d); };
+    var v = {
+      pH: fp(P_HI), pL: fp(1 - P_HI), pA: fp(P_OK), pR: fp(1 - P_OK),
+      a: f0(NODES.L1.x), b: f0(NODES.L2.x), c: f0(NODES.L3.x), d: f0(NODES.L4.x), e: tx(NODES.L5.x, 1), f: tx(NODES.L6.x, 1),
+      vC2: tx(N.C2.v, 1), vC3: tx(N.C3.v, 1), vD2: tx(N.D2.v, 1), vC1: tx(N.C1.v, 1), vD1: tx(N.D1.v, 1)
+    };
+    TeX.set(document.getElementById("dt-inst"), T("dtree.inst.tex", v), T("dtree.inst.formula", v));
+  }
+  var SENS_R = [100, R_AV, 400, 750, 1000, 2500, Infinity];
+  function renderSens() {
+    var h = "<thead><tr><th class='num'>" + T("dtree.sens.R") + "</th><th class='num wide'>" + T("dtree.sens.cc") + "</th><th>" + T("dtree.sens.d2") +
+      "</th><th class='num'>" + T("dtree.sens.cx") + "</th><th>" + T("dtree.sens.d1") + "</th></tr></thead><tbody>";
+    SENS_R.forEach(function (R) {
+      var rb = rollback(R), S = { rb: rb };
+      h += "<tr" + (R === R_AV && state.sc === "averse" || !isFinite(R) && state.sc === "neutral" ? " class='on'" : "") + "><td class='num'>" + (isFinite(R) ? f0(R) : T("dtree.sens.inf")) +
+        "</td><td class='num wide'>" + f1(rb.C3.ce) + "</td><td>" + T("dtree.br." + NODES.D2.kids[rb.D2.best][1]) +
+        "</td><td class='num'>" + f1(rb.C1.ce) + "</td><td>" + actOf(S, "D1") + "</td></tr>";
+    });
+    document.getElementById("dt-sens").innerHTML = h + "</tbody>";
+    var f = NODES.L6.x, e = NODES.L5.x;
+    var Rs = bisect(function (R) { return rollback(R).C1.ce - f; }, 50, 1e6);
+    var Rd = bisect(function (R) { return rollback(R).C3.ce - e; }, 50, 1e6);
+    document.getElementById("dt-sens-note").textContent = T("dtree.sens.note", { f: f0(f), e: f0(e), Rs: f1(Rs), Rd: f1(Rd) });
+    return Rs;
+  }
+  function renderNotes(Rs) {
+    var N = scen("neutral").rb, V = scen("averse").rb, f = NODES.L6.x;
+    var pl = lottery(N).reduce(function (s, q) { return s + (q[1] < f ? q[0] : 0); }, 0);
+    var worst = lottery(N).reduce(function (m, q) { return Math.min(m, q[1]); }, Infinity);
+    document.getElementById("dt-n1").textContent = T("dtree.n.p1", { x: f1(N.D1.v) });
+    document.getElementById("dt-n2").textContent = T("dtree.n.p2", { f: f0(f), pl: fp(pl), d: f0(worst) });
+    document.getElementById("dt-n3").textContent = T("dtree.n.p3", { R: f0(R_AV), ce: f1(V.C1.ce), prem: f1(V.C1.ev - V.C1.ce), ev: f1(V.C1.ev), gap: f1(V.C1.ev - f) });
+    document.getElementById("dt-n4").textContent = T("dtree.n.p4", { Rs: f1(Rs) });
+  }
+
+  var segBtns = document.querySelectorAll("#dt-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderStatus(); renderSolution(); renderSens();
+      hudKey = "";
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[1]) player.refresh();
+      else { player.seek(CH[1] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderSeg(); renderScenText(); renderStatus(); renderModel(); renderSolution();
+    var Rs = renderSens(); renderNotes(Rs);
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

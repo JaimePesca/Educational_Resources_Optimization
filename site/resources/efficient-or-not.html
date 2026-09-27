@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en" data-title-key="dea.title" data-i18n-bundles="resources/other-dea">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3E%CE%B8%3C/text%3E%3C/svg%3E">
+<title>Efficient or Not?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #dea-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(300px, max(220px, 30%)); max-width: none;
+  }
+  #dea-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #dea-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #dea-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #dea-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #dea-sec .anim-hud { grid-template-columns: repeat(4, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #dea-sec .anim-hud .chip-stat { padding: 3px 5px; font-size: 10.5px; }
+    #dea-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #dea-sec .anim-legend span[hidden] { display: none; }
+  #dea-sec .anim-legend i.lg-school { width: 11px; height: 11px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 1.5px var(--surface); }
+  #dea-sec .anim-legend i.lg-eff { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+  #dea-sec .anim-legend i.lg-front { width: 20px; height: 0; border-top: 3px solid var(--accent); }
+  #dea-sec .anim-legend i.lg-ref { width: 20px; height: 0; border: 0; border-top: 2px dashed var(--mit-silver); background: none; }
+  #dea-sec .anim-legend i.lg-peer { width: 20px; height: 0; border: 0; border-top: 1.5px solid var(--ink2); background: none; }
+  #dea-sec .anim-legend i.lg-proj { width: 20px; height: 10px; position: relative; background: none; }
+  #dea-sec .anim-legend i.lg-proj::before { content: ""; position: absolute; left: 5px; right: 0; top: 4px; height: 2.5px; background: var(--accent); }
+  #dea-sec .anim-legend i.lg-proj::after { content: ""; position: absolute; left: 0; top: 0; border-right: 7px solid var(--accent); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- solution ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  table.data { min-width: 560px; margin-top: 14px; }
+  @media (max-width: 560px) {
+    table.data { min-width: 0; }
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 6px; }
+  }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.eff { color: var(--accent-text); font-weight: 600; }
+  table.data td.peers { font-size: 13px; }
+  table.data tr.sel td { background: var(--sel); }
+  table.data td.sch { font-weight: 700; }
+  .solnote { font-size: 14px; color: var(--ink2); margin: 12px 0 0; max-width: 80ch; }
+  .solnote b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="dea.eyebrow"></p>
+    <h1 data-i18n="dea.title"></h1>
+    <p class="lede" data-i18n-html="dea.lede"></p>
+  </header>
+
+  <section class="block" id="dea-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="dea.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="dea-scen-lbl" data-i18n="dea.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="dea-scen-lbl" id="dea-seg">
+        <button type="button" data-sc="ccr" aria-pressed="true" data-i18n="dea.sc.ccr"></button>
+        <button type="button" data-sc="bcc" aria-pressed="false" data-i18n="dea.sc.bcc"></button>
+      </div>
+    </div>
+    <div class="anim" id="dea-anim">
+      <div class="anim-stage" role="img">
+        <div class="anim-hud" id="dea-hud">
+          <div class="chip-stat accent" id="dea-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="dea-c1"><b></b><span></span></div>
+          <div class="chip-stat accent" id="dea-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="dea-c3"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-school"></i><span data-i18n="dea.lg.school"></span></span>
+      <span><i class="lg-eff"></i><span data-i18n="dea.lg.eff"></span></span>
+      <span><i class="lg-front"></i><span data-i18n="dea.lg.front"></span></span>
+      <span><i class="lg-proj"></i><span data-i18n="dea.lg.proj"></span></span>
+      <span id="dea-lg-ref" hidden><i class="lg-ref"></i><span data-i18n="dea.lg.ref"></span></span>
+      <span><i class="lg-peer"></i><span data-i18n="dea.lg.peer"></span></span>
+    </div>
+    <p class="scen-status" id="dea-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="dea.model.kicker"></span><span data-i18n="dea.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" data-tex="dea.model.tex" data-i18n="dea.model.formula"></div>
+        <p class="mtext" data-i18n-html="dea.model.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="dea.closed.head"></p>
+        <div class="formula" data-tex="dea.closed.tex" data-i18n="dea.closed.formula"></div>
+        <p class="mtext" data-i18n="dea.closed.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="dea.sol.kicker"></span><span id="dea-sol-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="dea.sol.t1"></div><div class="v" id="dea-s1"></div><div class="l" id="dea-s1l"></div></div>
+      <div class="stat"><div class="k" data-i18n="dea.sol.t2"></div><div class="v" id="dea-s2"></div><div class="l" id="dea-s2l"></div></div>
+      <div class="stat"><div class="k" data-i18n="dea.sol.eff"></div><div class="v ink" id="dea-s3"></div><div class="l" data-i18n="dea.sol.effl"></div></div>
+      <div class="stat"><div class="k" data-i18n="dea.sol.peers"></div><div class="v ink" id="dea-s4"></div><div class="l" data-i18n="dea.sol.peersl"></div></div>
+    </div>
+    <div class="tblwrap"><table class="data" id="dea-tbl"></table></div>
+    <p class="solnote" id="dea-tbl-note"></p>
+    <p class="mhead" data-i18n="dea.inst.head" style="margin-top:16px"></p>
+    <div class="formula" id="dea-inst"></div>
+    <p class="solnote" id="dea-inst-sol"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="dea.n.title"></summary>
+      <div class="body">
+        <p id="dea-n1"></p>
+        <p id="dea-n2"></p>
+        <p id="dea-n3"></p>
+        <p id="dea-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.7" data-refs="dea.refs"></p>
+  <p class="note" data-i18n="dea.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-dea.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var f2 = function (v) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, 2, 2); };   // scores and weights
+  var f1 = function (v) { return I18N.fmt(v, 1, 1); };                                    // targets
+  var f0 = function (v) { return I18N.fmt(v, 0); };
+  var fr = function (v) { return I18N.fmt(v, 2); };                                       // ratios
+
+  /* ---------- data: eight illustrative public schools ---------- */
+  var SCH = [
+    { id: "A", x: 14, b: 60, y: 30 },
+    { id: "B", x: 22, b: 144, y: 60 },
+    { id: "C", x: 30, b: 250, y: 96 },
+    { id: "D", x: 34, b: 154, y: 70 },
+    { id: "E", x: 46, b: 230, y: 112 },
+    { id: "F", x: 50, b: 195, y: 130 },
+    { id: "G", x: 56, b: 186, y: 124 },
+    { id: "H", x: 62, b: 156, y: 142 }
+  ];
+  var N = SCH.length, SEL = 4;                    // school E is the one the animation follows
+  SCH.forEach(function (s) { s.u = 100 * s.x / s.y; s.v = 100 * s.b / s.y; });
+
+  /* ---------- DEA: input-oriented envelopment model, one LP per school ---------- */
+  // variables [theta, lambda_1..lambda_N]; inputs(s) lists the inputs of school s
+  function dea(o, inputs, vrs) {
+    var rows = [], m = inputs(SCH[o]).length, i;
+    for (i = 0; i < m; i++) {
+      rows.push({ a: [-inputs(SCH[o])[i]].concat(SCH.map(function (s) { return inputs(s)[i]; })), op: "<=", b: 0 });
+    }
+    rows.push({ a: [0].concat(SCH.map(function (s) { return s.y; })), op: ">=", b: SCH[o].y });
+    if (vrs) rows.push({ a: [0].concat(SCH.map(function () { return 1; })), op: "=", b: 1 });
+    var r = LP.solve({ sense: "min", c: [1].concat(SCH.map(function () { return 0; })), rows: rows });
+    var lam = r.x.slice(1), th = r.x[0], peers = [];
+    lam.forEach(function (l, j) { if (l > 1e-7) peers.push(j); });
+    return { th: th, lam: lam, peers: peers, eff: th > 1 - 1e-7 };
+  }
+  var IN1 = function (s) { return [s.x]; }, IN2 = function (s) { return [s.x, s.b]; };
+  var cache = {};
+  function model(sc) {
+    if (cache[sc]) return cache[sc];
+    var vrs = sc === "bcc", one = [], two = [], j;
+    for (j = 0; j < N; j++) { one.push(dea(j, IN1, vrs)); two.push(dea(j, IN2, vrs)); }
+    var cnt = function (a) { return a.filter(function (r) { return r.eff; }).length; };
+    var M = { sc: sc, vrs: vrs, one: one, two: two, k1: cnt(one), k2: cnt(two) };
+    // one input frontier: the best ratio (CCR) or the efficient schools sorted by teachers (BCC)
+    M.eff1 = []; M.eff2 = [];
+    for (j = 0; j < N; j++) { if (one[j].eff) M.eff1.push(j); if (two[j].eff) M.eff2.push(j); }
+    M.eff1.sort(function (a, b) { return SCH[a].x - SCH[b].x; });
+    return (cache[sc] = M);
+  }
+  // constant returns isoquant per 100 graduates (Farrell): the CCR efficient schools with two inputs, by teachers per graduate
+  var ISO = (function () {
+    var M = model("ccr"), e = M.eff2.slice();
+    e.sort(function (a, b) { return SCH[a].u - SCH[b].u; });
+    return e;
+  })();
+  var BEST = (function () {                       // closed form check: the best ratio of graduates per teacher
+    var bi = 0;
+    SCH.forEach(function (s, j) { if (s.y / s.x > SCH[bi].y / SCH[bi].x) bi = j; });
+    return { j: bi, r: SCH[bi].y / SCH[bi].x };
+  })();
+  function names(list) {                          // "A, C and F"
+    var ids = list.map(function (j) { return SCH[j].id; });
+    if (ids.length < 2) return ids.join("");
+    return T("dea.and", { a: ids.slice(0, -1).join(", "), b: ids[ids.length - 1] });
+  }
+  var state = { sc: "ccr" };
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed with LP.solve from the data above; the
+     positions of labels, the particles and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("dea-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("dea-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var DUR = 56, CH = [0, 8, 19, 30, 39, 50];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var TAU = Math.PI * 2;
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  // staggered entrance of the schools (deterministic jitter)
+  var APPEAR = (function () {
+    var r = A.rng(11), out = [];
+    for (var j = 0; j < N; j++) out.push(1.3 + 0.36 * j + (r() - 0.5) * 0.16);
+    return out;
+  })();
+
+  // world windows of the two charts
+  var V1 = { x0: 0, x1: 70, y0: 0, y1: 160 };
+  var V1Z = { x0: 24, x1: 54, y0: 84, y1: 136 };   // ch. 3 zoom around school E
+  var V2 = { x0: 0, x1: 56, y0: 0, y1: 300 };
+
+  function captions(M, t) {
+    var o1 = M.one[SEL], o2 = M.two[SEL];
+    if (t < CH[1]) return [T("dea.cap1"), T("dea.cap1.sub")];
+    if (t < CH[2]) return M.vrs ? [T("dea.cap2.bcc"), T("dea.cap2.bcc.sub", { list: names(M.eff1) })]
+      : [T("dea.cap2.ccr"), T("dea.cap2.ccr.sub", { s: SCH[BEST.j].id, r: fr(BEST.r) })];
+    if (t < CH[3]) return [T("dea.cap3"), T("dea.cap3.sub", { tx: f1(o1.th * SCH[SEL].x), y: f0(SCH[SEL].y), th: f2(o1.th) })];
+    if (t < CH[4]) return [T("dea.cap4"), T("dea.cap4.sub", { k: M.k1, n: N })];
+    if (t < CH[5]) return [T("dea.cap5." + M.sc), T("dea.cap5." + M.sc + ".sub", { list: names(o2.peers), th: f2(o2.th) })];
+    return [T("dea.cap6"), T("dea.cap6.sub", { t1: f2(o1.th), t2: f2(o2.th), k1: M.k1, k2: M.k2, n: N })];
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait, narrow: portrait || W < 1040 };   // below this the two final panels get too crowded
+    // the long counter labels ("Efficient, one input") only when they fit in their chip, else the short one
+    L.shortChip = portrait || W < 760;
+    if (!L.shortChip && chips) {
+      [[1, "dea.k.e1"], [3, "dea.k.e2"]].forEach(function (q) {
+        var s = chips[q[0]].s, old = s.textContent;
+        s.textContent = T(q[1]);
+        if (s.scrollWidth > s.clientWidth + 0.5) L.shortChip = true;
+        s.textContent = old;
+      });
+    }
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11; L.ft = 13.5; L.dot = 5.5; L.lw = 2.2; L.head = 9; L.tick = 10;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 12; L.ft = 16; L.dot = 7; L.lw = 2.8; L.head = 12; L.tick = 10.5;
+    }
+    // room for the longest caption of both scenarios
+    var tl = 1, sl = 1;
+    ["ccr", "bcc"].forEach(function (k) {
+      CH.forEach(function (c) {
+        var cap = captions(model(k), c + 0.1);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    // the plot: the tick labels sit left of and under the rectangle, the axis titles above and below it
+    if (portrait) L.P = { x0: 40, x1: W - 14, y0: L.capBottom + 30, y1: H - 40 };
+    else L.P = { x0: hx + hw + 64, x1: W - 22, y0: 36, y1: H - 50 };
+    var P = L.P;
+    var wm = (P.x1 - P.x0 - 62) / 2;
+    L.P1 = { x0: P.x0, x1: P.x0 + wm, y0: P.y0, y1: P.y1 };
+    L.P2 = { x0: P.x1 - wm, x1: P.x1, y0: P.y0, y1: P.y1 };
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+
+  /* ---------- drawing helpers ---------- */
+  function mapper(R, V) {
+    return {
+      R: R, V: V,
+      X: function (x) { return R.x0 + (x - V.x0) / (V.x1 - V.x0) * (R.x1 - R.x0); },
+      Y: function (y) { return R.y1 - (y - V.y0) / (V.y1 - V.y0) * (R.y1 - R.y0); }
+    };
+  }
+  function mixV(a, b, u) { return { x0: lerp(a.x0, b.x0, u), x1: lerp(a.x1, b.x1, u), y0: lerp(a.y0, b.y0, u), y1: lerp(a.y1, b.y1, u) }; }
+  function mixR(a, b, u) { return mixV(a, b, u); }
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function arrow(x0, y0, x1, y1, col, lw, head, a) {
+    var dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy);
+    if (len < 0.8 || a <= 0.01) return;
+    var ux = dx / len, uy = dy / len, hl = Math.min(head, len * 0.7), hw = hl * 0.5;
+    var bx = x1 - ux * hl, by = y1 - uy * hl;
+    ctx.globalAlpha = a; ctx.lineCap = "round";
+    ctx.strokeStyle = col; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(bx + ux * 0.5, by + uy * 0.5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(bx - uy * hw, by + ux * hw); ctx.lineTo(bx + uy * hw, by - ux * hw); ctx.closePath();
+    ctx.fillStyle = col; ctx.fill();
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+  }
+  function niceStep(span, px, minPx) {
+    var raw = span / Math.max(1, px / minPx), p = Math.pow(10, Math.floor(Math.log10(raw))), s;
+    s = raw / p <= 1 ? 1 : raw / p <= 2 ? 2 : raw / p <= 5 ? 5 : 10;
+    return s * p;
+  }
+  /* ---------- label placement: the first free spot among a few candidates ---------- */
+  function Placer(R) { this.R = R; this.b = []; }
+  Placer.prototype.block = function (x0, y0, x1, y1) { this.b.push([x0, y0, x1, y1]); };
+  Placer.prototype.dot = function (X, Y, r) { this.block(X - r, Y - r, X + r, Y + r); };
+  Placer.prototype.line = function (pts, pad) {        // a polyline as a chain of small boxes (inside the panel only)
+    var R = this.R;
+    for (var i = 1; i < pts.length; i++) {
+      var d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]), n = Math.max(1, Math.ceil(d / 4));
+      for (var k = 0; k <= n; k++) {
+        var x = lerp(pts[i - 1][0], pts[i][0], k / n), y = lerp(pts[i - 1][1], pts[i][1], k / n);
+        if (x < R.x0 - 4 || x > R.x1 + 4 || y < R.y0 - 4 || y > R.y1 + 4) continue;
+        this.block(x - pad, y - pad, x + pad, y + pad);
+      }
+    }
+  };
+  Placer.prototype.cost = function (bx) {        // overlap with what is already placed (0 = free), out of the panel = large
+    var R = this.R, c = 0;
+    if (bx[0] < R.x0 + 2 || bx[2] > R.x1 + 30 || bx[1] < R.y0 - 14 || bx[3] > R.y1 - 2) c += 1e6;
+    for (var i = 0; i < this.b.length; i++) {
+      var o = this.b[i], w = Math.min(bx[2], o[2]) - Math.max(bx[0], o[0]), h = Math.min(bx[3], o[3]) - Math.max(bx[1], o[1]);
+      if (w > 0 && h > 0) c += w * h;
+    }
+    return c;
+  };
+  Placer.prototype.put = function (w, h, cands) {      // cands: label centres; the first free one, else the least covered
+    var best = null, bc = Infinity;
+    for (var i = 0; i < cands.length; i++) {
+      var c = cands[i], bx = [c[0] - w / 2 - 2, c[1] - h / 2 - 1, c[0] + w / 2 + 2, c[1] + h / 2 + 1], k = this.cost(bx);
+      if (k < 12) { best = c; bc = 0; break; }   // a touch of padding is fine
+      if (k < bc - 1e-9) { bc = k; best = c; }
+    }
+    this.b.push([best[0] - w / 2 - 2, best[1] - h / 2 - 1, best[0] + w / 2 + 2, best[1] + h / 2 + 1]);
+    return best;
+  };
+  function around(X, Y, r, w, h, order) {        // candidate centres around a dot: the given order, then the same farther out
+    var out = [];
+    [r + 3, r + 12].forEach(function (d) {
+      var q = d * 0.72, P = {
+        UL: [X - q - w / 2, Y - q - h / 2 + 2], UR: [X + q + w / 2, Y - q - h / 2 + 2], LL: [X - q - w / 2, Y + q + h / 2 - 2],
+        LR: [X + q + w / 2, Y + q + h / 2 - 2], L: [X - d - w / 2 - 1, Y], R: [X + d + w / 2 + 1, Y], T: [X, Y - d - h / 2], B: [X, Y + d + h / 2]
+      };
+      order.forEach(function (k) { out.push(P[k]); });
+    });
+    return out;
+  }
+  function textW(txt, f) { ctx.font = f; return ctx.measureText(txt).width; }
+  function clipTo(R) { ctx.save(); ctx.beginPath(); ctx.rect(R.x0 - 1, R.y0 - 1, R.x1 - R.x0 + 2, R.y1 - R.y0 + 2); ctx.clip(); }
+  // grid, axes on the left and bottom edges, tick labels and titles
+  function drawAxes(M, a, xt, yt) {
+    if (a <= 0.01) return;
+    var R = M.R, V = M.V, v, X, Y;
+    var sx = niceStep(V.x1 - V.x0, R.x1 - R.x0, L.portrait ? 44 : 56), sy = niceStep(V.y1 - V.y0, R.y1 - R.y0, L.portrait ? 30 : 42);
+    ctx.globalAlpha = a; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (v = Math.ceil(V.x0 / sx) * sx; v <= V.x1 + 1e-9; v += sx) { X = Math.round(M.X(v)) + 0.5; ctx.moveTo(X, R.y0); ctx.lineTo(X, R.y1); }
+    for (v = Math.ceil(V.y0 / sy) * sy; v <= V.y1 + 1e-9; v += sy) { Y = Math.round(M.Y(v)) + 0.5; ctx.moveTo(R.x0, Y); ctx.lineTo(R.x1, Y); }
+    ctx.stroke();
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(R.x0, R.y0); ctx.lineTo(R.x0, R.y1); ctx.lineTo(R.x1, R.y1); ctx.stroke();
+    ctx.font = font(400, L.tick, true); ctx.fillStyle = C.muted;
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (v = Math.ceil(V.x0 / sx) * sx; v <= V.x1 + 1e-9; v += sx) ctx.fillText(f0(v), M.X(v), R.y1 + 5);
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (v = Math.ceil(V.y0 / sy) * sy; v <= V.y1 + 1e-9; v += sy) ctx.fillText(f0(v), R.x0 - 5, M.Y(v));
+    ctx.font = font(600, L.fs - 0.5); ctx.fillStyle = C.ink2;
+    ctx.textAlign = "right"; ctx.textBaseline = "top"; ctx.fillText(xt, R.x1, R.y1 + 7 + L.tick + 4);
+    var yx = R.x0 - (L.portrait ? 30 : 34), yw = ctx.measureText(yt).width;
+    ctx.textAlign = "left"; ctx.textBaseline = "bottom"; ctx.fillText(yt, Math.max(6, Math.min(yx, L.W - 6 - yw)), R.y0 - 8);
+    ctx.globalAlpha = 1;
+  }
+  // a school: ink dot, red when efficient, bright ring when it is school E
+  function drawSchool(X, Y, j, s, effA, a, selA) {
+    if (a <= 0.01) return;
+    var r = L.dot * s;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = C.surface; circle(X, Y, r + 2); ctx.fill();
+    ctx.fillStyle = C.ink; circle(X, Y, r); ctx.fill();
+    if (effA > 0) { ctx.globalAlpha = a * effA; ctx.fillStyle = C.accent; circle(X, Y, r); ctx.fill(); }
+    if (selA > 0.01) {
+      ctx.globalAlpha = a * selA; ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+      circle(X, Y, r + 4.5); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function pulse(X, Y, u, col) {                  // expanding ring, u in 0..1
+    if (u <= 0 || u >= 1) return;
+    ctx.globalAlpha = 0.7 * (1 - u); ctx.strokeStyle = col; ctx.lineWidth = 2;
+    circle(X, Y, L.dot + 2 + 18 * E.out(u)); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  function polyLen(pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return s; }
+  function strokePartial(pts, u) {                // the first fraction u of a polyline (screen points); returns the head
+    var tot = polyLen(pts), want = tot * clamp(u, 0, 1), acc = 0, head = pts[0];
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    for (var i = 1; i < pts.length; i++) {
+      var d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+      if (acc + d >= want) {
+        var k = d ? (want - acc) / d : 0;
+        head = [lerp(pts[i - 1][0], pts[i][0], k), lerp(pts[i - 1][1], pts[i][1], k)];
+        ctx.lineTo(head[0], head[1]); break;
+      }
+      ctx.lineTo(pts[i][0], pts[i][1]); acc += d; head = pts[i];
+    }
+    ctx.stroke();
+    return head;
+  }
+
+  /* ---------- panel 1: one input (teachers) and one output (graduates) ---------- */
+  // st: { a, axes, pts(j), sel, rays, front, region, ghost, eff, projE, dropE, thE, proj(j), th(j), parts }
+  function frontier1(M, Mp) {                    // screen polyline of the one input frontier
+    var V = Mp.V;
+    if (!M.vrs) {
+      var r = BEST.r, xe = Math.min(V.x1, V.y1 / r);
+      return [[Mp.X(0), Mp.Y(0)], [Mp.X(xe), Mp.Y(r * xe)]];
+    }
+    var e = M.eff1, p = [[Mp.X(SCH[e[0]].x), Mp.Y(0)]];
+    e.forEach(function (j) { p.push([Mp.X(SCH[j].x), Mp.Y(SCH[j].y)]); });
+    p.push([Mp.X(V.x1 + 20), Mp.Y(SCH[e[e.length - 1]].y)]);
+    return p;
+  }
+  function drawPanel1(M, Mp, st) {
+    var R = Mp.R, a = st.a;
+    if (a <= 0.01) return;
+    drawAxes(Mp, a * st.axes, T("dea.ax.x1"), T("dea.ax.y1"));
+    clipTo(R);
+    var F = frontier1(M, Mp);
+    // production possibility set (tinted) under the frontier
+    if (st.region > 0.01) {
+      ctx.globalAlpha = a * st.region * 0.8; ctx.fillStyle = C.region; ctx.beginPath();
+      F.forEach(function (P, i) { if (i) ctx.lineTo(P[0], P[1]); else ctx.moveTo(P[0], P[1]); });
+      ctx.lineTo(R.x1 + 30, F[F.length - 1][1]); ctx.lineTo(R.x1 + 30, R.y1 + 2); ctx.lineTo(F[0][0], R.y1 + 2); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    // CCR: the ratio rays through every school
+    if (!M.vrs && st.rays > 0) {
+      SCH.forEach(function (s, j) {
+        var u = clamp(st.rays * 1.8 - j * 0.1, 0, 1) * (1 - st.raysOut);
+        if (u <= 0 || j === BEST.j) return;
+        var xe = Math.min(Mp.V.x1, Mp.V.y1 * s.x / s.y);
+        ctx.globalAlpha = a * 0.75 * Math.min(1, u * 3) * (1 - st.raysOut); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(Mp.X(0), Mp.Y(0)); ctx.lineTo(Mp.X(xe * E.out(u)), Mp.Y(xe * E.out(u) * s.y / s.x)); ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+    }
+    // BCC: the constant returns ray as a dashed reference
+    if (M.vrs && st.ghost > 0.01) {
+      var xg = Math.min(Mp.V.x1, Mp.V.y1 / BEST.r);
+      ctx.globalAlpha = a * st.ghost * 0.9; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.6; ctx.setLineDash([6, 5]);
+      ctx.beginPath(); ctx.moveTo(Mp.X(0), Mp.Y(0)); ctx.lineTo(Mp.X(xg), Mp.Y(BEST.r * xg)); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+    // the frontier, drawn with a bright head while it grows
+    if (st.front > 0) {
+      ctx.globalAlpha = a; ctx.strokeStyle = C.accent; ctx.lineWidth = L.lw + 0.4; ctx.lineJoin = "round"; ctx.lineCap = "round";
+      var head = strokePartial(F, E.inOut(st.front));
+      ctx.lineCap = "butt";
+      if (st.front < 1) { ctx.fillStyle = HOT; circle(head[0], head[1], L.lw + 2.5); ctx.fill(); }
+      ctx.globalAlpha = 1;
+    }
+    // projections of every school (ch. 4) and of E (ch. 3)
+    SCH.forEach(function (s, j) {
+      var u = j === SEL ? st.projE : st.proj(j), r = M.one[j];
+      if (u <= 0 || r.eff) return;
+      var X0 = Mp.X(s.x), X1 = Mp.X(s.x * lerp(1, r.th, E.inOut(u))), Y = Mp.Y(s.y);
+      var sel = j === SEL;
+      arrow(X0 - L.dot - 2, Y, X1, Y, C.accent, sel ? L.lw : L.lw - 0.8, sel ? L.head : L.head - 3, a * (sel ? 1 : 0.85));
+    });
+    ctx.restore();
+    // drop lines of E and its target to the teachers axis, with their values
+    var o1 = M.one[SEL], sE = SCH[SEL];
+    if (st.dropE > 0.01) {
+      var XE = Mp.X(sE.x), XT = Mp.X(sE.x * o1.th), YE = Mp.Y(sE.y);
+      ctx.globalAlpha = a * st.dropE; ctx.lineWidth = 1.2; ctx.setLineDash([3, 4]);
+      ctx.strokeStyle = C.ink2; ctx.beginPath(); ctx.moveTo(XE, YE + L.dot + 3); ctx.lineTo(XE, R.y1); ctx.stroke();
+      ctx.strokeStyle = C.accent; ctx.beginPath(); ctx.moveTo(XT, YE + 4); ctx.lineTo(XT, R.y1); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+      var fb = font(700, L.fs, true);
+      label(f0(sE.x), XE, R.y1 - 10, "center", C.ink, fb, a * st.dropE);
+      label(f1(sE.x * o1.th), XT, R.y1 - 10, "center", C["accent-text"], fb, a * st.dropE);
+    }
+    // particles running along E's projection
+    if (st.parts > 0 && st.parts < 1) {
+      var Y0 = Mp.Y(sE.y), xa = Mp.X(sE.x), xb = Mp.X(sE.x * o1.th);
+      for (var k = 0; k < 4; k++) {
+        var ph = st.parts * 1.6 - k * 0.2;
+        if (ph <= 0 || ph >= 1) continue;
+        var px = lerp(xa, xb, E.inOut(ph));
+        ctx.globalAlpha = a * Math.sin(Math.PI * ph); ctx.fillStyle = HOT; circle(px, Y0, 2.6); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    // schools
+    var LB = labels1(M, R);
+    SCH.forEach(function (s, j) {
+      var p = st.pts(j);
+      if (p <= 0) return;
+      var X = Mp.X(s.x), Y = Mp.Y(s.y), eff = M.one[j].eff ? st.eff : 0;
+      if (j === SEL && st.projE > 0 && !M.one[j].eff) {  // the target of E: a red point on the frontier
+        var XT2 = Mp.X(s.x * lerp(1, M.one[j].th, E.inOut(st.projE)));
+        ctx.globalAlpha = a * Math.min(1, st.projE * 4); ctx.fillStyle = C.surface; circle(XT2, Y, L.dot - 0.5); ctx.fill();
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 2.2; circle(XT2, Y, L.dot - 1.5); ctx.stroke(); ctx.globalAlpha = 1;
+      }
+      drawSchool(X, Y, j, E.back(p), eff, a * Math.min(1, p * 2), j === SEL ? st.sel : 0);
+      if (st.effPulse) pulse(X, Y, M.one[j].eff ? st.effPulse(j) : 0, C.accent);
+    });
+    // labels: placed once on the unzoomed chart, kept as offsets from their school
+    SCH.forEach(function (s, j) {
+      var p = st.pts(j);
+      if (p <= 0) return;
+      var X = Mp.X(s.x), Y = Mp.Y(s.y), o = LB.id[j];
+      label(s.id, X + o[0], Y + o[1], "center", j === SEL && st.sel > 0.5 ? HOT : C.ink, LB.fid, a * Math.min(1, p * 2));
+      var th = j === SEL ? st.thE : st.th(j);
+      if (th > 0.01) {
+        var q = LB.th[j];
+        if (j === SEL) label(LB.thTxt[j], X + q[0], Y + q[1], "center", C["accent-text"], LB.fsel, a * th);
+        else label(LB.thTxt[j], X + q[0], Y + q[1], "center", M.one[j].eff ? C["accent-text"] : C.ink2, LB.fth, a * th);
+      }
+    });
+  }
+  // where the scores and the letters of panel 1 go (offsets from each school), for the unzoomed chart; the letters
+  // come last, they are short and find a free spot next to their school more easily
+  function labels1(M, R) {
+    var Mp = mapper(R, V1), Pl = new Placer(R), F = frontier1(M, Mp), out = { id: [], th: [], thTxt: [] };
+    out.fid = font(700, L.fs + 0.5); out.fth = font(600, L.fs, true); out.fsel = font(700, L.fs + 0.5);
+    var h = L.fs + 2;
+    Pl.line(F, 2);
+    SCH.forEach(function (s, j) {
+      Pl.dot(Mp.X(s.x), Mp.Y(s.y), L.dot + (j === SEL ? 5 : 2));
+      var r = M.one[j];
+      if (!r.eff) Pl.block(Mp.X(s.x * r.th), Mp.Y(s.y) - 4, Mp.X(s.x), Mp.Y(s.y) + 4);   // its projection arrow
+    });
+    // score of E: centred above its arrow
+    var sE = SCH[SEL], rE = M.one[SEL], XE = Mp.X(sE.x), YE = Mp.Y(sE.y), XTE = Mp.X(sE.x * rE.th);
+    out.thTxt[SEL] = T("dea.l.theta", { v: f2(rE.th) });
+    var wE = textW(out.thTxt[SEL], out.fsel);
+    var cE = Pl.put(wE, h, [[(XE + XTE) / 2, YE - L.dot - 9], [(XE + XTE) / 2, YE + L.dot + 10]].concat(
+      around(XE, YE, L.dot + 5, wE, h, ["UR", "R", "T", "LR", "B"])));
+    out.th[SEL] = [cE[0] - XE, cE[1] - YE];
+    SCH.forEach(function (s, j) {
+      if (j === SEL) return;
+      var X = Mp.X(s.x), Y = Mp.Y(s.y);
+      out.thTxt[j] = f2(M.one[j].th);
+      var w = textW(out.thTxt[j], out.fth), c = Pl.put(w, h, around(X, Y, L.dot + 2, w, h, ["R", "LR", "UR", "B", "T", "LL", "UL", "L"]));
+      out.th[j] = [c[0] - X, c[1] - Y];
+    });
+    SCH.forEach(function (s, j) {
+      var X = Mp.X(s.x), Y = Mp.Y(s.y), w = textW(s.id, out.fid), r = L.dot + (j === SEL ? 5 : 1);
+      var c = Pl.put(w, h, around(X, Y, r, w, h, ["UL", "UR", "LL", "T", "L", "LR", "B", "R"]));
+      out.id[j] = [c[0] - X, c[1] - Y];
+    });
+    return out;
+  }
+
+  /* ---------- panel 2: two inputs per 100 graduates ---------- */
+  function isoPts(Mp) {
+    var V = Mp.V, p = [[Mp.X(SCH[ISO[0]].u), Mp.Y(V.y1 + 40)]];
+    ISO.forEach(function (j) { p.push([Mp.X(SCH[j].u), Mp.Y(SCH[j].v)]); });
+    p.push([Mp.X(V.x1 + 20), Mp.Y(SCH[ISO[ISO.length - 1]].v)]);
+    return p;
+  }
+  // st: { a, axes, iso, region, ray, tgt, spokes, eff }
+  function drawPanel2(M, Mp, st) {
+    var R = Mp.R, a = st.a;
+    if (a <= 0.01) return;
+    drawAxes(Mp, a * st.axes, T("dea.ax.x2"), T("dea.ax.y2"));
+    clipTo(R);
+    var I = isoPts(Mp), o2 = M.two[SEL], sE = SCH[SEL];
+    if (st.region > 0.01) {                      // input requirement set above the isoquant
+      ctx.globalAlpha = a * st.region * (M.vrs ? 0.45 : 0.8); ctx.fillStyle = C.region; ctx.beginPath();
+      I.forEach(function (P, i) { if (i) ctx.lineTo(P[0], P[1]); else ctx.moveTo(P[0], P[1]); });
+      ctx.lineTo(R.x1 + 30, R.y0 - 40); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    if (st.iso > 0) {
+      ctx.globalAlpha = a; ctx.lineJoin = "round";
+      if (M.vrs) { ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); }
+      else { ctx.strokeStyle = C.accent; ctx.lineWidth = L.lw + 0.4; ctx.lineCap = "round"; }
+      var head = strokePartial(I, E.inOut(st.iso));
+      ctx.setLineDash([]); ctx.lineCap = "butt";
+      if (st.iso < 1) { ctx.fillStyle = HOT; circle(head[0], head[1], L.lw + 2.5); ctx.fill(); }
+      ctx.globalAlpha = 1;
+    }
+    // the ray from the origin through E, and E's target on it
+    var tu = sE.u * o2.th, tv = sE.v * o2.th;
+    if (st.ray > 0) {
+      var ext = 1.12, u = E.inOut(st.ray);
+      ctx.globalAlpha = a * 0.9; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.3; ctx.setLineDash([2, 4]);
+      ctx.beginPath(); ctx.moveTo(Mp.X(0), Mp.Y(0)); ctx.lineTo(Mp.X(sE.u * ext * u), Mp.Y(sE.v * ext * u)); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+    // links from the peers to the target
+    if (st.spokes > 0 && st.tgt >= 1) {
+      o2.peers.forEach(function (j, k) {
+        var u = clamp(st.spokes * 1.5 - k * 0.2, 0, 1);
+        if (u <= 0) return;
+        var X0 = Mp.X(SCH[j].u), Y0 = Mp.Y(SCH[j].v), X1 = Mp.X(tu), Y1 = Mp.Y(tv);
+        ctx.globalAlpha = a * 0.9; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(X1, Y1); ctx.lineTo(lerp(X1, X0, E.out(u)), lerp(Y1, Y0, E.out(u))); ctx.stroke();
+        ctx.globalAlpha = 1;
+      });
+    }
+    ctx.restore();
+    // schools
+    SCH.forEach(function (s, j) {
+      var X = Mp.X(s.u), Y = Mp.Y(s.v);
+      drawSchool(X, Y, j, 1, M.two[j].eff ? st.eff : 0, a, j === SEL ? 1 : 0);
+      if (st.effPulse) pulse(X, Y, M.two[j].eff ? st.effPulse : 0, C.accent);
+    });
+    // target of E
+    if (st.tgt > 0) {
+      var k = E.inOut(st.tgt), X = Mp.X(lerp(sE.u, tu, k)), Y = Mp.Y(lerp(sE.v, tv, k));
+      ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(X, Y, L.dot); ctx.fill();
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 2.4; circle(X, Y, L.dot - 1); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    var LB = labels2(M, R);
+    SCH.forEach(function (s, j) {
+      var X = Mp.X(s.u), Y = Mp.Y(s.v), o = LB.id[j];
+      label(s.id, X + o[0], Y + o[1], "center", j === SEL ? HOT : C.ink, LB.fid, a);
+      // weights of the peers (ch. 5) and the scores of every school (ch. 6)
+      if (LB.lam[j] && st.tgt >= 1) label(LB.lamTxt[j], X + LB.lam[j][0], Y + LB.lam[j][1], "center", C.ink, LB.fth, a * st.lamA);
+      if (j !== SEL && st.thAll > 0.01) label(LB.thTxt[j], X + LB.th[j][0], Y + LB.th[j][1], "center", M.two[j].eff ? C["accent-text"] : C.ink2, LB.fth, a * st.thAll);
+    });
+    if (st.tgt >= 1) label(LB.thTxt[SEL], LB.thE[0], LB.thE[1], "center", C["accent-text"], LB.fid, a * st.thA);
+  }
+  // where the letters, the weights and the scores of panel 2 go
+  function labels2(M, R) {
+    var Mp = mapper(R, V2), Pl = new Placer(R), o2 = M.two[SEL], sE = SCH[SEL], out = { id: [], lam: [], lamTxt: [], th: [], thTxt: [] };
+    out.fid = font(700, L.fs + 0.5); out.fth = font(600, L.fs, true);
+    var h = L.fs + 2, tu = sE.u * o2.th, tv = sE.v * o2.th, XT = Mp.X(tu), YT = Mp.Y(tv);
+    Pl.line(isoPts(Mp), 2);
+    Pl.line([[Mp.X(0), Mp.Y(0)], [Mp.X(sE.u * 1.12), Mp.Y(sE.v * 1.12)]], 1.5);
+    o2.peers.forEach(function (j) { Pl.line([[XT, YT], [Mp.X(SCH[j].u), Mp.Y(SCH[j].v)]], 1.5); });
+    SCH.forEach(function (s, j) { Pl.dot(Mp.X(s.u), Mp.Y(s.v), L.dot + (j === SEL ? 5 : 2)); });
+    Pl.dot(XT, YT, L.dot + 1);
+    out.thTxt[SEL] = T("dea.l.theta", { v: f2(o2.th) });
+    var wE = textW(out.thTxt[SEL], out.fid);
+    out.thE = Pl.put(wE, h, around(XT, YT, L.dot + 2, wE, h, ["R", "LR", "UR", "L", "B", "T", "LL", "UL"]));
+    // the letters: first on the wide stage (two panels side by side), last on narrow stages where the single chart
+    // has room for them next to their school once the scores are placed
+    function ids() {
+      SCH.forEach(function (s, j) {
+        var X = Mp.X(s.u), Y = Mp.Y(s.v), w = textW(s.id, out.fid), r = L.dot + (j === SEL ? 5 : 1);
+        var c = Pl.put(w, h, around(X, Y, r, w, h, ["UL", "UR", "LL", "T", "L", "LR", "B", "R"]));
+        out.id[j] = [c[0] - X, c[1] - Y];
+      });
+    }
+    if (!L.narrow) ids();
+    o2.peers.forEach(function (j) {                // the weight on the side of the peer away from the target
+      var X = Mp.X(SCH[j].u), Y = Mp.Y(SCH[j].v), dx = X - XT, dy = Y - YT;
+      out.lamTxt[j] = T("dea.l.lam", { v: f2(o2.lam[j]) });
+      var w = textW(out.lamTxt[j], out.fth);
+      var ord = dx >= 0 ? (dy >= 0 ? ["LR", "R", "B", "UR", "T", "LL", "L"] : ["UR", "R", "T", "LR", "B", "UL", "L"])
+        : (dy >= 0 ? ["LL", "L", "B", "UL", "T", "LR", "R"] : ["UL", "L", "T", "LL", "B", "UR", "R"]);
+      var c = Pl.put(w, h, around(X, Y, L.dot + 2, w, h, ord));
+      out.lam[j] = [c[0] - X, c[1] - Y];
+    });
+    SCH.forEach(function (s, j) {
+      if (j === SEL) return;
+      var X = Mp.X(s.u), Y = Mp.Y(s.v);
+      out.thTxt[j] = f2(M.two[j].th);
+      var w = textW(out.thTxt[j], out.fth), c = Pl.put(w, h, around(X, Y, L.dot + 2, w, h, ["R", "LR", "UR", "B", "T", "L", "LL", "UL"]));
+      out.th[j] = [c[0] - X, c[1] - Y];
+    });
+    if (L.narrow) ids();
+    return out;
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3].map(function (i) {
+    var el = document.getElementById("dea-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null };
+  });
+  function setChip(i, val, lab, op) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+  }
+  function hud(M, t) {
+    var o1 = M.one[SEL], o2 = M.two[SEL];
+    var u1 = E.inOut(seg(t, 21.8, 24.6)), u2 = E.inOut(seg(t, 45.8, 47.4));
+    setChip(0, f2(lerp(1, o1.th, u1)), T("dea.k.t1"), seg(t, 21.4, 21.9));
+    setChip(1, T("dea.k.count", { k: M.k1, n: N }), T(L.shortChip ? "dea.k.effs" : "dea.k.e1"), seg(t, 13.4, 13.9));
+    setChip(2, f2(lerp(1, o2.th, u2)), T("dea.k.t2"), seg(t, 45.4, 45.9));
+    setChip(3, T("dea.k.count", { k: M.k2, n: N }), T(L.shortChip ? "dea.k.effs" : "dea.k.e2"), seg(t, 44, 44.5));
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var M = model(state.sc);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    hud(M, t);
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+
+    var split = E.inOut(seg(t, 50, 52.4));       // ch. 6: two panels
+    var morph = E.inOut(seg(t, 39.4, 41.8));      // ch. 5: one input chart turns into the per graduate chart
+    var zoom = E.inOut(seg(t, 19.3, 21.3)) * (1 - E.inOut(seg(t, 28.2, 29.8)));
+    var V1now = mixV(V1, V1Z, zoom);
+    var fade1 = 1 - seg(t, 39, 39.8);             // one input overlays leave before the morph
+    var ch2 = M.vrs ? { front: seg(t, 8.8, 13.2), rays: 0 } : { front: seg(t, 12.2, 13.4), rays: seg(t, 8.6, 12) };
+    function st1(full) {
+      if (full) {
+        return { a: 1, axes: 1, pts: function () { return 1; }, sel: 1, rays: 0, raysOut: 1, front: 1, region: 1, ghost: 1, eff: 1,
+          projE: 1, dropE: 0, thE: 1, proj: function () { return 1; }, th: function () { return 1; }, parts: 0 };
+      }
+      var order = [];                            // ch. 4: the other schools, by teachers
+      SCH.forEach(function (s, j) { if (j !== SEL) order.push(j); });
+      return {
+        a: 1, axes: seg(t, 0.05, 1.2) * (1 - seg(t, 39, 40.2)),
+        pts: function (j) { return seg(t, APPEAR[j], APPEAR[j] + 0.55); },
+        sel: seg(t, 5.8, 6.6),
+        rays: ch2.rays, raysOut: seg(t, 13.4, 14.2),
+        front: ch2.front * fade1, region: seg(t, 13.6, 14.6) * fade1,
+        ghost: seg(t, 14.4, 15.2) * fade1, eff: seg(t, 13.2, 13.8),
+        effPulse: function (j) { return M.vrs ? seg(t, 13.2 + 0.25 * M.eff1.indexOf(j), 14.4 + 0.25 * M.eff1.indexOf(j)) : seg(t, 13.4, 14.6); },
+        projE: seg(t, 21.8, 24.6) * fade1, dropE: seg(t, 24.8, 25.6) * (1 - seg(t, 30, 30.6)),
+        thE: seg(t, 24.6, 25.4) * fade1, parts: seg(t, 21.8, 25.2),
+        proj: function (j) { var k = order.indexOf(j); return seg(t, 30.4 + 0.55 * k, 31.1 + 0.55 * k) * fade1; },
+        th: function (j) { var k = order.indexOf(j); return seg(t, 30.8 + 0.55 * k, 31.3 + 0.55 * k) * fade1; }
+      };
+    }
+    // ch. 6: the weights make way for the score of every school
+    var st2full = { a: 1, axes: 1, iso: 1, region: 1, ray: 1, tgt: 1, spokes: 1, eff: 1, thA: 1, lamA: 1 - seg(t, 50, 50.7), thAll: seg(t, 51.6, 52.6) };
+
+    if (t < 39.4) {
+      drawPanel1(M, mapper(L.P, V1now), st1(false));
+    } else if (t < 50) {
+      // morph: axes of the new chart, then the schools slide from (teachers, graduates) to (teachers, budget) per 100 graduates
+      var Ma = mapper(L.P, V1), Mb = mapper(L.P, V2);
+      drawAxes(Ma, 1 - seg(t, 39, 40.2), T("dea.ax.x1"), T("dea.ax.y1"));
+      var s2 = { a: 1, axes: seg(t, 40.2, 41.2), iso: seg(t, 42.2, 44), region: seg(t, 43.8, 44.6), ray: seg(t, 44.8, 45.8),
+        tgt: seg(t, 45.8, 47.4), spokes: seg(t, 47.6, 48.6), eff: seg(t, 40.8, 41.4), thA: seg(t, 47.3, 47.9), lamA: seg(t, 48.3, 49),
+        effPulse: seg(t, 44, 45.2), thAll: 0 };
+      if (morph < 1) {
+        // the schools in flight (panel 2 takes over once they land)
+        drawAxes(Mb, s2.axes, T("dea.ax.x2"), T("dea.ax.y2"));
+        var LA = labels1(M, L.P), LBB = labels2(M, L.P);
+        SCH.forEach(function (s, j) {
+          var X = lerp(Ma.X(s.x), Mb.X(s.u), morph), Y = lerp(Ma.Y(s.y), Mb.Y(s.v), morph);
+          var eff = morph < 0.5 ? (M.one[j].eff ? 1 - seg(morph, 0.2, 0.5) : 0) : (M.two[j].eff ? s2.eff : 0);
+          // a short trail behind each school
+          for (var k = 1; k <= 6; k++) {
+            var mk = E.inOut(seg(t - k * 0.05, 39.4, 41.8));
+            if (mk <= 0 || mk >= 1) continue;
+            ctx.globalAlpha = 0.25 * (1 - k / 7); ctx.fillStyle = C["mit-silver"];
+            circle(lerp(Ma.X(s.x), Mb.X(s.u), mk), lerp(Ma.Y(s.y), Mb.Y(s.v), mk), L.dot * (1 - k / 9)); ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          drawSchool(X, Y, j, 1, eff, 1, j === SEL ? 1 : 0);
+          var oa = LA.id[j], ob = LBB.id[j];
+          label(s.id, X + lerp(oa[0], ob[0], morph), Y + lerp(oa[1], ob[1], morph), "center", j === SEL ? HOT : C.ink, LA.fid, 1);
+        });
+      } else {
+        drawPanel2(M, Mb, s2);
+      }
+    } else {
+      // ch. 6: one input on one side, two inputs on the other (phones and narrow stages keep the two input chart
+      // and its scores; the counters carry the one input results)
+      if (!L.narrow) drawPanel1(M, mapper(L.P1, V1), (function () { var s = st1(true); s.a = seg(t, 50.8, 52.4); return s; })());
+      drawPanel2(M, mapper(L.narrow ? L.P : mixR(L.P, L.P2, split), V2), st2full);
+    }
+
+    // quiet band behind the counters and the caption
+    var gr, e1, e2;
+    if (L.portrait) {
+      e2 = L.capBottom + 8; e1 = clamp((L.capBottom) / e2, 0, 0.98);
+      gr = ctx.createLinearGradient(0, 0, 0, e2);
+      gr.addColorStop(0, rgba(C.surface, 1)); gr.addColorStop(e1, rgba(C.surface, 1)); gr.addColorStop(1, rgba(C.surface, 0));
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, L.W, e2);
+    }
+    drawCaption(M, t);
+  }
+  function drawCaption(M, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(M, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3)); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "dea.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status, solution, table, the LP of school E, notes
+     ===================================================================================== */
+  function scenName(sc) { return T("dea.sc." + sc); }
+  function peerList(r) {
+    return r.peers.map(function (j) { return SCH[j].id + " (" + f2(r.lam[j]) + ")"; }).join(", ");
+  }
+  function renderScenText() {
+    var M = model(state.sc);
+    document.getElementById("dea-lg-ref").hidden = !M.vrs;
+    stage.setAttribute("aria-label", T("dea.anim.aria") + " " + T("dea.anim.aria.nums", {
+      s: scenName(state.sc), t1: f2(M.one[SEL].th), t2: f2(M.two[SEL].th), k1: M.k1, k2: M.k2, n: N
+    }));
+    document.getElementById("dea-status").innerHTML = T("dea.st." + state.sc, {
+      eff1: names(M.eff1), k1: M.k1, k2: M.k2, n: N, t1: f2(M.one[SEL].th), t2: f2(M.two[SEL].th)
+    });
+  }
+  function renderSolution() {
+    var M = model(state.sc), o1 = M.one[SEL], o2 = M.two[SEL], sE = SCH[SEL];
+    document.getElementById("dea-sol-title").textContent = T("dea.sol.title", { s: scenName(state.sc) });
+    document.getElementById("dea-s1").textContent = f2(o1.th);
+    document.getElementById("dea-s1l").textContent = T("dea.sol.t1l", { tx: f1(o1.th * sE.x), x: f0(sE.x) });
+    document.getElementById("dea-s2").textContent = f2(o2.th);
+    document.getElementById("dea-s2l").textContent = T("dea.sol.t2l", { tx: f1(o2.th * sE.x), tb: f1(o2.th * sE.b), x: f0(sE.x), b: f0(sE.b) });
+    document.getElementById("dea-s3").textContent = T("dea.sol.effv", { k1: M.k1, k2: M.k2, n: N });
+    document.getElementById("dea-s4").textContent = peerList(o2);
+    var h = "<thead><tr><th>" + T("dea.tb.school") + "</th><th class='num wide'>" + T("dea.tb.x") + "</th><th class='num wide'>" + T("dea.tb.b") +
+      "</th><th class='num wide'>" + T("dea.tb.y") + "</th><th class='num'>" + T("dea.tb.t1") + "</th><th class='num'>" + T("dea.tb.t2") +
+      "</th><th>" + T("dea.tb.peers") + "</th></tr></thead><tbody>";
+    SCH.forEach(function (s, j) {
+      var r1 = M.one[j], r2 = M.two[j];
+      h += "<tr" + (j === SEL ? " class='sel'" : "") + "><td class='sch'>" + s.id + "</td><td class='num wide'>" + f0(s.x) + "</td><td class='num wide'>" + f0(s.b) +
+        "</td><td class='num wide'>" + f0(s.y) + "</td><td class='num" + (r1.eff ? " eff" : "") + "'>" + f2(r1.th) + "</td><td class='num" + (r2.eff ? " eff" : "") + "'>" +
+        f2(r2.th) + "</td><td class='peers'>" + (r2.eff ? T("dea.tb.self") : peerList(r2)) + "</td></tr>";
+    });
+    document.getElementById("dea-tbl").innerHTML = h + "</tbody>";
+    document.getElementById("dea-tbl-note").textContent = M.vrs ? T("dea.tb.noteBcc") : T("dea.tb.note", { r: fr(BEST.r), s: SCH[BEST.j].id });
+    // the LP of school E with two inputs, with the numbers of the data
+    var lamT = function (k) { return SCH.map(function (s) { return s[k] + "\\lambda_{" + s.id + "}"; }).join(" + "); };
+    var lamP = function (k) { return SCH.map(function (s) { return s[k] + "·λ" + s.id; }).join(" + "); };
+    var tex = "\\begin{aligned}\\min\\;& \\theta \\\\ \\text{ST}\\;& " + lamT("x") + " \\le " + sE.x + "\\,\\theta \\\\ & " + lamT("b") + " \\le " + sE.b + "\\,\\theta \\\\ & " +
+      lamT("y") + " \\ge " + sE.y + (M.vrs ? " \\\\ & " + SCH.map(function (s) { return "\\lambda_{" + s.id + "}"; }).join(" + ") + " = 1" : "") +
+      " \\\\ & \\lambda_j \\ge 0\\end{aligned}";
+    var txt = "min θ\n" + T("ui.st") + " " + lamP("x") + " ≤ " + sE.x + "·θ\n" + lamP("b") + " ≤ " + sE.b + "·θ\n" + lamP("y") + " ≥ " + sE.y +
+      (M.vrs ? "\n" + SCH.map(function (s) { return "λ" + s.id; }).join(" + ") + " = 1" : "") + "\nλ ≥ 0";
+    TeX.set(document.getElementById("dea-inst"), tex, txt);
+    document.getElementById("dea-inst-sol").textContent = T("dea.inst.sol", {
+      th: f2(o2.th), lams: o2.peers.map(function (j) { return "λ" + SCH[j].id + " = " + f2(o2.lam[j]); }).join(", ")
+    });
+  }
+  function renderNotes() {
+    var c = model("ccr"), v = model("bcc"), sE = SCH[SEL];
+    document.getElementById("dea-n1").textContent = T("dea.n.p1", {
+      s: SCH[BEST.j].id, r: fr(BEST.r), re: fr(sE.y / sE.x), t: f2(c.one[SEL].th), y: f0(sE.y), tx: f1(c.one[SEL].th * sE.x), x: f0(sE.x)
+    });
+    document.getElementById("dea-n2").textContent = T("dea.n.p2", {
+      list: names(v.eff1), k: v.k1, n: N, t: f2(v.one[SEL].th), peers: names(v.one[SEL].peers),
+      t0: f2(c.one[SEL].th), se: f2(c.one[SEL].th / v.one[SEL].th)
+    });
+    document.getElementById("dea-n3").textContent = T("dea.n.p3", {
+      t1c: f2(c.one[SEL].th), t1v: f2(v.one[SEL].th), t2c: f2(c.two[SEL].th), t2v: f2(v.two[SEL].th), k1c: c.k1, k1v: v.k1, k2c: c.k2, k2v: v.k2, n: N, peers: names(model(state.sc).two[SEL].peers)
+    });
+    var io = IN2(SCH[0]).length + 1;
+    document.getElementById("dea-n4").textContent = T("dea.n.p4", { n: N, io: io, need: 3 * io });
+  }
+
+  var segBtns = document.querySelectorAll("#dea-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderSolution(); renderNotes();
+      hudKey = "";
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[1]) player.refresh();
+      else { player.seek(CH[1] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderScenText(); renderSolution(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

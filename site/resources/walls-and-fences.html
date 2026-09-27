@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="en" data-title-key="wf.title" data-i18n-bundles="resources/nlp-penalty-barrier">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Walls and Fences</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #wf-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 34%)); max-width: none;
+  }
+  #wf-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #wf-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #wf-sec .anim-hud .chip-stat.bad b { color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #wf-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #wf-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #wf-sec .anim-hud { top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #wf-sec .anim-hud .chip-stat { padding: 3px 7px; font-size: 11px; }
+    #wf-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #wf-sec .anim-legend span[hidden] { display: none; }
+  #wf-sec .anim-legend i.lg-lev { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--mit-silver); background: none; }
+  #wf-sec .anim-legend i.lg-fstar { width: 14px; height: 14px; border-radius: 50%; border: 1.6px dashed var(--ink2); background: none; }
+  #wf-sec .anim-legend i.lg-fence { width: 18px; height: 0; border-top: 2.5px solid var(--ink); }
+  #wf-sec .anim-legend i.lg-feas { background: var(--region); border: 1px solid var(--mit-silver); }
+  #wf-sec .anim-legend i.lg-infeas { background: repeating-linear-gradient(135deg, var(--mit-bright) 0 1.5px, transparent 1.5px 4.5px); border: 1px solid var(--mit-bright); }
+  #wf-sec .anim-legend i.lg-wall { width: 18px; background: linear-gradient(90deg, transparent, var(--mit-bright)); opacity: 0.75; }
+  #wf-sec .anim-legend i.lg-bar { width: 18px; background: linear-gradient(90deg, transparent, var(--mit-bright)); opacity: 0.75; }
+  /* dark theme: accent and bright red are the same colour there, so the violation cues use the crit shade */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #wf-sec .anim-legend i.lg-infeas { background: repeating-linear-gradient(135deg, var(--crit) 0 1.5px, transparent 1.5px 4.5px); border-color: var(--crit); }
+    :root:not([data-theme="light"]) #wf-sec .anim-legend i.lg-wall,
+    :root:not([data-theme="light"]) #wf-sec .anim-legend i.lg-bar { background: linear-gradient(90deg, transparent, var(--crit)); }
+  }
+  :root[data-theme="dark"] #wf-sec .anim-legend i.lg-infeas { background: repeating-linear-gradient(135deg, var(--crit) 0 1.5px, transparent 1.5px 4.5px); border-color: var(--crit); }
+  :root[data-theme="dark"] #wf-sec .anim-legend i.lg-wall,
+  :root[data-theme="dark"] #wf-sec .anim-legend i.lg-bar { background: linear-gradient(90deg, transparent, var(--crit)); }
+  #wf-sec .anim-legend i.lg-path { width: 22px; height: 10px; position: relative; background: none; }
+  #wf-sec .anim-legend i.lg-path::before { content: ""; position: absolute; left: 0; right: 0; top: 4px; height: 2.5px; background: var(--accent); }
+  #wf-sec .anim-legend i.lg-path::after { content: ""; position: absolute; left: 6px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  #wf-sec .anim-legend i.lg-opt { width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid var(--accent); background: var(--surface); }
+  #wf-sec .anim-legend i.lg-other { width: 22px; height: 0; border: 0; border-top: 2px dashed var(--mit-silver); background: none; }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mhead .nc { text-transform: none; }   /* keep the Greek mu lower case */
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 78ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- solution ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+
+  /* ---- sequence table ---- */
+  table.data { min-width: 640px; }
+  @media (max-width: 720px) {
+    table.data { min-width: 0; }
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 6px; }
+  }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.ex { color: var(--accent-text); font-weight: 600; }
+  table.data td.gap { color: var(--muted); }
+  .seq-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 78ch; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="wf.eyebrow"></p>
+    <h1 data-i18n="wf.title"></h1>
+    <p class="lede" data-i18n-html="wf.lede"></p>
+  </header>
+
+  <section class="block" id="wf-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="wf.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="wf-scen-lbl" data-i18n="wf.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="wf-scen-lbl" id="wf-seg">
+        <button type="button" data-sc="penalty" aria-pressed="true" data-i18n="wf.sc.penalty"></button>
+        <button type="button" data-sc="barrier" aria-pressed="false" data-i18n="wf.sc.barrier"></button>
+      </div>
+    </div>
+    <div class="anim" id="wf-anim">
+      <div class="anim-stage" role="img">
+        <div class="anim-hud" id="wf-hud">
+          <div class="chip-stat" id="wf-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="wf-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="wf-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="wf-c3"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-lev"></i><span data-i18n="wf.lg.lev"></span></span>
+      <span><i class="lg-fstar"></i><span data-i18n="wf.lg.fstar"></span></span>
+      <span><i class="lg-fence"></i><span data-i18n="wf.lg.fence"></span></span>
+      <span><i class="lg-feas"></i><span data-i18n="wf.lg.feas"></span></span>
+      <span><i class="lg-infeas"></i><span data-i18n="wf.lg.infeas"></span></span>
+      <span id="wf-lg-wall"><i class="lg-wall"></i><span data-i18n="wf.lg.wall"></span></span>
+      <span id="wf-lg-bar" hidden><i class="lg-bar"></i><span data-i18n="wf.lg.bar"></span></span>
+      <span><i class="lg-path"></i><span data-i18n="wf.lg.path"></span></span>
+      <span><i class="lg-opt"></i><span data-i18n="wf.lg.opt"></span></span>
+      <span><i class="lg-other"></i><span id="wf-lg-other" data-i18n="wf.lg.other.penalty"></span></span>
+    </div>
+    <p class="scen-status" id="wf-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="wf.model.kicker"></span><span data-i18n="wf.model.title"></span></h2>
+    <div class="formula" data-tex="wf.model.tex" data-i18n="wf.model.formula"></div>
+    <p class="mtext" id="wf-data"></p>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n-html="wf.pen.head"></p>
+        <div class="formula" data-tex="wf.pen.tex" data-i18n="wf.pen.formula"></div>
+      </div>
+      <div>
+        <p class="mhead" data-i18n-html="wf.bar.head"></p>
+        <div class="formula" data-tex="wf.bar.tex" data-i18n="wf.bar.formula"></div>
+      </div>
+    </div>
+    <p class="mhead" data-i18n="wf.closed.head"></p>
+    <p class="mtext" data-i18n="wf.closed.why"></p>
+    <div class="formula" data-tex="wf.cpen.tex" data-i18n="wf.cpen.formula"></div>
+    <div class="formula" data-tex="wf.cbar.tex" data-i18n="wf.cbar.formula"></div>
+    <p class="mtext" id="wf-lim"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="wf.sol.kicker"></span><span data-i18n="wf.sol.title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="wf.sol.x"></div><div class="v" id="wf-sx"></div><div class="l" data-i18n="wf.sol.xl"></div></div>
+      <div class="stat"><div class="k" data-i18n="wf.sol.f"></div><div class="v" id="wf-sf"></div><div class="l" id="wf-sfl"></div></div>
+      <div class="stat"><div class="k" data-i18n="wf.sol.lam"></div><div class="v" id="wf-sl"></div><div class="l" data-i18n="wf.sol.ll"></div></div>
+      <div class="stat"><div class="k" id="wf-sdk"></div><div class="v ink" id="wf-sd"></div><div class="l" id="wf-sdl"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="wf.seq.kicker"></span><span id="wf-seq-title"></span></h2>
+    <p class="seq-p" id="wf-seq-intro" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="wf-seq"></table></div>
+    <p class="seq-p" id="wf-seq-agree"></p>
+    <p class="seq-p" id="wf-seq-note"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="wf.n.title"></summary>
+      <div class="body">
+        <p id="wf-n1"></p>
+        <p id="wf-n2"></p>
+        <p id="wf-n3"></p>
+        <p id="wf-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.16" data-refs="wf.refs"></p>
+  <p class="note" data-i18n="wf.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/nlp-penalty-barrier.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d, m) { if (Math.abs(v) < 5e-13) v = 0; return I18N.fmt(v, d == null ? 2 : d, m); };
+  var signed = function (v, d, neg, pos, fix) { var m = fmt(Math.abs(v), d, fix ? d : null); return m === fmt(0, d, fix ? d : null) ? m : (v < 0 ? neg : pos) + m; };
+  var num = function (v, d) { return signed(v, d, MINUS, ""); };
+  var sgn = function (v, d) { return signed(v, d, MINUS, "+"); };
+  var digitsFor = function (v, n) { return v === 0 ? 0 : Math.max(0, n - 1 - Math.floor(Math.log10(Math.abs(v)) + 1e-9)); };
+  var sig = function (v, n) { return num(v, digitsFor(v, n)); };           // n significant digits
+  var pair = function (x, y, d) { return T("wf.pair", { x: num(x, d), y: num(y, d) }); };
+  var list = function (arr) { return arr.join(T("wf.sep")); };
+
+  /* ---------- the model: min (x-2)^2 + (y-2)^2  s.t.  x + y <= 2 ---------- */
+  var A0 = 2, B0 = 2, CAP = 2;                     // ideal point (2, 2) and the fence x + y <= 2
+  var METHODS = {
+    penalty: { mus: [1, 10, 100, 1000], start: [2, 2] },       // start: the unconstrained minimum
+    barrier: { mus: [1, 0.1, 0.01, 0.001], start: [0, 0] }     // start: a strictly feasible point
+  };
+  var OTHER = { penalty: "barrier", barrier: "penalty" };
+  function fOf(x, y) { return (x - A0) * (x - A0) + (y - B0) * (y - B0); }
+  function gOf(x, y) { return x + y; }
+  function term(m, mu, x, y) {                     // the term that replaces the fence (Infinity outside the barrier domain)
+    if (m === "penalty") { var v = x + y - CAP; return v > 0 ? mu * v * v : 0; }
+    var s = CAP - x - y;
+    return s > 0 ? -mu * Math.log(s) : Infinity;
+  }
+  function phi(m, mu, x, y) { return fOf(x, y) + term(m, mu, x, y); }
+  function gradHess(m, mu, x, y) {
+    var gx = 2 * (x - A0), gy = 2 * (y - B0), h = 0;
+    if (m === "penalty") { var v = x + y - CAP; if (v > 0) { gx += 2 * mu * v; gy += 2 * mu * v; h = 2 * mu; } }
+    else { var s = CAP - x - y; gx += mu / s; gy += mu / s; h = mu / (s * s); }
+    return { g: [gx, gy], H: [[2 + h, h], [h, 2 + h]] };
+  }
+  // damped Newton with backtracking (the barrier step is cut back while it would cross the fence)
+  function newton(m, mu, x0) {
+    var x = x0[0], y = x0[1], it = 0;
+    for (; it < 60; it++) {
+      var o = gradHess(m, mu, x, y), H = o.H, g = o.g, det = H[0][0] * H[1][1] - H[0][1] * H[1][0];
+      var dx = -(H[1][1] * g[0] - H[0][1] * g[1]) / det, dy = -(-H[1][0] * g[0] + H[0][0] * g[1]) / det;
+      var dec = -(g[0] * dx + g[1] * dy);
+      if (!(dec > 0)) break;                       // already at the minimizer (to rounding)
+      var st = 1, p0 = phi(m, mu, x, y);
+      while (st > 1e-12) {
+        var p1 = phi(m, mu, x + st * dx, y + st * dy);
+        // below a decrement of 1e-12 the change in phi is lost in rounding: the full step is kept if it stays in the domain
+        if (isFinite(p1) && (p1 <= p0 - 1e-4 * st * dec || dec < 1e-12)) break;
+        st /= 2;
+      }
+      x += st * dx; y += st * dy;
+      if (Math.max(Math.abs(st * dx), Math.abs(st * dy)) < 1e-12) break;   // counted: the steps longer than 1e-12
+    }
+    var o2 = gradHess(m, mu, x, y), a = o2.H[0][0], b = o2.H[0][1];
+    return { x: x, y: y, it: it, cond: (a + Math.abs(b)) / (a - Math.abs(b)) };     // eigenvalues a +- b of [[a, b], [b, a]]
+  }
+  // closed form of each subproblem (x = y = s by symmetry)
+  function closed(m, mu) {
+    var s, v, sl;
+    if (m === "penalty") { s = 1 + 1 / (1 + 2 * mu); v = 2 * s - CAP; sl = 0; }
+    else { s = (3 - Math.sqrt(1 + mu)) / 2; v = 0; sl = CAP - 2 * s; }
+    var f = fOf(s, s), lam = m === "penalty" ? 2 * mu * v : mu / sl;
+    return { x: s, y: s, v: v, sl: sl, f: f, lam: lam };
+  }
+  // the constrained optimum from the KKT conditions (projection onto the half plane)
+  var KKT = (function () {
+    var e = Math.max(0, gOf(A0, B0) - CAP), x = A0 - e / 2, y = B0 - e / 2;
+    return { x: x, y: y, f: fOf(x, y), lam: e };
+  })();
+  var SEQ = {};                                    // the Newton sequence of each method (warm starts)
+  function seq(m) {
+    if (SEQ[m]) return SEQ[m];
+    var M = METHODS[m], p = M.start, rows = [], maxd = 0;
+    M.mus.forEach(function (mu, k) {
+      var r = newton(m, mu, p), c = closed(m, mu);
+      r.mu = mu; r.k = k + 1; r.f = fOf(r.x, r.y); r.v = Math.max(0, gOf(r.x, r.y) - CAP); r.sl = CAP - gOf(r.x, r.y);
+      r.lam = m === "penalty" ? 2 * mu * r.v : mu / r.sl;
+      maxd = Math.max(maxd, Math.abs(r.x - c.x), Math.abs(r.y - c.y));
+      rows.push(r); p = [r.x, r.y];
+    });
+    return (SEQ[m] = { rows: rows, maxd: maxd });
+  }
+  var state = { sc: "penalty" };
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed from the model above; the values of mu,
+     the starting points, the particles, the camera and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("wf-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("wf-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var DUR = 54, CH = [0, 9, 20, 31, 42];
+  var TS = [18, 24, 29, 38.5];                     // each stage minimizer is reached (and marked) at these times
+  var MOVES = [[21, 24], [26, 29], [34.8, 38.5]];  // mu moves from stage k to k + 1 (log scale)
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var cam = { x: 0, y: 0, K: 1 };
+  var TAU = Math.PI * 2, SQ2 = Math.SQRT2;
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var mm = (c || "").match(/[\d.]+/g);
+    return mm ? [+mm[0], +mm[1], +mm[2]] : [255, 255, 255];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  var font = function (w, s, mono, it) { return (it ? "italic " : "") + w + " " + s + "px " + (mono ? MONO : SANS); };
+
+  /* ---------- time model ---------- */
+  function muAt(m, t) {
+    var mus = METHODS[m].mus, k;
+    for (k = MOVES.length - 1; k >= 0; k--) {
+      if (t >= MOVES[k][0]) {
+        var u = E.inOut(seg(t, MOVES[k][0], MOVES[k][1]));
+        return Math.exp(lerp(Math.log(mus[k]), Math.log(mus[k + 1]), u));
+      }
+    }
+    return mus[0];
+  }
+  function morphW(t) { return E.inOut(seg(t, 9.4, 12)); }     // weight of the new term while the landscape changes
+  function stagesShown(t) { var n = 0; TS.forEach(function (s) { if (t >= s) n++; }); return n; }
+
+  /* ---------- particles rolling down the first subproblem (deterministic) ---------- */
+  var FLOW = {}, FT0 = 12.5, FT1 = 18, FTAU = 2.6, FSTEP = 0.01;
+  function flows(m) {
+    if (FLOW[m]) return FLOW[m];
+    var r = A.rng(m === "penalty" ? 11 : 23), starts = [METHODS[m].start.slice()], guard = 0;
+    while (starts.length < 8 && guard++ < 500) {
+      var x = -1.3 + 4.6 * r(), y = -0.9 + 3.9 * r();
+      if (m === "barrier" && CAP - x - y < 0.55) continue;
+      if (m === "penalty" && Math.hypot(x - A0, y - B0) < 0.6) continue;
+      if (starts.some(function (p) { return Math.hypot(p[0] - x, p[1] - y) < 1.1; })) continue;
+      starts.push([x, y]);
+    }
+    var mu = METHODS[m].mus[0], cap = 1.6;
+    function vel(x, y) {
+      var o = gradHess(m, mu, x, y), gx = o.g[0], gy = o.g[1], n = Math.hypot(gx, gy);
+      var k = 1 / Math.sqrt(1 + n * n / (cap * cap));
+      return [-gx * k, -gy * k];
+    }
+    var out = starts.map(function (p) {
+      var x = p[0], y = p[1], pts = [[x, y]], sub = 4, dt = FSTEP / sub;
+      for (var i = 0; i < FTAU / FSTEP; i++) {
+        for (var j = 0; j < sub; j++) {
+          var k1 = vel(x, y), k2 = vel(x + dt / 2 * k1[0], y + dt / 2 * k1[1]);
+          var k3 = vel(x + dt / 2 * k2[0], y + dt / 2 * k2[1]), k4 = vel(x + dt * k3[0], y + dt * k3[1]);
+          var nx = x + dt / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]), ny = y + dt / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]);
+          if (m === "barrier" && CAP - nx - ny <= 1e-6) break;
+          x = nx; y = ny;
+        }
+        pts.push([x, y]);
+      }
+      return pts;
+    });
+    return (FLOW[m] = out);
+  }
+  function flowAt(m, i, t) {                       // position of particle i at time t (flow time grows linearly)
+    var P = flows(m)[i], s = clamp((t - FT0) / (FT1 - FT0), 0, 1) * FTAU / FSTEP, k = Math.min(P.length - 2, Math.floor(s)), u = s - k;
+    return [lerp(P[k][0], P[k + 1][0], u), lerp(P[k][1], P[k + 1][1], u)];
+  }
+  function iterAt(m, t) {                          // the current point of the HUD and the red dot
+    if (t < 9.6) return [A0, B0];                  // chapter 1: the bottom of the bowl
+    if (t < FT0) return METHODS[m].start.slice();
+    var ex = closed(m, muAt(m, t));
+    if (t < FT1) {
+      var p = flowAt(m, 0, t), u = E.inOut(seg(t, FT1 - 0.6, FT1));
+      return [lerp(p[0], ex.x, u), lerp(p[1], ex.y, u)];
+    }
+    return [ex.x, ex.y];
+  }
+
+  /* ---------- layout ---------- */
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait, narrow: portrait || W < 760 };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11.5; L.fb = 12.5; L.ft = 13.5; L.lw = 2; L.dot = 5; L.g = 4;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 12; L.fb = 14; L.ft = 16; L.lw = 2.5; L.dot = 6.5; L.g = 5;
+    }
+    // room for the longest caption of either method, so nothing jumps between chapters
+    var tl = 1, sl = 1;
+    ["penalty", "barrier"].forEach(function (m) {
+      CH.forEach(function (c) {
+        var cap = captions(m, c + 5), a, b;
+        ctx.font = font(700, L.ft); a = wrap(cap[0], L.capW - 12).length; tl = Math.max(tl, a);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); b = wrap(cap[1], L.capW - 12).length; sl = Math.max(sl, b);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    if (portrait) { L.x0 = 6; L.x1 = W - 6; L.y0 = L.capBottom + 8; L.y1 = H - 6; }
+    else { L.x0 = hx + hw + 22; L.x1 = W - 12; L.y0 = 12; L.y1 = H - 12; }
+    L.ox = (L.x0 + L.x1) / 2; L.oy = (L.y0 + L.y1) / 2;
+    L.pw = L.x1 - L.x0; L.ph = L.y1 - L.y0;
+    // field grid over the plot (screen space), and a small canvas for the tint of the new term
+    L.cols = Math.ceil(L.pw / L.g) + 1; L.rows = Math.ceil(L.ph / L.g) + 1;
+    L.V = new Float64Array(L.cols * L.rows); L.VF = new Float64Array(L.cols * L.rows); L.TM = new Float64Array(L.cols * L.rows);
+    L.tint = document.createElement("canvas"); L.tint.width = L.cols; L.tint.height = L.rows;
+    L.tctx = L.tint.getContext("2d"); L.img = L.tctx.createImageData(L.cols, L.rows);
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+
+  /* ---------- camera: world boxes [cx, cy, w, h] ---------- */
+  function viewK(box) { return Math.min(L.pw / box[2], L.ph / box[3]); }
+  function boxes(m) {
+    var M = METHODS[m], c1 = closed(m, M.mus[0]), c3 = closed(m, M.mus[2]);
+    var home = [1.0, 1.0, 5.0, 4.0];
+    var d1 = Math.abs(c1.x - KKT.x), mid = [(c1.x + KKT.x) / 2, (c1.y + KKT.y) / 2, Math.max(0.9, 4.4 * d1), Math.max(0.75, 3.6 * d1)];
+    // zoom: x(mu_3) and x* about a third of the plot apart
+    var d3 = Math.abs(c3.x - KKT.x), zw = d3 / 0.32 * (L.portrait ? 1.25 : 1);
+    var zoom = [(c3.x + KKT.x) / 2, (c3.y + KKT.y) / 2, zw, zw * 0.8];
+    var fin = [1.0, 1.0, 2.7, 2.35];
+    return { home: home, mid: mid, zoom: zoom, fin: fin };
+  }
+  function mixBox(a, b, u) {
+    // the size moves on a log scale; the centre moves with it, so the fixed point of the zoom stays put on screen
+    var w = Math.exp(lerp(Math.log(a[2]), Math.log(b[2]), u)), h = Math.exp(lerp(Math.log(a[3]), Math.log(b[3]), u));
+    var k = Math.abs(a[2] - b[2]) > 1e-9 * a[2] ? (w - b[2]) / (a[2] - b[2]) : 1 - u;
+    return [b[0] + (a[0] - b[0]) * k, b[1] + (a[1] - b[1]) * k, w, h];
+  }
+  function camBox(m, t) {
+    var B = boxes(m), box = B.home;
+    box = mixBox(box, B.mid, E.inOut(seg(t, 20.2, 22.6)));
+    box = mixBox(box, B.zoom, E.inOut(seg(t, 31, 34.6)));
+    box = mixBox(box, B.fin, E.inOut(seg(t, 42, 45.6)));
+    return box;
+  }
+  function setCam(m, t) {
+    var box = camBox(m, t);
+    cam.x = box[0]; cam.y = box[1]; cam.K = viewK(box);
+  }
+  function zoomFactor(m) { var B = boxes(m); return viewK(B.zoom) / viewK(B.home); }
+  function SX(x) { return L.ox + (x - cam.x) * cam.K; }
+  function SY(y) { return L.oy - (y - cam.y) * cam.K; }
+  function WX(X) { return cam.x + (X - L.ox) / cam.K; }
+  function WY(Y) { return cam.y - (Y - L.oy) / cam.K; }
+
+  /* ---------- small drawing helpers ---------- */
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function plotClip() { ctx.save(); ctx.beginPath(); ctx.rect(L.x0, L.y0, L.pw, L.ph); ctx.clip(); }
+  function clipLine(c, R) {                        // the line x + y = c inside the world rectangle R
+    var pts = [];
+    [[R.x0, c - R.x0], [R.x1, c - R.x1], [c - R.y0, R.y0], [c - R.y1, R.y1]].forEach(function (P) {
+      if (P[0] >= R.x0 - 1e-12 && P[0] <= R.x1 + 1e-12 && P[1] >= R.y0 - 1e-12 && P[1] <= R.y1 + 1e-12) pts.push(P);
+    });
+    if (pts.length < 2) return null;
+    pts.sort(function (a, b) { return a[0] - b[0]; });
+    return [pts[0][0], pts[0][1], pts[pts.length - 1][0], pts[pts.length - 1][1]];
+  }
+  function plotRect() { return { x0: WX(L.x0), x1: WX(L.x1), y0: WY(L.y1), y1: WY(L.y0) }; }
+  function clipHalf(poly, c, sign) {               // keep sign * (x + y - c) <= 0
+    var out = [];
+    for (var i = 0; i < poly.length; i++) {
+      var P = poly[i], Q = poly[(i + 1) % poly.length];
+      var da = sign * (gOf(P[0], P[1]) - c), db = sign * (gOf(Q[0], Q[1]) - c);
+      if (da <= 0) out.push(P);
+      if ((da < 0 && db > 0) || (da > 0 && db < 0)) { var u = da / (da - db); out.push([P[0] + u * (Q[0] - P[0]), P[1] + u * (Q[1] - P[1])]); }
+    }
+    return out;
+  }
+  function polyPath(poly) {
+    ctx.beginPath();
+    poly.forEach(function (P, i) { if (i) ctx.lineTo(SX(P[0]), SY(P[1])); else ctx.moveTo(SX(P[0]), SY(P[1])); });
+    ctx.closePath();
+  }
+  var hatchCache = { key: "", pat: null };
+  function hatch(poly, col, a) {
+    if (poly.length < 3 || a <= 0) return;
+    var dpr = window.devicePixelRatio || 1, step = L.portrait ? 6 : 7, key = col + ":" + step + ":" + dpr;
+    if (hatchCache.key !== key) {
+      var n = Math.round(step * dpr), tile = document.createElement("canvas");
+      tile.width = n; tile.height = n;
+      var tc = tile.getContext("2d");
+      tc.strokeStyle = col; tc.lineWidth = 1.2 * dpr; tc.lineCap = "square";
+      tc.beginPath(); tc.moveTo(0, n); tc.lineTo(n, 0); tc.moveTo(-1, 1); tc.lineTo(1, -1); tc.moveTo(n - 1, n + 1); tc.lineTo(n + 1, n - 1); tc.stroke();
+      var pat = ctx.createPattern(tile, "repeat");
+      if (pat && pat.setTransform && window.DOMMatrix) pat.setTransform(new DOMMatrix().scale(1 / dpr));
+      hatchCache = { key: key, pat: pat };
+    }
+    polyPath(poly);
+    ctx.globalAlpha = a; ctx.fillStyle = hatchCache.pat || col; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  // label placement: the first candidate offset whose box stays in the plot and clear of the obstacles
+  function boxHitsSeg(b, s, m) {                   // does the box b (grown by m) meet the segment s = [x0, y0, x1, y1]?
+    var x0 = b[0] - m, y0 = b[1] - m, x1 = b[2] + m, y1 = b[3] + m, t0 = 0, t1 = 1, dx = s[2] - s[0], dy = s[3] - s[1];
+    var p = [-dx, dx, -dy, dy], q = [s[0] - x0, x1 - s[0], s[1] - y0, y1 - s[1]];
+    for (var i = 0; i < 4; i++) {
+      if (p[i] === 0) { if (q[i] < 0) return false; continue; }
+      var r = q[i] / p[i];
+      if (p[i] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  function boxHitsBox(a, b) { return a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]; }
+  function place(txt, f, fs, X, Y, cands, obs) {
+    ctx.font = f;
+    var w = ctx.measureText(txt).width;
+    for (var i = 0; i < cands.length; i++) {
+      var c = cands[i], cx = X + c[0], cy = Y + c[1];
+      var bx = c[2] === "right" ? cx - w : (c[2] === "center" ? cx - w / 2 : cx);
+      var b = [bx - 3, cy - fs / 2 - 3, bx + w + 3, cy + fs / 2 + 3];
+      if (b[0] < L.x0 + 2 || b[2] > L.x1 - 2 || b[1] < L.y0 + 2 || b[3] > L.y1 - 2) continue;
+      var ok = obs.every(function (o) {
+        if (o.s) return !boxHitsSeg(b, o.s, o.m || 0);
+        if (o.c) { var dx = Math.max(b[0] - o.c[0], 0, o.c[0] - b[2]), dy = Math.max(b[1] - o.c[1], 0, o.c[1] - b[3]); return Math.hypot(dx, dy) >= o.c[2]; }
+        return !boxHitsBox(b, o.b);
+      });
+      if (ok) return { txt: txt, x: cx, y: cy, align: c[2], b: b, w: w };
+    }
+    return null;
+  }
+
+  /* ---------- grid with ticks that follow the zoom ---------- */
+  function drawGrid(t) {
+    var a = E.out(seg(t, 0.05, 1.2));
+    if (a <= 0) return;
+    var R = plotRect(), K = cam.K, kTop = Math.floor(Math.log10(Math.max(1e-9, L.pw / K)));
+    plotClip();
+    ctx.lineWidth = 1;
+    for (var k = kTop; k >= kTop - 2; k--) {
+      var sp = Math.pow(10, k), px = sp * K, ga = clamp((px - 12) / 30, 0, 1);
+      if (ga <= 0) continue;
+      ctx.strokeStyle = C.grid; ctx.globalAlpha = a * ga;
+      ctx.beginPath();
+      for (var i = Math.ceil(R.x0 / sp); i * sp <= R.x1; i++) { var X = Math.round(SX(i * sp)) + 0.5; ctx.moveTo(X, L.y0); ctx.lineTo(X, L.y1); }
+      for (var j = Math.ceil(R.y0 / sp); j * sp <= R.y1; j++) { var Y = Math.round(SY(j * sp)) + 0.5; ctx.moveTo(L.x0, Y); ctx.lineTo(L.x1, Y); }
+      ctx.stroke();
+    }
+    // the axes x = 0 and y = 0
+    ctx.globalAlpha = a; ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5; ctx.beginPath();
+    ctx.moveTo(SX(0), L.y0); ctx.lineTo(SX(0), L.y1); ctx.moveTo(L.x0, SY(0)); ctx.lineTo(L.x1, SY(0)); ctx.stroke();
+    ctx.restore(); ctx.globalAlpha = 1;
+  }
+  function drawTicks(t, keep) {
+    var a = E.out(seg(t, 0.05, 1.2));
+    if (a <= 0) return;
+    var R = plotRect(), K = cam.K, fs = L.portrait ? 10 : 10.5, k;
+    // label spacing: the finest power of ten at least 58 px apart (70 px on phones)
+    var need = L.portrait ? 64 : 56;
+    for (k = 3; k > -8; k--) if (Math.pow(10, k - 1) * K < need) break;
+    var sp = Math.pow(10, k), dg = Math.max(0, -k), ta = a;
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.strokeStyle = C.surface; ctx.lineWidth = 3; ctx.lineJoin = "round";
+    var tick = function (s, X, Y, al, bl) {
+      ctx.textAlign = al; ctx.textBaseline = bl;
+      var w = ctx.measureText(s).width, x0 = al === "center" ? X - w / 2 : (al === "right" ? X - w : X);
+      var y0 = bl === "bottom" ? Y - fs : Y - fs / 2, b = [x0 - 5, y0 - 3, x0 + w + 5, y0 + fs + 3];
+      if (keep.some(function (o) { return boxHitsBox(b, o); })) return;
+      ctx.globalAlpha = ta; ctx.strokeText(s, X, Y); ctx.fillText(s, X, Y);
+    };
+    var i;
+    for (i = Math.ceil(R.x0 / sp); i * sp <= R.x1; i++) {
+      var X = SX(i * sp);
+      if (X < L.x0 + 30 || X > L.x1 - 14) continue;
+      tick(signed(i * sp, dg, MINUS, "", true), X, L.y1 - 4, "center", "bottom");
+    }
+    for (i = Math.ceil(R.y0 / sp); i * sp <= R.y1; i++) {
+      var Y = SY(i * sp);
+      if (Y < L.y0 + 10 || Y > L.y1 - 22) continue;
+      tick(signed(i * sp, dg, MINUS, "", true), L.x0 + 5, Y, "left", "middle");
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- the landscape: level curves and the tint of the new term ---------- */
+  // families of levels: circles of radius 0.5 k around (2, 2) for f, then finer steps near f* that fade in with the zoom
+  var LEV = (function () {
+    var fam = [], a = [], k;
+    for (k = 1; k <= 26; k++) a.push(0.25 * k * k);
+    fam.push({ lv: a, step: 0 });
+    [[0.025, 1.0, 3.5], [0.0025, 1.9, 2.15], [0.00025, 1.99, 2.015]].forEach(function (s) {
+      var lv = [];
+      for (k = Math.round(s[1] / s[0]); k * s[0] <= s[2] + 1e-12; k++) lv.push(k * s[0]);
+      fam.push({ lv: lv, step: s[0] });
+    });
+    return fam;
+  })();
+  function lowerBound(arr, v) { var lo = 0, hi = arr.length; while (lo < hi) { var mid = (lo + hi) >> 1; if (arr[mid] <= v) lo = mid + 1; else hi = mid; } return lo; }
+  function fieldFill(m, mu, w) {
+    var cols = L.cols, rows = L.rows, g = L.g, V = L.V, VF = L.VF, TM = L.TM;
+    for (var j = 0; j < rows; j++) {
+      var y = WY(L.y0 + j * g);
+      for (var i = 0; i < cols; i++) {
+        var x = WX(L.x0 + i * g), f = fOf(x, y), tm = w > 0 ? term(m, mu, x, y) : 0, id = j * cols + i, sl = CAP - x - y;
+        VF[id] = f;
+        TM[id] = m === "penalty" ? mu * Math.max(0, -sl) : (sl > 0 ? mu / (2 * sl) : Infinity);
+        V[id] = (m === "barrier" && !isFinite(tm)) ? Infinity : f + w * tm;
+      }
+    }
+  }
+  // the tint shows how hard the new term pushes, against the pull of f near x* (|grad f| = 2 sqrt 2):
+  // penalty mu (x + y - 2), barrier mu / (2 (2 - x - y)). Both ratios are about 1 at the minimizer x(mu).
+  function drawTint(m, mu, w) {
+    if (w <= 0.001) return;
+    var cols = L.cols, rows = L.rows, TM = L.TM, d = L.img.data, rgb = rgbOf(HOT), amax = 0.46;
+    for (var id = 0, n = cols * rows; id < n; id++) {
+      var r = TM[id], al = 0;
+      if (isFinite(r) && r > 0) al = amax * (1 - Math.exp(-w * r * r));
+      d[4 * id] = rgb[0]; d[4 * id + 1] = rgb[1]; d[4 * id + 2] = rgb[2]; d[4 * id + 3] = Math.round(255 * al);
+    }
+    L.tctx.putImageData(L.img, 0, 0);
+    plotClip();
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(L.tint, 0, 0, cols, rows, L.x0 - L.g / 2, L.y0 - L.g / 2, cols * L.g, rows * L.g);
+    ctx.restore();
+  }
+  function drawContours(m, t, w, a0) {
+    if (a0 <= 0.01) return;
+    var cols = L.cols, rows = L.rows, g = L.g, V = L.V, VF = L.VF, K = cam.K, hwW = g / K;
+    var buckets = {};
+    function bucket(al) { var q = Math.round(al * 8) / 8; if (q <= 0) return null; return buckets[q] || (buckets[q] = new Path2D()); }
+    LEV.forEach(function (F, fi) {
+      var fa = fi === 0 ? 1 : clamp((F.step * K / 2.83 - 16) / 16, 0, 1) * 0.6;
+      if (fa <= 0.01) return;
+      var lv = F.lv;
+      for (var j = 0; j < rows - 1; j++) {
+        for (var i = 0; i < cols - 1; i++) {
+          var id = j * cols + i, v00 = V[id], v10 = V[id + 1], v01 = V[id + cols], v11 = V[id + cols + 1], side = 1;
+          if (m === "barrier" && (v00 === Infinity || v10 === Infinity || v01 === Infinity || v11 === Infinity)) {
+            // outside the barrier's domain the plain level curves of f fade away as the barrier comes in
+            side = 1 - w;
+            if (side <= 0.01) continue;
+            v00 = VF[id]; v10 = VF[id + 1]; v01 = VF[id + cols]; v11 = VF[id + cols + 1];
+          }
+          var lo = Math.min(v00, v10, v01, v11), hi = Math.max(v00, v10, v01, v11);
+          var li = lowerBound(lv, lo);
+          if (li >= lv.length || lv[li] >= hi) continue;
+          // crowding: lines closer than about 3 px fade out (the tint carries the steep part)
+          var gx = ((v10 - v00) + (v11 - v01)) / (2 * hwW), gy = ((v01 - v00) + (v11 - v10)) / (2 * hwW), gn = Math.hypot(gx, gy) || 1e-9;
+          var X0 = L.x0 + i * g, Y0 = L.y0 + j * g;
+          for (; li < lv.length && lv[li] < hi; li++) {
+            var Lv = lv[li], step = F.step || 0.25 * (2 * Math.sqrt(Lv) / 0.5 + 1);
+            var crowd = clamp((step / gn * K - 2.5) / 4, 0, 1), al = fa * crowd * side * a0;
+            if (al <= 0.02) continue;
+            var P = [];
+            if ((v00 < Lv) !== (v10 < Lv)) P.push([X0 + g * (Lv - v00) / (v10 - v00), Y0]);
+            if ((v10 < Lv) !== (v11 < Lv)) P.push([X0 + g, Y0 + g * (Lv - v10) / (v11 - v10)]);
+            if ((v01 < Lv) !== (v11 < Lv)) P.push([X0 + g * (Lv - v01) / (v11 - v01), Y0 + g]);
+            if ((v00 < Lv) !== (v01 < Lv)) P.push([X0, Y0 + g * (Lv - v00) / (v01 - v00)]);
+            var B = bucket(al);
+            if (!B) continue;
+            if (P.length === 2) { B.moveTo(P[0][0], P[0][1]); B.lineTo(P[1][0], P[1][1]); }
+            else if (P.length === 4) {             // saddle: pair the crossings by the value at the centre
+              var cc = (v00 + v10 + v01 + v11) / 4;
+              if ((cc < Lv) === (v00 < Lv)) { B.moveTo(P[0][0], P[0][1]); B.lineTo(P[1][0], P[1][1]); B.moveTo(P[2][0], P[2][1]); B.lineTo(P[3][0], P[3][1]); }
+              else { B.moveTo(P[0][0], P[0][1]); B.lineTo(P[3][0], P[3][1]); B.moveTo(P[1][0], P[1][1]); B.lineTo(P[2][0], P[2][1]); }
+            }
+          }
+        }
+      }
+    });
+    plotClip();
+    ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.1; ctx.lineCap = "round";
+    Object.keys(buckets).forEach(function (q) { ctx.globalAlpha = 0.78 * +q; ctx.stroke(buckets[q]); });
+    ctx.restore(); ctx.globalAlpha = 1; ctx.lineCap = "butt";
+  }
+  // chapter 1: the circles of f draw themselves in, from the centre out
+  function drawIntroCircles(t) {
+    if (t >= 3.2) return;
+    var X = SX(A0), Y = SY(B0);
+    plotClip();
+    ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.1;
+    for (var k = 1; k <= 14; k++) {
+      var u = E.inOut(seg(t, 0.3 + 0.12 * k, 1.3 + 0.12 * k));
+      if (u <= 0) continue;
+      ctx.globalAlpha = 0.78 * (1 - seg(t, 2.6, 3.2));
+      ctx.beginPath(); ctx.arc(X, Y, 0.5 * k * cam.K, Math.PI / 2, Math.PI / 2 + TAU * u); ctx.stroke();
+    }
+    ctx.restore(); ctx.globalAlpha = 1;
+  }
+
+  /* ---------- the fence and its two sides ---------- */
+  function drawSides(t, w) {
+    var a = E.out(seg(t, 4.2, 5.2));
+    if (a <= 0) return;
+    var R = plotRect(), rect = [[R.x0, R.y0], [R.x1, R.y0], [R.x1, R.y1], [R.x0, R.y1]];
+    var feas = clipHalf(rect, CAP, 1), inf = clipHalf(rect, CAP, -1);
+    if (feas.length > 2) { polyPath(feas); ctx.globalAlpha = a * 0.75; ctx.fillStyle = C.region; ctx.fill(); }
+    if (inf.length > 2) {
+      var flash = seg(t, 4.1, 4.7) * (1 - seg(t, 5.1, 6.4));
+      if (flash > 0) { polyPath(inf); ctx.globalAlpha = 0.14 * flash; ctx.fillStyle = HOT; ctx.fill(); }
+      hatch(inf, HOT, a * lerp(0.2, 0.1, w));
+    }
+    ctx.globalAlpha = 1;
+  }
+  function fenceSeg() { return clipLine(CAP, plotRect()); }
+  function drawFence(t) {
+    var u = E.inOut(seg(t, 3.0, 4.4));
+    if (u <= 0) return;
+    var s = fenceSeg();
+    if (!s) return;
+    var x1 = lerp(s[0], s[2], u), y1 = lerp(s[1], s[3], u);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = L.lw + 0.5; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(SX(s[0]), SY(s[1])); ctx.lineTo(SX(x1), SY(y1)); ctx.stroke();
+    ctx.lineCap = "butt";
+    if (u < 1) { ctx.fillStyle = HOT; circle(SX(x1), SY(y1), L.lw + 2.5); ctx.fill(); }
+  }
+  function fenceLabel(t) {                         // along the fence, near its upper left end, on the infeasible side
+    var a = seg(t, 4.4, 5.2);
+    if (a <= 0) return null;
+    var s = fenceSeg();
+    if (!s) return null;
+    var f = font(700, L.fs + 0.5), txt = T("wf.l.fence");
+    ctx.font = f;
+    var w = ctx.measureText(txt).width, X0 = SX(s[0]), Y0 = SY(s[1]), X1 = SX(s[2]), Y1 = SY(s[3]);
+    var len = Math.hypot(X1 - X0, Y1 - Y0), ux = (X1 - X0) / len, uy = (Y1 - Y0) / len;
+    var d = Math.max(w / 2 + 16, 0.1 * len), X = X0 + ux * d, Y = Y0 + uy * d;
+    // (uy, -ux) is the screen normal toward x + y > 2 (up and to the right)
+    var ang = Math.atan2(uy, ux), off = 9 + L.fs / 2, cx = X + uy * off, cy = Y - ux * off;
+    var hw = w / 2 + 3, hh = L.fs / 2 + 3, c = Math.cos(ang), sn = Math.sin(ang);
+    var corners = [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(function (P) { return [cx + P[0] * c - P[1] * sn, cy + P[0] * sn + P[1] * c]; });
+    var xs = corners.map(function (P) { return P[0]; }), ys = corners.map(function (P) { return P[1]; });
+    return { txt: txt, f: f, x: cx, y: cy, ang: ang, a: a, b: [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)] };
+  }
+  function drawFenceLabel(F) {
+    if (!F) return;
+    ctx.save(); ctx.translate(F.x, F.y); ctx.rotate(F.ang);
+    label(F.txt, 0, 0, "center", C.ink, F.f, F.a);
+    ctx.restore();
+  }
+  function sideLabels(t, obs) {                    // chapter 1 only: "feasible" and "infeasible" near the lower right end of the fence
+    var a = seg(t, 5.0, 5.8) * (1 - seg(t, 9.2, 9.8));
+    if (a <= 0) return [];
+    var s = fenceSeg();
+    if (!s) return [];
+    var X = SX(lerp(s[0], s[2], L.portrait ? 0.8 : 0.84)), Y = SY(lerp(s[1], s[3], L.portrait ? 0.8 : 0.84)), f = font(600, L.fs), o = 16;
+    var out = [];
+    // the feasible side is down and to the left of the fence on screen, the infeasible side up and to the right
+    var p1 = place(T("wf.l.feas"), f, L.fs, X, Y, [[-o, o, "right"], [-o - 20, o - 20, "right"], [-o - 40, o - 40, "right"]], obs);
+    var p2 = place(T("wf.l.infeas"), f, L.fs, X, Y, [[o, -o, "left"], [o - 20, -o - 20, "left"], [o - 40, -o - 40, "left"]], obs);
+    if (p1) { p1.col = C.ink2; p1.a = a; p1.f = f; out.push(p1); }
+    if (p2) { p2.col = C.crit; p2.a = a; p2.f = f; out.push(p2); }
+    return out;
+  }
+
+  /* ---------- the level curve f = f* through x* ---------- */
+  function drawFStar(t) {
+    var R = Math.sqrt(KKT.f), X = SX(A0), Y = SY(B0), K = cam.K;
+    var grow = E.inOut(seg(t, 6.0, 7.4));
+    if (grow <= 0) return;
+    var hot = 1 - seg(t, 9.0, 10.2);               // accent while it touches, then a quiet dashed reference
+    plotClip();
+    if (hot > 0.01) {
+      ctx.globalAlpha = hot; ctx.strokeStyle = C.accent; ctx.lineWidth = L.lw;
+      circle(X, Y, R * K * grow); ctx.stroke();
+      var fl = seg(t, 7.4, 8.3);
+      if (fl > 0 && fl < 1) { ctx.globalAlpha = 0.5 * (1 - fl) * hot; ctx.lineWidth = L.lw + 6 * (1 - fl); circle(X, Y, R * K); ctx.stroke(); }
+    }
+    if (hot < 0.99 && R * K < 60000) {
+      ctx.globalAlpha = (1 - hot) * 0.9; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.4; ctx.setLineDash([6, 5]);
+      circle(X, Y, R * K); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.restore(); ctx.globalAlpha = 1;
+  }
+
+  /* ---------- points: min f, the start, x*, stage minimizers, the iterate ---------- */
+  function ring(X, Y, r, col, fillCol) {
+    ctx.fillStyle = C.surface; circle(X, Y, r + 2); ctx.fill();
+    ctx.strokeStyle = col; ctx.lineWidth = 2; circle(X, Y, r); ctx.stroke();
+    if (fillCol) { ctx.fillStyle = fillCol; circle(X, Y, r * 0.35); ctx.fill(); }
+  }
+  function drawMinF(t) {
+    var a = E.back(seg(t, 1.6, 2.3));
+    if (a <= 1e-3) return;
+    var X = SX(A0), Y = SY(B0), r = (L.portrait ? 5 : 6.5) * a;
+    if (X < L.x0 - 20 || X > L.x1 + 20 || Y < L.y0 - 20 || Y > L.y1 + 20) return;
+    ctx.globalAlpha = 1 - 0.4 * seg(t, 20, 21);
+    ring(X, Y, r, C.ink, C.ink);
+    var bad = seg(t, 5.4, 6.0) * (1 - seg(t, 9.4, 10.4));
+    if (bad > 0) {
+      var ph = ((t - 5.4) % 1.4) / 1.4;
+      ctx.globalAlpha = bad * (1 - ph); ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+      circle(X, Y, r + 3 + ph * 14); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function minFLabels(t) {
+    var a = seg(t, 2.0, 2.7) * (1 - seg(t, 19.4, 20.2));
+    if (a <= 0) return [];
+    var X = SX(A0), Y = SY(B0), r = (L.portrait ? 5 : 6.5) + 6;
+    return [{ txt: T("wf.l.minf"), x: X + r, y: Y - r - L.fs, align: "left", col: C.ink, f: font(700, L.fs + 0.5), a: a },
+      { txt: pair(A0, B0), x: X + r, y: Y - r + 1, align: "left", col: C.ink2, f: font(400, L.fs, true), a: a }];
+  }
+  function drawStart(m, t) {
+    if (m !== "barrier") return;
+    var a = E.back(seg(t, 9.6, 10.2));
+    if (a <= 1e-3) return;
+    var S = METHODS[m].start, X = SX(S[0]), Y = SY(S[1]);
+    if (X < L.x0 - 20 || X > L.x1 + 20 || Y < L.y0 - 20 || Y > L.y1 + 20) return;
+    ctx.globalAlpha = 1 - 0.4 * seg(t, 20, 21);
+    ring(X, Y, (L.portrait ? 4 : 5) * a, C.ink, null);
+    ctx.globalAlpha = 1;
+  }
+  function startLabels(m, t) {
+    if (m !== "barrier") return [];
+    var a = seg(t, 9.9, 10.5) * (1 - seg(t, 19.4, 20.2));
+    if (a <= 0) return [];
+    var S = METHODS[m].start, X = SX(S[0]), Y = SY(S[1]), r = (L.portrait ? 4 : 5) + 8;
+    return [{ txt: T("wf.l.start"), x: X - r, y: Y + r, align: "right", col: C.ink, f: font(700, L.fs + 0.5), a: a },
+      { txt: pair(S[0], S[1]), x: X - r, y: Y + r + L.fs + 3, align: "right", col: C.ink2, f: font(400, L.fs, true), a: a }];
+  }
+  function drawOptRing(t) {
+    var a = E.back(seg(t, 7.2, 7.8));
+    if (a <= 1e-3) return;
+    var X = SX(KKT.x), Y = SY(KKT.y), r = (L.dot + 1.5) * a;
+    var bu = seg(t, 7.2, 8.3);
+    if (bu > 0 && bu < 1) {
+      var rn = A.rng(31); ctx.fillStyle = C.accent;
+      for (var i = 0; i < 14; i++) {
+        var an = rn() * TAU, d = (12 + rn() * 22) * E.out(bu);
+        ctx.globalAlpha = (1 - bu) * 0.9; ctx.fillRect(X + Math.cos(an) * d - 1.3, Y + Math.sin(an) * d - 1.3, 2.6, 2.6);
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = C.surface; circle(X, Y, r + 2.5); ctx.fill();
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5; circle(X, Y, r); ctx.stroke();
+    // arrival pulse in chapter 4
+    var pa = seg(t, 38.6, 39.2) * (1 - seg(t, 41.2, 42));
+    if (pa > 0) {
+      var ph = ((t - 38.6) % 1.2) / 1.2;
+      ctx.globalAlpha = pa * (1 - ph) * 0.7; ctx.lineWidth = 2; circle(X, Y, r + 4 + ph * 18); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function optLabels(m, t) {
+    // "x*" and "(1, 1)" in the quarter between the fence and the diagonal on the side away from this method's
+    // path: below x* for the penalty (its path comes from the upper right), to the right for the barrier
+    var a = seg(t, 7.6, 8.3);
+    if (a <= 0) return [];
+    var X = SX(KKT.x), Y = SY(KKT.y), f1 = font(700, L.fb, false, true), fs2 = L.portrait ? 11.5 : 11, f2 = font(400, fs2, true);
+    ctx.font = f1; var w1 = ctx.measureText(T("wf.l.xs")).width;
+    ctx.font = f2; var w2 = ctx.measureText(pair(KKT.x, KKT.y)).width;
+    var mg = 9;                                    // a box centred on a bisector clears both 45 degree lines when d >= (w + h)/2 + mg sqrt(2)
+    if (m === "barrier") {
+      var h = Math.max(L.fb, fs2), x0 = X + Math.max(L.dot + 12, h / 2 + mg * SQ2);
+      return [{ txt: T("wf.l.xs"), x: x0, y: Y, align: "left", col: C["accent-text"], f: f1, fs: L.fb, a: a },
+        { txt: pair(KKT.x, KKT.y), x: x0 + w1 + 6, y: Y + 1, align: "left", col: C.ink2, f: f2, fs: fs2, a: a }];
+    }
+    var d1 = Math.max(L.dot + 14, (w1 + L.fb) / 2 + mg * SQ2), d2 = Math.max(d1 + L.fb + 2, (w2 + fs2) / 2 + mg * SQ2);
+    return [{ txt: T("wf.l.xs"), x: X, y: Y + d1, align: "center", col: C["accent-text"], f: f1, fs: L.fb, a: a },
+      { txt: pair(KKT.x, KKT.y), x: X, y: Y + d2, align: "center", col: C.ink2, f: f2, fs: fs2, a: a }];
+  }
+  function drawIterate(m, t, P) {
+    var a = E.back(seg(t, 9.6, 10.2));
+    if (a <= 1e-3) return;
+    var X = SX(P[0]), Y = SY(P[1]), r = L.dot * a;
+    var ph = ((t - 9.6) % 1.6) / 1.6;
+    ctx.globalAlpha = 0.5 * (1 - ph) * seg(t, 9.6, 10); ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
+    circle(X, Y, r + 3 + ph * (L.portrait ? 11 : 15)); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = C.surface; circle(X, Y, r + 2.5); ctx.fill();
+    ctx.fillStyle = C.accent; circle(X, Y, r); ctx.fill();
+  }
+  function drawTrail(m, t, P) {                    // the path walked so far, from the start to the iterate
+    if (t < FT0) return;
+    var S = METHODS[m].start;
+    ctx.strokeStyle = C.accent; ctx.lineWidth = L.lw; ctx.lineCap = "round"; ctx.globalAlpha = 0.9;
+    ctx.beginPath(); ctx.moveTo(SX(S[0]), SY(S[1])); ctx.lineTo(SX(P[0]), SY(P[1])); ctx.stroke();
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+  }
+  function stagePts(m) { return METHODS[m].mus.map(function (mu) { var c = closed(m, mu); return [c.x, c.y, mu]; }); }
+  function drawStageDots(m, t) {
+    var n = stagesShown(t), r = L.portrait ? 3.2 : 4;
+    stagePts(m).forEach(function (p, k) {
+      if (k >= n) return;
+      var a = E.back(seg(t, TS[k], TS[k] + 0.5)), X = SX(p[0]), Y = SY(p[1]);
+      ctx.globalAlpha = 1; ctx.fillStyle = C.surface; circle(X, Y, r * a + 2); ctx.fill();
+      ctx.fillStyle = C.accent; circle(X, Y, r * a); ctx.fill();
+      var bu = seg(t, TS[k], TS[k] + 0.9);
+      if (bu > 0 && bu < 1) { ctx.globalAlpha = 0.6 * (1 - bu); ctx.strokeStyle = C.accent; ctx.lineWidth = 2; circle(X, Y, r + 4 + 14 * E.out(bu)); ctx.stroke(); }
+    });
+    ctx.globalAlpha = 1;
+  }
+  function otherA(t) { return E.inOut(seg(t, 45.8, 47.6)); }
+  function drawOther(m, t) {                       // chapter 5: the other method's path in silver, for comparison
+    var a = otherA(t);
+    if (a <= 0.01) return;
+    var o = OTHER[m], S = METHODS[o].start, u = a;
+    var ex = KKT.x, ey = KKT.y, sx = S[0], sy = S[1];
+    ctx.globalAlpha = 0.95; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = L.lw; ctx.setLineDash([7, 5]); ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(SX(sx), SY(sy)); ctx.lineTo(SX(lerp(sx, ex, u)), SY(lerp(sy, ey, u))); ctx.stroke();
+    ctx.setLineDash([]); ctx.lineCap = "butt";
+    var r = L.portrait ? 3 : 3.6;
+    stagePts(o).forEach(function (p, k) {
+      var pa = seg(t, 46.2 + 0.3 * k, 46.7 + 0.3 * k);
+      if (pa <= 0) return;
+      ctx.globalAlpha = pa; ctx.fillStyle = C.surface; circle(SX(p[0]), SY(p[1]), r + 2); ctx.fill();
+      ctx.fillStyle = C["mit-silver"]; circle(SX(p[0]), SY(p[1]), r); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- particles: the first subproblem, minimized from several starts ---------- */
+  function drawParticles(m, t) {
+    if (t < FT0 - 0.4 || t > FT1 + 1.2) return;
+    var n = flows(m).length;
+    for (var i = 1; i < n; i++) {
+      var a = seg(t, FT0 - 0.4 + 0.08 * i, FT0 + 0.1 + 0.08 * i) * (1 - seg(t, FT1 + 0.2, FT1 + 1.2));
+      if (a <= 0) continue;
+      var prev = flowAt(m, i, t);
+      ctx.lineCap = "round";
+      for (var k = 1; k <= 14; k++) {
+        var q = flowAt(m, i, Math.max(FT0, t - k * 0.07));
+        ctx.globalAlpha = a * 0.8 * (1 - k / 15); ctx.strokeStyle = C.ink; ctx.lineWidth = (L.portrait ? 2.6 : 3.4) * (1 - k / 16);
+        ctx.beginPath(); ctx.moveTo(SX(prev[0]), SY(prev[1])); ctx.lineTo(SX(q[0]), SY(q[1])); ctx.stroke();
+        prev = q;
+      }
+      var h = flowAt(m, i, t);
+      ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(SX(h[0]), SY(h[1]), L.portrait ? 4.2 : 5); ctx.fill();
+      ctx.fillStyle = C.ink; circle(SX(h[0]), SY(h[1]), L.portrait ? 2.8 : 3.5); ctx.fill();
+      ctx.lineCap = "butt";
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- labels of the stage minimizers and of the other path ---------- */
+  function diagSeg() { return [SX(-5), SY(-5), SX(6), SY(6)]; }
+  function stageLabels(m, t, obs) {
+    var out = [], n = stagesShown(t), f = font(600, L.fs, false, true), sd = m === "penalty" ? 1 : -1;
+    var used = obs.slice();
+    stagePts(m).forEach(function (p, k) {
+      if (k >= n) return;
+      var a = seg(t, TS[k] + 0.2, TS[k] + 0.8);
+      var X = SX(p[0]), Y = SY(p[1]);
+      if (Math.hypot(X - SX(KKT.x), Y - SY(KKT.y)) < 18) return;                  // merged with x* at this zoom
+      var txt = T("wf.l.mu", { m: sig(p[2], 3) }), o = 12;
+      // penalty dots sit up and to the right of x*: labels go to their right; barrier dots: to their left
+      var cands = sd > 0 ? [[o, 6, "left"], [o, 12, "left"], [o + 4, 20, "left"], [-o, -12, "right"], [-o, -20, "right"]]
+        : [[-o, -6, "right"], [-o, -12, "right"], [-o - 4, -20, "right"], [o, 12, "left"], [o, 20, "left"]];
+      var pl = place(txt, f, L.fs, X, Y, cands, used);
+      if (!pl) return;
+      pl.f = f; pl.col = C["accent-text"]; pl.a = a;
+      out.push(pl); used.push({ b: pl.b });
+    });
+    var oa = otherA(t);
+    if (oa > 0.01) {
+      var o2 = OTHER[m], p = stagePts(o2)[0], X = SX(p[0]), Y = SY(p[1]), txt = T("wf.l." + o2), s2 = -sd, of = 12;
+      var cands2 = s2 > 0 ? [[of, 8, "left"], [of, 16, "left"], [of + 10, 26, "left"]] : [[-of, -8, "right"], [-of, -16, "right"], [-of - 10, -26, "right"]];
+      var pl2 = place(txt, font(600, L.fs), L.fs, X, Y, cands2, used);
+      if (pl2) { pl2.f = font(600, L.fs); pl2.col = C.ink2; pl2.a = seg(t, 46.6, 47.4); out.push(pl2); }
+    }
+    return out;
+  }
+
+  /* ---------- caption (under the counters) ---------- */
+  function captions(m, t) {
+    var M = METHODS[m], pt = pair(A0, B0);
+    if (t < CH[1]) return [T("wf.cap1"), T("wf.cap1.sub", { pt: pt, xs: pair(KKT.x, KKT.y) })];
+    if (t < CH[2]) return [T("wf.cap2." + m), T("wf.cap2." + m + ".sub", { mu: sig(M.mus[0], 3) })];
+    if (t < CH[3]) return [T("wf.cap3." + m), T("wf.cap3." + m + ".sub")];
+    if (t < CH[4]) {
+      var mu = muAt(m, Math.max(t, 38.5)), c = closed(m, mu);
+      return [T("wf.cap4." + m), T("wf.cap4." + m + ".sub", { z: fmt(zoomFactor(m), 0), mu: sig(mu, 3), v: sig(m === "penalty" ? c.v : c.sl, 3) })];
+    }
+    return [T("wf.cap5." + m), T("wf.cap5." + m + ".sub", { fs: fmt(KKT.f) })];
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function drawCaption(m, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(m, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- inset (desktop): f at each stage minimizer against f* ---------- */
+  function drawInset(m, t) {
+    var a = E.out(seg(t, 20.4, 21.4));
+    if (a <= 0 || L.portrait) return;
+    var y0 = L.capBottom + 18, h = Math.min(190, L.H - y0 - 14);
+    if (h < 110) return;
+    var x0 = L.capX, w = L.capW - 10, fs = 10.5;
+    var px0 = x0 + 12, px1 = x0 + w - 8, py0 = y0 + fs + 12, py1 = y0 + h - fs - 12;
+    var fmin = 0.7, fmax = 3.1, nK = METHODS[m].mus.length;
+    var kx = function (k) { return lerp(px0 + 18, px1 - 14, k / (nK - 1)); };
+    var fy = function (v) { return py1 - (v - fmin) / (fmax - fmin) * (py1 - py0); };
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.font = font(700, fs + 0.5); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    ctx.fillText(T("wf.l.inset"), x0 + 10, y0 + fs, w - 10);
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px0, py0 - 4); ctx.lineTo(px0, py1); ctx.lineTo(px1, py1); ctx.stroke();
+    // f* line
+    ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.3; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(px0, fy(KKT.f)); ctx.lineTo(px1, fy(KKT.f)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font = font(400, fs, false, true); ctx.fillStyle = C.ink2; ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+    ctx.fillText(T("wf.l.fstar", { f: fmt(KKT.f) }), px0 + 5, fy(KKT.f) - 3);
+    // x ticks: subproblem k
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (var k = 0; k < nK; k++) ctx.fillText(String(k + 1), kx(k), py1 + 3);
+    ctx.textAlign = "right"; ctx.font = font(400, fs); ctx.fillText(T("wf.l.round"), px1, py1 + fs + 6);
+    function series(mm, n, col, dash, lw, r) {
+      var rows = seq(mm).rows;
+      ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash);
+      ctx.beginPath();
+      for (var i = 0; i < n; i++) { var X = kx(i), Y = fy(rows[i].f); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
+      ctx.stroke(); ctx.setLineDash([]);
+      for (var j = 0; j < n; j++) { ctx.fillStyle = C.surface; circle(kx(j), fy(rows[j].f), r + 1.5); ctx.fill(); ctx.fillStyle = col; circle(kx(j), fy(rows[j].f), r); ctx.fill(); }
+    }
+    var oa = otherA(t);
+    if (oa > 0.01) { ctx.globalAlpha = a * oa; series(OTHER[m], nK, C["mit-silver"], [5, 4], 1.6, 3); ctx.globalAlpha = a; }
+    var n = stagesShown(t);
+    if (n > 0) series(m, n, C.accent, [], 2.2, 3.6);
+    // legend, top right
+    var lx = px1 - 4, ly = y0 + fs + 16;
+    ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.font = font(600, fs);
+    ctx.fillStyle = C["accent-text"]; ctx.fillText(T("wf.l." + m), lx - 26, ly);
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(lx - 20, ly); ctx.lineTo(lx, ly); ctx.stroke();
+    if (oa > 0.01) {
+      ctx.globalAlpha = a * oa; ly += fs + 6;
+      ctx.fillStyle = C.ink2; ctx.fillText(T("wf.l." + OTHER[m]), lx - 26, ly);
+      ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(lx - 20, ly); ctx.lineTo(lx, ly); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3].map(function (i) {
+    var el = document.getElementById("wf-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("bad", kind === "bad"); c.k = kind; }
+  }
+  function hud(m, t, P) {
+    var mu = muAt(m, t), v = Math.max(0, gOf(P[0], P[1]) - CAP), sl = CAP - gOf(P[0], P[1]);
+    var lam = m === "penalty" ? 2 * mu * v : mu / sl;
+    setChip(0, sig(mu, 3), T("wf.k.mu"), seg(t, 9.6, 10.1), "acc");
+    setChip(1, v > 0 ? sig(v, 3) : fmt(0), T("wf.k.viol"), seg(t, 4.6, 5.1), v > 0 ? "bad" : "");
+    setChip(2, fmt(fOf(P[0], P[1]), 3), T("wf.k.f"), seg(t, 1.9, 2.4), "");
+    setChip(3, fmt(lam, 4), T("wf.k.lam"), seg(t, 12.4, 12.9), "");   // 4 decimals: the barrier's last estimate 2.0005 must not read as lambda* = 2
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var m = state.sc, mu = muAt(m, t), w = morphW(t), P = iterAt(m, t);
+    hud(m, t, P);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    setCam(m, t);
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+
+    drawGrid(t);
+    drawSides(t, w);
+    fieldFill(m, mu, w);
+    drawTint(m, mu, w);
+    if (t < 3.2) drawIntroCircles(t);
+    drawContours(m, t, w, seg(t, 2.6, 3.2));
+    drawFStar(t);
+    drawFence(t);
+    drawOther(m, t);
+    drawTrail(m, t, P);
+    drawStageDots(m, t);
+    drawParticles(m, t);
+    drawMinF(t);
+    drawStart(m, t);
+    drawOptRing(t);
+    drawIterate(m, t, P);
+
+    // labels, placed clear of the fence, the diagonal path and each other
+    var F = fenceLabel(t), OL = optLabels(m, t), keep = [];
+    var fs = fenceSeg(), fenceObs = fs ? { s: [SX(fs[0]), SY(fs[1]), SX(fs[2]), SY(fs[3])], m: 4 } : null;
+    var obs = [{ s: diagSeg(), m: 3 }, { c: [SX(KKT.x), SY(KKT.y), L.dot + 8] }, { c: [SX(P[0]), SY(P[1]), L.dot + 6] }];
+    if (fenceObs) obs.push(fenceObs);
+    OL.forEach(function (o) {
+      ctx.font = o.f; var ww = ctx.measureText(o.txt).width, bx = o.align === "left" ? o.x : o.x - ww / 2;
+      o.b = [bx - 3, o.y - o.fs / 2 - 3, bx + ww + 3, o.y + o.fs / 2 + 3]; obs.push({ b: o.b });
+    });
+    if (F) obs.push({ b: F.b });
+    var SL = stageLabels(m, t, obs), sideL = sideLabels(t, obs.concat(SL.map(function (o) { return { b: o.b }; })));
+    drawFenceLabel(F);
+    minFLabels(t).concat(startLabels(m, t)).forEach(function (o) { label(o.txt, o.x, o.y, o.align, o.col, o.f, o.a); ctx.font = o.f; var ww = ctx.measureText(o.txt).width; keep.push(o.align === "right" ? [o.x - ww - 4, o.y - 9, o.x + 4, o.y + 9] : [o.x - 4, o.y - 9, o.x + ww + 4, o.y + 9]); });
+    SL.concat(sideL).forEach(function (o) { label(o.txt, o.x, o.y, o.align, o.col, o.f, o.a); keep.push(o.b); });
+    OL.forEach(function (o) { label(o.txt, o.x, o.y, o.align, o.col, o.f, o.a); keep.push(o.b); });
+    if (F) keep.push(F.b);
+    drawTicks(t, keep);
+
+    // quiet band under the counters and the caption: solid behind the text, fading out only past it
+    var gr, e1, e2;
+    if (L.portrait) {
+      e2 = L.y0 + 4; e1 = clamp((L.capBottom + 2) / e2, 0, 0.98);
+      gr = ctx.createLinearGradient(0, 0, 0, e2);
+      gr.addColorStop(0, rgba(C.surface, 1)); gr.addColorStop(e1, rgba(C.surface, 1)); gr.addColorStop(1, rgba(C.surface, 0));
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, L.W, e2);
+    } else {
+      e2 = L.x0 + 4; e1 = clamp((L.capX + L.capW + 4) / e2, 0, 0.98);
+      gr = ctx.createLinearGradient(0, 0, e2, 0);
+      gr.addColorStop(0, rgba(C.surface, 1)); gr.addColorStop(e1, rgba(C.surface, 1)); gr.addColorStop(1, rgba(C.surface, 0));
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, e2, L.H);
+    }
+    ctx.globalAlpha = 1;
+    drawCaption(m, t);
+    drawInset(m, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "wf.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status line, model data, solution, sequence table, notes
+     ===================================================================================== */
+  function xDigits(v) { var d = Math.abs(v - 1); return d === 0 ? 0 : clamp(Math.ceil(-Math.log10(d)) + 2, 3, 7); }
+  function renderScenText() {
+    var m = state.sc, R = seq(m).rows;
+    document.getElementById("wf-lg-wall").hidden = m !== "penalty";
+    document.getElementById("wf-lg-bar").hidden = m !== "barrier";
+    var lo = document.getElementById("wf-lg-other");
+    lo.setAttribute("data-i18n", "wf.lg.other." + m); lo.textContent = T("wf.lg.other." + m);
+    stage.setAttribute("data-i18n-attr", "aria-label:wf.anim.aria." + m);
+    stage.setAttribute("aria-label", T("wf.anim.aria." + m) + " " + T("wf.anim.aria.nums", {
+      mus: list(R.map(function (r) { return sig(r.mu, 3); })),
+      xs: list(R.map(function (r) { return pair(r.x, r.y, xDigits(r.x)); })),
+      fs: list(R.map(function (r) { return fmt(r.f, 4); })),
+      xo: pair(KKT.x, KKT.y), fo: fmt(KKT.f)
+    }));
+    var n = R.length - 1;
+    document.getElementById("wf-status").innerHTML = T("wf.st." + m, {
+      mus: list(R.map(function (r) { return sig(r.mu, 3); })),
+      v1: sig(m === "penalty" ? R[0].v : R[0].sl, 3), v4: sig(m === "penalty" ? R[n].v : R[n].sl, 3),
+      f1: fmt(R[0].f, 3), f4: fmt(R[n].f, 4), fs: fmt(KKT.f)
+    });
+  }
+  function renderModel() {
+    document.getElementById("wf-data").textContent = T("wf.model.data", { xs: pair(KKT.x, KKT.y), fs: fmt(KKT.f), ls: fmt(KKT.lam) });
+    document.getElementById("wf-lim").innerHTML = T("wf.closed.lim", { ls: fmt(KKT.lam) });
+  }
+  function renderSolution() {
+    var m = state.sc, R = seq(m).rows, last = R[R.length - 1];
+    document.getElementById("wf-sx").textContent = pair(KKT.x, KKT.y);
+    document.getElementById("wf-sf").textContent = fmt(KKT.f);
+    document.getElementById("wf-sfl").textContent = T("wf.sol.fl", { pt: pair(A0, B0) });
+    document.getElementById("wf-sl").textContent = fmt(KKT.lam);
+    document.getElementById("wf-sdk").textContent = T("wf.sol.last", { s: T("wf.sc." + m).toLowerCase() });
+    var d = Math.hypot(last.x - KKT.x, last.y - KKT.y);
+    document.getElementById("wf-sd").textContent = sig(d, 3);
+    document.getElementById("wf-sdl").textContent = T("wf.sol.lastl", { mu: sig(last.mu, 3) });
+  }
+  function renderSeq() {
+    var m = state.sc, S = seq(m), pen = m === "penalty";
+    document.getElementById("wf-seq-title").textContent = T("wf.seq.title", { s: T("wf.sc." + m) });
+    document.getElementById("wf-seq-intro").innerHTML = T("wf.seq.intro." + m, { st: pair(METHODS[m].start[0], METHODS[m].start[1]) });
+    var h = "<thead><tr><th class='num wide'>" + T("wf.seq.k") + "</th><th class='num'>" + T("wf.seq.mu") + "</th><th class='num'>" + T("wf.seq.x") +
+      "</th><th class='num'>" + T(pen ? "wf.seq.viol" : "wf.seq.slack") + "</th><th class='num'>" + T("wf.seq.f") + "</th><th class='num wide'>" +
+      T("wf.seq.gap") + "</th><th class='num'>" + T("wf.seq.lam") + "</th><th class='num wide'>" + T("wf.seq.it") + "</th><th class='num wide'>" +
+      T("wf.seq.cond") + "</th></tr></thead><tbody>";
+    S.rows.forEach(function (r) {
+      h += "<tr><td class='num wide'>" + r.k + "</td><td class='num'>" + sig(r.mu, 3) + "</td><td class='num ex'>" + num(r.x, xDigits(r.x)) +
+        "</td><td class='num'>" + sig(pen ? r.v : r.sl, 3) + "</td><td class='num'>" + fmt(r.f, 4) + "</td><td class='num wide gap'>" +
+        sgn(r.f - KKT.f, digitsFor(r.f - KKT.f, 3)) + "</td><td class='num'>" + fmt(r.lam, 4) + "</td><td class='num wide'>" + r.it +
+        "</td><td class='num wide'>" + fmt(r.cond, 0) + "</td></tr>";
+    });
+    document.getElementById("wf-seq").innerHTML = h + "</tbody>";
+    var dp = S.maxd === 0 ? 15 : clamp(Math.floor(-Math.log10(S.maxd)), 0, 15);
+    document.getElementById("wf-seq-agree").textContent = T("wf.seq.agree", { n: dp });
+    document.getElementById("wf-seq-note").innerHTML = T("wf.seq.note." + m);
+  }
+  function renderNotes() {
+    var P = seq("penalty").rows, B = seq("barrier").rows, n = P.length - 1;
+    document.getElementById("wf-n1").textContent = T("wf.n.p1", { xp: list(P.map(function (r) { return pair(r.x, r.y, xDigits(r.x)); })) });
+    document.getElementById("wf-n2").textContent = T("wf.n.p2", { xb: list(B.map(function (r) { return pair(r.x, r.y, xDigits(r.x)); })) });
+    document.getElementById("wf-n3").textContent = T("wf.n.p3", { lp: fmt(P[n].lam, 4), lb: fmt(B[n].lam, 4), ls: fmt(KKT.lam) });
+    // cold start: Newton on the last subproblem straight from the starting point, against the warm-started total
+    var cold = function (m) { var M = METHODS[m]; return newton(m, M.mus[M.mus.length - 1], M.start).it; };
+    var tot = function (R) { return R.reduce(function (s, r) { return s + r.it; }, 0); };
+    document.getElementById("wf-n4").textContent = T("wf.n.p4", { cp: fmt(P[n].cond, 0), cb: fmt(B[n].cond, 0),
+      np: fmt(cold("penalty"), 0), nb: fmt(cold("barrier"), 0), wp: fmt(tot(P), 0), wb: fmt(tot(B), 0) });
+  }
+
+  var segBtns = document.querySelectorAll("#wf-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderSolution(); renderSeq();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[1]) player.refresh();
+      else { player.seek(CH[1] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderScenText(); renderModel(); renderSolution(); renderSeq(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>
