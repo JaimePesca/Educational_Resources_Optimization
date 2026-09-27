@@ -240,7 +240,7 @@ I18N.register("es", {
   "cmp.q.4-3.opt.1": "Falta el ∀",
   "cmp.q.4-3.opt.2": "La Σ debería ser sobre i",
   "cmp.q.4-3.opt.3": "No tiene error",
-  "cmp.q.4-3.hint": "¿De quién es la disponibilidad: del recurso o de la cerveza? ¿Y qué índice ya consumió la Σ?",
+  "cmp.q.4-3.hint": "¿De quién es la disponibilidad: del recurso o de la cerveza? Además, ¿qué índice ya consumió la Σ?",
   "cmp.q.4-3.why": "b es la disponibilidad de cada recurso (10 de cebada, 8 horas), así que depende de i. Además, j ya fue consumido por la Σ: no puede aparecer suelto fuera de ella.",
   "cmp.q.4-4.prompt": "Ahora una propuesta para la función objetivo. ¿Qué tiene?",
   "cmp.q.4-4.opt.0": "Sobra el ∀: el objetivo es un solo número, no se repite",
