@@ -3,20 +3,21 @@
 Sitio web de recursos interactivos de investigación de operaciones, en inglés (versión principal), español, portugués y francés.
 
 1. **Learning path:** cinco niveles abiertos a cualquier colaborador: programación lineal, entera, entera mixta, no lineal y otros métodos de IO.
-2. **Research:** cuatro casos aplicados en Colombia que sirven de escenario real para muchos recursos: nanotiendas (CFLP), mercados campesinos, incendios forestales y configuración de pallets.
+2. **Research:** cuatro casos aplicados en Colombia, cada uno con una página que muestra el estudio real de su manuscrito: nanotiendas (CFLP), mercados campesinos, incendios forestales y configuración de pallets. Es independiente de la sección educativa.
 
 ## Estructura
 
 ```
 site/                  el sitio web (HTML, CSS y JS sin build)
   index.html           página principal
-  resources/           un archivo por recurso interactivo, más _template.html
+  resources/           un archivo por recurso educativo, más _template.html
+  research/            una página por caso de investigación
   locales/             textos por idioma (en, es, pt, fr)
   assets/              estilos, motor de idiomas y catálogo
 materials/             material de trabajo que no se publica en el sitio
   manuscripts/         manuscritos de los cuatro casos
   cv/                  hoja de vida
-  research-cases.md    resumen de cada caso e ideas de recursos
+  research-cases.md    resumen de cada caso
 .github/
   CONTRIBUTING.md      cómo aportar un recurso
   workflows/pages.yml  despliegue del sitio en GitHub Pages

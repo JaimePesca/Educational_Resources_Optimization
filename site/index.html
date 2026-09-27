@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Interactive operations research resources in five levels, and applied research cases from Colombia.">
 <title>Optimization in Action</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <style>
   html { scroll-behavior: smooth; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 72px); }
@@ -18,7 +18,7 @@
   .hero .lede { font-size: 17px; }
   .facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 6px 0 0; padding: 0; list-style: none; }
   .facts li {
-    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--ink2);
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--ink2);
     font-variant-numeric: tabular-nums;
   }
   .facts b { color: var(--ink); font-weight: 600; font-size: 15px; margin-right: 5px; }
@@ -28,7 +28,7 @@
   .division-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px 32px; align-items: end; }
   @media (max-width: 760px) { .division-head { grid-template-columns: 1fr; } }
   .division-head h2 {
-    font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 800;
+    font-family: var(--font-sans); font-weight: 700;
     font-size: clamp(28px, 4.4vw, 40px); line-height: 1.05; margin: 0; letter-spacing: -0.01em;
   }
   .division-head p { margin: 0; color: var(--ink2); max-width: 60ch; }
@@ -37,54 +37,31 @@
   .projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   @media (max-width: 760px) { .projects { grid-template-columns: 1fr; } }
   .project {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
     padding: 18px; display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 80px;
   }
   .project-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .project h3 {
-    font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 600;
+    font-family: var(--font-sans); font-weight: 600;
     font-size: 21px; line-height: 1.15; margin: 0; text-wrap: balance;
   }
   .project p.sum { margin: 0; color: var(--ink2); font-size: 14.5px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip {
-    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.04em;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
     padding: 3px 8px; border-radius: 6px; background: var(--surface2); border: 1px solid var(--border);
     color: var(--ink2); white-space: nowrap;
   }
-  .state {
-    margin-left: auto; font-size: 11.5px; font-weight: 600; letter-spacing: 0.03em;
-    padding: 3px 10px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap;
-  }
-  .state.live { color: var(--pine-text); }
-  .state.soon { color: var(--muted); border-style: dashed; }
   .pindex {
-    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.12em;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--muted);
   }
-  .plist { margin-top: auto; border-top: 1px solid var(--border); padding-top: 10px; display: grid; gap: 2px; }
-  .plist a {
-    display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: baseline;
-    padding: 7px 8px; margin-inline: -8px; border-radius: 7px; text-decoration: none; color: var(--ink);
-  }
-  .plist a:hover { background: var(--surface2); }
-  .plist a .ptitle { font-weight: 600; font-size: 14.5px; }
-  .plist .prow {
-    display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: baseline; padding: 7px 0;
-  }
-  .plist .prow .ptitle { font-weight: 500; font-size: 14px; color: var(--ink2); }
-  .ptag {
-    font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--muted); border: 1px dashed var(--axis); border-radius: 5px; padding: 1px 5px; margin-right: 8px;
-    vertical-align: 1px;
-  }
-  .plist .prow .pmeta, .plist a .pmeta { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--muted); white-space: nowrap; }
   .case {
     display: grid; gap: 4px; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 12px;
+    border-radius: 3px; padding: 10px 12px;
   }
   .case-label {
-    font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.13em;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em;
     text-transform: uppercase; color: var(--accent-text); font-weight: 600;
   }
   .case-place { font-weight: 600; font-size: 14px; }
@@ -92,7 +69,7 @@
   .case-facts li { font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; }
   .planned-block { display: grid; gap: 8px; margin-top: 6px; }
   .planned-head {
-    margin: 0; font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.13em;
+    margin: 0; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em;
     text-transform: uppercase; color: var(--muted);
   }
   .planned-list {
@@ -100,18 +77,24 @@
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px;
   }
   .planned-list li {
-    border: 1.5px dashed var(--axis); border-radius: 10px; padding: 12px 14px; display: grid; gap: 5px; align-content: start;
+    border: 1.5px dashed var(--axis); border-radius: 4px; padding: 12px 14px; display: grid; gap: 5px; align-content: start;
   }
   .pl-head { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
-  .pl-title { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 600; font-size: 16px; line-height: 1.2; }
+  .pl-title { font-family: var(--font-sans); font-weight: 600; font-size: 16px; line-height: 1.2; }
   .pl-type {
-    font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.12em;
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--muted);
   }
   .pl-sum { margin: 0; font-size: 13px; color: var(--ink2); }
   .planned-list .rfrom { font-size: 12.5px; color: var(--muted); }
   .planned-list .rfrom b { color: var(--pine-text); font-weight: 600; }
-  .plist .empty { font-size: 13.5px; color: var(--muted); padding-block: 4px; }
+
+  .case-link {
+    margin-top: auto; align-self: flex-start; display: inline-flex; gap: 8px; align-items: center;
+    font-weight: 700; font-size: 14.5px; text-decoration: none; color: var(--on-solid);
+    background: var(--accent); padding: 9px 14px; border-radius: 2px;
+  }
+  .case-link:hover { filter: brightness(1.12); }
 
   /* ---- learning path ---- */
   .ladder { display: grid; gap: 0; }
@@ -122,38 +105,38 @@
   .level:first-child { border-top: none; padding-top: 4px; }
   @media (max-width: 620px) { .level { grid-template-columns: 1fr; gap: 6px; } }
   .lnum {
-    font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 800;
+    font-family: var(--font-sans); font-weight: 700;
     font-size: 76px; line-height: 0.85; color: var(--pine-text); font-variant-numeric: tabular-nums;
     display: flex; flex-direction: column; gap: 8px;
   }
   .lnum small {
-    font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 400; font-size: 10.5px;
+    font-family: var(--font-mono); font-weight: 400; font-size: 10.5px;
     letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); line-height: 1.2;
   }
   @media (max-width: 620px) { .lnum { flex-direction: row; align-items: baseline; font-size: 48px; } }
   .lbody { display: grid; gap: 10px; }
   .lbody h3 {
-    font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 600;
+    font-family: var(--font-sans); font-weight: 600;
     font-size: 24px; line-height: 1.1; margin: 0;
   }
   .lbody p.sum { margin: 0; color: var(--ink2); max-width: 70ch; }
   .rgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 4px; }
   .rcard {
     display: flex; flex-direction: column; gap: 6px; padding: 14px 15px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
     text-decoration: none; color: var(--ink); transition: border-color 0.15s, transform 0.15s;
   }
   .rcard:hover { border-color: var(--accent); transform: translateY(-1px); }
   .rcard .rtype {
-    font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.13em;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em;
     text-transform: uppercase; color: var(--accent-text); font-weight: 600;
   }
-  .rcard .rtitle { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 600; font-size: 18px; line-height: 1.15; }
+  .rcard .rtitle { font-family: var(--font-sans); font-weight: 600; font-size: 18px; line-height: 1.15; }
   .rcard .rsum { font-size: 13.5px; color: var(--ink2); }
   .rcard .rfrom { margin-top: auto; padding-top: 4px; font-size: 12.5px; color: var(--muted); }
   .rcard .rfrom b { color: var(--pine-text); font-weight: 600; }
   .soon-box {
-    border: 1.5px dashed var(--axis); border-radius: 10px; padding: 13px 15px;
+    border: 1.5px dashed var(--axis); border-radius: 4px; padding: 13px 15px;
     font-size: 13.5px; color: var(--muted); margin-top: 4px;
   }
 
@@ -223,16 +206,13 @@
     return n;
   }
   function published(r) { return !!r.href; }
-  function byProject(id) { return C.resources.filter(function (r) { return r.project === id; }); }
-  function byLevel(id) { return C.resources.filter(function (r) { return r.level === id; }); }
-  function levelOf(r) { return C.levels.filter(function (l) { return l.id === r.level; })[0]; }
-  function metaLine(r) { return t("home.levelShort", { n: levelOf(r).n }) + " \u00b7 " + t("type." + r.type); }
+  function byLevel(id) { return C.education.filter(function (r) { return r.level === id; }); }
 
   function renderFacts() {
     var ul = document.getElementById("facts"); ul.textContent = "";
-    var live = C.resources.filter(published).length;
+    var live = C.education.filter(published).length;
     [[C.levels.length, "home.facts.levels"], [live, "home.facts.resources"],
-     [C.resources.length - live, "home.facts.planned"], [C.projects.length, "home.facts.projects"],
+     [C.education.length - live, "home.facts.planned"], [C.research.length, "home.facts.projects"],
      [I18N.languages.length, "home.facts.languages"]]
       .forEach(function (f) {
         var li = h("li"); var b = h("b", null, f[0]);
@@ -243,17 +223,11 @@
 
   function renderProjects() {
     var host = document.getElementById("projects"); host.textContent = "";
-    C.projects.forEach(function (p, i) {
-      var res = byProject(p.id);
-      var live = res.filter(published), planned = res.filter(function (r) { return !published(r); });
+    C.research.forEach(function (p, i) {
       var card = h("article", "project"); card.id = "project-" + p.id;
 
       var top = h("div", "project-top");
       top.appendChild(h("span", "pindex", t("home.projectN", { n: i + 1 })));
-      var counts = [];
-      if (live.length) counts.push(t("home.publishedCount", { n: live.length }));
-      if (planned.length) counts.push(t("home.plannedCount", { n: planned.length }));
-      top.appendChild(h("span", "state " + (live.length ? "live" : "soon"), counts.join(" \u00b7 ") || t("home.inPrep")));
 
       var kase = h("div", "case");
       kase.append(h("span", "case-label", t("home.case")), h("span", "case-place", t("project." + p.id + ".place")));
@@ -264,32 +238,19 @@
       var chips = h("div", "chips");
       p.methods.forEach(function (m) { chips.appendChild(h("span", "chip", t("method." + m))); });
 
-      var list = h("div", "plist");
-      live.forEach(function (r) {
-        var a = h("a"); a.href = I18N.href(r.href);
-        a.append(h("span", "ptitle", t("resource." + r.id + ".title")), h("span", "pmeta", metaLine(r)));
-        list.appendChild(a);
-      });
-      planned.forEach(function (r) {
-        var row = h("div", "prow planned");
-        var name = h("span", "ptitle");
-        name.append(h("span", "ptag", t("home.planned")), document.createTextNode(t("resource." + r.id + ".title")));
-        row.append(name, h("span", "pmeta", metaLine(r)));
-        list.appendChild(row);
-      });
-      if (!res.length) list.appendChild(h("div", "empty", t("home.project.empty")));
+      var cta = h("a", "case-link"); cta.href = I18N.href(p.href);
+      cta.append(document.createTextNode(t("home.exploreCase") + " "), h("span", null, "\u2192"));
 
       card.append(top, h("h3", null, t("project." + p.id + ".title")),
-        h("p", "sum", t("project." + p.id + ".summary")), kase, chips, list);
+        h("p", "sum", t("project." + p.id + ".summary")), kase, chips, cta);
       host.appendChild(card);
     });
   }
 
   function creditLine(r) {
-    if (!r.project && !r.author) return null;
+    if (!r.author) return null;
     var from = h("span", "rfrom");
-    from.append(document.createTextNode(t(r.project ? "home.fromProject" : "home.byAuthor") + " "),
-      h("b", null, r.project ? t("project." + r.project + ".title") : r.author));
+    from.append(document.createTextNode(t("home.byAuthor") + " "), h("b", null, r.author));
     return from;
   }
 
@@ -333,7 +294,6 @@
           var head = h("div", "pl-head");
           head.append(h("span", "pl-title", t("resource." + r.id + ".title")), h("span", "pl-type", t("type." + r.type)));
           li.append(head, h("p", "pl-sum", t("resource." + r.id + ".summary")));
-          var c = creditLine(r); if (c) li.appendChild(c);
           ul.appendChild(li);
         });
         wrap.appendChild(ul);

@@ -11,6 +11,11 @@
  *   data-i18n-html="key"        sets innerHTML (only for strings we write ourselves)
  *   data-i18n-attr="attr:key;…" sets attributes (aria-label, title, placeholder…)
  *   data-keep-lang              on internal <a>, appends ?lang=<code> so the choice travels
+ *
+ * Page bundles: a page can keep its own strings in separate files instead of the shared locale.
+ * Declare them on <html data-i18n-bundles="research/wildfire"> and create
+ * locales/research/wildfire.<code>.js, each calling I18N.register("<code>", {...}, "research/wildfire").
+ * Missing bundle files simply fall back to English.
  */
 (function () {
   "use strict";
@@ -28,6 +33,7 @@
   var localesBase = new URL("../locales/", script ? script.src : location.href).href;
 
   var dicts = {};
+  var registered = {}; // "<code>|<bundle>" -> true, so files are fetched once
   var listeners = [];
   var current = DEFAULT;
   var started = false;
@@ -50,14 +56,24 @@
     return DEFAULT;
   }
 
-  function load(code, cb) {
-    if (dicts[code]) { cb(); return; }
+  function bundles() {
+    var b = document.documentElement.getAttribute("data-i18n-bundles");
+    return b ? b.split(/\s+/).filter(Boolean) : [];
+  }
+
+  function loadFile(code, bundle, cb) {
+    if (registered[code + "|" + bundle]) { cb(); return; }
     var s = document.createElement("script");
-    s.src = localesBase + code + ".js";
+    s.src = localesBase + (bundle ? bundle + "." + code : code) + ".js";
     s.charset = "utf-8";
-    s.onload = function () { cb(); };
-    s.onerror = function () { cb(); }; // missing file: English fallback still works
+    s.onload = s.onerror = function () { cb(); }; // a missing file falls back to English
     document.head.appendChild(s);
+  }
+
+  function load(code, cb) {
+    var files = [""].concat(bundles());
+    var pending = files.length;
+    files.forEach(function (b) { loadFile(code, b, function () { if (--pending === 0) cb(); }); });
   }
 
   function lookup(code, key) {
@@ -168,7 +184,10 @@
 
   window.I18N = {
     languages: LANGS,
-    register: function (code, dict) { dicts[code] = dict; },
+    register: function (code, dict, bundle) {
+      dicts[code] = Object.assign(dicts[code] || {}, dict);
+      registered[code + "|" + (bundle || "")] = true;
+    },
     t: t,
     set: set,
     apply: apply,

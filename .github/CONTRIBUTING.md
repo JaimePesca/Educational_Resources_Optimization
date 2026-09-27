@@ -1,11 +1,11 @@
 # Contributing to Optimization in Action
 
-Optimization in Action is a library of small, interactive operations research resources that run in the browser. It has two divisions:
+Optimization in Action is a library of small, interactive operations research resources that run in the browser. It has two independent divisions:
 
-- **Research**: four applied cases from Colombia (nanostores, farmers' markets, wildfire suppression, air cargo pallets). They supply real scenarios for exercises. See [`materials/research-cases.md`](../materials/research-cases.md).
-- **Learning path**: five open categories, independent of the research: 1 Linear programming, 2 Integer programming, 3 Mixed-integer programming, 4 Nonlinear programming, 5 Other OR methods.
+- **Learning path**: five open categories with varied examples: 1 Linear programming, 2 Integer programming, 3 Mixed-integer programming, 4 Nonlinear programming, 5 Other OR methods. This is where contributions go.
+- **Research**: four applied cases from Colombia, each with a page that walks through the real study of its manuscript (`site/research/`). These pages are maintained by the author. Case briefs are in [`materials/research-cases.md`](../materials/research-cases.md).
 
-Any example, simulation, game or animation that teaches one of the five categories is welcome. It does not need to use a research case, but the planned ideas listed on the home page and in `materials/research-cases.md` are a good place to start.
+Any example, simulation, game or animation that teaches one of the five categories is welcome, on any subject. The planned ideas shown in each level on the home page are a good place to start.
 
 ## What a resource is
 
@@ -19,7 +19,7 @@ Any example, simulation, game or animation that teaches one of the five categori
 
 1. Copy `site/resources/_template.html` to `site/resources/<your-id>.html`.
 2. Build the page. Keep every visible string in `site/locales/en.js` under your own key prefix, and read it with `I18N.t("key")`. Format numbers with `I18N.fmt(value, decimals)`.
-3. Register it in `site/assets/catalog.js`: add an entry with `id`, `href`, `level`, `type`, and optionally `project` (if it applies a research case) and `author` (your name, shown on the card). If you are building one of the planned ideas, add `href` to its existing entry.
+3. Register it in `site/assets/catalog.js`: add an entry to `education` with `id`, `href`, `level`, `type`, and optionally `author` (your name, shown on the card). If you are building one of the planned ideas, add `href` to its existing entry.
 4. Add `resource.<your-id>.title` and `resource.<your-id>.summary` to `site/locales/en.js`.
 5. Open `site/index.html` through a local server (`cd site && python3 -m http.server 8000`) and check your page in all four languages.
 6. Open a pull request with a short description and a screenshot.
