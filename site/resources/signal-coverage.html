@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en" data-title-key="cov.title" data-i18n-bundles="resources/signal-coverage">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Signal in Every Vereda</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1080px; }
+
+  /* level tabs (as in critical-load) */
+  .levels { display: flex; gap: 8px; flex-wrap: wrap; }
+  .lvbtn {
+    font: 600 13.5px var(--font-sans); padding: 8px 14px; border-radius: 99px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink2); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .lvbtn[aria-current="true"] { background: var(--pine); color: var(--on-solid); border-color: var(--pine); }
+  .lvbtn .st { font-size: 12px; letter-spacing: 0.06em; color: inherit; opacity: 0.9; }
+
+  .mission { display: flex; flex-wrap: wrap; gap: 6px 26px; align-items: baseline; margin-bottom: 14px; }
+  .mtitle { font-weight: 600; font-size: 16px; }
+  .mfacts { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink2); }
+
+  /* board: map + matrix */
+  .board { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (min-width: 1000px) { .board { grid-template-columns: minmax(0, 1fr) auto; } }
+  .mapbox { width: 100%; max-width: 700px; margin-inline: auto; min-width: 0; }
+  .matbox { min-width: 0; max-width: 100%; }
+  .kick { display: block; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+
+  svg#map { display: block; width: 100%; height: auto; border-radius: 3px; background: var(--surface2); border: 1px solid var(--border); touch-action: manipulation; }
+  #map .gridl { stroke: var(--grid); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  #map .river { fill: none; stroke: var(--region); stroke-width: 9; stroke-linecap: round; }
+  #map .disk { display: none; vector-effect: non-scaling-stroke; }
+  #map .disk.on { display: inline; fill: var(--sel); stroke: var(--accent); stroke-width: 1.5; stroke-opacity: 0.7; }
+  #map .disk.pv { display: inline; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: 6 5; }
+  #map .disk.on.pv { fill: var(--sel); stroke-dasharray: none; stroke-width: 3; stroke-opacity: 1; }
+  #map .v { cursor: default; }
+  #map .v .dot { fill: var(--surface); stroke: var(--crit); stroke-width: 2; vector-effect: non-scaling-stroke; }
+  #map .v.ok .dot { fill: var(--good); stroke: var(--surface); stroke-width: 1.5; }
+  #map .v .chk { fill: none; stroke: var(--surface); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  #map .v .pulse {
+    fill: none; stroke: var(--crit); stroke-width: 1.5; vector-effect: non-scaling-stroke;
+    transform-box: fill-box; transform-origin: center; animation: covpulse 1.9s ease-out infinite;
+  }
+  @keyframes covpulse { 0% { transform: scale(1); opacity: 0.85; } 100% { transform: scale(2.3); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { #map .v .pulse { animation: none; transform: scale(1.6); opacity: 0.55; } }
+  #map .ring { fill: none; stroke: var(--accent); stroke-width: 2.5; display: none; vector-effect: non-scaling-stroke; }
+  #map .v.hl .ring { display: inline; }
+  #map .lbl { font-family: var(--font-sans); font-weight: 600; fill: var(--ink2); stroke: var(--halo); paint-order: stroke; stroke-linejoin: round; pointer-events: none; }
+  #map .lbl.hl { fill: var(--accent-text); }
+  #map .site { cursor: pointer; }
+  #map .site .hit { fill: transparent; }
+  #map .site .mast { fill: var(--surface); stroke: var(--ink2); stroke-width: 1.6; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  #map .site.on .mast { fill: var(--accent); stroke: var(--accent); }
+  #map .site.cand .mast, #map .site.hl .mast { stroke: var(--accent); stroke-width: 2.6; }
+  #map .slbl { font-family: var(--font-mono); font-weight: 600; fill: var(--ink); stroke: var(--halo); paint-order: stroke; pointer-events: none; }
+  #map .site.on .slbl, #map .site.cand .slbl { fill: var(--accent-text); }
+  #map .ropt, #map .rgre, #map .rred { fill: none; vector-effect: non-scaling-stroke; pointer-events: none; }
+  #map .ropt { stroke: var(--accent); stroke-width: 2.5; }
+  #map .rgre { stroke: var(--c-aqua); stroke-width: 2.5; stroke-dasharray: 5 3; }
+  #map .rred { stroke: var(--crit); stroke-width: 2; stroke-dasharray: 2 3; }
+
+  .maplegend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 9px; font-size: 12.5px; color: var(--ink2); }
+  .maplegend > span { display: inline-flex; align-items: center; gap: 6px; }
+  .maplegend svg { width: 16px; height: 16px; flex: none; overflow: visible; }
+
+  /* coverage matrix */
+  .matwrap { overflow-x: auto; max-width: 100%; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); }
+  table.mat { border-collapse: separate; border-spacing: 0; font-family: var(--font-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  .mat th, .mat td { padding: 0; text-align: center; height: 26px; min-width: 28px; border-bottom: 1px solid var(--grid); }
+  .mat tbody tr:last-child > * { border-bottom: 1px solid var(--axis); }
+  .mat thead th { height: 38px; border-bottom: 1px solid var(--axis); font-weight: 600; color: var(--ink2); }
+  .mat .corner, .mat tbody th, .mat tfoot th {
+    position: sticky; left: 0; z-index: 1; background: var(--surface); text-align: left; padding: 0 10px 0 8px;
+    border-right: 1px solid var(--grid);
+  }
+  .mat .corner { font: 400 11px var(--font-sans); color: var(--muted); white-space: nowrap; }
+  .mat tbody th { font: 600 13px var(--font-sans); color: var(--ink); white-space: nowrap; cursor: default; }
+  .mat tbody th:focus-visible { outline-offset: -2px; }
+  .mat .vn { font: 400 11px var(--font-mono); color: var(--muted); display: inline-block; min-width: 1.7em; margin-right: 5px; text-align: right; }
+  .mat td.z { color: var(--axis); }
+  .mat td.one { color: var(--ink); font-weight: 600; }
+  .mat td.son { background: var(--sel); }
+  .mat td.one.son span { display: inline-block; min-width: 20px; background: var(--accent); color: var(--on-solid); border-radius: 3px; line-height: 19px; }
+  .mat .chl { box-shadow: inset 0 0 0 999px var(--region); }
+  .mat tr.hl > th, .mat tr.hl > td { box-shadow: inset 0 0 0 999px var(--region); }
+  .mat td.cand span { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 3px; }
+  .colbtn {
+    font: 600 12.5px var(--font-mono); width: 26px; height: 28px; padding: 0; border-radius: 4px; cursor: pointer;
+    border: 1.5px solid var(--border); background: var(--surface); color: var(--ink);
+  }
+  .colbtn:hover { border-color: var(--accent); }
+  .colbtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-solid); }
+  .colbtn:disabled { cursor: default; }
+  th.mopt .colbtn { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
+  th.mgre::after { content: ""; display: block; margin: 3px auto 0; width: 16px; border-top: 3px dashed var(--c-aqua); }
+  th.mred .colbtn { outline: 2px dotted var(--crit); outline-offset: 2px; }
+  .mat td.lhs { padding: 0 10px; white-space: nowrap; font-weight: 600; border-left: 1px solid var(--grid); }
+  .mat tr.ok td.lhs { color: var(--good-text); }
+  .mat tr.bad td.lhs { color: var(--crit); }
+  .mat tfoot th { font: 600 12px var(--font-mono); color: var(--ink2); }
+  .mat tfoot td { color: var(--ink2); font-size: 11.5px; }
+  .mat tfoot td.xon { color: var(--accent-text); font-weight: 600; }
+  .mat tfoot td.obj { color: var(--ink); font-weight: 600; padding: 0 10px; white-space: nowrap; border-left: 1px solid var(--grid); }
+  .rowread {
+    contain: inline-size; font-family: var(--font-mono); font-size: 12.5px; color: var(--ink2);
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 3px;
+    padding: 8px 11px; line-height: 1.75; min-height: 4.6em; margin: 10px 0 0;
+  }
+  .rowread b { color: var(--ink); font-family: var(--font-sans); }
+  .rowread .ok { color: var(--good-text); font-weight: 600; }
+  .rowread .bad { color: var(--crit); font-weight: 600; }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+  button.btn {
+    font: 600 14px var(--font-sans); color: var(--on-solid); background: var(--accent);
+    border: none; border-radius: 4px; padding: 11px 18px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
+  button.ghost { background: transparent; color: var(--accent-text); border: 1.5px solid var(--accent-text); }
+  button.ghost[aria-pressed="true"] { background: var(--sel); }
+  button.quiet { background: transparent; color: var(--ink2); border: 1.5px solid var(--border); }
+  .liveval { font-family: var(--font-mono); font-size: 13px; color: var(--ink2); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .liveval b { color: var(--ink); font-size: 15px; }
+  .needmsg { font-size: 13.5px; color: var(--crit); font-weight: 600; min-height: 1.4em; margin: 8px 0 0; }
+  .needmsg.ok { color: var(--good-text); }
+
+  /* result */
+  .result { border-left: 4px solid var(--accent); }
+  .verdict { font-family: var(--font-sans); font-weight: 700; font-size: 26px; margin: 0 0 2px; }
+  .stars { font-size: 21px; letter-spacing: 4px; color: var(--accent-text); }
+  .stars .off { color: var(--axis); }
+  .rsub { color: var(--ink2); margin: 4px 0 14px; max-width: 66ch; }
+  .bars { display: flex; flex-direction: column; gap: 9px; max-width: 580px; }
+  .brow { display: grid; grid-template-columns: 138px 1fr; gap: 10px; align-items: center; font-size: 13.5px; }
+  .brow .lbl { color: var(--ink2); text-align: right; }
+  .btrack { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; height: 26px; position: relative; }
+  .bfill { height: 100%; border-radius: 5px 4px 4px 5px; min-width: 2px; }
+  .bval {
+    position: absolute; top: 50%; transform: translateY(-50%); left: 5px; font: 600 12.5px var(--font-mono);
+    color: var(--ink); background: var(--bar-bg); border-radius: 3px; padding: 1px 7px; line-height: 1.4;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .bnote { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+  .rextra { margin-top: 14px; color: var(--ink2); font-size: 14.5px; max-width: 72ch; }
+  .rextra p { margin: 0 0 8px; }
+  .rextra b { color: var(--ink); }
+  @media (max-width: 520px) {
+    .brow { grid-template-columns: 96px 1fr; font-size: 12.5px; }
+    .liveval { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="cov.eyebrow"></p>
+    <h1 data-i18n="cov.title"></h1>
+    <p class="lede" data-i18n-html="cov.lede"></p>
+  </header>
+
+  <nav class="levels" id="levels" data-i18n-attr="aria-label:cov.levelsAria"></nav>
+
+  <div class="card">
+    <div class="mission">
+      <span class="mtitle" id="mname"></span>
+      <span class="mfacts" id="mfacts"></span>
+    </div>
+    <div class="board">
+      <div class="mapbox">
+        <span class="kick" data-i18n="cov.map.kicker"></span>
+        <svg id="map" viewBox="0 0 560 380" role="img" data-i18n-attr="aria-label:cov.map.aria"></svg>
+        <div class="maplegend" id="legend"></div>
+      </div>
+      <div class="matbox">
+        <span class="kick" data-i18n="cov.mat.kicker"></span>
+        <div class="matwrap"><table class="mat" id="mat"></table></div>
+        <p class="rowread" id="rowread"></p>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="confirm" type="button" data-i18n="cov.btn.confirm"></button>
+      <button class="btn quiet" id="reset" type="button" data-i18n="cov.btn.reset"></button>
+      <span class="liveval" id="counter"></span>
+    </div>
+    <p class="needmsg" id="needmsg"></p>
+  </div>
+
+  <div class="card result" id="result" hidden>
+    <p class="verdict" id="verdict"></p>
+    <div class="stars" id="stars" role="img"></div>
+    <p class="rsub" id="rsub"></p>
+    <div class="bars" id="bars"></div>
+    <p class="bnote" data-i18n="cov.bar.note"></p>
+    <div class="rextra" id="rextra"></div>
+    <div class="actions">
+      <button class="btn ghost" id="showopt" type="button" aria-pressed="false" data-i18n="cov.btn.showOpt"></button>
+      <button class="btn ghost" id="showgre" type="button" aria-pressed="false" data-i18n="cov.btn.showGreedy"></button>
+      <button class="btn quiet" id="retry" type="button" data-i18n="cov.btn.retry"></button>
+      <button class="btn" id="next" type="button" data-i18n="cov.btn.next"></button>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="cov.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="cov.d1.p1"></p>
+        <div class="formula" data-i18n="cov.d1.formula"></div>
+        <p data-i18n-html="cov.d1.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="cov.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="cov.d2.p1"></p>
+        <div class="formula" data-i18n="cov.d2.formula"></div>
+        <p data-i18n-html="cov.d2.p2"></p>
+        <p data-i18n-html="cov.d2.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="cov.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="cov.d3.p1"></p>
+        <p data-i18n-html="cov.d3.p2"></p>
+        <p data-i18n-html="cov.d3.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="cov.d4.title"></summary>
+      <div class="body">
+        <p data-i18n-html="cov.d4.p1"></p>
+        <p data-i18n-html="cov.d4.p2"></p>
+        <p data-i18n-html="cov.d4.p3"></p>
+        <p data-i18n-html="cov.d4.p4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="cov.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/signal-coverage.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var css = function (n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
+  var NS = "http://www.w3.org/2000/svg";
+  var VBW = 560, VBH = 380, LET = "ABCDEFGHIJKL";
+
+  // Veredas: [name, x, y]. Sites: [x, y, range, cost in millions of COP (level 3 only; else `unit`)].
+  // Coverage is pure geometry: vereda i is in site j's column when its distance is at most the range.
+  /*LEVELS*/
+  var LEVELS = [
+    { unit: 50, river: "M0 300 C 110 290, 190 250, 262 222 S 430 172, 560 158",
+      V: [["El Placer", 62, 72], ["Miraflores", 250, 52], ["Los Naranjos", 410, 62], ["La Unión", 170, 132],
+          ["Campo Alegre", 304, 152], ["Palmichal", 74, 222], ["El Silencio", 476, 236], ["Piedra Grande", 334, 306]],
+      S: [[104, 150, 107], [214, 86, 82], [328, 84, 103], [450, 146, 112], [302, 236, 102], [414, 288, 100]] },
+    { unit: 50, river: "M300 0 C 288 80, 330 130, 312 200 S 250 320, 282 380",
+      V: [["El Rosal", 62, 62], ["La Esperanza", 160, 40], ["Santa Rosa", 190, 126], ["San Isidro", 372, 48],
+          ["Buenavista", 472, 70], ["El Carmen", 350, 134], ["El Porvenir", 494, 152], ["La Palma", 150, 204],
+          ["La Cumbre", 58, 290], ["Alto Bonito", 186, 268], ["Guayabal", 120, 350], ["Las Mercedes", 370, 262],
+          ["La Florida", 480, 300], ["El Retiro", 396, 350]],
+      S: [[128, 82, 94], [413, 34, 87], [426, 100, 104], [95, 159, 119], [270, 202, 138],
+          [482, 215, 103], [76, 346, 77], [124, 274, 94], [362, 317, 74], [428, 306, 91]] },
+    { river: "M0 150 C 90 140, 150 230, 230 238 S 390 250, 560 196",
+      V: [["Monteloro", 68, 64], ["El Tablazo", 196, 96], ["La Arboleda", 318, 48], ["Chaparral", 462, 76],
+          ["La Samaria", 104, 196], ["Las Brisas", 252, 186], ["El Hatillo", 388, 168], ["Quebradanegra", 494, 236],
+          ["San Rafael", 62, 318], ["La Aurora", 206, 300], ["El Mirador", 344, 318], ["Cañaveral", 470, 344]],
+      S: [[246, 57, 91, 40], [77, 244, 94, 35], [152, 132, 132, 80], [156, 250, 134, 75], [277, 148, 131, 75],
+          [354, 213, 124, 60], [430, 184, 131, 55], [286, 324, 102, 45], [423, 289, 107, 65], [497, 297, 79, 30]] }
+  ];
+  /*END LEVELS*/
+
+  /*SOLVE*/
+  function popc(m) { var c = 0; while (m) { m &= m - 1; c++; } return c; }
+  function prep(L) {
+    L.cost = L.S.map(function (s) { return s[3] || L.unit; });
+    L.mask = L.S.map(function (s) {
+      var m = 0;
+      L.V.forEach(function (v, i) { if (Math.hypot(v[1] - s[0], v[2] - s[1]) <= s[2]) m |= 1 << i; });
+      return m;
+    });
+    L.full = (1 << L.V.length) - 1;
+  }
+  // Exact optimum: check all 2^n plans (n <= 10 sites, so at most 1,024). Ties go to fewer antennas.
+  // `few` is the plan with the fewest antennas (cheapest among those).
+  function exact(L) {
+    var n = L.S.length, opt = null, few = null;
+    for (var b = 1; b < (1 << n); b++) {
+      var m = 0, c = 0;
+      for (var j = 0; j < n; j++) if (b >> j & 1) { m |= L.mask[j]; c += L.cost[j]; }
+      if (m !== L.full) continue;
+      var k = popc(b);
+      if (!opt || c < opt.c || (c === opt.c && k < opt.k)) opt = { b: b, c: c, k: k };
+      if (!few || k < few.k || (k === few.k && c < few.c)) few = { b: b, c: c, k: k };
+    }
+    return { opt: opt, few: few };
+  }
+  // Greedy: add the site with the lowest cost per newly covered vereda; ties go to the first letter.
+  function greedy(L) {
+    var cov = 0, b = 0, c = 0, order = [];
+    while (cov !== L.full) {
+      var bj = -1, br = Infinity;
+      for (var j = 0; j < L.mask.length; j++) {
+        var g = popc(L.mask[j] & ~cov);
+        if (g && L.cost[j] / g < br - 1e-9) { br = L.cost[j] / g; bj = j; }
+      }
+      cov |= L.mask[bj]; b |= 1 << bj; c += L.cost[bj]; order.push(bj);
+    }
+    return { b: b, c: c, k: popc(b), order: order };
+  }
+  /*END SOLVE*/
+  LEVELS.forEach(function (L) { prep(L); L.ex = exact(L); L.gr = greedy(L); });
+
+  // ---- state ----
+  var lv = 0, sel = [], phase = "pick", attempts = [0, 0, 0], starsBy = [null, null, null];
+  var showingOpt = false, showingGre = false, hv = -1, hs = -1;
+  try {
+    var saved = JSON.parse(localStorage.getItem("cov-stars") || "null");
+    if (Array.isArray(saved)) starsBy = [0, 1, 2].map(function (i) { return typeof saved[i] === "number" ? saved[i] : null; });
+  } catch (e) { /* private mode: play without records */ }
+  function saveStars() { try { localStorage.setItem("cov-stars", JSON.stringify(starsBy)); } catch (e) { /* ok */ } }
+
+  var L = function () { return LEVELS[lv]; };
+  function clearSel() { sel = L().S.map(function () { return 0; }); }
+  clearSel();
+  function selMask() { var b = 0; sel.forEach(function (on, j) { if (on) b |= 1 << j; }); return b; }
+  function covOf(b) { var m = 0; L().mask.forEach(function (mk, j) { if (b >> j & 1) m |= mk; }); return m; }
+  function costOf(b) { var c = 0; L().cost.forEach(function (x, j) { if (b >> j & 1) c += x; }); return c; }
+  function letters(b) { var a = []; for (var j = 0; j < L().S.length; j++) if (b >> j & 1) a.push(LET[j]); return a; }
+  // an installed antenna is redundant when the plan still covers every vereda without it
+  function redundant(b) {
+    var out = [];
+    for (var j = 0; j < L().S.length; j++) if ((b >> j & 1) && covOf(b & ~(1 << j)) === L().full) out.push(LET[j]);
+    return out;
+  }
+  var money = function (v) { return t("cov.money", { v: I18N.fmt(v, 0) }); };
+  var ants = function (k) { return t(k === 1 ? "cov.ant1" : "cov.antN", { n: k }); };
+  var weighted = function () { return !L().unit; };
+  var isDone = function () { return phase === "done"; };
+  function listFmt(a) { return a.join(", "); }
+
+  // ---- levels ----
+  function renderLevels() {
+    var nav = $("levels"); nav.textContent = "";
+    LEVELS.forEach(function (_, i) {
+      var b = document.createElement("button");
+      b.className = "lvbtn"; b.type = "button";
+      b.setAttribute("aria-current", i === lv ? "true" : "false");
+      b.textContent = t("cov.levelN", { n: i + 1 }) + " ";
+      var s = document.createElement("span"); s.className = "st";
+      var st = starsBy[i];
+      s.textContent = st == null ? "· " + t("cov.notPlayed") : "★".repeat(st) + "☆".repeat(3 - st);
+      b.appendChild(s);
+      b.addEventListener("click", function () { goLevel(i); });
+      nav.appendChild(b);
+    });
+  }
+  function goLevel(i) {
+    lv = i; clearSel(); phase = "pick"; showingOpt = showingGre = false; hv = hs = -1;
+    renderAll();
+  }
+
+  // ---- matrix ----
+  var rowEls = [], cellEls = [], colHeads = [];
+  function renderMatrix() {
+    var Lv = L(), n = Lv.S.length, tbl = $("mat"), b = selMask(), done = isDone();
+    var red = done ? redundant(b) : [];
+    tbl.textContent = "";
+    rowEls = []; cellEls = []; colHeads = [];
+    var th = document.createElement("thead"), tr = document.createElement("tr");
+    var c0 = document.createElement("th"); c0.className = "corner"; c0.scope = "col"; c0.textContent = t("cov.mat.corner");
+    tr.appendChild(c0);
+    for (var j = 0; j < n; j++) {
+      var h = document.createElement("th"); h.scope = "col"; h.dataset.j = j;
+      if (done && showingOpt && (Lv.ex.opt.b >> j & 1)) h.classList.add("mopt");
+      if (done && showingGre && (Lv.gr.b >> j & 1)) h.classList.add("mgre");
+      if (red.indexOf(LET[j]) >= 0) h.classList.add("mred");
+      var bt = document.createElement("button");
+      bt.type = "button"; bt.className = "colbtn"; bt.textContent = LET[j];
+      bt.setAttribute("aria-pressed", sel[j] ? "true" : "false");
+      bt.setAttribute("aria-label", t("cov.colAria", {
+        s: LET[j], state: t(sel[j] ? "cov.on" : "cov.off"), cost: money(Lv.cost[j]),
+        list: listFmt(Lv.V.filter(function (_, i) { return Lv.mask[j] >> i & 1; }).map(function (v) { return v[0]; }))
+      }));
+      bt.disabled = done;
+      hookSite(bt, j); hookSite(h, j, true);
+      h.appendChild(bt); tr.appendChild(h); colHeads.push(h);
+    }
+    var hl = document.createElement("th"); hl.scope = "col"; hl.textContent = "Σ ≥ 1"; hl.title = t("cov.mat.lhsTitle");
+    tr.appendChild(hl); th.appendChild(tr); tbl.appendChild(th);
+
+    var tb = document.createElement("tbody");
+    Lv.V.forEach(function (v, i) {
+      var r = document.createElement("tr"), rh = document.createElement("th");
+      rh.scope = "row"; rh.tabIndex = 0;
+      rh.innerHTML = '<span class="vn">' + (i + 1) + "</span>";
+      rh.appendChild(document.createTextNode(v[0]));
+      r.appendChild(rh);
+      var cells = [], sum = 0;
+      for (var j = 0; j < n; j++) {
+        var one = Lv.mask[j] >> i & 1, td = document.createElement("td");
+        td.className = (one ? "one" : "z") + (sel[j] ? " son" : "");
+        td.innerHTML = "<span>" + (one ? 1 : 0) + "</span>";
+        if (one && sel[j]) sum++;
+        r.appendChild(td); cells.push(td);
+      }
+      var lhs = document.createElement("td"); lhs.className = "lhs";
+      lhs.textContent = sum + (sum >= 1 ? " ✓" : " ✗");
+      r.appendChild(lhs);
+      r.className = sum >= 1 ? "ok" : "bad";
+      hookRow(r, i); rh.addEventListener("focus", function () { setHover(i, -1); });
+      tb.appendChild(r); rowEls.push(r); cellEls.push(cells);
+    });
+    tbl.appendChild(tb);
+
+    var tf = document.createElement("tfoot");
+    [["c", t("cov.mat.cost")], ["x", "xⱼ"]].forEach(function (spec) {
+      var fr = document.createElement("tr"), fh = document.createElement("th");
+      fh.scope = "row"; fh.textContent = spec[1]; fr.appendChild(fh);
+      for (var j = 0; j < n; j++) {
+        var td = document.createElement("td");
+        if (spec[0] === "c") td.textContent = Lv.cost[j];
+        else { td.textContent = sel[j] ? 1 : 0; if (sel[j]) td.className = "xon"; }
+        fr.appendChild(td);
+      }
+      var last = document.createElement("td");
+      if (spec[0] === "x") { last.className = "obj"; last.textContent = "= " + I18N.fmt(costOf(b), 0); last.title = t("cov.mat.objTitle"); }
+      fr.appendChild(last);
+      tf.appendChild(fr);
+    });
+    tbl.appendChild(tf);
+  }
+
+  // ---- map ----
+  var vEls = [], lblEls = [], sEls = [], diskEls = [];
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var a in attrs) e.setAttribute(a, attrs[a]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  var lastK = 0;
+  function renderMap() {
+    var Lv = L(), svg = $("map"), b = selMask(), cov = covOf(b), done = isDone();
+    var w = svg.getBoundingClientRect().width || VBW;
+    var k = Math.min(2.2, Math.max(0.75, VBW / w)); lastK = k;
+    var u = Math.min(1.75, Math.max(0.95, k)), names = w >= 470;
+    var fs = (names ? 11.5 : 11) * k, fsS = 12.5 * k;
+    svg.textContent = "";
+    vEls = []; lblEls = []; sEls = []; diskEls = [];
+    var g0 = el("g", {}, svg);
+    for (var x = 40; x < VBW; x += 40) el("line", { class: "gridl", x1: x, y1: 0, x2: x, y2: VBH }, g0);
+    for (var y = 40; y < VBH; y += 40) el("line", { class: "gridl", x1: 0, y1: y, x2: VBW, y2: y }, g0);
+    el("path", { class: "river", d: Lv.river }, g0);
+
+    var gd = el("g", {}, svg);
+    Lv.S.forEach(function (s, j) {
+      diskEls.push(el("circle", { class: "disk" + (sel[j] ? " on" : ""), cx: s[0], cy: s[1], r: s[2] }, gd));
+    });
+
+    var obst = [];
+    var gv = el("g", {}, svg);
+    Lv.V.forEach(function (v, i) {
+      var ok = cov >> i & 1, r = 5.5 * u;
+      var g = el("g", { class: "v" + (ok ? " ok" : "") }, gv);
+      if (!ok) el("circle", { class: "pulse", cx: v[1], cy: v[2], r: r }, g);
+      el("circle", { class: "ring", cx: v[1], cy: v[2], r: 10.5 * u }, g);
+      el("circle", { class: "dot", cx: v[1], cy: v[2], r: r }, g);
+      if (ok) el("path", { class: "chk", d: "M" + (v[1] - 2.6 * u) + " " + (v[2] + 0.2 * u) + " l" + 1.8 * u + " " + 2 * u + " l" + 3.4 * u + " " + (-4.2 * u) }, g);
+      hookRow(g, i);
+      vEls.push(g);
+      obst.push([v[1] - r - 2, v[2] - r - 2, v[1] + r + 2, v[2] + r + 2]);
+    });
+
+    var gs = el("g", {}, svg);
+    Lv.S.forEach(function (s, j) {
+      var sz = 8.5 * u, x = s[0], y = s[1];
+      var g = el("g", { class: "site" + (sel[j] ? " on" : "") }, gs);
+      el("circle", { class: "hit", cx: x, cy: y, r: 19 * u }, g);
+      if (done) {
+        var red = redundant(b).indexOf(LET[j]) >= 0;
+        if (showingOpt && (Lv.ex.opt.b >> j & 1)) el("circle", { class: "ropt", cx: x, cy: y, r: 15 * u }, g);
+        if (showingGre && (Lv.gr.b >> j & 1)) el("circle", { class: "rgre", cx: x, cy: y, r: 19.5 * u }, g);
+        if (red) el("circle", { class: "rred", cx: x, cy: y, r: 12 * u }, g);
+      }
+      el("path", { class: "mast", d: "M" + x + " " + (y - 1.25 * sz) + " L" + (x - 0.85 * sz) + " " + (y + 0.85 * sz) + " L" + (x + 0.85 * sz) + " " + (y + 0.85 * sz) + "Z" }, g);
+      var tx = el("text", { class: "slbl", x: x + 0.95 * sz, y: y - 0.55 * sz, "font-size": fsS, "stroke-width": 3 * k }, g);
+      tx.textContent = LET[j];
+      g.addEventListener("click", function () { toggle(j); });
+      hookSite(g, j);
+      sEls.push(g);
+      obst.push([x - sz - 2, y - 1.3 * sz - 2, x + sz + 2, y + sz + 2]);
+      obst.push([x + 0.95 * sz, y - 0.55 * sz - fsS * 0.8, x + 0.95 * sz + fsS * 0.7, y - 0.55 * sz + 2]);
+    });
+
+    // vereda labels: first free spot among 8 around the dot
+    var gl = el("g", {}, svg), placed = [];
+    Lv.V.forEach(function (v, i) {
+      var s = names ? v[0] : String(i + 1), tw = s.length * fs * (names ? 0.54 : 0.62), d = 9 * u, a = fs * 0.34;
+      var cands = [
+        [v[1] + d, v[2] + a, "start"], [v[1] - d, v[2] + a, "end"], [v[1], v[2] - d - 1, "middle"], [v[1], v[2] + d + fs * 0.75, "middle"],
+        [v[1] + d * 0.7, v[2] - d * 0.8, "start"], [v[1] + d * 0.7, v[2] + d + fs * 0.5, "start"],
+        [v[1] - d * 0.7, v[2] - d * 0.8, "end"], [v[1] - d * 0.7, v[2] + d + fs * 0.5, "end"]
+      ];
+      var best = null, bestHit = Infinity;
+      cands.forEach(function (c) {
+        var x0 = c[2] === "start" ? c[0] : c[2] === "end" ? c[0] - tw : c[0] - tw / 2;
+        var box = [x0 - 1, c[1] - fs * 0.78, x0 + tw + 1, c[1] + fs * 0.22];
+        var hit = (box[0] < 2 || box[2] > VBW - 2 || box[1] < 2 || box[3] > VBH - 2) ? 50 : 0;
+        obst.concat(placed).forEach(function (o, q) {
+          if (q === i) return;
+          var ox = Math.min(box[2], o[2]) - Math.max(box[0], o[0]), oy = Math.min(box[3], o[3]) - Math.max(box[1], o[1]);
+          if (ox > 0 && oy > 0) hit += 1 + ox * oy / 200;
+        });
+        if (hit < bestHit - 1e-6) { bestHit = hit; best = [c, box]; }
+      });
+      placed.push(best[1]);
+      var tx = el("text", { class: "lbl", x: best[0][0], y: best[0][1], "text-anchor": best[0][2], "font-size": fs, "stroke-width": 3.2 * k }, gl);
+      tx.textContent = s;
+      lblEls.push(tx);
+    });
+  }
+
+  function renderLegend() {
+    var box = $("legend"), done = isDone(), items = [
+      ['<path d="M8 1.5 L2.5 13.5 L13.5 13.5Z" fill="var(--surface)" stroke="var(--ink2)" stroke-width="1.5"/>', "cov.legend.site"],
+      ['<circle cx="8" cy="8" r="7" fill="var(--sel)" stroke="var(--accent)" stroke-width="1.5"/><path d="M8 3 L4.5 11 L11.5 11Z" fill="var(--accent)"/>', "cov.legend.on"],
+      ['<circle cx="8" cy="8" r="5.5" fill="var(--good)"/><path d="M5.4 8.2 l1.8 2 l3.4 -4.2" fill="none" stroke="var(--surface)" stroke-width="1.6"/>', "cov.legend.cov"],
+      ['<circle cx="8" cy="8" r="5" fill="var(--surface)" stroke="var(--crit)" stroke-width="2"/>', "cov.legend.unc"]
+    ];
+    if (done) {
+      if (showingOpt) items.push(['<circle cx="8" cy="8" r="6.5" fill="none" stroke="var(--accent)" stroke-width="2.5"/>', "cov.legend.opt"]);
+      if (showingGre) items.push(['<circle cx="8" cy="8" r="6.5" fill="none" stroke="var(--c-aqua)" stroke-width="2.5" stroke-dasharray="4 2.5"/>', "cov.legend.gre"]);
+      if (redundant(selMask()).length) items.push(['<circle cx="8" cy="8" r="6.5" fill="none" stroke="var(--crit)" stroke-width="2" stroke-dasharray="2 2.5"/>', "cov.legend.red"]);
+    }
+    box.innerHTML = items.map(function (it) {
+      return '<span><svg viewBox="0 0 16 16" aria-hidden="true">' + it[0] + "</svg>" + t(it[1]) + "</span>";
+    }).join("");
+  }
+
+  // ---- hover links between map and matrix ----
+  function hookRow(node, i) {
+    node.addEventListener("pointerenter", function () { setHover(i, -1); });
+    node.addEventListener("click", function () { setHover(i, -1); });
+  }
+  function hookSite(node, j, soft) {
+    node.addEventListener("pointerenter", function () { setHover(-1, j); });
+    if (!soft) node.addEventListener("focus", function () { setHover(-1, j); });
+  }
+  function clearHover() { setHover(-1, -1); }
+  function setHover(i, j) { hv = i; hs = j; applyHover(); }
+  function applyHover() {
+    var Lv = L();
+    vEls.forEach(function (g, i) { g.classList.toggle("hl", i === hv); lblEls[i].classList.toggle("hl", i === hv); });
+    rowEls.forEach(function (r, i) { r.classList.toggle("hl", i === hv); });
+    sEls.forEach(function (g, j) {
+      g.classList.toggle("hl", j === hs);
+      g.classList.toggle("cand", hv >= 0 && !!(Lv.mask[j] >> hv & 1));
+      diskEls[j].classList.toggle("pv", j === hs);
+    });
+    cellEls.forEach(function (cells, i) {
+      cells.forEach(function (td, j) {
+        td.classList.toggle("chl", j === hs);
+        td.classList.toggle("cand", i === hv && !!(Lv.mask[j] >> i & 1));
+      });
+    });
+    colHeads.forEach(function (h, j) { h.classList.toggle("chl", j === hs); });
+    renderReadout();
+  }
+  function renderReadout() {
+    var Lv = L(), box = $("rowread"), cov = covOf(selMask()), i = hv;
+    if (hs >= 0 && hv < 0) {
+      var vs = Lv.V.filter(function (_, q) { return Lv.mask[hs] >> q & 1; }).map(function (v) { return v[0]; });
+      box.innerHTML = t("cov.read.col", { s: LET[hs], list: listFmt(vs), n: vs.length, cost: money(Lv.cost[hs]) });
+      return;
+    }
+    if (i < 0) {
+      for (var q = 0; q < Lv.V.length; q++) if (!(cov >> q & 1)) { i = q; break; }
+      if (i < 0) { box.innerHTML = t("cov.read.allok") + "<br>" + t("cov.read.idle"); return; }
+    }
+    var js = [];
+    Lv.mask.forEach(function (m, j) { if (m >> i & 1) js.push(j); });
+    var sum = js.filter(function (j) { return sel[j]; }).length;
+    box.innerHTML = t("cov.read.row", { name: Lv.V[i][0], i: i + 1 }) + " " +
+      js.map(function (j) { return "x<sub>" + LET[j] + "</sub>"; }).join(" + ") + " ≥ 1<br>" +
+      t("cov.read.now") + " " + js.map(function (j) { return sel[j] ? 1 : 0; }).join(" + ") + " = " + sum + " " +
+      (sum >= 1 ? '<span class="ok">✓ ' + t("cov.read.ok") + "</span>" : '<span class="bad">✗ ' + t("cov.read.bad") + "</span>");
+  }
+
+  // ---- board ----
+  function renderBoard() {
+    var Lv = L(), n = Lv.V.length, b = selMask(), cov = covOf(b), m = popc(cov);
+    $("mname").textContent = t("cov.levelN", { n: lv + 1 }) + " · " + t("cov.lv" + (lv + 1) + ".name") + ". " + t("cov.lv" + (lv + 1) + ".brief");
+    $("mfacts").textContent = t("cov.facts", { n: n, m: Lv.S.length }) + " · " +
+      (weighted() ? t("cov.costVaries") : t("cov.costEqual", { c: money(Lv.unit) }));
+    renderMatrix();
+    renderMap();
+    renderLegend();
+    $("counter").innerHTML = t("cov.counter", { k: popc(b), c: money(costOf(b)), m: m, n: n });
+    var left = n - m, msg = $("needmsg");
+    $("confirm").disabled = isDone() || left > 0;
+    $("reset").disabled = isDone();
+    msg.className = "needmsg" + (left ? "" : " ok");
+    msg.textContent = isDone() ? "" : left ? t("cov.need", { left: left }) : t("cov.ready");
+    applyHover();
+  }
+
+  function toggle(j) {
+    if (isDone()) return;
+    var ae = document.activeElement, refocus = ae && ae.classList && ae.classList.contains("colbtn");
+    sel[j] = sel[j] ? 0 : 1;
+    renderBoard(); persist();
+    if (refocus && colHeads[j]) colHeads[j].querySelector("button").focus();
+  }
+  document.addEventListener("click", function (ev) {
+    var bt = ev.target.closest && ev.target.closest(".colbtn");
+    if (bt) toggle(+bt.parentNode.dataset.j);
+  });
+  $("mat").addEventListener("pointerleave", clearHover);
+  $("map").addEventListener("pointerleave", clearHover);
+
+  // ---- result ----
+  function barsRow(host, label, value, text, max, color) {
+    var row = document.createElement("div"); row.className = "brow";
+    var lbl = document.createElement("span"); lbl.className = "lbl"; lbl.textContent = label;
+    var track = document.createElement("div"); track.className = "btrack";
+    var fill = document.createElement("div"); fill.className = "bfill";
+    fill.style.width = (max > 0 ? value / max * 100 : 0) + "%";
+    fill.style.background = color;
+    var val = document.createElement("span"); val.className = "bval"; val.textContent = text;
+    track.append(fill, val); row.append(lbl, track); host.appendChild(row);
+  }
+  function renderResult() {
+    var box = $("result");
+    if (!isDone()) { box.hidden = true; return; }
+    box.hidden = false;
+    var Lv = L(), b = selMask(), wtd = weighted(), opt = Lv.ex.opt, few = Lv.ex.few, gr = Lv.gr;
+    var mine = wtd ? costOf(b) : popc(b), best = wtd ? opt.c : opt.k, gv = wtd ? gr.c : gr.k;
+    var ratio = mine > 0 ? best / mine : 0;
+    var stars = mine === best ? 3 : ratio >= 0.8 ? 2 : ratio >= 0.6 ? 1 : 0;
+    if (starsBy[lv] == null || stars > starsBy[lv]) { starsBy[lv] = stars; saveStars(); renderLevels(); }
+    $("verdict").textContent = t("cov.verdict." + stars);
+    $("stars").setAttribute("aria-label", t("cov.starsAria", { n: stars }));
+    $("stars").innerHTML = "★".repeat(stars) + '<span class="off">' + "★".repeat(3 - stars) + "</span>";
+    var show = wtd ? money : ants;
+    $("rsub").textContent = t(wtd ? "cov.rsub.cost" : "cov.rsub.count", { mine: show(mine), opt: show(best), pct: Math.round(ratio * 100), n: attempts[lv] });
+
+    var bars = $("bars"); bars.textContent = "";
+    var mx = Math.max(mine, best, gv, wtd ? few.c : 0);
+    barsRow(bars, t("cov.bar.mine"), mine, show(mine) + (wtd ? " · " + ants(popc(b)) : ""), mx, css("--c-blue"));
+    barsRow(bars, t("cov.bar.greedy"), gv, show(gv) + (wtd ? " · " + ants(gr.k) : ""), mx, css("--c-aqua"));
+    if (wtd) barsRow(bars, t("cov.bar.fewest"), few.c, show(few.c) + " · " + ants(few.k), mx, css("--c-violet"));
+    barsRow(bars, t("cov.bar.opt"), best, show(best) + (wtd ? " · " + ants(opt.k) : ""), mx, css("--accent"));
+
+    var ex = [], red = redundant(b);
+    var bad = letters(gr.b & ~opt.b);
+    ex.push(gv > best
+      ? t("cov.extra.worse", { seq: gr.order.map(function (j) { return LET[j]; }).join(" → "), v: show(gv), bad: listFmt(bad) })
+      : t("cov.extra.same", { v: show(gv) }));
+    if (wtd) ex.push(t("cov.extra.fewest", { k: few.k, c: money(few.c), kopt: opt.k, opt: money(opt.c) }));
+    ex.push(red.length > 1 ? t("cov.extra.redN", { list: listFmt(red) }) : red.length ? t("cov.extra.red1", { s: red[0] }) : t("cov.extra.nored"));
+    $("rextra").innerHTML = ex.map(function (s) { return "<p>" + s + "</p>"; }).join("");
+    $("showopt").setAttribute("aria-pressed", showingOpt ? "true" : "false");
+    $("showgre").setAttribute("aria-pressed", showingGre ? "true" : "false");
+    $("next").hidden = lv >= LEVELS.length - 1;
+  }
+
+  function renderAll() { renderLevels(); renderBoard(); renderResult(); persist(); }
+
+  // ---- actions ----
+  $("confirm").addEventListener("click", function () {
+    if (covOf(selMask()) !== L().full) return;
+    attempts[lv]++; phase = "done"; showingOpt = showingGre = false;
+    renderAll();
+    var rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    $("result").scrollIntoView({ behavior: rm ? "auto" : "smooth", block: "nearest" });
+  });
+  $("reset").addEventListener("click", function () { clearSel(); renderAll(); });
+  $("retry").addEventListener("click", function () { clearSel(); phase = "pick"; showingOpt = showingGre = false; renderAll(); });
+  $("next").addEventListener("click", function () { if (lv < LEVELS.length - 1) goLevel(lv + 1); });
+  $("showopt").addEventListener("click", function () { showingOpt = !showingOpt; renderBoard(); renderResult(); });
+  $("showgre").addEventListener("click", function () { showingGre = !showingGre; renderBoard(); renderResult(); });
+
+  var rq = 0;
+  window.addEventListener("resize", function () {
+    if (rq) return;
+    rq = requestAnimationFrame(function () {
+      rq = 0;
+      var w = $("map").getBoundingClientRect().width || VBW;
+      if (Math.abs(VBW / w - lastK) / lastK > 0.04) { renderMap(); applyHover(); }
+    });
+  });
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+
+  // ---- hot reload state (survives republish while the page is open) ----
+  function persist() {
+    if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+      try { window.claude.hot.snapshot({ lv: lv, sel: sel, phase: phase, attempts: attempts }); } catch (e) { /* ok */ }
+    }
+  }
+  function start(data) {
+    if (data && typeof data.lv === "number" && LEVELS[data.lv]) {
+      lv = data.lv; clearSel();
+      if (Array.isArray(data.sel)) data.sel.forEach(function (v, j) { if (j < sel.length) sel[j] = v ? 1 : 0; });
+      phase = data.phase === "done" && covOf(selMask()) === L().full ? "done" : "pick";
+      if (Array.isArray(data.attempts)) attempts = data.attempts;
+    }
+    I18N.onChange(renderAll);
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.ready) {
+    window.claude.hot.ready(start);
+  } else {
+    start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+  }
+})();
+</script>
+</body>
+</html>

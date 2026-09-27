@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en" data-title-key="asg.title" data-i18n-bundles="resources/perfect-assignment">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Perfect Assignment</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-bottom: 14px; }
+  .flabel { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+  .seg { display: inline-flex; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .seg button {
+    font: 600 13.5px var(--font-mono); padding: 7px 13px; border: none; cursor: pointer;
+    background: transparent; color: var(--ink2);
+  }
+  .seg button + button { border-left: 1.5px solid var(--border); }
+  .seg button:hover { background: var(--surface2); }
+  .seg button[aria-pressed="true"] { background: var(--pine); color: var(--on-solid); }
+  button.btn {
+    font: 600 13.5px var(--font-sans); color: var(--on-solid); background: var(--accent);
+    border: none; border-radius: 4px; padding: 8px 14px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
+  button.ghost { background: transparent; color: var(--accent-text); border: 1.5px solid var(--accent-text); }
+  button.quiet { background: transparent; color: var(--ink2); border: 1.5px solid var(--border); }
+
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .two.wide { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
+  @media (max-width: 800px) { .two, .two.wide { grid-template-columns: 1fr; } }
+
+  /* ---- matrices ---- */
+  .mwrap { overflow-x: auto; padding: 2px; }
+  table.mx { border-collapse: separate; border-spacing: 3px; }
+  table.mx th { font: 600 12px var(--font-mono); color: var(--ink2); padding: 0 3px; white-space: nowrap; }
+  table.mx th.rh { text-align: right; font: 600 13px var(--font-sans); }
+  table.mx th.corner { color: var(--muted); font-weight: 400; font-size: 10.5px; text-align: right; }
+  table.mx td { padding: 0; }
+  .cell {
+    position: relative; width: 46px; height: 46px; padding: 0; border: 1px solid var(--border); border-radius: 3px;
+    background: var(--surface); color: var(--ink); cursor: pointer; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+    font: 600 15px var(--font-mono); font-variant-numeric: tabular-nums;
+  }
+  .mx.sm .cell { width: 40px; height: 34px; font-size: 13px; }
+  .cell > span { position: relative; pointer-events: none; }
+  .cell .heat { position: absolute; inset: 0; background: var(--c-aqua); }
+  .cell .xv { font-size: 10.5px; font-weight: 400; color: var(--muted); line-height: 1; }
+  .cell.one .xv { color: var(--pine-text); font-weight: 600; }
+  .cell.frac .xv { color: var(--crit); font-weight: 600; }
+  .cell .ring { position: absolute; inset: 2px; border-radius: 2px; }
+  .cell.one .ring { border: 2.5px solid var(--pine); }
+  .cell.frac .ring { border: 2px dashed var(--c-violet); }
+  .cell .bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--c-violet); }
+  .cell .ipm { position: absolute; top: 0; right: 0; width: 0; height: 0; border-top: 11px solid var(--accent); border-left: 11px solid transparent; }
+  .cell[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .editbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 8px; font-size: 13.5px; color: var(--ink2); min-height: 34px; }
+  .editbar b { color: var(--ink); }
+  .step {
+    width: 30px; height: 30px; border: 1.5px solid var(--border); border-radius: 4px; background: var(--surface);
+    color: var(--ink); font: 600 16px var(--font-mono); cursor: pointer; padding: 0;
+  }
+  .step:disabled { opacity: 0.4; cursor: default; }
+  .editbar .grp { display: inline-flex; align-items: center; gap: 6px; }
+  .editbar output { font: 600 14px var(--font-mono); min-width: 3ch; text-align: center; }
+  .editbar .hint { font-size: 12px; color: var(--muted); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 12.5px; color: var(--ink2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 14px; height: 14px; border-radius: 2px; flex: none; position: relative; }
+  .sw.one { border: 2.5px solid var(--pine); }
+  .sw.frac { border: 2px dashed var(--c-violet); }
+  .sw.ipm { border-top: 11px solid var(--accent); border-left: 11px solid transparent; width: 0; height: 0; border-radius: 0; }
+  .sw.line { height: 3px; }
+  .sw.dash { height: 0; border-top: 2px dashed var(--accent); }
+  .sw.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-aqua); }
+  .sw.vline { height: 0; border-top: 2px dashed var(--ink2); }
+
+  svg.fig { display: block; width: 100%; height: auto; }
+
+  /* ---- results ---- */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 16px; }
+  .stat { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 9px 12px; }
+  .slabel { display: block; font: 400 10.5px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .sval { font: 600 20px var(--font-mono); font-variant-numeric: tabular-nums; }
+  .stat.chipbox { display: flex; align-items: center; }
+  .chip { display: inline-block; font-weight: 600; font-size: 13px; padding: 4px 11px; border-radius: 99px; border: 1.5px solid currentColor; }
+  .chip.int { color: var(--good-text); }
+  .chip.frac { color: var(--crit); }
+  .chip.inf { color: var(--muted); border-style: dashed; }
+  .status { margin: 12px 0 0; color: var(--ink2); font-size: 14.5px; max-width: 78ch; }
+  .mix { list-style: none; padding: 0; margin: 8px 0 0; font: 12.5px var(--font-mono); color: var(--ink2); }
+  .mix li { border-left: 3px solid var(--c-violet); background: var(--surface2); padding: 4px 9px; margin-bottom: 4px; }
+  .mix li.sum { border-left-color: var(--pine); color: var(--ink); }
+
+  /* ---- side constraint ---- */
+  .toggle { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 14px; cursor: pointer; }
+  input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; flex: none; margin: 0; }
+  .ctl { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; margin: 12px 0 6px; }
+  .ctl label { font-size: 13.5px; color: var(--ink2); white-space: nowrap; }
+  .ctl output { font: 600 13px var(--font-mono); min-width: 9ch; text-align: right; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; min-width: 60px; }
+  .zone { font-size: 13.5px; color: var(--ink2); margin: 0 0 14px; min-height: 2.8em; }
+  .zone.bind { color: var(--crit); }
+  .mlabel { font-size: 13px; color: var(--ink2); margin: 0 0 6px; }
+  .chartnote { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+
+  /* ---- TU grid ---- */
+  .whyp { margin: 0 0 12px; color: var(--ink2); max-width: 78ch; font-size: 14.5px; }
+  table.tu { border-collapse: separate; border-spacing: 2px; font: 12px var(--font-mono); }
+  table.tu th { font-weight: 400; color: var(--muted); padding: 0 4px; white-space: nowrap; }
+  table.tu th.rh { text-align: right; color: var(--ink2); font-family: var(--font-sans); font-size: 12.5px; }
+  table.tu td { width: 30px; height: 26px; text-align: center; border-radius: 2px; color: var(--muted); background: var(--surface); border: 1px solid var(--grid); }
+  table.tu td.one { background: var(--surface2); color: var(--ink); font-weight: 600; border-color: var(--axis); }
+  table.tu td.side { color: var(--accent-text); font-weight: 600; }
+  table.tu td.pick { outline: 2px solid var(--accent); outline-offset: -1px; background: var(--sel); }
+  table.tu th.pick { color: var(--accent-text); font-weight: 600; }
+  @media (max-width: 440px) { .cell { width: 42px; height: 44px; } table.tu td { width: 25px; } table.tu th { padding: 0 2px; } }
+  .tures { margin: 10px 0 0; font-size: 14px; color: var(--ink2); min-height: 1.5em; }
+  .tures b.ok { color: var(--good-text); }
+  .tures b.no { color: var(--crit); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="asg.eyebrow"></p>
+    <h1 data-i18n="asg.title"></h1>
+    <p class="lede" data-i18n-html="asg.lede"></p>
+  </header>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="asg.board.kicker"></span><span data-i18n="asg.board.title"></span></h2>
+    <div class="toolbar">
+      <span class="flabel" id="nlabel" data-i18n="asg.size"></span>
+      <div class="seg" id="nseg" role="group" aria-labelledby="nlabel">
+        <button type="button" id="n3" data-n="3">3</button><button type="button" id="n4" data-n="4">4</button><button type="button" id="n5" data-n="5">5</button><button type="button" id="n6" data-n="6">6</button>
+      </div>
+      <button class="btn quiet" id="rand" type="button" data-i18n="asg.btn.random"></button>
+      <button class="btn quiet" id="preset" type="button" data-i18n="asg.btn.preset"></button>
+    </div>
+    <div class="two">
+      <div>
+        <div class="mwrap" id="mc"></div>
+        <div class="editbar" id="ec"></div>
+        <div class="legend">
+          <span><span class="sw one"></span><span data-i18n="asg.leg.one"></span></span>
+          <span><span class="sw frac"></span><span data-i18n="asg.leg.frac"></span></span>
+          <span><span class="sw ipm"></span><span data-i18n="asg.leg.ip"></span></span>
+          <span><span class="sw" style="background:var(--c-aqua)"></span><span data-i18n="asg.leg.heat"></span></span>
+        </div>
+      </div>
+      <div>
+        <svg class="fig" id="graph" role="img" data-i18n-attr="aria-label:asg.graph.aria"></svg>
+        <div class="legend">
+          <span><span class="sw line" style="background:var(--pine)"></span><span data-i18n="asg.leg.edge1"></span></span>
+          <span><span class="sw line" style="background:var(--c-violet)"></span><span data-i18n="asg.leg.edgeF"></span></span>
+          <span><span class="sw dash"></span><span data-i18n="asg.leg.edgeIP"></span></span>
+        </div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="slabel" data-i18n="asg.stat.lp"></span><span class="sval" id="zlp"></span></div>
+      <div class="stat"><span class="slabel" data-i18n="asg.stat.ip"></span><span class="sval" id="zip"></span></div>
+      <div class="stat"><span class="slabel" data-i18n="asg.stat.gap"></span><span class="sval" id="zgap"></span></div>
+      <div class="stat chipbox"><span class="chip" id="chip" aria-live="polite"></span></div>
+    </div>
+    <p class="status" id="status"></p>
+    <ul class="mix" id="mix"></ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="asg.side.kicker"></span><span data-i18n="asg.side.title"></span></h2>
+    <div class="two wide">
+      <div>
+        <label class="toggle" for="sideon"><input type="checkbox" id="sideon"><span data-i18n-html="asg.side.toggle"></span></label>
+        <div class="ctl">
+          <label for="T" data-i18n="asg.side.T"></label>
+          <input type="range" id="T" min="0" max="60" step="1" value="38">
+          <output id="To" for="T"></output>
+        </div>
+        <p class="zone" id="zone"></p>
+        <p class="mlabel" data-i18n-html="asg.side.mat"></p>
+        <div class="mwrap" id="ma"></div>
+        <div class="editbar" id="ea"></div>
+      </div>
+      <div>
+        <p class="flabel" id="chartk"></p>
+        <svg class="fig" id="chart" viewBox="0 0 560 340" role="img" data-i18n-attr="aria-label:asg.chart.aria"></svg>
+        <div class="legend">
+          <span><span class="sw dot"></span><span id="legdot"></span></span>
+          <span><span class="sw line" style="background:var(--pine)"></span><span data-i18n="asg.leg.stair"></span></span>
+          <span><span class="sw line" style="background:var(--c-violet)"></span><span data-i18n="asg.leg.hull"></span></span>
+          <span><span class="sw vline"></span><span data-i18n="asg.leg.T"></span></span>
+        </div>
+        <p class="chartnote" data-i18n="asg.chart.note"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="asg.why.kicker"></span><span data-i18n="asg.why.title"></span></h2>
+    <p class="whyp" data-i18n-html="asg.why.p"></p>
+    <div class="mwrap" id="tu" role="img" data-i18n-attr="aria-label:asg.why.aria"></div>
+    <div class="toolbar" style="margin:12px 0 0">
+      <label class="toggle" for="tuside"><input type="checkbox" id="tuside"><span data-i18n="asg.why.side"></span></label>
+      <button class="btn ghost" id="draw" type="button" data-i18n="asg.why.draw"></button>
+      <button class="btn quiet" id="test" type="button" data-i18n="asg.why.test"></button>
+    </div>
+    <p class="tures" id="tures" aria-live="polite"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="asg.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="asg.d1.p1"></p>
+        <div class="formula" data-i18n-html="asg.d1.formula"></div>
+        <p data-i18n-html="asg.d1.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="asg.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="asg.d2.p1"></p>
+        <p data-i18n-html="asg.d2.p2"></p>
+        <p data-i18n-html="asg.d2.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="asg.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="asg.d3.p1"></p>
+        <p data-i18n-html="asg.d3.p2"></p>
+        <p data-i18n-html="asg.d3.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="asg.d4.title"></summary>
+      <div class="body">
+        <p data-i18n-html="asg.d4.p1"></p>
+        <p data-i18n-html="asg.d4.p2"></p>
+        <p data-i18n-html="asg.d4.p3"></p>
+        <p data-i18n-html="asg.d4.p4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="asg.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/perfect-assignment.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var css = function (v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
+  var fmt = function (v, d) { return I18N.fmt(v, d == null ? 2 : d); };
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, txt) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+  function mk(tag, cls, txt) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+  var SUB = "₀₁₂₃₄₅₆₇₈₉";
+  var xname = function (i, j) { return "x" + SUB[i + 1] + SUB[j + 1]; };
+
+  // ---- exact core: two-phase dense simplex (Bland's rule), permutations, LP hull, Birkhoff split ----
+  var EPS = 1e-9;
+  function lpSolve(n, C, A, side, T) {
+    var N = n * n, nS = side ? 1 : 0, art0 = N + nS, cols = art0 + 2 * n, m = 2 * n + nS;
+    if (side && T < 0) return { status: "infeasible" };
+    var tab = [], rhs = [], basis = [], d = new Array(cols).fill(0), r, c, i, j;
+    for (r = 0; r < m; r++) { tab.push(new Array(cols).fill(0)); rhs.push(1); }
+    for (i = 0; i < n; i++) for (j = 0; j < n; j++) {
+      tab[i][i * n + j] = 1; tab[n + j][i * n + j] = 1;
+      if (side) tab[2 * n][i * n + j] = A[i][j];
+    }
+    for (r = 0; r < 2 * n; r++) { tab[r][art0 + r] = 1; basis[r] = art0 + r; }
+    if (side) { tab[2 * n][N] = 1; rhs[2 * n] = T; basis[2 * n] = N; }
+    function pivot(pr, pc) {
+      var row = tab[pr], p = row[pc], k, f;
+      for (k = 0; k < cols; k++) row[k] /= p;
+      rhs[pr] /= p;
+      for (var q = 0; q < m; q++) {
+        if (q === pr) continue;
+        f = tab[q][pc];
+        if (f !== 0) {
+          for (k = 0; k < cols; k++) tab[q][k] -= f * row[k];
+          rhs[q] -= f * rhs[pr];
+          if (Math.abs(rhs[q]) < 1e-11) rhs[q] = 0;
+        }
+      }
+      f = d[pc];
+      if (f !== 0) for (k = 0; k < cols; k++) d[k] -= f * row[k];
+      basis[pr] = pc;
+    }
+    function run() {
+      for (var it = 0; it < 5000; it++) {
+        var q = -1, pr = -1, best = Infinity;
+        for (var k = 0; k < art0; k++) if (d[k] < -EPS) { q = k; break; } // Bland: lowest index enters
+        if (q < 0) return true;
+        for (var s = 0; s < m; s++) if (tab[s][q] > EPS) {
+          var ratio = rhs[s] / tab[s][q];
+          if (ratio < best - EPS || (ratio <= best + EPS && basis[s] < basis[pr])) { best = ratio; pr = s; }
+        }
+        if (pr < 0) return false;
+        pivot(pr, q);
+      }
+      return false;
+    }
+    // phase 1: minimize the sum of the artificials
+    for (c = 0; c < art0; c++) for (r = 0; r < 2 * n; r++) d[c] -= tab[r][c];
+    run();
+    var w = 0;
+    for (r = 0; r < m; r++) if (basis[r] >= art0) w += rhs[r];
+    if (w > 1e-7) return { status: "infeasible" };
+    // drive artificials out of the basis (the redundant row keeps its artificial at 0)
+    for (r = 0; r < m; r++) if (basis[r] >= art0) {
+      rhs[r] = 0;
+      for (c = 0; c < art0; c++) if (Math.abs(tab[r][c]) > 1e-9) { pivot(r, c); break; }
+    }
+    // phase 2: real costs
+    var cost = function (k) { return k < N ? C[Math.floor(k / n)][k % n] : 0; };
+    for (c = 0; c < cols; c++) {
+      d[c] = c < art0 ? cost(c) : 0;
+      for (r = 0; r < m; r++) d[c] -= cost(basis[r]) * tab[r][c];
+    }
+    if (!run()) return { status: "error" };
+    var x = [], z = 0;
+    for (i = 0; i < n; i++) x.push(new Array(n).fill(0));
+    for (r = 0; r < m; r++) if (basis[r] < N) {
+      var v = rhs[r];
+      if (Math.abs(v - Math.round(v)) < 1e-7) v = Math.round(v);
+      x[Math.floor(basis[r] / n)][basis[r] % n] = v;
+    }
+    var integral = true;
+    for (i = 0; i < n; i++) for (j = 0; j < n; j++) {
+      z += C[i][j] * x[i][j];
+      if (x[i][j] !== 0 && x[i][j] !== 1) integral = false;
+    }
+    return { status: "optimal", x: x, z: z, integral: integral };
+  }
+
+  var permCache = {};
+  function perms(n) {
+    if (permCache[n]) return permCache[n];
+    var out = [], p = [], used = [];
+    (function rec(k) {
+      if (k === n) { out.push(p.slice()); return; }
+      for (var j = 0; j < n; j++) if (!used[j]) { used[j] = true; p[k] = j; rec(k + 1); used[j] = false; }
+    })(0);
+    return (permCache[n] = out);
+  }
+  function evalPerms(n, C, A) {
+    return perms(n).map(function (p) {
+      var c = 0, a = 0;
+      for (var i = 0; i < n; i++) { c += C[i][p[i]]; a += A[i][p[i]]; }
+      return { p: p, c: c, a: a };
+    });
+  }
+  function ipSolve(list, side, T) {
+    var best = null;
+    list.forEach(function (q) {
+      if (side && q.a > T + 1e-9) return;
+      if (!best || q.c < best.c || (q.c === best.c && q.a < best.a)) best = q;
+    });
+    return best;
+  }
+  // lower convex hull from the lowest-pay dot to the fastest dot: the LP value as a function of T
+  function lpCurve(list) {
+    var pts = list.map(function (q) { return [q.a, q.c]; });
+    pts.sort(function (u, v) { return u[0] - v[0] || u[1] - v[1]; });
+    var h = [];
+    pts.forEach(function (pt) {
+      while (h.length >= 2) {
+        var o = h[h.length - 2], a = h[h.length - 1];
+        if ((a[0] - o[0]) * (pt[1] - o[1]) - (a[1] - o[1]) * (pt[0] - o[0]) <= 0) h.pop(); else break;
+      }
+      if (!h.length || h[h.length - 1][0] !== pt[0]) h.push(pt);
+    });
+    var minC = Math.min.apply(null, h.map(function (q) { return q[1]; })), out = [];
+    for (var k = 0; k < h.length; k++) { out.push(h[k]); if (h[k][1] === minC) break; }
+    return out;
+  }
+  function curveAt(curve, T) {
+    if (T < curve[0][0] - 1e-9) return null;
+    for (var k = 1; k < curve.length; k++) if (T <= curve[k][0]) {
+      var u = curve[k - 1], v = curve[k];
+      return u[1] + (v[1] - u[1]) * (T - u[0]) / (v[0] - u[0]);
+    }
+    return curve[curve.length - 1][1];
+  }
+  // Birkhoff: split a doubly stochastic x into weighted permutations
+  function decompose(n, x) {
+    var X = x.map(function (r) { return r.slice(); }), out = [];
+    for (var guard = 0; guard < n * n; guard++) {
+      var left = 0;
+      X.forEach(function (r) { r.forEach(function (v) { left += v; }); });
+      if (left < 1e-7) break;
+      var match = new Array(n).fill(-1), ok = true;
+      for (var i = 0; i < n && ok; i++) {
+        var seen = [];
+        ok = (function aug(u) {
+          for (var j = 0; j < n; j++) if (X[u][j] > 1e-9 && !seen[j]) {
+            seen[j] = true;
+            if (match[j] < 0 || aug(match[j])) { match[j] = u; return true; }
+          }
+          return false;
+        })(i);
+      }
+      if (!ok) break;
+      var p = [], th = Infinity;
+      for (var j = 0; j < n; j++) { p[match[j]] = j; th = Math.min(th, X[match[j]][j]); }
+      for (i = 0; i < n; i++) X[i][p[i]] -= th;
+      out.push({ p: p, w: th });
+    }
+    return out.sort(function (u, v) { return v.w - u.w; });
+  }
+  // exact integer determinant (Bareiss, fraction free)
+  function det(M) {
+    var a = M.map(function (r) { return r.slice(); }), k = a.length, sign = 1, prev = 1;
+    for (var i = 0; i < k - 1; i++) {
+      if (a[i][i] === 0) {
+        var s = i + 1;
+        while (s < k && a[s][i] === 0) s++;
+        if (s === k) return 0;
+        var tmp = a[i]; a[i] = a[s]; a[s] = tmp; sign = -sign;
+      }
+      for (var r = i + 1; r < k; r++) for (var c = i + 1; c < k; c++)
+        a[r][c] = (a[r][c] * a[i][i] - a[r][i] * a[i][c]) / prev;
+      prev = a[i][i];
+    }
+    return sign * a[k - 1][k - 1];
+  }
+
+  // ---- data: 6 x 6 master matrices, the page uses the top-left n x n block ----
+  var PRESET_C = [[14,23,11,19,9,24],[30,49,19,43,25,49],[24,37,21,33,22,38],[27,42,19,34,21,39],[19,23,10,23,9,26],[31,46,23,39,27,51]];
+  var PRESET_A = [[8,16,5,15,7,14],[6,7,3,9,4,10],[10,13,4,14,6,16],[10,12,5,11,7,10],[10,15,8,14,5,18],[7,7,4,7,3,7]];
+  var copy = function (M) { return M.map(function (r) { return r.slice(); }); };
+  var N = 5, C = copy(PRESET_C), A = copy(PRESET_A), side = false, T = 38;
+  var sel = { c: null, a: null };
+  var tuSide = false, tuPick = null, tuTest = null;
+  var S = {};
+
+  function subM(M) { return M.slice(0, N).map(function (r) { return r.slice(0, N); }); }
+  var people = function () { return t("asg.people").split(","); };
+  var places = function () { return t("asg.places").split(","); };
+  function plist(p) {
+    var P = people();
+    return p.map(function (j, i) { return P[i] + " → #" + (j + 1); }).join(", ");
+  }
+
+  function derive() {
+    var Cn = subM(C), An = subM(A);
+    S.list = evalPerms(N, Cn, An);
+    S.curve = lpCurve(S.list);
+    S.amin = S.curve[0][0];
+    S.afree = S.curve[S.curve.length - 1][0];
+    S.amax = Math.max.apply(null, S.list.map(function (q) { return q.a; }));
+    S.lo = Math.max(0, S.amin - 5);
+    S.hi = Math.max(S.amax, S.amin + 5);
+    T = Math.min(S.hi, Math.max(S.lo, T));
+    S.lp = lpSolve(N, Cn, An, side, T);
+    S.ip = ipSolve(S.list, side, T);
+    S.mix = S.lp.status === "optimal" && !S.lp.integral ? decompose(N, S.lp.x) : null;
+    if (S.mix) S.mix.forEach(function (m) {
+      m.c = 0; m.a = 0;
+      m.p.forEach(function (j, i) { m.c += Cn[i][j]; m.a += An[i][j]; });
+    });
+  }
+  // T with the largest gap between the integer staircase and the LP hull
+  function defaultT() {
+    derive();
+    var best = S.afree, bg = 1e-9;
+    for (var v = S.amin; v <= S.afree; v++) {
+      var g = ipSolve(S.list, true, v).c - curveAt(S.curve, v);
+      if (g > bg + 1e-9) { bg = g; best = v; }
+    }
+    return best;
+  }
+  // riders on fast bikes deliver sooner but charge more per km
+  function randomData() {
+    for (var tries = 0; tries < 40; tries++) {
+      var start = [], pace = [], rate = [], dist = [], i, j;
+      for (i = 0; i < 6; i++) {
+        pace.push(3 + Math.random() * 2.8);
+        rate.push(0.8 + (5.8 - pace[i]) * 0.45 + Math.random() * 0.3);
+        start.push(3 + Math.floor(Math.random() * 9));
+        dist.push(2 + Math.random() * 6);
+      }
+      for (i = 0; i < 6; i++) for (j = 0; j < 6; j++) {
+        C[i][j] = Math.min(99, Math.max(5, Math.round(start[i] + pace[i] * dist[j] + Math.random() * 6 - 3)));
+        A[i][j] = Math.min(99, Math.max(3, Math.round(2 + rate[i] * dist[j] + Math.random() * 4 - 2)));
+      }
+      derive();
+      if (S.afree - S.amin >= 4) break;
+    }
+  }
+
+  // ---- matrices ----
+  function buildMatrix(key) {
+    var host = $(key === "c" ? "mc" : "ma"), M = key === "c" ? C : A;
+    var hadFocus = host.contains(document.activeElement);
+    var P = people(), unit = t(key === "c" ? "asg.u.min" : "asg.u.pay");
+    var vals = [], i, j, td;
+    for (i = 0; i < N; i++) for (j = 0; j < N; j++) vals.push(M[i][j]);
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    var x = S.lp.status === "optimal" ? S.lp.x : null;
+    var tbl = mk("table", "mx" + (key === "a" ? " sm" : ""));
+    tbl.setAttribute("aria-label", t(key === "c" ? "asg.mat.costAria" : "asg.mat.payAria"));
+    var hr = mk("tr"), th = mk("th", "corner", unit);
+    hr.appendChild(th);
+    for (j = 0; j < N; j++) { th = mk("th", null, "#" + (j + 1)); th.scope = "col"; hr.appendChild(th); }
+    tbl.appendChild(hr);
+    var s = sel[key] || [0, 0], focusBtn = null;
+    for (i = 0; i < N; i++) {
+      var tr = mk("tr");
+      th = mk("th", "rh", P[i]); th.scope = "row"; tr.appendChild(th);
+      for (j = 0; j < N; j++) {
+        var xv = x ? x[i][j] : 0, cls = "cell" + (xv === 1 ? " one" : xv > 0 ? " frac" : "");
+        var b = mk("button", cls);
+        b.type = "button"; b.dataset.i = i; b.dataset.j = j;
+        var isSel = sel[key] && s[0] === i && s[1] === j;
+        b.setAttribute("aria-pressed", isSel ? "true" : "false");
+        b.tabIndex = s[0] === i && s[1] === j ? 0 : -1;
+        if (b.tabIndex === 0) focusBtn = b;
+        var heat = mk("span", "heat");
+        heat.style.opacity = (0.05 + 0.42 * (hi > lo ? (M[i][j] - lo) / (hi - lo) : 0.5)).toFixed(3);
+        b.appendChild(heat);
+        b.appendChild(mk("span", "ring"));
+        b.appendChild(mk("span", "cv", String(M[i][j])));
+        if (key === "c") {
+          b.appendChild(mk("span", "xv", x ? fmt(xv, 2) : "·"));
+          if (xv > 0 && xv < 1) { var bar = mk("span", "bar"); bar.style.width = (xv * 100) + "%"; b.appendChild(bar); }
+          if (S.ip && S.ip.p[i] === j) b.appendChild(mk("span", "ipm"));
+        }
+        b.setAttribute("aria-label", t("asg.cellAria", { p: P[i], o: j + 1, v: M[i][j], u: unit, x: x ? fmt(xv, 2) : "·" }));
+        td = mk("td"); td.appendChild(b); tr.appendChild(td);
+      }
+      tbl.appendChild(tr);
+    }
+    host.textContent = "";
+    host.appendChild(tbl);
+    if (hadFocus && focusBtn) focusBtn.focus();
+
+    // edit bar
+    var bar2 = $(key === "c" ? "ec" : "ea");
+    bar2.textContent = "";
+    var sc = sel[key];
+    var lab = mk("span");
+    if (sc) lab.innerHTML = "<b></b>";
+    if (sc) lab.firstChild.textContent = t("asg.edit.cell", { p: P[sc[0]], o: sc[1] + 1 });
+    else lab.textContent = t("asg.edit.pick");
+    var dec = mk("button", "step", "−"), out = mk("output", null, sc ? String(M[sc[0]][sc[1]]) : "·"), inc = mk("button", "step", "+");
+    dec.type = inc.type = "button";
+    dec.setAttribute("aria-label", t("asg.edit.dec"));
+    inc.setAttribute("aria-label", t("asg.edit.inc"));
+    dec.disabled = inc.disabled = !sc;
+    dec.addEventListener("click", function () { bump(key, -1); });
+    inc.addEventListener("click", function () { bump(key, 1); });
+    var grp = mk("span", "grp");
+    grp.append(dec, out, inc);
+    bar2.append(lab, grp, mk("span", "hint", t("asg.edit.hint")));
+  }
+  function bump(key, d) {
+    var s = sel[key];
+    if (!s) return;
+    var M = key === "c" ? C : A;
+    M[s[0]][s[1]] = Math.min(99, Math.max(1, M[s[0]][s[1]] + d));
+    update();
+  }
+  function wireMatrix(key) {
+    var host = $(key === "c" ? "mc" : "ma");
+    host.addEventListener("click", function (e) {
+      var b = e.target.closest(".cell");
+      if (!b) return;
+      sel[key] = [+b.dataset.i, +b.dataset.j];
+      renderAll();
+      var nb = host.querySelector('.cell[tabindex="0"]');
+      if (nb) nb.focus();
+    });
+    host.addEventListener("keydown", function (e) {
+      var b = e.target.closest(".cell");
+      if (!b) return;
+      var i = +b.dataset.i, j = +b.dataset.j, k = e.key;
+      var mv = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[k];
+      if (mv) {
+        sel[key] = [Math.min(N - 1, Math.max(0, i + mv[0])), Math.min(N - 1, Math.max(0, j + mv[1]))];
+        renderAll();
+        host.querySelector('.cell[tabindex="0"]').focus();
+        e.preventDefault();
+      } else if (k === "+" || k === "=" || k === "-" || k === "_") {
+        sel[key] = [i, j];
+        bump(key, k === "+" || k === "=" ? 1 : -1);
+        host.querySelector('.cell[tabindex="0"]').focus();
+        e.preventDefault();
+      }
+    });
+  }
+
+  // ---- bipartite graph ----
+  function drawGraph() {
+    var svg = $("graph"), H = 20 + N * 48, P = people(), Q = places();
+    svg.setAttribute("viewBox", "0 0 400 " + H);
+    svg.textContent = "";
+    var y = function (k) { return 34 + k * 48; }, xl = 84, xr = 292, i, j;
+    var font = { "font-size": 13, "font-family": css("--font-sans") };
+    function lbl(xx, yy, anchor, txt, extra) {
+      var a = { x: xx, y: yy + 4.5, "text-anchor": anchor, fill: css("--ink") };
+      for (var k in font) a[k] = font[k];
+      for (k in extra || {}) a[k] = extra[k];
+      svg.appendChild(el("text", a, txt));
+    }
+    svg.appendChild(el("text", { x: xl, y: 12, "text-anchor": "middle", fill: css("--muted"), "font-size": 10.5,
+      "font-family": css("--font-mono"), "letter-spacing": "0.08em" }, t("asg.graph.riders").toUpperCase()));
+    svg.appendChild(el("text", { x: xr, y: 12, "text-anchor": "middle", fill: css("--muted"), "font-size": 10.5,
+      "font-family": css("--font-mono"), "letter-spacing": "0.08em" }, t("asg.graph.orders").toUpperCase()));
+    for (i = 0; i < N; i++) for (j = 0; j < N; j++)
+      svg.appendChild(el("line", { x1: xl, y1: y(i), x2: xr, y2: y(j), stroke: css("--grid"), "stroke-width": 1 }));
+    var x = S.lp.status === "optimal" ? S.lp.x : null;
+    if (S.ip && (!x || !S.lp.integral || S.ip.p.some(function (jj, ii) { return x[ii][jj] !== 1; })))
+      S.ip.p.forEach(function (jj, ii) {
+        svg.appendChild(el("line", { x1: xl, y1: y(ii), x2: xr, y2: y(jj), stroke: css("--accent"), "stroke-width": 2,
+          "stroke-dasharray": "5 4" }));
+      });
+    if (x) for (i = 0; i < N; i++) for (j = 0; j < N; j++) {
+      var v = x[i][j];
+      if (v <= 0) continue;
+      svg.appendChild(el("line", { x1: xl, y1: y(i), x2: xr, y2: y(j), stroke: css(v === 1 ? "--pine" : "--c-violet"),
+        "stroke-width": Math.max(1.5, 6 * v), "stroke-linecap": "round" }));
+    }
+    var placed = [];
+    if (x) for (i = 0; i < N; i++) for (j = 0; j < N; j++) {
+      v = x[i][j];
+      if (v <= 0 || v >= 1) continue;
+      var mx, my;
+      [0.3, 0.7, 0.5, 0.2, 0.8, 0.4, 0.6].some(function (u) {
+        mx = xl + (xr - xl) * u; my = y(i) + (y(j) - y(i)) * u;
+        return !placed.some(function (q) { return Math.abs(q[0] - mx) < 30 && Math.abs(q[1] - my) < 15; });
+      });
+      placed.push([mx, my]);
+      svg.appendChild(el("text", { x: mx, y: my + 4, "text-anchor": "middle", fill: css("--crit"), "font-size": 11.5,
+        "font-weight": 600, "font-family": css("--font-mono"), stroke: css("--halo"), "stroke-width": 4,
+        "paint-order": "stroke" }, fmt(v, 2)));
+    }
+    for (i = 0; i < N; i++) {
+      svg.appendChild(el("circle", { cx: xl, cy: y(i), r: 6, fill: css("--surface"), stroke: css("--ink"), "stroke-width": 2 }));
+      svg.appendChild(el("circle", { cx: xr, cy: y(i), r: 6, fill: css("--surface"), stroke: css("--ink"), "stroke-width": 2 }));
+      lbl(xl - 13, y(i), "end", P[i], { "font-weight": 600 });
+      lbl(xr + 13, y(i), "start", "#" + (i + 1) + " " + Q[i]);
+    }
+  }
+
+  // ---- scatter of all assignments ----
+  function niceStep(span) {
+    var raw = span / 5, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p;
+  }
+  function drawChart() {
+    var svg = $("chart"), cw = svg.getBoundingClientRect().width, W = cw && cw < 500 ? 420 : 560, H = Math.round(W * 0.6);
+    var M = { l: 50, r: 16, t: 14, b: 44 };
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.textContent = "";
+    var cs = S.list.map(function (q) { return q.c; });
+    var x0 = S.lo, x1 = S.hi, y0 = Math.min.apply(null, cs), y1 = Math.max.apply(null, cs);
+    var py = Math.max(2, (y1 - y0) * 0.06); y0 -= py; y1 += py;
+    var sx = function (v) { return M.l + (v - x0) / (x1 - x0) * (W - M.l - M.r); };
+    var sy = function (v) { return H - M.b - (v - y0) / (y1 - y0) * (H - M.t - M.b); };
+    var mono = css("--font-mono"), sans = css("--font-sans"), v, s;
+    var g = el("g", {});
+    s = niceStep(x1 - x0);
+    for (v = Math.ceil(x0 / s) * s; v <= x1 + 1e-9; v += s) {
+      g.appendChild(el("line", { x1: sx(v), y1: M.t, x2: sx(v), y2: H - M.b, stroke: css("--grid") }));
+      g.appendChild(el("text", { x: sx(v), y: H - M.b + 16, "text-anchor": "middle", fill: css("--muted"), "font-size": 11, "font-family": mono }, fmt(v, 0)));
+    }
+    s = niceStep(y1 - y0);
+    for (v = Math.ceil(y0 / s) * s; v <= y1 + 1e-9; v += s) {
+      g.appendChild(el("line", { x1: M.l, y1: sy(v), x2: W - M.r, y2: sy(v), stroke: css("--grid") }));
+      g.appendChild(el("text", { x: M.l - 7, y: sy(v) + 4, "text-anchor": "end", fill: css("--muted"), "font-size": 11, "font-family": mono }, fmt(v, 0)));
+    }
+    g.appendChild(el("line", { x1: M.l, y1: H - M.b, x2: W - M.r, y2: H - M.b, stroke: css("--axis"), "stroke-width": 1.2 }));
+    g.appendChild(el("line", { x1: M.l, y1: M.t, x2: M.l, y2: H - M.b, stroke: css("--axis"), "stroke-width": 1.2 }));
+    g.appendChild(el("text", { x: (M.l + W - M.r) / 2, y: H - 8, "text-anchor": "middle", fill: css("--ink2"), "font-size": 12.5, "font-family": sans }, t("asg.chart.x")));
+    g.appendChild(el("text", { x: 13, y: (M.t + H - M.b) / 2, "text-anchor": "middle", fill: css("--ink2"), "font-size": 12.5, "font-family": sans,
+      transform: "rotate(-90 13 " + (M.t + H - M.b) / 2 + ")" }, t("asg.chart.y")));
+    svg.appendChild(g);
+    // infeasible band
+    if (S.amin > x0) {
+      svg.appendChild(el("rect", { x: M.l, y: M.t, width: sx(S.amin) - M.l, height: H - M.t - M.b, fill: css("--region") }));
+      svg.appendChild(el("text", { x: (M.l + sx(S.amin)) / 2, y: M.t + 14, "text-anchor": "middle", fill: css("--muted"),
+        "font-size": 10.5, "font-family": mono }, t("asg.chart.inf")));
+    }
+    // dots
+    var dg = el("g", { fill: css("--c-aqua") }), rr = N >= 6 ? 2.4 : 3.2;
+    S.list.forEach(function (q) {
+      dg.appendChild(el("circle", { cx: sx(q.a), cy: sy(q.c), r: rr, "fill-opacity": side && q.a > T ? 0.3 : 0.95 }));
+    });
+    svg.appendChild(dg);
+    // IP staircase: best dot to the left of each budget
+    var sorted = S.list.slice().sort(function (p, q) { return p.a - q.a || p.c - q.c; });
+    var best = Infinity, d = "";
+    sorted.forEach(function (q) {
+      if (q.c < best) {
+        d += d ? " H" + sx(q.a) + " V" + sy(q.c) : "M" + sx(q.a) + " " + sy(q.c);
+        best = q.c;
+      }
+    });
+    d += " H" + sx(x1);
+    svg.appendChild(el("path", { d: d, fill: "none", stroke: css("--pine"), "stroke-width": 2 }));
+    // LP: lower convex hull
+    d = S.curve.map(function (p, k) { return (k ? "L" : "M") + sx(p[0]) + " " + sy(p[1]); }).join(" ") + " H" + sx(x1);
+    svg.appendChild(el("path", { d: d, fill: "none", stroke: css("--c-violet"), "stroke-width": 2.5, "stroke-linejoin": "round" }));
+    // budget line, gap and markers
+    var lpOk = S.lp.status === "optimal";
+    if (side) {
+      svg.appendChild(el("line", { x1: sx(T), y1: M.t, x2: sx(T), y2: H - M.b, stroke: css("--ink2"), "stroke-width": 1.5, "stroke-dasharray": "6 5" }));
+      var nearR = sx(T) > W - 100;
+      svg.appendChild(el("text", { x: sx(T) + (nearR ? -6 : 6), y: H - M.b - 8, "text-anchor": nearR ? "end" : "start", fill: css("--ink"),
+        "font-size": 12, "font-weight": 600, "font-family": mono, stroke: css("--halo"), "stroke-width": 4, "paint-order": "stroke" }, "T = " + T));
+      if (S.mix && S.mix.length === 2) {
+        svg.appendChild(el("line", { x1: sx(S.mix[0].a), y1: sy(S.mix[0].c), x2: sx(S.mix[1].a), y2: sy(S.mix[1].c),
+          stroke: css("--c-violet"), "stroke-width": 1.2, "stroke-dasharray": "2 3" }));
+        S.mix.forEach(function (m) {
+          svg.appendChild(el("circle", { cx: sx(m.a), cy: sy(m.c), r: 6, fill: "none", stroke: css("--c-violet"), "stroke-width": 2 }));
+        });
+      }
+      if (lpOk && S.ip && S.ip.c - S.lp.z > 1e-6) {
+        var gx = sx(T), ga = sy(S.lp.z), gb = sy(S.ip.c);
+        svg.appendChild(el("line", { x1: gx, y1: ga, x2: gx, y2: gb, stroke: css("--crit"), "stroke-width": 3 }));
+        svg.appendChild(el("text", { x: gx + (nearR ? -8 : 8), y: (ga + gb) / 2 + 4, "text-anchor": nearR ? "end" : "start", fill: css("--crit"),
+          "font-size": 12, "font-weight": 600, "font-family": mono, stroke: css("--halo"), "stroke-width": 4, "paint-order": "stroke" },
+          t("asg.chart.gap") + " " + fmt(S.ip.c - S.lp.z, 2)));
+      }
+    }
+    if (S.ip) svg.appendChild(el("circle", { cx: sx(S.ip.a), cy: sy(S.ip.c), r: 7, fill: "none", stroke: css("--pine"), "stroke-width": 2.5 }));
+    if (lpOk) {
+      var la = 0;
+      S.lp.x.forEach(function (row, i) { row.forEach(function (xv, j) { la += xv * A[i][j]; }); });
+      var cx = sx(la), cy = sy(S.lp.z);
+      svg.appendChild(el("path", { d: "M" + cx + " " + (cy - 6) + " L" + (cx + 6) + " " + cy + " L" + cx + " " + (cy + 6) + " L" + (cx - 6) + " " + cy + " Z",
+        fill: css("--c-violet"), stroke: css("--surface"), "stroke-width": 1.5 }));
+    }
+  }
+
+  // ---- TU check on the n = 3 constraint matrix ----
+  function tuMat() {
+    var M = [], i, j;
+    for (i = 0; i < 7; i++) M.push(new Array(9).fill(0));
+    for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) { M[i][i * 3 + j] = 1; M[3 + j][i * 3 + j] = 1; M[6][i * 3 + j] = A[i][j]; }
+    return M;
+  }
+  function tuLabels() {
+    var P = people();
+    return [P[0], P[1], P[2], "#1", "#2", "#3", t("asg.why.budget")];
+  }
+  function pickK(arr, k) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) { var r = Math.floor(Math.random() * (i + 1)), tmp = a[i]; a[i] = a[r]; a[r] = tmp; }
+    return a.slice(0, k).sort(function (p, q) { return p - q; });
+  }
+  function drawPick(kMin, kMax) {
+    var k = kMin + Math.floor(Math.random() * (kMax - kMin + 1));
+    var rows = tuSide ? pickK([0, 1, 2, 3, 4, 5], k - 1).concat([6]) : pickK([0, 1, 2, 3, 4, 5], k);
+    return { rows: rows, cols: pickK([0, 1, 2, 3, 4, 5, 6, 7, 8], k) };
+  }
+  function detOf(pk) {
+    var M = tuMat();
+    return det(pk.rows.map(function (r) { return pk.cols.map(function (c) { return M[r][c]; }); })) + 0;
+  }
+  function renderTU() {
+    var M = tuMat(), L = tuLabels(), host = $("tu"), rows = tuSide ? 7 : 6, i, j;
+    var tbl = mk("table", "tu"), hr = mk("tr");
+    hr.appendChild(mk("th"));
+    for (j = 0; j < 9; j++) {
+      var th = mk("th", tuPick && tuPick.cols.indexOf(j) >= 0 ? "pick" : null, xname(Math.floor(j / 3), j % 3));
+      hr.appendChild(th);
+    }
+    tbl.appendChild(hr);
+    for (i = 0; i < rows; i++) {
+      var tr = mk("tr"), inR = tuPick && tuPick.rows.indexOf(i) >= 0;
+      tr.appendChild(mk("th", "rh" + (inR ? " pick" : ""), L[i]));
+      for (j = 0; j < 9; j++) {
+        var v = M[i][j], cls = i === 6 ? "side" : v ? "one" : "";
+        if (inR && tuPick.cols.indexOf(j) >= 0) cls += " pick";
+        tr.appendChild(mk("td", cls, String(v)));
+      }
+      tbl.appendChild(tr);
+    }
+    host.textContent = "";
+    host.appendChild(tbl);
+    var out = $("tures");
+    out.textContent = "";
+    if (!tuPick && !tuTest) { out.textContent = t("asg.why.start"); return; }
+    if (tuPick) {
+      var dv = detOf(tuPick), ok = dv === 0 || dv === 1 || dv === -1;
+      var sp = mk("span", null, t("asg.why.res", {
+        rows: tuPick.rows.map(function (r) { return L[r]; }).join(", "),
+        cols: tuPick.cols.map(function (c) { return xname(Math.floor(c / 3), c % 3); }).join(", "),
+        d: dv < 0 ? "−" + (-dv) : dv
+      }) + " ");
+      out.append(sp, mk("b", ok ? "ok" : "no", t(ok ? "asg.why.in" : "asg.why.out")));
+      if (tuSide) out.append(" " + t("asg.why.one", { v: A[0][0] }));
+    }
+    if (tuTest) {
+      if (tuPick) out.appendChild(mk("br"));
+      out.append(t(tuTest.side ? "asg.why.testSide" : "asg.why.testPure", { k: I18N.fmt(tuTest.k, 0), bad: I18N.fmt(tuTest.bad, 0) }));
+    }
+  }
+
+  // ---- results panel ----
+  function renderResults() {
+    var lpOk = S.lp.status === "optimal", u = t("asg.u.pay");
+    $("zlp").textContent = lpOk ? fmt(S.lp.z, 2) + " " + t("asg.u.min") : t("asg.infShort");
+    $("zip").textContent = S.ip ? S.ip.c + " " + t("asg.u.min") : t("asg.infShort");
+    var gap = lpOk && S.ip ? S.ip.c - S.lp.z : null;
+    if (gap != null && gap < 1e-7) gap = 0;
+    $("zgap").textContent = gap == null ? "·" : t("asg.gapFmt", { v: fmt(gap, 2), p: fmt(100 * gap / S.ip.c, 1) });
+    var chip = $("chip");
+    chip.className = "chip " + (!lpOk ? "inf" : S.lp.integral ? "int" : "frac");
+    chip.textContent = t(!lpOk ? "asg.chip.inf" : S.lp.integral ? "asg.chip.int" : "asg.chip.frac");
+    var st;
+    if (!lpOk) st = t("asg.st.inf", { T: T, u: u, amin: S.amin });
+    else if (S.lp.integral) {
+      var p = S.lp.x.map(function (row) { return row.indexOf(1); });
+      st = t(!side ? "asg.st.pure" : T >= S.afree ? "asg.st.slack" : "asg.st.bindInt", { list: plist(p) });
+    } else if (gap === 0) st = t("asg.st.tie", { list: plist(S.ip.p) });
+    else st = t("asg.st.frac", { T: T, u: u, gap: fmt(gap, 2), list: plist(S.ip.p) });
+    $("status").textContent = st;
+    var ul = $("mix");
+    ul.textContent = "";
+    if (S.mix) {
+      ul.appendChild(mk("li", "sum", t("asg.mix.head")));
+      S.mix.forEach(function (m) {
+        ul.appendChild(mk("li", null, t("asg.mix.item", { w: fmt(m.w, 3), list: plist(m.p), c: m.c, a: m.a, u: u })));
+      });
+      var zc = S.mix.map(function (m) { return fmt(m.w, 3) + " × " + m.c; }).join(" + ");
+      var ac = S.mix.map(function (m) { return fmt(m.w, 3) + " × " + m.a; }).join(" + ");
+      var at = S.mix.reduce(function (s, m) { return s + m.w * m.a; }, 0);
+      ul.appendChild(mk("li", "sum", t("asg.mix.check", { zc: zc, z: fmt(S.lp.z, 2), ac: ac, a: fmt(at, 2), u: u })));
+    }
+  }
+
+  function renderSide() {
+    var r = $("T");
+    $("sideon").checked = side;
+    r.min = S.lo; r.max = S.hi; r.value = T; r.disabled = !side;
+    $("To").textContent = T + " " + t("asg.u.pay");
+    var z = $("zone"), key = !side ? "asg.zone.off" : T < S.amin ? "asg.zone.inf" : T < S.afree ? "asg.zone.bind" : "asg.zone.slack";
+    z.className = "zone" + (key === "asg.zone.bind" ? " bind" : "");
+    z.textContent = t(key, { amin: S.amin, afree: S.afree, u: t("asg.u.pay") });
+    $("chartk").textContent = t("asg.chart.kicker", { k: I18N.fmt(S.list.length, 0), n: N });
+    $("legdot").textContent = t("asg.leg.dot", { k: I18N.fmt(S.list.length, 0) });
+  }
+
+  function renderAll() {
+    [3, 4, 5, 6].forEach(function (k) { $("n" + k).setAttribute("aria-pressed", k === N ? "true" : "false"); });
+    buildMatrix("c");
+    buildMatrix("a");
+    drawGraph();
+    renderResults();
+    renderSide();
+    drawChart();
+    renderTU();
+    persist();
+  }
+  function update() { derive(); renderAll(); }
+
+  // ---- controls ----
+  [3, 4, 5, 6].forEach(function (k) {
+    $("n" + k).addEventListener("click", function () {
+      if (N === k) return;
+      N = k;
+      ["c", "a"].forEach(function (key) { if (sel[key] && (sel[key][0] >= N || sel[key][1] >= N)) sel[key] = null; });
+      T = defaultT();
+      update();
+    });
+  });
+  $("rand").addEventListener("click", function () { randomData(); T = defaultT(); update(); });
+  $("preset").addEventListener("click", function () { C = copy(PRESET_C); A = copy(PRESET_A); T = defaultT(); update(); });
+  $("sideon").addEventListener("change", function (e) { side = e.target.checked; update(); });
+  $("T").addEventListener("input", function (e) { T = +e.target.value; update(); });
+  $("tuside").addEventListener("change", function (e) { tuSide = e.target.checked; tuPick = null; tuTest = null; renderTU(); });
+  $("draw").addEventListener("click", function () { tuPick = drawPick(2, 4); renderTU(); });
+  $("test").addEventListener("click", function () {
+    var bad = 0, k = 1000;
+    for (var q = 0; q < k; q++) {
+      var dv = detOf(drawPick(1, tuSide ? 5 : 6));
+      if (dv !== 0 && dv !== 1 && dv !== -1) bad++;
+    }
+    tuTest = { k: k, bad: bad, side: tuSide };
+    renderTU();
+  });
+  wireMatrix("c");
+  wireMatrix("a");
+  var rz = 0;
+  window.addEventListener("resize", function () {
+    cancelAnimationFrame(rz);
+    rz = requestAnimationFrame(function () { if (S.list) drawChart(); });
+  });
+
+  // ---- hot state (survives republish while the page is open) ----
+  function persist() {
+    if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+      try { window.claude.hot.snapshot({ n: N, C: C, A: A, side: side, T: T, sel: sel, tuSide: tuSide }); } catch (e) { /* ok */ }
+    }
+  }
+  function okM(M) {
+    return Array.isArray(M) && M.length === 6 && M.every(function (r) {
+      return Array.isArray(r) && r.length === 6 && r.every(function (v) { return typeof v === "number" && v >= 1 && v <= 99; });
+    });
+  }
+  function start(data) {
+    if (data && [3, 4, 5, 6].indexOf(data.n) >= 0 && okM(data.C) && okM(data.A)) {
+      N = data.n; C = copy(data.C); A = copy(data.A); side = !!data.side;
+      if (typeof data.T === "number") T = data.T;
+      if (data.sel) sel = { c: data.sel.c || null, a: data.sel.a || null };
+      tuSide = !!data.tuSide;
+    }
+    $("tuside").checked = tuSide;
+    derive();
+    I18N.onChange(renderAll);
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
+  else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+})();
+</script>
+</body>
+</html>

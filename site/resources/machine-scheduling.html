@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="en" data-title-key="mch.title" data-i18n-bundles="resources/lp-machines">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Machine Scheduling</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- statement ---- */
+  .statement { margin: 0 0 10px; color: var(--ink2); max-width: 78ch; }
+  .statement:last-child { margin-bottom: 0; }
+  .tblwrap { overflow-x: auto; }
+  table.mt { border-collapse: collapse; font-size: 13.5px; margin: 4px 0 14px; min-width: 320px; }
+  table.mt th {
+    text-align: right; font-weight: 600; font-size: 12px; color: var(--muted); letter-spacing: 0.03em;
+    border-bottom: 1px solid var(--axis); padding: 6px 12px;
+  }
+  table.mt th:first-child, table.mt td:first-child { text-align: left; }
+  table.mt td { padding: 6px 12px; border-bottom: 1px solid var(--grid); text-align: right;
+    font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.mt td:first-child { font-family: var(--font-sans); font-size: 13.5px; color: var(--ink); }
+  table.mt tr.sep td { border-top: 1px solid var(--axis); }
+  table.mt td.dim { color: var(--muted); }
+
+  /* ---- animation ---- */
+  #mch-sec .anim-hud { z-index: 2; }
+  #mch-sec .anim-hud .chip-stat.off { display: none; }
+  #mch-sec .anim-hud .chip-stat.bad b { color: var(--mit-bright); }
+  @media (max-width: 620px) {
+    #mch-sec .anim-hud { top: 6px; left: 6px; gap: 4px; max-width: calc(100% - 12px); }
+    #mch-sec .anim-hud .chip-stat { padding: 3px 7px; font-size: 10.5px; }
+    #mch-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #mch-sec .lg-heat { width: 30px !important; background: linear-gradient(90deg, color-mix(in srgb, var(--mit-silver) 12%, var(--surface)), color-mix(in srgb, var(--mit-silver) 70%, var(--surface))); }
+  #mch-sec .lg-pick { background: var(--accent); }
+  #mch-sec .lg-flow { width: 26px !important; height: 8px !important; background: color-mix(in srgb, var(--accent) 30%, transparent); border-left: 6px solid var(--accent); }
+  #mch-sec .lg-over { background: var(--mit-bright); }
+  #mch-sec .lg-off { background: repeating-linear-gradient(135deg, var(--mit-silver) 0 1.5px, transparent 1.5px 4px); border: 1px solid var(--axis); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status.bad { border-left-color: var(--mit-bright); }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px; align-items: start; }
+  @media (max-width: 820px) { .model-grid { grid-template-columns: 1fr; } }
+  .mvars { margin: 0 0 10px; padding: 0; list-style: none; font-size: 14px; color: var(--ink2); }
+  .mvars li { padding-block: 2px; }
+  .mvars code { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
+  .clist { margin: 0; padding: 0; list-style: none; }
+  .clist li { border-top: 1px solid var(--grid); padding-block: 8px; display: flex; flex-direction: column; gap: 2px; }
+  .clist li:first-child { border-top: none; padding-top: 0; }
+  .cname { font-weight: 600; font-size: 14px; }
+  .ctext { font-size: 13.5px; color: var(--ink2); }
+
+  /* ---- solution ---- */
+  table.sol td.on { background: var(--sel); color: var(--accent-text); font-weight: 600; }
+  table.sol td small { display: block; font-size: 11px; color: var(--muted); font-weight: 400; }
+  table.sol tr.tot td { font-weight: 700; color: var(--ink); }
+  #solnote { margin-top: 2px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="mch.eyebrow"></p>
+    <h1 data-i18n="mch.title"></h1>
+    <p class="lede" data-i18n-html="mch.lede"></p>
+  </header>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mch.stmt.kicker"></span><span data-i18n="mch.stmt.title"></span></h2>
+    <p class="statement" data-i18n="mch.stmt.p1"></p>
+    <div class="tblwrap"><table class="mt" id="datatbl"></table></div>
+    <p class="statement" data-i18n="mch.stmt.p2"></p>
+  </div>
+
+  <section class="block" id="mch-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="mch.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="mch-scen-lbl" data-i18n="mch.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="mch-scen-lbl" id="mch-seg">
+        <button type="button" data-sc="h50" aria-pressed="true" data-i18n="mch.sc.h50"></button>
+        <button type="button" data-sc="h40" aria-pressed="false" data-i18n="mch.sc.h40"></button>
+        <button type="button" data-sc="bdown" aria-pressed="false" data-i18n="mch.sc.bdown"></button>
+        <button type="button" data-sc="cdown" aria-pressed="false" data-i18n="mch.sc.cdown"></button>
+      </div>
+    </div>
+    <div class="anim" id="mch-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:mch.anim.aria">
+        <div class="anim-hud" id="mch-hud">
+          <div class="chip-stat" id="mch-c1"><b id="mch-v1"></b><span id="mch-l1"></span></div>
+          <div class="chip-stat off" id="mch-c2"><b id="mch-v2"></b><span id="mch-l2"></span></div>
+          <div class="chip-stat accent off" id="mch-c3"><b id="mch-v3"></b><span id="mch-l3"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-heat"></i><span data-i18n="mch.lg.heat"></span></span>
+      <span><i class="lg-pick"></i><span data-i18n="mch.lg.pick"></span></span>
+      <span><i class="lg-flow"></i><span data-i18n="mch.lg.flow"></span></span>
+      <span><i class="lg-over"></i><span data-i18n="mch.lg.over"></span></span>
+      <span><i class="lg-off"></i><span data-i18n="mch.lg.off"></span></span>
+    </div>
+    <p class="scen-status" id="mch-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mch.model.kicker"></span><span data-i18n="mch.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <ul class="mvars">
+          <li><code>x<sub>ij</sub></code> <span data-i18n-html="mch.var.x"></span></li>
+          <li><code>i</code> <span data-i18n="mch.var.i"></span></li>
+          <li><code>j</code> <span data-i18n="mch.var.j"></span></li>
+        </ul>
+        <div class="math"><script type="text/x-tex">
+\begin{array}{ll}
+\min & z = 30\displaystyle\sum_{i=1}^{4} x_{iA} + 50\sum_{i=1}^{4} x_{iB} + 80\sum_{i=1}^{4} x_{iC} \\[10pt]
+\text{ST} & 300x_{1A} + 600x_{1B} + 800x_{1C} \ge 10000 \\
+ & 250x_{2A} + 400x_{2B} + 700x_{2C} \ge 8000 \\
+ & 200x_{3A} + 350x_{3B} + 600x_{3C} \ge 6000 \\
+ & 100x_{4A} + 200x_{4B} + 300x_{4C} \ge 6000 \\[4pt]
+ & x_{1j} + x_{2j} + x_{3j} + x_{4j} \le 50, \quad j = A, B, C \\[4pt]
+ & x_{ij} \ge 0
+\end{array}
+        </script></div>
+      </div>
+      <ul class="clist">
+        <li><span class="cname" data-i18n="mch.c.obj"></span><span class="ctext" data-i18n="mch.c.obj.why"></span></li>
+        <li><span class="cname" data-i18n="mch.c.dem"></span><span class="ctext" data-i18n="mch.c.dem.why"></span></li>
+        <li><span class="cname" data-i18n="mch.c.hrs"></span><span class="ctext" data-i18n="mch.c.hrs.why"></span></li>
+        <li><span class="cname" data-i18n="mch.c.nn"></span><span class="ctext" data-i18n="mch.c.nn.why"></span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mch.sol.kicker"></span><span data-i18n="mch.sol.title"></span></h2>
+    <div class="tblwrap"><table class="mt sol" id="soltbl"></table></div>
+    <p class="note" id="solnote"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="mch.n.title"></summary>
+      <div class="body">
+        <p id="n1"></p>
+        <p id="n2"></p>
+        <p id="n3"></p>
+        <p id="n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="mch.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/lp-machines.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var fmt = function (v, d, m) { return I18N.fmt(v, d == null ? 2 : d, m); };
+  var money = function (v, d) { return T("mch.usd", { v: fmt(v, d == null ? 2 : d, d == null ? 2 : d) }); };
+  var hrs = function (v, d) { return T("mch.u.h", { v: fmt(v, d == null ? 1 : d) }); };
+  var feet = function (v) { return T("mch.u.ft", { v: fmt(v, 0) }); };
+  var EPS = 1e-6;
+
+  /* ---------- data of the problem (Problema 7) ---------- */
+  var F = [[300, 600, 800], [250, 400, 700], [200, 350, 600], [100, 200, 300]];   // feet per hour, size i on machine j
+  var COST = [30, 50, 80];                                                          // $ per hour of machines A, B, C
+  var D = [10000, 8000, 6000, 6000];                                                // feet required per week
+  var HMAX = 50, SIZE = ["s", "m", "l", "x"], MACH = ["A", "B", "C"];
+  var SCEN = { h50: [50, 50, 50], h40: [40, 40, 40], bdown: [50, 0, 50], cdown: [50, 50, 0] };
+  var cpf = F.map(function (row) { return row.map(function (f, j) { return COST[j] / f; }); });
+  var sizeName = function (i) { return T("mch.size." + SIZE[i]); };
+
+  /* ---------- models, solved with LP.solve ---------- */
+  function problem(H, withShort) {
+    var n = 12 + (withShort ? 4 : 0), c = [], rows = [], i, j, a;
+    for (i = 0; i < 4; i++) for (j = 0; j < 3; j++) c.push(withShort ? COST[j] * 1e-4 : COST[j]);
+    if (withShort) for (i = 0; i < 4; i++) c.push(1);                 // feet short of each requirement
+    for (i = 0; i < 4; i++) {
+      a = new Array(n).fill(0);
+      for (j = 0; j < 3; j++) a[i * 3 + j] = F[i][j];
+      if (withShort) a[12 + i] = 1;
+      rows.push({ a: a, op: ">=", b: D[i] });
+    }
+    for (j = 0; j < 3; j++) {
+      a = new Array(n).fill(0);
+      for (i = 0; i < 4; i++) a[i * 3 + j] = 1;
+      rows.push({ a: a, op: "<=", b: H[j] });
+    }
+    return { sense: "min", c: c, rows: rows };
+  }
+  function planOf(x) {        // x[i][j] hours -> feet, hours per machine, cost, feet made per size
+    var p = { x: x, feet: [], hours: [0, 0, 0], cost: 0, made: [0, 0, 0, 0], short: [0, 0, 0, 0] };
+    for (var i = 0; i < 4; i++) {
+      p.feet.push([]);
+      for (var j = 0; j < 3; j++) {
+        var h = x[i][j] > EPS ? x[i][j] : 0;
+        x[i][j] = h;
+        p.feet[i].push(h * F[i][j]);
+        p.hours[j] += h; p.cost += h * COST[j]; p.made[i] += h * F[i][j];
+      }
+      p.short[i] = Math.max(0, D[i] - p.made[i]);
+      if (p.short[i] < 0.5) p.short[i] = 0;
+    }
+    return p;
+  }
+  var unflat = function (v) { return [0, 1, 2, 3].map(function (i) { return v.slice(i * 3, i * 3 + 3); }); };
+  // the "cheapest per foot" plan that ignores the hour limits (ties go to the faster machine)
+  function greedy(H) {
+    return planOf([0, 1, 2, 3].map(function (i) {
+      var best = -1;
+      for (var j = 0; j < 3; j++) {
+        if (H[j] <= 0) continue;
+        if (best < 0 || cpf[i][j] < cpf[i][best] - 1e-12 || (Math.abs(cpf[i][j] - cpf[i][best]) < 1e-12 && F[i][j] > F[i][best])) best = j;
+      }
+      return [0, 1, 2].map(function (j) { return j === best ? D[i] / F[i][j] : 0; });
+    }));
+  }
+  function solveScenario(key) {
+    var H = SCEN[key], r = LP.solve(problem(H, false)), S = { key: key, H: H, lp: r, down: H.indexOf(0) };
+    S.g = greedy(H);
+    S.feasible = r.status === "optimal";
+    if (S.feasible) S.p = planOf(unflat(r.x));
+    else S.p = planOf(unflat(LP.solve(problem(H, true)).x.slice(0, 12)));   // closest plan: fewest feet short
+    S.shortTot = S.p.short.reduce(function (s, v) { return s + v; }, 0);
+    S.bind = [0, 1, 2].map(function (j) { return H[j] > 0 && S.p.hours[j] >= H[j] - 1e-6; });
+    S.over = [0, 1, 2].map(function (j) { return S.g.hours[j] > H[j] + 1e-6; });
+    S.cheap = cpf.map(function (row) {
+      var m = Infinity;
+      row.forEach(function (v, j) { if (H[j] > 0) m = Math.min(m, v); });
+      return row.map(function (v, j) { return H[j] > 0 && v < m + 1e-9; });
+    });
+    // growth order of the cheapest-per-foot flows
+    S.gStart = [[], [], [], []];
+    var k = 0;
+    for (var i = 0; i < 4; i++) for (var j = 0; j < 3; j++) {
+      S.gStart[i][j] = S.g.feet[i][j] > 0 ? 18.6 + 0.7 * (k++) : 30;
+    }
+    return S;
+  }
+  var cache = {};
+  function scenario(key) { if (!cache[key]) cache[key] = solveScenario(key); return cache[key]; }
+  var BASE = scenario("h50");
+  var state = { sc: "h50" };
+  var machList = function (flags) {
+    var names = [];
+    flags.forEach(function (f, j) { if (f) names.push(MACH[j]); });
+    return names.join(T("mch.and"));
+  };
+
+  /* ---------- statement table ---------- */
+  function renderData() {
+    var tb = document.getElementById("datatbl"), h = "";
+    h += "<thead><tr><th>" + T("mch.tbl.beam") + "</th>";
+    MACH.forEach(function (m) { h += "<th>" + T("mch.tbl.mach", { m: m }) + "</th>"; });
+    h += "<th>" + T("mch.tbl.req") + "</th></tr></thead><tbody>";
+    F.forEach(function (row, i) {
+      h += "<tr><td>" + sizeName(i) + "</td>";
+      row.forEach(function (f) { h += "<td>" + fmt(f, 0) + "</td>"; });
+      h += "<td>" + fmt(D[i], 0) + "</td></tr>";
+    });
+    h += "<tr class='sep'><td>" + T("mch.tbl.cost") + "</td>";
+    COST.forEach(function (c) { h += "<td>" + money(c, 0) + "</td>"; });
+    h += "<td class='dim'></td></tr><tr><td>" + T("mch.tbl.avail") + "</td>";
+    COST.forEach(function () { h += "<td>" + hrs(HMAX, 0) + "</td>"; });
+    h += "<td class='dim'></td></tr></tbody>";
+    tb.innerHTML = h;
+  }
+
+  /* ---------- solution table (the problem as stated, 50 h per machine) ---------- */
+  function renderSolution() {
+    var S = BASE, p = S.p, tb = document.getElementById("soltbl"), h = "";
+    h += "<thead><tr><th>" + T("mch.sol.beam") + "</th>";
+    MACH.forEach(function (m) { h += "<th>" + T("mch.tbl.mach", { m: m }) + "</th>"; });
+    h += "<th>" + T("mch.sol.made") + "</th></tr></thead><tbody>";
+    for (var i = 0; i < 4; i++) {
+      h += "<tr><td>" + sizeName(i) + "</td>";
+      for (var j = 0; j < 3; j++) {
+        var x = p.x[i][j];
+        h += x > 0 ? "<td class='on'>" + hrs(x, 2) + "<small>" + feet(p.feet[i][j]) + "</small></td>" : "<td class='dim'>0</td>";
+      }
+      h += "<td>" + fmt(p.made[i], 0) + " / " + fmt(D[i], 0) + "</td></tr>";
+    }
+    h += "<tr class='sep'><td>" + T("mch.sol.hours") + "</td>";
+    for (j = 0; j < 3; j++) h += "<td>" + fmt(p.hours[j], 2) + " / " + fmt(HMAX, 0) + "</td>";
+    h += "<td>" + hrs(p.hours[0] + p.hours[1] + p.hours[2], 2) + "</td></tr><tr class='tot'><td>" + T("mch.sol.cost") + "</td>";
+    for (j = 0; j < 3; j++) h += "<td>" + money(p.hours[j] * COST[j]) + "</td>";
+    h += "<td>" + money(S.lp.z) + "</td></tr></tbody>";
+    tb.innerHTML = h;
+    document.getElementById("solnote").innerHTML = T("mch.sol.note", { z: money(S.lp.z), n: S.lp.iterations });
+  }
+
+  /* ---------- what to notice (numbers from the solver) ---------- */
+  function renderNotes() {
+    var b = BASE, s40 = scenario("h40"), sb = scenario("bdown"), sc = scenario("cdown");
+    document.getElementById("n1").innerHTML = T("mch.n.p1", {
+      a: T("mch.u.perh", { v: money(COST[0], 0) }), c: T("mch.u.perh", { v: money(COST[2], 0) })
+    });
+    document.getElementById("n2").innerHTML = T("mch.n.p2", {
+      hB: hrs(b.p.hours[1], 2), hC: hrs(b.p.hours[2], 2),
+      d1: money(b.lp.duals[0], 4), d2: money(b.lp.duals[1], 4), d3: money(b.lp.duals[2], 4), d4: money(b.lp.duals[3], 4)
+    });
+    document.getElementById("n3").innerHTML = T("mch.n.p3", {
+      mv: feet(s40.p.feet[3][2]), z: money(s40.lp.z), d: money(s40.lp.z - b.lp.z), dB: money(-s40.lp.duals[5])
+    });
+    document.getElementById("n4").innerHTML = T("mch.n.p4", {
+      zb: money(sb.lp.z), hA: hrs(sb.p.hours[0], 2), s: feet(sc.shortTot)
+    });
+  }
+
+  function renderStatus() {
+    var S = scenario(state.sc), el = document.getElementById("mch-status"), b = BASE, v;
+    if (!S.feasible) {
+      var names = [];
+      S.p.short.forEach(function (s, i) { if (s > 0) names.push(sizeName(i).toLowerCase()); });
+      v = { s: feet(S.shortTot), sizes: names.join(T("mch.and")), m: MACH[S.down] };
+    } else {
+      v = { z: money(S.lp.z), d: money(S.lp.z - b.lp.z), hA: hrs(S.p.hours[0]), hB: hrs(S.p.hours[1]), hC: hrs(S.p.hours[2]),
+        g: hrs(S.g.hours[2]), full: machList(S.bind) };
+    }
+    el.innerHTML = T("mch.st." + state.sc, v);
+    el.classList.toggle("bad", !S.feasible);
+  }
+
+  /* ---------- MathJax (same loader as the other resources) ---------- */
+  var blocks = Array.prototype.slice.call(document.querySelectorAll(".math script[type='text/x-tex']"));
+  var mathReady = false;
+  function renderMath() {
+    if (!mathReady) return;
+    var outs = blocks.map(function (s) {
+      var out = s.parentNode.querySelector(".math-out");
+      if (!out) { out = document.createElement("div"); out.className = "math-out"; s.parentNode.appendChild(out); }
+      out.textContent = "\\[" + s.textContent.replace(/\\text\{ST\}/g, "\\text{" + T("ui.st") + "}") + "\\]";
+      return out;
+    });
+    if (window.MathJax.typesetClear) window.MathJax.typesetClear(outs);
+    window.MathJax.typesetPromise(outs).catch(function (e) { console.error(e); });
+  }
+  window.MathJax = {
+    tex: { inlineMath: [["\\(", "\\)"]] },
+    svg: { fontCache: "global" },
+    startup: { typeset: false, ready: function () { window.MathJax.startup.defaultReady(); mathReady = true; renderMath(); } }
+  };
+  var mj = document.createElement("script");
+  mj.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js";
+  mj.async = true;
+  document.head.appendChild(mj);
+
+  /* =====================================================================================
+     "See it in motion": three mills, a cost-per-foot heat grid and four beam bays.
+     Every number drawn comes from the data above or from LP.solve; the mill drawings,
+     beam particles and timings are illustrative.
+     ===================================================================================== */
+  var A = window.Anim;
+  var stage = document.querySelector("#mch-anim .anim-stage");
+  var hudEl = document.getElementById("mch-hud");
+  var seg = A.seg, E = A.ease, lerp = A.lerp, clamp = A.clamp;
+  var DUR = 52, CH = [0, 7, 18, 29, 41];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var cv = A.canvas(stage), ctx = cv.ctx, C = null, L = {}, hudH = -1;
+
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W < 560;
+    var sr = stage.getBoundingClientRect(), hr = hudEl.getBoundingClientRect();
+    var pad = portrait ? 10 : 18;
+    var top = Math.max(pad, hr.bottom - sr.top + (portrait ? 8 : 14));
+    var gridW = (W - 2 * pad) * (portrait ? 0.6 : 0.5);
+    var colW = gridW / 3;
+    var millH = portrait ? Math.min(104, H * 0.22) : Math.min(142, H * 0.25);
+    var my1 = top + millH, gy0 = my1 + (portrait ? 8 : 12), gy1 = H - pad;
+    var rowH = (gy1 - gy0) / 4;
+    var bx0 = pad + gridW + (portrait ? 14 : 30), bx1 = W - pad;
+    L = {
+      W: W, H: H, portrait: portrait, pad: pad, top: top, my0: top, my1: my1, colW: colW,
+      gx0: pad, gx1: pad + gridW, gy0: gy0, gy1: gy1, rowH: rowH, bx0: bx0, bx1: bx1,
+      gw: portrait ? 6 : 8,
+      barH: portrait ? 13 : 18,
+      barL: bx1 - bx0 - (portrait ? 12 : 26),
+      // pixels per foot: the widest column bundle (30,000 ft) fits its column and 10,000 ft fits a row
+      k: Math.min(0.84 * colW / 30000, 0.46 * rowH / 10000),
+      fs: portrait ? 10.5 : 12.5, fb: portrait ? 12 : 14.5, ft: portrait ? 12.5 : 16
+    };
+    hudH = hudEl.offsetTop + hudEl.offsetHeight;
+  }
+  var colX = function (j) { return L.gx0 + j * L.colW; };
+  var colC = function (j) { return L.gx0 + (j + 0.5) * L.colW; };
+  var rowC = function (i) { return L.gy0 + (i + 0.5) * L.rowH; };
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function alphaCol(col, a) { ctx.globalAlpha = a; ctx.fillStyle = col; ctx.strokeStyle = col; }
+  function rrect(x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  function hatch(x, y, w, h, col, step, lw) {
+    if (w <= 0 || h <= 0) return;
+    ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+    ctx.strokeStyle = col; ctx.lineWidth = lw || 1;
+    ctx.beginPath();
+    for (var s = -h; s < w + h; s += step) { ctx.moveTo(x + s, y + h); ctx.lineTo(x + s + h, y); }
+    ctx.stroke(); ctx.restore();
+  }
+  function text(s, x, y, col, f, align, a) {
+    ctx.globalAlpha = a == null ? 1 : a; ctx.fillStyle = col; ctx.font = f; ctx.textAlign = align || "left";
+    ctx.textBaseline = "alphabetic"; ctx.fillText(s, x, y);
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  /* ---------- time model: plan at time t ---------- */
+  var morph = function (t) { return E.inOut(seg(t, 30, 35)); };          // cheapest picks -> LP optimum
+  function madeFeet(S, i, j, t) {       // feet of size i made by machine j so far
+    var gF = S.g.feet[i][j], pF = S.p.feet[i][j];
+    var arrive = S.gStart[i][j] + 2.2;
+    var g = gF > 0 ? gF * E.inOut(seg(t, arrive - 0.4, arrive + 2.6)) : 0;
+    return lerp(g, pF, morph(t));
+  }
+  function state_t(S, t) {
+    var o = { made: [0, 0, 0, 0], mf: [[], [], [], []], hours: [0, 0, 0], cost: 0 };
+    for (var i = 0; i < 4; i++) for (var j = 0; j < 3; j++) {
+      var f = t < 18 ? 0 : madeFeet(S, i, j, t);
+      o.mf[i][j] = f; o.made[i] += f; o.hours[j] += f / F[i][j]; o.cost += f / F[i][j] * COST[j];
+    }
+    return o;
+  }
+  // spinning rolls: angle = integral of machine activity over time
+  function activity(S, j, t) {
+    if (t < 18.6) return 0;
+    var g = S.g.hours[j] > EPS ? 1 : 0, p = S.p.hours[j] > EPS ? 1 : 0;
+    return seg(t, 18.6, 20) * lerp(g, p, seg(t, 30, 35));
+  }
+  function rollAngle(S, j, t) {
+    var a = 0, dt = 1 / 30;
+    for (var s = 18.6; s < t; s += dt) a += activity(S, j, Math.min(s + dt / 2, t)) * Math.min(dt, t - s);
+    return a * 2.6;
+  }
+
+  /* ---------- flows (machine -> cell -> bay) ---------- */
+  function flows(S, t) {
+    var m = morph(t), fl = [];
+    for (var i = 0; i < 4; i++) for (var j = 0; j < 3; j++) {
+      var gF = S.g.feet[i][j], pF = S.p.feet[i][j];
+      if (gF <= 0 && pF <= 0) continue;
+      var grow = gF > 0 ? E.inOut(seg(t, S.gStart[i][j], S.gStart[i][j] + 2.2)) : E.inOut(seg(t, 30, 32.8));
+      if (grow <= 0) continue;
+      fl.push({ i: i, j: j, w: lerp(gF, pF, m) * L.k, grow: grow, start: gF > 0 ? S.gStart[i][j] : 30 });
+    }
+    var gap = 1.5;
+    [0, 1, 2].forEach(function (j) {        // side by side in the column: lowest row leftmost
+      var list = fl.filter(function (f) { return f.j === j; }).sort(function (a, b) { return b.i - a.i; });
+      var tot = list.reduce(function (s, f) { return s + f.w; }, 0) + gap * Math.max(0, list.length - 1);
+      var x = colC(j) - tot / 2;
+      list.forEach(function (f) { f.x = x + f.w / 2; x += f.w + gap; });
+    });
+    [0, 1, 2, 3].forEach(function (i) {     // stacked in the row: rightmost machine on top
+      var list = fl.filter(function (f) { return f.i === i; }).sort(function (a, b) { return b.j - a.j; });
+      var tot = list.reduce(function (s, f) { return s + f.w; }, 0) + gap * Math.max(0, list.length - 1);
+      var y = rowC(i) - tot / 2;
+      list.forEach(function (f) { f.y = y + f.w / 2; y += f.w + gap; });
+    });
+    fl.forEach(function (f) {
+      var xe = L.bx0 - 7;
+      var r = Math.max(2, Math.min(f.w / 2 + 7, f.y - L.my1 - 2, xe - f.x - 2));
+      f.r = r; f.v = Math.max(0, f.y - r - L.my1); f.a = Math.PI / 2 * r; f.h = Math.max(0, xe - f.x - r);
+      f.len = f.v + f.a + f.h;
+    });
+    return fl;
+  }
+  function tracePath(f, s) {
+    ctx.beginPath(); ctx.moveTo(f.x, L.my1);
+    ctx.lineTo(f.x, L.my1 + Math.min(s, f.v));
+    if (s <= f.v) return;
+    ctx.arc(f.x + f.r, f.y - f.r, f.r, Math.PI, Math.PI - Math.min(s - f.v, f.a) / f.r, true);
+    if (s <= f.v + f.a) return;
+    ctx.lineTo(f.x + f.r + (s - f.v - f.a), f.y);
+  }
+  function pointAt(f, s) {
+    if (s <= f.v) return { x: f.x, y: L.my1 + s, dx: 0, dy: 1 };
+    s -= f.v;
+    if (s <= f.a) {
+      var th = Math.PI - s / f.r;
+      return { x: f.x + f.r + f.r * Math.cos(th), y: f.y - f.r + f.r * Math.sin(th), dx: Math.sin(th), dy: -Math.cos(th) };
+    }
+    return { x: f.x + f.r + s - f.a, y: f.y, dx: 1, dy: 0 };
+  }
+  function drawFlows(S, t, fl) {
+    var dim = 1 - 0.3 * seg(t, 41, 43);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round";
+    fl.forEach(function (f) {
+      if (f.w < 0.4) return;
+      var s = f.grow * f.len;
+      tracePath(f, s);
+      alphaCol(C.surface, dim); ctx.lineWidth = f.w + 3; ctx.stroke();
+      alphaCol(C.accent, 0.26 * dim); ctx.lineWidth = f.w; ctx.stroke();
+      if (f.grow < 1) {       // bright head while the flow grows
+        var p = pointAt(f, s);
+        alphaCol(C.accent, dim); ctx.beginPath();
+        ctx.arc(p.x, p.y, Math.max(2.5, f.w / 2 + 1.5), 0, Math.PI * 2); ctx.fill();
+      }
+    });
+    // beams travelling along the flows (pure function of t)
+    var v = L.portrait ? 42 : 60, sp = L.portrait ? 20 : 28, bl = L.portrait ? 9 : 14;
+    fl.forEach(function (f) {
+      if (f.w < 1.2) return;
+      var sMax = f.grow * f.len, th = clamp(f.w * 0.55, 1.4, L.portrait ? 4.5 : 6.5);
+      var s = (((t - f.start) * v) % sp + sp) % sp;
+      alphaCol(C.accent, 0.95 * dim);
+      for (; s < sMax - bl; s += sp) {
+        var p = pointAt(f, s + bl / 2);
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(Math.atan2(p.dy, p.dx));
+        ctx.fillRect(-bl / 2, -th / 2, bl, th);
+        ctx.restore();
+      }
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- heat grid / assignment matrix ---------- */
+  function cellHi(S, i, j, t) {        // how strongly the cell is marked in MIT red
+    var m = morph(t);
+    var used = lerp(S.g.x[i][j] > 0 ? 1 : 0, S.p.x[i][j] > 0 ? 1 : 0, m);
+    var cheap = S.cheap[i][j] ? E.out(seg(t, 14 + i * 0.45, 14.7 + i * 0.45)) : 0;
+    return lerp(cheap, used, seg(t, 18, 19));
+  }
+  function drawGridBack(S, t) {
+    // faint structure lines behind the flows once the cells shrink to tags
+    var q = seg(t, 18, 19.5);
+    if (q <= 0) return;
+    ctx.globalAlpha = q; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (var j = 0; j <= 3; j++) { ctx.moveTo(colX(j), L.gy0); ctx.lineTo(colX(j), L.gy1); }
+    for (var i = 0; i <= 4; i++) { ctx.moveTo(L.gx0, L.gy0 + i * L.rowH); ctx.lineTo(L.gx1, L.gy0 + i * L.rowH); }
+    ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  function drawGrid(S, t) {
+    if (t < 7.3) return;
+    var q = seg(t, 18, 19.5);                   // 1 = compact price tags
+    var q5 = E.inOut(seg(t, 41.2, 42.8));       // 1 = assignment matrix
+    var hoursOn = seg(t, 42.2, 43.8), heatFade = 1 - q;
+    var fsz = L.portrait ? 10.5 : 12.5;
+    for (var i = 0; i < 4; i++) for (var j = 0; j < 3; j++) {
+      var idx = i * 3 + j, tc = 7.4 + idx * 0.28;
+      var ap = seg(t, tc, tc + 0.45); if (ap <= 0) continue;
+      var pop = E.back(ap);
+      var down = S.H[j] <= 0;
+      var cx = colC(j), cy = rowC(i);
+      // texts of this cell
+      var sFrac = COST[j] + "/" + F[i][j], sCpf = money(cpf[i][j], 3);
+      var sHrs = S.p.x[i][j] > 0 ? hrs(S.p.x[i][j]) : "0";
+      var aFrac = seg(t, tc + 0.15, tc + 0.5) * (1 - seg(t, tc + 1.1, tc + 1.5));
+      var aCpf = seg(t, tc + 1.1, tc + 1.5) * (1 - hoursOn);
+      if (down) { sCpf = sHrs = ""; }
+      ctx.font = font(700, fsz);
+      var usedP = S.p.x[i][j] > 0;
+      var tw = Math.max(ctx.measureText(q5 > 0.5 ? sHrs : sCpf).width, 20) + 12, th = fsz + 7;
+      var fw = L.colW - 6, fh = L.rowH - 6;
+      // final matrix: chosen cells become blocks, the others stay as small tags
+      var mw = usedP ? Math.max(tw + 8, fw * 0.74) : tw, mh = usedP ? Math.max(th + 6, fh * 0.5) : th;
+      var w = lerp(lerp(fw, tw, q), mw, q5) * pop, h = lerp(lerp(fh, th, q), mh, q5) * pop;
+      var x = cx - w / 2, y = cy - h / 2;
+      var hi = down ? 0 : cellHi(S, i, j, t);
+      // base: heat of the cost per foot (silver ramp), then MIT red for picks
+      rrect(x, y, w, h, 2);
+      alphaCol(C.surface, ap); ctx.fill();
+      if (down) {
+        ctx.save(); rrect(x, y, w, h, 2); ctx.clip();
+        hatch(x, y, w, h, C["mit-silver"], 5, 1); ctx.restore();
+      } else {
+        var u = (cpf[i][j] - 1 / 12) / (0.3 - 1 / 12);
+        rrect(x, y, w, h, 2);
+        alphaCol(C["mit-silver"], ap * (0.1 + 0.6 * u) * (1 - q) * heatFade); ctx.fill();
+        if (hi > 0) { rrect(x, y, w, h, 2); alphaCol(C.accent, ap * hi); ctx.fill(); }
+      }
+      rrect(x, y, w, h, 2);
+      alphaCol(C.axis, ap * (q > 0.5 ? 0.9 : 0.35)); ctx.lineWidth = 1; ctx.stroke();
+      // text
+      var onRed = hi > 0.5;
+      var tcol = onRed ? C["on-solid"] : (q > 0.5 ? C.muted : C.ink);
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      if (aFrac > 0 && !down) {
+        ctx.globalAlpha = aFrac * ap; ctx.fillStyle = C.ink2; ctx.font = font(400, fsz - 0.5, true);
+        ctx.fillText(sFrac, cx, cy);
+      }
+      if (aCpf > 0) {
+        ctx.globalAlpha = aCpf * ap; ctx.fillStyle = tcol; ctx.font = font(700, fsz);
+        ctx.fillText(sCpf, cx, cy);
+      }
+      if (hoursOn > 0) {
+        var usedH = S.p.x[i][j] > 0;
+        ctx.globalAlpha = hoursOn * ap; ctx.fillStyle = usedH ? C["on-solid"] : C.muted;
+        ctx.font = font(usedH ? 700 : 400, fsz + (usedH ? 1 : 0));
+        ctx.fillText(sHrs, cx, cy);
+      }
+      ctx.textBaseline = "alphabetic";
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- mills and hour gauges ---------- */
+  function drawMill(S, t, st, j) {
+    var ap = E.out(seg(t, 0.2 + j * 0.3, 1.2 + j * 0.3)); if (ap <= 0) return;
+    var x0 = colX(j) + 3, cw = L.colW - 6, down = S.H[j] <= 0, cap = S.H[j];
+    var hdr = L.portrait ? 16 : 21;
+    var y0 = L.my0 + (1 - ap) * -12, y1 = L.my1;
+    ctx.save(); ctx.globalAlpha = ap;
+    var gw = L.gw, gx = x0 + cw - gw, gy0 = y0 + hdr + 2, gy1 = y1 - 7, gh = gy1 - gy0;
+    var fx0 = x0 + 1, fx1 = gx - (L.portrait ? 5 : 8), fw = fx1 - fx0, fcx = (fx0 + fx1) / 2;
+    var used = st.hours[j], act = activity(S, j, t);
+    var idle = !down && t > 20 && act < 0.02;
+    var ink = down ? C["mit-silver"] : C.ink2;
+    // header: letter and hours
+    text(MACH[j], x0, y0 + hdr - 6, down ? C.muted : C.ink, font(700, L.fb + 1), "left", ap);
+    var over = used > cap + 1e-3, full = !down && S.bind[j] && t >= 34;
+    var hTxt = t < 18.6 ? hrs(cap, 0) : hrs(used);
+    text(hTxt, gx - 3, y0 + hdr - 6, over || (full && t > 35) ? C["mit-bright"] : (t < 18.6 ? C.muted : C.ink2),
+      font(t < 18.6 ? 400 : 700, L.fs, true), "right", ap);
+    ctx.globalAlpha = ap;
+    // base plate across the column (the flows leave from here)
+    ctx.fillStyle = ink; ctx.fillRect(colX(j) + 2, y1 - 4, L.colW - 4, 4);
+    // housing
+    var plateH = L.portrait ? 12 : 16, postW = Math.max(3, fw * 0.075);
+    var hy0 = gy0, hy1 = y1 - 4;
+    var dimA = ap * (idle ? 0.5 : 1);
+    // window of the stand
+    ctx.globalAlpha = dimA; ctx.fillStyle = C.surface2;
+    ctx.fillRect(fx0 + postW, hy0 + plateH, fw - 2 * postW, hy1 - hy0 - plateH);
+    ctx.fillStyle = ink;
+    ctx.fillRect(fx0, hy0, postW, hy1 - hy0); ctx.fillRect(fx1 - postW, hy0, postW, hy1 - hy0);
+    rrect(fx0 - 2, hy0, fw + 4, plateH, 1.5); ctx.fill();
+    ctx.fillRect(fx0 - 2, hy1 - 3, fw + 4, 3);
+    // feet of the housing
+    ctx.fillRect(fx0 - 3, hy1 - 6, postW + 3, 3); ctx.fillRect(fx1 - postW, hy1 - 6, postW + 3, 3);
+    // nameplate: cost per hour, or the week's cost of this machine in the last chapter
+    var plate = T("mch.u.perh", { v: money(COST[j], 0) });
+    var cOn = seg(t, 42, 46);
+    if (cOn > 0 && S.feasible && !down) plate = money(S.p.hours[j] * COST[j] * E.out(cOn), 0);
+    ctx.font = font(700, L.portrait ? 8.5 : 10.5);
+    ctx.fillStyle = C.surface; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(plate, fcx, hy0 + plateH / 2 + 0.5, fw - 2);
+    ctx.textBaseline = "alphabetic";
+    // rolls
+    var innerW = fw - 2 * postW, top = hy0 + plateH + 4, bot = hy1 - 7;
+    var r = Math.max(3, Math.min(innerW / 4 - 2, (bot - top) / 2 - 2, L.portrait ? 13 : 24));
+    var cy = (top + bot) / 2 + 2, ang = rollAngle(S, j, t);
+    // the strip: cold (silver) above the nip, formed beam (red) below it
+    var slab = down ? 0 : act, sw = Math.max(2, r * 0.22);
+    if (slab > 0.01) {
+      ctx.globalAlpha = dimA * slab;
+      ctx.fillStyle = C["mit-silver"]; ctx.fillRect(fcx - sw / 2 - 1, hy0 + plateH, sw + 2, cy - hy0 - plateH);
+      ctx.fillStyle = C.accent; ctx.fillRect(fcx - sw / 2, cy, sw, y1 - 4 - cy);
+      // sparks at the nip
+      var rr = A.rng(j * 97 + 11);
+      for (var k = 0; k < 5; k++) {
+        var ph = ((t * (1.3 + rr()) + rr()) % 1), dir = rr() < 0.5 ? -1 : 1;
+        ctx.globalAlpha = dimA * slab * (1 - ph);
+        ctx.fillRect(fcx + dir * ph * r * 0.9, cy + ph * r * (0.4 + rr() * 0.8), 1.6, 1.6);
+      }
+    }
+    [-1, 1].forEach(function (sd) {
+      var rx = fcx + sd * (r + 1 + sw / 2);
+      ctx.globalAlpha = dimA;
+      // chocks tying the roll to the housing
+      ctx.fillStyle = ink;
+      ctx.fillRect(sd < 0 ? fx0 + postW : rx, cy - Math.max(2, r * 0.18), sd < 0 ? rx - fx0 - postW : fx1 - postW - rx, Math.max(4, r * 0.36));
+      ctx.beginPath(); ctx.arc(rx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = C.surface; ctx.fill();
+      ctx.globalAlpha = dimA * 0.45; ctx.fillStyle = C["mit-silver"]; ctx.fill();
+      ctx.globalAlpha = dimA; ctx.lineWidth = 1.6; ctx.strokeStyle = ink; ctx.stroke();
+      ctx.beginPath(); ctx.arc(rx, cy, r * 0.62, 0, Math.PI * 2); ctx.lineWidth = 1; ctx.stroke();
+      for (var s = 0; s < 4; s++) {        // bolts on the ring show the rotation
+        var a = -sd * ang + s * Math.PI / 2;
+        ctx.beginPath(); ctx.arc(rx + Math.cos(a) * r * 0.62, cy + Math.sin(a) * r * 0.62, Math.max(1, r * 0.09), 0, Math.PI * 2);
+        ctx.fillStyle = ink; ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(rx, cy, Math.max(1.4, r * 0.2), 0, Math.PI * 2); ctx.fillStyle = ink; ctx.fill();
+    });
+    // hour gauge (0 to 50 h)
+    ctx.globalAlpha = ap;
+    var yOf = function (h) { return gy1 - h / HMAX * gh; };
+    ctx.fillStyle = C.surface2; ctx.fillRect(gx, gy0, gw, gh);
+    if (cap < HMAX) hatch(gx, gy0, gw, yOf(cap) - gy0, C["mit-silver"], 4, 1);
+    var inCap = Math.min(used, cap);
+    if (inCap > 0) { ctx.fillStyle = full && t > 35 ? C["mit-bright"] : C.accent; ctx.fillRect(gx, yOf(inCap), gw, gy1 - yOf(inCap)); }
+    if (used > cap + 1e-3) {       // over the limit: spills past the cap
+      var pulse = 0.65 + 0.35 * Math.sin(t * 9);
+      var yTop = Math.max(gy0 - gh * 0.22, yOf(used));
+      ctx.globalAlpha = ap * pulse; ctx.fillStyle = C["mit-bright"];
+      ctx.fillRect(gx, yTop, gw, yOf(cap) - yTop);
+      if (yOf(used) < yTop) {         // beyond the drawn range: zigzag top
+        ctx.beginPath(); ctx.moveTo(gx, yTop); ctx.lineTo(gx + gw / 2, yTop - 4); ctx.lineTo(gx + gw, yTop); ctx.fill();
+      }
+      ctx.globalAlpha = ap;
+    }
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1; ctx.strokeRect(gx + 0.5, gy0 + 0.5, gw - 1, gh - 1);
+    // cap tick
+    if (!down) {
+      var capHot = full && t > 35;
+      ctx.strokeStyle = capHot || used > cap + 1e-3 ? C["mit-bright"] : C.ink; ctx.lineWidth = capHot ? 2.5 : 2;
+      ctx.beginPath(); ctx.moveTo(gx - 3, yOf(cap)); ctx.lineTo(gx + gw + 2, yOf(cap)); ctx.stroke();
+      if (full) {      // a machine that reaches its limit: pulses
+        var ph = ((t - 34) % 1.6) / 1.6;
+        ctx.globalAlpha = ap * (1 - ph) * seg(t, 34, 35); ctx.strokeStyle = C["mit-bright"]; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(gx + gw / 2, yOf(cap), 4 + ph * 12, 0, Math.PI * 2); ctx.stroke();
+        ctx.globalAlpha = ap;
+      }
+    }
+    // breakdown: silver hatch and a bright red cross
+    if (down) {
+      hatch(fx0, hy0, fw, hy1 - hy0, C["mit-silver"], 5, 1);
+      var xa = E.out(seg(t, 1.8, 2.6));
+      if (xa > 0) {
+        ctx.strokeStyle = C["mit-bright"]; ctx.lineWidth = L.portrait ? 3 : 4; ctx.lineCap = "round";
+        var m = 6, ax0 = fx0 + m, ay0 = hy0 + m, ax1 = fx1 - m, ay1 = hy1 - m;
+        ctx.beginPath(); ctx.moveTo(ax0, ay0); ctx.lineTo(lerp(ax0, ax1, xa), lerp(ay0, ay1, xa));
+        ctx.moveTo(ax1, ay0); ctx.lineTo(lerp(ax1, ax0, xa), lerp(ay0, ay1, xa)); ctx.stroke();
+        ctx.lineCap = "butt";
+      }
+    }
+    ctx.restore();
+  }
+
+  /* ---------- beam bays ---------- */
+  function ibeam(x, yb, hgt, col) {       // small I-beam profile standing on baseline yb
+    var w = hgt * 0.78, fl = Math.max(1.5, hgt * 0.2), web = Math.max(1.4, hgt * 0.2);
+    ctx.fillStyle = col;
+    ctx.fillRect(x, yb - hgt, w, fl); ctx.fillRect(x, yb - fl, w, fl);
+    ctx.fillRect(x + w / 2 - web / 2, yb - hgt, web, hgt);
+    return w;
+  }
+  function drawBays(S, t, st, fl) {
+    var sc = L.barL / 10000, bh = L.barH;
+    for (var i = 0; i < 4; i++) {
+      var ap = E.out(seg(t, 1.4 + i * 0.3, 2.4 + i * 0.3)); if (ap <= 0) continue;
+      var cy = rowC(i), x0 = L.bx0 + (1 - ap) * 30, by = cy - bh / 2;
+      ctx.save(); ctx.globalAlpha = ap;
+      // bay door (where the flows arrive)
+      var ext = fl.filter(function (f) { return f.i === i && f.grow > 0.98 && f.w > 0.4; });
+      var d0 = cy - bh / 2 - 3, d1 = cy + bh / 2 + 3;
+      ext.forEach(function (f) { d0 = Math.min(d0, f.y - f.w / 2 - 2); d1 = Math.max(d1, f.y + f.w / 2 + 2); });
+      ctx.fillStyle = C.ink2; ctx.fillRect(x0 - 6, d0, 3, d1 - d0);
+      // label with the beam profile
+      var ly = by - (L.portrait ? 5 : 7);
+      var iw = ibeam(x0 + 2, ly, (L.portrait ? 6 : 8) + i * (L.portrait ? 1.5 : 2), C.ink);
+      text(sizeName(i), x0 + iw + 8, ly, C.ink, font(700, L.fs), "left", ap);
+      // requirement: outline that grows to the weekly feet
+      var grow = E.inOut(seg(t, 2 + i * 0.3, 4.6 + i * 0.3));
+      var dL = D[i] * sc * grow;
+      ctx.globalAlpha = ap;
+      ctx.fillStyle = C.surface2; ctx.fillRect(x0 + 2, by, dL, bh);
+      ctx.strokeStyle = C.axis; ctx.lineWidth = 1; ctx.strokeRect(x0 + 2.5, by + 0.5, Math.max(0, dL - 1), bh - 1);
+      // produced feet, one segment per machine
+      var x = x0 + 2;
+      for (var j = 0; j < 3; j++) {
+        var w = st.mf[i][j] * sc; if (w < 0.3) continue;
+        ctx.fillStyle = C.accent; ctx.fillRect(x, by, w, bh);
+        if (w > (L.portrait ? 13 : 18)) {
+          ctx.font = font(700, L.portrait ? 8.5 : 10); ctx.fillStyle = C["on-solid"]; ctx.textAlign = "center";
+          ctx.textBaseline = "middle"; ctx.fillText(MACH[j], x + w / 2, cy + 0.5); ctx.textBaseline = "alphabetic";
+        }
+        x += w;
+        ctx.fillStyle = C.surface; ctx.fillRect(x - 1, by, 1.5, bh);
+      }
+      // shortfall (no feasible plan)
+      var shA = S.feasible ? 0 : seg(t, 33, 35);
+      if (shA > 0 && S.p.short[i] > 0) {
+        var sx = x0 + 2 + (D[i] - S.p.short[i]) * sc;
+        ctx.globalAlpha = ap * shA;
+        hatch(sx, by, S.p.short[i] * sc, bh, C["mit-bright"], 4, 1.4);
+        ctx.strokeStyle = C["mit-bright"]; ctx.lineWidth = 1.5; ctx.strokeRect(sx, by + 0.75, S.p.short[i] * sc, bh - 1.5);
+        ctx.globalAlpha = ap;
+      }
+      // target tick
+      if (grow > 0.02) {
+        ctx.fillStyle = C.ink; ctx.fillRect(x0 + 2 + dL - 1, by - 4, 2, bh + 8);
+      }
+      // numbers
+      var ny = by + bh + (L.portrait ? 12 : 15), f = font(400, L.portrait ? 9.5 : 11.5, true);
+      var s, col = C.ink2;
+      if (t < 18.6) s = feet(D[i] * grow);
+      else {
+        var made = st.made[i];
+        s = fmt(made, 0) + " / " + feet(D[i]);
+        if (shA > 0.5 && S.p.short[i] > 0) col = C["mit-bright"];
+      }
+      text(s, x0 + 2, ny, col, f, "left", ap);
+      ctx.restore();
+    }
+  }
+
+  /* ---------- caption (top right, beside the mills) ---------- */
+  function captions(S, t) {
+    var b = BASE;
+    if (t < CH[1]) return [T("mch.cap.req"), T("mch.cap.req.sub", { v: feet(30000) })];
+    if (t < CH[2]) return [T("mch.cap.cpf"), T("mch.cap.cpf.sub"),
+      T("mch.cap.cpf.ex", { c: money(COST[1], 0), f: feet(F[0][1]), v: money(cpf[0][1], 3) })];
+    var ov = machList(S.over), bi = machList(S.bind);
+    if (t < CH[3]) return [T("mch.cap.pick"), ov ? T("mch.cap.pick.over", { m: ov }) : T("mch.cap.pick.ok")];
+    if (t < CH[4]) {
+      if (!S.feasible) return [T("mch.cap.lim"), T("mch.cap.lim.inf", { s: feet(S.shortTot) })];
+      return [T("mch.cap.lim"), bi ? T("mch.cap.lim.full", { m: bi, d: money(S.lp.z - b.lp.z) }) : T("mch.cap.lim.none")];
+    }
+    if (!S.feasible) return [T("mch.cap.inf"), T("mch.cap.inf.sub", { s: feet(S.shortTot) })];
+    return [T("mch.cap.opt"), T("mch.cap.opt.sub")];
+  }
+  function drawCaption(S, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6 || A.reducedMotion && t >= DUR - 1e-3) a = 1;
+    if (a <= 0) return;
+    var lines = captions(S, t), x = L.bx0 - 6, y = L.top + (L.portrait ? 12 : 18), maxW = L.bx1 - x;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - (L.portrait ? 11 : 14), 3, L.portrait ? 14 : 18);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left";
+    var tl = wrap(lines[0], maxW - 10);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3)); });
+    y += tl.length * (L.ft + 3) + (L.portrait ? 3 : 6);
+    for (var k = 1; k < lines.length; k++) {
+      ctx.font = font(k === 2 ? 700 : 400, L.fs, k === 2); ctx.fillStyle = k === 2 ? C["accent-text"] : C.ink2;
+      wrap(lines[k], maxW - 10).forEach(function (s) { ctx.fillText(s, x + 10, y); y += L.fs + 4; });
+      y += 2;
+    }
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var hudCache = {};
+  function setText(id, s) { if (hudCache[id] !== s) { hudCache[id] = s; document.getElementById(id).textContent = s; } }
+  function show(id, on) { var k = id + ":on"; if (hudCache[k] !== on) { hudCache[k] = on; document.getElementById(id).classList.toggle("off", !on); } }
+  function cls(id, c, on) { var k = id + ":" + c; if (hudCache[k] !== on) { hudCache[k] = on; document.getElementById(id).classList.toggle(c, on); } }
+  function hud(S, t, st) {
+    if (t < 18.6) {
+      setText("mch-v1", feet(30000 * E.out(seg(t, 2, 6))));
+      setText("mch-l1", T("mch.k.req"));
+    } else {
+      setText("mch-v1", feet(st.made[0] + st.made[1] + st.made[2] + st.made[3]));
+      setText("mch-l1", T("mch.k.made"));
+    }
+    show("mch-c2", t >= 18.6); show("mch-c3", t >= 18.6);
+    setText("mch-v2", hrs(st.hours[0] + st.hours[1] + st.hours[2]));
+    setText("mch-l2", T("mch.k.hours"));
+    var inf = !S.feasible && t >= 33;
+    cls("mch-c3", "bad", inf);
+    setText("mch-v3", inf ? T("mch.k.none") : money(st.cost));
+    setText("mch-l3", inf ? T("mch.k.short", { v: feet(S.shortTot) }) : T("mch.k.cost"));
+  }
+
+  /* ---------- frame ---------- */
+  function render(t) {
+    C = A.colors();
+    var S = scenario(state.sc), st = state_t(S, t);
+    hud(S, t, st);
+    if (hudEl.offsetTop + hudEl.offsetHeight !== hudH) layout();
+    ctx.clearRect(0, 0, cv.w, cv.h);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, cv.w, cv.h);
+    var fl = t >= 18.6 ? flows(S, t) : [];
+    drawGridBack(S, t);
+    drawBays(S, t, st, fl);
+    drawFlows(S, t, fl);
+    drawGrid(S, t);
+    for (var j = 0; j < 3; j++) drawMill(S, t, st, j);
+    drawCaption(S, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: document.getElementById("mch-anim"),
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "mch.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+  window.__mchAnim = player;
+
+  var segBtns = document.querySelectorAll("#mch-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.sc = b.getAttribute("data-sc");
+      delete cache[state.sc];          // re-solve the scenario with LP.solve
+      scenario(state.sc);
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderStatus();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[2]) player.refresh();
+      else { player.seek(CH[2] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderData();
+    renderSolution();
+    renderNotes();
+    renderStatus();
+    renderMath();
+    hudH = -1;
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

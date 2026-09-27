@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="en" data-title-key="wfp.title" data-i18n-bundles="resources/lp-workforce">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Workforce Planning</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1060px; }
+  .statement { margin: 0; color: var(--ink2); max-width: 78ch; }
+  .statement + .statement { margin-top: 10px; }
+
+  /* ---- animation ---- */
+  #wfp-sec { border-top: none; padding-top: 0; }
+  #wfp-sec .anim-hud { z-index: 2; }
+  @media (max-width: 620px) {
+    #wfp-sec .anim-hud { top: 6px; left: 6px; gap: 4px; max-width: calc(100% - 12px); }
+    #wfp-sec .anim-hud .chip-stat { padding: 3px 7px; font-size: 10.5px; }
+    #wfp-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #wfp-sec .lg-exp { background: var(--ink); border-radius: 50% 50% 2px 2px; }
+  #wfp-sec .lg-tr { background: var(--accent); border-radius: 50% 50% 2px 2px; }
+  #wfp-sec .lg-sup { background: repeating-linear-gradient(135deg, var(--accent) 0 2px, transparent 2px 4px); border: 1px solid var(--accent); }
+  #wfp-sec .lg-leave { background: var(--mit-bright); opacity: 0.55; border-radius: 50% 50% 2px 2px; }
+  #wfp-sec .lg-prod { background: var(--ink2); }
+  #wfp-sec .lg-dem { width: 18px !important; height: 0 !important; border-top: 2px dashed var(--ink); }
+
+  /* ---- formulation ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
+  @media (max-width: 820px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .wfp-vars { margin: 0 0 10px; padding: 0; list-style: none; font-size: 14px; color: var(--ink2); }
+  .wfp-vars li { padding-block: 2px; }
+  .wfp-vars code, .ceq { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
+  .clist { margin: 0; padding: 0; list-style: none; }
+  .clist li { border-top: 1px solid var(--grid); padding-block: 8px; display: flex; flex-direction: column; gap: 2px; }
+  .clist li:first-child { border-top: none; padding-top: 0; }
+  .cname { font-weight: 600; font-size: 14px; }
+  .ctext { font-size: 13.5px; color: var(--ink2); }
+
+  /* ---- solution table ---- */
+  .tblwrap { overflow-x: auto; }
+  table.sol { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 640px; }
+  table.sol th {
+    text-align: right; font-family: var(--font-mono); font-weight: 400; font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--axis); padding: 6px 10px; vertical-align: bottom;
+  }
+  table.sol th:first-child, table.sol td:first-child { text-align: left; }
+  table.sol td { padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; text-align: right;
+    font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.sol td:first-child { font-family: var(--font-sans); font-size: 13.5px; }
+  table.sol td.dec { color: var(--accent-text); font-weight: 600; }
+  table.sol td.tight { color: var(--accent-text); }
+  table.sol tr.tot td { font-weight: 700; border-bottom: none; border-top: 1px solid var(--axis); }
+  table.sol tr.tot td:last-child { background: var(--sel); color: var(--accent-text); }
+  #wfp-solnote { margin-top: 12px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="wfp.eyebrow"></p>
+    <h1 data-i18n="wfp.title"></h1>
+    <p class="lede" data-i18n-html="wfp.lede"></p>
+  </header>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="wfp.stmt.kicker"></span><span data-i18n="wfp.stmt.title"></span></h2>
+    <p class="statement" data-i18n="wfp.stmt.text"></p>
+    <p class="statement" data-i18n="wfp.stmt.task"></p>
+  </div>
+
+  <section class="block" id="wfp-sec" aria-labelledby="h-wfp-anim">
+    <h2 class="section-title" id="h-wfp-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="wfp.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="wfp-ctl-lbl" data-i18n="wfp.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="wfp-ctl-lbl" id="wfp-seg">
+        <button type="button" data-att="0.05" aria-pressed="true" data-i18n="wfp.anim.att5"></button>
+        <button type="button" data-att="0.10" aria-pressed="false" data-i18n="wfp.anim.att10"></button>
+      </div>
+    </div>
+    <div class="anim" id="wfp-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:wfp.anim.aria">
+        <div class="anim-hud">
+          <div class="chip-stat"><b id="wfp-v1"></b><span id="wfp-l1"></span></div>
+          <div class="chip-stat"><b id="wfp-v2"></b><span id="wfp-l2"></span></div>
+          <div class="chip-stat accent"><b id="wfp-v3"></b><span id="wfp-l3"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-exp"></i><span data-i18n="wfp.anim.lg.exp"></span></span>
+      <span><i class="lg-tr"></i><span data-i18n="wfp.anim.lg.tr"></span></span>
+      <span><i class="lg-sup"></i><span data-i18n="wfp.anim.lg.sup"></span></span>
+      <span><i class="lg-leave"></i><span id="wfp-lg-leave"></span></span>
+      <span><i class="lg-prod"></i><span data-i18n="wfp.anim.lg.prod"></span></span>
+      <span><i class="lg-dem"></i><span data-i18n="wfp.anim.lg.dem"></span></span>
+    </div>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="wfp.model.kicker"></span><span data-i18n="wfp.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <ul class="wfp-vars">
+          <li><code>xₜ</code> <span data-i18n="wfp.var.x"></span></li>
+          <li><code>yₜ</code> <span data-i18n="wfp.var.y"></span></li>
+          <li><code>dₜ</code> <span data-i18n="wfp.var.d"></span></li>
+        </ul>
+        <div class="math"><script type="text/x-tex">
+\begin{array}{lrcl}
+\min & z & = & \displaystyle\sum_{t=1}^{5} \left(2000\,y_t + 1000\,x_t\right) \\[10pt]
+\text{ST} & y_1 & = & 50 \\
+ & y_{t+1} & = & 0.95\,y_t + x_t \quad (t \le 4) \\
+ & 160\,y_t - 50\,x_t & \ge & d_t \\
+ & x_t,\ y_t & \ge & 0
+\end{array}
+        </script></div>
+        <div class="math"><script type="text/x-tex">
+d = (6000,\ 7000,\ 8000,\ 9500,\ 11000)
+        </script></div>
+      </div>
+      <ul class="clist" id="wfp-clist"></ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="wfp.sol.kicker"></span><span id="wfp-soltitle"></span></h2>
+    <div class="tblwrap">
+      <table class="sol">
+        <thead>
+          <tr>
+            <th data-i18n="wfp.sol.month"></th>
+            <th data-i18n="wfp.sol.demand"></th>
+            <th data-i18n="wfp.sol.y"></th>
+            <th data-i18n="wfp.sol.x"></th>
+            <th data-i18n="wfp.sol.sup"></th>
+            <th data-i18n="wfp.sol.prod"></th>
+            <th data-i18n="wfp.sol.slack"></th>
+            <th data-i18n="wfp.sol.cost"></th>
+          </tr>
+        </thead>
+        <tbody id="wfp-tbody"></tbody>
+      </table>
+    </div>
+    <p class="note" id="wfp-solnote"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="wfp.n.title"></summary>
+      <div class="body">
+        <p id="wfp-n1"></p>
+        <p id="wfp-n2"></p>
+        <p id="wfp-n3"></p>
+        <p id="wfp-n4"></p>
+        <p id="wfp-n5"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="wfp.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/lp-workforce.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+/* Problem 12 (CSL): hire trainees month by month so that 160 y_t - 50 x_t covers the repair hours,
+   with y_{t+1} = (1 - attrition) y_t + x_t and y_1 = 50. Every number shown comes from LP.solve. */
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var fmt = function (v, d, m) { return I18N.fmt(Math.abs(v) < 5e-7 ? 0 : v, d == null ? 2 : d, m); };
+  var money = function (v, d) { return t("wfp.money", { v: fmt(v, d == null ? 0 : d) }); };
+
+  /* ---------------- data and model ---------------- */
+  var D = [6000, 7000, 8000, 9500, 11000];
+  var N = 5, HOURS = 160, SUP = 50, PAY_E = 2000, PAY_T = 1000, Y1 = 50;
+
+  // variables: x_1..x_5 (trainees hired in month t), then y_1..y_5 (experienced in month t)
+  function solve(att) {
+    var nv = 2 * N, rows = [], i;
+    var row = function () { var a = []; for (var k = 0; k < nv; k++) a.push(0); return a; };
+    var a0 = row(); a0[N] = 1; rows.push({ a: a0, op: "=", b: Y1, name: "start" });
+    for (i = 0; i < N - 1; i++) {
+      var a = row(); a[N + i + 1] = 1; a[N + i] = -(1 - att); a[i] = -1;
+      rows.push({ a: a, op: "=", b: 0, name: "bal" + (i + 1) });
+    }
+    for (i = 0; i < N; i++) {
+      var h = row(); h[N + i] = HOURS; h[i] = -SUP;
+      rows.push({ a: h, op: ">=", b: D[i], name: "hours" + (i + 1) });
+    }
+    var c = [];
+    for (i = 0; i < N; i++) c.push(PAY_T);
+    for (i = 0; i < N; i++) c.push(PAY_E);
+    var r = LP.solve({ sense: "min", c: c, rows: rows });
+    if (r.status !== "optimal") throw new Error("LP " + r.status);
+    var P = { att: att, z: r.z, x: r.x.slice(0, N), y: r.x.slice(N), duals: r.duals.slice(N), month: [] };
+    P.x = P.x.map(function (v) { return v < 1e-7 ? 0 : v; });
+    var cum = 0;
+    for (i = 0; i < N; i++) {
+      var avail = HOURS * P.y[i], sup = SUP * P.x[i], cost = PAY_E * P.y[i] + PAY_T * P.x[i];
+      cum += cost;
+      P.month.push({ avail: avail, sup: sup, prod: avail - sup, slack: avail - sup - D[i], cost: cost, cum: cum,
+        tight: Math.abs(avail - sup - D[i]) < 1e-4, leave: i < N - 1 ? att * P.y[i] : 0 });
+    }
+    // verify every constraint of the model before anything is drawn
+    var ok = Math.abs(P.y[0] - Y1) < 1e-6 && Math.abs(cum - P.z) < 1e-4;
+    for (i = 0; i < N; i++) {
+      ok = ok && P.month[i].slack > -1e-5 && P.x[i] >= 0 && P.y[i] >= 0;
+      if (i < N - 1) ok = ok && Math.abs(P.y[i + 1] - ((1 - att) * P.y[i] + P.x[i])) < 1e-6;
+    }
+    P.verified = ok;
+    if (!ok) console.error("workforce plan failed verification", P);
+    return P;
+  }
+  var SC = { "0.05": solve(0.05), "0.10": solve(0.10) };
+  var BASE = SC["0.05"];
+
+  // rounding the hires up to whole people: recompute the team and check every month is still covered
+  function roundedUp(P) {
+    var x = P.x.map(function (v) { return Math.ceil(v - 1e-7); }), y = [Y1], cost = 0, ok = true;
+    for (var i = 0; i < N; i++) {
+      if (i > 0) y.push((1 - P.att) * y[i - 1] + x[i - 1]);
+      if (HOURS * y[i] - SUP * x[i] < D[i] - 1e-6) ok = false;
+      cost += PAY_E * y[i] + PAY_T * x[i];
+    }
+    return { x: x, y: y, cost: cost, ok: ok };
+  }
+  window.__wfp = { SC: SC, roundedUp: roundedUp };
+
+  /* ---------------- formulation and solution (DOM) ---------------- */
+  function renderCons() {
+    var ul = document.getElementById("wfp-clist");
+    ul.textContent = "";
+    [["obj", "min Σ (2000 yₜ + 1000 xₜ)"], ["start", "y₁ = 50"], ["bal", "yₜ₊₁ = 0.95 yₜ + xₜ"],
+      ["hours", "160 yₜ − 50 xₜ ≥ dₜ"], ["nn", "xₜ, yₜ ≥ 0"]].forEach(function (c) {
+      var li = document.createElement("li");
+      var head = document.createElement("span"); head.className = "cname";
+      head.textContent = t("wfp.c." + c[0]) + " ";
+      var eq = document.createElement("span"); eq.className = "ceq"; eq.textContent = c[1];
+      head.appendChild(eq);
+      var tx = document.createElement("span"); tx.className = "ctext"; tx.innerHTML = t("wfp.c." + c[0] + ".why");
+      li.append(head, tx);
+      ul.appendChild(li);
+    });
+  }
+
+  function renderSolution() {
+    var P = BASE, tb = document.getElementById("wfp-tbody");
+    document.getElementById("wfp-soltitle").textContent = t("wfp.sol.title", { z: money(P.z) });
+    tb.textContent = "";
+    var sx = 0, sy = 0;
+    P.month.forEach(function (m, i) {
+      sx += P.x[i]; sy += P.y[i];
+      var tr = document.createElement("tr");
+      var cells = [
+        [t("wfp.m." + (i + 1)), ""], [fmt(D[i], 0), ""], [fmt(P.y[i]), ""], [fmt(P.x[i]), "dec"],
+        [fmt(m.sup, 1), ""], [fmt(m.prod, 1), m.tight ? "tight" : ""],
+        [m.tight ? "0" : fmt(m.slack, 1), m.tight ? "tight" : ""], [money(m.cost), ""]
+      ];
+      cells.forEach(function (c) {
+        var td = document.createElement("td"); td.textContent = c[0]; if (c[1]) td.className = c[1]; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    var tot = document.createElement("tr"); tot.className = "tot";
+    [t("wfp.sol.total"), "", fmt(sy), fmt(sx), "", "", "", money(P.z)].forEach(function (c, j) {
+      var td = document.createElement("td"); td.textContent = c; if (j === 3) td.className = "dec"; tot.appendChild(td);
+    });
+    tb.appendChild(tot);
+    var tight = P.month.map(function (m, i) { return m.tight ? t("wfp.m." + (i + 1)) : null; }).filter(Boolean);
+    document.getElementById("wfp-solnote").textContent = t("wfp.sol.note", {
+      z: money(P.z, 2), tight: tight.join(", ")
+    });
+  }
+
+  function renderNotes() {
+    var P = BASE, Q = SC["0.10"], R = roundedUp(P);
+    var firstHire = P.x.findIndex(function (v) { return v > 1e-6; });
+    document.getElementById("wfp-n1").innerHTML = t("wfp.n.p1", {
+      avail: fmt(P.month[0].avail, 0), d: fmt(D[0], 0), idle: fmt(P.month[0].slack, 0),
+      month: t("wfp.m." + (firstHire + 1)), x: fmt(P.x[firstHire])
+    });
+    document.getElementById("wfp-n2").innerHTML = t("wfp.n.p2", {
+      s: fmt(P.month[1].slack, 1), p3: money(P.duals[2], 2), p5: money(P.duals[4], 2)
+    });
+    document.getElementById("wfp-n3").innerHTML = t("wfp.n.p3", {
+      z10: money(Q.z), pct: fmt((Q.z / P.z - 1) * 100, 1), x1: fmt(Q.x[0]), hires5: fmt(sum(P.x)), hires10: fmt(sum(Q.x))
+    });
+    document.getElementById("wfp-n4").innerHTML = t(R.ok ? "wfp.n.p4" : "wfp.n.p4b", {
+      x: P.x.map(function (v) { return fmt(v); }).join(" · "), xr: R.x.join(" · "), zr: money(R.cost),
+      pct: fmt((R.cost / P.z - 1) * 100, 1), y2: fmt(P.y[1])
+    });
+    document.getElementById("wfp-n5").innerHTML = t("wfp.n.p5");
+    document.getElementById("wfp-lg-leave").textContent = t("wfp.anim.lg.leave", { p: fmt(state.att * 100, 0) });
+  }
+  function sum(a) { return a.reduce(function (s, v) { return s + v; }, 0); }
+
+  /* ---------------- MathJax ---------------- */
+  var blocks = Array.prototype.slice.call(document.querySelectorAll(".math script[type='text/x-tex']"));
+  var mathReady = false;
+  function renderMath() {
+    if (!mathReady) return;
+    var outs = blocks.map(function (s) {
+      var out = s.parentNode.querySelector(".math-out");
+      if (!out) { out = document.createElement("div"); out.className = "math-out"; s.parentNode.appendChild(out); }
+      out.textContent = "\\[" + s.textContent.replace(/\\text\{ST\}/g, "\\text{" + t("ui.st") + "}") + "\\]";
+      return out;
+    });
+    if (window.MathJax.typesetClear) window.MathJax.typesetClear(outs);
+    window.MathJax.typesetPromise(outs).catch(function (e) { console.error(e); });
+  }
+  window.MathJax = {
+    tex: { inlineMath: [["\\(", "\\)"]] },
+    svg: { fontCache: "global" },
+    startup: { typeset: false, ready: function () { window.MathJax.startup.defaultReady(); mathReady = true; renderMath(); } }
+  };
+  var mj = document.createElement("script");
+  mj.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js";
+  mj.async = true;
+  document.head.appendChild(mj);
+
+  /* ======================= animation ======================= */
+  var A = window.Anim;
+  var stage = document.querySelector("#wfp-anim .anim-stage");
+  var state = { att: 0.05 };
+  var FONT = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MD = 8.5, DUR = 53, CH = [0, 8.5, 17, 25.5, 34, 42.5];
+  var GC = 10, TC = 3;                         // grid columns, training columns
+  var seg = A.seg, E = A.ease, lerp = A.lerp, clamp = A.clamp;
+
+  /* ---- people: persistent icons, each with a weight in (0, 1] so fractional technicians stay honest ---- */
+  function simulate(P) {
+    var nextId = 0, G = [], months = [], i, m;
+    var whole = Math.floor(P.y[0] + 1e-9), fr = P.y[0] - whole;
+    for (i = 0; i < whole; i++) G.push({ id: nextId++, w: 1, w0: 1, from: null, conv: false });
+    if (fr > 1e-6) G.push({ id: nextId++, w: fr, w0: fr, from: null, conv: false });
+    var slotU = function (s) { return [s % GC, Math.floor(s / GC)]; };
+    var trainU = function (k) { return [GC + 1 + (k % TC), Math.floor(k / TC)]; };
+    for (m = 0; m < N; m++) {
+      var ents = G.map(function (e, s) {
+        return { id: e.id, w: e.w, w0: e.w0, slot: s, from: e.from, conv: e.conv, wAfter: e.w, leaves: false };
+      });
+      var rnd = A.rng(7919 + m * 131 + Math.round(P.att * 1000));
+      // trainees hired this month and the experienced technician who supervises each one
+      var tr = [], xm = P.x[m], nW = Math.floor(xm + 1e-9), q = xm - nW;
+      for (i = 0; i < nW; i++) tr.push({ k: i, w: 1 });
+      if (q > 1e-6) tr.push({ k: tr.length, w: q });
+      var used = {};
+      tr.forEach(function (tt) {
+        var p = trainU(tt.k), best = null, bd = 1e9;
+        // mirrored pairing (training column c with grid column 9 - c, same row) draws nested, non-crossing links
+        var pref = ents[Math.floor(tt.k / TC) * GC + (GC - 1 - tt.k % TC)];
+        if (pref && pref.w > 0.999 && !used[pref.id]) { used[pref.id] = true; tt.sup = pref.slot; return; }
+        ents.forEach(function (e) {
+          if (e.w < 0.999 || used[e.id]) return;
+          var u = slotU(e.slot), d = (u[0] - p[0]) * (u[0] - p[0]) + (u[1] - p[1]) * (u[1] - p[1]) * 1.3;
+          if (d < bd) { bd = d; best = e; }
+        });
+        if (best) { used[best.id] = true; tt.sup = best.slot; }
+      });
+      // departures at the end of the month (whole icons plus at most one fractional piece)
+      var leavers = [], L = P.month[m].leave;
+      if (L > 1e-9) {
+        var nL = Math.floor(L + 1e-9), r = L - nL;
+        var last = ents[ents.length - 1], lastPartial = last.w < 0.999;
+        var pool = ents.filter(function (e) { return e.w > 0.999 && e !== last; });
+        for (i = pool.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)), tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp; }
+        var pi = 0;
+        for (i = 0; i < nL && pi < pool.length; i++) {
+          var e = pool[pi++]; e.leaves = true; e.wAfter = 0; leavers.push({ slot: e.slot, w: 1, whole: true });
+        }
+        if (r > 1e-6) {
+          if (lastPartial && last.w >= r - 1e-9) {
+            last.wAfter = last.w - r;
+            if (last.wAfter < 1e-6) { last.wAfter = 0; last.leaves = true; leavers.push({ slot: last.slot, w: last.w, whole: true }); }
+            else leavers.push({ slot: last.slot, w: r, whole: false });
+          } else {
+            var rem = r;
+            if (lastPartial) { last.leaves = true; last.wAfter = 0; leavers.push({ slot: last.slot, w: last.w, whole: true }); rem = r - last.w; }
+            var e2 = pool[pi++] || last;
+            e2.wAfter = 1 - rem; e2.toEnd = true; leavers.push({ slot: e2.slot, w: rem, whole: false });
+          }
+        }
+      }
+      leavers.forEach(function (lv, j) { lv.j = j; lv.dy = (rnd() - 0.5) * 2; });
+      // flows of hours from the board to the month's bar
+      var parts = [], full = ents.filter(function (e) { return e.w > 0.999; });
+      for (i = 0; i < 22; i++) parts.push({ slot: full[Math.floor(rnd() * full.length)].slot, sup: false, t0: 3.0 + i * 0.085, f: rnd() });
+      tr.forEach(function (tt, j) { if (tt.sup != null) parts.push({ slot: tt.sup, sup: true, t0: 3.35 + j * 0.12, f: rnd() }); });
+      months.push({ ents: ents, tr: tr, leavers: leavers, parts: parts });
+      if (m === N - 1) break;
+
+      // next month: survivors re-pack, trainees join as experienced
+      var surv = ents.filter(function (e) { return !e.leaves && e.wAfter > 1e-6; });
+      var fullS = surv.filter(function (e) { return e.wAfter > 0.999; });
+      var partS = surv.filter(function (e) { return e.wAfter <= 0.999; })[0];
+      var next = fullS.map(function (e) { return { id: e.id, w: 1, w0: 1, from: { g: e.slot }, conv: false }; });
+      tr.filter(function (tt) { return tt.w > 0.999; }).forEach(function (tt) {
+        next.push({ id: nextId++, w: 1, w0: 1, from: { t: tt.k }, conv: true });
+      });
+      var qt = tr.filter(function (tt) { return tt.w <= 0.999; })[0];
+      if (partS && qt) {
+        var p = partS.wAfter, qq = qt.w;
+        if (p + qq <= 1 + 1e-9) {
+          next.push({ id: partS.id, w: p + qq, w0: p, from: { g: partS.slot }, conv: false, merge: { t: qt.k, w: qq } });
+        } else {
+          next.push({ id: partS.id, w: 1, w0: p, from: { g: partS.slot }, conv: false });
+          next.push({ id: nextId++, w: p + qq - 1, w0: qq, from: { t: qt.k }, conv: true });
+        }
+      } else if (partS) next.push({ id: partS.id, w: partS.wAfter, w0: partS.wAfter, from: { g: partS.slot }, conv: false });
+      else if (qt) next.push({ id: nextId++, w: qt.w, w0: qt.w, from: { t: qt.k }, conv: true });
+      G = next;
+    }
+    var maxE = 0, maxT = 0;
+    months.forEach(function (mo) { maxE = Math.max(maxE, mo.ents.length); maxT = Math.max(maxT, mo.tr.length); });
+    return { months: months, rows: Math.max(Math.ceil(maxE / GC), Math.ceil(maxT / TC), 1), trows: Math.max(Math.ceil(maxT / TC), 3) };
+  }
+
+  var P = SC["0.05"], SIM = simulate(P);
+  window.__wfp.sim = function () { return SIM; };
+
+  /* ---- canvas and layout ---- */
+  var cv = A.canvas(stage), ctx = cv.ctx, L = {};
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    L.W = W; L.H = H; L.portrait = portrait;
+    var rows = SIM.rows, units = GC + 1 + TC;
+    if (!portrait) {
+      L.bx = 22; L.by = 78; L.bw = W * 0.54 - 22;
+      L.s = Math.min(L.bw / (units + 0.2), (H - L.by - 40 - 150) / rows);
+      L.gy = L.by + 34;
+      L.cx0 = W * 0.6 + 34; L.cx1 = W - 22; L.cy0 = 70; L.cy1 = H - 66;
+    } else {
+      L.bx = 12; L.by = 58; L.bw = W - 24;
+      L.s = Math.min(L.bw / (units + 0.1), (H * 0.52 - L.by - 22) / rows);
+      L.gy = L.by + 22;
+      L.cx0 = 44; L.cx1 = W - 12; L.cy0 = L.gy + rows * L.s + 30; L.cy1 = H - 52;
+    }
+    L.gx = L.bx + (L.bw - units * L.s) / 2 * (portrait ? 1 : 0);
+    L.bottom = L.gy + rows * L.s;
+    L.colW = (L.cx1 - L.cx0) / N;
+    L.fs = portrait ? 10.5 : 12;
+  }
+  function slotXY(s) { return [L.gx + (s % GC + 0.5) * L.s, L.gy + (Math.floor(s / GC) + 0.5) * L.s]; }
+  function trainXY(k) { return [L.gx + (GC + 1 + k % TC + 0.5) * L.s, L.gy + (Math.floor(k / TC) + 0.5) * L.s]; }
+  function yS(v) { return L.cy1 - v / 12000 * (L.cy1 - L.cy0); }
+  function colX(m) { return L.cx0 + (m + 0.5) * L.colW; }
+
+  var C, hatch = null, hatchKey = "";
+  function pal() {
+    C = A.colors();
+    if (hatchKey !== C.accent) {
+      hatchKey = C.accent;
+      var pc = document.createElement("canvas"); pc.width = pc.height = 7;
+      var g = pc.getContext("2d");
+      g.strokeStyle = C.accent; g.lineWidth = 1.6;
+      g.beginPath(); g.moveTo(-1, 8); g.lineTo(8, -1); g.moveTo(-1, 1); g.lineTo(1, -1); g.moveTo(6, 8); g.lineTo(8, 6); g.stroke();
+      hatch = ctx.createPattern(pc, "repeat");
+    }
+  }
+
+  /* ---- drawing helpers ---- */
+  function personPath(x, y, hs) {
+    var p = new Path2D(), R = hs * 0.3;
+    p.arc(x, y - hs * 0.17, hs * 0.15, 0, Math.PI * 2);
+    p.moveTo(x - R, y + hs * 0.38);
+    p.lineTo(x - R, y + hs * 0.3);
+    p.arc(x, y + hs * 0.3, R, Math.PI, 0);
+    p.lineTo(x + R, y + hs * 0.38);
+    p.closePath();
+    return p;
+  }
+  // a person icon; w < 1 draws a fractional technician (outline, filled from the feet up)
+  function person(x, y, hs, color, w, alpha) {
+    if (alpha <= 0.003 || w <= 0.003) return;
+    var p = personPath(x, y, hs);
+    ctx.globalAlpha = alpha;
+    if (w >= 0.999) { ctx.fillStyle = color; ctx.fill(p); }
+    else {
+      ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.globalAlpha = alpha * 0.6; ctx.stroke(p);
+      ctx.globalAlpha = alpha;
+      ctx.save();
+      var top = y - hs * 0.32, bot = y + hs * 0.38;
+      ctx.beginPath(); ctx.rect(x - hs, bot - (bot - top) * w, hs * 2, (bot - top) * w + 1); ctx.clip();
+      ctx.fillStyle = color; ctx.fill(p);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function text(s, x, y, color, size, weight, align, base) {
+    ctx.font = (weight || 600) + " " + size + "px " + FONT;
+    ctx.fillStyle = color; ctx.textAlign = align || "left"; ctx.textBaseline = base || "alphabetic";
+    ctx.fillText(s, x, y);
+  }
+  function qpt(a, b, c, u) {
+    var v = 1 - u;
+    return [v * v * a[0] + 2 * v * u * b[0] + u * u * c[0], v * v * a[1] + 2 * v * u * b[1] + u * u * c[1]];
+  }
+  function dashedCurve(a, c, prog, color, alpha, lift) {
+    if (prog <= 0 || alpha <= 0) return;
+    var b = [(a[0] + c[0]) / 2, Math.min(a[1], c[1]) - lift];
+    ctx.save();
+    ctx.globalAlpha = alpha; ctx.strokeStyle = color; ctx.lineWidth = 1.4; ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    var n = 20;
+    for (var i = 0; i <= n * prog; i++) { var p = qpt(a, b, c, i / n); if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]); }
+    ctx.stroke();
+    ctx.restore();
+  }
+  function supBar(x, y, hs, frac, alpha) {
+    var bw = hs * 0.95, bh = Math.max(3, hs * 0.11), x0 = x - bw / 2, y0 = y + hs * 0.46;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = C.ink2; ctx.globalAlpha = alpha * 0.45; ctx.fillRect(x0, y0, bw, bh);
+    ctx.globalAlpha = alpha; ctx.fillStyle = C.accent; ctx.fillRect(x0 + bw * (1 - frac), y0, bw * frac, bh);
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---- board: icons, trainees, departures ---- */
+  function monthOf(tt) { return Math.min(N - 1, Math.floor(tt / MD)); }
+
+  function drawBoard(tt) {
+    var m = monthOf(tt), u = tt - m * MD, mo = SIM.months[m], hs = L.s * 0.82, i;
+    var sum = tt >= CH[5];
+    var dim = sum ? 1 - 0.8 * E.inOut(seg(tt, CH[5] + 0.2, CH[5] + 1.4)) : 1;
+
+    // zone backdrops and labels
+    ctx.globalAlpha = dim;
+    ctx.fillStyle = C.region;
+    var tx0 = L.gx + (GC + 0.75) * L.s;
+    ctx.fillRect(tx0, L.gy - 2, (TC + 0.5) * L.s, SIM.trows * L.s + 4);
+    ctx.globalAlpha = 1;
+    // month title (slides between months)
+    for (var k = Math.max(0, m - 1); k <= m; k++) {
+      var a = k === m ? E.out(seg(u, 0, 0.7)) : 1 - E.out(seg(u, 0, 0.5));
+      if (m === 0 && k === 0) a = E.out(seg(tt, 0, 0.6));
+      if (a <= 0) continue;
+      ctx.globalAlpha = a * dim;
+      text(t("wfp.m." + (k + 1)), L.gx, L.gy - (L.portrait ? 8 : 12) - (1 - a) * 8 * (k === m ? -1 : 1),
+        C.ink, L.portrait ? 15 : 21, 700);
+      ctx.globalAlpha = 1;
+    }
+    ctx.globalAlpha = dim;
+    text(t("wfp.anim.lbl.train"), tx0 + (TC + 0.5) * L.s / 2, L.gy - (L.portrait ? 7 : 9), C.accent, L.portrait ? 10 : 11.5, 600, "center");
+    ctx.globalAlpha = 1;
+
+    // experienced technicians of month m
+    var arr = m === 0 ? 1 : E.inOut(seg(u, 0.1, 1.5));
+    var supSlots = {};
+    mo.tr.forEach(function (tr) { if (tr.sup != null) supSlots[tr.sup] = tr; });
+    var linkA = seg(u, 2.5, 2.8) * (1 - seg(u, 5.9, 6.3));
+    mo.ents.forEach(function (e, s) {
+      var to = slotXY(e.slot), pos = to, w = e.w, col = C.ink, alpha = dim, hsE = hs;
+      if (m === 0) {
+        var pop = E.back(seg(tt, 0.15 + s * 0.018, 0.55 + s * 0.018));
+        alpha = dim * seg(tt, 0.15 + s * 0.018, 0.4 + s * 0.018);
+        hsE = hs * Math.max(0.01, pop);
+      } else if (arr < 1 && e.from) {
+        var st = clamp(arr * 1.25 - (e.conv ? 0.25 : (s / mo.ents.length) * 0.25), 0, 1);
+        var fp = e.from.g != null ? slotXY(e.from.g) : trainXY(e.from.t);
+        var uu = E.inOut(st);
+        pos = [lerp(fp[0], to[0], uu), lerp(fp[1], to[1], uu) - (e.conv ? Math.sin(uu * Math.PI) * L.s * 0.6 : 0)];
+        w = lerp(e.w0, e.w, uu);
+        if (e.conv) {
+          person(pos[0], pos[1], hs, C.accent, w, dim * (1 - uu));
+          person(pos[0], pos[1], hs, C.ink, w, dim * uu);
+          return;
+        }
+      }
+      // departures at month end
+      if (u >= 6.0 && m < N - 1) {
+        if (e.leaves) return;
+        w = lerp(e.w, e.wAfter, E.inOut(seg(u, 6.0, 6.4)));
+      }
+      person(pos[0], pos[1], hsE, col, w, alpha);
+      var tr = supSlots[e.slot];
+      if (tr && linkA > 0 && !(e.leaves && u >= 6.0)) supBar(pos[0], pos[1], hs, SUP * tr.w / HOURS, linkA * dim);
+    });
+    // merge clones (a fractional trainee topping up a fractional technician)
+    if (m > 0 && arr < 1) mo.ents.forEach(function (e) {
+      if (!e.merge) return;
+      var fp = trainXY(e.merge.t), to = slotXY(e.slot), uu = E.inOut(clamp(arr * 1.25 - 0.25, 0, 1));
+      person(lerp(fp[0], to[0], uu), lerp(fp[1], to[1], uu) - Math.sin(uu * Math.PI) * L.s * 0.6, hs, C.accent, e.merge.w, dim * (1 - uu));
+    });
+
+    // trainees of month m: walk in, get linked to a supervisor, stay red for the whole month
+    mo.tr.forEach(function (tr) {
+      var target = trainXY(tr.k), d0 = 1.6 + tr.k * 0.09, wk = seg(u, d0, d0 + 1.0);
+      if (wk <= 0) return;
+      var sx = L.portrait ? L.W + L.s : L.bx + L.bw + L.s * 1.5;
+      var uu = E.out(wk);
+      var x = lerp(sx, target[0], uu), y = target[1] - Math.abs(Math.sin(wk * Math.PI * 4)) * L.s * 0.12 * (1 - wk);
+      if (tr.sup != null) {
+        var sp = slotXY(tr.sup);
+        dashedCurve([x, y - hs * 0.2], [sp[0], sp[1] - hs * 0.2], E.inOut(seg(u, 2.6 + tr.k * 0.05, 3.4 + tr.k * 0.05)),
+          C.accent, linkA * dim * 0.85, Math.abs(x - sp[0]) * 0.13 + L.s * 0.12);
+      }
+      person(x, y, hs, C.accent, tr.w, dim * seg(wk, 0, 0.25));
+    });
+    if (mo.tr.length && u > 1.8 && u < 6.4) {
+      var la = seg(u, 1.8, 2.4) * (1 - seg(u, 5.8, 6.3));
+      ctx.globalAlpha = la * dim;
+      text("+" + fmt(P.x[m]), tx0 + (TC + 0.5) * L.s / 2, L.gy + SIM.trows * L.s + (L.portrait ? 14 : 20), C.accent, L.portrait ? 11 : 13, 700, "center");
+      ctx.globalAlpha = 1;
+    }
+
+    // departures: turn bright red, then walk out to the left and fade
+    if (m < N - 1 && u >= 6.0) {
+      // exit lane just under the grid, leading off the left edge
+      var lane = L.bottom + L.s * 0.42, ex = [L.bx - L.s * 1.4, lane];
+      mo.leavers.forEach(function (lv) {
+        var p0 = slotXY(lv.slot), d0 = 6.45 + lv.j * 0.07, wk = seg(u, d0, d0 + 1.3), hot = seg(u, 6.0, 6.35);
+        var ctl = [p0[0] - L.s * 0.3, lane];
+        var path = function (q) { return qpt(p0, ctl, ex, E.inOut(q)); };
+        var pp = path(wk), lift = 1 + 0.18 * Math.sin(Math.min(1, hot + wk * 3) * Math.PI / 2) * (1 - wk);
+        var fade = 1 - seg(pp[0], L.gx + L.s * 0.3, ex[0]);
+        if (fade <= 0) return;
+        var bob = Math.abs(Math.sin(wk * Math.PI * 6)) * L.s * 0.07 * (wk > 0 && wk < 1 ? 1 : 0);
+        for (var q = 1; q <= 4 && wk > 0; q++) {
+          var tp = path(seg(u, d0 - q * 0.05, d0 + 1.3 - q * 0.05));
+          ctx.globalAlpha = (0.2 - q * 0.04) * fade * dim;
+          ctx.fillStyle = C["mit-bright"];
+          ctx.beginPath(); ctx.arc(tp[0], tp[1] + hs * 0.05, hs * 0.11, 0, Math.PI * 2); ctx.fill();
+        }
+        if (lv.whole) person(pp[0], pp[1] - bob, hs * lift, C.ink, lv.w, (1 - hot) * fade * dim);
+        person(pp[0], pp[1] - bob, hs * lift, C["mit-bright"], lv.w, hot * fade * dim);
+      });
+    }
+    // how many leave this month, next to the month name
+    if (m < N - 1) {
+      var la2 = seg(u, 6.1, 6.5) * (1 - seg(u, 8.0, 8.5));
+      if (la2 > 0) {
+        ctx.font = "700 " + (L.portrait ? 15 : 21) + "px " + FONT;
+        var tw = ctx.measureText(t("wfp.m." + (m + 1))).width;
+        ctx.globalAlpha = la2 * dim;
+        text("−" + fmt(P.month[m].leave), L.gx + tw + 10, L.gy - (L.portrait ? 8 : 12), C["mit-bright"], L.portrait ? 12 : 15, 700, "left");
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
+  /* ---- desktop inset: one supervisor, one trainee, the 160 h bar and the two salaries ---- */
+  function drawInset(tt) {
+    if (L.portrait) return;
+    var a = seg(tt, 0.8, 1.6) * (1 - seg(tt, CH[5] + 0.1, CH[5] + 0.8));
+    if (a <= 0) return;
+    var x0 = L.gx, y0 = L.bottom + 44, h = Math.min(92, L.H - y0 - 16), w = Math.min(L.bw, 420);
+    if (h < 60) return;
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w, h);
+    var hs = Math.min(40, h * 0.5), cy = y0 + h * 0.42;
+    var sx = x0 + 34, tx = x0 + w - 34;
+    person(sx, cy, hs, C.ink, 1, a);
+    person(tx, cy, hs, C.accent, 1, a);
+    text(money(PAY_E), sx, y0 + h - 10, C.ink2, 12, 600, "center");
+    text(money(PAY_T), tx, y0 + h - 10, C.accent, 12, 600, "center");
+    // the 160 h bar with the 50 h of supervision hatched
+    var bx0 = sx + 34, bx1 = tx - 34, bw = bx1 - bx0, by = cy - 7, bh = 14;
+    var sup = SUP / HOURS, grow = E.out(seg(tt, 1.2, 2.4));
+    ctx.fillStyle = C.ink2; ctx.globalAlpha = a * 0.85; ctx.fillRect(bx0, by, bw * (1 - sup) * grow, bh);
+    var hg = seg(tt, 2.0, 2.8);
+    ctx.globalAlpha = a * hg * 0.16; ctx.fillStyle = C.accent; ctx.fillRect(bx0 + bw * (1 - sup), by, bw * sup, bh);
+    ctx.globalAlpha = a * hg; ctx.fillStyle = hatch; ctx.fillRect(bx0 + bw * (1 - sup), by, bw * sup, bh);
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 1; ctx.strokeRect(bx0 + bw * (1 - sup) + 0.5, by + 0.5, bw * sup - 1, bh - 1);
+    ctx.globalAlpha = a;
+    text(t("wfp.hours", { v: fmt(HOURS, 0) }), bx0, by - 7, C.ink2, 11.5, 600, "left");
+    ctx.globalAlpha = a * hg;
+    text(t("wfp.hours", { v: fmt(SUP, 0) }), bx0 + bw * (1 - sup / 2), by + bh + 15, C.accent, 11.5, 700, "center");
+    dashedCurve([bx0 + bw * (1 - sup / 2), by], [tx - hs * 0.35, cy - hs * 0.05], 1, C.accent, a * hg, 12);
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---- chart: hours per month against demand ---- */
+  function drawChart(tt) {
+    var m = monthOf(tt), u = tt - m * MD, sum = tt >= CH[5], fs = L.fs, i;
+    // grid
+    ctx.lineWidth = 1;
+    [0, 3000, 6000, 9000, 12000].forEach(function (v) {
+      var y = Math.round(yS(v)) + 0.5;
+      ctx.strokeStyle = v === 0 ? C.axis : C.grid; ctx.beginPath(); ctx.moveTo(L.cx0, y); ctx.lineTo(L.cx1, y); ctx.stroke();
+      text(fmt(v, 0), L.cx0 - 6, y + 3.5, C.muted, fs - 1.5, 400, "right");
+    });
+    text(t("wfp.anim.lbl.hours"), L.cx0 - 6, yS(12000) - 10, C.muted, fs - 1.5, 600, "right");
+    // current month band
+    if (!sum) {
+      var ba = E.out(seg(u, 0, 0.6));
+      ctx.fillStyle = C.sel; ctx.globalAlpha = ba;
+      ctx.fillRect(L.cx0 + m * L.colW + 1, L.cy0 - 6, L.colW - 2, L.cy1 - L.cy0 + 6);
+      ctx.globalAlpha = 1;
+    }
+    var bw = Math.min(L.colW * 0.5, 54);
+    for (i = 0; i < N; i++) {
+      var x = colX(i), M = P.month[i], t0 = i * MD;
+      var g = E.out(seg(tt, t0 + 3.3, t0 + 5.4));
+      if (g > 0) {
+        var h = M.avail * g, prod = Math.min(h, M.prod);
+        // slack between demand and the productive hours
+        if (g >= 1 && M.slack > 1) {
+          ctx.fillStyle = C.region; ctx.globalAlpha = seg(tt, t0 + 5.4, t0 + 5.9);
+          ctx.fillRect(x - bw / 2 - 4, yS(M.prod), bw + 8, yS(D[i]) - yS(M.prod));
+          ctx.globalAlpha = 1;
+        }
+        ctx.fillStyle = C.ink2; ctx.globalAlpha = 0.9;
+        ctx.fillRect(x - bw / 2, yS(prod), bw, L.cy1 - yS(prod));
+        ctx.globalAlpha = 1;
+        if (h > M.prod + 1e-6) {
+          var y1 = yS(h), y0 = yS(M.prod);
+          ctx.fillStyle = C.accent; ctx.globalAlpha = 0.16; ctx.fillRect(x - bw / 2, y1, bw, y0 - y1);
+          ctx.globalAlpha = 1; ctx.fillStyle = hatch; ctx.fillRect(x - bw / 2, y1, bw, y0 - y1);
+          ctx.strokeStyle = C.accent; ctx.lineWidth = 1; ctx.strokeRect(x - bw / 2 + 0.5, y1 + 0.5, bw - 1, y0 - y1 - 1);
+        }
+      }
+      // demand: silver ghost for the months ahead, ink once the month starts, accent red where it binds
+      var dy = Math.round(yS(D[i])) + 0.5, on = seg(tt, t0 + 2.8, t0 + 3.3), hit = M.tight ? seg(tt, t0 + 5.4, t0 + 5.8) : 0;
+      ctx.save();
+      ctx.setLineDash([5, 4]); ctx.lineWidth = 2;
+      ctx.strokeStyle = C["mit-silver"]; ctx.globalAlpha = 0.7 * (1 - on);
+      ctx.beginPath(); ctx.moveTo(x - L.colW * 0.42, dy); ctx.lineTo(x + L.colW * 0.42, dy); ctx.stroke();
+      ctx.globalAlpha = on; ctx.strokeStyle = hit > 0.5 ? C.accent : C.ink; ctx.lineWidth = hit > 0.5 ? 2.6 : 2;
+      ctx.beginPath(); ctx.moveTo(x - L.colW * 0.42, dy); ctx.lineTo(x + L.colW * 0.42, dy); ctx.stroke();
+      ctx.restore();
+      // binding pulse
+      if (M.tight) {
+        var pu = seg(tt, t0 + 5.4, t0 + 6.6);
+        var pu2 = sum ? seg(tt, CH[5] + 1.6 + i * 0.35, CH[5] + 2.8 + i * 0.35) : 0;
+        [pu, pu2].forEach(function (q) {
+          if (q <= 0 || q >= 1) return;
+          ctx.strokeStyle = C.accent; ctx.lineWidth = 2; ctx.globalAlpha = 1 - q;
+          ctx.beginPath(); ctx.arc(x, dy, 4 + q * L.colW * 0.45, 0, Math.PI * 2); ctx.stroke();
+          ctx.globalAlpha = 1;
+        });
+        if (hit > 0) { ctx.fillStyle = C.accent; ctx.globalAlpha = hit; ctx.beginPath(); ctx.arc(x, dy, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
+      }
+      // demand value while its month plays
+      var la = on * (sum ? 0 : (i === m ? 1 - seg(u, 7.6, 8.4) : 0));
+      if (la > 0) {
+        var ds = fmt(D[i], 0);
+        ctx.font = "700 " + fs + "px " + FONT;
+        var dw = ctx.measureText(ds).width;
+        ctx.globalAlpha = la * 0.9; ctx.fillStyle = C.surface;
+        ctx.fillRect(x - dw / 2 - 4, dy - 8 - fs, dw + 8, fs + 5);
+        ctx.globalAlpha = la;
+        text(ds, x, dy - 7, M.tight && hit > 0.5 ? C.accent : C.ink, fs, 700, "center");
+        ctx.globalAlpha = 1;
+      }
+      // month label
+      var cur = !sum && i === m;
+      text(t("wfp.ms." + (i + 1)), x, L.cy1 + (L.portrait ? 14 : 17), cur ? C.ink : C.muted, fs, cur ? 700 : 600, "center");
+    }
+    // summary rows: experienced and trainees per month
+    var ra = E.out(seg(tt, CH[5] + 0.6, CH[5] + 1.6));
+    if (ra > 0) {
+      var r1 = L.cy1 + (L.portrait ? 29 : 35), r2 = L.cy1 + (L.portrait ? 43 : 53), ih = L.portrait ? 11 : 14;
+      person(L.cx0 - 12, r1 - ih * 0.3, ih, C.ink, 1, ra);
+      person(L.cx0 - 12, r2 - ih * 0.3, ih, C.accent, 1, ra);
+      for (i = 0; i < N; i++) {
+        var a2 = ra * E.out(seg(tt, CH[5] + 0.6 + i * 0.12, CH[5] + 1.4 + i * 0.12));
+        ctx.globalAlpha = a2;
+        text(fmt(P.y[i]), colX(i), r1, C.ink, fs, 600, "center");
+        text(P.x[i] > 0 ? "+" + fmt(P.x[i]) : "0", colX(i), r2, P.x[i] > 0 ? C.accent : C.muted, fs, 700, "center");
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
+  /* ---- hours flowing from the board into the month's bar ---- */
+  function drawFlows(tt) {
+    if (tt >= CH[5]) return;
+    var m = monthOf(tt), u = tt - m * MD, mo = SIM.months[m], M = P.month[m];
+    var x = colX(m), bw = Math.min(L.colW * 0.5, 54);
+    mo.parts.forEach(function (pp) {
+      var q = seg(u, pp.t0, pp.t0 + 0.95);
+      if (q <= 0 || q >= 1) return;
+      var a = slotXY(pp.slot);
+      var tv = pp.sup ? M.prod + (M.sup) * (0.2 + 0.6 * pp.f) : M.prod * (0.15 + 0.8 * pp.f);
+      var c = [x + (pp.f - 0.5) * bw * 0.6, yS(tv)];
+      var b = [(a[0] + c[0]) / 2, Math.min(a[1], c[1]) - (L.portrait ? 30 : 70)];
+      var col = pp.sup ? C.accent : C.ink2;
+      for (var k = 0; k < 4; k++) {
+        var uq = E.inOut(clamp(q - k * 0.035, 0, 1)), p = qpt(a, b, c, uq);
+        ctx.globalAlpha = (k === 0 ? 0.9 : 0.35 - k * 0.07) * Math.min(1, q * 6) * Math.min(1, (1 - q) * 6);
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(p[0], p[1], k === 0 ? 2.6 : 2, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    });
+  }
+
+  /* ---- summary panel over the board ---- */
+  function drawSummary(tt) {
+    var a = E.out(seg(tt, CH[5] + 0.5, CH[5] + 1.5));
+    if (a <= 0) return;
+    var eCost = 0, tCost = 0;
+    for (var i = 0; i < N; i++) { eCost += PAY_E * P.y[i]; tCost += PAY_T * P.x[i]; }
+    var cx = L.gx + (GC + 1 + TC) * L.s / 2, cy = L.portrait ? L.gy + SIM.rows * L.s * 0.3 : L.gy + SIM.rows * L.s * 0.35;
+    var big = L.portrait ? 30 : 46, fs = L.portrait ? 10.5 : 12.5, lf = L.portrait ? 11.5 : 14;
+    var bw = Math.min((GC + 1 + TC) * L.s - 40, 420), x0 = cx - bw / 2, y0 = cy + (L.portrait ? 14 : 22), bh = L.portrait ? 12 : 16;
+    // backing card so the numbers read cleanly over the faded board
+    var pt = cy - big - 6 - lf - (L.portrait ? 10 : 16), pb = y0 + bh + 2 * fs + (L.portrait ? 18 : 24);
+    ctx.globalAlpha = a * 0.94; ctx.fillStyle = C.surface;
+    ctx.fillRect(x0 - 18, pt, bw + 36, pb - pt);
+    ctx.globalAlpha = a; ctx.strokeStyle = C.border; ctx.lineWidth = 1;
+    ctx.strokeRect(Math.round(x0 - 18) + 0.5, Math.round(pt) + 0.5, Math.round(bw + 36), Math.round(pb - pt));
+    ctx.fillStyle = C.accent; ctx.fillRect(x0 - 18, pt, 3, pb - pt);
+    text(t("wfp.anim.lbl.total"), cx, cy - big - 6, C.ink2, lf, 600, "center");
+    text(money(P.z), cx, cy, C.accent, big, 700, "center");
+    // split bar: experienced vs trainee salaries
+    var g = E.inOut(seg(tt, CH[5] + 1.0, CH[5] + 2.6)), fe = eCost / P.z;
+    ctx.fillStyle = C.ink2; ctx.fillRect(x0, y0, bw * fe * g, bh);
+    ctx.fillStyle = C.accent; ctx.fillRect(x0 + bw * fe * g, y0, bw * (1 - fe) * g, bh);
+    var la = seg(tt, CH[5] + 2.2, CH[5] + 3.0) * a;
+    ctx.globalAlpha = la;
+    text(t("wfp.anim.lbl.expPay"), x0, y0 + bh + fs + 5, C.ink2, fs, 600, "left");
+    text(money(eCost), x0, y0 + bh + 2 * fs + 9, C.ink, fs + 1, 700, "left");
+    text(t("wfp.anim.lbl.trPay"), x0 + bw, y0 + bh + fs + 5, C.accent, fs, 600, "right");
+    text(money(tCost), x0 + bw, y0 + bh + 2 * fs + 9, C.accent, fs + 1, 700, "right");
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---- HUD counters ---- */
+  var hudCache = {};
+  function setText(id, s) { if (hudCache[id] !== s) { hudCache[id] = s; document.getElementById(id).textContent = s; } }
+  function hud(tt) {
+    var m = monthOf(tt), u = tt - m * MD, sum = tt >= CH[5], y, x;
+    if (sum) y = P.y[N - 1];
+    else if (m === 0) y = P.y[0] * E.out(seg(tt, 0.1, 1.4));
+    else y = lerp(P.y[m - 1] - P.month[m - 1].leave, P.y[m], E.inOut(seg(u, 0.1, 1.5)));
+    if (!sum && m < N - 1) y = lerp(y, P.y[m] - P.month[m].leave, E.inOut(seg(u, 6.3, 7.8)));
+    setText("wfp-v1", fmt(y));
+    setText("wfp-l1", t("wfp.anim.k.exp"));
+    if (sum) {
+      setText("wfp-v2", fmt(sum5(P.x)));
+      setText("wfp-l2", t("wfp.anim.k.trTotal"));
+    } else {
+      x = P.x[m] * E.out(seg(u, 1.6, 3.0));
+      if (m > 0 && u < 1.6) x = P.x[m - 1] * (1 - E.inOut(seg(u, 0.1, 1.5)));
+      setText("wfp-v2", fmt(x));
+      setText("wfp-l2", t("wfp.anim.k.tr"));
+    }
+    var cost = 0;
+    for (var i = 0; i < N; i++) cost += P.month[i].cost * E.inOut(seg(tt, i * MD + 3.3, i * MD + 5.4));
+    setText("wfp-v3", money(cost));
+    setText("wfp-l3", t("wfp.anim.k.cost"));
+  }
+  function sum5(a) { return a.reduce(function (s, v) { return s + v; }, 0); }
+
+  function render(tt) {
+    tt = clamp(tt, 0, DUR); // the player can hand a tiny negative time on its first frame
+    pal();
+    ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+    ctx.clearRect(0, 0, cv.w, cv.h);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, cv.w, cv.h);
+    ctx.lineJoin = "round";
+    drawChart(tt);
+    drawBoard(tt);
+    drawInset(tt);
+    drawFlows(tt);
+    drawSummary(tt);
+    hud(tt);
+  }
+
+  layout();
+  var player = A.create({
+    root: document.getElementById("wfp-anim"),
+    duration: DUR,
+    chapters: CH.map(function (c, i) { return { t: c, key: "wfp.anim.ch" + (i + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+  window.__wfpAnim = player;
+
+  var segBtns = document.querySelectorAll("#wfp-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var key = b.getAttribute("data-att");
+      state.att = +key;
+      P = SC[key]; SIM = simulate(P); layout();
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      document.getElementById("wfp-lg-leave").textContent = t("wfp.anim.lg.leave", { p: fmt(state.att * 100, 0) });
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      player.seek(0); player.play();
+    });
+  });
+
+  function renderPage() {
+    renderCons();
+    renderSolution();
+    renderNotes();
+    renderMath();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

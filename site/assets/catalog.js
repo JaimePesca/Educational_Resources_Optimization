@@ -26,7 +26,14 @@ window.CATALOG = {
   education: [
     // Published
     { id: "feasible-region", href: "resources/feasible-region.html", level: "lp", type: "simulation" },
+    { id: "ip-rounding", href: "resources/rounding-trap.html", level: "ip", type: "simulation" },
     { id: "critical-load", href: "resources/critical-load.html", level: "ip", type: "game" },
+    { id: "ip-coins", href: "resources/exact-change.html", level: "ip", type: "animation" },
+    { id: "edu-bnb", href: "resources/search-tree.html", level: "ip", type: "animation" },
+    { id: "ip-cuts", href: "resources/cutting-planes.html", level: "ip", type: "animation" },
+    { id: "ip-cover", href: "resources/signal-coverage.html", level: "ip", type: "game" },
+    { id: "edu-shifts", href: "resources/hospital-shifts.html", level: "ip", type: "game" },
+    { id: "ip-assignment", href: "resources/perfect-assignment.html", level: "ip", type: "simulation" },
     { id: "patrol-route", href: "resources/patrol-route.html", level: "other", type: "animation" },
     // Level 3 · Mixed-integer programming, in learning order
     { id: "milp-mixed-set", href: "resources/mixed-feasible-set.html", level: "milp", type: "simulation" },
@@ -41,12 +48,14 @@ window.CATALOG = {
     { id: "feasible-region-3d", href: "resources/feasible-region-3d.html", level: "lp", type: "simulation" },
     { id: "compacta", href: "compacta/index.html", level: "lp", type: "game" },
     { id: "dijkstra", href: "resources/dijkstra.html", level: "other", type: "animation" },
+    { id: "lp-inventory", href: "resources/inventory-balance.html", level: "lp", type: "simulation" },
+    { id: "edu-diet", href: "resources/cheapest-feed.html", level: "lp", type: "simulation" },
+    { id: "edu-simplex", href: "resources/simplex-steps.html", level: "lp", type: "animation" },
+    { id: "lp-shadow", href: "resources/shadow-prices.html", level: "lp", type: "simulation" },
+    { id: "lp-machines", href: "resources/machine-scheduling.html", level: "lp", type: "animation" },
+    { id: "lp-workforce", href: "resources/workforce-planning.html", level: "lp", type: "animation" },
 
     // Planned: open for contributors
-    { id: "edu-diet", level: "lp", type: "simulation" },
-    { id: "edu-simplex", level: "lp", type: "animation" },
-    { id: "edu-shifts", level: "ip", type: "game" },
-    { id: "edu-bnb", level: "ip", type: "animation" },
     { id: "edu-portfolio", level: "nlp", type: "simulation" },
     { id: "edu-gradient", level: "nlp", type: "animation" },
     { id: "edu-queue", level: "other", type: "simulation" },
