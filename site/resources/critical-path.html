@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en" data-title-key="cpm.title" data-i18n-bundles="resources/other-cpm">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Critical Path</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #cpm-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 34%)); max-width: none;
+  }
+  #cpm-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #cpm-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #cpm-sec .anim-hud .chip-stat.bad b { color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #cpm-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #cpm-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #cpm-sec .anim-hud { grid-template-columns: repeat(4, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #cpm-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 10.5px; }
+    #cpm-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #cpm-sec .anim-legend span[hidden] { display: none; }
+  #cpm-sec .anim-legend i.lg-box { width: 18px; height: 13px; border: 1.5px solid var(--ink); background: linear-gradient(var(--grid), var(--grid)) 0 4px / 100% 1px no-repeat, linear-gradient(var(--grid), var(--grid)) 0 8px / 100% 1px no-repeat, var(--surface); }
+  #cpm-sec .anim-legend i.lg-crit { width: 20px; height: 0; border-top: 3px solid var(--accent); }
+  #cpm-sec .anim-legend i.lg-spike { width: 2px; height: 11px; background: var(--ink); margin: 0 5px; }
+  #cpm-sec .anim-legend i.lg-tri { width: 18px; height: 11px; background: var(--accent); clip-path: polygon(0 100%, 35% 0, 100% 100%); opacity: 0.8; }
+  #cpm-sec .anim-legend i.lg-slack { width: 20px; height: 0; border-top: 2px dashed var(--mit-silver); }
+  #cpm-sec .anim-legend i.lg-dl { width: 3px; height: 13px; background: var(--mit-bright); margin: 0 4px; }
+  #cpm-sec .anim-legend i.lg-cpm { width: 0; height: 13px; border-left: 2px dashed var(--ink); margin: 0 5px; }
+  #cpm-sec .anim-legend i.lg-mean { width: 3px; height: 13px; background: var(--accent); margin: 0 4px; }
+  #cpm-sec .anim-legend i.lg-late { background: var(--mit-bright); opacity: 0.75; }
+  #cpm-sec .anim-legend i.lg-ci { width: 22px; height: 12px; border: 1px solid var(--accent); border-radius: 6px; background: var(--sel); }
+  /* dark theme: accent and bright red are the same colour there, so the late cues use the crit shade */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #cpm-sec .anim-legend i.lg-dl,
+    :root:not([data-theme="light"]) #cpm-sec .anim-legend i.lg-late { background: var(--crit); }
+  }
+  :root[data-theme="dark"] #cpm-sec .anim-legend i.lg-dl,
+  :root[data-theme="dark"] #cpm-sec .anim-legend i.lg-late { background: var(--crit); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 8px 24px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 14px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- tables ---- */
+  table.data { min-width: 0; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.id { font-weight: 700; white-space: nowrap; }
+  table.data td.id small { font-weight: 400; color: var(--ink2); font-size: 13px; }
+  table.data td.pr { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink2); }
+  table.data td.zero { color: var(--accent-text); font-weight: 700; }
+  table.data tr.on td.id { color: var(--accent-text); }
+  #cpm-data td.id { white-space: normal; }
+  @media (max-width: 560px) {
+    table.data th, table.data td { padding-inline: 5px; }
+    table.data td.num { font-size: 12px; }
+    table.data .wide { display: none; }
+  }
+
+  /* ---- solution ---- */
+  .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  .solcheck { font-size: 14px; color: var(--ink2); margin: 14px 0 8px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="cpm.eyebrow"></p>
+    <h1 data-i18n="cpm.title"></h1>
+    <p class="lede" data-i18n-html="cpm.lede"></p>
+  </header>
+
+  <section class="block" id="cpm-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="cpm.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="cpm-scen-lbl" data-i18n="cpm.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="cpm-scen-lbl" id="cpm-seg">
+        <button type="button" data-sc="fixed" aria-pressed="true" data-i18n="cpm.sc.fixed"></button>
+        <button type="button" data-sc="mc" aria-pressed="false" data-i18n="cpm.sc.mc"></button>
+      </div>
+    </div>
+    <div class="anim" id="cpm-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:cpm.anim.aria">
+        <div class="anim-hud" id="cpm-hud">
+          <div class="chip-stat" id="cpm-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="cpm-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="cpm-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="cpm-c3"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-box"></i><span data-i18n="cpm.lg.box"></span></span>
+      <span><i class="lg-crit"></i><span data-i18n="cpm.lg.crit"></span></span>
+      <span data-only="fixed"><i class="lg-spike"></i><span data-i18n="cpm.lg.spike"></span></span>
+      <span data-only="mc" hidden><i class="lg-tri"></i><span data-i18n="cpm.lg.tri"></span></span>
+      <span data-only="fixed"><i class="lg-slack"></i><span data-i18n="cpm.lg.slack"></span></span>
+      <span><i class="lg-dl"></i><span id="cpm-lg-dl"></span></span>
+      <span data-only="mc" hidden><i class="lg-cpm"></i><span data-i18n="cpm.lg.cpm"></span></span>
+      <span data-only="mc" hidden><i class="lg-mean"></i><span data-i18n="cpm.lg.mean"></span></span>
+      <span data-only="mc" hidden><i class="lg-late"></i><span data-i18n="cpm.lg.late"></span></span>
+      <span data-only="mc" hidden><i class="lg-ci"></i><span data-i18n="cpm.lg.ci"></span></span>
+    </div>
+    <p class="scen-status" id="cpm-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cpm.model.kicker"></span><span data-i18n="cpm.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mtext" id="cpm-data-intro" style="margin-top:0"></p>
+        <div class="tblwrap"><table class="data" id="cpm-data"></table></div>
+        <p class="mhead" data-i18n="cpm.mc.head"></p>
+        <div class="formula" data-tex="cpm.mc.tex" data-i18n="cpm.mc.formula"></div>
+        <p class="mtext" data-i18n="cpm.mc.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="cpm.pass.head"></p>
+        <div class="formula" data-tex="cpm.pass.tex" data-i18n="cpm.pass.formula"></div>
+        <p class="mtext" data-i18n="cpm.pass.why"></p>
+        <p class="mhead" data-i18n="cpm.lp.head"></p>
+        <div class="formula" data-tex="cpm.lp.tex" data-i18n="cpm.lp.formula"></div>
+        <p class="mtext" id="cpm-lp"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cpm.sol.kicker"></span><span data-i18n="cpm.sol.title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="cpm.sol.cpm"></div><div class="v" id="cpm-s-cpm"></div><div class="l" id="cpm-s-cpm-l"></div></div>
+      <div class="stat"><div class="k" data-i18n="cpm.sol.mean"></div><div class="v" id="cpm-s-mean"></div><div class="l" id="cpm-s-mean-l"></div></div>
+      <div class="stat"><div class="k" data-i18n="cpm.sol.bias"></div><div class="v" id="cpm-s-bias"></div><div class="l" data-i18n="cpm.sol.bias.l"></div></div>
+      <div class="stat"><div class="k" id="cpm-s-p-k"></div><div class="v" id="cpm-s-p"></div><div class="l" id="cpm-s-p-l"></div></div>
+      <div class="stat"><div class="k" id="cpm-s-p0-k"></div><div class="v ink" id="cpm-s-p0"></div><div class="l" data-i18n="cpm.sol.p0.l"></div></div>
+      <div class="stat"><div class="k" data-i18n="cpm.sol.q"></div><div class="v ink" id="cpm-s-q"></div><div class="l" data-i18n="cpm.sol.q.l"></div></div>
+    </div>
+    <p class="solcheck" id="cpm-check"></p>
+    <div class="tblwrap"><table class="data" id="cpm-sched"></table></div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="cpm.n.title"></summary>
+      <div class="body">
+        <p id="cpm-n1"></p>
+        <p id="cpm-n2"></p>
+        <p id="cpm-n3"></p>
+        <p id="cpm-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="3.20" data-refs="cpm.refs"></p>
+  <p class="note" id="cpm-footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/other-cpm.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d, m) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 1 : d, m); };
+  var days = function (v, d) { return T("cpm.d", { v: fmt(v, d) }); };
+  var pct = function (p, d) { return T("cpm.pct", { v: fmt(100 * p, d == null ? 1 : d) }); };
+  // the sign is chosen after rounding, so a tiny value never shows as "−0" or "+0"
+  var sgnDays = function (v, d) { var m = fmt(Math.abs(v), d); return T("cpm.d", { v: m === fmt(0, d) ? m : (v < 0 ? MINUS : "+") + m }); };
+
+  /* ---------- the project: activities, precedences and triangular durations (illustrative) ---------- */
+  var ACTS = [
+    { id: "A", tri: [7, 9, 14], pred: [] },
+    { id: "B", tri: [4, 5, 9], pred: ["A"] },
+    { id: "C", tri: [7, 11, 21], pred: ["A"] },
+    { id: "D", tri: [6, 7, 11], pred: ["B"] },
+    { id: "E", tri: [11, 13, 21], pred: ["C", "D"] },
+    { id: "F", tri: [5, 6, 13], pred: ["E"] },
+    { id: "G", tri: [6, 8, 13], pred: ["E"] },
+    { id: "H", tri: [6, 7, 11], pred: ["F", "G"] },
+    { id: "I", tri: [18, 26, 46], pred: ["C"] }
+  ];
+  var DL = 60, RUNS = 2000, SEED = 2000;
+  // grid position (column, row) of each box in the drawing; END is the finish node
+  var POS = { A: [0, 0], B: [1, -1], C: [1, 1], D: [2, -1], E: [3, 0], F: [4, -1], G: [4, 1], I: [3, 2], H: [5, 0], END: [6, 0] };
+  var NA = ACTS.length, END = NA, IDX = {};
+  ACTS.forEach(function (a, i) {
+    IDX[a.id] = i;
+    a.mean = (a.tri[0] + a.tri[1] + a.tri[2]) / 3;           // mean of a triangular distribution
+    a.succ = [];
+  });
+  ACTS.forEach(function (a, j) {                             // ACTS is in topological order
+    a.pi = a.pred.map(function (p) { return IDX[p]; });
+    a.pi.forEach(function (i) { ACTS[i].succ.push(j); });
+  });
+  var ARCS = [];                                             // {i, j}: i before j (j = END for the finish)
+  ACTS.forEach(function (a, j) { a.pi.forEach(function (i) { ARCS.push({ i: i, j: j }); }); });
+  ACTS.forEach(function (a, i) { if (!a.succ.length) ARCS.push({ i: i, j: END }); });
+
+  function passes(d) {                                       // forward and backward pass for durations d[i]
+    var ES = [], EF = [], LS = [], LF = [], i;
+    for (i = 0; i < NA; i++) {
+      ES[i] = ACTS[i].pi.reduce(function (m, p) { return Math.max(m, EF[p]); }, 0);
+      EF[i] = ES[i] + d[i];
+    }
+    var Tp = Math.max.apply(null, EF);
+    for (i = NA - 1; i >= 0; i--) {
+      LF[i] = ACTS[i].succ.length ? Math.min.apply(null, ACTS[i].succ.map(function (s) { return LS[s]; })) : Tp;
+      LS[i] = LF[i] - d[i];
+    }
+    var tol = 1e-7 * Math.max(1, Tp), S = [], crit = [];
+    for (i = 0; i < NA; i++) { S[i] = LS[i] - ES[i]; crit[i] = S[i] < tol; }
+    // an arrow is critical when both ends are critical and it is tight (the head starts as the tail ends)
+    var arcCrit = ARCS.map(function (r) {
+      var hs = r.j === END ? Tp : ES[r.j], hc = r.j === END ? true : crit[r.j];
+      return crit[r.i] && hc && Math.abs(EF[r.i] - hs) < tol;
+    });
+    return { d: d, ES: ES, EF: EF, LS: LS, LF: LF, S: S, crit: crit, arcCrit: arcCrit, T: Tp };
+  }
+  var CPM = passes(ACTS.map(function (a) { return a.mean; }));
+  var MODE = passes(ACTS.map(function (a) { return a.tri[1]; }));
+  var NCRIT = CPM.crit.filter(Boolean).length;
+  var CHAIN = (function () {                                 // the critical path as a list of arrows, from the start
+    var out = [], cur = -1, k;
+    for (k = 0; k < NA; k++) if (!ACTS[k].pi.length && CPM.crit[k]) { cur = k; break; }
+    while (cur !== END && cur >= 0) {
+      var nx = -1;
+      for (k = 0; k < ARCS.length; k++) if (ARCS[k].i === cur && CPM.arcCrit[k]) { nx = k; break; }
+      if (nx < 0) break;
+      out.push(nx); cur = ARCS[nx].j;
+    }
+    return out;
+  })();
+  function pathText(P) {
+    var ids = [];
+    for (var i = 0; i < NA; i++) if (P.crit[i]) ids.push(ACTS[i].id);
+    return ids.join(", ");
+  }
+
+  /* ---------- the same schedule as a linear program (solved with the site's simplex) ---------- */
+  var LPR = (function () {
+    var n = NA + 1, rows = ARCS.map(function (r) {
+      var a = []; for (var k = 0; k < n; k++) a.push(0);
+      a[r.j] = 1; a[r.i] = -1;
+      return { a: a, op: ">=", b: CPM.d[r.i] };
+    });
+    var c = []; for (var k = 0; k < n; k++) c.push(k === END ? 1 : 0);
+    return LP.solve({ sense: "min", c: c, rows: rows });
+  })();
+
+  /* ---------- Monte Carlo: RUNS projects with triangular durations, fixed seed ---------- */
+  function triInv(u, a, m, b) {                              // inverse CDF of the triangular distribution
+    var fc = (m - a) / (b - a);
+    return u < fc ? a + Math.sqrt(u * (b - a) * (m - a)) : b - Math.sqrt((1 - u) * (b - a) * (b - m));
+  }
+  var MC = (function () {
+    var r = Anim.rng(SEED), Ts = [], masks = [], arcCnt = ARCS.map(function () { return 0; }), ciCnt = ACTS.map(function () { return 0; });
+    var cumT = [0], cumOn = [0], k, i;
+    for (k = 0; k < RUNS; k++) {
+      var d = ACTS.map(function (a) { return triInv(r(), a.tri[0], a.tri[1], a.tri[2]); });
+      var P = passes(d), mask = 0;
+      for (i = 0; i < NA; i++) if (P.crit[i]) { ciCnt[i]++; mask |= 1 << i; }
+      P.arcCrit.forEach(function (c, a) { if (c) arcCnt[a]++; });
+      Ts.push(P.T); masks.push(mask);
+      cumT.push(cumT[k] + P.T); cumOn.push(cumOn[k] + (P.T <= DL ? 1 : 0));
+    }
+    var mean = cumT[RUNS] / RUNS, v = 0;
+    Ts.forEach(function (x) { v += (x - mean) * (x - mean); });
+    var sd = Math.sqrt(v / (RUNS - 1)), p = cumOn[RUNS] / RUNS;
+    var p0 = Ts.filter(function (x) { return x <= CPM.T + 1e-9; }).length / RUNS;
+    var sorted = Ts.slice().sort(function (x, y) { return x - y; });
+    var q90 = sorted[Math.ceil(0.9 * RUNS) - 1];            // nearest-rank percentile
+    var lo = Math.floor(sorted[0]), hi = Math.ceil(sorted[RUNS - 1]);
+    var bins = Ts.map(function (x) { return Math.min(hi - lo - 1, Math.floor(x - lo)); });
+    var counts = []; for (k = 0; k < hi - lo; k++) counts.push(0);
+    bins.forEach(function (b) { counts[b]++; });
+    var jit = Anim.rng(SEED + 1), jx = Ts.map(function () { return jit() - 0.5; });
+    return {
+      T: Ts, masks: masks, cumT: cumT, cumOn: cumOn, mean: mean, sd: sd, p: p, p0: p0, q90: q90,
+      seMean: sd / Math.sqrt(RUNS), seP: Math.sqrt(p * (1 - p) / RUNS),
+      ci: ciCnt.map(function (c) { return c / RUNS; }), arcCi: arcCnt.map(function (c) { return c / RUNS; }),
+      lo: lo, hi: hi, bins: bins, maxCount: Math.max.apply(null, counts), jx: jx
+    };
+  })();
+
+  var state = { sc: "fixed" };
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed from the model above; the layout of the
+     network, the particles and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("cpm-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("cpm-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);                                  // counters above the canvas
+  var DUR = 56, CH = [0, 8, 17, 26, 34, 45];
+  var TF0 = 8.7, TB0 = 17.7, WAVE = 1.12;                    // the two passes: one wave of boxes every WAVE s
+  var T_CR = 28.8, T_PULSE = 30.2;                           // critical path lights up, then a pulse runs along it
+  var T_PANEL = 34.6, T_RUN0 = 35.6, T_RUN1 = 39.1, T_RUN2 = 43.4, SLOW = 10;   // Monte Carlo: the first SLOW runs one by one
+  var T_CI = 45.5;
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var TAU = Math.PI * 2;
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+
+  // depth of each box from the start (forward waves) and from the finish (backward waves)
+  var DF = [], DB = [];
+  ACTS.forEach(function (a, i) { DF[i] = a.pi.length ? 1 + Math.max.apply(null, a.pi.map(function (p) { return DF[p]; })) : 0; });
+  DF[END] = 1 + Math.max.apply(null, ARCS.filter(function (r) { return r.j === END; }).map(function (r) { return DF[r.i]; }));
+  DB[END] = 0;
+  for (var q = NA - 1; q >= 0; q--) {
+    DB[q] = 1 + Math.max.apply(null, ARCS.filter(function (r) { return r.i === q; }).map(function (r) { return DB[r.j]; }));
+  }
+  var tf = function (i) { return TF0 + DF[i] * WAVE; };
+  var tb = function (i) { return TB0 + DB[i] * WAVE; };
+  var ORDER = ACTS.map(function (a, i) { return i; }).sort(function (x, y) { return DF[x] - DF[y] || x - y; });
+  var tIn = function (i) { return i === END ? 0.5 + 0.34 * NA : 0.5 + 0.34 * ORDER.indexOf(i); };
+  function nodeIn(i, t) { return seg(t, tIn(i), tIn(i) + 0.5); }
+
+  /* ---------- Monte Carlo timeline: how many runs have landed at time t ---------- */
+  function runsAt(t) {
+    if (t < T_RUN0) return 0;
+    if (t < T_RUN1) return Math.min(SLOW, Math.floor((t - T_RUN0) / ((T_RUN1 - T_RUN0) / SLOW)));
+    var u = seg(t, T_RUN1, T_RUN2);
+    return Math.min(RUNS, SLOW + Math.floor((RUNS - SLOW) * u * u));
+  }
+  function runTime(k) {                                      // when run k (0-based) lands
+    if (k < SLOW) return T_RUN0 + (k + 1) * (T_RUN1 - T_RUN0) / SLOW;
+    return T_RUN1 + (T_RUN2 - T_RUN1) * Math.sqrt((k + 1 - SLOW) / (RUNS - SLOW));
+  }
+
+  /* ---------- layout ---------- */
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function netGeom(x0, y0, x1, y1, compact) {               // box size and centers for the network in a rectangle
+    // phones: the finish circle sits a little closer, so the boxes can be wider
+    var bw = 70, colSp, k, endCol = L.portrait ? 5.85 : 6, fr = L.portrait ? 0.74 : 0.7;
+    for (k = 0; k < 3; k++) { colSp = (x1 - x0 - bw) / endCol; bw = clamp(fr * colSp, 40, 74); }
+    var fsN = clamp(bw * 0.18, 9, 12.5), bh = compact ? fsN * 2.4 : fsN * 4.5;
+    var above = !compact && L.names ? fsN + 8 : 0, below = compact ? 0 : 14;
+    var rowSp = Math.min((y1 - y0 - bh - above - below) / 3, colSp * (compact ? 0.62 : (L.portrait ? 1.35 : 1.05)));
+    var hNet = 3 * rowSp + bh + above + below, top = y0 + (y1 - y0 - hNet) / 2 + above + bh / 2;
+    var wNet = endCol * colSp + bw, left = x0 + (x1 - x0 - wNet) / 2 + bw / 2;
+    var P = {};
+    Object.keys(POS).forEach(function (id) {
+      var ix = id === "END" ? END : IDX[id], cx = id === "END" ? endCol : POS[id][0];
+      P[ix] = [left + cx * colSp, top + (POS[id][1] + 1) * rowSp];
+    });
+    return { P: P, bw: bw, bh: bh, fsN: fsN, colSp: colSp, rowSp: rowSp };
+  }
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11.5; L.ft = 13.5;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 12; L.ft = 16;
+    }
+    // room for the longest caption of either scenario, so nothing jumps between chapters
+    var tl = 1, sl = 1;
+    ["fixed", "mc"].forEach(function (sc) {
+      CH.concat([DUR]).forEach(function (c) {
+        var cap = captions(sc, Math.min(DUR, c + 0.1));
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    var nx0, nx1, ny0, ny1;
+    if (portrait) { nx0 = 8; nx1 = W - 8; ny0 = L.capBottom + 8; ny1 = H - 8; }
+    else { nx0 = hx + hw + 26; nx1 = W - 14; ny0 = 16; ny1 = H - 16; }
+    // short names above the boxes only where every one of them fits its column
+    L.names = false;
+    var g0 = netGeom(nx0, ny0, nx1, ny1, false);
+    ctx.font = font(400, 11);
+    L.names = !portrait && ACTS.every(function (a) { return ctx.measureText(T("cpm.s." + a.id)).width <= g0.colSp - 8; }) &&
+      ctx.measureText(T("cpm.l.end")).width <= g0.colSp - 8;
+    L.full = netGeom(nx0, ny0, nx1, ny1, false);
+    if (portrait) {                                          // phones: from chapter 5 the network shrinks above the panel
+      var ph = clamp(0.44 * (H - L.capBottom), 130, 200);
+      L.panel = { x: 10, y: H - 8 - ph, w: W - 20, h: ph };
+      L.comp = netGeom(nx0, ny0 - 2, nx1, L.panel.y - 6, true);
+      L.comp.bw = L.full.bw; L.comp.fsN = L.full.fsN;
+    } else {
+      var py = L.capBottom + 18;
+      L.panel = { x: L.capX, y: py, w: L.capW - 6, h: H - 14 - py };
+      L.comp = null;
+    }
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+
+  /* ---------- geometry of the frame: box centers, sizes and arrows ---------- */
+  var G = null;
+  function geomAt(t) {
+    var kc = L.comp ? E.inOut(seg(t, T_PANEL - 0.4, T_PANEL + 0.8)) : 0;
+    var F = L.full, K = L.comp || F, P = {};
+    for (var i = 0; i <= NA; i++) P[i] = [lerp(F.P[i][0], K.P[i][0], kc), lerp(F.P[i][1], K.P[i][1], kc)];
+    var g = { kc: kc, P: P, bw: F.bw, bh: lerp(F.bh, K.bh, kc), fsN: F.fsN };
+    g.rE = g.bh * lerp(L.portrait ? 0.34 : 0.4, 0.55, kc);
+    g.arcs = ARCS.map(function (r) { return arcPath(g, r); });
+    return g;
+  }
+  function arcPath(g, r) {                                   // sampled cubic from the tail's right edge to the head
+    var a = g.P[r.i], b = g.P[r.j], x0 = a[0] + g.bw / 2, y0 = a[1], x1, y1, c1, c2, vert = false;
+    if (r.j === END) {
+      if (Math.abs(b[1] - a[1]) < 1) { x1 = b[0] - g.rE; y1 = b[1]; }
+      else { vert = true; x1 = b[0]; y1 = b[1] + (a[1] > b[1] ? g.rE : -g.rE); }
+    } else { x1 = b[0] - g.bw / 2; y1 = b[1]; }
+    if (vert) { c1 = [x0 + 0.6 * (x1 - x0), y0]; c2 = [x1, y0]; }
+    else { var dx = (x1 - x0) * 0.5; c1 = [x0 + dx, y0]; c2 = [x1 - dx, y1]; }
+    var pts = [], len = [0], n = 28;
+    for (var k = 0; k <= n; k++) {
+      var s = k / n, u = 1 - s;
+      var X = u * u * u * x0 + 3 * u * u * s * c1[0] + 3 * u * s * s * c2[0] + s * s * s * x1;
+      var Y = u * u * u * y0 + 3 * u * u * s * c1[1] + 3 * u * s * s * c2[1] + s * s * s * y1;
+      pts.push([X, Y]);
+      if (k) len.push(len[k - 1] + Math.hypot(X - pts[k - 1][0], Y - pts[k - 1][1]));
+    }
+    var dirx = x1 - c2[0], diry = y1 - c2[1], dl = Math.hypot(dirx, diry) || 1;
+    return { pts: pts, len: len, total: len[n], dir: [dirx / dl, diry / dl], vert: vert };
+  }
+  function pointAt(p, u) {                                   // point at fraction u of the length of a sampled path
+    var target = clamp(u, 0, 1) * p.total, k = 1;
+    while (k < p.len.length - 1 && p.len[k] < target) k++;
+    var a = p.pts[k - 1], b = p.pts[k], s = (target - p.len[k - 1]) / ((p.len[k] - p.len[k - 1]) || 1);
+    return [lerp(a[0], b[0], clamp(s, 0, 1)), lerp(a[1], b[1], clamp(s, 0, 1))];
+  }
+
+  /* ---------- small drawing helpers ---------- */
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || txt === "" || txt == null) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function plain(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y); ctx.globalAlpha = 1;
+  }
+  function rrect(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r); ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r); ctx.lineTo(x, y + r); ctx.arcTo(x, y, x + r, y, r); ctx.closePath();
+  }
+  function strokePath(p, upto, col, lw, a) {
+    if (a <= 0.01 || upto <= 0) return;
+    var target = upto * p.total;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(p.pts[0][0], p.pts[0][1]);
+    for (var k = 1; k < p.pts.length; k++) {
+      if (p.len[k] <= target) ctx.lineTo(p.pts[k][0], p.pts[k][1]);
+      else { var e = pointAt(p, upto); ctx.lineTo(e[0], e[1]); break; }
+    }
+    ctx.stroke(); ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+  }
+  function head(p, col, size, a) {
+    if (a <= 0.01) return;
+    var e = p.pts[p.pts.length - 1], ux = p.dir[0], uy = p.dir[1], bx = e[0] - ux * size, by = e[1] - uy * size, hw = size * 0.5;
+    ctx.globalAlpha = a; ctx.fillStyle = col;
+    ctx.beginPath(); ctx.moveTo(e[0], e[1]); ctx.lineTo(bx - uy * hw, by + ux * hw); ctx.lineTo(bx + uy * hw, by - ux * hw); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- scenario-dependent heat: how critical each box and arrow looks ---------- */
+  function heat(sc, t) {
+    var cr = E.inOut(seg(t, T_CR, T_CR + 1));
+    var g6 = E.inOut(seg(t, T_CI, T_CI + 1.3));
+    var mc = sc === "mc";
+    var nodeH = ACTS.map(function (a, i) { var f = CPM.crit[i] ? 1 : 0; return mc ? lerp(f, MC.ci[i], g6) : f; });
+    var arcH = ARCS.map(function (r, k) { var f = CPM.arcCrit[k] ? 1 : 0; return mc ? lerp(f, MC.arcCi[k], g6) : f; });
+    return { cr: cr, g6: g6, node: nodeH, arc: arcH };
+  }
+
+  /* ---------- arrows ---------- */
+  function drawArcs(sc, t, g, Hh) {
+    ARCS.forEach(function (r, k) {
+      var p = g.arcs[k], t0 = Math.max(tIn(r.i), tIn(r.j)) + 0.35, u = E.inOut(seg(t, t0, t0 + 0.7));
+      if (u <= 0) return;
+      var h = Hh.arc[k], cr = Hh.cr, hs = L.portrait ? 7 : 9;
+      // before the critical path lights up: ink; then silver for the others and red for the critical ones
+      var base = 1 - cr;
+      strokePath(p, u, C.ink2, 1.4, 0.85 * base);
+      strokePath(p, u, C["mit-silver"], 1.3, cr * (1 - h));
+      strokePath(p, u, C.accent, 1.4 + 2.2 * h, cr * Math.max(h, 0.0));
+      if (u >= 1) {
+        head(p, C.ink2, hs, 0.85 * base);
+        head(p, C["mit-silver"], hs, cr * (1 - h));
+        head(p, C.accent, hs + 2 * h, cr * h);
+      }
+    });
+  }
+
+  /* ---------- the passes: particles along the arrows and the values that meet at merges ---------- */
+  function passParticles(t, g) {
+    ARCS.forEach(function (r, k) {
+      var p = g.arcs[k], bind, s0, s1, fwd = true;
+      if (t >= TF0 && t < TB0 - 0.3) {
+        s0 = tf(r.i) + 0.45; s1 = tf(r.j) - 0.05;
+        bind = r.j === END ? Math.abs(CPM.EF[r.i] - CPM.T) < 1e-9 : Math.abs(CPM.EF[r.i] - CPM.ES[r.j]) < 1e-9;
+      } else if (t >= TB0 && t < CH[3]) {
+        s0 = tb(r.j) + 0.45; s1 = tb(r.i) - 0.05; fwd = false;
+        bind = Math.abs((r.j === END ? CPM.T : CPM.LS[r.j]) - CPM.LF[r.i]) < 1e-9;
+      } else return;
+      if (t < s0 || t > s1 + 0.3) return;
+      var u = E.inOut(seg(t, s0, s1)), a = 1 - seg(t, s1, s1 + 0.3), col = bind ? HOT : C["mit-silver"];
+      ctx.lineCap = "round";
+      for (var j = 1; j <= 8; j++) {
+        var ua = E.inOut(seg(t - j * 0.035, s0, s1)), ub = E.inOut(seg(t - (j - 1) * 0.035, s0, s1));
+        var A1 = pointAt(p, fwd ? ua : 1 - ua), B1 = pointAt(p, fwd ? ub : 1 - ub);
+        ctx.globalAlpha = a * 0.7 * (1 - j / 9); ctx.strokeStyle = col; ctx.lineWidth = 3.2 * (1 - j / 10);
+        ctx.beginPath(); ctx.moveTo(A1[0], A1[1]); ctx.lineTo(B1[0], B1[1]); ctx.stroke();
+      }
+      var X = pointAt(p, fwd ? u : 1 - u);
+      ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(X[0], X[1], 5.2); ctx.fill();
+      ctx.fillStyle = col; circle(X[0], X[1], 3.6); ctx.fill();
+      ctx.globalAlpha = 1; ctx.lineCap = "butt";
+    });
+  }
+  function meetLabels(t, g) {                               // at a merge the largest EF wins; at a burst the smallest LS
+    var fs = g.fsN, f = font(600, fs, true), fb = font(700, fs + 1, true);
+    for (var n = 0; n <= NA; n++) {
+      var inc = ARCS.map(function (r, k) { return k; }).filter(function (k) { return ARCS[k].j === n; });
+      var out = ARCS.map(function (r, k) { return k; }).filter(function (k) { return ARCS[k].i === n; });
+      if (inc.length > 1 && t >= TF0 && t < TB0) {
+        var tn = tf(n), a = seg(t, tn - 0.25, tn) * (1 - seg(t, tn + 1.2, tn + 1.6));
+        if (a > 0) {
+          var vals = inc.map(function (k) { return CPM.EF[ARCS[k].i]; }), mx = Math.max.apply(null, vals);
+          inc.forEach(function (k, m) {
+            var p = g.arcs[k], e = p.pts[p.pts.length - 1], tail = g.P[ARCS[k].i], dy = tail[1] < g.P[n][1] - 1 ? -1 : (tail[1] > g.P[n][1] + 1 ? 1 : -1);
+            var X = p.vert ? e[0] - fs * 1.1 : e[0] - fs * 1.3, Y = p.vert ? e[1] + fs * 1.6 : e[1] + dy * fs * 1.05;
+            var win = vals[m] === mx, al = a * (win ? 1 : 0.75 * (1 - 0.4 * seg(t, tn, tn + 0.4)));
+            label(fmt(vals[m], 1), X, Y, "right", win ? C.ink : C.muted, win ? fb : f, al);
+            if (!win && t > tn) {
+              ctx.font = f; var w = ctx.measureText(fmt(vals[m], 1)).width;
+              ctx.globalAlpha = al * seg(t, tn, tn + 0.3); ctx.strokeStyle = C.muted; ctx.lineWidth = 1.2;
+              ctx.beginPath(); ctx.moveTo(X - w - 1, Y); ctx.lineTo(X + 1, Y); ctx.stroke(); ctx.globalAlpha = 1;
+            }
+          });
+        }
+      }
+      if (n < NA && out.length > 1 && t >= TB0 && t < CH[3] + 0.5) {
+        var tn2 = tb(n), a2 = seg(t, tn2 - 0.25, tn2) * (1 - seg(t, tn2 + 1.2, tn2 + 1.6));
+        if (a2 > 0) {
+          var v2 = out.map(function (k) { return ARCS[k].j === END ? CPM.T : CPM.LS[ARCS[k].j]; }), mn = Math.min.apply(null, v2);
+          out.forEach(function (k, m) {
+            var p = g.arcs[k], s = p.pts[0], hd = g.P[ARCS[k].j], dy = hd[1] < g.P[n][1] - 1 ? -1 : (hd[1] > g.P[n][1] + 1 ? 1 : -1);
+            var X = s[0] + fs * 0.9, Y = s[1] + dy * fs * 1.05;
+            var win = v2[m] === mn, al = a2 * (win ? 1 : 0.75 * (1 - 0.4 * seg(t, tn2, tn2 + 0.4)));
+            label(fmt(v2[m], 1), X, Y, "left", win ? C.ink : C.muted, win ? fb : f, al);
+            if (!win && t > tn2) {
+              ctx.font = f; var w2 = ctx.measureText(fmt(v2[m], 1)).width;
+              ctx.globalAlpha = al * seg(t, tn2, tn2 + 0.3); ctx.strokeStyle = C.muted; ctx.lineWidth = 1.2;
+              ctx.beginPath(); ctx.moveTo(X - 1, Y); ctx.lineTo(X + w2 + 1, Y); ctx.stroke(); ctx.globalAlpha = 1;
+            }
+          });
+        }
+      }
+    }
+  }
+
+  /* ---------- the boxes ---------- */
+  function drawNode(sc, t, g, Hh, i, runMask, runA) {
+    var inA = nodeIn(i, t);
+    if (inA <= 0) return;
+    var s = E.back(inA), P = g.P[i], x = P[0], y = P[1], bw = g.bw * s, bh = g.bh * s, fs = g.fsN, kc = g.kc;
+    var h = Hh.node[i], cr = Hh.cr, a = seg(t, tIn(i), tIn(i) + 0.25);
+    var x0 = x - bw / 2, y0 = y - bh / 2;
+    // body
+    ctx.globalAlpha = a; ctx.fillStyle = C.surface; rrect(x0, y0, bw, bh, 3); ctx.fill();
+    if (cr * h > 0.01) { ctx.globalAlpha = a * cr * h * 0.12; ctx.fillStyle = C.accent; ctx.fill(); }
+    // border: ink, then silver or red once the critical path is known
+    var bline = function (col, lw, al) { if (al <= 0.01) return; ctx.globalAlpha = a * al; ctx.strokeStyle = col; ctx.lineWidth = lw; rrect(x0, y0, bw, bh, 3); ctx.stroke(); };
+    bline(C.ink, 1.5, 1 - cr);
+    bline(C["mit-silver"], 1.4, cr * (1 - h));
+    bline(C.accent, 1.4 + 1.4 * h, cr * h);
+    if (runA > 0.01 && runMask & (1 << i)) bline(HOT, 3, runA);
+    ctx.globalAlpha = 1;
+    if (inA < 1) return;
+    var rowA = 1 - kc, fN = font(600, fs, true), top = y - bh / 2 + fs * 0.95, bot = y + bh / 2 - fs * 0.95, px = 4;
+    // row dividers
+    if (rowA > 0.01) {
+      ctx.globalAlpha = rowA * 0.9; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x0 + 2, y - fs * 0.85); ctx.lineTo(x0 + bw - 2, y - fs * 0.85);
+      ctx.moveTo(x0 + 2, y + fs * 0.85); ctx.lineTo(x0 + bw - 2, y + fs * 0.85); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    // top: ES, d, EF (forward pass)
+    var esA = seg(t, tf(i), tf(i) + 0.35), efA = seg(t, tf(i) + 0.45, tf(i) + 0.8);
+    var narrow = g.bw < 56;                                  // narrow boxes (phones): the duration moves next to the letter
+    plain(fmt(CPM.ES[i], 1), x0 + px, top, "left", C.ink, fN, esA * rowA);
+    if (!narrow) plain(fmt(CPM.d[i], 1), x, top, "center", C.muted, font(400, fs, true), rowA);
+    else plain(fmt(CPM.d[i], 1), x0 + bw - px, y + 0.5, "right", C.muted, font(400, fs, true), rowA);
+    plain(fmt(CPM.EF[i], 1), x0 + bw - px, top, "right", C.ink, fN, efA * rowA);
+    // bottom: LS, slack, LF (backward pass, then slack)
+    var lfA = seg(t, tb(i), tb(i) + 0.35), lsA = seg(t, tb(i) + 0.45, tb(i) + 0.8);
+    var k = ORDER.indexOf(i), slA = seg(t, 26.5 + 0.18 * k, 26.85 + 0.18 * k), zero = CPM.crit[i];
+    plain(fmt(CPM.LS[i], 1), x0 + px, bot, "left", C.ink2, fN, lsA * rowA);
+    plain(fmt(CPM.S[i], 1), x, bot, "center", zero ? C["accent-text"] : C.ink2, font(zero ? 700 : 600, fs, true), slA * rowA);
+    plain(fmt(CPM.LF[i], 1), x0 + bw - px, bot, "right", C.ink2, fN, lfA * rowA);
+    // middle: the letter (with the criticality index on phones once the boxes are compact)
+    var ciA = L.portrait ? E.out(seg(t, T_CI + 0.2 + 0.1 * k, T_CI + 0.7 + 0.1 * k)) * kc : 0;
+    var letterX = lerp(narrow ? lerp(x0 + px + fs * 0.45, x, kc) : x, x0 + px + fs * 0.45, ciA);
+    plain(ACTS[i].id, letterX, y + 0.5, "center", h * cr > 0.5 ? C["accent-text"] : C.ink, font(700, fs * 1.3), 1);
+    if (ciA > 0.01) {
+      var ci = sc === "mc" ? MC.ci[i] : (CPM.crit[i] ? 1 : 0);
+      // no space before % here: the compact box is narrow on phones
+      plain(fmt(100 * ci, 0) + "%", x0 + bw - px, y + 0.5, "right", ci >= 0.5 ? C["accent-text"] : C.ink2, font(600, fs * 0.9, true), ciA);
+    }
+  }
+  function drawNames(t, g) {
+    if (!L.names) return;
+    var f = font(400, 11);
+    for (var i = 0; i <= NA; i++) {
+      var a = seg(t, tIn(i) + 0.2, tIn(i) + 0.6), P = g.P[i];
+      var txt = i === END ? T("cpm.l.end") : T("cpm.s." + ACTS[i].id), off = i === END ? g.rE : g.bh / 2;
+      label(txt, P[0], P[1] - off - 7, "center", C.muted, f, a, "alphabetic");
+    }
+  }
+  function drawEnd(sc, t, g, Hh) {
+    var inA = nodeIn(END, t);
+    if (inA <= 0) return;
+    var P = g.P[END], r = g.rE * E.back(inA), cr = Hh.cr;
+    ctx.fillStyle = C.surface; circle(P[0], P[1], r); ctx.fill();
+    ctx.lineWidth = 1.6 + 1.4 * cr; ctx.strokeStyle = cr > 0.5 ? C.accent : C.ink; ctx.stroke();
+    var tA = seg(t, tf(END), tf(END) + 0.4);
+    if (inA >= 1) plain(fmt(CPM.T, 1), P[0], P[1] + 0.5, "center", cr > 0.5 ? C["accent-text"] : C.ink, font(700, g.fsN * 1.05, true), tA);
+    if (tA < 1 && inA >= 1) {                                // a flag until the finish is known
+      ctx.globalAlpha = 1 - tA; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+      var fx = P[0] - r * 0.25, fy = P[1] + r * 0.45;
+      ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(fx, fy - r * 0.9); ctx.stroke();
+      ctx.fillStyle = C.ink; ctx.beginPath(); ctx.moveTo(fx, fy - r * 0.9); ctx.lineTo(fx + r * 0.6, fy - r * 0.7); ctx.lineTo(fx, fy - r * 0.5); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+  // under each box: a spike (fixed duration) or the triangle of its distribution, on one common day scale
+  function drawDist(sc, t, g) {
+    var ppd = g.bw * 0.95 / 28;                               // px per day: the widest triangle (I) nearly fills a box
+    var fade = (1 - seg(t, T_CI - 0.3, T_CI + 0.3)) * (1 - g.kc);
+    if (fade <= 0.01) return;
+    ACTS.forEach(function (a, i) {
+      var k = ORDER.indexOf(i), al = seg(t, 4.6 + 0.12 * k, 5.2 + 0.12 * k) * fade;
+      if (al <= 0.01) return;
+      var P = g.P[i], by = P[1] + g.bh / 2 + 12, hgt = 9;
+      ctx.globalAlpha = al * 0.8; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1;   // common baseline
+      ctx.beginPath(); ctx.moveTo(P[0] - g.bw * 0.4, by + 0.5); ctx.lineTo(P[0] + g.bw * 0.4, by + 0.5); ctx.stroke();
+      if (sc === "fixed") {
+        ctx.globalAlpha = al; ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(P[0], by); ctx.lineTo(P[0], by - hgt); ctx.stroke();
+      } else {
+        var xa = P[0] + (a.tri[0] - a.mean) * ppd, xm = P[0] + (a.tri[1] - a.mean) * ppd, xb = P[0] + (a.tri[2] - a.mean) * ppd;
+        ctx.globalAlpha = al * 0.3; ctx.fillStyle = C.accent;
+        ctx.beginPath(); ctx.moveTo(xa, by); ctx.lineTo(xm, by - hgt); ctx.lineTo(xb, by); ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = al; ctx.strokeStyle = C.accent; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;               // the mean: the fixed duration
+        ctx.beginPath(); ctx.moveTo(P[0], by + 1.5); ctx.lineTo(P[0], by - 3); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    });
+  }
+  function drawBadges(sc, t, g) {                            // criticality index under each box (wide screens)
+    if (L.portrait) return;
+    ACTS.forEach(function (a, i) {
+      var k = ORDER.indexOf(i), al = E.out(seg(t, T_CI + 0.2 + 0.1 * k, T_CI + 0.7 + 0.1 * k));
+      if (al <= 0.01) return;
+      var ci = sc === "mc" ? MC.ci[i] : (CPM.crit[i] ? 1 : 0), txt = pct(ci, 0), f = font(600, g.fsN * 0.95, true);
+      ctx.font = f;
+      var w = ctx.measureText(txt).width + 10, hh = g.fsN + 6, P = g.P[i], y = P[1] + g.bh / 2 + 5;
+      ctx.globalAlpha = al; ctx.fillStyle = C.surface; rrect(P[0] - w / 2, y, w, hh, hh / 2); ctx.fill();
+      ctx.fillStyle = rgba(C.accent, 0.06 + 0.2 * ci); ctx.fill();
+      ctx.strokeStyle = ci >= 0.5 ? C.accent : C["mit-silver"]; ctx.lineWidth = 1; ctx.stroke();
+      plain(txt, P[0], y + hh / 2 + 0.5, "center", ci >= 0.5 ? C["accent-text"] : C.ink2, f, al);
+    });
+  }
+  function critPulse(t, g) {                                 // a bright pulse runs along the critical path
+    if (t < T_PULSE || t > T_PULSE + 3.4) return;
+    var pts = [];
+    CHAIN.forEach(function (k) { g.arcs[k].pts.forEach(function (p) { pts.push(p); }); });
+    var len = [0];
+    for (var k = 1; k < pts.length; k++) len.push(len[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+    var path = { pts: pts, len: len, total: len[len.length - 1] };
+    var u = E.inOut(seg(t, T_PULSE, T_PULSE + 3)), a = 1 - seg(t, T_PULSE + 3, T_PULSE + 3.4);
+    ctx.lineCap = "round";
+    for (var j = 1; j <= 12; j++) {
+      var A1 = pointAt(path, u - j * 0.012), B1 = pointAt(path, u - (j - 1) * 0.012);
+      ctx.globalAlpha = a * (1 - j / 13); ctx.strokeStyle = HOT; ctx.lineWidth = 5 * (1 - j / 14);
+      ctx.beginPath(); ctx.moveTo(A1[0], A1[1]); ctx.lineTo(B1[0], B1[1]); ctx.stroke();
+    }
+    var X = pointAt(path, u);
+    ctx.globalAlpha = a * 0.25; ctx.fillStyle = HOT; circle(X[0], X[1], 11); ctx.fill();
+    ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(X[0], X[1], 6); ctx.fill();
+    ctx.fillStyle = HOT; circle(X[0], X[1], 4.5); ctx.fill();
+    ctx.globalAlpha = 1; ctx.lineCap = "butt";
+  }
+
+  /* ---------- the panel: Gantt chart (fixed) or histogram of the runs (Monte Carlo) ---------- */
+  function axisX(pn, lo, hi, step, a, px0, px1, y) {
+    var fs = L.portrait ? 10 : 10.5;
+    ctx.globalAlpha = a; ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px0, y + 0.5); ctx.lineTo(px1, y + 0.5); ctx.stroke();
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (var v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) {
+      var X = px0 + (v - lo) / (hi - lo) * (px1 - px0);
+      ctx.beginPath(); ctx.moveTo(X, y); ctx.lineTo(X, y + 4); ctx.stroke();
+      ctx.fillText(fmt(v, 0), X, y + 6);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function vline(X, y0, y1, col, lw, dash, a) {
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+    ctx.beginPath(); ctx.moveTo(X, y0); ctx.lineTo(X, y1); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  function drawGantt(t, Hh) {
+    var pn = L.panel, a = E.out(seg(t, T_PANEL, T_PANEL + 0.6));
+    if (a <= 0.01) return;
+    var fs = L.portrait ? 10 : 10.5, gut = fs + 8, lab = fs + 10;
+    var px0 = pn.x + gut, px1 = pn.x + pn.w - 6, top = pn.y + lab + 4, bot = pn.y + pn.h - fs - 10;
+    var hi = Math.ceil((Math.max(DL, CPM.T) + 3) / 10) * 10, X = function (v) { return px0 + v / hi * (px1 - px0); };
+    axisX(pn, 0, hi, 10, a, px0, px1, bot);
+    var rowH = (bot - top) / NA, bh = Math.min(14, rowH * 0.6);
+    ACTS.forEach(function (ac, i) {
+      var y = top + (i + 0.5) * rowH, u = E.inOut(seg(t, T_PANEL + 0.6 + 0.25 * i, T_PANEL + 1.2 + 0.25 * i));
+      plain(ac.id, pn.x + 2, y + 0.5, "left", CPM.crit[i] ? C["accent-text"] : C.ink2, font(700, fs), a);
+      if (u <= 0) return;
+      var xs = X(CPM.ES[i]), xe = X(CPM.ES[i] + CPM.d[i] * u);
+      ctx.globalAlpha = a; ctx.fillStyle = CPM.crit[i] ? C.accent : C.ink2;
+      if (!CPM.crit[i]) ctx.globalAlpha = a * 0.55;
+      ctx.fillRect(xs, y - bh / 2, Math.max(1, xe - xs), bh);
+      ctx.globalAlpha = 1;
+      var sA = seg(t, T_PANEL + 3.6, T_PANEL + 4.6);          // slack: dashed from EF to LF
+      if (!CPM.crit[i] && sA > 0) {
+        var x2 = X(CPM.EF[i] + (CPM.LF[i] - CPM.EF[i]) * sA);
+        ctx.globalAlpha = a; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 2; ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(X(CPM.EF[i]) + 1, y); ctx.lineTo(x2, y); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x2, y - bh / 2); ctx.lineTo(x2, y + bh / 2); ctx.stroke(); ctx.globalAlpha = 1;
+      }
+    });
+    // planned finish, deadline and the margin between them
+    var fA = seg(t, T_PANEL + 4.8, T_PANEL + 5.4), dA = seg(t, T_PANEL + 5.6, T_PANEL + 6.2), mA = seg(t, T_PANEL + 6.4, T_PANEL + 7.2);
+    if (mA > 0) {
+      ctx.globalAlpha = a * mA * 0.8; ctx.fillStyle = C.region;
+      ctx.fillRect(X(CPM.T), top - 2, X(DL) - X(CPM.T), bot - top + 2); ctx.globalAlpha = 1;
+    }
+    vline(X(CPM.T), top - 4, bot, C.accent, 2, null, a * fA);
+    vline(X(DL), pn.y + 2, bot, HOT, 2.5, null, a * dA);
+    var fl = font(700, fs, true);
+    label(fmt(CPM.T, 1), X(CPM.T) - 3, pn.y + lab / 2 + 1, "right", C["accent-text"], fl, a * fA);
+    label(fmt(DL, 0), X(DL) + 3, pn.y + lab / 2 + 1, "left", HOT, fl, a * dA);
+    if (mA > 0) {
+      var my = top + rowH * 0.5, gx0 = X(CPM.T) + 3, gx1 = X(DL) - 3, mt = sgnDays(DL - CPM.T, 1), mf = font(700, fs);
+      ctx.font = mf;
+      // the margin label goes between the two lines when it fits there, otherwise just right of the deadline
+      if (ctx.measureText(mt).width <= gx1 - gx0) label(mt, (gx0 + gx1) / 2, my, "center", C.ink, mf, a * mA);
+      else label(mt, X(DL) + 5, my, "left", C.ink, mf, a * mA);
+    }
+  }
+  function drawHist(t) {
+    var pn = L.panel, a = E.out(seg(t, T_PANEL, T_PANEL + 0.6));
+    if (a <= 0.01) return;
+    var fs = L.portrait ? 10 : 10.5, lab = fs + 7, rows = 2;
+    var px0 = pn.x + 4, px1 = pn.x + pn.w - 4, top = pn.y + rows * lab + 6, bot = pn.y + pn.h - fs - 10;
+    var lo = MC.lo, hi = MC.hi, X = function (v) { return px0 + (v - lo) / (hi - lo) * (px1 - px0); };
+    axisX(pn, lo, hi, 5, a, px0, px1, bot);
+    var n = runsAt(t), counts = [], k, bwid = (px1 - px0) / (hi - lo);
+    for (k = 0; k < hi - lo; k++) counts.push(0);
+    for (k = 0; k < n; k++) counts[MC.bins[k]]++;
+    var yS = (bot - top) / MC.maxCount;
+    // the band between the CPM line and the mean (chapter 6): the merge bias
+    var bA = E.inOut(seg(t, T_CI + 1.2, T_CI + 2.2));
+    if (bA > 0) { ctx.globalAlpha = a * bA * 0.9; ctx.fillStyle = rgba(C.accent, 0.14); ctx.fillRect(X(CPM.T), top - 4, X(MC.mean) - X(CPM.T), bot - top + 4); ctx.globalAlpha = 1; }
+    for (k = 0; k < counts.length; k++) {
+      if (!counts[k]) continue;
+      var late = lo + k >= DL, hgt = Math.max(1, counts[k] * yS);
+      ctx.globalAlpha = a * (late ? 0.8 : 0.9); ctx.fillStyle = late ? HOT : C["mit-silver"];
+      ctx.fillRect(X(lo + k) + 0.5, bot - hgt, Math.max(1, bwid - 1), hgt);
+    }
+    ctx.globalAlpha = 1;
+    // runs falling into their bins
+    var fall = 0.32;
+    for (k = Math.max(0, n - 1); k < Math.min(RUNS, n + 400); k++) {
+      var ta = runTime(k);
+      if (ta - fall > t) break;
+      if (t > ta) continue;
+      var uu = E.in(seg(t, ta - fall, ta)), bx = X(lo + MC.bins[k] + 0.5 + 0.5 * MC.jx[k]);
+      var by = lerp(top - 6, bot - counts[MC.bins[k]] * yS - 3, uu), late2 = MC.T[k] > DL;
+      ctx.globalAlpha = a * 0.95; ctx.fillStyle = late2 ? HOT : C.ink; circle(bx, by, L.portrait ? 2.2 : 2.6); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    // lines: critical path length, deadline and the running mean of the runs so far
+    var fl = font(700, fs, true), y1 = pn.y + lab / 2 + 1, y2 = pn.y + lab * 1.5 + 2;
+    vline(X(CPM.T), top - 4, bot, C.ink, 1.6, [4, 3], a);
+    label(fmt(CPM.T, 1), X(CPM.T) - 3, y2, "right", C.ink, fl, a);
+    vline(X(DL), top - 4, bot, HOT, 2.5, null, a);
+    label(fmt(DL, 0), X(DL) + 3, y2, "left", HOT, fl, a);
+    if (n > 0) {
+      var m = MC.cumT[n] / n;
+      vline(X(m), pn.y + lab + 2, bot, C.accent, 2.2, null, a);
+      label(fmt(m, 1), X(m), y1, "center", C["accent-text"], fl, a);
+    }
+  }
+
+  /* ---------- caption (top left, under the counters) ---------- */
+  function captions(sc, t) {
+    var mc = sc === "mc";
+    if (t < CH[1]) return [T("cpm.cap1"), T(mc ? "cpm.cap1.mc.sub" : "cpm.cap1.fixed.sub")];
+    if (t < CH[2]) return [T("cpm.cap2"), T("cpm.cap2.sub")];
+    if (t < CH[3]) return [T("cpm.cap3"), T("cpm.cap3.sub")];
+    if (t < CH[4]) return [T("cpm.cap4"), T("cpm.cap4.sub", { T: fmt(CPM.T, 1) })];
+    if (t < CH[5]) return mc ? [T("cpm.cap5.mc", { n: fmt(RUNS, 0) }), T("cpm.cap5.mc.sub", { p: pct(MC.p), dl: fmt(DL, 0) })]
+      : [T("cpm.cap5.fixed", { T: fmt(CPM.T, 1) }), T("cpm.cap5.fixed.sub", { dl: fmt(DL, 0), m: fmt(DL - CPM.T, 1) })];
+    return mc ? [T("cpm.cap6.mc"), T("cpm.cap6.mc.sub", { mean: fmt(MC.mean, 1), bias: fmt(MC.mean - CPM.T, 1) })]
+      : [T("cpm.cap6.fixed"), T("cpm.cap6.fixed.sub")];
+  }
+  function drawCaption(sc, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(sc, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3].map(function (i) {
+    var el = document.getElementById("cpm-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.s.title = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("bad", kind === "bad"); c.k = kind; }
+  }
+  function hud(sc, t) {
+    var n = sc === "mc" ? runsAt(t) : 0;
+    // duration: the largest EF known so far, then the running mean of the runs
+    var known = 0, any = false;
+    for (var i = 0; i < NA; i++) if (t >= tf(i) + 0.45) { known = Math.max(known, CPM.EF[i]); any = true; }
+    if (n > 0) setChip(0, days(MC.cumT[n] / n, 1), T("cpm.k.mean"), 1, "acc");
+    else setChip(0, days(known, 1), T("cpm.k.cpm"), any ? 1 : 0, t >= tf(END) + 0.4 ? "acc" : "");
+    setChip(1, days(DL, 0), T("cpm.k.dl"), seg(t, 0.8, 1.3), "");
+    if (n > 0) setChip(2, pct(MC.cumOn[n] / n), T("cpm.k.p"), 1, "bad");
+    else setChip(2, sgnDays(DL - CPM.T, 1), T("cpm.k.margin"), seg(t, tf(END) + 0.4, tf(END) + 0.9), "");
+    if (n > 0) setChip(3, fmt(n, 0), T("cpm.k.runs"), 1, "");
+    else setChip(3, T("cpm.of", { k: fmt(NCRIT, 0), n: fmt(NA, 0) }), T("cpm.k.crit"), seg(t, T_CR, T_CR + 0.5), "");
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    // new or urgent cues use bright red; where the theme makes the accent that same red (dark), the crit shade
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var sc = state.sc;
+    hud(sc, t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    var g = geomAt(t), Hh = heat(sc, t);
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    // the run that just landed flashes its own critical path (first runs only)
+    var n = sc === "mc" ? runsAt(t) : 0, runA = 0, runMask = 0;
+    if (n > 0 && n <= SLOW + 30) {
+      runMask = MC.masks[n - 1];
+      runA = (1 - seg(n, SLOW, SLOW + 30)) * (1 - seg(t, runTime(n - 1) + 0.25, runTime(n - 1) + 0.55) * (n >= SLOW ? 1 : 0.45));
+    }
+    drawArcs(sc, t, g, Hh);
+    if (runA > 0.01) ARCS.forEach(function (r, k) {
+      var endOk = r.j === END || runMask & (1 << r.j);
+      if (runMask & (1 << r.i) && endOk) strokePath(g.arcs[k], 1, HOT, 2.4, runA * 0.8);
+    });
+    passParticles(t, g);
+    critPulse(t, g);
+    drawNames(t, g);
+    drawDist(sc, t, g);
+    for (var i = 0; i < NA; i++) drawNode(sc, t, g, Hh, i, runMask, runA);
+    drawEnd(sc, t, g, Hh);
+    drawBadges(sc, t, g);
+    meetLabels(t, g);
+    if (sc === "mc") drawHist(t); else drawGantt(t, Hh);
+    drawCaption(sc, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "cpm.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status line, data, LP check, solution, notes
+     ===================================================================================== */
+  function renderScenText() {
+    var mc = state.sc === "mc", ka = mc ? "cpm.anim.aria.mc" : "cpm.anim.aria";
+    stage.setAttribute("data-i18n-attr", "aria-label:" + ka);
+    stage.setAttribute("aria-label", T(ka) + " " + T("cpm.anim.aria.nums", {
+      path: pathText(CPM), T: fmt(CPM.T, 1), dl: fmt(DL, 0), mean: fmt(MC.mean, 1), p: pct(MC.p)
+    }));
+    document.querySelectorAll("#cpm-sec [data-only]").forEach(function (el) { el.hidden = el.getAttribute("data-only") !== state.sc; });
+    document.getElementById("cpm-lg-dl").textContent = T("cpm.lg.dl", { dl: fmt(DL, 0) });
+    document.getElementById("cpm-status").innerHTML = T("cpm.st." + state.sc, {
+      path: pathText(CPM), T: fmt(CPM.T, 1), m: fmt(DL - CPM.T, 1), dl: fmt(DL, 0), n: fmt(RUNS, 0), mean: fmt(MC.mean, 1), p: pct(MC.p)
+    });
+  }
+  function renderData() {
+    document.getElementById("cpm-data-intro").textContent = T("cpm.data.intro", { dl: fmt(DL, 0) });
+    var h = "<thead><tr><th>" + T("cpm.data.act") + "</th><th>" + T("cpm.data.pred") + "</th><th class='num'>" + T("cpm.data.a") +
+      "</th><th class='num'>" + T("cpm.data.m") + "</th><th class='num'>" + T("cpm.data.b") + "</th><th class='num'>" + T("cpm.data.e") + "</th></tr></thead><tbody>";
+    ACTS.forEach(function (a) {
+      h += "<tr><td class='id'>" + a.id + " <small>" + T("cpm.a." + a.id) + "</small></td><td class='pr'>" + (a.pred.length ? a.pred.join(", ") : T("cpm.data.none")) +
+        "</td><td class='num'>" + fmt(a.tri[0], 1) + "</td><td class='num'>" + fmt(a.tri[1], 1) + "</td><td class='num'>" + fmt(a.tri[2], 1) +
+        "</td><td class='num'>" + fmt(a.mean, 2) + "</td></tr>";
+    });
+    document.getElementById("cpm-data").innerHTML = h + "</tbody>";
+    var arcs = [];
+    ARCS.forEach(function (r, k) {
+      if (Math.abs(LPR.duals[k]) > 1e-6) arcs.push(ACTS[r.i].id + " → " + (r.j === END ? T("cpm.l.end").toLowerCase() : ACTS[r.j].id));
+    });
+    document.getElementById("cpm-lp").textContent = T("cpm.lp.res", { z: fmt(LPR.z, 2), arcs: arcs.join(", ") });
+  }
+  function renderSolution() {
+    document.getElementById("cpm-s-cpm").textContent = days(CPM.T, 1);
+    document.getElementById("cpm-s-cpm-l").textContent = T("cpm.sol.cpm.l", { path: pathText(CPM) });
+    document.getElementById("cpm-s-mean").textContent = days(MC.mean, 1);
+    document.getElementById("cpm-s-mean-l").textContent = T("cpm.sol.mean.l", { se: fmt(MC.seMean, 2) });
+    document.getElementById("cpm-s-bias").textContent = sgnDays(MC.mean - CPM.T, 1);
+    document.getElementById("cpm-s-p-k").textContent = T("cpm.sol.p", { dl: fmt(DL, 0) });
+    document.getElementById("cpm-s-p").textContent = pct(MC.p);
+    document.getElementById("cpm-s-p-l").textContent = T("cpm.sol.p.l", { se: pct(MC.seP) });
+    document.getElementById("cpm-s-p0-k").textContent = T("cpm.sol.p0", { T: fmt(CPM.T, 1) });
+    document.getElementById("cpm-s-p0").textContent = pct(MC.p0);
+    document.getElementById("cpm-s-q").textContent = days(MC.q90, 1);
+    document.getElementById("cpm-check").textContent = T("cpm.sol.check", { n: fmt(RUNS, 0), seed: SEED });
+    var h = "<thead><tr><th>" + T("cpm.tab.act") + "</th><th class='num'>" + T("cpm.tab.d") + "</th><th class='num'>" + T("cpm.tab.es") +
+      "</th><th class='num'>" + T("cpm.tab.ef") + "</th><th class='num'>" + T("cpm.tab.ls") + "</th><th class='num'>" + T("cpm.tab.lf") +
+      "</th><th class='num'>" + T("cpm.tab.s") + "</th><th class='num'>" + T("cpm.tab.ci") + "</th></tr></thead><tbody>";
+    ACTS.forEach(function (a, i) {
+      var c = CPM.crit[i];
+      h += "<tr" + (c ? " class='on'" : "") + "><td class='id'>" + a.id + "<span class='wide'> <small>" + T("cpm.s." + a.id) + "</small></span></td><td class='num'>" + fmt(CPM.d[i], 1) +
+        "</td><td class='num'>" + fmt(CPM.ES[i], 1) + "</td><td class='num'>" + fmt(CPM.EF[i], 1) + "</td><td class='num'>" + fmt(CPM.LS[i], 1) +
+        "</td><td class='num'>" + fmt(CPM.LF[i], 1) + "</td><td class='num" + (c ? " zero" : "") + "'>" + fmt(CPM.S[i], 1) +
+        "</td><td class='num'>" + pct(MC.ci[i]) + "</td></tr>";
+    });
+    document.getElementById("cpm-sched").innerHTML = h + "</tbody>";
+  }
+  function renderNotes() {
+    var iE = IDX.E, iC = IDX.C, iD = IDX.D;
+    document.getElementById("cpm-n1").textContent = T("cpm.n.p1", {
+      eD: fmt(CPM.EF[iD], 1), eC: fmt(CPM.EF[iC], 1), esE: fmt(CPM.ES[iE], 1), path: pathText(CPM)
+    });
+    var sl = [];
+    ACTS.forEach(function (a, i) { if (!CPM.crit[i]) sl.push(a.id + " " + days(CPM.S[i], 1)); });
+    document.getElementById("cpm-n2").textContent = T("cpm.n.p2", { slacks: sl.join(", ") });
+    document.getElementById("cpm-n3").textContent = T("cpm.n.p3", {
+      T: fmt(CPM.T, 1), n: fmt(RUNS, 0), mean: fmt(MC.mean, 1), bias: sgnDays(MC.mean - CPM.T, 1), Tm: fmt(MODE.T, 1)
+    });
+    var off = [], on = [];                                   // criticality index off and on the critical path
+    ACTS.forEach(function (a, i) { (CPM.crit[i] ? on : off).push(a.id + " " + pct(MC.ci[i], 0)); });
+    document.getElementById("cpm-n4").textContent = T("cpm.n.p4", {
+      m: fmt(DL - CPM.T, 1), p: pct(MC.p), dl: fmt(DL, 0), p0: pct(MC.p0), T: fmt(CPM.T, 1), off: off.join(", "), on: on.join(", "), q: fmt(Math.ceil(MC.q90), 0)
+    });
+    document.getElementById("cpm-footer").textContent = T("cpm.footer", { n: fmt(RUNS, 0) });
+  }
+
+  var segBtns = document.querySelectorAll("#cpm-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText();
+      hudKey = "";
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      // the two scenarios differ from chapter 5 on (and in the small distributions of chapter 1)
+      if (player.time < CH[4]) player.refresh();
+      else { player.seek(CH[4] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderScenText(); renderData(); renderSolution(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>
