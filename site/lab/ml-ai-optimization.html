@@ -440,8 +440,9 @@
      closed when floor(LP bound) <= z* (the data are integers). The tree size then does not depend on
      the order in which nodes are explored. Instances are illustrative (seeded).
      ===================================================================================== */
-  // TIE: each value c_j gets + 1e-5 (j + 1) in the LPs so that an LP never has two optimal vertices (the
-  // tree is then the same whatever LP code solves it). The perturbed LP value stays a valid upper bound.
+  // TIE: each value c_j gets + 1e-5 (j + 1) in the LPs so that an LP (almost surely) has a single optimal vertex
+  // (the tree is then the same whatever LP code solves it). The perturbed LP value stays a valid upper bound, and
+  // the perturbations add up to 0.00136 < 1, so they never change which 0-1 loads are optimal (the c_j are integers).
   var C1 = { N: 16, M: 3, NTRAIN: 10, NTEST: 8, EPS: 1e-6, TIE: 1e-5 };
   function c1gen(seed) {
     var r = Anim.rng(seed), n = C1.N, m = C1.M, i, j, big = [], A = [], c = [], b = [];
@@ -1023,13 +1024,14 @@
   }
   var c4 = { key: "A", res: null, timers: [] };
   function unitName(u) { return T("mlai.c4.u." + u); }
-  function c4tex(M, withUnits) {
-    var lines = ["\\max\\;& " + termTex(M.c) + " && \\text{(" + T("mlai.c4.obj") + ")}"];
+  function c4tex(M, withUnits, narrow) {
+    var lines = ["\\max\\;& " + termTex(M.c) + (narrow ? "\\\\ & \\quad \\small" : " && ") + "\\text{(" + T("mlai.c4.obj") + ")}"];
     M.rows.forEach(function (r, i) {
       var cm = "\\text{(" + T("mlai.c4.row." + r.id) + ")}";
       if (withUnits) cm = "\\text{(" + T("mlai.c4.row." + r.id) + ": " + r.u.filter(function (_, j) { return r.a[j] !== 0; }).map(unitName).join(", ") +
         "} \\le \\text{" + unitName(r.ub) + ")}";
-      lines.push((i === 0 ? "\\text{ST}\\;" : "") + "& " + termTex(r.a) + " \\le " + texNum(r.b, r.b % 1 ? 2 : 0) + " && " + cm);
+      if (narrow) lines.push((i === 0 ? "\\text{ST}\\;" : "") + "& " + termTex(r.a) + " \\le " + texNum(r.b, r.b % 1 ? 2 : 0) + "\\\\ & \\quad \\small" + cm);
+      else lines.push((i === 0 ? "\\text{ST}\\;" : "") + "& " + termTex(r.a) + " \\le " + texNum(r.b, r.b % 1 ? 2 : 0) + " && " + cm);
     });
     lines.push("& x_1,\\ x_2 \\ge 0 &&");
     return "\\begin{aligned}" + lines.join("\\\\") + "\\end{aligned}";
@@ -1052,7 +1054,8 @@
   function c4render(animate) {
     var R = c4.res = c4check(c4.key), M = R.M;
     setText($("c4-cand-name"), T("mlai.c4.cand", { k: c4.key }));
-    TeX.set($("c4-cand"), c4tex(M, true), c4plain(M));
+    c4.narrow = $("c4-cand").clientWidth < 460;
+    TeX.set($("c4-cand"), c4tex(M, true, c4.narrow), c4plain(M));
     var html = R.tests.map(function (t) {
       var d;
       if (t.id === "solve") d = T(t.ok ? "mlai.c4.t.solve.ok" : "mlai.c4.t.solve.no", { s: T("mlai.c4.st." + t.status), it: R.sol.iterations });
@@ -1104,7 +1107,7 @@
     } else setText($("mlai-n1"), T("mlai.c1.busy"));
     if (c2res) {
       var E = c2res.E;
-      setHTML($("mlai-n2"), T("mlai.n.p2", { tau: fmt(c2res.tau, 3), ls: pctS((E.ls.cost / E.or.cost - 1) * 100), qr: pctS((E.qr.cost / E.or.cost - 1) * 100), out: pct(E.ls.out * 100, 1), outq: pct(E.qr.out * 100, 1) }));
+      setHTML($("mlai-n2"), T("mlai.n.p2", { tau: fmt(c2res.tau, 3), ls: pct((E.ls.cost / E.or.cost - 1) * 100), qr: pct((E.qr.cost / E.or.cost - 1) * 100), out: pct(E.ls.out * 100, 1), outq: pct(E.qr.out * 100, 1) }));
     }
     if (c3.run) {
       var gp = c3.greedy.cost == null ? T("mlai.c3.noroute") : T("mlai.min", { v: fmt(c3.greedy.cost, 1) });
@@ -1129,7 +1132,7 @@
     if (window.innerWidth === lastW) return;
     lastW = window.innerWidth;
     clearTimeout(rt);
-    rt = setTimeout(function () { if (c1.ready) c1chart(c1stats()); if (c2res) c2chart(); if (c3.run) { c3map(); c3chart(); } }, 120);
+    rt = setTimeout(function () { if (c1.ready) c1chart(c1stats()); if (c2res) c2chart(); if (c3.run) { c3map(); c3chart(); } if (c4.res && ($("c4-cand").clientWidth < 460) !== c4.narrow) c4render(false); }, 120);
   });
 })();
 </script>
