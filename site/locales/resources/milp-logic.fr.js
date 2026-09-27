@@ -36,6 +36,8 @@ I18N.register("fr", {
   "mlogic.res.wrongExplore": "Cette option est fausse",
   "mlogic.res.solved": "Résolue",
   "mlogic.res.explore": "Vous pouvez encore cliquer sur n'importe quelle option pour voir comment le vérificateur la juge. Vos étoiles ne changent pas.",
+  "mlogic.res.solvedIdle": "Vous avez déjà résolu cette carte. Choisissez à nouveau pour la revoir (vos étoiles ne changent pas) ou affichez la réponse.",
+  "mlogic.res.show": "Afficher la réponse",
   "mlogic.res.try": "Essayez une autre option. Les lignes surlignées du vérificateur montrent où celle-ci se trompe. Essais ratés jusqu'ici : {n}.",
   "mlogic.res.tighterHint": "Une autre option est aussi correcte et plus serrée. Trouvez-la pour une étoile bonus.",
   "mlogic.res.bonus": "Étoile bonus : vous avez choisi la formulation la plus serrée.",

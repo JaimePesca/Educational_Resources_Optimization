@@ -599,7 +599,7 @@
       var b = document.createElement("button");
       b.type = "button"; b.className = "opt";
       b.setAttribute("aria-pressed", s.sel === i ? "true" : "false");
-      var judged = s.wrong.indexOf(i) >= 0 || (s.sel === i) || (p && o.ok);
+      var judged = s.wrong.indexOf(i) >= 0 || (s.sel === i) || (s.reveal && o.ok); // a solved card starts neutral again
       var tagHtml = "";
       if (judged) {
         if (o.ok) { b.classList.add("right"); tagHtml = '<span class="otag ok">' + t(o.tight ? "mlogic.tag.tight" : o.agg ? "mlogic.tag.agg" : "mlogic.tag.correct") + "</span>"; }
@@ -623,9 +623,13 @@
     var s = S(card), p = P(card), k = "mlogic.c" + card.n + ".", box = $("res");
     if (s.sel == null) {
       box.className = "res";
+      // a card solved earlier does not show its answer on arrival: the player can retry or ask for it
       box.innerHTML = p
-        ? "<p class=\"verdict\"><span>" + t("mlogic.res.solved") + "</span><span class=\"stars\">" + starsHtml(p.stars, p.bonus) + "</span></p><p>" + t("mlogic.res.explore") + "</p>" + whyHtml(card)
+        ? "<p class=\"verdict\"><span>" + t("mlogic.res.solved") + "</span><span class=\"stars\">" + starsHtml(p.stars, p.bonus) + "</span></p><p>" + t("mlogic.res.solvedIdle") + "</p>" +
+          (s.reveal ? whyHtml(card) : '<p><button type="button" class="btn quiet" id="reveal">' + t("mlogic.res.show") + "</button></p>")
         : "<p>" + t("mlogic.res.idle") + "</p>";
+      var rv = $("reveal");
+      if (rv) rv.addEventListener("click", function () { s.reveal = true; renderAll(); });
       return;
     }
     var o = card.opts[s.sel], v = verify(card, o.cons), html = "";
