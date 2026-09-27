@@ -12,6 +12,8 @@ I18N.register("fr", {
   "ui.anim.speed": "Vitesse",
   "ui.anim.timeline": "Chronologie de l'animation",
   "nav.animation": "Voir en mouvement",
+  "footer.by": "Créé par",
+  "footer.rights": "Tous droits réservés.",
   "nav.sections": "Sections",
   "nav.research": "Recherche",
   "nav.learn": "Parcours d'apprentissage",

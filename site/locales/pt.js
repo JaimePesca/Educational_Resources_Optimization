@@ -12,6 +12,8 @@ I18N.register("pt", {
   "ui.anim.speed": "Velocidade",
   "ui.anim.timeline": "Linha do tempo da animação",
   "nav.animation": "Veja em movimento",
+  "footer.by": "Criado por",
+  "footer.rights": "Todos os direitos reservados.",
   "nav.sections": "Seções",
   "nav.research": "Pesquisa",
   "nav.learn": "Trilha de aprendizagem",
