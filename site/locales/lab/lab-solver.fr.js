@@ -99,7 +99,7 @@ I18N.register("fr", {
   "solv.cut.rowB": "du tableau optimal",
   "solv.cut.round": "arrondir chaque coefficient vers le bas",
   "solv.cut.with": "avec",
-  "solv.cut.why": "Variables d'écart : {s}. La première ligne est une ligne du tableau du simplexe optimal du PL de la racine. Arrondir ses coefficients vers le bas conserve tous les points entiers, car le membre de gauche est alors un entier qui ne peut dépasser le membre de droite arrondi, et élimine l'optimum du PL {x} : la borne passe de {z0} à {zc}.",
+  "solv.cut.why": "Variables d'écart : {s}. La première ligne est une ligne du tableau du simplexe optimal du PL de la racine. Toutes les variables sont positives ou nulles, donc arrondir les coefficients vers le bas ne peut que diminuer le membre de gauche ; en un point entier ce membre est un entier (les variables d'écart aussi, car les données sont entières), il ne peut donc pas dépasser le membre de droite arrondi. La coupe conserve tous les points entiers et élimine l'optimum du PL {x} : la borne passe de {z0} à {zc}.",
 
   "solv.run.kicker": "Chaque PL de nœud",
   "solv.run.title": "Scénario : {s}",

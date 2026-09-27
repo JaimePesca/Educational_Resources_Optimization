@@ -16,7 +16,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 |---|---|---|---|
 | 1 | Logic game answer leak | done | see git log "Say It with Constraints" |
 | 2 | Navigation dropdown | done | Browse menu in site.js + site.css, keys nav.menu etc.; 96 checks passed |
-| 3a | lab-solver "Inside the Solver" (animation) | review | site/lab/inside-the-solver.html + locales/lab/lab-solver.*; coffee roaster MILP, optimum 67 at (3, 4): 3 nodes / 9 pivots with Gomory cut x1 + x2 ≤ 7 and rounding vs 19 / 46 plain; checked against scipy, brute force and an exact Bland simplex |
+| 3a | lab-solver "Inside the Solver" (animation) | done | site/lab/inside-the-solver.html; reviewed (every node LP, cut and counts match; chapter 4 paced); href in catalog.lab; card text in present tense, no product log claim |
 | 3b | lab-cvar "Beyond VaR: CVaR" (animation) | done | site/lab/beyond-var.html; reviewed (numbers match, LP solves moved to a Web Worker); href in catalog.lab; card text in present tense |
 | 3c | lab-linearization (animation) | done | site/lab/linearizing-markets.html; reviewed (numbers match; exactness condition and notation note fixed); href in catalog.lab; card text in present tense |
 | 3d | lab-ml-methods "Learning Is Optimizing" (animation) | building | site/lab/learning-is-optimizing.html, prefix learn. |

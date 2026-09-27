@@ -11,7 +11,7 @@ I18N.register("pt", {
   "lab.listLabel": "Propostas",
 
   "lab.lab-solver.title": "Por dentro do solver",
-  "lab.lab-solver.desc": "A animação acompanharia um solver de MILP desde o pré-processamento (presolve) e a relaxação linear até a árvore de branch and bound, com cortes que apertam o limitante e heurísticas que encontram novas incumbentes pelo caminho. Duas curvas, a incumbente e o melhor limitante, se aproximam enquanto o gap cai para 0, como no registro (log) do Gurobi.",
+  "lab.lab-solver.desc": "Um MILP pequeno, uma torrefação de Manizales que planeja lotes inteiros, é resolvido ao vivo: pré-processamento (presolve), relaxação linear, um corte de Gomory que aperta o limitante, uma heurística de arredondamento que encontra incumbentes e a árvore de branch and bound. A incumbente e o melhor limitante se aproximam enquanto o gap cai para 0, num registro (log) feito à semelhança dos que os solvers comerciais imprimem.",
 
   "lab.lab-cvar.title": "Além do VaR: o CVaR",
   "lab.lab-cvar.desc": "Com 200 meses simulados de ações colombianas, títulos TES e dólares, a animação marca o VaR como um quantil e o CVaR como a média da cauda além dele. Depois mostra como a formulação de Rockafellar e Uryasev (2000) transforma o CVaR em um programa linear sobre cenários e compara a carteira de variância mínima com a de CVaR mínimo.",

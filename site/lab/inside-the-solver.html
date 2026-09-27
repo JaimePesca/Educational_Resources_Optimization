@@ -122,6 +122,7 @@
     table.data .wide { display: none; }
     table.data th, table.data td { padding-inline: 5px; }
     table.data td.num, table.data td.mono { font-size: 11.5px; }
+    table.data td.mono { white-space: normal; }
   }
 </style>
 </head>
@@ -440,8 +441,9 @@
      Scenario timelines: every event of the run gets a time; the tree, the plane, the curves,
      the counters and the log are all read from it (render(t) is a pure function of t).
      ===================================================================================== */
-  var DUR = 54, CH = [0, 9, 16, 25, 46];
-  var T_ROOT = 12.6, T_CUT = 19.4, T_HEUR = 22.8, T_RBR = 19.4, T_TREE0 = 27, T_TREE1 = 44.6, T_DONE = 46.6;
+  var DUR = 48, CH = [0, 9, 16, 25, 40];
+  var T_ROOT = 12.6, T_CUT = 19.4, T_HEUR = 22.8, T_RBR = 19.4, T_TREE0 = 27, T_TREE1 = 38.6, T_DONE = 40.6;
+  var BEAT_MAX = 3;                               // chapter 4: never more than 3 s between two tree events
   var T_AB0 = 24.4, T_AB1 = 26.2;                  // the camera moves from the plane to the tree
   var cache = {};
   function scen(key) {
@@ -456,17 +458,24 @@
       else if (e.node === 0 && !full) { e.t = T_RBR; e.d = 3; }
       else tree.push(e);
     });
-    var n = tree.length, d = n > 1 ? Math.min(7, (T_TREE1 - T_TREE0) / (n - 1)) : 7;
-    tree.forEach(function (e, i) { e.t = T_TREE0 + i * d; e.d = d; });
+    // chapter 4 beats: every node LP, then every open node pruned without solving. A short run keeps an
+    // even pace of at most BEAT_MAX seconds; a long one starts calm and speeds up, as a real log does.
+    var done = ev.filter(function (e) { return e.type === "done"; })[0], pruned = done ? done.pruned : [];
+    var n = tree.length, nb = n + pruned.length, w = [], sw = 0, i;
+    for (i = 0; i < nb - 1; i++) { w.push(nb > 6 ? lerp(1.3, 0.8, i / Math.max(1, nb - 2)) : 1); sw += w[i]; }
+    var unit = nb > 1 ? Math.min((T_TREE1 - T_TREE0) / sw, BEAT_MAX / Math.max.apply(null, w)) : BEAT_MAX;
+    var beatT = [T_TREE0], beatD = [nb > 1 ? w[0] * unit : BEAT_MAX];
+    for (i = 1; i < nb; i++) { beatD.push(w[i - 1] * unit); beatT.push(beatT[i - 1] + beatD[i]); }
+    tree.forEach(function (e, i) { e.t = beatT[i]; e.d = beatD[i]; });
     var nodes = R.nodes.map(function (nd) { return Object.assign({}, nd); });
     nodes.forEach(function (nd) { nd.tC = Infinity; nd.tS = Infinity; nd.tP = Infinity; });
+    pruned.forEach(function (k, j) { nodes[k].tP = beatT[n + j]; nodes[k].d = beatD[n + j]; });
     nodes[0].tC = T_ROOT;
     ev.forEach(function (e) {
       if (e.type === "node") {
         var nd = nodes[e.node]; nd.tS = e.t; nd.d = e.d;
         (nd.kids || []).forEach(function (k) { nodes[k].tC = e.t; });
       }
-      if (e.type === "done") e.pruned.forEach(function (k) { nodes[k].tP = e.t; });
     });
     // node polygons (in the relaxation the tree works on)
     var baseRows = R.base;
@@ -853,7 +862,7 @@
       // plain branch and bound: the two children of the root (their outlines)
       var n0 = S.nodes[0];
       (n0.kids || []).forEach(function (k, ii) {
-        var nd = S.nodes[k], ka = seg(t, T_RBR + 0.2, T_RBR + 0.8) * inA;
+        var nd = S.nodes[k], ka = seg(t, T_RBR + 0.2 + 1.2 * ii, T_RBR + 0.8 + 1.2 * ii) * inA;
         if (ka <= 0.01 || nd.poly.length < 2) return;
         polyPath(nd.poly); ctx.globalAlpha = ka; ctx.strokeStyle = C.accent; ctx.lineWidth = area(nd.poly) < 1e-6 ? 4 : 2; ctx.setLineDash([6, 4]); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
         var cxy = centroid(nd.poly), bt = branchText(nd);
@@ -883,6 +892,14 @@
         }
       }
     }
+    // open nodes pruned without solving: their region flashes in silver as it is discarded
+    S.nodes.forEach(function (nd) {
+      if (!isFinite(nd.tP) || nd.poly.length < 3) return;
+      var pa = seg(t, nd.tP - 0.1, nd.tP + 0.3) * (1 - seg(t, nd.tP + 1.2, nd.tP + 2));
+      if (pa <= 0.01) return;
+      hatch(nd.poly, C["mit-silver"], 0.9 * pa);
+      polyPath(nd.poly); ctx.globalAlpha = pa; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.8; ctx.setLineDash([4, 3]); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    });
     // incumbent star
     if (s.incX) {
       var sx = SX(s.incX[0]), sy = SY(s.incX[1]), iA = 1;
@@ -990,6 +1007,7 @@
         var pa2 = seg(t, nd.tP, nd.tP + 0.4);
         ctx.setLineDash([3, 2.5]); circle(X, Y, rr); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
         ctx.globalAlpha = a * pa2; circle(X, Y, rr * 0.8); ctx.fillStyle = C["mit-silver"]; ctx.fill(); ctx.globalAlpha = a;
+        pulse(X, Y, rr, C["mit-silver"], seg(t, nd.tP, nd.tP + 0.9));
       } else {
         var o = nd.out, fa = seg(t, nd.tS, nd.tS + 0.3);
         if (o === "branch") { circle(X, Y, rr); ctx.fillStyle = C.surface; ctx.fill(); ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.stroke(); }
@@ -1332,7 +1350,8 @@
     if (nd.out === "bound") return T("solv.res.bound");
     if (nd.out === "int") return T("solv.res.int");
     var s = T("solv.res.branch", { x: xn(nd.sv) });
-    if (nd.heur) s += "; " + T("solv.res.heur", { z: num(nd.heur.z, 0) });
+    var h = nd.heur || (nd.id === 0 ? S.R.rootHeur : null);   // the root's rounding runs right after the cut
+    if (h) s += "; " + T("solv.res.heur", { z: num(h.z, 0) });
     return s;
   }
   function bText(nd) {
@@ -1362,7 +1381,7 @@
       .concat(S.nodes.filter(function (nd) { return nd.out === "pruned"; }));
     list.forEach(function (nd) {
       var ok = nd.lp && nd.lp.status === "optimal";
-      var cls = nd.out === "int" ? "res-int" : nd.heur ? "res-heur" : (nd.out === "branch" ? "" : "res-quiet");
+      var cls = nd.out === "int" ? "res-int" : (nd.heur || (nd.id === 0 && R.rootHeur)) ? "res-heur" : (nd.out === "branch" ? "" : "res-quiet");
       var piv = nd.order ? (nd.id === 0 ? R.root.iterations + (R.full ? R.rootLP.iterations : 0) : nd.piv) : DASH;
       h += "<tr><td class='num'>" + (nd.order || DASH) + "</td><td class='mono'>" + bText(nd) + "</td><td class='num'>" + (ok ? pair(nd.lp.x) : DASH) +
         "</td><td class='num'>" + (ok ? num(nd.lp.z, 2) : DASH) + "</td><td class='" + cls + "'>" + resultText(S, nd) + "</td><td class='num wide'>" + piv + "</td></tr>";

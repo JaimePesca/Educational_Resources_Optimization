@@ -11,7 +11,7 @@ I18N.register("es", {
   "lab.listLabel": "Propuestas",
 
   "lab.lab-solver.title": "Dentro del solver",
-  "lab.lab-solver.desc": "La animación seguiría a un solver de MILP desde el preprocesamiento (presolve) y la relajación lineal hasta el árbol de ramificación y acotamiento, con cortes que ajustan la cota y heurísticas que encuentran nuevas incumbentes en el camino. Dos curvas, la incumbente y la mejor cota, se acercan una a otra mientras la brecha cae a 0, como en el registro (log) de Gurobi.",
+  "lab.lab-solver.desc": "Un MILP pequeño, una tostadora de Manizales que planea lotes enteros, se resuelve en vivo: preprocesamiento (presolve), relajación lineal, un corte de Gomory que ajusta la cota, una heurística de redondeo que encuentra incumbentes y el árbol de ramificación y acotamiento. La incumbente y la mejor cota se acercan mientras la brecha cae a 0, en un registro (log) hecho a semejanza de los que imprimen los solvers comerciales.",
 
   "lab.lab-cvar.title": "Más allá del VaR: el CVaR",
   "lab.lab-cvar.desc": "Con 200 meses simulados de acciones colombianas, TES y dólares, la animación marca el VaR como un cuantil y el CVaR como el promedio de la cola que queda más allá. Luego muestra cómo la formulación de Rockafellar y Uryasev (2000) convierte el CVaR en un programa lineal sobre escenarios, y compara el portafolio de mínima varianza con el de mínimo CVaR.",

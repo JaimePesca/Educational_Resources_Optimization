@@ -11,7 +11,7 @@ I18N.register("en", {
   "lab.listLabel": "Proposals",
 
   "lab.lab-solver.title": "Inside the Solver",
-  "lab.lab-solver.desc": "The animation would follow a MILP solver from presolve and the LP relaxation through the branch-and-bound tree, with cuts tightening the bound and heuristics finding new incumbents along the way. Two curves, the incumbent and the best bound, close in on each other while the gap falls to 0, as in a Gurobi log.",
+  "lab.lab-solver.desc": "A small MILP, a coffee roaster in Manizales planning whole batches, is solved live: presolve, the LP relaxation, a Gomory cut that tightens the bound, a rounding heuristic that finds incumbents, and the branch-and-bound tree. The incumbent and the best bound close in on each other while the gap falls to 0, in a log modeled on the ones commercial solvers print.",
 
   "lab.lab-cvar.title": "Beyond VaR: CVaR",
   "lab.lab-cvar.desc": "From 200 simulated months of Colombian stocks, TES bonds and dollars, the animation marks VaR as a quantile and CVaR as the average of the tail beyond it. It then shows how the Rockafellar and Uryasev (2000) formulation turns CVaR into a linear program over scenarios, and compares the minimum variance portfolio with the minimum CVaR portfolio.",

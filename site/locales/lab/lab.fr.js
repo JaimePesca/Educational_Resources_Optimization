@@ -11,7 +11,7 @@ I18N.register("fr", {
   "lab.listLabel": "Propositions",
 
   "lab.lab-solver.title": "Au cœur du solveur",
-  "lab.lab-solver.desc": "L'animation suivrait un solveur MILP depuis le prétraitement (presolve) et la relaxation linéaire jusqu'à l'arbre de séparation et évaluation, avec les coupes qui resserrent la borne et les heuristiques qui trouvent de meilleures solutions en chemin. Deux courbes, la meilleure solution connue et la meilleure borne, se rapprochent pendant que l'écart tombe à 0, comme dans un journal de Gurobi.",
+  "lab.lab-solver.desc": "Un petit MILP, une brûlerie de Manizales qui planifie des lots entiers, est résolu en direct : prétraitement (presolve), relaxation linéaire, une coupe de Gomory qui resserre la borne, une heuristique d'arrondi qui trouve de meilleures solutions et l'arbre de séparation et évaluation. La meilleure solution connue et la meilleure borne se rapprochent pendant que l'écart tombe à 0, dans un journal inspiré de ceux qu'impriment les solveurs commerciaux.",
 
   "lab.lab-cvar.title": "Au-delà de la VaR : la CVaR",
   "lab.lab-cvar.desc": "Sur 200 mois simulés d'actions colombiennes, d'obligations TES et de dollars, l'animation place la VaR comme un quantile et la CVaR comme la moyenne de la queue au-delà. Elle montre ensuite comment la formulation de Rockafellar et Uryasev (2000) transforme la CVaR en un programme linéaire sur des scénarios, puis compare le portefeuille de variance minimale avec celui de CVaR minimale.",

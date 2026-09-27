@@ -99,7 +99,7 @@ I18N.register("pt", {
   "solv.cut.rowB": "no quadro ótimo",
   "solv.cut.round": "arredonde cada coeficiente para baixo",
   "solv.cut.with": "com",
-  "solv.cut.why": "Folgas: {s}. A primeira linha é uma linha do quadro simplex ótimo do PL da raiz. Arredondar seus coeficientes para baixo mantém todos os pontos inteiros, porque o lado esquerdo passa a ser um inteiro que não pode passar do lado direito arredondado, e elimina o ótimo do PL {x}: o limitante cai de {z0} para {zc}.",
+  "solv.cut.why": "Folgas: {s}. A primeira linha é uma linha do quadro simplex ótimo do PL da raiz. Todas as variáveis são não negativas, então arredondar os coeficientes para baixo só pode diminuir o lado esquerdo; num ponto inteiro esse lado é um inteiro (as folgas também são, porque os dados são), então não pode passar do lado direito arredondado. O corte mantém todos os pontos inteiros e elimina o ótimo do PL {x}: o limitante cai de {z0} para {zc}.",
 
   "solv.run.kicker": "Cada PL de nó",
   "solv.run.title": "Cenário: {s}",
@@ -127,7 +127,7 @@ I18N.register("pt", {
   "solv.res.bound": "podado pelo limitante",
   "solv.res.int": "inteiro: nova incumbente",
   "solv.res.branch": "ramifica em {x}",
-  "solv.res.heur": "o arredondamento encontra {z}",
+  "solv.res.heur": "arredondar dá {z}",
 
   "solv.n.title": "O que observar",
   "solv.n.p1": "O pré-processamento trabalha antes de resolver qualquer PL. Arredondar {raw} para baixo dá {x} ≤ {u}, e então a linha de {row} {lhs} ≤ {b} chega no máximo a {act}, portanto nunca fica ativa e é removida. O limite arredondado sozinho baixa o limitante do PL de {z1} para {z0}.",

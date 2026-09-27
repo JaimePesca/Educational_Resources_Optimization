@@ -99,7 +99,7 @@ I18N.register("en", {
   "solv.cut.rowB": "in the optimal tableau",
   "solv.cut.round": "round every coefficient down",
   "solv.cut.with": "with",
-  "solv.cut.why": "Slacks: {s}. The first line is a row of the optimal simplex tableau of the root LP. Rounding its coefficients down keeps every integer point, because the left side is then an integer that cannot exceed the rounded right side, and it removes the LP optimum {x}: the bound falls from {z0} to {zc}.",
+  "solv.cut.why": "Slacks: {s}. The first line is a row of the optimal simplex tableau of the root LP. Every variable is nonnegative, so rounding the coefficients down can only lower the left side; at an integer point that side is an integer (the slacks are integers too, because the data are), so it cannot exceed the rounded right side. The cut keeps every integer point and removes the LP optimum {x}: the bound falls from {z0} to {zc}.",
 
   "solv.run.kicker": "Every node LP",
   "solv.run.title": "Scenario: {s}",

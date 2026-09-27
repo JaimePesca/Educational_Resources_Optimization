@@ -104,7 +104,7 @@ window.CATALOG = {
 
   // Hidden proposals lab (lab/index.html), in display order. Ideas only: no href, nothing is built.
   lab: [
-    { id: "lab-solver", type: "animation" },
+    { id: "lab-solver", type: "animation", href: "lab/inside-the-solver.html" },
     { id: "lab-cvar", type: "animation", href: "lab/beyond-var.html" },
     { id: "lab-linearization", type: "animation", href: "lab/linearizing-markets.html" },
     { id: "lab-ml-methods", type: "animation" },

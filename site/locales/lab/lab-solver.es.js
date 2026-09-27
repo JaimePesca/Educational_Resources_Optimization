@@ -99,7 +99,7 @@ I18N.register("es", {
   "solv.cut.rowB": "en la tabla óptima",
   "solv.cut.round": "redondea cada coeficiente hacia abajo",
   "solv.cut.with": "con",
-  "solv.cut.why": "Holguras: {s}. La primera línea es una fila de la tabla símplex óptima del PL de la raíz. Redondear sus coeficientes hacia abajo conserva todos los puntos enteros, porque el lado izquierdo es entonces un entero que no puede superar el lado derecho redondeado, y elimina el óptimo del PL {x}: la cota baja de {z0} a {zc}.",
+  "solv.cut.why": "Holguras: {s}. La primera línea es una fila de la tabla símplex óptima del PL de la raíz. Todas las variables son no negativas, así que redondear los coeficientes hacia abajo solo puede bajar el lado izquierdo; en un punto entero ese lado es un entero (las holguras también lo son, porque los datos lo son), así que no puede superar el lado derecho redondeado. El corte conserva todos los puntos enteros y elimina el óptimo del PL {x}: la cota baja de {z0} a {zc}.",
 
   "solv.run.kicker": "Cada PL de nodo",
   "solv.run.title": "Escenario: {s}",
