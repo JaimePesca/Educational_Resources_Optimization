@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en" data-title-key="mset.title" data-i18n-bundles="resources/milp-mixed-set">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Points, Lines and Regions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1080px; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 880px) { .layout, .duo { grid-template-columns: minmax(0, 1fr); } }
+  .stack { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+  /* variant switch */
+  .qlabel { font-weight: 600; font-size: 14.5px; margin: 0 0 8px; }
+  .seg.variants { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; }
+  .seg.variants button { min-height: 48px; padding: 7px 6px; line-height: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  .seg.variants button small { font: 600 11px var(--font-mono); letter-spacing: 0.06em; opacity: 0.85; }
+  .seg.variants button:hover:not([aria-pressed="true"]) { background: var(--surface2); }
+  @media (max-width: 520px) {
+    .seg.variants { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .seg.variants button:nth-child(3) { border-left: none; }
+    .seg.variants button:nth-child(n+3) { border-top: 1px solid var(--border); }
+  }
+  .setnote { font-size: 14px; color: var(--ink2); margin: 10px 0 0; min-height: 3em; }
+  .setnote b { color: var(--ink); }
+
+  /* plot */
+  svg.plot { display: block; width: 100%; height: auto; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  svg text { font-family: var(--font-sans); }
+  svg .tick { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
+  svg .axlab { font-size: 12.5px; fill: var(--ink2); }
+  svg .clab { font-size: 12px; font-weight: 600; fill: var(--ink2); stroke: var(--halo); stroke-width: 4px; paint-order: stroke; stroke-linejoin: round; }
+  svg .isolab { font-family: var(--font-mono); font-size: 12px; font-weight: 600; fill: var(--ink); stroke: var(--halo); stroke-width: 4px; paint-order: stroke; }
+  svg .mlab { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; stroke: var(--halo); stroke-width: 4px; paint-order: stroke; stroke-linejoin: round; }
+  svg .knob { cursor: grab; touch-action: none; }
+  svg .knob:focus { outline: none; }
+  svg .knob:focus-visible circle.ring { stroke: var(--accent); stroke-width: 3; }
+  svg .bar { cursor: pointer; }
+  svg .bar:focus { outline: none; }
+  svg .bar:focus-visible rect.hit { stroke: var(--accent); stroke-width: 2; }
+  svg .vlab { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--ink2); stroke: var(--halo); stroke-width: 3.5px; paint-order: stroke; stroke-linejoin: round; }
+  @media (max-width: 560px) {
+    svg .tick { font-size: 17px; }
+    svg .axlab { font-size: 19px; }
+    svg .clab, svg .isolab { font-size: 18px; stroke-width: 5px; }
+    svg .mlab { font-size: 17px; stroke-width: 5px; }
+    svg .vlab { font-size: 15px; }
+  }
+  .hint { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
+
+  .legend .sw.region { background: var(--region); border: 1px solid var(--mit-silver); }
+  .legend .sw.int { background: var(--accent); border-radius: 50%; width: 9px; height: 9px; }
+  .legend .sw.cont { background: var(--ink); height: 4px; width: 16px; }
+  .legend .sw.opt { background: var(--accent); border-radius: 50%; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent); }
+  .legend .sw.lpo { border: 2px solid var(--ink); border-radius: 50%; background: transparent; }
+  .legend .sw.iso { height: 0; width: 18px; border-top: 2px dashed var(--ink2); }
+
+  /* objective */
+  .obj-eq { font-family: var(--font-mono); font-size: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 9px 12px; margin-bottom: 12px; overflow-x: auto; white-space: nowrap; }
+  .obj-eq .ivar { color: var(--accent-text); font-weight: 600; }
+  .obj-eq .cvar { color: var(--ink); font-weight: 600; }
+  .controls .ctl input[type="range"] { height: 26px; }
+  .isorow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+  button.btn {
+    font: 600 13.5px var(--font-sans); color: var(--on-solid); background: var(--accent); border: 1px solid var(--accent);
+    border-radius: 3px; padding: 8px 14px; min-height: 36px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.btn.ghost { background: transparent; color: var(--accent-text); border-color: var(--accent-text); }
+  button.btn.ghost[aria-pressed="true"] { background: var(--accent); color: var(--on-solid); border-color: var(--accent); }
+  .isonote { font-size: 13.5px; color: var(--ink2); margin: 8px 0 0; }
+  .optbox { margin-top: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 10px 12px; font-size: 13.5px; color: var(--ink2); }
+  .optbox .zval { display: block; font-family: var(--font-mono); font-size: 21px; font-weight: 600; color: var(--accent-text); margin: 2px 0; font-variant-numeric: tabular-nums; }
+  .optbox .xy { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
+
+  /* comparison */
+  table.data { min-width: 0; }
+  table.data th.num { text-align: right; }
+  table.data td.num { text-align: right; font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td .vn { font-weight: 600; color: var(--ink); }
+  table.data td .vs { display: block; font-size: 11.5px; color: var(--muted); }
+  table.data tr.on td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+  .order { white-space: pre-line; font-family: var(--font-mono); font-size: 13px; color: var(--ink); background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 8px 12px; margin: 12px 0 8px; overflow-x: auto; }
+  .expl { font-size: 14px; color: var(--ink2); margin: 0 0 6px; }
+  .expl b { color: var(--ink); }
+
+  /* slices + rounding */
+  .sinfo { font-size: 14px; color: var(--ink2); margin: 8px 0 0; min-height: 3em; }
+  .sinfo b { color: var(--ink); }
+  .ptext { font-size: 14px; color: var(--ink2); margin: 10px 0 0; }
+  .ptext b { color: var(--ink); }
+  .rdhead { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 10px; }
+  .rdhead p { margin: 0; font-size: 14px; color: var(--ink2); flex: 1 1 260px; }
+  .ok { color: var(--good-text); font-weight: 600; }
+  .bad { color: var(--crit); font-weight: 600; }
+  .warn { color: var(--ink); font-weight: 600; }
+  .verdict { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; margin: 12px 0 0; font-size: 14px; color: var(--ink2); }
+  .verdict b { color: var(--ink); }
+
+  /* model details */
+  .vars { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); margin: 8px 0 10px; }
+  .vtag { display: inline-block; font: 600 11px var(--font-mono); letter-spacing: 0.05em; padding: 1px 7px; border-radius: 2px; margin-left: 6px; vertical-align: 1px; }
+  .vtag.int { background: var(--accent); color: var(--on-solid); }
+  .vtag.cont { border: 1px solid var(--mit-silver); color: var(--ink2); }
+  .chlist { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: ch; }
+  .chlist li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: baseline; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 9px 11px; }
+  .chlist li::before { counter-increment: ch; content: counter(ch); font-weight: 700; color: var(--accent-text); }
+  .chst { font: 600 11.5px var(--font-mono); padding: 2px 7px; border-radius: 2px; border: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
+  .chst.done { background: var(--good); border-color: var(--good); color: #ffffff; }
+  @media (max-width: 520px) { .chlist li { grid-template-columns: auto minmax(0, 1fr); } .chst { grid-column: 2; justify-self: start; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="mset.eyebrow"></p>
+    <h1 data-i18n="mset.title"></h1>
+    <p class="lede" data-i18n-html="mset.lede"></p>
+  </header>
+
+  <div class="layout">
+    <div class="card">
+      <p class="qlabel" id="seglabel" data-i18n="mset.seg.label"></p>
+      <div class="seg variants" id="variants" role="group" aria-labelledby="seglabel">
+        <button type="button" data-v="lp"><span data-i18n="mset.seg.none"></span><small data-i18n="mset.seg.noneSub"></small></button>
+        <button type="button" data-v="x"><span data-i18n="mset.seg.x"></span><small data-i18n="mset.seg.xSub"></small></button>
+        <button type="button" data-v="y"><span data-i18n="mset.seg.y"></span><small data-i18n="mset.seg.ySub"></small></button>
+        <button type="button" data-v="ip"><span data-i18n="mset.seg.both"></span><small data-i18n="mset.seg.bothSub"></small></button>
+      </div>
+      <p class="setnote" id="setnote" aria-live="polite"></p>
+      <svg class="plot" id="plot" viewBox="0 0 600 560" role="img" data-i18n-attr="aria-label:mset.plot.aria"></svg>
+      <div class="legend">
+        <span><i class="sw region"></i><span data-i18n="mset.legend.region"></span></span>
+        <span><i class="sw int"></i><span data-i18n="mset.legend.int"></span></span>
+        <span><i class="sw cont"></i><span data-i18n="mset.legend.cont"></span></span>
+        <span><i class="sw opt"></i><span data-i18n="mset.legend.opt"></span></span>
+        <span><i class="sw lpo"></i><span data-i18n="mset.legend.lp"></span></span>
+        <span><i class="sw iso"></i><span data-i18n="mset.legend.iso"></span></span>
+      </div>
+      <p class="hint" data-i18n="mset.plot.hint"></p>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <h2><span class="kicker" data-i18n="mset.obj.kicker"></span><span data-i18n="mset.obj.title"></span></h2>
+        <div class="obj-eq" id="objeq"></div>
+        <div class="controls">
+          <div class="ctl">
+            <label for="c1" data-i18n="mset.obj.c1"></label>
+            <output id="c1o" for="c1"></output>
+            <input type="range" id="c1" min="1" max="15" step="1" value="3">
+          </div>
+          <div class="ctl">
+            <label for="c2" data-i18n="mset.obj.c2"></label>
+            <output id="c2o" for="c2"></output>
+            <input type="range" id="c2" min="1" max="15" step="1" value="10">
+          </div>
+          <div class="ctl">
+            <label for="bud" data-i18n="mset.obj.B"></label>
+            <output id="budo" for="bud"></output>
+            <input type="range" id="bud" min="36" max="48" step="1" value="44">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="kicker" data-i18n="mset.iso.kicker"></span><span data-i18n="mset.iso.title"></span></h2>
+        <div class="isorow">
+          <div class="ctl">
+            <label for="ziso" data-i18n="mset.iso.label"></label>
+            <output id="zisoo" for="ziso"></output>
+            <input type="range" id="ziso" min="0" max="100" step="0.5" value="0">
+          </div>
+          <button class="btn" id="sweep" type="button" data-i18n="mset.iso.sweep"></button>
+        </div>
+        <p class="isonote" id="isonote" aria-live="polite"></p>
+        <div class="optbox">
+          <span id="optlab"></span>
+          <span class="zval" id="optz"></span>
+          <span class="xy" id="optxy"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mset.cmp.kicker"></span><span data-i18n="mset.cmp.title"></span></h2>
+    <div class="tblwrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th data-i18n="mset.th.variant"></th>
+            <th class="num">x</th>
+            <th class="num">y</th>
+            <th class="num" data-i18n="mset.th.profit"></th>
+            <th class="num" data-i18n="mset.th.vsLp"></th>
+          </tr>
+        </thead>
+        <tbody id="cmpbody"></tbody>
+      </table>
+    </div>
+    <div class="order" id="order"></div>
+    <p class="expl" data-i18n-html="mset.cmp.why"></p>
+    <p class="expl" id="cmpxy"></p>
+  </div>
+
+  <div class="duo">
+    <div class="card">
+      <h2><span class="kicker" data-i18n="mset.sl.kicker"></span><span data-i18n="mset.sl.title"></span></h2>
+      <svg class="plot" id="bars" viewBox="0 0 520 280" role="group" data-i18n-attr="aria-label:mset.sl.aria"></svg>
+      <p class="sinfo" id="sinfo" aria-live="polite"></p>
+      <p class="ptext" data-i18n-html="mset.sl.p1"></p>
+      <p class="ptext" id="explode"></p>
+    </div>
+
+    <div class="card">
+      <h2><span class="kicker" data-i18n="mset.rd.kicker"></span><span data-i18n="mset.rd.title"></span></h2>
+      <div class="rdhead">
+        <p id="rdintro"></p>
+        <button class="btn ghost" id="roundbtn" type="button" aria-pressed="false" data-i18n="mset.rd.btn"></button>
+      </div>
+      <div id="rdout" hidden>
+        <div class="tblwrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th data-i18n="mset.rd.th.method"></th>
+                <th class="num">x</th>
+                <th class="num" data-i18n="mset.rd.th.y"></th>
+                <th class="num" data-i18n="mset.th.profit"></th>
+                <th data-i18n="mset.rd.th.result"></th>
+              </tr>
+            </thead>
+            <tbody id="rdbody"></tbody>
+          </table>
+        </div>
+        <p class="verdict" id="verdict" aria-live="polite"></p>
+      </div>
+      <p class="ptext" data-i18n-html="mset.rd.lesson"></p>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="mset.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="mset.d1.p1"></p>
+        <ul class="vars">
+          <li><span class="sym"><code>x</code></span> <span data-i18n="mset.var.x"></span><span class="vtag int" data-i18n="mset.tag.int"></span></li>
+          <li><span class="sym"><code>y</code></span> <span data-i18n="mset.var.y"></span><span class="vtag cont" data-i18n="mset.tag.cont"></span></li>
+        </ul>
+        <div class="formula" id="formula"></div>
+        <p data-i18n-html="mset.d1.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="mset.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="mset.d2.p1"></p>
+        <p data-i18n-html="mset.d2.p2"></p>
+        <p data-i18n-html="mset.d2.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="mset.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="mset.d3.p1"></p>
+        <p data-i18n-html="mset.d3.p2"></p>
+        <p data-i18n-html="mset.d3.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="mset.d4.title"></summary>
+      <div class="body">
+        <p data-i18n-html="mset.d4.intro"></p>
+        <ol class="chlist" id="chlist">
+          <li><span data-i18n-html="mset.ch1"></span><span class="chst" data-ch="1"></span></li>
+          <li><span data-i18n-html="mset.ch2"></span><span class="chst" data-ch="2"></span></li>
+          <li><span data-i18n-html="mset.ch3"></span><span class="chst" data-ch="3"></span></li>
+          <li><span data-i18n-html="mset.ch4"></span><span class="chst" data-ch="4"></span></li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="mset.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/milp-mixed-set.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var EPS = 1e-9;
+  var f2 = function (v) { return I18N.fmt(Math.abs(v) < 5e-7 ? 0 : v, 2); };
+  var f0 = function (v) { return I18N.fmt(v, 0); };
+
+  // ---- model (illustrative data) ----
+  // a·x + b·y <= r ; x = greenhouses, y = hectares of open field
+  var CONS = [
+    { id: "budget", a: 6, b: 1, r: 44 },
+    { id: "water", a: 2, b: 4, r: 27 },
+    { id: "land", a: 1, b: 1, r: 9 },
+    { id: "seed", a: -3, b: 1, r: 2 }
+  ];
+  var cname = function (c) { return t("mset.c." + c.id); };
+  var lname = function (c) { return cname(c).toLocaleLowerCase(I18N.locale); };
+  var st = { v: "x", c1: 3, c2: 10, z: 0, zLinked: true, sel: null, round: false };
+  var XMAX = 8.5, YMAX = 8.5, NMAX = 9; // plot domain and enumeration range (x, y <= 9 by the land constraint)
+
+  function setBudget(B) { CONS[0].r = B; }
+  function prof(x, y) { return st.c1 * x + st.c2 * y; }
+  function feas(x, y) {
+    if (x < -EPS || y < -EPS) return false;
+    for (var i = 0; i < CONS.length; i++) if (CONS[i].a * x + CONS[i].b * y > CONS[i].r + 1e-9) return false;
+    return true;
+  }
+
+  // ---- exact solvers ----
+  function vertices() {
+    var L = CONS.map(function (c) { return [c.a, c.b, c.r]; }).concat([[1, 0, 0], [0, 1, 0]]);
+    var pts = [];
+    for (var i = 0; i < L.length; i++) for (var j = i + 1; j < L.length; j++) {
+      var d = L[i][0] * L[j][1] - L[j][0] * L[i][1];
+      if (Math.abs(d) < EPS) continue;
+      var x = (L[i][2] * L[j][1] - L[j][2] * L[i][1]) / d;
+      var y = (L[i][0] * L[j][2] - L[j][0] * L[i][2]) / d;
+      if (!feas(x, y)) continue;
+      x = Math.max(0, x); y = Math.max(0, y);
+      if (!pts.some(function (p) { return Math.abs(p.x - x) < 1e-7 && Math.abs(p.y - y) < 1e-7; })) pts.push({ x: x, y: y });
+    }
+    var cx = 0, cy = 0;
+    pts.forEach(function (p) { cx += p.x; cy += p.y; });
+    cx /= pts.length; cy /= pts.length;
+    pts.sort(function (p, q) { return Math.atan2(p.y - cy, p.x - cx) - Math.atan2(q.y - cy, q.x - cx); });
+    return pts;
+  }
+  function better(z, x, best) { return !best || z > best.z + 1e-9 || (Math.abs(z - best.z) <= 1e-9 && x < best.x - 1e-9); }
+  function solveLP(P) {
+    var best = null;
+    P.forEach(function (p) { var z = prof(p.x, p.y); if (better(z, p.x, best)) best = { x: p.x, y: p.y, z: z }; });
+    return best;
+  }
+  // continuous interval of one variable when the other is fixed; which constraint gives the upper end
+  function sliceX(x) {
+    var lo = 0, hi = Infinity, lim = null, loLim = null;
+    for (var i = 0; i < CONS.length; i++) {
+      var c = CONS[i], rr = c.r - c.a * x;
+      if (c.b > 0) { if (rr / c.b < hi) { hi = rr / c.b; lim = c; } }
+      else if (c.b < 0) { if (rr / c.b > lo) { lo = rr / c.b; loLim = c; } }
+      else if (rr < -EPS) return null;
+    }
+    if (hi < lo - 1e-9) return null;
+    return { lo: lo, hi: Math.max(lo, hi), lim: lim, loLim: loLim };
+  }
+  function sliceY(y) {
+    var lo = 0, hi = Infinity, lim = null, loLim = null;
+    for (var i = 0; i < CONS.length; i++) {
+      var c = CONS[i], rr = c.r - c.b * y;
+      if (c.a > 0) { if (rr / c.a < hi) { hi = rr / c.a; lim = c; } }
+      else if (c.a < 0) { if (rr / c.a > lo) { lo = rr / c.a; loLim = c; } }
+      else if (rr < -EPS) return null;
+    }
+    if (hi < lo - 1e-9) return null;
+    return { lo: lo, hi: Math.max(lo, hi), lim: lim, loLim: loLim };
+  }
+  function violatedAtZero(x) { // which constraint rules out x even with y = 0
+    for (var i = 0; i < CONS.length; i++) if (CONS[i].a * x > CONS[i].r + 1e-9) return CONS[i];
+    return null;
+  }
+  function solveAll() {
+    setBudget(st.B);
+    var P = vertices();
+    var lp = solveLP(P);
+    var xs = [], ys = [], pts = [], mx = null, my = null, ip = null;
+    for (var k = 0; k <= NMAX; k++) {
+      var sx = sliceX(k);
+      if (sx) {
+        var yb = st.c2 >= 0 ? sx.hi : sx.lo, zx = prof(k, yb);
+        xs.push({ v: k, lo: sx.lo, hi: sx.hi, lim: sx.lim, best: yb, z: zx });
+        if (better(zx, k, mx)) mx = { x: k, y: yb, z: zx };
+      }
+      var sy = sliceY(k);
+      if (sy) {
+        var xb = st.c1 >= 0 ? sy.hi : sy.lo, zy = prof(xb, k);
+        ys.push({ v: k, lo: sy.lo, hi: sy.hi, best: xb, z: zy });
+        if (better(zy, xb, my)) my = { x: xb, y: k, z: zy };
+      }
+    }
+    for (var x = 0; x <= NMAX; x++) for (var y = 0; y <= NMAX; y++) {
+      if (!feas(x, y)) continue;
+      pts.push({ x: x, y: y });
+      var z = prof(x, y);
+      if (better(z, x, ip)) ip = { x: x, y: y, z: z };
+    }
+    return { P: P, lp: lp, mx: mx, my: my, ip: ip, xs: xs, ys: ys, pts: pts };
+  }
+  function rounding(S) {
+    var xs = S.lp.x;
+    var opts = [
+      { id: "down", v: Math.floor(xs + 1e-9) },
+      { id: "near", v: Math.round(xs) },
+      { id: "up", v: Math.ceil(xs - 1e-9) }
+    ];
+    opts.forEach(function (o) {
+      var s = sliceX(o.v);
+      if (!s) { o.ok = false; o.lim = violatedAtZero(o.v); return; }
+      o.ok = true; o.y = s.hi; o.z = prof(o.v, s.hi);
+      o.gap = S.mx.z > 0 ? (S.mx.z - o.z) / S.mx.z : 0;
+      o.opt = Math.abs(o.z - S.mx.z) < 1e-7;
+    });
+    return opts;
+  }
+  // test hook for the automated checks (pure: does not touch the page state)
+  window.__msetSolve = function (c1, c2, B) {
+    var keep = { c1: st.c1, c2: st.c2, B: st.B };
+    st.c1 = c1; st.c2 = c2; st.B = B;
+    var S = solveAll(), R = rounding(S);
+    st.c1 = keep.c1; st.c2 = keep.c2; st.B = keep.B; setBudget(st.B);
+    return { lp: S.lp, mx: S.mx, my: S.my, ip: S.ip, round: R.map(function (o) { return { id: o.id, v: o.v, ok: o.ok, z: o.z }; }) };
+  };
+
+  // ---- svg helpers ----
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, txt) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (txt != null) n.textContent = txt;
+    return n;
+  }
+  var W = 600, H = 560, M = { l: 50, r: 16, t: 14, b: 48 };
+  function sx(v) { return M.l + v / XMAX * (W - M.l - M.r); }
+  function sy(v) { return H - M.b - v / YMAX * (H - M.t - M.b); }
+  function ix(px) { return (px - M.l) / (W - M.l - M.r) * XMAX; }
+  function iy(py) { return (H - M.b - py) / (H - M.t - M.b) * YMAX; }
+  function clipLine(a, b, c) {
+    var pts = [];
+    function add(x, y) {
+      if (x >= -1e-7 && x <= XMAX + 1e-7 && y >= -1e-7 && y <= YMAX + 1e-7 &&
+          !pts.some(function (p) { return Math.abs(p[0] - x) < 1e-7 && Math.abs(p[1] - y) < 1e-7; })) pts.push([x, y]);
+    }
+    if (Math.abs(b) > EPS) { add(0, c / b); add(XMAX, (c - a * XMAX) / b); }
+    if (Math.abs(a) > EPS) { add(c / a, 0); add((c - b * YMAX) / a, YMAX); }
+    if (pts.length < 2) return null;
+    pts.sort(function (p, q) { return p[0] - q[0] || p[1] - q[1]; });
+    return [pts[0], pts[pts.length - 1]];
+  }
+  // hand placed label anchors (fraction along the clipped line, offset in px)
+  var LABEL = {
+    budget: { f: 0.1, dx: 9, dy: 0, anchor: "start" },
+    water: { f: 0.83, dx: 0, dy: -9, anchor: "middle" },
+    land: { f: 0.36, dx: 6, dy: -10, anchor: "start" },
+    seed: { f: 0.9, dx: -8, dy: 0, anchor: "end" }
+  };
+
+  var plot = document.getElementById("plot");
+  var S = null, R = null;
+
+  function variantOpt() { return st.v === "lp" ? S.lp : st.v === "x" ? S.mx : st.v === "y" ? S.my : S.ip; }
+  function zCap() { return Math.ceil(Math.max(S.lp.z * 1.3, 10)); }
+
+  function drawPlot() {
+    plot.textContent = "";
+    var g;
+    // grid and axes
+    g = el("g", {});
+    for (var v = 0; v <= 8; v++) {
+      g.appendChild(el("line", { x1: sx(v), y1: sy(0), x2: sx(v), y2: sy(YMAX), stroke: "var(--grid)", "stroke-width": 1 }));
+      g.appendChild(el("line", { x1: sx(0), y1: sy(v), x2: sx(XMAX), y2: sy(v), stroke: "var(--grid)", "stroke-width": 1 }));
+      g.appendChild(el("text", { x: sx(v), y: H - M.b + 18, "text-anchor": "middle", "class": "tick" }, f0(v)));
+      g.appendChild(el("text", { x: M.l - 13, y: sy(v) + 4, "text-anchor": "end", "class": "tick" }, f0(v)));
+    }
+    g.appendChild(el("line", { x1: sx(0), y1: sy(0), x2: sx(XMAX), y2: sy(0), stroke: "var(--axis)", "stroke-width": 1.3 }));
+    g.appendChild(el("line", { x1: sx(0), y1: sy(0), x2: sx(0), y2: sy(YMAX), stroke: "var(--axis)", "stroke-width": 1.3 }));
+    g.appendChild(el("text", { x: (sx(0) + sx(XMAX)) / 2, y: H - 8, "text-anchor": "middle", "class": "axlab" }, t("mset.axis.x")));
+    var my0 = (sy(0) + sy(YMAX)) / 2;
+    g.appendChild(el("text", { x: 14, y: my0, "text-anchor": "middle", "class": "axlab", transform: "rotate(-90 14 " + my0 + ")" }, t("mset.axis.y")));
+    plot.appendChild(g);
+
+    // LP polygon
+    var d = S.P.map(function (p, i) { return (i ? "L" : "M") + sx(p.x).toFixed(2) + " " + sy(p.y).toFixed(2); }).join(" ") + " Z";
+    plot.appendChild(el("path", { d: d, fill: "var(--region)", stroke: st.v === "lp" ? "var(--ink)" : "var(--mit-silver)", "stroke-width": st.v === "lp" ? 2 : 1, "stroke-linejoin": "round" }));
+
+    // constraint lines with direct labels
+    CONS.forEach(function (c) {
+      var seg = clipLine(c.a, c.b, c.r);
+      if (!seg) return;
+      plot.appendChild(el("line", { x1: sx(seg[0][0]), y1: sy(seg[0][1]), x2: sx(seg[1][0]), y2: sy(seg[1][1]),
+        stroke: "var(--mit-silver)", "stroke-width": 1.6, "stroke-dasharray": "5 4" }));
+    });
+
+    // selected slice band (x integer view)
+    if (st.v === "x" && st.sel != null) {
+      plot.appendChild(el("rect", { x: sx(st.sel - 0.22), y: sy(YMAX), width: sx(0.44) - sx(0), height: sy(0) - sy(YMAX), fill: "var(--sel)" }));
+    }
+
+    // integer structure of the chosen variant
+    g = el("g", {});
+    if (st.v === "x") {
+      S.xs.forEach(function (s) {
+        if (s.v > XMAX) return;
+        if (s.hi - s.lo < 1e-6) g.appendChild(el("circle", { cx: sx(s.v), cy: sy(s.lo), r: 4.5, fill: "var(--ink)" }));
+        else g.appendChild(el("line", { x1: sx(s.v), y1: sy(s.lo), x2: sx(s.v), y2: sy(s.hi), stroke: "var(--ink)", "stroke-width": 5.5, "stroke-linecap": "round" }));
+        g.appendChild(el("circle", { cx: sx(s.v), cy: sy(0), r: 5, fill: "var(--accent)", stroke: "var(--surface)", "stroke-width": 1.5 }));
+      });
+    } else if (st.v === "y") {
+      S.ys.forEach(function (s) {
+        if (s.v > YMAX) return;
+        if (s.hi - s.lo < 1e-6) g.appendChild(el("circle", { cx: sx(s.lo), cy: sy(s.v), r: 4.5, fill: "var(--ink)" }));
+        else g.appendChild(el("line", { x1: sx(s.lo), y1: sy(s.v), x2: sx(s.hi), y2: sy(s.v), stroke: "var(--ink)", "stroke-width": 5.5, "stroke-linecap": "round" }));
+        g.appendChild(el("circle", { cx: sx(0), cy: sy(s.v), r: 5, fill: "var(--accent)", stroke: "var(--surface)", "stroke-width": 1.5 }));
+      });
+    } else if (st.v === "ip") {
+      S.pts.forEach(function (p) {
+        g.appendChild(el("circle", { cx: sx(p.x), cy: sy(p.y), r: 4.6, fill: "var(--accent)", stroke: "var(--surface)", "stroke-width": 1.2 }));
+      });
+    }
+    plot.appendChild(g);
+
+    // constraint labels on top of the structure
+    CONS.forEach(function (c) {
+      var seg = clipLine(c.a, c.b, c.r), L = LABEL[c.id];
+      if (!seg) return;
+      var lx = seg[0][0] + (seg[1][0] - seg[0][0]) * L.f, ly = seg[0][1] + (seg[1][1] - seg[0][1]) * L.f;
+      plot.appendChild(el("text", { x: sx(lx) + L.dx, y: sy(ly) + L.dy + 4, "text-anchor": L.anchor, "class": "clab" }, cname(c)));
+    });
+
+    // profit line and its handle
+    var opt = variantOpt();
+    var zi = st.z;
+    var isoSeg = zi > 0 ? clipLine(st.c1, st.c2, zi) : null;
+    if (isoSeg) {
+      plot.appendChild(el("line", { x1: sx(isoSeg[0][0]), y1: sy(isoSeg[0][1]), x2: sx(isoSeg[1][0]), y2: sy(isoSeg[1][1]),
+        stroke: "var(--ink2)", "stroke-width": 2, "stroke-dasharray": "8 5", "stroke-linecap": "round" }));
+    }
+    // handle: point of the line closest to the origin (in data units), kept inside the plot
+    var nn = st.c1 * st.c1 + st.c2 * st.c2;
+    var hx = st.c1 * zi / nn, hy = st.c2 * zi / nn;
+    hx = Math.min(Math.max(hx, 0), XMAX); hy = Math.min(Math.max(hy, 0), YMAX);
+    var lx2 = sx(hx), ly2 = sy(hy);
+    var lab = el("text", { x: lx2 + 14, y: ly2 - 12, "class": "isolab" }, t("mset.iso.tag", { z: f2(zi) }));
+    if (lx2 > W - 150) { lab.setAttribute("x", lx2 - 14); lab.setAttribute("text-anchor", "end"); }
+    plot.appendChild(lab);
+
+    // LP optimum (hollow) and optimum of the chosen set
+    if (st.v !== "lp") {
+      plot.appendChild(el("circle", { cx: sx(S.lp.x), cy: sy(S.lp.y), r: 8, fill: "var(--surface)", "fill-opacity": 0.6, stroke: "var(--ink)", "stroke-width": 2 }));
+    }
+    // rounding markers
+    if (st.round && R) {
+      var groups = {};
+      R.forEach(function (o) { if (o.ok) { var k = o.v; (groups[k] = groups[k] || { o: o, ids: [] }).ids.push(t("mset.rd.m." + o.id)); } });
+      Object.keys(groups).forEach(function (k) {
+        var gr = groups[k], o = gr.o;
+        plot.appendChild(el("rect", { x: sx(o.v) - 7, y: sy(o.y) - 7, width: 14, height: 14, fill: "none", stroke: o.opt ? "var(--good)" : "var(--crit)", "stroke-width": 2.2 }));
+        var tx = sx(o.v) - 12, anchor = "end";
+        if (tx < M.l + 90) { tx = sx(o.v) + 12; anchor = "start"; }
+        plot.appendChild(el("text", { x: tx, y: sy(o.y) + 22, "text-anchor": anchor, "class": "mlab", fill: o.opt ? "var(--good-text)" : "var(--crit)" }, gr.ids.join(" = ")));
+      });
+    }
+    plot.appendChild(el("circle", { cx: sx(opt.x), cy: sy(opt.y), r: 11, fill: "none", stroke: "var(--accent)", "stroke-width": 2 }));
+    plot.appendChild(el("circle", { cx: sx(opt.x), cy: sy(opt.y), r: 6, fill: "var(--accent)", stroke: "var(--surface)", "stroke-width": 1.5 }));
+
+    var knob = el("g", { "class": "knob", tabindex: 0, role: "slider", "aria-valuemin": 0, "aria-valuemax": zCap(), "aria-valuenow": zi.toFixed(1),
+      "aria-valuetext": t("mset.iso.tag", { z: f2(zi) }), "aria-label": t("mset.iso.knobAria") });
+    knob.appendChild(el("circle", { cx: lx2, cy: ly2, r: 20, fill: "transparent" }));
+    knob.appendChild(el("circle", { "class": "ring", cx: lx2, cy: ly2, r: 8, fill: "var(--surface)", stroke: "var(--ink2)", "stroke-width": 2 }));
+    knob.appendChild(el("circle", { cx: lx2, cy: ly2, r: 3, fill: "var(--ink2)" }));
+    plot.appendChild(knob);
+    knob.addEventListener("pointerdown", startDrag);
+    knob.addEventListener("keydown", function (e) {
+      var step = e.shiftKey ? 5 : 1;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") setZ(st.z + step);
+      else if (e.key === "ArrowLeft" || e.key === "ArrowDown") setZ(st.z - step);
+      else if (e.key === "Home") setZ(0);
+      else if (e.key === "End") setZ(variantOpt().z);
+      else return;
+      e.preventDefault();
+      var k = plot.querySelector(".knob"); if (k) k.focus();
+    });
+  }
+
+  // ---- dragging the profit line ----
+  var dragging = false;
+  function zFromEvent(e) {
+    var r = plot.getBoundingClientRect();
+    var px = (e.clientX - r.left) / r.width * W, py = (e.clientY - r.top) / r.height * H;
+    var x = Math.max(0, ix(px)), y = Math.max(0, iy(py));
+    return prof(x, y);
+  }
+  function startDrag(e) {
+    if (e.button != null && e.button !== 0) return;
+    dragging = true; stopSweep();
+    try { plot.setPointerCapture(e.pointerId); } catch (err) { /* ok */ }
+    setZ(zFromEvent(e));
+    e.preventDefault();
+  }
+  plot.addEventListener("pointerdown", function (e) {
+    if (e.pointerType === "mouse" && !e.target.closest(".knob")) startDrag(e);
+  });
+  plot.addEventListener("pointermove", function (e) { if (dragging) setZ(zFromEvent(e)); });
+  ["pointerup", "pointercancel"].forEach(function (ev) { plot.addEventListener(ev, function () { dragging = false; }); });
+
+  function setZ(z, keepLink) {
+    st.z = Math.max(0, Math.min(zCap(), z));
+    if (!keepLink) st.zLinked = false;
+    document.getElementById("ziso").value = st.z;
+    drawPlot(); drawIsoText();
+  }
+
+  // ---- sweep ----
+  var sweepRaf = null;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function stopSweep() { if (sweepRaf) cancelAnimationFrame(sweepRaf); sweepRaf = null; }
+  document.getElementById("sweep").addEventListener("click", function () {
+    stopSweep();
+    var target = variantOpt().z;
+    if (reduce) { setZ(target); st.zLinked = true; return; }
+    var t0 = null, dur = 1600;
+    function step(ts) {
+      if (t0 == null) t0 = ts;
+      var u = Math.min(1, (ts - t0) / dur), e = 1 - Math.pow(1 - u, 3);
+      setZ(target * e);
+      if (u < 1) sweepRaf = requestAnimationFrame(step);
+      else { sweepRaf = null; st.zLinked = true; }
+    }
+    sweepRaf = requestAnimationFrame(step);
+  });
+
+  // ---- text panels ----
+  function drawIsoText() {
+    var opt = variantOpt(), z = st.z, msg;
+    document.getElementById("zisoo").textContent = f2(z);
+    if (Math.abs(z - opt.z) < 0.26) msg = t("mset.iso.at", { z: f2(opt.z) });
+    else if (z < opt.z) msg = t("mset.iso.touch", { z: f2(z) });
+    else msg = t("mset.iso.above", { z: f2(z), best: f2(opt.z) });
+    document.getElementById("isonote").innerHTML = msg;
+  }
+
+  var VN = { lp: "mset.row.lp", x: "mset.row.x", y: "mset.row.y", ip: "mset.row.ip" };
+  var VS = { lp: "mset.row.lpSub", x: "mset.row.xSub", y: "mset.row.ySub", ip: "mset.row.ipSub" };
+
+  function drawPanels() {
+    var opt = variantOpt();
+    document.getElementById("c1o").textContent = f0(st.c1);
+    document.getElementById("c2o").textContent = f0(st.c2);
+    document.getElementById("budo").textContent = f0(st.B);
+    document.getElementById("objeq").innerHTML = "max&nbsp; " + f0(st.c1) + "·<span class=\"ivar\">x</span> + " + f0(st.c2) + "·<span class=\"cvar\">y</span>";
+
+    // variant buttons and set description
+    document.querySelectorAll("#variants button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.v === st.v)); });
+    var note = st.v === "lp" ? t("mset.set.lp")
+      : st.v === "x" ? t("mset.set.x", { n: S.xs.length })
+      : st.v === "y" ? t("mset.set.y", { n: S.ys.length })
+      : t("mset.set.ip", { n: S.pts.length });
+    document.getElementById("setnote").innerHTML = note;
+
+    // optimum box
+    document.getElementById("optlab").textContent = t("mset.opt.label", { v: t(VN[st.v]) });
+    document.getElementById("optz").textContent = t("mset.opt.z", { z: f2(opt.z) });
+    document.getElementById("optxy").textContent = "x = " + f2(opt.x) + " · y = " + f2(opt.y);
+    var zs = document.getElementById("ziso");
+    zs.max = zCap();
+    zs.value = st.z;
+
+    // comparison table
+    var rows = [["lp", S.lp], ["x", S.mx], ["y", S.my], ["ip", S.ip]];
+    var tb = document.getElementById("cmpbody");
+    tb.textContent = "";
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      if (r[0] === st.v) tr.className = "on";
+      var gap = S.lp.z > 0 ? (S.lp.z - r[1].z) / S.lp.z * 100 : 0;
+      tr.innerHTML = "<td><span class=\"vn\"></span><span class=\"vs\"></span></td><td class=\"num\"></td><td class=\"num\"></td><td class=\"num\"></td><td class=\"num\"></td>";
+      tr.children[0].children[0].textContent = t(VN[r[0]]);
+      tr.children[0].children[1].textContent = t(VS[r[0]]);
+      tr.children[1].textContent = f2(r[1].x);
+      tr.children[2].textContent = f2(r[1].y);
+      tr.children[3].textContent = f2(r[1].z);
+      tr.children[4].textContent = gap < 0.005 ? t("mset.pct0") : t("mset.pct", { p: I18N.fmt(gap, 1) });
+      tb.appendChild(tr);
+    });
+    document.getElementById("order").textContent = t("mset.cmp.order", { lp: f2(S.lp.z), mx: f2(S.mx.z), my: f2(S.my.z), ip: f2(S.ip.z) });
+    var key = S.mx.z > S.my.z + 1e-7 ? "mset.cmp.xy.x" : S.my.z > S.mx.z + 1e-7 ? "mset.cmp.xy.y" : "mset.cmp.xy.eq";
+    document.getElementById("cmpxy").innerHTML = t(key, { mx: f2(S.mx.z), my: f2(S.my.z) });
+
+    drawBars();
+    drawRounding();
+    drawChallenges();
+    document.getElementById("formula").textContent = t("mset.d1.formula", {
+      obj: (st.c1 + "·x + " + st.c2 + "·y" + "                     ").slice(0, 21), B: st.B });
+  }
+
+  // ---- slice bar chart ----
+  var bars = document.getElementById("bars");
+  var BW = 520, BH = 280, BM = { l: 44, r: 12, t: 26, b: 42 };
+  function drawBars() {
+    bars.textContent = "";
+    var top = Math.max(10, Math.ceil(S.lp.z * 1.12 / 10) * 10);
+    var byx = function (v) { return BM.l + (v + 0.5) / 9 * (BW - BM.l - BM.r); };
+    var byz = function (z) { return BH - BM.b - z / top * (BH - BM.t - BM.b); };
+    var step = top <= 50 ? 10 : top <= 120 ? 20 : top <= 240 ? 40 : 50;
+    for (var z = 0; z <= top + 1e-9; z += step) {
+      bars.appendChild(el("line", { x1: BM.l, y1: byz(z), x2: BW - BM.r, y2: byz(z), stroke: "var(--grid)", "stroke-width": 1 }));
+      bars.appendChild(el("text", { x: BM.l - 7, y: byz(z) + 4, "text-anchor": "end", "class": "tick" }, f0(z)));
+    }
+    bars.appendChild(el("line", { x1: BM.l, y1: byz(0), x2: BW - BM.r, y2: byz(0), stroke: "var(--axis)", "stroke-width": 1.3 }));
+    bars.appendChild(el("text", { x: (BM.l + BW - BM.r) / 2, y: BH - 6, "text-anchor": "middle", "class": "axlab" }, t("mset.sl.xaxis")));
+    var bw = (BW - BM.l - BM.r) / 9 * 0.62;
+    for (var v = 0; v <= 8; v++) {
+      var s = S.xs.filter(function (q) { return q.v === v; })[0];
+      var isBest = s && s.v === S.mx.x;
+      var g = el("g", { "class": "bar", tabindex: 0, role: "button", "data-x": v,
+        "aria-pressed": String(st.sel === v),
+        "aria-label": s ? t("mset.sl.barAria", { x: v, z: f2(s.z) }) : t("mset.sl.barEmpty", { x: v }) });
+      g.appendChild(el("rect", { "class": "hit", x: byx(v) - bw / 2 - 4, y: BM.t - 18, width: bw + 8, height: byz(0) - BM.t + 18, fill: st.sel === v ? "var(--sel)" : "transparent", stroke: "none" }));
+      if (s) {
+        var h = Math.max(1.5, byz(0) - byz(s.z));
+        g.appendChild(el("rect", { x: byx(v) - bw / 2, y: byz(0) - h, width: bw, height: h,
+          fill: isBest ? "var(--accent)" : "var(--mit-silver)", "fill-opacity": isBest ? 1 : 0.7 }));
+        g.appendChild(el("text", { x: byx(v), y: byz(s.z) - 6, "text-anchor": "middle", "class": "vlab", fill: isBest ? "var(--accent-text)" : "var(--ink2)", style: isBest ? "fill: var(--accent-text)" : "" }, I18N.fmt(s.z, 1)));
+      } else {
+        g.appendChild(el("text", { x: byx(v), y: byz(0) - 8, "text-anchor": "middle", "class": "vlab" }, t("mset.sl.none")));
+      }
+      g.appendChild(el("text", { x: byx(v), y: BH - BM.b + 17, "text-anchor": "middle", "class": "tick", style: "fill: var(--accent-text); font-weight: 600" }, f0(v)));
+      bars.appendChild(g);
+    }
+    // LP bound
+    bars.appendChild(el("line", { x1: BM.l, y1: byz(S.lp.z), x2: BW - BM.r, y2: byz(S.lp.z), stroke: "var(--ink)", "stroke-width": 1.5, "stroke-dasharray": "6 4" }));
+    bars.appendChild(el("text", { x: BW - BM.r, y: byz(S.lp.z) - 6, "text-anchor": "end", "class": "isolab" }, t("mset.sl.lpbound", { z: f2(S.lp.z) })));
+
+    // info about selected slice
+    var sel = st.sel != null ? st.sel : S.mx.x;
+    var si = S.xs.filter(function (q) { return q.v === sel; })[0], msg;
+    if (si) {
+      msg = t("mset.sl.info", { x: sel, lo: f2(si.lo), hi: f2(si.hi), lim: lname(si.lim), z: f2(si.z) });
+      if (si.v === S.mx.x) msg += " " + t("mset.sl.isBest");
+      else msg += " " + t("mset.sl.notBest", { d: f2(S.mx.z - si.z) });
+    } else {
+      var vc = violatedAtZero(sel);
+      msg = t("mset.sl.infoEmpty", { x: sel, lim: vc ? lname(vc) : "" });
+    }
+    if (st.sel == null) msg += " " + t("mset.sl.pick");
+    document.getElementById("sinfo").innerHTML = msg;
+    var n = S.xs.length;
+    document.getElementById("explode").innerHTML = t("mset.sl.p2", { n: n, big: f0(Math.pow(n, 10)), b30: f0(Math.pow(2, 30)) });
+  }
+  function pickBar(v) {
+    st.sel = st.sel === v ? null : v;
+    if (st.sel != null && st.v !== "x") st.v = "x";
+    render(true);
+    var b = bars.querySelector('.bar[data-x="' + v + '"]'); if (b) b.focus();
+  }
+  bars.addEventListener("click", function (e) { var b = e.target.closest(".bar"); if (b) pickBar(+b.dataset.x); });
+  bars.addEventListener("keydown", function (e) {
+    var b = e.target.closest(".bar"); if (!b) return;
+    var v = +b.dataset.x;
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickBar(v); }
+    else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      var nv = Math.max(0, Math.min(8, v + (e.key === "ArrowRight" ? 1 : -1)));
+      var nb = bars.querySelector('.bar[data-x="' + nv + '"]'); if (nb) nb.focus();
+    }
+  });
+
+  // ---- rounding ----
+  function drawRounding() {
+    document.getElementById("rdintro").innerHTML = t("mset.rd.intro", { x: f2(S.lp.x) });
+    var btn = document.getElementById("roundbtn");
+    btn.setAttribute("aria-pressed", String(st.round));
+    document.getElementById("rdout").hidden = !st.round;
+    if (!st.round) return;
+    var tb = document.getElementById("rdbody");
+    tb.textContent = "";
+    R.forEach(function (o) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td></td><td class=\"num\"></td><td class=\"num\"></td><td class=\"num\"></td><td></td>";
+      tr.children[0].textContent = t("mset.rd." + o.id);
+      tr.children[1].textContent = f0(o.v);
+      tr.children[2].textContent = o.ok ? f2(o.y) : "·";
+      tr.children[3].textContent = o.ok ? f2(o.z) : "·";
+      var span = document.createElement("span");
+      if (!o.ok) { span.className = "bad"; span.textContent = t("mset.rd.infeasible", { lim: o.lim ? lname(o.lim) : "" }); }
+      else if (o.opt) { span.className = "ok"; span.textContent = t("mset.rd.optimal"); }
+      else { span.className = "warn"; span.textContent = t("mset.rd.gap", { p: I18N.fmt(o.gap * 100, 1) }); }
+      tr.children[4].appendChild(span);
+      tb.appendChild(tr);
+    });
+    var down = R[0], near = R[1], parts = [];
+    if (!near.ok) parts.push(t("mset.rd.v.nearInf", { x: near.v, lim: near.lim ? lname(near.lim) : "" }));
+    var cands = [down, near].filter(function (o) { return o.ok; });
+    var bestR = cands.length ? cands.reduce(function (a, b) { return b.z > a.z ? b : a; }) : null;
+    if (Math.abs(S.lp.x - Math.round(S.lp.x)) < 1e-7) parts.push(t("mset.rd.v.integral"));
+    else if (bestR && bestR.opt) parts.push(t("mset.rd.v.lucky"));
+    else if (bestR) parts.push(t("mset.rd.v.miss", { p: I18N.fmt(bestR.gap * 100, 1), x: f2(S.mx.x), y: f2(S.mx.y), z: f2(S.mx.z) }));
+    document.getElementById("verdict").innerHTML = parts.join(" ");
+  }
+  document.getElementById("roundbtn").addEventListener("click", function () {
+    st.round = !st.round;
+    if (st.round) { st.v = "x"; }
+    render(true);
+  });
+
+  // ---- challenges (checked live) ----
+  function drawChallenges() {
+    var fracX = Math.abs(S.lp.x - Math.round(S.lp.x)) > 1e-7;
+    var Rr = R || rounding(S);
+    var done = {
+      1: Math.abs(S.mx.z - S.lp.z) < 1e-7,
+      2: S.mx.z > S.my.z + 1e-7,
+      3: !Rr[1].ok,
+      4: fracX && Rr[0].ok && Rr[0].opt
+    };
+    document.querySelectorAll(".chst").forEach(function (s) {
+      var ok = done[s.dataset.ch];
+      s.classList.toggle("done", ok);
+      s.textContent = ok ? t("mset.ch.done") : t("mset.ch.todo");
+    });
+  }
+
+  // ---- wiring ----
+  document.querySelectorAll("#variants button").forEach(function (b) {
+    b.addEventListener("click", function () { st.v = b.dataset.v; st.zLinked = true; stopSweep(); render(); });
+  });
+  [["c1", "c1"], ["c2", "c2"], ["bud", "B"]].forEach(function (p) {
+    var inp = document.getElementById(p[0]);
+    st[p[1]] = +inp.value;
+    inp.addEventListener("input", function () { st[p[1]] = +inp.value; st.zLinked = true; stopSweep(); render(); });
+  });
+  document.getElementById("ziso").addEventListener("input", function (e) { stopSweep(); setZ(+e.target.value); });
+
+  function render() {
+    S = solveAll();
+    R = rounding(S);
+    if (st.zLinked) st.z = variantOpt().z;
+    drawPanels();
+    drawPlot();
+    drawIsoText();
+  }
+  I18N.onChange(function () { render(); });
+})();
+</script>
+</body>
+</html>

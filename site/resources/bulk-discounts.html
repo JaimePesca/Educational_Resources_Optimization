@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en" data-title-key="pw.title" data-i18n-bundles="resources/milp-piecewise">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Bulk Discounts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  .panel h2 { font-family: var(--font-sans); font-weight: 600; font-size: 17px; margin: 0 0 12px; }
+  .ctl input[type="range"] { height: 28px; }
+  .seg button { min-height: 36px; }
+
+  /* top: demand, stats and verdict */
+  .topgrid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 860px) { .topgrid { grid-template-columns: minmax(240px, 0.8fr) minmax(0, 2fr); align-items: start; } }
+  .stats { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .stat .v { font-size: 24px; }
+  .stat .s { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .stat.opt { border-top: 3px solid var(--accent); }
+  .stat.opt .v { color: var(--accent-text); }
+  .stat.lp.bad { border-top: 3px solid var(--crit); }
+  .stat.lp.bad .s { color: var(--crit); font-weight: 600; }
+  .stat.lp.ok { border-top: 3px solid var(--good); }
+  .stat.lp.ok .s { color: var(--good-text); font-weight: 600; }
+  .verdict {
+    margin-top: 14px; padding: 12px 14px; border: 1px solid var(--border); border-left: 4px solid var(--good);
+    border-radius: 2px; background: var(--surface2); color: var(--ink2); font-size: 14.5px;
+  }
+  .verdict.cheat { border-left-color: var(--crit); }
+  .verdict.lucky { border-left-color: var(--accent); }
+  .verdict p { margin: 0; max-width: 80ch; }
+  .verdict b { color: var(--ink); }
+  .flags { margin: 8px 0 0; padding-left: 18px; color: var(--crit); font-size: 13.5px; font-weight: 600; }
+  .flags:empty { display: none; }
+
+  /* mills */
+  .mills { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+  .millhead { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .millhead h2 { margin: 0; }
+  .badge {
+    display: inline-block; font: 600 11.5px var(--font-mono); letter-spacing: 0.02em; padding: 3px 8px;
+    border-radius: 2px; border: 1px solid var(--border); color: var(--ink2); background: var(--surface2);
+  }
+  .badge.convex { color: var(--good-text); border-color: var(--good); }
+  .badge.concave, .badge.mixed { color: var(--crit); border-color: var(--crit); }
+  .prices { display: grid; gap: 6px 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 10px 0 6px; }
+  @media (max-width: 480px) { .prices { grid-template-columns: minmax(0, 1fr); } }
+  .prices .ctl label { font-size: 12.5px; }
+  .chartbox { margin-top: 6px; }
+  svg.chart text { font-family: var(--font-mono); }
+  .mreadout { margin-top: 4px; font-size: 12.5px; }
+
+  /* segment bars */
+  .bars-title { font-size: 13px; font-weight: 600; color: var(--ink2); margin: 14px 0 6px; }
+  .segbars { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); gap: 6px 10px; align-items: center; }
+  .sbh { font-size: 11.5px; color: var(--muted); font-weight: 600; letter-spacing: 0.02em; }
+  .sbl { font: 12px var(--font-mono); color: var(--ink2); line-height: 1.25; white-space: nowrap; }
+  .sbl b { color: var(--ink); font-weight: 600; }
+  .sbc { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .trk {
+    position: relative; flex: 1 1 auto; min-width: 0; height: 24px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .trk i { position: absolute; inset: 0 auto 0 0; width: 0; background: color-mix(in srgb, var(--mit-silver) 55%, transparent); transition: width 0.25s; }
+  .trk.milp i { background: color-mix(in srgb, var(--ink) 30%, transparent); }
+  .trk.bad { border-color: var(--crit); }
+  .trk.bad i { background: color-mix(in srgb, var(--crit) 38%, transparent); }
+  .trk.bad span { color: var(--crit); }
+  .swf { width: 12px; height: 12px; flex: none; display: inline-block; }
+  .trk span {
+    position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font: 600 11.5px var(--font-mono);
+    color: var(--ink); white-space: nowrap; paint-order: stroke; text-shadow: 0 0 3px var(--halo), 0 0 3px var(--halo);
+  }
+  .dchip {
+    flex: none; font: 600 11px var(--font-mono); padding: 3px 5px; border-radius: 2px; min-width: 42px; text-align: center;
+    border: 1px solid var(--accent); color: var(--accent-text); background: transparent;
+  }
+  .dchip.on { background: var(--accent); color: var(--on-solid); }
+  .legend .ln { width: 22px; height: 10px; flex: none; }
+
+  /* total cost */
+  .gchart { touch-action: pan-y; cursor: ew-resize; }
+  .splitrow { display: grid; gap: 10px 16px; grid-template-columns: minmax(0, 1fr); margin-top: 8px; }
+  @media (min-width: 720px) { .splitrow { grid-template-columns: minmax(0, 1fr) auto; align-items: end; } }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  button.btn {
+    font: 600 13.5px var(--font-sans); min-height: 36px; padding: 8px 14px; cursor: pointer; border-radius: 2px;
+    background: transparent; color: var(--accent-text); border: 1.5px solid var(--accent-text);
+  }
+  button.btn.quiet { color: var(--ink2); border-color: var(--border); }
+  button.btn:hover { background: var(--sel); }
+  .you { margin: 10px 0 0; font-size: 14.5px; color: var(--ink2); }
+  .you b { color: var(--ink); }
+
+  /* model section */
+  .vlist { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; }
+  .vlist li { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .vlist code { font-family: var(--font-mono); font-size: 13px; color: var(--ink); }
+  .ttag {
+    font: 600 10.5px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 6px; border-radius: 2px;
+    border: 1px solid var(--mit-silver); color: var(--ink2);
+  }
+  .ttag.bin { background: var(--accent); border-color: var(--accent); color: var(--on-solid); }
+  .challenges { margin: 0; padding-left: 20px; }
+  .challenges li { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="pw.eyebrow"></p>
+    <h1 data-i18n="pw.title"></h1>
+    <p class="lede" data-i18n-html="pw.lede"></p>
+  </header>
+
+  <!-- demand, readouts and live explanation -->
+  <section class="panel">
+    <div class="topgrid">
+      <div>
+        <h2><span class="kicker" data-i18n="pw.top.kicker"></span><span data-i18n="pw.top.title"></span></h2>
+        <div class="ctl">
+          <label for="dem" data-i18n="pw.top.D"></label>
+          <output id="demOut" for="dem"></output>
+          <input type="range" id="dem" min="50" max="400" step="10" value="250">
+        </div>
+        <p class="note" style="margin-top:8px" data-i18n="pw.top.caps"></p>
+      </div>
+      <div class="stats" id="stats">
+        <div class="stat opt"><div class="v" id="stOpt"></div><div class="l" data-i18n="pw.st.opt"></div><div class="s" id="stOptS"></div></div>
+        <div class="stat lp" id="stLpBox"><div class="v" id="stLp"></div><div class="l" data-i18n="pw.st.lp"></div><div class="s" id="stLpS"></div></div>
+        <div class="stat"><div class="v" id="stReal"></div><div class="l" data-i18n="pw.st.real"></div><div class="s" id="stRealS"></div></div>
+        <div class="stat"><div class="v" id="stGap"></div><div class="l" data-i18n="pw.st.gap"></div><div class="s" id="stGapS"></div></div>
+      </div>
+    </div>
+    <div class="verdict" id="verdict" aria-live="polite">
+      <p id="verdictText"></p>
+      <ul class="flags" id="flags"></ul>
+    </div>
+  </section>
+
+  <!-- the two mills (filled in by the script) -->
+  <div class="mills" id="mills"></div>
+
+  <!-- total cost of every split -->
+  <section class="panel">
+    <h2><span class="kicker" data-i18n="pw.g.kicker"></span><span data-i18n="pw.g.title"></span></h2>
+    <div class="chartbox" id="gbox">
+      <svg class="chart gchart" id="gsvg" role="img" data-i18n-attr="aria-label:pw.g.aria"></svg>
+    </div>
+    <div class="legend">
+      <span><svg class="ln" viewBox="0 0 22 10" aria-hidden="true"><line x1="0" y1="5" x2="22" y2="5" stroke="var(--ink)" stroke-width="2"/></svg><span data-i18n="pw.lg.g"></span></span>
+      <span><svg class="ln" viewBox="0 0 22 10" aria-hidden="true"><line x1="0" y1="5" x2="22" y2="5" stroke="var(--crit)" stroke-width="2" stroke-dasharray="5 3"/></svg><span data-i18n="pw.lg.glp"></span></span>
+      <span><svg class="sw" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="var(--accent)"/></svg><span data-i18n="pw.lg.opt"></span></span>
+      <span><svg class="sw" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" fill="none" stroke="var(--crit)" stroke-width="2"/></svg><span data-i18n="pw.lg.lpsplit"></span></span>
+      <span><svg class="sw" viewBox="0 0 12 12" aria-hidden="true"><rect x="1" y="1" width="10" height="10" fill="var(--ink)"/></svg><span data-i18n="pw.lg.you"></span></span>
+    </div>
+    <div class="splitrow">
+      <div class="ctl">
+        <label for="split" data-i18n="pw.g.split"></label>
+        <output id="splitOut" for="split"></output>
+        <input type="range" id="split" min="0" max="250" step="5" value="125">
+      </div>
+      <div class="btns">
+        <button type="button" class="btn" id="goOpt" data-i18n="pw.btn.opt"></button>
+        <button type="button" class="btn quiet" id="goLp" data-i18n="pw.btn.lp"></button>
+      </div>
+    </div>
+    <p class="you" id="you" aria-live="polite"></p>
+  </section>
+
+  <section>
+    <details>
+      <summary data-i18n="pw.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="pw.d1.p1"></p>
+        <div class="formula" data-i18n="pw.d1.formula"></div>
+        <ul class="vlist">
+          <li><code>s<sub>mk</sub></code><span class="ttag" data-i18n="pw.tag.cont"></span><span data-i18n="pw.d1.v1"></span></li>
+          <li><code>q<sub>m</sub></code><span class="ttag" data-i18n="pw.tag.cont"></span><span data-i18n="pw.d1.v2"></span></li>
+          <li><code>δ<sub>mk</sub></code><span class="ttag bin" data-i18n="pw.tag.bin"></span><span data-i18n="pw.d1.v3"></span></li>
+        </ul>
+        <p data-i18n-html="pw.d1.p2"></p>
+        <p data-i18n-html="pw.d1.p3"></p>
+        <p data-i18n-html="pw.d1.p4"></p>
+        <p data-i18n-html="pw.d1.p5"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="pw.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="pw.d2.p1"></p>
+        <p data-i18n-html="pw.d2.p2"></p>
+        <p data-i18n-html="pw.d2.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="pw.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="pw.d3.p1"></p>
+        <p data-i18n-html="pw.d3.p2"></p>
+        <div class="formula" data-i18n="pw.d3.formula"></div>
+        <p data-i18n-html="pw.d3.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="pw.d4.title"></summary>
+      <div class="body">
+        <ol class="challenges">
+          <li data-i18n-html="pw.d4.c1"></li>
+          <li data-i18n-html="pw.d4.c2"></li>
+          <li data-i18n-html="pw.d4.c3"></li>
+          <li data-i18n-html="pw.d4.c4"></li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="pw.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (v, d) { return I18N.fmt(v, d == null ? 1 : d); };
+  var money = function (v) { return t("pw.money", { v: fmt(Math.round(v), 0) }); };
+  var ppt = function (v) { return t("pw.ppt", { v: fmt(v, 1) }); };
+  var tons = function (v) { return t("pw.tons", { v: fmt(v, 0) }); };
+  var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+
+  // ---- illustrative data: three tiers of 100 t per mill ----
+  var LEN = [100, 100, 100];
+  var CAP = 300;
+  var BP = [0, 100, 200, 300]; // breakpoints of every cost curve (cumulative tier lengths)
+  var MILLS = ["A", "B"];
+  var PRESET = {
+    A: { disc: [10, 7.5, 5], rise: [5, 7.5, 10] },
+    B: { disc: [9, 7, 4.5], rise: [4, 7, 11] }
+  };
+  var st = { D: 250, p: { A: PRESET.A.disc.slice(), B: PRESET.B.rise.slice() }, qA: 125 };
+
+  // ---- exact computations ----
+  // Real piecewise cost: tiers must be bought in order
+  function f(p, q) {
+    var c = 0, left = q;
+    for (var k = 0; k < 3; k++) { var u = Math.min(LEN[k], Math.max(0, left)); c += u * p[k]; left -= u; }
+    return c;
+  }
+  // What the segment LP without binaries "sees" for one mill: cheapest segments first (convex envelope)
+  function env(p, q) {
+    var idx = [0, 1, 2].sort(function (a, b) { return p[a] - p[b] || a - b; });
+    var c = 0, left = q;
+    idx.forEach(function (k) { var u = Math.min(LEN[k], Math.max(0, left)); c += u * p[k]; left -= u; });
+    return c;
+  }
+  function shape(p) {
+    if (p[0] <= p[1] && p[1] <= p[2]) return "convex";
+    if (p[0] >= p[1] && p[1] >= p[2]) return "concave";
+    return "mixed";
+  }
+  function range(D) { return { lo: Math.max(0, D - CAP), hi: Math.min(CAP, D) }; }
+  function cands(D) {
+    var r = range(D), set = {};
+    [r.lo, r.hi].concat(BP, BP.map(function (b) { return D - b; })).forEach(function (q) {
+      if (q >= r.lo && q <= r.hi) set[q] = true;
+    });
+    return Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
+  }
+  function g(qA) { return f(st.p.A, qA) + f(st.p.B, st.D - qA); }
+  function gEnv(qA) { return env(st.p.A, qA) + env(st.p.B, st.D - qA); }
+
+  // True optimum: g is piecewise linear in qA, so check every breakpoint and both ends
+  function trueOpt() {
+    var best = null;
+    cands(st.D).forEach(function (q) { var v = g(q); if (!best || v < best.v - 1e-9) best = { v: v, qA: q }; });
+    return best;
+  }
+
+  // LP without binaries: 0 <= s_k <= len_k, the cheapest segments of both mills first
+  function lpSolve() {
+    var segs = [];
+    MILLS.forEach(function (m, mi) { for (var k = 0; k < 3; k++) segs.push({ m: m, mi: mi, k: k, p: st.p[m][k] }); });
+    segs.sort(function (a, b) { return a.p - b.p || a.k - b.k || a.mi - b.mi; });
+    var s = { A: [0, 0, 0], B: [0, 0, 0] }, left = st.D, v = 0;
+    segs.forEach(function (sg) { var u = Math.min(LEN[sg.k], left); s[sg.m][sg.k] = u; v += u * sg.p; left -= u; });
+    var res = { v: v, s: s, q: {}, claim: {}, bad: {}, valid: true };
+    MILLS.forEach(function (m) {
+      res.q[m] = s[m][0] + s[m][1] + s[m][2];
+      res.claim[m] = s[m][0] * st.p[m][0] + s[m][1] * st.p[m][1] + s[m][2] * st.p[m][2];
+      // out of order: tier k used while an earlier tier is not full
+      var worst = null;
+      for (var k = 1; k < 3; k++) {
+        if (s[m][k] > 0) {
+          var miss = [];
+          for (var i = 0; i < k; i++) if (s[m][i] < LEN[i]) miss.push(i);
+          if (miss.length) worst = { k: k, miss: miss };
+        }
+      }
+      res.bad[m] = worst;
+      if (worst) res.valid = false;
+    });
+    res.real = f(st.p.A, res.q.A) + f(st.p.B, res.q.B);
+    return res;
+  }
+
+  // MILP with binaries, solved exactly by enumerating which tiers are open (4 patterns per mill).
+  // Pattern n: tiers 1..n-1 full (delta = 1), tier n partial, later tiers closed (delta = 0).
+  function milpSolve() {
+    var best = null;
+    for (var nA = 0; nA <= 3; nA++) for (var nB = 0; nB <= 3; nB++) {
+      var n = { A: nA, B: nB }, s = { A: [0, 0, 0], B: [0, 0, 0] }, cost = 0, left = st.D, parts = [];
+      MILLS.forEach(function (m) {
+        for (var k = 0; k < n[m] - 1; k++) { s[m][k] = LEN[k]; cost += LEN[k] * st.p[m][k]; left -= LEN[k]; }
+        if (n[m] > 0) parts.push({ m: m, k: n[m] - 1, p: st.p[m][n[m] - 1] });
+      });
+      var room = parts.reduce(function (a, pt) { return a + LEN[pt.k]; }, 0);
+      if (left < 0 || left > room) continue;
+      parts.sort(function (a, b) { return a.p - b.p; });
+      parts.forEach(function (pt) { var u = Math.min(LEN[pt.k], left); s[pt.m][pt.k] = u; cost += u * pt.p; left -= u; });
+      if (!best || cost < best.v - 1e-9) best = { v: cost, s: s };
+    }
+    best.q = { A: best.s.A[0] + best.s.A[1] + best.s.A[2], B: best.s.B[0] + best.s.B[1] + best.s.B[2] };
+    best.d = {};
+    MILLS.forEach(function (m) { best.d[m] = best.s[m].map(function (x) { return x > 0 ? 1 : 0; }); });
+    return best;
+  }
+
+  // ---- mill panels (built once, texts through data-i18n) ----
+  var millsHost = $("mills");
+  MILLS.forEach(function (m) {
+    var sec = document.createElement("section");
+    sec.className = "panel mill";
+    var sliders = [0, 1, 2].map(function (k) {
+      return '<div class="ctl"><label for="p' + m + k + '" id="pl' + m + k + '"></label>' +
+        '<output id="po' + m + k + '" for="p' + m + k + '"></output>' +
+        '<input type="range" id="p' + m + k + '" min="1" max="15" step="0.5"></div>';
+    }).join("");
+    var rows = [0, 1, 2].map(function (k) {
+      return '<div class="sbl" id="sbl' + m + k + '"></div>' +
+        '<div class="sbc"><div class="trk" id="tl' + m + k + '"><i></i><span></span></div></div>' +
+        '<div class="sbc"><div class="trk milp" id="tm' + m + k + '"><i></i><span></span></div><b class="dchip" id="dc' + m + k + '"></b></div>';
+    }).join("");
+    sec.innerHTML =
+      '<div class="millhead"><h2><span class="kicker" data-i18n="pw.mill.kicker"></span><span data-i18n="pw.mill.' + m + '"></span></h2>' +
+      '<span class="badge" id="badge' + m + '"></span></div>' +
+      '<div class="seg" role="group" data-i18n-attr="aria-label:pw.mill.schedAria' + m + '">' +
+      '<button type="button" data-m="' + m + '" data-shape="disc" data-i18n="pw.shape.disc"></button>' +
+      '<button type="button" data-m="' + m + '" data-shape="rise" data-i18n="pw.shape.rise"></button></div>' +
+      '<div class="prices">' + sliders + '</div>' +
+      '<div class="chartbox" id="cbox' + m + '"><svg class="chart" id="csvg' + m + '" role="img" data-i18n-attr="aria-label:pw.chart.aria' + m + '"></svg></div>' +
+      '<div class="legend">' +
+      '<span><svg class="ln" viewBox="0 0 22 10" aria-hidden="true"><line x1="0" y1="5" x2="22" y2="5" stroke="var(--ink)" stroke-width="2"/></svg><span data-i18n="pw.lg.f"></span></span>' +
+      '<span><svg class="ln" viewBox="0 0 22 10" aria-hidden="true"><line x1="0" y1="5" x2="22" y2="5" stroke="var(--crit)" stroke-width="2" stroke-dasharray="5 3"/></svg><span data-i18n="pw.lg.env"></span></span>' +
+      '<span><svg class="sw" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="var(--accent)"/></svg><span data-i18n="pw.lg.opt"></span></span>' +
+      '<span><svg class="sw" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" fill="none" stroke="var(--crit)" stroke-width="2"/></svg><span data-i18n="pw.lg.lp"></span></span>' +
+      '</div>' +
+      '<div class="readout mreadout" id="mro' + m + '"></div>' +
+      '<div class="bars-title" data-i18n="pw.bars.title"></div>' +
+      '<div class="segbars"><span></span><span class="sbh" data-i18n="pw.bars.lp"></span><span class="sbh" data-i18n="pw.bars.milp"></span>' + rows + '</div>' +
+      '<div class="legend">' +
+      '<span><i class="swf" style="background:color-mix(in srgb, var(--mit-silver) 55%, transparent)"></i><span data-i18n="pw.lg.sLp"></span></span>' +
+      '<span><i class="swf" style="background:color-mix(in srgb, var(--crit) 38%, transparent);outline:1px solid var(--crit)"></i><span data-i18n="pw.lg.sBad"></span></span>' +
+      '<span><i class="swf" style="background:color-mix(in srgb, var(--ink) 30%, transparent)"></i><span data-i18n="pw.lg.sMilp"></span></span>' +
+      '<span><i class="swf" style="background:var(--accent)"></i><span data-i18n="pw.lg.delta"></span></span>' +
+      '</div>';
+    millsHost.appendChild(sec);
+  });
+
+  // ---- inputs ----
+  function syncInputs() {
+    $("dem").value = st.D;
+    MILLS.forEach(function (m) { for (var k = 0; k < 3; k++) $("p" + m + k).value = st.p[m][k]; });
+  }
+  $("dem").addEventListener("input", function () { st.D = +this.value; render(); });
+  MILLS.forEach(function (m) {
+    for (var k = 0; k < 3; k++) (function (k) {
+      $("p" + m + k).addEventListener("input", function () { st.p[m][k] = +this.value; render(); });
+    })(k);
+  });
+  millsHost.querySelectorAll(".seg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var m = b.getAttribute("data-m");
+      st.p[m] = PRESET[m][b.getAttribute("data-shape")].slice();
+      syncInputs(); render();
+    });
+  });
+  $("split").addEventListener("input", function () { st.qA = +this.value; render(); });
+  var last = null;
+  $("goOpt").addEventListener("click", function () { if (last) { st.qA = last.milp.q.A; render(); } });
+  $("goLp").addEventListener("click", function () { if (last) { st.qA = last.lp.q.A; render(); } });
+
+  // drag on the total-cost chart
+  var gGeom = null, dragging = false;
+  function fromPointer(ev) {
+    if (!gGeom) return;
+    var svg = $("gsvg"), rect = svg.getBoundingClientRect();
+    var x = (ev.clientX - rect.left) * gGeom.W / rect.width;
+    var q = gGeom.inv(x), r = range(st.D);
+    q = Math.round(q / 5) * 5;
+    st.qA = Math.max(r.lo, Math.min(r.hi, q));
+    render();
+  }
+  $("gsvg").addEventListener("pointerdown", function (ev) { dragging = true; try { this.setPointerCapture(ev.pointerId); } catch (e) { /* ok */ } fromPointer(ev); });
+  $("gsvg").addEventListener("pointermove", function (ev) { if (dragging) fromPointer(ev); });
+  ["pointerup", "pointercancel"].forEach(function (n) { $("gsvg").addEventListener(n, function () { dragging = false; }); });
+
+  // ---- chart helpers ----
+  function niceStep(span, target) {
+    var raw = span / target, pow = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / pow;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * pow;
+  }
+  function widthOf(box) { return Math.max(280, Math.round(box.clientWidth || 440)); }
+  function ptxt(x, y, s, attrs) {
+    return '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" ' + (attrs || "") + ">" + esc(s) + "</text>";
+  }
+
+  // Cost curve of one mill
+  function drawMill(m, R) {
+    var box = $("cbox" + m), svg = $("csvg" + m);
+    var W = widthOf(box), H = W < 420 ? 220 : 240;
+    var ml = 50, mr = 12, mt = 30, mb = 36;
+    var yMaxRaw = Math.max(f(st.p.A, CAP), f(st.p.B, CAP));
+    var step = niceStep(yMaxRaw, 4), yMax = Math.ceil(yMaxRaw * 1.04 / step) * step;
+    var X = function (q) { return ml + q / CAP * (W - ml - mr); };
+    var Y = function (c) { return mt + (1 - c / yMax) * (H - mt - mb); };
+    var p = st.p[m], out = [];
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    // tiers
+    for (var k = 0; k < 3; k++) {
+      var x0 = X(BP[k]), x1 = X(BP[k + 1]);
+      if (k % 2 === 0) out.push('<rect x="' + x0 + '" y="' + mt + '" width="' + (x1 - x0) + '" height="' + (H - mt - mb) + '" fill="var(--region)" opacity="0.55"/>');
+      out.push(ptxt((x0 + x1) / 2, mt - 16, t("pw.chart.tier", { k: k + 1 }), 'text-anchor="middle" font-size="10.5" fill="var(--muted)"'));
+      out.push(ptxt((x0 + x1) / 2, mt - 4, ppt(p[k]), 'text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--ink2)"'));
+    }
+    // grid and axes
+    for (var c = 0; c <= yMax + 1e-9; c += step) {
+      out.push('<line x1="' + ml + '" x2="' + (W - mr) + '" y1="' + Y(c) + '" y2="' + Y(c) + '" stroke="var(--grid)"/>');
+      out.push(ptxt(ml - 6, Y(c) + 4, fmt(c, 0), 'text-anchor="end" font-size="10.5" fill="var(--muted)"'));
+    }
+    BP.forEach(function (b) { out.push(ptxt(X(b), H - mb + 15, fmt(b, 0), 'text-anchor="middle" font-size="10.5" fill="var(--muted)"')); });
+    out.push('<line x1="' + ml + '" x2="' + (W - mr) + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="var(--axis)"/>');
+    out.push(ptxt((ml + W - mr) / 2, H - 4, t("pw.chart.xm", { m: m }), 'text-anchor="middle" font-size="11" fill="var(--ink2)"'));
+    out.push(ptxt(4, mt - 16, t("pw.chart.y"), 'font-size="10.5" fill="var(--muted)"'));
+    // curves: what the LP sees (dashed) and the real cost (solid)
+    var sh = shape(p);
+    var envPts = BP.map(function (b) { return X(b).toFixed(1) + "," + Y(env(p, b)).toFixed(1); }).join(" ");
+    var fPts = BP.map(function (b) { return X(b).toFixed(1) + "," + Y(f(p, b)).toFixed(1); }).join(" ");
+    out.push('<polyline points="' + fPts + '" fill="none" stroke="var(--ink)" stroke-width="2.2"/>');
+    out.push('<polyline points="' + envPts + '" fill="none" stroke="' + (sh === "convex" ? "var(--muted)" : "var(--crit)") + '" stroke-width="2" stroke-dasharray="6 4"/>');
+    // optimum (MILP)
+    var qo = R.milp.q[m], xo = X(qo), yo = Y(f(p, qo));
+    out.push('<line x1="' + xo + '" x2="' + xo + '" y1="' + yo + '" y2="' + Y(0) + '" stroke="var(--accent)" stroke-dasharray="2 3"/>');
+    // LP answer: claimed cost on the dashed curve, and its real cost on the solid curve
+    var ql = R.lp.q[m], xl = X(ql), yc = Y(R.lp.claim[m]), yr = Y(f(p, ql)), bad = !!R.lp.bad[m];
+    var lcol = bad ? "var(--crit)" : "var(--ink2)";
+    if (Math.abs(yr - yc) > 1) {
+      out.push('<line x1="' + xl + '" x2="' + xl + '" y1="' + yc + '" y2="' + yr + '" stroke="var(--crit)" stroke-width="1.5" stroke-dasharray="2 3"/>');
+      out.push('<path d="M' + (xl - 4) + ' ' + (yr - 4) + 'l8 8m0 -8l-8 8" stroke="var(--crit)" stroke-width="2"/>');
+      out.push(ptxt(xl + 8, yr + 4, t("pw.chart.real"), 'font-size="11" fill="var(--crit)" stroke="var(--halo)" stroke-width="3" paint-order="stroke"'));
+    }
+    out.push('<circle cx="' + xo + '" cy="' + yo + '" r="5.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.5"/>');
+    out.push('<circle cx="' + xl + '" cy="' + yc + '" r="8" fill="none" stroke="' + lcol + '" stroke-width="2"/>');
+    var labRight = xl < W - 60;
+    out.push(ptxt(xl + (labRight ? 11 : -11), yc + 15, t("pw.chart.lp"), 'font-size="11" font-weight="600" fill="' + lcol + '" text-anchor="' + (labRight ? "start" : "end") + '" stroke="var(--halo)" stroke-width="3" paint-order="stroke"'));
+    svg.innerHTML = out.join("");
+  }
+
+  // Total cost g(qA) for every split
+  function drawG(R) {
+    var box = $("gbox"), svg = $("gsvg");
+    var W = widthOf(box), H = W < 420 ? 240 : 280;
+    var ml = 56, mr = 14, mt = 18, mb = 40;
+    var D = st.D, r = range(D), qs = cands(D);
+    var vals = [];
+    qs.forEach(function (q) { vals.push(g(q), gEnv(q)); });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    if (hi - lo < 1) { hi += 50; lo -= 50; }
+    var step = niceStep(hi - lo, 4);
+    var yMin = Math.max(0, Math.floor((lo - (hi - lo) * 0.08) / step) * step), yMax = Math.ceil((hi + (hi - lo) * 0.06) / step) * step;
+    var X = function (q) { return ml + q / D * (W - ml - mr); };
+    var Y = function (c) { return mt + (1 - (c - yMin) / (yMax - yMin)) * (H - mt - mb); };
+    gGeom = { W: W, inv: function (x) { return (x - ml) / (W - ml - mr) * D; } };
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var out = [];
+    // infeasible parts of the axis (a mill over its 300 t capacity)
+    if (r.lo > 0) out.push('<rect x="' + X(0) + '" y="' + mt + '" width="' + (X(r.lo) - X(0)) + '" height="' + (H - mt - mb) + '" fill="var(--region)"/>');
+    if (r.hi < D) out.push('<rect x="' + X(r.hi) + '" y="' + mt + '" width="' + (X(D) - X(r.hi)) + '" height="' + (H - mt - mb) + '" fill="var(--region)"/>');
+    if (r.lo > 0 && X(r.lo) - X(0) > 70) out.push(ptxt((X(0) + X(r.lo)) / 2, mt + 16, t("pw.g.infeasB"), 'text-anchor="middle" font-size="10.5" fill="var(--muted)"'));
+    if (r.hi < D && X(D) - X(r.hi) > 70) out.push(ptxt((X(r.hi) + X(D)) / 2, mt + 16, t("pw.g.infeasA"), 'text-anchor="middle" font-size="10.5" fill="var(--muted)"'));
+    for (var c = yMin; c <= yMax + 1e-9; c += step) {
+      out.push('<line x1="' + ml + '" x2="' + (W - mr) + '" y1="' + Y(c) + '" y2="' + Y(c) + '" stroke="var(--grid)"/>');
+      out.push(ptxt(ml - 6, Y(c) + 4, fmt(c, 0), 'text-anchor="end" font-size="10.5" fill="var(--muted)"'));
+    }
+    var xstep = D <= 120 ? 25 : D <= 250 ? 50 : 100;
+    for (var q = 0; q <= D + 1e-9; q += xstep) out.push(ptxt(X(q), H - mb + 15, fmt(q, 0), 'text-anchor="middle" font-size="10.5" fill="var(--muted)"'));
+    out.push('<line x1="' + ml + '" x2="' + (W - mr) + '" y1="' + (H - mb) + '" y2="' + (H - mb) + '" stroke="var(--axis)"/>');
+    out.push(ptxt((ml + W - mr) / 2, H - 5, t("pw.g.x", { d: fmt(D, 0) }), 'text-anchor="middle" font-size="11" fill="var(--ink2)"'));
+    var gp = qs.map(function (q) { return X(q).toFixed(1) + "," + Y(g(q)).toFixed(1); }).join(" ");
+    var ep = qs.map(function (q) { return X(q).toFixed(1) + "," + Y(gEnv(q)).toFixed(1); }).join(" ");
+    out.push('<polyline points="' + ep + '" fill="none" stroke="var(--crit)" stroke-width="2" stroke-dasharray="6 4"/>');
+    out.push('<polyline points="' + gp + '" fill="none" stroke="var(--ink)" stroke-width="2.4"/>');
+    // LP split (real cost) and optimum
+    var xl = X(R.lp.q.A), yl = Y(R.lp.real);
+    out.push('<circle cx="' + xl + '" cy="' + yl + '" r="8" fill="none" stroke="' + (R.lp.valid ? "var(--ink2)" : "var(--crit)") + '" stroke-width="2"/>');
+    var xo = X(R.milp.q.A), yo = Y(R.milp.v);
+    out.push('<circle cx="' + xo + '" cy="' + yo + '" r="6" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.5"/>');
+    out.push(ptxt(xo, yo + 22, t("pw.chart.opt"), 'text-anchor="middle" font-size="11" font-weight="600" fill="var(--accent-text)" stroke="var(--halo)" stroke-width="3" paint-order="stroke"'));
+    // user handle
+    var xu = X(st.qA), yu = Y(g(st.qA));
+    out.push('<line x1="' + xu + '" x2="' + xu + '" y1="' + mt + '" y2="' + (H - mb) + '" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="3 3"/>');
+    out.push('<rect x="' + (xu - 5) + '" y="' + (yu - 5) + '" width="10" height="10" fill="var(--ink)" stroke="var(--surface)" stroke-width="1.5"/>');
+    out.push('<rect x="' + (xu - 7) + '" y="' + (H - mb - 7) + '" width="14" height="14" fill="var(--ink)" rx="2"/>');
+    svg.innerHTML = out.join("");
+  }
+
+  // ---- main render ----
+  function render() {
+    var lp = lpSolve(), milp = milpSolve(), opt = trueOpt();
+    if (Math.abs(opt.v - milp.v) > 1e-6) console.warn("MILP and breakpoint optimum differ", opt, milp);
+    var R = last = { lp: lp, milp: milp };
+    var r = range(st.D);
+    st.qA = Math.max(r.lo, Math.min(r.hi, st.qA));
+
+    // demand and stats
+    $("demOut").textContent = tons(st.D);
+    var sp = { a: fmt(milp.q.A, 0), b: fmt(milp.q.B, 0) };
+    $("stOpt").textContent = money(milp.v);
+    $("stOptS").textContent = t("pw.st.split", sp);
+    $("stLp").textContent = money(lp.v);
+    $("stLpS").textContent = t(lp.valid ? "pw.st.lpOk" : "pw.st.lpBad");
+    $("stLpBox").className = "stat lp " + (lp.valid ? "ok" : "bad");
+    $("stReal").textContent = money(lp.real);
+    $("stRealS").textContent = t("pw.st.split", { a: fmt(lp.q.A, 0), b: fmt(lp.q.B, 0) });
+    var gap = milp.v - lp.v;
+    $("stGap").textContent = money(gap);
+    $("stGapS").textContent = gap > 0.5 ? t("pw.st.gapPct", { p: fmt(gap / milp.v * 100, 1) }) : t("pw.st.gapNone");
+    [$("stOpt"), $("stLp"), $("stReal"), $("stGap")].forEach(function (el, i) {
+      el.setAttribute("data-v", [milp.v, lp.v, lp.real, gap][i]);
+    });
+    $("stOpt").setAttribute("data-qa", milp.q.A);
+    $("stReal").setAttribute("data-qa", lp.q.A);
+    $("stLp").setAttribute("data-valid", lp.valid ? "1" : "0");
+
+    // live explanation
+    var allConvex = MILLS.every(function (m) { return shape(st.p[m]) === "convex"; });
+    var mode = allConvex ? "convex" : lp.valid ? "lucky" : "cheat";
+    $("verdict").className = "verdict " + mode;
+    $("verdict").setAttribute("data-mode", mode);
+    $("verdictText").innerHTML = t("pw.ex." + mode, { lp: money(lp.v), real: money(lp.real), opt: money(milp.v) });
+    var fl = $("flags"); fl.textContent = "";
+    MILLS.forEach(function (m) {
+      var b = lp.bad[m]; if (!b) return;
+      var li = document.createElement("li");
+      li.textContent = t(b.miss.length > 1 ? "pw.flag2" : "pw.flag1", {
+        m: t("pw.mill." + m), k: b.k + 1, p: ppt(st.p[m][b.k]),
+        a: b.miss[0] + 1, b: b.miss.length > 1 ? b.miss[1] + 1 : ""
+      });
+      fl.appendChild(li);
+    });
+
+    // mills
+    MILLS.forEach(function (m) {
+      var p = st.p[m], sh = shape(p);
+      var badge = $("badge" + m);
+      badge.className = "badge " + sh;
+      badge.textContent = t("pw.badge." + sh);
+      millsHost.querySelectorAll('.seg button[data-m="' + m + '"]').forEach(function (b) {
+        var s = b.getAttribute("data-shape");
+        var on = (s === "rise" && sh === "convex") || (s === "disc" && sh === "concave" && !(p[0] === p[1] && p[1] === p[2]));
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      for (var k = 0; k < 3; k++) {
+        $("pl" + m + k).textContent = t("pw.tierLabel", { k: k + 1, a: fmt(BP[k], 0), b: fmt(BP[k + 1], 0) });
+        $("po" + m + k).textContent = ppt(p[k]);
+        $("sbl" + m + k).innerHTML = "<b>" + esc(t("pw.bars.tier", { k: k + 1 })) + "</b><br>" + esc(ppt(p[k]));
+        var sl = lp.s[m][k], sm = milp.s[m][k];
+        var badTier = !!lp.bad[m] && sl > 0 && (function () { for (var i = 0; i < k; i++) if (lp.s[m][i] < LEN[i]) return true; return false; })();
+        var tl = $("tl" + m + k), tm = $("tm" + m + k);
+        tl.className = "trk" + (badTier ? " bad" : "");
+        tl.querySelector("i").style.width = (sl / LEN[k] * 100) + "%";
+        tl.querySelector("span").textContent = tons(sl) + (badTier ? " !" : "");
+        tm.querySelector("i").style.width = (sm / LEN[k] * 100) + "%";
+        tm.querySelector("span").textContent = tons(sm);
+        var dc = $("dc" + m + k);
+        dc.className = "dchip" + (milp.d[m][k] ? " on" : "");
+        dc.textContent = t("pw.bars.delta", { k: k + 1, v: milp.d[m][k] });
+      }
+      $("mro" + m).innerHTML = t("pw.mill.readout", {
+        q: fmt(milp.q[m], 0), c: money(f(p, milp.q[m])),
+        ql: fmt(lp.q[m], 0), cl: money(lp.claim[m]), cr: money(f(p, lp.q[m]))
+      });
+      drawMill(m, R);
+    });
+
+    // your split
+    var sl2 = $("split");
+    sl2.min = r.lo; sl2.max = r.hi; sl2.value = st.qA;
+    $("splitOut").textContent = t("pw.st.split", { a: fmt(st.qA, 0), b: fmt(st.D - st.qA, 0) });
+    var gy = g(st.qA), over = gy - milp.v;
+    $("you").innerHTML = t(over > 0.5 ? "pw.you.over" : "pw.you.opt", {
+      a: fmt(st.qA, 0), b: fmt(st.D - st.qA, 0), c: money(gy), d: money(over)
+    });
+    $("you").setAttribute("data-v", gy);
+    drawG(R);
+  }
+
+  if (window.ResizeObserver) {
+    var rw = null;
+    new ResizeObserver(function () { if (last) { cancelAnimationFrame(rw); rw = requestAnimationFrame(render); } }).observe($("mills"));
+  }
+  syncInputs();
+  I18N.onChange(render);
+})();
+</script>
+</body>
+</html>

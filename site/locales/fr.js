@@ -133,6 +133,20 @@ I18N.register("fr", {
   "resource.edu-newsvendor.title": "Combien de journaux ?",
   "resource.edu-newsvendor.summary": "Commandez le stock avant de connaître la demande, jouez de nombreuses journées simulées et découvrez la quantité qui équilibre invendus et ventes perdues.",
 
+  /* ---- Niveau 3 · Programmation linéaire mixte en nombres entiers ---- */
+  "resource.milp-mixed-set.title": "Points, segments et régions",
+  "resource.milp-mixed-set.summary": "Voyez comment les mêmes contraintes donnent un polygone, un ensemble de tranches ou une grille de points dès que certaines variables doivent être entières, et pourquoi le PL est une borne et l'arrondi une simple heuristique.",
+  "resource.milp-logic.title": "Dites-le avec des contraintes",
+  "resource.milp-logic.summary": "Traduisez des règles d'usine qui mêlent décisions oui ou non et quantités en contraintes linéaires, et laissez un vérificateur montrer quels plans chaque formulation élimine ou laisse passer.",
+  "resource.milp-bigm.title": "Quelle taille pour M ?",
+  "resource.milp-bigm.summary": "Déplacez les valeurs de big-M dans un modèle « l'un ou l'autre » et voyez comment un M trop petit supprime de bons plans, un M trop grand affaiblit la relaxation linéaire et le plus petit M valide coïncide avec l'enveloppe convexe.",
+  "resource.milp-piecewise.title": "Remises sur volume",
+  "resource.milp-piecewise.summary": "Des coûts linéaires par morceaux chez deux moulins : voyez pourquoi des prix croissants tiennent dans un simple PL, alors que les remises sur volume exigent des variables binaires pour empêcher le PL d'acheter d'abord la dernière tranche bon marché.",
+  "resource.milp-lot-sizing.title": "Produire maintenant ou plus tard",
+  "resource.milp-lot-sizing.summary": "Choisissez les semaines où une confiturerie lance un lot, en arbitrant entre coûts fixes de lancement et coûts de stockage, et découvrez pourquoi le lancement binaire et un big-M serré comptent.",
+  "resource.milp-runway.title": "Autorisé à atterrir",
+  "resource.milp-runway.summary": "Regardez les arrivées se poser sur une piste chargée, d'abord dans l'ordre d'arrivée puis dans l'ordre choisi par un modèle mixte en nombres entiers, et essayez de faire mieux vous-même.",
+
   /* ================= Modèle de ressource (resources/_template.html) ================= */
   "tpl.title": "Modèle de ressource",
   "tpl.eyebrow": "Niveau 1 · Programmation linéaire · <b>Simulation</b>",

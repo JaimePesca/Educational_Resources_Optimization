@@ -133,6 +133,20 @@ I18N.register("es", {
   "resource.edu-newsvendor.title": "¿Cuántos Periódicos?",
   "resource.edu-newsvendor.summary": "Pide inventario antes de conocer la demanda, juega muchos días simulados y descubre el tamaño de pedido que equilibra los sobrantes y las ventas perdidas.",
 
+  /* ---- Nivel 3 · Programación entera mixta ---- */
+  "resource.milp-mixed-set.title": "Puntos, segmentos y regiones",
+  "resource.milp-mixed-set.summary": "Mira cómo las mismas restricciones dan un polígono, un conjunto de rebanadas o una malla de puntos cuando algunas variables deben ser enteras, y por qué el PL es una cota y redondear es solo una heurística.",
+  "resource.milp-logic.title": "Dilo con restricciones",
+  "resource.milp-logic.summary": "Convierte reglas de una planta que mezclan decisiones de sí o no y cantidades en restricciones lineales, y deja que un verificador muestre qué planes recorta o deja pasar cada formulación.",
+  "resource.milp-bigm.title": "¿Qué tan grande es M?",
+  "resource.milp-bigm.summary": "Mueve los valores de M grande en un modelo de uno u otro y observa cómo uno muy pequeño recorta buenos planes, uno muy grande debilita la relajación lineal y el más ajustado coincide con la envolvente convexa.",
+  "resource.milp-piecewise.title": "Descuentos por volumen",
+  "resource.milp-piecewise.summary": "Costos lineales por tramos de dos molinos: mira por qué los precios crecientes caben en un PL simple, mientras que los descuentos por volumen necesitan variables binarias para que el PL no compre primero el último tramo barato.",
+  "resource.milp-lot-sizing.title": "Producir ahora o después",
+  "resource.milp-lot-sizing.summary": "Elige en qué semanas una fábrica de mermeladas produce un lote, equilibrando costos fijos de preparación y costos de almacenamiento, y descubre por qué importan la preparación binaria y una M grande ajustada.",
+  "resource.milp-runway.title": "Autorizado para aterrizar",
+  "resource.milp-runway.summary": "Mira los aterrizajes en una pista congestionada, primero en orden de llegada y luego en el orden que elige un modelo entero mixto, y trata de superarlo tú mismo.",
+
   /* ================= Plantilla de recurso (resources/_template.html) ================= */
   "tpl.title": "Plantilla de Recurso",
   "tpl.eyebrow": "Nivel 1 · Programación lineal · <b>Simulación</b>",

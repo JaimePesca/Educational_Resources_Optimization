@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en" data-title-key="mlogic.title" data-i18n-bundles="resources/milp-logic">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Say It with Constraints</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1000px; }
+
+  /* variable symbols: binary in accent, continuous in ink */
+  .vb { color: var(--accent-text); font-weight: 600; }
+  .vc { color: var(--ink); font-weight: 600; }
+  .fx { font-family: var(--font-mono); font-size: 14px; color: var(--ink); line-height: 1.6; }
+  .fx sub, .vb sub, .vc sub { font-size: 0.72em; line-height: 0; }
+  .tag {
+    display: inline-block; font: 600 10.5px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 2px; vertical-align: 1px; white-space: nowrap;
+  }
+  .tag.bin { background: var(--accent); color: var(--on-solid); }
+  .tag.cont { border: 1px solid var(--ink2); color: var(--ink); padding: 1px 5px; }
+  .tag.data { border: 1px dashed var(--mit-silver); color: var(--ink2); padding: 1px 5px; }
+
+  /* navigation */
+  .navrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .lvbtn {
+    font: 600 13.5px var(--font-sans); padding: 8px 12px; min-height: 38px; border-radius: 2px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink2); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; text-align: left;
+  }
+  .lvbtn[aria-current="true"] { background: var(--ink); color: var(--on-solid); border-color: var(--ink); }
+  .lvbtn .st { font: 600 12px var(--font-mono); opacity: 0.9; }
+  .cardbtn {
+    font: 600 13px var(--font-mono); min-width: 52px; min-height: 42px; padding: 4px 8px; border-radius: 2px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink2); cursor: pointer;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15;
+  }
+  .cardbtn .st { font-size: 10.5px; letter-spacing: 1px; color: var(--accent-text); }
+  .cardbtn .st .off { color: var(--axis); }
+  .cardbtn[aria-current="true"] { border: 2px solid var(--accent); color: var(--ink); }
+  .navrow .spacer { flex: 1; }
+
+  /* game card */
+  .game { display: grid; gap: 16px; }
+  .cardhead h2 { font-size: 21px; margin: 0; letter-spacing: -0.01em; }
+  .rule {
+    margin: 0; font-size: 16.5px; line-height: 1.55; color: var(--ink);
+    border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; max-width: 72ch;
+  }
+  .sublabel {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 6px;
+  }
+  .varlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; color: var(--ink2); }
+  .varlist li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+  .varlist .dom { font-family: var(--font-mono); font-size: 13.5px; white-space: nowrap; }
+
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .opt {
+    display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: start; text-align: left;
+    font: inherit; color: var(--ink); background: var(--surface); cursor: pointer;
+    border: 1.5px solid var(--border); border-radius: 3px; padding: 10px 12px; min-height: 52px;
+  }
+  .opt:hover { border-color: var(--ink2); }
+  .opt .letter {
+    width: 28px; height: 28px; display: grid; place-items: center; border-radius: 2px;
+    background: var(--surface2); border: 1px solid var(--border); font: 600 13px var(--font-mono); color: var(--ink2);
+  }
+  .opt .lines { display: grid; gap: 2px; padding-top: 2px; }
+  .opt .otag { grid-column: 2; justify-self: start; }
+  .opt[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .opt[aria-pressed="true"] .letter { background: var(--ink); color: var(--on-solid); border-color: var(--ink); }
+  .opt.right { border-color: var(--good); }
+  .opt.wrong { border-color: var(--crit); }
+  .otag { font: 600 11px var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase; }
+  .otag.ok { color: var(--good-text); }
+  .otag.bad { color: var(--crit); }
+
+  /* result */
+  .res { border-left: 4px solid var(--border); padding: 4px 0 4px 14px; display: grid; gap: 8px; }
+  .res.ok { border-left-color: var(--good); }
+  .res.bad { border-left-color: var(--crit); }
+  .res .verdict { font-weight: 700; font-size: 20px; margin: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+  .stars { font-size: 18px; letter-spacing: 3px; color: var(--accent-text); }
+  .stars .off { color: var(--axis); }
+  .stars .bonus { color: var(--mit-bright); }
+  .res p { margin: 0; color: var(--ink2); max-width: 74ch; }
+  .res p b { color: var(--ink); }
+  .why { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 10px 12px; }
+  .why .pat { font-weight: 700; color: var(--ink); margin: 0 0 4px; }
+  .why code, .res code, details code { font-family: var(--font-mono); font-size: 0.92em; color: var(--ink); white-space: nowrap; }
+
+  /* verifier table */
+  .ver { display: grid; gap: 8px; }
+  .ver .sum { margin: 0; font-size: 14px; color: var(--ink2); }
+  .ver .sum b { color: var(--ink); }
+  table.vt { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  table.vt th {
+    text-align: left; font-weight: 600; font-size: 11.5px; color: var(--muted); letter-spacing: 0.03em;
+    border-bottom: 1px solid var(--axis); padding: 6px 8px; vertical-align: bottom;
+  }
+  table.vt td { padding: 7px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; font-variant-numeric: tabular-nums; }
+  table.vt tr.mis td { background: var(--sel); }
+  table.vt tr.mis td:first-child { box-shadow: inset 3px 0 0 var(--crit); }
+  .plan { font-family: var(--font-mono); font-size: 13px; display: flex; flex-wrap: wrap; gap: 2px 12px; }
+  .plan span { white-space: nowrap; }
+  .yes { color: var(--ink); }
+  .no { color: var(--ink2); }
+  .detail { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .detail .fx { font-size: 12px; color: var(--ink2); }
+  .badge { font: 700 12px var(--font-sans); white-space: nowrap; }
+  .badge.cut, .badge.thr { color: var(--crit); }
+  .badge.okb { color: var(--good-text); font-weight: 600; }
+  .vnote { font-size: 12.5px; color: var(--muted); margin: 0; }
+  .vlegend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink2); margin: 0; }
+  .vlegend b { color: var(--crit); }
+
+  /* fractional point */
+  .frac { border: 1px solid var(--border); border-left: 3px solid var(--mit-silver); border-radius: 3px; padding: 10px 12px; display: grid; gap: 8px; background: var(--surface); }
+  .frac h3 { margin: 0; font-size: 14.5px; }
+  .frac p { margin: 0; font-size: 14px; color: var(--ink2); }
+  .frac ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .frac li { display: flex; flex-wrap: wrap; gap: 2px 12px; align-items: baseline; font-size: 13.5px; }
+  .frac .sat { color: var(--crit); font-weight: 600; }
+  .frac .vio { color: var(--good-text); font-weight: 600; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  button.btn {
+    font: 600 14px var(--font-sans); color: var(--on-solid); background: var(--accent);
+    border: 1.5px solid var(--accent); border-radius: 2px; padding: 9px 16px; min-height: 40px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.08); }
+  button.btn.quiet { background: transparent; color: var(--ink2); border-color: var(--border); }
+  .sumbox { border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 3px; padding: 12px 14px; display: grid; gap: 6px; background: var(--surface2); }
+  .sumbox h3 { margin: 0; font-size: 16px; }
+  .sumbox p { margin: 0; color: var(--ink2); font-size: 14px; }
+
+  /* cheat sheet */
+  .sheet { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .sheet li { display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: 4px 16px; padding: 8px 0; border-bottom: 1px solid var(--grid); align-items: baseline; }
+  .sheet li:last-child { border-bottom: none; }
+  .sheet .pn { font-weight: 600; font-size: 14px; }
+  .sheet .pn small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+  .sheet li.locked .pn, .sheet li.locked .fx { color: var(--muted); font-weight: 400; }
+  @media (max-width: 560px) { .sheet li { grid-template-columns: 1fr; } }
+
+  /* big-M lab inside the details */
+  .lab { display: grid; gap: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 12px; margin: 10px 0; }
+  .lab .ctl label .fx { font-size: 13px; }
+  .meter { height: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+  .meter i { display: block; height: 100%; background: var(--accent); width: 0; }
+  .lab .verdict2 { margin: 0; font-weight: 600; color: var(--ink); font-size: 14px; }
+  .chal { margin: 0; padding-left: 20px; display: grid; gap: 10px; }
+  .ans { margin-top: 6px; }
+  .ans button { font: 600 13px var(--font-sans); padding: 6px 12px; min-height: 34px; border-radius: 2px; border: 1px solid var(--border); background: var(--surface); color: var(--ink2); cursor: pointer; }
+  .ans p { margin: 6px 0 0; }
+  .formula sub { font-size: 0.75em; }
+  .fx.nw { white-space: nowrap; }
+  .sheet li.locked { padding: 5px 0; grid-template-columns: 1fr; font-size: 13.5px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="mlogic.eyebrow"></p>
+    <h1 data-i18n="mlogic.title"></h1>
+    <p class="lede" data-i18n-html="mlogic.lede"></p>
+  </header>
+
+  <nav class="navrow" id="levels" data-i18n-attr="aria-label:mlogic.levelsAria"></nav>
+
+  <div class="card game">
+    <div class="navrow" id="cards" role="group" data-i18n-attr="aria-label:mlogic.cardsAria"></div>
+
+    <div class="cardhead">
+      <span class="kicker" id="ckicker"></span>
+      <h2 id="ctitle"></h2>
+    </div>
+    <p class="rule" id="crule"></p>
+    <div>
+      <p class="sublabel" data-i18n="mlogic.vars"></p>
+      <ul class="varlist" id="cvars"></ul>
+    </div>
+    <div>
+      <p class="sublabel" data-i18n="mlogic.pick"></p>
+      <div class="opts" id="copts" role="group" data-i18n-attr="aria-label:mlogic.optionsAria"></div>
+    </div>
+
+    <div class="res" id="res" aria-live="polite"></div>
+
+    <div class="ver">
+      <h3 class="plain" style="margin:0"><span class="kicker" data-i18n="mlogic.ver.kicker"></span><span data-i18n="mlogic.ver.title"></span></h3>
+      <p class="sum" id="vsum"></p>
+      <p class="vlegend" id="vlegend"></p>
+      <div class="tblwrap" id="vwrap"></div>
+      <p class="vnote" id="vnote"></p>
+    </div>
+
+    <div id="fracbox"></div>
+    <div id="levelsum"></div>
+
+    <div class="actions">
+      <button class="btn" type="button" id="next" data-i18n="mlogic.btn.next"></button>
+      <button class="btn quiet" type="button" id="replay" data-i18n="mlogic.btn.replay"></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="mlogic.sheet.kicker"></span><span data-i18n="mlogic.sheet.title"></span></h2>
+    <p class="vnote" id="sheetcount" style="margin-bottom:6px"></p>
+    <ul class="sheet" id="sheet"></ul>
+  </div>
+
+  <section>
+    <details>
+      <summary data-i18n="mlogic.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="mlogic.d1.p1"></p>
+        <ul class="varlist" style="margin:8px 0">
+          <li><span class="tag bin" data-i18n="mlogic.type.bin"></span><span data-i18n-html="mlogic.d1.vbin"></span></li>
+          <li><span class="tag cont" data-i18n="mlogic.type.cont"></span><span data-i18n-html="mlogic.d1.vcont"></span></li>
+          <li><span class="tag data" data-i18n="mlogic.type.data"></span><span data-i18n-html="mlogic.d1.vdata"></span></li>
+        </ul>
+        <div class="formula" data-i18n-html="mlogic.d1.formula"></div>
+        <p data-i18n-html="mlogic.d1.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="mlogic.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="mlogic.d2.p1"></p>
+        <p data-i18n-html="mlogic.d2.p2"></p>
+        <div class="lab">
+          <div class="ctl">
+            <label for="bigm" data-i18n-html="mlogic.bm.label"></label>
+            <output id="bigmout" for="bigm"></output>
+            <input type="range" id="bigm" min="10" max="300" step="5" value="100">
+          </div>
+          <div class="readout" id="bmread"></div>
+          <div class="meter" role="img" id="bmmeter"><i id="bmfill"></i></div>
+          <p class="verdict2" id="bmverdict"></p>
+        </div>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="mlogic.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="mlogic.d3.p1"></p>
+        <p data-i18n-html="mlogic.d3.p2"></p>
+        <p data-i18n-html="mlogic.d3.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="mlogic.d4.title"></summary>
+      <div class="body">
+        <ol class="chal">
+          <li data-i18n-html="mlogic.ch1"></li>
+          <li data-i18n-html="mlogic.ch2"></li>
+          <li>
+            <span data-i18n-html="mlogic.ch3"></span>
+            <div class="ans">
+              <button type="button" id="ansbtn" aria-expanded="false" aria-controls="anstext"></button>
+              <p id="anstext" data-i18n-html="mlogic.ch3.ans" hidden></p>
+            </div>
+          </li>
+          <li data-i18n-html="mlogic.ch4"></li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="mlogic.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/milp-logic.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var LETTERS = ["A", "B", "C", "D"];
+  var EPS = 1e-9;
+
+  // ---------------------------------------------------------------------------
+  // Cards as data. Every option is a list of linear (in)equalities written as
+  // text over the card's variables; chains like "20y <= x <= 80y" are allowed.
+  // Every rule is a JS predicate on a plan. The verifier derives all verdicts.
+  // ok: correct option; tight / agg: the stronger or the aggregated correct form.
+  // aux: a helper binary the rule does not mention (the verifier looks for a value that works).
+  // ---------------------------------------------------------------------------
+  var B = function (id, sym, extra) { var v = { id: id, sym: sym, bin: true }; if (extra) for (var k in extra) v[k] = extra[k]; return v; };
+  var C = function (id, sym, lo, hi, unit, test) { return { id: id, sym: sym, bin: false, lo: lo, hi: hi, unit: unit, test: test }; };
+
+  var CARDS = [
+    // ---- level 1: switches ----
+    { n: 1, lv: 1, vars: [B("y1", "y<sub>1</sub>"), B("y2", "y<sub>2</sub>")],
+      rule: function (p) { return !(p.y1 === 1 && p.y2 === 1); },
+      opts: [{ f: ["y1 + y2 >= 1"] }, { f: ["y1 <= y2"] }, { f: ["y1 + y2 <= 1"], ok: true }, { f: ["y1 + y2 = 1"] }] },
+    { n: 2, lv: 1, vars: [B("yC", "y<sub>C</sub>"), B("yT", "y<sub>T</sub>")],
+      rule: function (p) { return !(p.yC === 1 && p.yT === 0); },
+      opts: [{ f: ["yC <= yT"], ok: true }, { f: ["yC >= yT"] }, { f: ["yC + yT <= 1"] }, { f: ["yC + yT = 1"] }] },
+    { n: 3, lv: 1, vars: [B("y1", "y<sub>1</sub>"), B("y2", "y<sub>2</sub>"), B("y3", "y<sub>3</sub>")],
+      rule: function (p) { return p.y1 + p.y2 + p.y3 >= 2; },
+      opts: [{ f: ["y1 + y2 + y3 = 2"] }, { f: ["y1 + y2 + y3 >= 2"], ok: true }, { f: ["y1 + y2 + y3 >= 1"] }, { f: ["y1 + y2 >= 1", "y2 + y3 >= 1"] }] },
+    { n: 4, lv: 1, vars: [B("y1", "y<sub>1</sub>"), B("y2", "y<sub>2</sub>"), B("z", "z")],
+      rule: function (p) { return p.z === (p.y1 === 1 && p.y2 === 1 ? 1 : 0); },
+      opts: [{ f: ["z <= y1", "z <= y2"] }, { f: ["z >= y1 + y2 - 1"] }, { f: ["2z = y1 + y2"] }, { f: ["z <= y1", "z <= y2", "z >= y1 + y2 - 1"], ok: true }] },
+
+    // ---- level 2: switches and quantities ----
+    { n: 5, lv: 2, vars: [C("x", "x", 0, 80, "t", [0, 0.5, 20, 40, 80]), B("y", "y")],
+      rule: function (p) { return !(p.x > 0 && p.y === 0); },
+      opts: [{ f: ["x >= 80y"] }, { f: ["x <= 80y"], ok: true }, { f: ["y <= x"] }, { f: ["x <= 80(1 - y)"] }] },
+    { n: 6, lv: 2, vars: [C("x", "x", 0, 80, "trays", [0, 5, 19, 20, 50, 80]), B("y", "y")],
+      rule: function (p) { return p.y === 0 ? p.x === 0 : (p.x >= 20 && p.x <= 80); },
+      opts: [{ f: ["x <= 80y"] }, { f: ["20 <= x <= 80y"] }, { f: ["x >= 20y"] }, { f: ["20y <= x <= 80y"], ok: true }] },
+    { n: 7, lv: 2, vars: [C("x", "x", 0, 80, "t", [0, 40, 50, 51, 70, 80]), B("y", "y")],
+      rule: function (p) { return p.x <= 50 || p.y === 1; },
+      opts: [{ f: ["x <= 50 + 30y"], ok: true }, { f: ["x >= 50y"] }, { f: ["x <= 30 + 50y"] }, { f: ["x <= 50 + 20y"] }] },
+    { n: 8, lv: 2, vars: [C("xB", "x<sub>B</sub>", 0, 100, "t", [0, 30, 31, 60, 80, 100]), B("y", "y")],
+      rule: function (p) { return p.y === 0 || p.xB <= 30; },
+      opts: [{ f: ["xB <= 30 + 70y"] }, { f: ["xB <= 30y"] }, { f: ["xB <= 30 + 70(1 - y)"], ok: true }, { f: ["xB <= 30 + 50(1 - y)"] }] },
+
+    // ---- level 3: big-M, products and strength ----
+    { n: 9, lv: 3, vars: [C("x1", "x<sub>1</sub>", 0, 60, "t", [0, 10, 20, 30, 60]), C("x2", "x<sub>2</sub>", 0, 60, "t", [0, 10, 20, 30, 60]), B("z", "z", { aux: true })],
+      rule: function (p) { return p.x1 <= 20 || p.x2 <= 20; },
+      opts: [{ f: ["x1 <= 20 + 10z", "x2 <= 20 + 10(1 - z)"] }, { f: ["x1 <= 20 + 40z", "x2 <= 20 + 40(1 - z)"], ok: true }, { f: ["x1 + x2 <= 40"] }, { f: ["x1 <= 20 + 40z", "x2 <= 20 + 40z"] }] },
+    { n: 10, lv: 3, vars: [B("y", "y"), C("x", "x", 0, 100, "t", [0, 30, 60, 100]), C("w", "w", 0, 100, "t", [0, 30, 60, 100])],
+      rule: function (p) { return Math.abs(p.w - p.y * p.x) < EPS; },
+      opts: [{ f: ["w <= 100y", "w <= x"] }, { f: ["w <= x", "w >= x - 100(1 - y)", "w >= 0"] }, { f: ["w <= 100y", "w <= x", "w >= x - 100(1 - y)", "w >= 0"], ok: true }, { f: ["w <= 100y", "w <= x", "w >= x - 100y", "w >= 0"] }] },
+    { n: 11, lv: 3, vars: [B("y1", "y<sub>1</sub>"), B("y2", "y<sub>2</sub>"), B("yP", "y<sub>P</sub>")],
+      rule: function (p) { return p.yP === 0 || (p.y1 === 1 && p.y2 === 1); },
+      opts: [{ f: ["yP <= y1 + y2"] }, { f: ["2yP <= y1 + y2"], ok: true, agg: true }, { f: ["yP <= y1", "yP <= y2"], ok: true, tight: true }, { f: ["yP >= y1 + y2 - 1"] }],
+      frac: { y1: 1, y2: 0, yP: 0.5 } },
+    { n: 12, lv: 3, vars: [B("y", "y"), C("x1", "x<sub>1</sub>", 0, 30, "t", [0, 15, 30]), C("x2", "x<sub>2</sub>", 0, 50, "t", [0, 25, 50])],
+      rule: function (p) { return p.y === 1 || (p.x1 === 0 && p.x2 === 0); },
+      opts: [{ f: ["x1 + x2 <= 80y"], ok: true, agg: true }, { f: ["x1 <= 30y"] }, { f: ["x1 + x2 <= 50y"] }, { f: ["x1 <= 30y", "x2 <= 50y"], ok: true, tight: true }],
+      frac: { y: 0.5, x1: 30, x2: 0 } }
+  ];
+  var LEVELS = [1, 2, 3];
+  var cardsOf = function (lv) { return CARDS.filter(function (c) { return c.lv === lv; }); };
+
+  // ---------------------------------------------------------------------------
+  // Tiny parser for linear (in)equalities. Linear form: { k: constant, c: {var: coef} }
+  // ---------------------------------------------------------------------------
+  function tokenize(s) {
+    var re = /\s*(\d+(?:\.\d+)?|[A-Za-z][A-Za-z0-9]*|<=|>=|=|[-+*()])/g, out = [], m, last = 0;
+    while ((m = re.exec(s)) !== null) {
+      if (m.index !== last) throw new Error("bad token in " + s);
+      var v = m[1];
+      out.push({ t: /^\d/.test(v) ? "num" : /^[A-Za-z]/.test(v) ? "id" : (v === "<=" || v === ">=" || v === "=") ? "cmp" : "op", v: v });
+      last = re.lastIndex;
+    }
+    if (s.slice(last).trim()) throw new Error("bad tail in " + s);
+    return out;
+  }
+  function lin(k, c) { return { k: k || 0, c: c || {} }; }
+  function isConst(a) { for (var v in a.c) if (a.c[v] !== 0) return false; return true; }
+  function add(a, b, sgn) {
+    var r = lin(a.k + sgn * b.k, Object.assign({}, a.c));
+    for (var v in b.c) r.c[v] = (r.c[v] || 0) + sgn * b.c[v];
+    return r;
+  }
+  function scale(a, f) { var r = lin(a.k * f, {}); for (var v in a.c) r.c[v] = a.c[v] * f; return r; }
+  function mul(a, b) {
+    if (isConst(a)) return scale(b, a.k);
+    if (isConst(b)) return scale(a, b.k);
+    throw new Error("nonlinear product");
+  }
+  function parseLinear(toks) {
+    var i = 0;
+    function peek() { return toks[i]; }
+    function factor() {
+      var tk = toks[i++];
+      if (!tk) throw new Error("unexpected end");
+      if (tk.t === "num") return lin(+tk.v);
+      if (tk.t === "id") { var c = {}; c[tk.v] = 1; return lin(0, c); }
+      if (tk.v === "-") return scale(factor(), -1);
+      if (tk.v === "(") { var e = expr(); if (!toks[i] || toks[i].v !== ")") throw new Error("missing )"); i++; return e; }
+      throw new Error("unexpected " + tk.v);
+    }
+    function term() {
+      var a = factor();
+      for (;;) {
+        var p = peek();
+        if (p && p.v === "*") { i++; a = mul(a, factor()); }
+        else if (p && (p.t === "num" || p.t === "id" || p.v === "(")) a = mul(a, factor()); // implicit product: 80y, 40(1 - z)
+        else return a;
+      }
+    }
+    function expr() {
+      var a = term();
+      for (;;) {
+        var p = peek();
+        if (p && (p.v === "+" || p.v === "-")) { i++; a = add(a, term(), p.v === "+" ? 1 : -1); }
+        else return a;
+      }
+    }
+    var r = expr();
+    if (i !== toks.length) throw new Error("trailing tokens");
+    return r;
+  }
+  // "20y <= x <= 80y" -> two constraints, each keeping its token slices for display
+  function parseLine(s) {
+    var toks = tokenize(s), segs = [[]], ops = [];
+    toks.forEach(function (tk) { if (tk.t === "cmp") { ops.push(tk.v); segs.push([]); } else segs[segs.length - 1].push(tk); });
+    var cons = [];
+    for (var j = 0; j < ops.length; j++) {
+      cons.push({ L: parseLinear(segs[j]), R: parseLinear(segs[j + 1]), op: ops[j], lt: segs[j], rt: segs[j + 1] });
+    }
+    return { toks: toks, cons: cons };
+  }
+  function evalLin(a, p) { var s = a.k; for (var v in a.c) s += a.c[v] * p[v]; return s; }
+  function holds(con, p) {
+    var d = evalLin(con.L, p) - evalLin(con.R, p);
+    return con.op === "<=" ? d <= EPS : con.op === ">=" ? d >= -EPS : Math.abs(d) <= EPS;
+  }
+
+  // compile every option once
+  CARDS.forEach(function (card) {
+    card.opts.forEach(function (o) {
+      o.lines = o.f.map(parseLine);
+      o.cons = [].concat.apply([], o.lines.map(function (l) { return l.cons; }));
+    });
+  });
+
+  // ---- rendering formulas (HTML), binary symbols in accent, continuous in ink ----
+  function symOf(card, id) {
+    var v = card.vars.filter(function (x) { return x.id === id; })[0];
+    return '<span class="' + (v && v.bin ? "vb" : "vc") + '">' + (v ? v.sym : id) + "</span>";
+  }
+  function renderToks(card, toks) {
+    var out = "", prev = null;
+    toks.forEach(function (tk) {
+      if (tk.t === "num") out += tk.v;
+      else if (tk.t === "id") out += symOf(card, tk.v);
+      else if (tk.t === "cmp") out += tk.v === "<=" ? " ≤ " : tk.v === ">=" ? " ≥ " : " = ";
+      else if (tk.v === "+") out += " + ";
+      else if (tk.v === "-") out += (!prev || prev.v === "(" || prev.t === "cmp") ? "−" : " − ";
+      else if (tk.v === "*") out += "·";
+      else out += tk.v;
+      prev = tk;
+    });
+    return out;
+  }
+  function renderCon(card, con) {
+    return renderToks(card, con.lt.concat([{ t: "cmp", v: con.op }], con.rt));
+  }
+  function renderOpt(card, o, sep) {
+    return o.lines.map(function (l) { return '<span class="fx">' + renderToks(card, l.toks) + "</span>"; }).join(sep || "");
+  }
+
+  // ---------------------------------------------------------------------------
+  // Verifier: every 0/1 combination of the switches times the test values of each
+  // quantity. Helper switches (aux) are searched: a plan is allowed by the constraints
+  // if some 0/1 value of the helpers satisfies them all.
+  // ---------------------------------------------------------------------------
+  function cartesian(vars) {
+    var plans = [{}];
+    vars.forEach(function (v) {
+      var dom = v.bin ? [0, 1] : v.test, next = [];
+      plans.forEach(function (p) { dom.forEach(function (x) { var q = Object.assign({}, p); q[v.id] = x; next.push(q); }); });
+      plans = next;
+    });
+    return plans;
+  }
+  function checkPlan(card, cons, plan) {
+    var aux = card.vars.filter(function (v) { return v.aux; });
+    var tries = aux.length ? cartesian(aux) : [{}];
+    var firstFail = null;
+    for (var i = 0; i < tries.length; i++) {
+      var q = Object.assign({}, plan, tries[i]), bad = null;
+      for (var j = 0; j < cons.length; j++) if (!holds(cons[j], q)) { bad = cons[j]; break; }
+      if (!bad) return { ok: true, aux: aux.length ? tries[i] : null };
+      if (!firstFail) firstFail = bad;
+    }
+    return { ok: false, fail: aux.length ? null : firstFail, auxNone: aux.length > 0 };
+  }
+  function verify(card, cons) {
+    var main = card.vars.filter(function (v) { return !v.aux; });
+    var rows = cartesian(main).map(function (plan, idx) {
+      var r = !!card.rule(plan), c = checkPlan(card, cons, plan);
+      return { idx: idx, plan: plan, rule: r, cons: c, kind: r === c.ok ? "ok" : (r ? "cut" : "thr") };
+    });
+    return {
+      rows: rows, n: rows.length,
+      cut: rows.filter(function (r) { return r.kind === "cut"; }).length,
+      thr: rows.filter(function (r) { return r.kind === "thr"; }).length
+    };
+  }
+  // Rows to show: all when few; otherwise every mismatch first (up to 12), then evenly spread matches up to 10.
+  function pickRows(res) {
+    if (res.n <= 12) {
+      return res.rows.filter(function (r) { return r.kind !== "ok"; }).concat(res.rows.filter(function (r) { return r.kind === "ok"; }));
+    }
+    var mis = res.rows.filter(function (r) { return r.kind !== "ok"; }).slice(0, 12);
+    var ok = res.rows.filter(function (r) { return r.kind === "ok"; });
+    var room = Math.max(0, 10 - mis.length), pick = [];
+    if (room > 0 && ok.length) {
+      // spread over allowed and forbidden matches so both kinds appear
+      var allowed = ok.filter(function (r) { return r.rule; }), forb = ok.filter(function (r) { return !r.rule; });
+      var nA = Math.min(allowed.length, Math.ceil(room / 2)), nF = Math.min(forb.length, room - nA);
+      nA = Math.min(allowed.length, room - nF);
+      var spread = function (arr, k) { var s = []; for (var i = 0; i < k; i++) s.push(arr[Math.floor(i * arr.length / k)]); return s; };
+      pick = spread(allowed, nA).concat(spread(forb, nF)).sort(function (a, b) { return a.idx - b.idx; });
+    }
+    return mis.concat(pick);
+  }
+
+  // ---------------------------------------------------------------------------
+  // State: progress per card (persisted), session tries per card
+  // ---------------------------------------------------------------------------
+  var STORE = "mlogic-progress";
+  var progress = {};
+  try { var saved = JSON.parse(localStorage.getItem(STORE) || "null"); if (saved && typeof saved === "object") progress = saved; } catch (e) { /* private mode */ }
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(progress)); } catch (e) { /* ok */ } }
+  var sess = {};
+  var cur = 0; // index in CARDS
+  function S(card) { return sess[card.n] || (sess[card.n] = { sel: null, wrong: [] }); }
+  function P(card) { return progress[card.n] || null; }
+  var hasBonus = function (card) { return card.opts.some(function (o) { return o.tight; }); };
+
+  function starsHtml(n, bonus) {
+    var s = "★".repeat(n) + '<span class="off">' + "★".repeat(3 - n) + "</span>";
+    if (bonus) s += '<span class="bonus">+★</span>';
+    return s;
+  }
+  function levelStars(lv) {
+    var s = 0, b = 0, solved = 0;
+    cardsOf(lv).forEach(function (c) { var p = P(c); if (p) { s += p.stars; b += p.bonus ? 1 : 0; solved++; } });
+    return { s: s, b: b, solved: solved, max: cardsOf(lv).length * 3, n: cardsOf(lv).length };
+  }
+  function fmtVal(v) { return I18N.fmt(v, 2); }
+  function unit(v) { return t("mlogic.u." + v.unit); }
+
+  // ---- render: navigation ----
+  function renderNav() {
+    var nav = $("levels"); nav.textContent = "";
+    LEVELS.forEach(function (lv) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "lvbtn";
+      b.setAttribute("aria-current", CARDS[cur].lv === lv ? "true" : "false");
+      var ls = levelStars(lv);
+      b.innerHTML = "<span></span><span class=\"st\"></span>";
+      b.firstChild.textContent = t("mlogic.levelN", { n: lv }) + " · " + t("mlogic.lv" + lv + ".name");
+      b.lastChild.textContent = "★ " + ls.s + "/" + ls.max;
+      b.setAttribute("aria-label", t("mlogic.levelAria", { n: lv, name: t("mlogic.lv" + lv + ".name"), s: ls.s, max: ls.max }));
+      b.addEventListener("click", function () { cur = CARDS.indexOf(cardsOf(lv)[0]); renderAll(); });
+      nav.appendChild(b);
+    });
+    var cn = $("cards"); cn.textContent = "";
+    cardsOf(CARDS[cur].lv).forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "cardbtn";
+      b.setAttribute("aria-current", c === CARDS[cur] ? "true" : "false");
+      var p = P(c);
+      b.innerHTML = "<span>" + c.n + '</span><span class="st">' + (p ? starsHtml(p.stars, p.bonus) : "·") + "</span>";
+      b.setAttribute("aria-label", p ? t("mlogic.cardAriaDone", { n: c.n, s: p.stars }) : t("mlogic.cardAria", { n: c.n }));
+      b.addEventListener("click", function () { cur = CARDS.indexOf(c); renderAll(); });
+      cn.appendChild(b);
+    });
+  }
+
+  // ---- render: the card ----
+  function renderCard() {
+    var card = CARDS[cur], s = S(card), p = P(card), k = "mlogic.c" + card.n + ".";
+    var inLevel = cardsOf(card.lv);
+    $("ckicker").textContent = t("mlogic.levelN", { n: card.lv }) + " · " + t("mlogic.cardOf", { n: card.n, total: CARDS.length });
+    $("ctitle").textContent = t(k + "title");
+    $("crule").innerHTML = t(k + "rule");
+
+    var vl = $("cvars"); vl.textContent = "";
+    card.vars.forEach(function (v) {
+      var li = document.createElement("li");
+      var dom = v.bin ? symOf(card, v.id) + " ∈ {0, 1}"
+        : symOf(card, v.id) + " ∈ [" + fmtVal(v.lo) + ", " + fmtVal(v.hi) + "] " + unit(v);
+      li.innerHTML = '<span class="tag ' + (v.bin ? "bin" : "cont") + '"></span><span class="dom"></span><span></span>';
+      li.children[0].textContent = t(v.bin ? "mlogic.type.bin" : "mlogic.type.cont");
+      li.children[1].innerHTML = dom;
+      li.children[2].textContent = t(k + "v." + v.id);
+      vl.appendChild(li);
+    });
+
+    var box = $("copts"); box.textContent = "";
+    card.opts.forEach(function (o, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "opt";
+      b.setAttribute("aria-pressed", s.sel === i ? "true" : "false");
+      var judged = s.wrong.indexOf(i) >= 0 || (s.sel === i) || (p && o.ok);
+      var tagHtml = "";
+      if (judged) {
+        if (o.ok) { b.classList.add("right"); tagHtml = '<span class="otag ok">' + t(o.tight ? "mlogic.tag.tight" : o.agg ? "mlogic.tag.agg" : "mlogic.tag.correct") + "</span>"; }
+        else { b.classList.add("wrong"); tagHtml = '<span class="otag bad">' + t("mlogic.tag.wrong") + "</span>"; }
+      }
+      b.innerHTML = '<span class="letter">' + LETTERS[i] + '</span><span class="lines">' + renderOpt(card, o) + "</span>" + tagHtml;
+      b.setAttribute("aria-label", t("mlogic.optLetter", { l: LETTERS[i] }) + ": " + b.querySelector(".lines").textContent);
+      b.addEventListener("click", function () { choose(i); });
+      box.appendChild(b);
+    });
+
+    renderResult(card);
+    renderVerifier(card);
+    renderFrac(card);
+    renderLevelSum(card);
+    $("next").hidden = cur >= CARDS.length - 1;
+    $("next").disabled = false;
+  }
+
+  function renderResult(card) {
+    var s = S(card), p = P(card), k = "mlogic.c" + card.n + ".", box = $("res");
+    if (s.sel == null) {
+      box.className = "res";
+      box.innerHTML = p
+        ? "<p class=\"verdict\"><span>" + t("mlogic.res.solved") + "</span><span class=\"stars\">" + starsHtml(p.stars, p.bonus) + "</span></p><p>" + t("mlogic.res.explore") + "</p>" + whyHtml(card)
+        : "<p>" + t("mlogic.res.idle") + "</p>";
+      return;
+    }
+    var o = card.opts[s.sel], v = verify(card, o.cons), html = "";
+    var fb = "<p>" + t(k + "fb." + LETTERS[s.sel]) + "</p>";
+    if (o.ok) {
+      box.className = "res ok";
+      html += '<p class="verdict"><span>' + t("mlogic.res.correct") + '</span><span class="stars" aria-label="' +
+        t("mlogic.starsAria", { n: p.stars }) + '">' + starsHtml(p.stars, p.bonus) + "</span></p>";
+      html += fb;
+      if (o.agg && !p.bonus) html += "<p><b>" + t("mlogic.res.tighterHint") + "</b></p>";
+      if (o.tight) html += "<p><b>" + t("mlogic.res.bonus") + "</b></p>";
+      html += whyHtml(card);
+    } else {
+      box.className = "res bad";
+      html += '<p class="verdict"><span>' + t(p ? "mlogic.res.wrongExplore" : "mlogic.res.wrong") + "</span></p>";
+      html += "<p>" + mismatchText(v) + "</p>" + fb;
+      if (!p) html += "<p>" + t("mlogic.res.try", { n: s.wrong.length }) + "</p>";
+      else html += whyHtml(card);
+    }
+    box.innerHTML = html;
+  }
+  function whyHtml(card) {
+    var k = "mlogic.c" + card.n + ".";
+    return '<div class="why"><p class="pat">' + t("mlogic.pattern", { p: t(k + "pattern") }) + "</p><p>" + t(k + "why") + "</p></div>";
+  }
+  function mismatchText(v) {
+    if (!v.cut && !v.thr) return t("mlogic.ver.ok", { n: v.n });
+    return t("mlogic.ver.summary", { n: v.n, cut: v.cut, thr: v.thr });
+  }
+
+  function renderVerifier(card) {
+    var s = S(card), wrap = $("vwrap");
+    var nPlans = cartesian(card.vars.filter(function (v) { return !v.aux; })).length;
+    if (s.sel == null) {
+      $("vsum").textContent = t("mlogic.ver.idle", { n: nPlans });
+      $("vsum").dataset.cut = ""; $("vsum").dataset.thr = "";
+      $("vlegend").innerHTML = "";
+      wrap.innerHTML = ""; $("vnote").textContent = "";
+      return;
+    }
+    var o = card.opts[s.sel], v = verify(card, o.cons);
+    var sum = $("vsum");
+    sum.innerHTML = "<b>" + t("mlogic.optLetter", { l: LETTERS[s.sel] }) + ":</b> " + mismatchText(v);
+    sum.dataset.cut = v.cut; sum.dataset.thr = v.thr; sum.dataset.n = v.n;
+    $("vlegend").innerHTML = "<span><b>" + t("mlogic.badge.cut") + "</b> = " + t("mlogic.cutoff") + "</span><span><b>" +
+      t("mlogic.badge.thr") + "</b> = " + t("mlogic.through") + "</span>";
+    var rows = pickRows(v);
+    var aux = card.vars.filter(function (x) { return x.aux; });
+    var h = '<table class="vt"><thead><tr><th>' + t("mlogic.th.plan") + "</th><th>" + t("mlogic.th.rule") + "</th><th>" +
+      t("mlogic.th.cons") + "</th><th>" + t("mlogic.th.check") + "</th></tr></thead><tbody>";
+    rows.forEach(function (r) {
+      var plan = card.vars.filter(function (x) { return !x.aux; }).map(function (x) {
+        return "<span>" + symOf(card, x.id) + " = " + fmtVal(r.plan[x.id]) + "</span>";
+      }).join("");
+      var consCell = '<span class="' + (r.cons.ok ? "yes" : "no") + '">' + t(r.cons.ok ? "mlogic.allowed" : "mlogic.forbidden") + "</span>";
+      if (r.cons.ok && r.cons.aux) {
+        consCell += '<span class="detail">' + t("mlogic.withAux", { v: aux.map(function (a) { return '<span class="fx">' + symOf(card, a.id) + " = " + r.cons.aux[a.id] + "</span>"; }).join(" ") }) + "</span>";
+      } else if (!r.cons.ok && r.cons.fail) {
+        consCell += '<span class="detail">' + t("mlogic.breaks", { c: '<span class="fx">' + renderCon(card, r.cons.fail) + "</span>" }) + "</span>";
+      } else if (!r.cons.ok && r.cons.auxNone) {
+        consCell += '<span class="detail">' + t("mlogic.noAux", { v: aux.map(function (a) { return '<span class="fx">' + symOf(card, a.id) + "</span>"; }).join(" ") }) + "</span>";
+      }
+      var badge = r.kind === "cut" ? '<span class="badge cut">' + t("mlogic.badge.cut") + "</span>"
+        : r.kind === "thr" ? '<span class="badge thr">' + t("mlogic.badge.thr") + "</span>"
+        : '<span class="badge okb">' + t("mlogic.badge.ok") + "</span>";
+      h += '<tr class="' + (r.kind === "ok" ? "" : "mis") + '" data-kind="' + r.kind + '"><td><span class="plan">' + plan + "</span></td><td>" +
+        '<span class="' + (r.rule ? "yes" : "no") + '">' + t(r.rule ? "mlogic.allowed" : "mlogic.forbidden") + "</span></td><td>" +
+        consCell + "</td><td>" + badge + "</td></tr>";
+    });
+    h += "</tbody></table>";
+    wrap.innerHTML = h;
+    var misCount = v.cut + v.thr, misShown = rows.filter(function (r) { return r.kind !== "ok"; }).length;
+    var note = t("mlogic.ver.rows", { shown: rows.length, n: v.n });
+    if (misCount > misShown) note += " " + t("mlogic.ver.moreMis", { k: misCount - misShown });
+    $("vnote").textContent = note;
+  }
+
+  function renderFrac(card) {
+    var host = $("fracbox"), s = S(card), p = P(card);
+    if (!card.frac || !p) { host.innerHTML = ""; return; }
+    var pt = card.vars.map(function (v) { return '<span class="fx nw">' + symOf(card, v.id) + " = " + fmtVal(card.frac[v.id]) + "</span>"; }).join(" · ");
+    var items = card.opts.map(function (o, i) {
+      if (!o.ok) return "";
+      var bad = null;
+      o.cons.forEach(function (c) { if (!bad && !holds(c, card.frac)) bad = c; });
+      var res = bad
+        ? '<span class="vio" data-frac="violated">' + t("mlogic.frac.viol") + "</span>" + '<span class="detail">' + t("mlogic.breaks", { c: '<span class="fx">' + renderCon(card, bad) + "</span>" }) + "</span>"
+        : '<span class="sat" data-frac="satisfied">' + t("mlogic.frac.sat") + "</span>";
+      return "<li><b>" + LETTERS[i] + "</b>" + renderOpt(card, o, ", ") + res + "</li>";
+    }).join("");
+    host.innerHTML = '<div class="frac"><h3><span class="kicker">' + t("mlogic.frac.kicker") + "</span>" + t("mlogic.frac.title") + "</h3><p>" +
+      t("mlogic.frac.intro", { pt: pt }) + "</p><ul>" + items + "</ul><p>" + t("mlogic.frac.lesson") + "</p></div>";
+  }
+
+  function renderLevelSum(card) {
+    var host = $("levelsum");
+    var ls = levelStars(card.lv);
+    var html = "";
+    if (ls.solved === ls.n) {
+      var bonusMax = cardsOf(card.lv).filter(hasBonus).length;
+      html += '<div class="sumbox" id="lvsum"><h3>' + t("mlogic.sum.title", { n: card.lv }) + "</h3><p>" +
+        t("mlogic.sum.text", { s: ls.s, max: ls.max }) + (bonusMax ? " " + t("mlogic.sum.bonus", { b: ls.b, bmax: bonusMax }) : "") + "</p><p>" +
+        t(ls.s === ls.max ? "mlogic.sum.perfect" : "mlogic.sum.again") + "</p></div>";
+    }
+    var all = CARDS.every(function (c) { return P(c); });
+    if (all && card.lv === 3) {
+      var tot = 0, tb = 0;
+      CARDS.forEach(function (c) { tot += P(c).stars; tb += P(c).bonus ? 1 : 0; });
+      html += '<div class="sumbox" id="finalsum" style="margin-top:10px"><h3>' + t("mlogic.final.title", { n: CARDS.length }) + "</h3><p>" +
+        t("mlogic.final.text", { s: tot, max: CARDS.length * 3, b: tb, bmax: CARDS.filter(hasBonus).length }) + "</p></div>";
+    }
+    host.innerHTML = html;
+  }
+
+  function renderSheet() {
+    var ul = $("sheet"); ul.textContent = "";
+    var n = 0;
+    CARDS.forEach(function (c) {
+      var li = document.createElement("li"), p = P(c);
+      if (p) {
+        n++;
+        var best = c.opts.filter(function (o) { return o.tight; })[0] || c.opts.filter(function (o) { return o.ok; })[0];
+        li.innerHTML = '<span class="pn"></span><span>' + renderOpt(c, best, ", ") + "</span>";
+        li.firstChild.textContent = t("mlogic.c" + c.n + ".pattern");
+        var sm = document.createElement("small"); sm.textContent = t("mlogic.sheet.card", { n: c.n }) + ": " + t("mlogic.c" + c.n + ".title");
+        li.firstChild.appendChild(sm);
+      } else {
+        li.className = "locked";
+        li.innerHTML = '<span class="pn"></span>';
+        li.firstChild.textContent = t("mlogic.sheet.locked", { n: c.n });
+      }
+      ul.appendChild(li);
+    });
+    $("sheetcount").textContent = t("mlogic.sheet.count", { k: n, n: CARDS.length });
+  }
+
+  function renderAll() { renderNav(); renderCard(); renderSheet(); renderBigM(); renderAns(); }
+
+  // ---- actions ----
+  function choose(i) {
+    var card = CARDS[cur], s = S(card), o = card.opts[i];
+    s.sel = i;
+    if (!P(card)) {
+      if (o.ok) {
+        progress[card.n] = { stars: Math.max(1, 3 - s.wrong.length), bonus: !!o.tight };
+      } else if (s.wrong.indexOf(i) < 0) s.wrong.push(i);
+    } else if (o.tight) progress[card.n].bonus = true;
+    save();
+    renderAll();
+    var b = $("copts").children[i]; if (b) b.focus();
+  }
+  $("next").addEventListener("click", function () {
+    if (cur < CARDS.length - 1) { cur++; renderAll(); $("ctitle").scrollIntoView({ block: "nearest" }); }
+  });
+  $("replay").addEventListener("click", function () {
+    var lv = CARDS[cur].lv;
+    cardsOf(lv).forEach(function (c) { delete progress[c.n]; delete sess[c.n]; });
+    save();
+    cur = CARDS.indexOf(cardsOf(lv)[0]);
+    renderAll();
+  });
+
+  // ---- big-M lab (card 7: x <= 50 + M y, x in [0, 80]) ----
+  var LABCARD = { vars: [C("x", "x", 0, 80, "t", [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]), B("y", "y")],
+    rule: CARDS[6].rule };
+  function renderBigM() {
+    var M = +$("bigm").value;
+    $("bigmout").textContent = "M = " + M;
+    var cons = parseLine("x <= 50 + " + M + "y").cons;
+    var v = verify(LABCARD, cons);
+    var ymin = M >= 30 ? 30 / M : null;
+    var r = t("mlogic.bm.cut", { k: "<b>" + v.cut + "</b>", n: v.n }) + "<br>" +
+      (ymin == null ? t("mlogic.bm.ynone") : t("mlogic.bm.ymin", { y: "<b>" + I18N.fmt(ymin, 3) + "</b>", pct: "<b>" + I18N.fmt(ymin * 100, 1) + "</b>" }));
+    var rd = $("bmread"); rd.innerHTML = r; rd.dataset.cut = v.cut;
+    $("bmfill").style.width = (ymin == null ? 100 : ymin * 100) + "%";
+    $("bmmeter").setAttribute("aria-label", ymin == null ? t("mlogic.bm.ynoneAria") : t("mlogic.bm.meterAria", { pct: I18N.fmt(ymin * 100, 1) }));
+    $("bmverdict").textContent = M < 30 ? t("mlogic.bm.small", { lim: 50 + M }) : M === 30 ? t("mlogic.bm.exact") : t("mlogic.bm.weak", { pct: I18N.fmt(ymin * 100, 1) });
+  }
+  $("bigm").addEventListener("input", renderBigM);
+
+  var ansOpen = false;
+  function renderAns() {
+    $("ansbtn").textContent = t(ansOpen ? "mlogic.btn.hideAns" : "mlogic.btn.showAns");
+    $("ansbtn").setAttribute("aria-expanded", ansOpen ? "true" : "false");
+    $("anstext").hidden = !ansOpen;
+  }
+  $("ansbtn").addEventListener("click", function () { ansOpen = !ansOpen; renderAns(); });
+
+  I18N.onChange(renderAll);
+})();
+</script>
+</body>
+</html>

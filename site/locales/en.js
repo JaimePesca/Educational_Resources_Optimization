@@ -133,6 +133,20 @@ I18N.register("en", {
   "resource.edu-newsvendor.title": "How Many Newspapers?",
   "resource.edu-newsvendor.summary": "Order stock before demand is known, play many simulated days and discover the order size that balances leftovers and lost sales.",
 
+  /* ---- Level 3 · Mixed-integer programming ---- */
+  "resource.milp-mixed-set.title": "Points, Lines and Regions",
+  "resource.milp-mixed-set.summary": "See how the same constraints give a polygon, a set of slices or a grid of points once some variables must be whole numbers, and why the LP is a bound and rounding is only a heuristic.",
+  "resource.milp-logic.title": "Say It with Constraints",
+  "resource.milp-logic.summary": "Turn plant rules that mix yes/no decisions and quantities into linear constraints, and let a verifier show which plans each formulation cuts off or lets through.",
+  "resource.milp-bigm.title": "How Big Is M?",
+  "resource.milp-bigm.summary": "Move the big-M values in an either-or model and see how too small cuts off good plans, too large weakens the LP relaxation, and the tightest M matches the convex hull.",
+  "resource.milp-piecewise.title": "Bulk Discounts",
+  "resource.milp-piecewise.summary": "Piecewise linear costs from two mills: see why rising prices fit a plain LP, while volume discounts need binary variables to stop the LP from buying the cheap last tier first.",
+  "resource.milp-lot-sizing.title": "Produce Now or Later",
+  "resource.milp-lot-sizing.summary": "Choose which weeks a jam factory runs a batch, trading fixed setup costs against holding costs, and see why the binary setup and a tight big-M matter.",
+  "resource.milp-runway.title": "Cleared to Land",
+  "resource.milp-runway.summary": "Watch arrivals land at a busy runway, first in arrival order and then in the order a mixed-integer model chooses, and try to beat it yourself.",
+
   /* ================= Resource template (resources/_template.html) ================= */
   "tpl.title": "Resource Template",
   "tpl.eyebrow": "Level 1 · Linear programming · <b>Simulation</b>",

@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en" data-title-key="bigm.title" data-i18n-bundles="resources/milp-bigm">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>How Big Is M?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1060px; }
+
+  /* ---- layout: plot + readouts on the left, controls on the right ---- */
+  .layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  @media (max-width: 860px) {
+    .layout { display: flex; flex-direction: column; }
+    .col { display: contents; }
+    #pPlot { order: 1; } #pM { order: 2; } #pRead { order: 3; } #pZ { order: 4; } #pData { order: 5; }
+  }
+  .panel h2 { font-family: var(--font-sans); font-weight: 600; font-size: 17px; margin: 0 0 10px; }
+
+  /* ---- plot ---- */
+  svg#plot { display: block; width: 100%; max-width: 560px; height: auto; margin: 0 auto; touch-action: manipulation; }
+  #plot text { font-family: var(--font-sans); fill: var(--ink2); }
+  #plot .tick { font-family: var(--font-mono); font-size: 11.5px; fill: var(--muted); }
+  #plot .axt { font-size: 12.5px; font-weight: 600; fill: var(--ink2); }
+  #plot .halo { paint-order: stroke; stroke: var(--halo); stroke-width: 4px; stroke-linejoin: round; }
+  #plot .gridl { stroke: var(--grid); stroke-width: 1; }
+  #plot .boxl { fill: none; stroke: var(--axis); stroke-width: 1.2; }
+  #plot .relaxfill { fill: var(--accent); fill-opacity: 0.1; }
+  #plot .relaxline { fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-dasharray: 7 5; stroke-linejoin: round; }
+  #plot .lbase { fill: var(--surface); }
+  #plot .lreg { fill: var(--region); stroke: var(--ink2); stroke-width: 1; stroke-linejoin: round; }
+  #plot .cut { fill: url(#bigm-hatch); stroke: var(--crit); stroke-width: 1.6; }
+  #plot .hatchline { stroke: var(--crit); stroke-width: 2.2; stroke-opacity: 0.7; }
+  @media (max-width: 520px) {
+    #plot .tick { font-size: 13.5px; }
+    #plot .axt { font-size: 14.5px; }
+    #plot .zlab, #plot .cutlab, #plot .modelab { font-size: 13.5px; }
+  }
+  #plot .hullline { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-dasharray: 1.5 4; stroke-linecap: round; }
+  #plot .trace { fill: none; stroke: var(--accent); stroke-width: 1; stroke-opacity: 0.35; }
+  #plot .tracepath { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round; }
+  #plot .zrect { fill: none; stroke: var(--accent); stroke-width: 2; }
+  #plot .zdot { fill: var(--accent); stroke: var(--surface); stroke-width: 1.5; }
+  #plot .zlab { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; fill: var(--accent-text); }
+  #plot .iso-true { stroke: var(--ink2); stroke-width: 1.3; }
+  #plot .iso-lp { stroke: var(--accent); stroke-width: 1.3; stroke-dasharray: 10 4 2 4; }
+  #plot .opt-true { fill: var(--ink); stroke: var(--surface); stroke-width: 1.5; }
+  #plot .opt-lp { fill: none; stroke: var(--accent); stroke-width: 2.6; }
+  #plot .opt-model { fill: var(--crit); stroke: var(--surface); stroke-width: 1.5; }
+  #plot .cutlab { font-size: 11.5px; font-weight: 700; fill: var(--crit); }
+  #plot .modelab { font-size: 11.5px; font-weight: 600; fill: var(--muted); }
+
+  .legend { gap: 6px 14px; font-size: 12.5px; margin-top: 10px; }
+  .sw { width: 14px; height: 12px; display: inline-block; }
+  .sw.lreg { background: var(--region); border: 1px solid var(--ink2); }
+  .sw.relax { background: color-mix(in srgb, var(--accent) 10%, transparent); border: 2px dashed var(--accent); }
+  .sw.hull { border: 2px dotted var(--ink); }
+  .sw.cut { border: 1.5px solid var(--crit); background: repeating-linear-gradient(45deg, var(--crit) 0 1.5px, transparent 1.5px 4.5px); }
+  .sw.zr { border: 2px solid var(--accent); }
+  .sw.dot { width: 11px; height: 11px; border-radius: 50%; background: var(--ink); }
+  .sw.ring { width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid var(--accent); }
+  .sw.sq { width: 10px; height: 10px; background: var(--crit); }
+  .sw.iso { height: 2px; background: var(--ink2); }
+  .sw.isolp { height: 2px; background: repeating-linear-gradient(90deg, var(--accent) 0 6px, transparent 6px 9px); }
+
+  /* ---- controls ---- */
+  .controls { gap: 14px; }
+  .ctl output { color: var(--ink); }
+  .ctl.zc output, .ctl.zc label b { color: var(--accent-text); }
+  .eq {
+    font-family: var(--font-mono); font-size: 13px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 3px; padding: 8px 11px; line-height: 1.75; color: var(--ink); overflow-x: auto;
+  }
+  .eq b { color: var(--accent-text); font-weight: 600; }
+  .eq i { color: var(--accent-text); font-style: normal; font-weight: 600; }
+  .btnrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button.btn {
+    font: 600 13.5px var(--font-sans); min-height: 36px; padding: 7px 14px; border-radius: 3px; cursor: pointer;
+    background: transparent; color: var(--ink2); border: 1.5px solid var(--border);
+  }
+  button.btn:hover { background: var(--surface2); }
+  button.btn.primary { background: var(--accent); color: var(--on-solid); border-color: var(--accent); }
+  button.btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+  .seg button { min-height: 36px; padding: 7px 11px; }
+  .flabel { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 5px; }
+  .hint { font-size: 13px; color: var(--ink2); margin: 0; }
+  .hint b { color: var(--ink); font-family: var(--font-mono); font-weight: 600; }
+  .hint .zv { color: var(--accent-text); }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
+  @media (max-width: 460px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* ---- readouts ---- */
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .stat { padding: 10px 12px; background: var(--surface2); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { font-size: 24px; margin-top: 2px; }
+  .stat .l { font-size: 12.5px; }
+  .stat.lp .v { color: var(--accent-text); }
+  .flag { font-weight: 700; }
+  .flag.bad { color: var(--crit); }
+  .flag.ok { color: var(--good-text); }
+  .status {
+    margin-top: 10px; border-left: 4px solid var(--accent); background: var(--surface2); border-radius: 2px;
+    padding: 10px 12px; font-weight: 600; font-size: 14.5px; color: var(--ink);
+  }
+  .status.bad { border-left-color: var(--crit); }
+  .status.good { border-left-color: var(--good); }
+  .areas { font-size: 13px; color: var(--ink2); margin: 8px 0 0; }
+  .areas b { color: var(--ink); font-family: var(--font-mono); }
+
+  /* ---- huge M panel ---- */
+  .huge p { margin: 0 0 10px; color: var(--ink2); font-size: 14.5px; max-width: 72ch; }
+  .huge p b { color: var(--ink); }
+  table.data.small { min-width: 0; max-width: 560px; }
+  table.data.small td, table.data.small th { text-align: right; }
+  table.data.small td:first-child, table.data.small th:first-child { text-align: left; }
+  table.data.small td { font-family: var(--font-mono); font-size: 13px; }
+  table.data.small td.zc { color: var(--accent-text); font-weight: 600; }
+  table.data.small td.bad { color: var(--crit); font-weight: 600; }
+
+  /* ---- teaching blocks ---- */
+  .vars { grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); margin: 8px 0 10px; }
+  .vars li { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .vt {
+    font: 600 10.5px var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 1px 6px; border-radius: 2px; border: 1px solid; white-space: nowrap;
+  }
+  .vt.bin { color: var(--accent-text); border-color: var(--accent); }
+  .vt.cont { color: var(--muted); border-color: var(--mit-silver); }
+  .vars .sym { font-family: var(--font-mono); font-weight: 600; }
+  .vars .sym.zb { color: var(--accent-text); }
+  details .body ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+  details .body b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="bigm.eyebrow"></p>
+    <h1 data-i18n="bigm.title"></h1>
+    <p class="lede" data-i18n-html="bigm.lede"></p>
+  </header>
+
+  <section class="layout">
+    <div class="col">
+      <div class="panel" id="pPlot">
+        <h2><span class="kicker" data-i18n="bigm.plot.kicker"></span><span data-i18n="bigm.plot.title"></span></h2>
+        <svg id="plot" viewBox="0 0 422 420" role="img" data-i18n-attr="aria-label:bigm.plot.aria"></svg>
+        <div class="legend" id="legend">
+          <span><i class="sw lreg"></i><span data-i18n="bigm.leg.true"></span></span>
+          <span><i class="sw relax"></i><span data-i18n="bigm.leg.relax"></span></span>
+          <span><i class="sw hull"></i><span data-i18n="bigm.leg.hull"></span></span>
+          <span><i class="sw cut"></i><span data-i18n="bigm.leg.cut"></span></span>
+          <span><i class="sw zr"></i><span data-i18n="bigm.leg.zrect"></span></span>
+          <span><i class="sw dot"></i><span data-i18n="bigm.leg.optTrue"></span></span>
+          <span><i class="sw ring"></i><span data-i18n="bigm.leg.optLp"></span></span>
+          <span><i class="sw sq"></i><span data-i18n="bigm.leg.optModel"></span></span>
+          <span><i class="sw iso"></i><span data-i18n="bigm.leg.iso"></span></span>
+          <span><i class="sw isolp"></i><span data-i18n="bigm.leg.isoLp"></span></span>
+        </div>
+      </div>
+
+      <div class="panel" id="pRead" aria-live="polite">
+        <h2><span class="kicker" data-i18n="bigm.read.kicker"></span><span data-i18n="bigm.read.title"></span></h2>
+        <div class="stats">
+          <div class="stat"><div class="k" data-i18n="bigm.r.true"></div><div class="v" id="vTrue"></div><div class="l" id="lTrue"></div></div>
+          <div class="stat"><div class="k" data-i18n="bigm.r.model"></div><div class="v" id="vModel"></div><div class="l" id="lModel"></div></div>
+          <div class="stat lp"><div class="k" data-i18n="bigm.r.lp"></div><div class="v" id="vLp"></div><div class="l" id="lLp"></div></div>
+          <div class="stat"><div class="k" data-i18n="bigm.r.gap"></div><div class="v" id="vGap"></div><div class="l" id="lGap"></div></div>
+        </div>
+        <p class="status" id="status"></p>
+        <p class="areas" id="areas"></p>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel controls" id="pM">
+        <h2><span class="kicker" data-i18n="bigm.m.kicker"></span><span data-i18n="bigm.m.title"></span></h2>
+        <div class="eq" id="eq"></div>
+        <div class="ctl">
+          <label for="m1" data-i18n-html="bigm.m.m1"></label><output id="m1o" for="m1"></output>
+          <input type="range" id="m1" min="0.5" max="20" step="0.5" value="6">
+        </div>
+        <div class="ctl">
+          <label for="m2" data-i18n-html="bigm.m.m2"></label><output id="m2o" for="m2"></output>
+          <input type="range" id="m2" min="0.5" max="20" step="0.5" value="6">
+        </div>
+        <div>
+          <p class="flabel" id="qpLabel" data-i18n="bigm.qp.label"></p>
+          <div class="seg" id="qp" role="group" aria-labelledby="qpLabel">
+            <button type="button" data-pick="small" aria-pressed="false" data-i18n="bigm.qp.small"></button>
+            <button type="button" data-pick="tight" aria-pressed="false" data-i18n="bigm.qp.tight"></button>
+            <button type="button" data-pick="loose" aria-pressed="false" data-i18n="bigm.qp.loose"></button>
+            <button type="button" data-pick="huge" aria-pressed="false" data-i18n="bigm.qp.huge"></button>
+          </div>
+        </div>
+        <div class="btnrow">
+          <button type="button" class="btn primary" id="tightBtn" data-i18n="bigm.m.tightBtn"></button>
+          <p class="hint" id="tightInfo"></p>
+        </div>
+      </div>
+
+      <div class="panel controls" id="pZ">
+        <h2><span class="kicker" data-i18n="bigm.z.kicker"></span><span data-i18n="bigm.z.title"></span></h2>
+        <p class="hint" data-i18n-html="bigm.z.intro"></p>
+        <div class="ctl zc">
+          <label for="zs" data-i18n-html="bigm.z.label"></label><output id="zo" for="zs"></output>
+          <input type="range" id="zs" min="0" max="1" step="0.01" value="0.5">
+        </div>
+        <div class="btnrow">
+          <button type="button" class="btn primary" id="sweepBtn" data-i18n="bigm.z.sweep"></button>
+          <button type="button" class="btn" id="clearBtn" data-i18n="bigm.z.clear"></button>
+        </div>
+        <p class="hint" id="zInfo"></p>
+      </div>
+
+      <div class="panel controls" id="pData">
+        <h2><span class="kicker" data-i18n="bigm.d.kicker"></span><span data-i18n="bigm.d.title"></span></h2>
+        <div class="grid2">
+          <div class="ctl">
+            <label for="as" data-i18n-html="bigm.d.a"></label><output id="ao" for="as"></output>
+            <input type="range" id="as" min="0" max="5" step="0.5" value="2">
+          </div>
+          <div class="ctl">
+            <label for="bs" data-i18n-html="bigm.d.b"></label><output id="bo" for="bs"></output>
+            <input type="range" id="bs" min="0" max="5" step="0.5" value="2">
+          </div>
+          <div class="ctl">
+            <label for="p1s" data-i18n-html="bigm.d.p1"></label><output id="p1o" for="p1s"></output>
+            <input type="range" id="p1s" min="0.5" max="3" step="0.5" value="1">
+          </div>
+          <div class="ctl">
+            <label for="p2s" data-i18n-html="bigm.d.p2"></label><output id="p2o" for="p2s"></output>
+            <input type="range" id="p2s" min="0.5" max="3" step="0.5" value="1">
+          </div>
+        </div>
+        <p class="hint" data-i18n="bigm.d.note"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel huge">
+    <h2><span class="kicker" data-i18n="bigm.h.kicker"></span><span data-i18n="bigm.h.title"></span></h2>
+    <p data-i18n-html="bigm.h.p1"></p>
+    <div class="tblwrap">
+      <table class="data small">
+        <thead><tr>
+          <th scope="col" data-i18n="bigm.h.thM"></th>
+          <th scope="col" data-i18n="bigm.h.thZ"></th>
+          <th scope="col" data-i18n="bigm.h.thTol"></th>
+        </tr></thead>
+        <tbody id="hugeBody"></tbody>
+      </table>
+    </div>
+    <p data-i18n-html="bigm.h.p2" style="margin-top:10px"></p>
+    <p class="hint" id="hugeLive"></p>
+  </section>
+
+  <section>
+    <details>
+      <summary data-i18n="bigm.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="bigm.d1.p1"></p>
+        <ul class="vars">
+          <li><span class="sym">x₁</span><span class="vt cont" data-i18n="bigm.type.cont"></span><span data-i18n="bigm.d1.x1"></span></li>
+          <li><span class="sym">x₂</span><span class="vt cont" data-i18n="bigm.type.cont"></span><span data-i18n="bigm.d1.x2"></span></li>
+          <li><span class="sym zb">z</span><span class="vt bin" data-i18n="bigm.type.bin"></span><span data-i18n="bigm.d1.z"></span></li>
+        </ul>
+        <div class="formula" data-i18n="bigm.d1.formula"></div>
+        <p data-i18n-html="bigm.d1.p2"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="bigm.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="bigm.d2.p1"></p>
+        <p data-i18n-html="bigm.d2.p2"></p>
+        <p data-i18n-html="bigm.d2.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="bigm.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="bigm.d3.p1"></p>
+        <div class="formula" data-i18n="bigm.d3.formula"></div>
+        <p data-i18n-html="bigm.d3.p2"></p>
+        <p data-i18n-html="bigm.d3.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="bigm.d4.title"></summary>
+      <div class="body">
+        <ol>
+          <li data-i18n-html="bigm.d4.c1"></li>
+          <li data-i18n-html="bigm.d4.c2"></li>
+          <li data-i18n-html="bigm.d4.c3"></li>
+          <li data-i18n-html="bigm.d4.c4"></li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="bigm.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var U = 6;            // market limit: at most 6 batches of each product
+  var EPS = 1e-9;
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var el = { m1: $("m1"), m2: $("m2"), a: $("as"), b: $("bs"), p1: $("p1s"), p2: $("p2s"), z: $("zs") };
+
+  // Sweep trace: samples z = k / TRACE_STEPS for k < traceN
+  var TRACE_STEPS = 20;
+  var traceN = 0;
+  var sweepRaf = 0;
+
+  function f(v, d, m) { return I18N.fmt(Math.abs(v) < 1e-9 ? 0 : v, d == null ? 2 : d, m); }
+  function half(v) { return Math.round(v * 2) / 2; }
+
+  function state() {
+    return {
+      M1: +el.m1.value, M2: +el.m2.value, a: +el.a.value, b: +el.b.value,
+      p1: +el.p1.value, p2: +el.p2.value, z: +el.z.value
+    };
+  }
+
+  // ---------- geometry ----------
+  // Sutherland-Hodgman: keep the part of a convex polygon with A x1 + B x2 <= C
+  function clip(poly, A, B, C) {
+    var out = [];
+    for (var i = 0; i < poly.length; i++) {
+      var P = poly[i], Q = poly[(i + 1) % poly.length];
+      var fp = A * P[0] + B * P[1] - C, fq = A * Q[0] + B * Q[1] - C;
+      if (fp <= 1e-12) out.push(P);
+      if ((fp < -1e-12 && fq > 1e-12) || (fp > 1e-12 && fq < -1e-12)) {
+        var s = fp / (fp - fq);
+        out.push([P[0] + s * (Q[0] - P[0]), P[1] + s * (Q[1] - P[1])]);
+      }
+    }
+    return out;
+  }
+  function area(p) {
+    if (p.length < 3) return 0;
+    var s = 0;
+    for (var i = 0; i < p.length; i++) { var q = p[(i + 1) % p.length]; s += p[i][0] * q[1] - q[0] * p[i][1]; }
+    return Math.abs(s) / 2;
+  }
+
+  // LP relaxation projected on (x1, x2): eliminate z from (x1 - a)/M1 <= z <= 1 - (x2 - b)/M2, 0 <= z <= 1
+  function relaxation(s) {
+    var poly = [[0, 0], [U, 0], [U, U], [0, U]];
+    poly = clip(poly, 1, 0, s.a + s.M1);
+    poly = clip(poly, 0, 1, s.b + s.M2);
+    poly = clip(poly, 1 / s.M1, 1 / s.M2, 1 + s.a / s.M1 + s.b / s.M2);
+    return poly;
+  }
+  // Convex hull of the L shape [0,a]x[0,U] union [0,U]x[0,b]
+  function hull(s) { return [[0, 0], [U, 0], [U, s.b], [s.a, U], [0, U]]; }
+
+  function solve(s) {
+    var r = {};
+    var obj = function (x) { return s.p1 * x[0] + s.p2 * x[1]; };
+    // True optimum: best corner of the two rectangles (prices are positive)
+    var cB = [s.a, U], cA = [U, s.b];            // mode B limits tables, mode A limits chairs
+    var vB = obj(cB), vA = obj(cA);
+    r.trueVal = Math.max(vA, vB);
+    r.truePts = [];
+    r.trueModes = [];
+    if (vA >= r.trueVal - EPS) { r.truePts.push(cA); r.trueModes.push("A"); }
+    if (vB >= r.trueVal - EPS) { r.truePts.push(cB); r.trueModes.push("B"); }
+    // Model with integer z
+    var m0 = [s.a, Math.min(U, s.b + s.M2)], m1 = [Math.min(U, s.a + s.M1), s.b];
+    var v0 = obj(m0), v1 = obj(m1);
+    r.modelVal = Math.max(v0, v1);
+    r.modelPt = v1 >= v0 ? m1 : m0;
+    // LP relaxation: best vertex of the relaxation polygon
+    r.relax = relaxation(s);
+    r.lpVal = -Infinity;
+    r.relax.forEach(function (p) { r.lpVal = Math.max(r.lpVal, obj(p)); });
+    var best = null, bestD = Infinity;
+    r.relax.forEach(function (p) {
+      if (obj(p) < r.lpVal - 1e-9) return;
+      r.truePts.forEach(function (q) {
+        var d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+        if (d < bestD) { bestD = d; best = p; }
+      });
+    });
+    r.lpPt = best;
+    r.zLo = Math.max(0, (best[0] - s.a) / s.M1);
+    r.zHi = Math.min(1, 1 - (best[1] - s.b) / s.M2);
+    r.valid = s.M1 >= U - s.a - EPS && s.M2 >= U - s.b - EPS;
+    r.hull = hull(s);
+    r.areaRelax = area(r.relax);
+    r.areaHull = area(r.hull);
+    r.areaL = U * s.a + U * s.b - s.a * s.b;
+    r.tight = r.valid && r.areaRelax - r.areaHull < 1e-6;
+    r.lost = r.modelVal < r.trueVal - 1e-9;
+    r.gap = (r.lpVal - r.trueVal) / r.trueVal * 100;
+    // Parts of the true region that the integer model cuts off
+    r.cuts = [];
+    if (s.b + s.M2 < U - EPS) r.cuts.push([0, s.b + s.M2, s.a, U]);      // x1 <= a, x2 above b + M2
+    if (s.a + s.M1 < U - EPS) r.cuts.push([s.a + s.M1, 0, U, s.b]);      // x2 <= b, x1 above a + M1
+    return r;
+  }
+
+  // ---------- drawing ----------
+  var W = 422, H = 420, L = 46, T = 16, S = 60; // px per batch
+  function X(v) { return L + v * S; }
+  function Y(v) { return T + U * S - v * S; }
+  function mk(tag, attrs, parent, text) {
+    var n = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function pts(poly) { return poly.map(function (p) { return X(p[0]).toFixed(2) + "," + Y(p[1]).toFixed(2); }).join(" "); }
+  function rectXY(x0, y0, x1, y1, cls, parent) {
+    return mk("rect", { x: X(x0), y: Y(y1), width: Math.max(0, (x1 - x0) * S), height: Math.max(0, (y1 - y0) * S), "class": cls }, parent);
+  }
+  function textW(str, size) { return str.length * size * 0.56; }
+
+  var svg = $("plot");
+  function draw(s, r) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var defs = mk("defs", {}, svg);
+    var pat = mk("pattern", { id: "bigm-hatch", patternUnits: "userSpaceOnUse", width: 7, height: 7, patternTransform: "rotate(45)" }, defs);
+    mk("line", { x1: 1, y1: 0, x2: 1, y2: 7, "class": "hatchline" }, pat);
+    var cp = mk("clipPath", { id: "bigm-clip" }, defs);
+    mk("rect", { x: X(0), y: Y(U), width: U * S, height: U * S }, cp);
+
+    // grid and ticks
+    var g = mk("g", {}, svg);
+    for (var i = 0; i <= U; i++) {
+      mk("line", { x1: X(i), y1: Y(0), x2: X(i), y2: Y(U), "class": "gridl" }, g);
+      mk("line", { x1: X(0), y1: Y(i), x2: X(U), y2: Y(i), "class": "gridl" }, g);
+      mk("text", { x: X(i), y: Y(0) + 16, "text-anchor": "middle", "class": "tick" }, g, f(i, 0));
+      mk("text", { x: X(0) - 8, y: Y(i) + 4, "text-anchor": "end", "class": "tick" }, g, f(i, 0));
+    }
+    mk("text", { x: X(U / 2), y: H - 6, "text-anchor": "middle", "class": "axt" }, g, t("bigm.plot.x1"));
+    mk("text", { x: 13, y: Y(U / 2), "text-anchor": "middle", "class": "axt", transform: "rotate(-90 13 " + Y(U / 2) + ")" }, g, t("bigm.plot.x2"));
+
+    var body = mk("g", { "clip-path": "url(#bigm-clip)" }, svg);
+    // LP relaxation fill, then the true L region
+    if (r.relax.length > 2) mk("polygon", { points: pts(r.relax), "class": "relaxfill" }, body);
+    var Lpoly = pts([[0, 0], [U, 0], [U, s.b], [s.a, s.b], [s.a, U], [0, U]]);
+    mk("polygon", { points: Lpoly, "class": "lbase" }, body);
+    mk("polygon", { points: Lpoly, "class": "lreg" }, body);
+    // cut-off parts
+    r.cuts.forEach(function (c) { rectXY(c[0], c[1], c[2], c[3], "cut", body); });
+
+    // sweep trace: rectangles for the sampled z values and the corner path
+    if (traceN > 0) {
+      var corners = [];
+      for (var k = 0; k < traceN; k++) {
+        var zz = k / TRACE_STEPS;
+        var cx = Math.min(U, s.a + s.M1 * zz), cy = Math.min(U, s.b + s.M2 * (1 - zz));
+        rectXY(0, 0, cx, cy, "trace", body);
+        corners.push([s.a + s.M1 * zz, s.b + s.M2 * (1 - zz)]);
+      }
+      if (corners.length > 1) {
+        mk("polyline", { points: pts([corners[0], corners[corners.length - 1]]), "class": "tracepath" }, body);
+      }
+    }
+    // rectangle for the current fractional z
+    var zx = Math.min(U, s.a + s.M1 * s.z), zy = Math.min(U, s.b + s.M2 * (1 - s.z));
+    rectXY(0, 0, zx, zy, "zrect", body);
+
+    // convex hull and relaxation outlines
+    mk("polygon", { points: pts(r.hull), "class": "hullline" }, body);
+    if (r.relax.length > 2) mk("polygon", { points: pts(r.relax), "class": "relaxline" }, body);
+
+    // iso-profit lines p1 x1 + p2 x2 = value
+    function iso(val, cls) {
+      var P = [[0, val / s.p2], [U, (val - s.p1 * U) / s.p2]];
+      mk("line", { x1: X(P[0][0]), y1: Y(P[0][1]), x2: X(P[1][0]), y2: Y(P[1][1]), "class": cls }, body);
+    }
+    iso(r.trueVal, "iso-true");
+    if (Math.abs(r.lpVal - r.trueVal) > 1e-9) iso(r.lpVal, "iso-lp");
+
+    mk("rect", { x: X(0), y: Y(U), width: U * S, height: U * S, "class": "boxl" }, svg);
+
+    // labels: modes and cut-off parts
+    var lab = mk("g", {}, svg);
+    if (s.a * S >= textW(t("bigm.plot.modeB"), 11.5) + 8 && U - s.b > 1 && s.b + s.M2 >= U - EPS) {
+      mk("text", { x: X(s.a / 2), y: Y(U) + 16, "text-anchor": "middle", "class": "modelab halo" }, lab, t("bigm.plot.modeB"));
+    }
+    if (s.b * S >= 18 && U - s.a > 1.6 && s.a + s.M1 >= U - EPS) {
+      mk("text", { x: X(U) - 6, y: Y(s.b / 2) + 4, "text-anchor": "end", "class": "modelab halo" }, lab, t("bigm.plot.modeA"));
+    }
+    r.cuts.forEach(function (c) {
+      var w = (c[2] - c[0]) * S, h = (c[3] - c[1]) * S, str = t("bigm.plot.cut"), tw = textW(str, 11.5);
+      var cx = X((c[0] + c[2]) / 2), cy = Y((c[1] + c[3]) / 2);
+      var words = str.split(" "), cut = Math.ceil(words.length / 2);
+      var two = [words.slice(0, cut).join(" "), words.slice(cut).join(" ")];
+      var tw2 = Math.max(textW(two[0], 11.5), textW(two[1], 11.5));
+      if (w >= tw + 6 && h >= 16) mk("text", { x: cx, y: cy + 4, "text-anchor": "middle", "class": "cutlab halo" }, lab, str);
+      else if (w >= tw2 + 6 && h >= 32 && two[1]) {
+        var tx = mk("text", { x: cx, y: cy - 3, "text-anchor": "middle", "class": "cutlab halo" }, lab);
+        mk("tspan", { x: cx, dy: 0 }, tx, two[0]);
+        mk("tspan", { x: cx, dy: 14 }, tx, two[1]);
+      }
+      else if (h >= tw + 6 && w >= 14) mk("text", { x: cx + 4, y: cy, "text-anchor": "middle", "class": "cutlab halo", transform: "rotate(-90 " + (cx + 4) + " " + cy + ")" }, lab, str);
+    });
+
+    // current z corner
+    mk("circle", { cx: X(zx), cy: Y(zy), r: 4, "class": "zdot" }, svg);
+    var zstr = t("bigm.plot.zlab", { z: f(s.z, 2, 2) });
+    var zxPx = X(zx) + 7, anchor = "start";
+    if (zxPx + textW(zstr, 11.5) > W - 4) { zxPx = X(zx) - 7; anchor = "end"; }
+    mk("text", { x: zxPx, y: Math.max(Y(zy) - 7, 14), "text-anchor": anchor, "class": "zlab halo" }, svg, zstr);
+
+    // optima
+    if (r.lost) {
+      var mp = r.modelPt;
+      mk("rect", { x: X(mp[0]) - 5.5, y: Y(mp[1]) - 5.5, width: 11, height: 11, "class": "opt-model" }, svg);
+    }
+    r.truePts.forEach(function (p) { mk("circle", { cx: X(p[0]), cy: Y(p[1]), r: 6, "class": "opt-true" }, svg); });
+    mk("circle", { cx: X(r.lpPt[0]), cy: Y(r.lpPt[1]), r: 10, "class": "opt-lp" }, svg);
+  }
+
+  // ---------- readouts ----------
+  function modeName(modes) { return t("bigm.mode." + modes[0]); }
+  function tightValues(s) { return { M1: U - s.a, M2: U - s.b }; }
+  function picks(s) {
+    var tv = tightValues(s);
+    return {
+      small: { M1: Math.max(0.5, half(tv.M1 / 2)), M2: Math.max(0.5, half(tv.M2 / 2)) },
+      tight: tv,
+      loose: { M1: Math.min(20, half(tv.M1 * 1.5)), M2: Math.min(20, half(tv.M2 * 1.5)) },
+      huge: { M1: 20, M2: 20 }
+    };
+  }
+
+  function render() {
+    var s = state(), r = solve(s);
+    $("m1o").textContent = f(s.M1, 1);
+    $("m2o").textContent = f(s.M2, 1);
+    $("ao").textContent = f(s.a, 1);
+    $("bo").textContent = f(s.b, 1);
+    $("p1o").textContent = f(s.p1, 1);
+    $("p2o").textContent = f(s.p2, 1);
+    $("zo").textContent = f(s.z, 2, 2);
+
+    $("eq").innerHTML = t("bigm.eq1", { a: f(s.a, 1), M: f(s.M1, 1) }) + "<br>" + t("bigm.eq2", { b: f(s.b, 1), M: f(s.M2, 1) });
+    var tv = tightValues(s);
+    $("tightInfo").innerHTML = t("bigm.m.tightInfo", { m1: f(tv.M1, 1), m2: f(tv.M2, 1) });
+
+    var pk = picks(s);
+    document.querySelectorAll("#qp button").forEach(function (btn) {
+      var v = pk[btn.getAttribute("data-pick")];
+      btn.setAttribute("aria-pressed", String(Math.abs(v.M1 - s.M1) < EPS && Math.abs(v.M2 - s.M2) < EPS));
+    });
+
+    // z panel
+    var zx = Math.min(U, s.a + s.M1 * s.z), zy = Math.min(U, s.b + s.M2 * (1 - s.z));
+    var zkey = s.z === 1 ? "bigm.z.infoA" : (s.z === 0 ? "bigm.z.infoB" : "bigm.z.info");
+    $("zInfo").innerHTML = t(zkey, { z: f(s.z, 2, 2), x1: f(zx, 2), x2: f(zy, 2) }) +
+      (traceN > 0 ? " " + t("bigm.z.traceInfo") : "");
+
+    // readouts
+    $("vTrue").textContent = f(r.trueVal, 2);
+    var tp = r.truePts[0];
+    $("lTrue").textContent = r.truePts.length > 1
+      ? t("bigm.r.trueSubTie", { x1: f(tp[0], 2), x2: f(tp[1], 2), y1: f(r.truePts[1][0], 2), y2: f(r.truePts[1][1], 2) })
+      : t("bigm.r.trueSub", { x1: f(tp[0], 2), x2: f(tp[1], 2), mode: modeName(r.trueModes) });
+    $("vModel").textContent = f(r.modelVal, 2);
+    $("lModel").innerHTML = r.lost
+      ? '<span class="flag bad">' + t("bigm.r.lost") + "</span>"
+      : '<span class="flag ok">' + t("bigm.r.same") + "</span>";
+    $("vLp").textContent = f(r.lpVal, 2);
+    var zText = r.zHi - r.zLo < 0.005
+      ? t("bigm.r.zOne", { z: f(r.zLo, 2) })
+      : t("bigm.r.zRange", { lo: f(r.zLo, 2), hi: f(r.zHi, 2) });
+    $("lLp").textContent = t("bigm.r.lpSub", { x1: f(r.lpPt[0], 2), x2: f(r.lpPt[1], 2), z: zText });
+    var g = Math.abs(r.gap) < 0.005 ? 0 : r.gap;
+    $("vGap").textContent = t("bigm.r.pct", { v: (g > 0 ? "+" : g < 0 ? "−" : "") + f(Math.abs(g), 1) });
+    $("lGap").innerHTML = g < 0
+      ? '<span class="flag bad">' + t("bigm.r.gapBelow") + "</span>"
+      : t(g > 0 ? "bigm.r.gapAbove" : "bigm.r.gapZero");
+
+    var st = $("status");
+    if (!r.valid) {
+      st.className = "status bad";
+      st.textContent = t(r.lost ? "bigm.st.smallLost" : "bigm.st.small");
+    } else if (r.tight) {
+      st.className = "status good";
+      st.textContent = t("bigm.st.tight");
+    } else {
+      st.className = "status";
+      st.textContent = g > 0 ? t("bigm.st.loose", { g: f(g, 1) }) : t("bigm.st.looseNoGap");
+    }
+    $("areas").innerHTML = t("bigm.r.areas", { r: f(r.areaRelax, 2), h: f(r.areaHull, 2), l: f(r.areaL, 2) });
+
+    // huge M panel, live line
+    $("hugeLive").innerHTML = t("bigm.h.live", { m: f(s.M1, 1), z: f(1 / s.M1, 4), a: f(s.a, 1), a1: f(s.a + 1, 1) });
+
+    draw(s, r);
+  }
+
+  function renderHugeTable() {
+    var rows = [10, 1000, 100000, 1000000], tol = 0.00001, html = "";
+    rows.forEach(function (M) {
+      var open = M * tol;
+      html += "<tr><td>" + f(M, 0) + '</td><td class="zc">' + f(1 / M, 6) + "</td><td" + (open >= 1 ? ' class="bad"' : "") + ">" + f(open, 4) + "</td></tr>";
+    });
+    $("hugeBody").innerHTML = html;
+  }
+
+  function setM(v) {
+    el.m1.value = v.M1; el.m2.value = v.M2;
+    render();
+  }
+
+  // ---------- sweep ----------
+  function stopSweep() { if (sweepRaf) { cancelAnimationFrame(sweepRaf); sweepRaf = 0; } }
+  function sweep() {
+    stopSweep();
+    if (reduce) {
+      traceN = TRACE_STEPS + 1;
+      el.z.value = 1;
+      render();
+      return;
+    }
+    traceN = 0;
+    var start = null, DUR = 2600;
+    function step(ts) {
+      if (start === null) start = ts;
+      var fr = Math.min(1, (ts - start) / DUR);
+      el.z.value = fr.toFixed(2);
+      traceN = Math.min(TRACE_STEPS + 1, Math.floor(fr * TRACE_STEPS + 1e-9) + 1);
+      render();
+      sweepRaf = fr < 1 ? requestAnimationFrame(step) : 0;
+    }
+    sweepRaf = requestAnimationFrame(step);
+  }
+
+  ["m1", "m2", "a", "b", "p1", "p2"].forEach(function (k) { el[k].addEventListener("input", render); });
+  el.z.addEventListener("input", function () { stopSweep(); render(); });
+  document.querySelectorAll("#qp button").forEach(function (btn) {
+    btn.addEventListener("click", function () { setM(picks(state())[btn.getAttribute("data-pick")]); });
+  });
+  $("tightBtn").addEventListener("click", function () { setM(tightValues(state())); });
+  $("sweepBtn").addEventListener("click", sweep);
+  $("clearBtn").addEventListener("click", function () { stopSweep(); traceN = 0; render(); });
+
+  I18N.onChange(function () { renderHugeTable(); render(); });
+})();
+</script>
+</body>
+</html>
