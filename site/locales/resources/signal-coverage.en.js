@@ -79,11 +79,13 @@ I18N.register("en", {
   "cov.d1.title": "The model: each vereda becomes one row",
   "cov.d1.p1": "Each candidate site j gets a binary variable: <strong>xⱼ = 1</strong> if an antenna is installed there and 0 if not. The map becomes numbers through one rule: <strong>aᵢⱼ = 1</strong> when vereda i lies inside the circle of site j, and 0 otherwise. Those 0s and 1s are the matrix next to the map.",
   "cov.d1.formula": "min  Σⱼ cⱼ·xⱼ                          (total cost)\ns.t. Σⱼ aᵢⱼ·xⱼ ≥ 1   for every vereda i   (some antenna reaches it)\n     xⱼ ∈ {0, 1}                        (install or not)",
+  "cov.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{j} c_j\\,x_j && \\text{(total cost)}\\\\\n\\text{ST}\\;& \\sum_{j} a_{ij}\\,x_j\\ge 1 && \\forall\\, i\\quad\\text{(some antenna reaches it)}\\\\\n& x_j\\in\\{0, 1\\} && \\text{(install or not)}\n\\end{aligned}",
   "cov.d1.p2": "Read one row and you have one constraint. In level 2, La Palma is reached only by sites D, E and H, so its row says <strong>x<sub>D</sub> + x<sub>E</sub> + x<sub>H</sub> ≥ 1</strong>: at least one of the three must be built. A column works the other way around: it lists every vereda a site serves, and installing it adds 1 to each of those rows. On levels 1 and 2 every antenna costs the same, so minimizing cost is the same as minimizing the number of antennas.",
 
   "cov.d2.title": "Covering, packing and partitioning",
   "cov.d2.p1": "The same 0-1 matrix supports three classic families of models. Only the sign of each row changes:",
   "cov.d2.formula": "covering      Σⱼ aᵢⱼ·xⱼ ≥ 1   each row served at least once   (min cost)\npacking       Σⱼ aᵢⱼ·xⱼ ≤ 1   each row used at most once      (max value)\npartitioning  Σⱼ aᵢⱼ·xⱼ = 1   each row served exactly once",
+  "cov.d2.tex": "\\begin{aligned}\n\\text{covering}\\;& \\sum_{j} a_{ij}\\,x_j\\ge 1\\quad\\text{(min cost)}\\\\\n& \\text{each row served at least once}\\\\[6pt]\n\\text{packing}\\;& \\sum_{j} a_{ij}\\,x_j\\le 1\\quad\\text{(max value)}\\\\\n& \\text{each row used at most once}\\\\[6pt]\n\\text{partitioning}\\;& \\sum_{j} a_{ij}\\,x_j= 1\\\\\n& \\text{each row served exactly once}\n\\end{aligned}",
   "cov.d2.p2": "<strong>Covering:</strong> place ambulance bases so that every neighborhood is reached within 10 minutes (or antennas, as in this game). <strong>Packing:</strong> choose which projects to fund when each engineer can work on at most one of them, maximizing total value. <strong>Partitioning:</strong> airline crew scheduling, where every flight must be staffed by exactly one crew.",
   "cov.d2.p3": "Covering tolerates overlap: a vereda reached by two antennas is fine. That is why a feasible plan can contain redundant antennas, and why the ≥ sign matters.",
 

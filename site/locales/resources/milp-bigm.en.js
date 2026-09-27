@@ -104,6 +104,7 @@ I18N.register("en", {
   "bigm.d1.x2": "batches of chairs per week, 0 to 6",
   "bigm.d1.z": "1 = mode A (chairs limited), 0 = mode B (tables limited)",
   "bigm.d1.formula": "max   p₁·x₁ + p₂·x₂\ns.t.  x₁ ≤ a + M₁·z          (tables limit, off when z = 1)\n      x₂ ≤ b + M₂·(1 − z)    (chairs limit, off when z = 0)\n      0 ≤ x₁ ≤ 6,   0 ≤ x₂ ≤ 6\n      z ∈ {0, 1}",
+  "bigm.d1.tex": "\\begin{aligned}\n\\max\\;& p_1x_1+p_2x_2 \\\\\n\\text{ST}\\;& x_1\\le a+M_1z && \\text{(tables limit, off when }z=1\\text{)}\\\\\n& x_2\\le b+M_2(1-z) && \\text{(chairs limit, off when }z=0\\text{)}\\\\\n& \\rlap{0\\le x_1\\le 6,\\quad 0\\le x_2\\le 6} \\\\\n& z\\in\\{0, 1\\}\n\\end{aligned}",
   "bigm.d1.p2": "<b>What M means.</b> M is the largest amount by which a constraint may need to be relaxed, and it comes from the bounds. When the tables limit is off, x₁ can reach 6, so a + M₁ must be at least 6: M₁ ≥ 6 − a. In the same way M₂ ≥ 6 − b. The smallest valid values M₁* = 6 − a and M₂* = 6 − b are the tightest.",
 
   "bigm.d2.title": "Too small, too big, just right",
@@ -114,6 +115,7 @@ I18N.register("en", {
   "bigm.d3.title": "Relaxation, convex hull and why tight models solve faster",
   "bigm.d3.p1": "Replace z ∈ {0, 1} by 0 ≤ z ≤ 1. For each fractional z the two constraints describe the rectangle x₁ ≤ a + M₁·z, x₂ ≤ b + M₂·(1 − z); its corner moves along the segment from (a, b + M₂) to (a + M₁, b). Eliminating z from (x₁ − a)/M₁ ≤ z ≤ 1 − (x₂ − b)/M₂ and 0 ≤ z ≤ 1 gives the region the LP really sees:",
   "bigm.d3.formula": "x₁ ≤ a + M₁,   x₂ ≤ b + M₂,\n(x₁ − a)/M₁ + (x₂ − b)/M₂ ≤ 1,   inside the box 0 to 6.",
+  "bigm.d3.tex": "\\begin{aligned}\n& x_1\\le a+M_1,\\quad x_2\\le b+M_2,\\\\\n& \\frac{x_1-a}{M_1}+\\frac{x_2-b}{M_2}\\le 1,\\quad \\text{inside the box 0 to 6.}\n\\end{aligned}",
   "bigm.d3.p2": "The smallest convex set that contains every valid plan is the <b>convex hull</b> of the L shape: the box cut by the line from (6, b) to (a, 6). No formulation can have a smaller relaxation. With the tightest M, the slanted line passes exactly through (6, b) and (a, 6), so the relaxation <b>equals</b> the hull, and for any profits the LP bound equals the true optimum.",
   "bigm.d3.p3": "Why it matters: branch and bound uses the LP bound to discard parts of the search. The closer the bound is to the true optimum (the smaller the gap in the readout), the fewer nodes the solver explores. In a large model with thousands of big-M constraints, a loose M can turn minutes into hours, and a huge M adds numerical trouble on top.",
 

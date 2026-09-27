@@ -209,7 +209,7 @@
       <summary data-i18n="cut.d1.title"></summary>
       <div class="body">
         <p data-i18n-html="cut.d1.p1"></p>
-        <div class="formula" data-i18n="cut.d1.formula"></div>
+        <div class="formula" data-tex="cut.d1.tex" data-i18n="cut.d1.formula"></div>
         <p data-i18n-html="cut.d1.p2"></p>
         <p data-i18n-html="cut.d1.p3"></p>
       </div>
@@ -218,7 +218,7 @@
       <summary data-i18n="cut.d2.title"></summary>
       <div class="body">
         <p data-i18n-html="cut.d2.p1"></p>
-        <div class="formula" data-i18n="cut.d2.formula"></div>
+        <div class="formula" data-tex="cut.d2.tex" data-i18n="cut.d2.formula"></div>
         <p data-i18n-html="cut.d2.p2"></p>
         <p data-i18n-html="cut.d2.p3"></p>
       </div>
@@ -252,6 +252,7 @@
 <script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/resources/cutting-planes.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";
@@ -472,6 +473,35 @@
   function pt(x) { return "(" + x[0].str() + ", " + x[1].str() + ")"; }
   function approx(v) { return v.isInt() ? "" : "≈ " + I18N.fmt(v.val(), 2); }
   function nm(P, k) { return t("cut.i." + P.id + "." + k); }
+  // TeX twins of the helpers above (typeset by assets/tex.js; the plain strings stay as the fallback)
+  var XT = ["x_1", "x_2"];
+  function texEsc(s) { return String(s).replace(/[\\{}$%&#_^~]/g, function (c) { return c === "\\" ? "\\backslash " : "\\" + c; }); }
+  function texT(s) { return "\\text{" + texEsc(s) + "}"; }
+  function frT(v) { // "-3", "\tfrac{5}{4}", "-\tfrac{1}{4}"
+    v = fr(v);
+    var ab = Math.abs(v.n);
+    return (v.n < 0 ? "-" : "") + (v.d === 1 ? String(ab) : "\\tfrac{" + ab + "}{" + v.d + "}");
+  }
+  function vnameT(j) { return j < 2 ? XT[j] : "s_{" + (j - 1) + "}"; }
+  function linT(co, names) {
+    var s = "";
+    co.forEach(function (c, i) {
+      c = fr(c);
+      if (!c.sgn()) return;
+      var ab = c.sgn() < 0 ? c.neg() : c;
+      var cs = ab.n === 1 && ab.d === 1 ? "" : frT(ab) + (ab.isInt() ? "" : "\\,");
+      s += (s ? (c.sgn() < 0 ? " - " : " + ") : (c.sgn() < 0 ? "-" : "")) + cs + names[i];
+    });
+    return s || "0";
+  }
+  function affT(e) {
+    var l = linT(e.g, XT), k = frT(e.k);
+    if (l === "0") return k;
+    return l.charAt(0) === "-" ? k + " - " + l.slice(1) : k + " + " + l;
+  }
+  function ineqT(a, b, rel) { return linT(a, XT) + " " + (rel || "\\le") + " " + frT(b); }
+  function ptT(x) { return "(" + frT(x[0]) + ",\\ " + frT(x[1]) + ")"; }
+  function alignedT(rows) { return "\\begin{aligned}\n" + rows.join("\\\\\n") + "\n\\end{aligned}"; }
 
   function prep(P) {
     if (P.R) return P;
@@ -619,34 +649,55 @@
         lab: pt(r.x) } });
   }
 
+  // returns [TeX, plain text]; TeX rows are "&label" or "&\\quad math" in one left-aligned column
   function derivText(P, st) {
-    var k = st.k, r = P.R[k], T = r.T, L = [];
+    var k = st.k, r = P.R[k], T = r.T, L = [], X = [];
+    var out = function () { return [alignedT(X.map(function (x) { return "& " + x; })), L.join("\n")]; };
+    var m = function (s) { return "\\quad {" + s + "}"; };
     if (st.t === "lp") {
       if (k > 0) {
         var pc = P.R[k - 1].cut, J = T.nc - 1;
         L.push(t("cut.dv.added", { k: k }), "  " + vname(J) + " = " + aff(T.expr[J]) + " ≥ 0",
           t("cut.dv.dual", { p: r.piv }));
-      } else L.push(t("cut.dv.primal", { p: r.piv }));
+        X.push(texT(t("cut.dv.added", { k: k })), m(vnameT(J) + " = " + affT(T.expr[J]) + " \\ge 0"), texT(t("cut.dv.dual", { p: r.piv })));
+      } else {
+        L.push(t("cut.dv.primal", { p: r.piv }));
+        X.push(texT(t("cut.dv.primal", { p: r.piv })));
+      }
       L.push(t("cut.dv.opt"), "  x = " + pt(r.x) + "   z = " + r.z.str());
-      if (r.done) L.push(t("cut.dv.int"));
-      return L.join("\n");
+      X.push(texT(t("cut.dv.opt")), m("x = " + ptT(r.x) + ",\\quad z = " + frT(r.z)));
+      if (r.done) { L.push(t("cut.dv.int")); X.push(texT(t("cut.dv.int"))); }
+      return out();
     }
-    var c = r.cut, row = T.rows[c.row], names = [];
-    for (var j = 0; j < T.nc; j++) names.push(vname(j));
+    var c = r.cut, row = T.rows[c.row], names = [], namesT = [];
+    for (var j = 0; j < T.nc; j++) { names.push(vname(j)); namesT.push(vnameT(j)); }
     L.push(t("cut.dv.src", { v: vname(c.bv) }), "  " + lin(row.a, names) + " = " + row.rhs.str());
-    if (st.t === "row") return L.join("\n");
+    X.push(t("cut.dv.src.tex", { "var": vnameT(c.bv) }), m(linT(row.a, namesT) + " = " + frT(row.rhs)));
+    if (st.t === "row") return out();
     var fl = c.terms.filter(function (tm) { return tm.a.sgn(); }).map(function (tm) { return "f(" + tm.a.str() + ") = " + tm.f.str(); });
     fl.push("f₀ = f(" + c.rhs.str() + ") = " + c.f0.str());
-    var gco = [], gnm = [];
-    c.terms.forEach(function (tm) { if (tm.f.sgn()) { gco.push(tm.f); gnm.push(vname(tm.j)); } });
+    var flT = c.terms.filter(function (tm) { return tm.a.sgn(); }).map(function (tm) { return "f(" + frT(tm.a) + ") = " + frT(tm.f); });
+    flT.push("f_0 = f(" + frT(c.rhs) + ") = " + frT(c.f0));
+    var gco = [], gnm = [], gnmT = [];
+    c.terms.forEach(function (tm) { if (tm.f.sgn()) { gco.push(tm.f); gnm.push(vname(tm.j)); gnmT.push(vnameT(tm.j)); } });
     L.push(t("cut.dv.frac"), "  " + fl.join("   "), t("cut.dv.gom"), "  " + lin(gco, gnm) + " ≥ " + c.f0.str());
-    if (st.t === "cut") return L.join("\n");
-    var subs = [];
-    c.terms.forEach(function (tm) { if (tm.f.sgn() && tm.j > 1) subs.push("  " + vname(tm.j) + " = " + aff(T.expr[tm.j])); });
-    if (subs.length) L.push(t("cut.dv.sub")), L.push.apply(L, subs);
+    X.push(t("cut.dv.frac.tex"), m(flT.join(",\\qquad ")), texT(t("cut.dv.gom")), m(linT(gco, gnmT) + " \\ge " + frT(c.f0)));
+    if (st.t === "cut") return out();
+    var subs = [], subsT = [];
+    c.terms.forEach(function (tm) {
+      if (tm.f.sgn() && tm.j > 1) {
+        subs.push("  " + vname(tm.j) + " = " + aff(T.expr[tm.j]));
+        subsT.push(m(vnameT(tm.j) + " = " + affT(T.expr[tm.j])));
+      }
+    });
+    if (subs.length) { L.push(t("cut.dv.sub")); L.push.apply(L, subs); X.push(texT(t("cut.dv.sub"))); X.push.apply(X, subsT); }
     L.push(t("cut.dv.inx"), "  " + ineq(c.al, c.ga));
-    if (c.lam.cmp(Z(1))) L.push("  × " + c.lam.str() + ":  " + ineq(c.A, c.B));
-    return L.join("\n");
+    X.push(t("cut.dv.inx.tex"), m(ineqT(c.al, c.ga)));
+    if (c.lam.cmp(Z(1))) {
+      L.push("  × " + c.lam.str() + ":  " + ineq(c.A, c.B));
+      X.push(m("\\times " + frT(c.lam) + ":\\quad " + ineqT(c.A, c.B)));
+    }
+    return out();
   }
 
   function narr(P, st) {
@@ -706,7 +757,8 @@
       (st.t === "lp" ? (st.k ? t("cut.afterCut", { k: st.k }) : t("cut.start")) : t("cut.cutN", { k: st.k + 1 }));
     $("extitle").textContent = t("cut.h." + (fin ? "done" : st.t === "lp" ? (st.k ? "lp" : "lp0") : st.t));
     $("exbody").innerHTML = narr(P, st);
-    $("deriv").textContent = derivText(P, st);
+    var dv = derivText(P, st);
+    TeX.set($("deriv"), dv[0], dv[1]);
     renderTable(P, st);
     $("back").disabled = step === 0;
     $("step").disabled = step >= P.steps.length - 1;
@@ -760,11 +812,15 @@
     $("u1o").textContent = g.u1.str(); $("u2o").textContent = g.u2.str();
     $("u1l").textContent = "u₁ · " + nm(P, "r1");
     $("u2l").textContent = "u₂ · " + nm(P, "r2");
-    $("cgsteps").textContent = [
+    TeX.set($("cgsteps"), alignedT([
+      "& " + frT(g.u1) + "\\cdot(" + ineqT(P.A[0], P.b[0]) + ")",
+      "+\\;& " + frT(g.u2) + "\\cdot(" + ineqT(P.A[1], P.b[1]) + ")",
+      "=\\;& {" + ineqT(g.comb, g.cb) + "} && " + texT("(" + t("cut.b.comb") + ")"),
+      "\\lfloor\\,\\rfloor\\;& {" + ineqT(g.a, g.b) + "} && " + texT("(" + t("cut.b.round") + ")")]), [
       "  " + g.u1.str() + " · (" + ineq(P.A[0], P.b[0]) + ")",
       "+ " + g.u2.str() + " · (" + ineq(P.A[1], P.b[1]) + ")",
       "= " + ineq(g.comb, g.cb) + "   (" + t("cut.b.comb") + ")",
-      "⌊⌋ " + ineq(g.a, g.b) + "   (" + t("cut.b.round") + ")"].join("\n");
+      "⌊⌋ " + ineq(g.a, g.b) + "   (" + t("cut.b.round") + ")"].join("\n"));
     var lines = origLines(P), rem = 0, cuts = false, poly = P.polys[0], sliver = null;
     var li = function (ic, cls, html) { return '<li><span class="ic ' + cls + '" aria-hidden="true">' + ic + "</span><span>" + html + "</span></li>"; };
     var h = li("✓", "y", t("cut.b.valid"));
@@ -810,9 +866,12 @@
     });
     $("bname").textContent = nm(P, "tab");
     $("btext").textContent = nm(P, "brief");
-    $("model").textContent = "max  z = " + lin(P.c, XN) + "\n" + t("ui.st") + " " +
+    TeX.set($("model"), alignedT(["\\max\\;& z = " + linT(P.c, XT)].concat(
+      P.A.map(function (a, i) { return (i ? "" : "\\text{ST}\\;") + "& {" + ineqT(a, P.b[i]) + "} && " + texT("(" + nm(P, "r" + (i + 1)) + ")"); }),
+      ["& " + t("cut.model.int.tex")])),
+      "max  z = " + lin(P.c, XN) + "\n" + t("ui.st") + " " +
       P.A.map(function (a, i) { return ineq(a, P.b[i]) + "   (" + nm(P, "r" + (i + 1)) + ")"; }).join("\n     ") +
-      "\n     " + t("cut.model.int");
+      "\n     " + t("cut.model.int"));
   }
   function pick(i) {
     playing = false; clearTimeout(timer); stopAnim();

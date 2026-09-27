@@ -214,6 +214,7 @@
 <script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";
@@ -489,12 +490,21 @@
     else vn.textContent = t("feas.note.theorem", { n: state.pts.length });
 
     // model box
-    document.getElementById("modelbox").textContent =
+    var plain =
       "max  Z = " + c1 + "x + " + c2 + "y        (" + t("feas.model.obj") + ")\n" +
       t("feas.model.st") + " " + cons.map(function (r) {
         return (r.on ? "" : "(" + t("feas.badge.off") + ") ") + eqText(r) + "   · " + cname(r).toLowerCase();
       }).join("\n     ") +
       "\n     x ≥ 0, y ≥ 0";
+    var tterm = function (v, name) { return v ? (v === 1 ? "" : v + "\\,") + name : ""; };
+    var tex = "\\begin{aligned}\n\\max\\;& Z=" + c1 + "\\,x+" + c2 + "\\,y && \\text{(" + t("feas.model.obj") + ")}\\\\\n" +
+      cons.map(function (r, i) {
+        var lhs = [tterm(r.a, "x"), tterm(r.b, "y")].filter(Boolean).join("+");
+        return (i ? "" : "\\text{ST}\\;") + "& " + lhs + "\\le " + r.rhs + " && \\text{(" + cname(r).toLowerCase() +
+          (r.on ? "" : ", " + t("feas.badge.off")) + ")}";
+      }).join("\\\\\n") +
+      "\\\\\n& x\\ge 0,\\quad y\\ge 0\n\\end{aligned}";
+    TeX.set(document.getElementById("modelbox"), tex, plain);
   }
 
   // ---- constraint rows (built once so sliders keep their drag) ----

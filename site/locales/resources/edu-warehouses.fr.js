@@ -125,6 +125,7 @@ I18N.register("fr", {
   "wh.d1.title": "Le modèle",
   "wh.d1.p1": "Une décision binaire par site et une décision continue par couple site et ville. Le coût fixe n'est payé que si y<sub>j</sub> = 1, et la contrainte de capacité relie les deux types de variables : un entrepôt fermé (y<sub>j</sub> = 0) a une capacité nulle.",
   "wh.d1.formula": "minimiser   Σ_j f_j·y_j  +  Σ_i Σ_j c_ij·x_ij\nsous        Σ_j x_ij = d_i          pour chaque ville i   (demande)\n            Σ_i x_ij ≤ u_j·y_j      pour chaque site j    (capacité, seulement si ouvert)\n            x_ij ≤ d_i·y_j          pour tout i et j      (coupes fortes)\n            y_j ∈ {0, 1},   x_ij ≥ 0",
+  "wh.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{j} f_j\\,y_j+\\sum_{i}\\sum_{j} c_{ij}\\,x_{ij}\\\\\n\\text{ST}\\;& \\sum_{j} x_{ij}=d_i && \\forall\\, i && \\text{(demande)}\\\\\n& \\sum_{i} x_{ij}\\le u_j\\,y_j && \\forall\\, j && \\text{(capacité, seulement si ouvert)}\\\\\n& x_{ij}\\le d_i\\,y_j && \\forall\\, i, j && \\text{(coupes fortes)}\\\\\n& y_j\\in\\{0, 1\\},\\quad x_{ij}\\ge 0\n\\end{aligned}",
   "wh.var.y": "1 si l'entrepôt j est ouvert, 0 s'il est fermé (5 variables)",
   "wh.var.x": "unités expédiées par semaine de l'entrepôt j vers la ville i (40 variables)",
   "wh.var.fu": "coût fixe du site j ($ par semaine) et sa capacité (unités par semaine)",
@@ -146,6 +147,7 @@ I18N.register("fr", {
   "wh.d3.title": "Formulations faible et forte",
   "wh.d3.p1": "Deux formulations peuvent accepter exactement les mêmes solutions entières et pourtant se comporter très différemment dans un solveur. Les deux suivantes sont des modèles corrects du problème :",
   "wh.d3.formula": "Faible :  Σ_i x_ij ≤ u_j·y_j                        (5 contraintes)\nForte :   Σ_i x_ij ≤ u_j·y_j  et  x_ij ≤ d_i·y_j      (5 + 40 contraintes)",
+  "wh.d3.tex": "\\begin{aligned}\n&\\text{Faible :} && \\sum_{i} x_{ij}\\le u_j\\,y_j && \\text{(5 contraintes)}\\\\\n&\\text{Forte :} && \\sum_{i} x_{ij}\\le u_j\\,y_j\\quad\\text{et}\\quad x_{ij}\\le d_i\\,y_j && \\text{(5 + 40 contraintes)}\n\\end{aligned}",
   "wh.d3.p2": "Quand y vaut 0 ou 1, les contraintes supplémentaires n'ajoutent rien : si y<sub>j</sub> = 1 elles disent qu'une ville reçoit au plus sa propre demande, ce qui est déjà vrai, et si y<sub>j</sub> = 0 la contrainte de capacité interdit déjà toute expédition. Elles n'agissent que lorsque y est fractionnaire, ce que la relaxation linéaire permet justement.",
   "wh.d3.p3": "Une relaxation plus serrée donne une borne inférieure plus haute. Dans le branch and bound, une borne plus haute élague davantage l'arbre de recherche, et le solveur prouve l'optimalité en explorant moins de nœuds. Ajouter des contraintes valides qui éliminent des points fractionnaires est l'une des astuces les plus efficaces de la modélisation en nombres entiers mixte.",
 

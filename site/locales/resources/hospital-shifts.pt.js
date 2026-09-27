@@ -88,6 +88,7 @@ I18N.register("pt", {
   "shift.model.start": "início:",
   "shift.model.rule": "Regra",
   "shift.model.int": "x_d ∈ {0, 1, 2, …}   (enfermeiras inteiras)",
+  "shift.model.tex": "\\begin{aligned}\n\\min\\;& \\sum_{d} x_d \\qquad \\text{(enfermeiras contratadas)}\\\\\n\\text{ST}\\;& {coverage}\\\\\n& x_d\\in\\{0, 1, 2, \\dots\\} \\qquad \\text{(enfermeiras inteiras)}\n\\end{aligned}",
 
   "shift.d1.title": "O modelo: escala cíclica de folgas",
   "shift.d1.p1": "Uma enfermeira fica totalmente descrita pelo dia em que começa o seu bloco, então a variável de decisão é x<sub>d</sub> = número de enfermeiras que começam no dia d. O objetivo é contratar o mínimo possível e garantir que cada dia t receba pelo menos a sua demanda. Esta é a matriz do nível atual: cada coluna é um dia de início e cada linha um dia da semana.",

@@ -89,6 +89,7 @@ I18N.register("pt", {
   "pw.d1.title": "O modelo",
   "pw.d1.p1": "O custo de cada moinho é dividido em três variáveis de faixa. Você compra s<sub>mk</sub> toneladas na faixa k do moinho m ao preço p<sub>mk</sub>, entre 0 e len<sub>k</sub> = 100 t. A binária δ<sub>mk</sub> indica se a faixa k está aberta.",
   "pw.d1.formula": "min   Σk pAk·sAk + Σk pBk·sBk             custo total\ns.a.  qA + qB = D                          atender à demanda\n      qm = sm1 + sm2 + sm3                 m = A, B\n      0 ≤ smk ≤ lenk·δmk                   usar a faixa k só se estiver aberta\n      smk ≥ lenk·δm,k+1                    abrir a faixa k+1 só se a k estiver cheia\n      smk ≥ 0,  δmk ∈ {0, 1}",
+  "pw.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{k} p_{Ak}\\,s_{Ak}+\\sum_{k} p_{Bk}\\,s_{Bk} && \\text{custo total}\\\\\n\\text{ST}\\;& q_A+q_B=D && \\text{atender à demanda}\\\\\n& q_m=s_{m1}+s_{m2}+s_{m3} && m=A,\\,B\\\\\n& 0\\le s_{mk}\\le \\mathrm{len}_k\\,\\delta_{mk} && \\text{usar a faixa }k\\text{ só se estiver aberta}\\\\\n& s_{mk}\\ge \\mathrm{len}_k\\,\\delta_{m,k+1} && \\text{abrir a faixa }k+1\\text{ só se a }k\\text{ estiver cheia}\\\\\n& s_{mk}\\ge 0,\\quad \\delta_{mk}\\in\\{0, 1\\}\n\\end{aligned}",
   "pw.d1.v1": "toneladas compradas na faixa k do moinho m (0 a 100 t)",
   "pw.d1.v2": "toneladas totais compradas do moinho m",
   "pw.d1.v3": "1 se a faixa k do moinho m está aberta (em uso), 0 caso contrário",
@@ -106,6 +107,7 @@ I18N.register("pt", {
   "pw.d3.p1": "Descontos por volume, caminhões maiores que custam menos por tonelada, curvas de aprendizado, máquinas com custo de preparação: sempre que a próxima unidade é mais barata que a anterior, o custo é côncavo e um PL será otimista demais.",
   "pw.d3.p2": "O caso extremo é um <b>custo fixo</b>: você paga F assim que compra qualquer coisa e depois c por unidade. O custo salta em 0, a forma mais côncava possível, e basta uma única binária y para modelá-lo:",
   "pw.d3.formula": "custo = F·y + c·q\n0 ≤ q ≤ M·y,   y ∈ {0, 1}",
+  "pw.d3.tex": "\\begin{aligned}\n\\text{custo}&=F\\,y+c\\,q\\\\\n0\\le q&\\le M\\,y,\\quad y\\in\\{0, 1\\}\n\\end{aligned}",
   "pw.d3.p3": "Um desconto por faixas é uma versão mais suave da mesma ideia, com uma binária por faixa. Binárias não são de graça: cada uma pode dobrar a busca que um solver precisa fazer. Por isso vale a pena verificar a curvatura primeiro e acrescentar binárias só onde o custo não é convexo, como faz a etiqueta de cada moinho.",
 
   "pw.d4.title": "Desafios",

@@ -88,6 +88,7 @@ I18N.register("fr", {
   "shift.model.start": "début :",
   "shift.model.rule": "Règle",
   "shift.model.int": "x_d ∈ {0, 1, 2, …}   (infirmières entières)",
+  "shift.model.tex": "\\begin{aligned}\n\\min\\;& \\sum_{d} x_d \\qquad \\text{(infirmières embauchées)}\\\\\n\\text{ST}\\;& {coverage}\\\\\n& x_d\\in\\{0, 1, 2, \\dots\\} \\qquad \\text{(infirmières entières)}\n\\end{aligned}",
 
   "shift.d1.title": "Le modèle : planification cyclique des repos",
   "shift.d1.p1": "Une infirmière est entièrement décrite par le jour où elle commence son bloc : la variable de décision est donc x<sub>d</sub> = nombre d'infirmières qui commencent le jour d. L'objectif est d'embaucher le moins possible tout en donnant à chaque jour t au moins sa demande. Voici la matrice du niveau en cours : chaque colonne est un jour de début et chaque ligne un jour de la semaine.",

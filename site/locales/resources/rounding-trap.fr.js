@@ -100,6 +100,7 @@ I18N.register("fr", {
   "rnd.model.st": "s.c.",
   "rnd.model.int": "x₁, x₂ ≥ 0 et entiers",
   "rnd.model.rel": "Relaxation linéaire : le même modèle, mais avec\nx₁, x₂ ≥ 0 réels (fractions permises)",
+  "rnd.model.tex": "\\begin{aligned}\n\\max\\;& Z={c1}\\,x_1+{c2}\\,x_2 && \\text{(marge mensuelle, M COP)}\\\\\n\\text{ST}\\;& {rows}\\\\\n& x_1, x_2\\ge 0 \\text{ et entiers}\\\\[8pt]\n& \\rlap{\\text{Relaxation linéaire : le même modèle, mais avec}}\\\\\n& \\rlap{x_1, x_2\\ge 0 \\text{ réels (fractions permises)}}\n\\end{aligned}",
 
   "rnd.d1.title": "Le modèle : relaxation linéaire contre programme en nombres entiers",
   "rnd.d1.p1": "La coopérative fait face à un <strong>programme linéaire en nombres entiers</strong> (PLNE) : une fonction objectif linéaire et des contraintes linéaires, plus l'exigence que x₁ et x₂ soient des nombres entiers. Avec les curseurs actuels, il s'écrit :",

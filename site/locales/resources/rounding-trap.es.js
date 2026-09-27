@@ -100,6 +100,7 @@ I18N.register("es", {
   "rnd.model.st": "s.a.",
   "rnd.model.int": "x₁, x₂ ≥ 0 y enteros",
   "rnd.model.rel": "Relajación lineal: el mismo modelo, pero con\nx₁, x₂ ≥ 0 reales (se permiten fracciones)",
+  "rnd.model.tex": "\\begin{aligned}\n\\max\\;& Z={c1}\\,x_1+{c2}\\,x_2 && \\text{(margen mensual, M COP)}\\\\\n\\text{ST}\\;& {rows}\\\\\n& x_1, x_2\\ge 0 \\text{ y enteros}\\\\[8pt]\n& \\rlap{\\text{Relajación lineal: el mismo modelo, pero con}}\\\\\n& \\rlap{x_1, x_2\\ge 0 \\text{ reales (se permiten fracciones)}}\n\\end{aligned}",
 
   "rnd.d1.title": "El modelo: relajación lineal contra programa entero",
   "rnd.d1.p1": "La cooperativa enfrenta un <strong>programa entero</strong> (PE): una función objetivo lineal y restricciones lineales, más la exigencia de que x₁ y x₂ sean números enteros. Con los controles actuales queda así:",

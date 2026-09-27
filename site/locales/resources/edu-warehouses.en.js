@@ -125,6 +125,7 @@ I18N.register("en", {
   "wh.d1.title": "The model",
   "wh.d1.p1": "One binary decision per site and one continuous decision per site and city pair. The fixed cost is paid only when y<sub>j</sub> = 1, and the capacity constraint ties the two kinds of variables together: a closed warehouse (y<sub>j</sub> = 0) has capacity 0.",
   "wh.d1.formula": "minimize    Σ_j f_j·y_j  +  Σ_i Σ_j c_ij·x_ij\nsubject to  Σ_j x_ij = d_i          for every city i    (demand)\n            Σ_i x_ij ≤ u_j·y_j      for every site j    (capacity, only if open)\n            x_ij ≤ d_i·y_j          for every i and j   (strong cuts)\n            y_j ∈ {0, 1},   x_ij ≥ 0",
+  "wh.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{j} f_j\\,y_j+\\sum_{i}\\sum_{j} c_{ij}\\,x_{ij}\\\\\n\\text{ST}\\;& \\sum_{j} x_{ij}=d_i && \\forall\\, i && \\text{(demand)}\\\\\n& \\sum_{i} x_{ij}\\le u_j\\,y_j && \\forall\\, j && \\text{(capacity, only if open)}\\\\\n& x_{ij}\\le d_i\\,y_j && \\forall\\, i, j && \\text{(strong cuts)}\\\\\n& y_j\\in\\{0, 1\\},\\quad x_{ij}\\ge 0\n\\end{aligned}",
   "wh.var.y": "1 if warehouse j is open, 0 if it is closed (5 variables)",
   "wh.var.x": "units shipped per week from warehouse j to city i (40 variables)",
   "wh.var.fu": "fixed cost of site j ($ per week) and its capacity (units per week)",
@@ -146,6 +147,7 @@ I18N.register("en", {
   "wh.d3.title": "Weak and strong formulations",
   "wh.d3.p1": "Two formulations can accept exactly the same integer solutions and still behave very differently inside a solver. Both of these are correct models of the problem:",
   "wh.d3.formula": "Weak:    Σ_i x_ij ≤ u_j·y_j                        (5 constraints)\nStrong:  Σ_i x_ij ≤ u_j·y_j  and  x_ij ≤ d_i·y_j     (5 + 40 constraints)",
+  "wh.d3.tex": "\\begin{aligned}\n&\\text{Weak:} && \\sum_{i} x_{ij}\\le u_j\\,y_j && \\text{(5 constraints)}\\\\\n&\\text{Strong:} && \\sum_{i} x_{ij}\\le u_j\\,y_j\\quad\\text{and}\\quad x_{ij}\\le d_i\\,y_j && \\text{(5 + 40 constraints)}\n\\end{aligned}",
   "wh.d3.p2": "When y is 0 or 1 the extra constraints add nothing: if y<sub>j</sub> = 1 they say a city gets at most its own demand, which is already true, and if y<sub>j</sub> = 0 the capacity constraint already forbids shipping. They only bite when y is fractional, which is exactly what the LP relaxation allows.",
   "wh.d3.p3": "A tighter relaxation gives a higher lower bound. In branch and bound, a higher bound prunes more of the search tree, so the solver proves optimality after exploring fewer nodes. Adding valid constraints that cut off fractional points is one of the most effective tricks in mixed-integer modeling.",
 

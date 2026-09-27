@@ -232,7 +232,7 @@
       <summary data-i18n="bnb.d1.title"></summary>
       <div class="body">
         <p data-i18n-html="bnb.d1.p1"></p>
-        <div class="formula" data-i18n="bnb.d1.formula"></div>
+        <div class="formula" data-tex="bnb.d1.tex" data-i18n="bnb.d1.formula"></div>
         <p data-i18n-html="bnb.d1.p2"></p>
       </div>
     </details>
@@ -240,13 +240,13 @@
       <summary data-i18n="bnb.d2.title"></summary>
       <div class="body">
         <p data-i18n-html="bnb.d2.p1"></p>
-        <div class="formula" data-i18n="bnb.d2.formula"></div>
+        <div class="formula" data-tex="bnb.d2.tex" data-i18n="bnb.d2.formula"></div>
         <p data-i18n-html="bnb.d2.p2"></p>
         <p data-i18n-html="bnb.d2.p3"></p>
         <p data-i18n-html="bnb.d2.p4"></p>
         <p data-i18n-html="bnb.d2.p5"></p>
         <p data-i18n-html="bnb.d2.p6"></p>
-        <div class="formula" data-i18n="bnb.d2.formula2"></div>
+        <div class="formula" data-tex="bnb.d2.tex2" data-i18n="bnb.d2.formula2"></div>
         <p data-i18n-html="bnb.d2.p7"></p>
       </div>
     </details>
@@ -277,6 +277,7 @@
 <script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/resources/search-tree.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";
@@ -445,6 +446,7 @@
 
   // ---- text helpers ----
   function xs(j) { return "x" + SUB[j]; }
+  function texEsc(s) { return String(s).replace(/[\\{}$%&#_^~]/g, function (c) { return c === "\\" ? "\\backslash " : "\\" + c; }); }
   function bcText(bc) { return xs(bc.j) + (bc.le ? " ≤ " : " ≥ ") + bc.k; }
   function boundsText(n) {
     var out = [];
@@ -504,8 +506,16 @@
       rows.push([(i ? "     " : (t("bnb.st") + "     ").slice(0, 5)) + term(c.a, 0) + " + " + term(c.b, 1) + " ≤ " + c.rhs, t("bnb.c." + c.k)]);
     });
     var wd = Math.max.apply(null, rows.map(function (r) { return r[0].length; })) + 3;
-    $("model").textContent = rows.map(function (r) { return r[0] + new Array(wd - r[0].length + 1).join(" ") + "(" + r[1] + ")"; }).join("\n") +
+    var plain = rows.map(function (r) { return r[0] + new Array(wd - r[0].length + 1).join(" ") + "(" + r[1] + ")"; }).join("\n") +
       "\n     " + t("bnb.model.int");
+    var tterm = function (a, j) { return (a === 1 ? "" : a) + "x_" + (j + 1); };
+    var tex = "\\begin{aligned}\n\\max\\;& z=" + tterm(w.c[0], 0) + "+" + tterm(w.c[1], 1) + " && \\text{(" + texEsc(t("bnb.model.obj")) + ")}";
+    w.cons.forEach(function (c, i) {
+      tex += "\\\\\n" + (i ? "" : "\\text{ST}\\;") + "& " + tterm(c.a, 0) + "+" + tterm(c.b, 1) + "\\le " + c.rhs + " && \\text{(" + texEsc(t("bnb.c." + c.k)) + ")}";
+    });
+    tex += "\\\\\n& " + t("bnb.model.int.tex") + "\n\\end{aligned}";
+    var mel = $("model"), mkey = t("ui.st") + "|" + tex;
+    if (mel._texKey !== mkey) { mel._texKey = mkey; TeX.set(mel, tex, plain); }
     [["sel-dfs", S.sel === "dfs"], ["sel-best", S.sel === "best"], ["br-most", S.br === "most"], ["br-first", S.br === "first"]].forEach(function (b) {
       $(b[0]).setAttribute("aria-pressed", b[1] ? "true" : "false");
     });

@@ -125,6 +125,7 @@ I18N.register("pt", {
   "wh.d1.title": "O modelo",
   "wh.d1.p1": "Uma decisão binária por local e uma decisão contínua por par de local e cidade. O custo fixo só é pago quando y<sub>j</sub> = 1, e a restrição de capacidade liga os dois tipos de variáveis: um armazém fechado (y<sub>j</sub> = 0) tem capacidade 0.",
   "wh.d1.formula": "minimizar   Σ_j f_j·y_j  +  Σ_i Σ_j c_ij·x_ij\nsujeito a   Σ_j x_ij = d_i          para cada cidade i   (demanda)\n            Σ_i x_ij ≤ u_j·y_j      para cada local j    (capacidade, só se abrir)\n            x_ij ≤ d_i·y_j          para cada i e j      (cortes fortes)\n            y_j ∈ {0, 1},   x_ij ≥ 0",
+  "wh.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{j} f_j\\,y_j+\\sum_{i}\\sum_{j} c_{ij}\\,x_{ij}\\\\\n\\text{ST}\\;& \\sum_{j} x_{ij}=d_i && \\forall\\, i && \\text{(demanda)}\\\\\n& \\sum_{i} x_{ij}\\le u_j\\,y_j && \\forall\\, j && \\text{(capacidade, só se abrir)}\\\\\n& x_{ij}\\le d_i\\,y_j && \\forall\\, i, j && \\text{(cortes fortes)}\\\\\n& y_j\\in\\{0, 1\\},\\quad x_{ij}\\ge 0\n\\end{aligned}",
   "wh.var.y": "1 se o armazém j está aberto, 0 se está fechado (5 variáveis)",
   "wh.var.x": "unidades enviadas por semana do armazém j para a cidade i (40 variáveis)",
   "wh.var.fu": "custo fixo do local j ($ por semana) e sua capacidade (unidades por semana)",
@@ -146,6 +147,7 @@ I18N.register("pt", {
   "wh.d3.title": "Formulações fraca e forte",
   "wh.d3.p1": "Duas formulações podem aceitar exatamente as mesmas soluções inteiras e ainda assim se comportar de forma muito diferente dentro de um solver. Ambas são modelos corretos do problema:",
   "wh.d3.formula": "Fraca:   Σ_i x_ij ≤ u_j·y_j                        (5 restrições)\nForte:   Σ_i x_ij ≤ u_j·y_j  e  x_ij ≤ d_i·y_j       (5 + 40 restrições)",
+  "wh.d3.tex": "\\begin{aligned}\n&\\text{Fraca:} && \\sum_{i} x_{ij}\\le u_j\\,y_j && \\text{(5 restrições)}\\\\\n&\\text{Forte:} && \\sum_{i} x_{ij}\\le u_j\\,y_j\\quad\\text{e}\\quad x_{ij}\\le d_i\\,y_j && \\text{(5 + 40 restrições)}\n\\end{aligned}",
   "wh.d3.p2": "Quando y vale 0 ou 1, as restrições extras não acrescentam nada: se y<sub>j</sub> = 1 elas dizem que uma cidade recebe no máximo a própria demanda, o que já é verdade, e se y<sub>j</sub> = 0 a restrição de capacidade já proíbe enviar. Elas só atuam quando y é fracionário, que é exatamente o que a relaxação linear permite.",
   "wh.d3.p3": "Uma relaxação mais apertada dá um limite inferior mais alto. No branch and bound, um limite mais alto poda mais ramos da árvore de busca, então o solver prova a otimalidade explorando menos nós. Acrescentar restrições válidas que cortam pontos fracionários é um dos truques mais eficazes da modelagem inteira mista.",
 
