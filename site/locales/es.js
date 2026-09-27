@@ -60,6 +60,7 @@ I18N.register("es", {
   "project.pallets.summary": "Qué cajas de flores van en cada posición de estiba de un avión de carga chárter completo, y si los operarios realmente pueden apilarlas a medida que llegan por la banda transportadora. La programación entera planea la asignación, el empaque 3D en línea simula la colocación y el llenado medido retroalimenta el plan.",
   "project.pallets.place": "De Bogotá a Miami, vuelos chárter en Airbus A330-200F",
   "project.pallets.facts": "8.500 cajas por vuelo | 45 clases de cajas | 32 posiciones de estiba | 65 t de carga útil máxima",
+  "project.ml-opt.title": "Machine Learning + Optimization",
   "method.cfl": "Localización competitiva de instalaciones",
   "method.logit": "Logit multinomial",
   "method.minlp": "MINLP",

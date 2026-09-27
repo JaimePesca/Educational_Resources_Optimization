@@ -13,6 +13,8 @@
  * Research: each case links to its page in research/, whose own strings live in
  * locales/research/<id>.<lang>.js. `paper` (optional) is the published article's link; when present the
  * case page shows a "Read the paper" button.
+ * A research entry without `href` is a placeholder for a coming project: the home page shows it as a
+ * dimmed, unlinked card with only its title (project.<id>.title).
  */
 window.CATALOG = {
   levels: [
@@ -89,6 +91,7 @@ window.CATALOG = {
     { id: "nanostores", href: "research/nanostores.html", paper: "https://doi.org/10.1007/978-3-032-19656-9_4", methods: ["cfl", "logit", "minlp", "linearization"] },
     { id: "markets", href: "research/markets.html", methods: ["cfl", "logit", "minlp", "fahp"] },
     { id: "wildfire", href: "research/wildfire.html", methods: ["twostage", "cvar", "matheuristic"] },
-    { id: "pallets", href: "research/pallets.html", methods: ["ilp", "packing", "drl"] }
+    { id: "pallets", href: "research/pallets.html", methods: ["ilp", "packing", "drl"] },
+    { id: "ml-opt" }
   ]
 };

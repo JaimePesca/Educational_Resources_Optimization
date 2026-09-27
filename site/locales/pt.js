@@ -60,6 +60,7 @@ I18N.register("pt", {
   "project.pallets.summary": "Quais caixas de flores vão em cada posição de palete de um avião cargueiro totalmente fretado, e se os operadores conseguem de fato empilhá-las à medida que as caixas chegam pela esteira. A programação inteira planeja a alocação, o empacotamento 3D online simula a colocação, e o preenchimento medido realimenta o plano.",
   "project.pallets.place": "Bogotá a Miami, voos fretados de Airbus A330-200F",
   "project.pallets.facts": "8.500 caixas por voo | 45 classes de caixas | 32 posições de palete | limite de carga útil de 65 t",
+  "project.ml-opt.title": "Machine Learning + Optimization",
   "method.cfl": "Localização competitiva de instalações",
   "method.logit": "Logit multinomial",
   "method.minlp": "MINLP",

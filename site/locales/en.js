@@ -60,6 +60,7 @@ I18N.register("en", {
   "project.pallets.summary": "Which flower boxes go on which pallet position of a full-charter cargo plane, and whether workers can actually stack them as the boxes arrive on the conveyor. Integer programming plans the allocation, online 3D bin packing simulates the placement, and measured fill feeds back into the plan.",
   "project.pallets.place": "Bogotá to Miami, Airbus A330-200F charter flights",
   "project.pallets.facts": "8,500 boxes per flight | 45 box classes | 32 pallet positions | 65 t payload limit",
+  "project.ml-opt.title": "Machine Learning + Optimization",
   "method.cfl": "Competitive facility location",
   "method.logit": "Multinomial logit",
   "method.minlp": "MINLP",

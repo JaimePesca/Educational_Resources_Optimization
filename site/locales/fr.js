@@ -60,6 +60,7 @@ I18N.register("fr", {
   "project.pallets.summary": "Quels cartons de fleurs placer sur quelle position de palette d'un avion cargo entièrement affrété, et si les opérateurs peuvent réellement les empiler à mesure qu'ils arrivent sur le convoyeur. La programmation en nombres entiers planifie l'affectation, le bin packing 3D en ligne simule le placement, et le taux de remplissage mesuré est réinjecté dans le plan.",
   "project.pallets.place": "De Bogotá à Miami, vols affrétés en Airbus A330-200F",
   "project.pallets.facts": "8 500 cartons par vol | 45 classes de cartons | 32 positions de palettes | charge utile limitée à 65 t",
+  "project.ml-opt.title": "Machine Learning + Optimization",
   "method.cfl": "Localisation concurrentielle d'installations",
   "method.logit": "Logit multinomial",
   "method.minlp": "MINLP",

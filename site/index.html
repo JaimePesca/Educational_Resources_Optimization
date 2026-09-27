@@ -96,6 +96,8 @@
     background: var(--accent); padding: 9px 14px; border-radius: 2px;
   }
   .case-link:hover { filter: brightness(1.12); }
+  .project.soon { opacity: 0.55; border-style: dashed; justify-content: center; min-height: 140px; }
+  .project.soon h3 { color: var(--ink2); }
 
   /* ---- learning path ---- */
   .ladder { display: grid; gap: 0; }
@@ -214,7 +216,7 @@
     var ul = document.getElementById("facts"); ul.textContent = "";
     var live = C.education.filter(published).length;
     [[C.levels.length, "home.facts.levels"], [live, "home.facts.resources"],
-     [C.education.length - live, "home.facts.planned"], [C.research.length, "home.facts.projects"],
+     [C.education.length - live, "home.facts.planned"], [C.research.filter(published).length, "home.facts.projects"],
      [I18N.languages.length, "home.facts.languages"]]
       .forEach(function (f) {
         var li = h("li"); var b = h("b", null, f[0]);
@@ -227,6 +229,12 @@
     var host = document.getElementById("projects"); host.textContent = "";
     C.research.forEach(function (p, i) {
       var card = h("article", "project"); card.id = "project-" + p.id;
+      if (!p.href) { // placeholder for a coming project: same card, dimmed, title only, no link
+        card.classList.add("soon");
+        card.appendChild(h("h3", null, t("project." + p.id + ".title")));
+        host.appendChild(card);
+        return;
+      }
 
       var top = h("div", "project-top");
       top.appendChild(h("span", "pindex", t("home.projectN", { n: i + 1 })));
