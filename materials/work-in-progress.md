@@ -21,7 +21,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 | 3c | lab-linearization (animation) | done | site/lab/linearizing-markets.html; reviewed (numbers match; exactness condition and notation note fixed); href in catalog.lab; card text in present tense |
 | 3d | lab-ml-methods "Learning Is Optimizing" (animation) | building | site/lab/learning-is-optimizing.html, prefix learn. |
 | 3e | lab-svm "The Widest Street" (animation) | building | site/lab/widest-street.html, prefix svm. |
-| 3f | lab-ml-ai-cases "ML + AI in Optimization" (simulation) | todo | |
+| 3f | lab-ml-ai-cases "ML + AI in Optimization" (simulation) | building | site/lab/ml-ai-optimization.html, prefix mlai. |
 | 4 | Final site-wide check, report to the owner, ask for merge | todo | |
 
 Status values: todo, building, review, done. For each lab page: build agent, then an independent review agent (numbers recomputed separately, four languages, 1200/700/400 px, light and dark, screenshots), then commit, then set `href` on its entry in `catalog.js` → `lab`.
