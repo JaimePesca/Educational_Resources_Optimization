@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en" data-title-key="dij.title" data-i18n-bundles="resources/dijkstra">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Dijkstra Step by Step</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  /* ---- mode switch ---- */
+  .modebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .flabel { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+  .seg { display: inline-grid; grid-template-columns: 1fr 1fr; max-width: 100%; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .seg button {
+    font: 600 13px var(--font-sans); padding: 8px 13px; border: none; cursor: pointer;
+    background: transparent; color: var(--ink2); text-align: center; line-height: 1.3;
+  }
+  .seg button + button { border-left: 1.5px solid var(--border); }
+  .seg button:hover { background: var(--surface2); }
+  .seg button[aria-pressed="true"] { background: var(--pine); color: var(--on-solid); }
+
+  /* ---- progress bar ---- */
+  .progress { display: flex; position: relative; margin: 0; padding: 0; list-style: none; }
+  .progress::before {
+    content: ""; position: absolute; top: 15px; left: 7%; right: 7%; height: 2px; background: var(--axis);
+  }
+  .progress li { flex: 1; display: flex; justify-content: center; position: relative; z-index: 1; min-width: 0; }
+  .prog-step {
+    display: flex; flex-direction: column; align-items: center; gap: 5px; background: none; border: none;
+    padding: 0; cursor: pointer; color: var(--muted); font: inherit;
+  }
+  .prog-dot {
+    width: 30px; height: 30px; border-radius: 3px; display: grid; place-items: center;
+    background: var(--surface); border: 2px solid var(--axis);
+    font: 600 11.5px var(--font-mono); color: var(--muted); transition: transform .2s, background .2s;
+  }
+  .prog-step.done .prog-dot { background: var(--surface2); border-color: var(--mit-silver); color: var(--ink2); }
+  .prog-step.active .prog-dot { background: var(--accent); border-color: var(--accent); color: var(--on-solid); transform: scale(1.12); }
+  .prog-step.finished .prog-dot { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .prog-label { font: 400 10.5px/1.3 var(--font-mono); text-align: center; white-space: nowrap; }
+  .prog-step.active .prog-label, .prog-step.finished .prog-label { color: var(--ink); font-weight: 600; }
+  .prog-step:hover .prog-dot { border-color: var(--ink2); }
+
+  /* ---- explanation ---- */
+  .explain { border-left: 4px solid var(--accent); padding: 16px 20px; }
+  .explain.final { border-left-color: var(--ink); }
+  .explain-iter { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 4px; }
+  .explain.final .explain-iter { color: var(--ink); }
+  .explain-title { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 8px; }
+  .explain-body { font-size: 14.5px; color: var(--ink2); line-height: 1.7; max-width: 78ch; }
+  .explain-body b { color: var(--ink); font-weight: 600; }
+  .explain-body .formula {
+    display: inline; padding: 1px 6px; margin: 0; font-size: 12.5px; white-space: nowrap; line-height: 1.5;
+  }
+
+  /* ---- optimal path ---- */
+  .path-display {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    padding: 12px 16px; border-left: 4px solid var(--ink);
+  }
+  .path-display[hidden], .alt-box[hidden] { display: none; }
+  .path-node {
+    font: 600 14px var(--font-mono); color: var(--ink); background: var(--surface2);
+    border: 1.5px solid var(--ink); border-radius: 3px; padding: 3px 11px;
+  }
+  .path-arrow { color: var(--ink); font-size: 16px; }
+  .path-cost {
+    margin-left: auto; font: 600 13px var(--font-mono); background: var(--ink); color: var(--bg);
+    padding: 4px 12px; border-radius: 3px;
+  }
+
+  /* ---- alternative paths ---- */
+  .alt-row {
+    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    font-family: var(--font-mono); font-size: 13px; padding: 7px 10px; border-bottom: 1px solid var(--grid); color: var(--ink2);
+  }
+  .alt-row:last-of-type { border-bottom: none; }
+  .alt-row.best { color: var(--ink); font-weight: 600; background: var(--region); border-left: 3px solid var(--ink); }
+  .alt-note { font-size: 14px; color: var(--ink2); line-height: 1.6; margin: 10px 0 0; }
+  .alt-note b { color: var(--ink); }
+
+  /* ---- graph + table ---- */
+  .cards { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
+  svg#dij-graph { display: block; width: 100%; height: auto; max-height: 440px; margin: 0 auto; }
+
+  .tblwrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 330px; }
+  th {
+    text-align: left; font-family: var(--font-mono); font-weight: 400; font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--axis); padding: 6px 8px;
+  }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; transition: background .2s, color .2s; }
+  td:first-child { border-left: 3px solid transparent; }
+  tr:last-child td { border-bottom: none; }
+  td.mono { font-family: var(--font-mono); font-size: 13px; }
+  td.status { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.03em; white-space: nowrap; }
+  .tag { font-size: 11px; color: var(--muted); font-weight: 400; }
+  tr.visited td { color: var(--muted); text-decoration: line-through; }
+  tr.visited td .tag { text-decoration: none; }
+  tr.current td { background: var(--sel); color: var(--accent-text); font-weight: 600; }
+  tr.current td:first-child { border-left-color: var(--accent); }
+  tr.updated-row td.upd {
+    background: color-mix(in srgb, var(--mit-bright) 13%, transparent);
+    box-shadow: inset 0 0 0 1.5px var(--mit-bright); color: var(--crit); font-weight: 600;
+  }
+  tr.optimal td { background: var(--region); color: var(--ink); font-weight: 600; }
+  tr.optimal td:first-child { border-left-color: var(--ink); }
+
+  .legend { display: flex; gap: 8px 16px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .leg { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink2); }
+  .leg-sq { width: 13px; height: 13px; border-radius: 2px; flex: none; border: 1.5px solid var(--axis); background: var(--surface); }
+  .leg-sq.current { background: var(--accent); border-color: var(--accent); }
+  .leg-sq.updated { background: color-mix(in srgb, var(--mit-bright) 13%, transparent); border-color: var(--mit-bright); }
+  .leg-sq.optimal { background: var(--ink); border-color: var(--ink); }
+  .leg-sq.visited { background: var(--surface2); border-color: var(--mit-silver); }
+
+  /* ---- controls ---- */
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  button.btn {
+    font: 600 14px var(--font-sans); border-radius: 3px; padding: 9px 16px; cursor: pointer;
+    background: transparent; color: var(--ink2); border: 1.5px solid var(--border);
+  }
+  button.btn:hover { background: var(--surface2); }
+  button.btn.primary { background: var(--accent); color: var(--on-solid); border-color: var(--accent); }
+  button.btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+  button.btn.done { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  button.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
+  button.btn.done:disabled { opacity: 0.8; }
+  .step-counter { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-left: auto; }
+  @media (max-width: 480px) {
+    button.btn { padding: 9px 12px; font-size: 13.5px; }
+    .progress::before { left: 5%; right: 5%; }
+    .prog-label { font-size: 9.5px; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="dij.eyebrow"></p>
+    <h1 data-i18n="dij.title"></h1>
+    <p class="lede" data-i18n-html="dij.lede"></p>
+  </header>
+
+  <div class="modebar">
+    <span class="flabel" id="dij-modelbl" data-i18n="dij.mode.label"></span>
+    <div class="seg" role="group" aria-labelledby="dij-modelbl">
+      <button type="button" id="dij-mode-example" aria-pressed="true" data-i18n="dij.mode.example"></button>
+      <button type="button" id="dij-mode-exercise" aria-pressed="false" data-i18n="dij.mode.exercise"></button>
+    </div>
+  </div>
+
+  <ol class="progress" id="dij-progress" data-i18n-attr="aria-label:dij.progress.aria"></ol>
+
+  <div class="card explain" id="dij-explain" aria-live="polite">
+    <div class="explain-iter" id="dij-ex-iter"></div>
+    <h2 class="explain-title" id="dij-ex-title"></h2>
+    <div class="explain-body" id="dij-ex-body"></div>
+  </div>
+
+  <div class="card path-display" id="dij-path" hidden></div>
+
+  <div class="card alt-box" id="dij-alt" hidden>
+    <h2 data-i18n="dij.alt.title"></h2>
+    <div class="alt-row best"><span>O → A → B → D → T</span><span>3 + 2 + 2 + 1 = 8 ✓</span></div>
+    <div class="alt-row"><span>O → A → C → D → T</span><span>3 + 2 + 3 + 1 = 9</span></div>
+    <div class="alt-row"><span>O → B → D → T</span><span>6 + 2 + 1 = 9</span></div>
+    <div class="alt-row"><span>O → A → C → T</span><span>3 + 2 + 5 = 10</span></div>
+    <div class="alt-row"><span>O → A → D → T</span><span>3 + 7 + 1 = 11</span></div>
+    <p class="alt-note" data-i18n-html="dij.alt.note"></p>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h2><span class="kicker" data-i18n="dij.graph.kicker"></span><span id="dij-graph-title"></span></h2>
+      <svg id="dij-graph" viewBox="0 0 300 300" role="img" data-i18n-attr="aria-label:dij.graph.aria"></svg>
+    </div>
+    <div class="card">
+      <h2><span class="kicker" data-i18n="dij.table.kicker"></span><span data-i18n="dij.table.title"></span></h2>
+      <div class="tblwrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="dij.th.node"></th>
+              <th data-i18n="dij.th.dist"></th>
+              <th data-i18n="dij.th.pred"></th>
+              <th data-i18n="dij.th.status"></th>
+            </tr>
+          </thead>
+          <tbody id="dij-tbody"></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span class="leg"><span class="leg-sq current"></span><span data-i18n="dij.legend.current"></span></span>
+        <span class="leg"><span class="leg-sq updated"></span><span data-i18n="dij.legend.updated"></span></span>
+        <span class="leg"><span class="leg-sq optimal"></span><span data-i18n="dij.legend.optimal"></span></span>
+        <span class="leg"><span class="leg-sq visited"></span><span data-i18n="dij.legend.visited"></span></span>
+        <span class="leg"><span class="leg-sq"></span><span data-i18n="dij.legend.pending"></span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="dij-reset" type="button" data-i18n="dij.btn.reset"></button>
+    <button class="btn" id="dij-prev" type="button" data-i18n="dij.btn.prev"></button>
+    <button class="btn primary" id="dij-next" type="button"></button>
+    <span class="step-counter" id="dij-counter"></span>
+  </div>
+
+  <p class="note" data-i18n="dij.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/dijkstra.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var INF = Infinity;
+  var css = function (name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); };
+  var $ = function (id) { return document.getElementById(id); };
+  var num = function (d) { return d === INF ? "∞" : I18N.fmt(d, 0); };
+  var ukey = function (a, b) { return [a, b].sort().join("-"); };
+
+  // ---- data: the two networks from the original pages ----
+  var GRAPHS = {
+    example: {
+      directed: true, viewBox: "0 0 300 300", origin: "A", dest: "F", bodyKey: "dij.ex.s", titleKey: "dij.graph.example",
+      weightOffset: 11, badgeStroke: false,
+      nodes: ["A", "B", "C", "D", "E", "F"],
+      pos: { A: { x: 34, y: 148 }, B: { x: 114, y: 54 }, C: { x: 114, y: 242 }, D: { x: 194, y: 148 }, E: { x: 262, y: 54 }, F: { x: 262, y: 214 } },
+      labelBelow: function () { return true; },
+      arcs: [
+        { f: "A", t: "B", w: 4 }, { f: "A", t: "C", w: 2 },
+        { f: "B", t: "D", w: 5 }, { f: "B", t: "E", w: 1 },
+        { f: "C", t: "B", w: 1 }, { f: "C", t: "D", w: 8 },
+        { f: "D", t: "E", w: 2 }, { f: "D", t: "F", w: 3 },
+        { f: "E", t: "F", w: 2 }
+      ],
+      states: [
+        { current: null, updated: [], visited: [], optimal: [],
+          dist: { A: 0, B: INF, C: INF, D: INF, E: INF, F: INF },
+          pred: { A: null, B: null, C: null, D: null, E: null, F: null }, activeArcs: [] },
+        { current: "A", updated: ["B", "C"], visited: ["A"], optimal: [],
+          dist: { A: 0, B: 4, C: 2, D: INF, E: INF, F: INF },
+          pred: { A: null, B: "A", C: "A", D: null, E: null, F: null }, activeArcs: ["A-B", "A-C"] },
+        { current: "C", updated: ["B", "D"], visited: ["A", "C"], optimal: [],
+          dist: { A: 0, B: 3, C: 2, D: 10, E: INF, F: INF },
+          pred: { A: null, B: "C", C: "A", D: "C", E: null, F: null }, activeArcs: ["C-B", "C-D"] },
+        { current: "B", updated: ["D", "E"], visited: ["A", "C", "B"], optimal: [],
+          dist: { A: 0, B: 3, C: 2, D: 8, E: 4, F: INF },
+          pred: { A: null, B: "C", C: "A", D: "B", E: "B", F: null }, activeArcs: ["B-D", "B-E"] },
+        { current: "E", updated: ["F", "D"], visited: ["A", "C", "B", "E"], optimal: [],
+          dist: { A: 0, B: 3, C: 2, D: 6, E: 4, F: 6 },
+          pred: { A: null, B: "C", C: "A", D: "E", E: "B", F: "E" }, activeArcs: ["E-F", "D-E"] },
+        { current: "D", updated: [], visited: ["A", "C", "B", "E", "D"], optimal: [],
+          dist: { A: 0, B: 3, C: 2, D: 6, E: 4, F: 6 },
+          pred: { A: null, B: "C", C: "A", D: "E", E: "B", F: "E" }, activeArcs: ["D-F"] },
+        { current: "F", updated: [], visited: ["A", "C", "B", "E", "D", "F"], optimal: ["A", "C", "B", "E", "F"],
+          dist: { A: 0, B: 3, C: 2, D: 6, E: 4, F: 6 },
+          pred: { A: null, B: "C", C: "A", D: "E", E: "B", F: "E" }, activeArcs: ["A-C", "C-B", "B-E", "E-F"] }
+      ]
+    },
+    exercise: {
+      directed: false, viewBox: "0 0 380 290", origin: "O", dest: "T", bodyKey: "dij.ot.s", titleKey: "dij.graph.exercise",
+      weightOffset: 0, badgeStroke: true,
+      nodes: ["O", "A", "B", "C", "D", "T"],
+      pos: { O: { x: 34, y: 140 }, A: { x: 130, y: 44 }, B: { x: 130, y: 236 }, C: { x: 250, y: 44 }, D: { x: 250, y: 236 }, T: { x: 346, y: 140 } },
+      labelBelow: function (name, p) { return p.y > 140 || name === "O" || name === "T"; },
+      arcs: [
+        { f: "O", t: "A", w: 3 }, { f: "O", t: "B", w: 6 },
+        { f: "A", t: "B", w: 2 }, { f: "A", t: "C", w: 2 }, { f: "A", t: "D", w: 7 },
+        { f: "B", t: "D", w: 2 }, { f: "C", t: "D", w: 3 },
+        { f: "C", t: "T", w: 5 }, { f: "D", t: "T", w: 1 }
+      ],
+      states: [
+        { current: null, updated: [], visited: [], optimal: [],
+          dist: { O: 0, A: INF, B: INF, C: INF, D: INF, T: INF },
+          pred: { O: null, A: null, B: null, C: null, D: null, T: null }, activeArcs: [] },
+        { current: "O", updated: ["A", "B"], visited: ["O"], optimal: [],
+          dist: { O: 0, A: 3, B: 6, C: INF, D: INF, T: INF },
+          pred: { O: null, A: "O", B: "O", C: null, D: null, T: null }, activeArcs: [ukey("O", "A"), ukey("O", "B")] },
+        { current: "A", updated: ["B", "C", "D"], visited: ["O", "A"], optimal: [],
+          dist: { O: 0, A: 3, B: 5, C: 5, D: 10, T: INF },
+          pred: { O: null, A: "O", B: "A", C: "A", D: "A", T: null }, activeArcs: [ukey("A", "B"), ukey("A", "C"), ukey("A", "D")] },
+        { current: "B", updated: ["D"], visited: ["O", "A", "B"], optimal: [],
+          dist: { O: 0, A: 3, B: 5, C: 5, D: 7, T: INF },
+          pred: { O: null, A: "O", B: "A", C: "A", D: "B", T: null }, activeArcs: [ukey("B", "D")] },
+        { current: "C", updated: ["T"], visited: ["O", "A", "B", "C"], optimal: [],
+          dist: { O: 0, A: 3, B: 5, C: 5, D: 7, T: 10 },
+          pred: { O: null, A: "O", B: "A", C: "A", D: "B", T: "C" }, activeArcs: [ukey("C", "D"), ukey("C", "T")] },
+        { current: "D", updated: ["T"], visited: ["O", "A", "B", "C", "D"], optimal: [],
+          dist: { O: 0, A: 3, B: 5, C: 5, D: 7, T: 8 },
+          pred: { O: null, A: "O", B: "A", C: "A", D: "B", T: "D" }, activeArcs: [ukey("D", "T")] },
+        { current: "T", updated: [], visited: ["O", "A", "B", "C", "D", "T"], optimal: ["O", "A", "B", "D", "T"],
+          dist: { O: 0, A: 3, B: 5, C: 5, D: 7, T: 8 },
+          pred: { O: null, A: "O", B: "A", C: "A", D: "B", T: "D" }, activeArcs: [ukey("O", "A"), ukey("A", "B"), ukey("B", "D"), ukey("D", "T")] }
+      ]
+    }
+  };
+
+  function modeFromHash() { return location.hash === "#exercise" ? "exercise" : "example"; }
+  var mode = modeFromHash();
+  var cur = 0;
+  var G = function () { return GRAPHS[mode]; };
+  var arcKey = function (a) { return G().directed ? a.f + "-" + a.t : ukey(a.f, a.t); };
+  var last = function () { return G().states.length - 1; };
+
+  // ---- graph ----
+  var svg = $("dij-graph");
+  var NS = "http://www.w3.org/2000/svg";
+  function mk(tag, attrs, txt) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (txt != null) n.textContent = txt;
+    return n;
+  }
+
+  function drawGraph(s) {
+    var g = G(), R = 19;
+    var C = {
+      surface: css("--surface"), surface2: css("--surface2"), ink: css("--ink"), ink2: css("--ink2"),
+      muted: css("--muted"), axis: css("--axis"), border: css("--border"), accent: css("--accent"),
+      accentText: css("--accent-text"), bright: css("--mit-bright"), silver: css("--mit-silver"),
+      onSolid: css("--on-solid"), crit: css("--crit"), bg: css("--bg")
+    };
+    var sans = css("--font-sans"), mono = css("--font-mono");
+    var active = {}; s.activeArcs.forEach(function (k) { active[k] = true; });
+    var opt = {}; s.optimal.forEach(function (n) { opt[n] = true; });
+    var vis = {}; s.visited.forEach(function (n) { vis[n] = true; });
+    var upd = {}; s.updated.forEach(function (n) { upd[n] = true; });
+    var hasOpt = s.optimal.length > 0;
+
+    svg.textContent = "";
+    svg.setAttribute("viewBox", g.viewBox);
+
+    if (g.directed) {
+      var defs = mk("defs", {});
+      [["p", C.axis], ["a", C.accent], ["o", C.ink]].forEach(function (m) {
+        var mark = mk("marker", { id: "dij-arr-" + m[0], viewBox: "0 0 10 10", refX: 9, refY: 5,
+          markerWidth: 8, markerHeight: 8, markerUnits: "userSpaceOnUse", orient: "auto" });
+        mark.appendChild(mk("path", { d: "M1 1L9 5L1 9Z", fill: m[1] }));
+        defs.appendChild(mark);
+      });
+      svg.appendChild(defs);
+    }
+
+    var arcsL = mk("g", {}), nodesL = mk("g", {});
+    svg.append(arcsL, nodesL);
+
+    g.arcs.forEach(function (a) {
+      var p1 = g.pos[a.f], p2 = g.pos[a.t];
+      var dx = p2.x - p1.x, dy = p2.y - p1.y, len = Math.sqrt(dx * dx + dy * dy);
+      var ux = dx / len, uy = dy / len;
+      var isActive = !!active[arcKey(a)];
+      var isOpt = hasOpt && isActive;
+      var col = isOpt ? C.ink : isActive ? C.accent : C.axis;
+      var line = mk("line", {
+        x1: p1.x + ux * R, y1: p1.y + uy * R, x2: p2.x - ux * (R + 1), y2: p2.y - uy * (R + 1),
+        stroke: col, "stroke-width": isOpt ? 3.4 : isActive ? 2.4 : 1.3, "stroke-linecap": "round"
+      });
+      if (g.directed) line.setAttribute("marker-end", "url(#dij-arr-" + (isOpt ? "o" : isActive ? "a" : "p") + ")");
+      arcsL.appendChild(line);
+
+      var mx = (p1.x + p2.x) / 2 - uy * g.weightOffset, my = (p1.y + p2.y) / 2 + ux * g.weightOffset;
+      arcsL.appendChild(mk("circle", { cx: mx, cy: my, r: g.badgeStroke ? 10 : 9, fill: C.surface,
+        stroke: g.badgeStroke ? (isOpt ? C.ink : isActive ? C.accent : C.axis) : "none", "stroke-width": isOpt ? 1.6 : 1 }));
+      arcsL.appendChild(mk("text", { x: mx, y: my, "text-anchor": "middle", "dominant-baseline": "central",
+        "font-size": 10.5, "font-weight": isActive ? 600 : 400, "font-family": mono,
+        fill: isOpt ? C.ink : isActive ? C.accentText : C.muted }, num(a.w)));
+    });
+
+    g.nodes.forEach(function (name) {
+      var p = g.pos[name];
+      var isOpt = !!opt[name], isCur = name === s.current;
+      var isVis = vis[name] && !isCur && !isOpt;
+      var isUpd = upd[name] && !isCur && !isVis && !isOpt;
+      var fill = isOpt ? C.ink : isCur ? C.accent : isVis ? C.surface2 : C.surface;
+      var stroke = isOpt ? C.ink : isCur ? C.accent : isUpd ? C.bright : isVis ? C.silver : C.axis;
+      var textCol = isOpt || isCur ? C.onSolid : isVis ? C.muted : C.ink;
+
+      nodesL.appendChild(mk("circle", { cx: p.x, cy: p.y, r: R, fill: fill, stroke: stroke,
+        "stroke-width": isOpt || isCur || isUpd ? 2.2 : 1.4 }));
+      if (isUpd) nodesL.appendChild(mk("circle", { cx: p.x, cy: p.y, r: R - 1, fill: C.bright, "fill-opacity": 0.13 }));
+      nodesL.appendChild(mk("text", { x: p.x, y: p.y, "text-anchor": "middle", "dominant-baseline": "central",
+        "font-size": 14, "font-weight": 700, "font-family": sans, fill: textCol }, name));
+
+      var below = g.labelBelow(name, p);
+      nodesL.appendChild(mk("text", { x: p.x, y: below ? p.y + R + 12 : p.y - R - 10,
+        "text-anchor": "middle", "dominant-baseline": "central", "font-size": 11, "font-family": mono,
+        "font-weight": isCur || isOpt || isUpd ? 600 : 400,
+        fill: isCur ? C.accentText : isOpt ? C.ink : isUpd ? C.crit : C.muted }, num(s.dist[name])));
+    });
+  }
+
+  // ---- table ----
+  function renderTable(s) {
+    var g = G(), tb = $("dij-tbody");
+    tb.textContent = "";
+    g.nodes.forEach(function (n) {
+      var isCur = n === s.current;
+      var isOpt = s.optimal.indexOf(n) >= 0;
+      var isVis = s.visited.indexOf(n) >= 0 && !isCur && !isOpt;
+      var isUpd = s.updated.indexOf(n) >= 0 && !isCur;
+      var tr = document.createElement("tr");
+      if (isOpt) tr.className = "optimal";
+      else if (isCur) tr.className = "current";
+      else if (isVis) tr.className = "visited";
+      else if (isUpd) tr.className = "updated-row";
+
+      var td1 = document.createElement("td");
+      var b = document.createElement("b"); b.textContent = n; td1.appendChild(b);
+      var tagKey = n === g.origin ? "dij.tag.origin" : n === g.dest ? "dij.tag.dest" : null;
+      if (tagKey) {
+        var sp = document.createElement("span"); sp.className = "tag"; sp.textContent = " " + t(tagKey);
+        td1.appendChild(sp);
+      }
+      var td2 = document.createElement("td"); td2.className = "mono" + (isUpd ? " upd" : ""); td2.textContent = num(s.dist[n]);
+      var td3 = document.createElement("td"); td3.className = "mono"; td3.textContent = s.pred[n] || "-";
+      var td4 = document.createElement("td"); td4.className = "status";
+      td4.textContent = t(isOpt ? "dij.st.optimal" : isCur ? "dij.st.current" : isVis ? "dij.st.visited" : "dij.st.pending");
+      tr.append(td1, td2, td3, td4);
+      tb.appendChild(tr);
+    });
+  }
+
+  // ---- progress ----
+  function renderProgress() {
+    var bar = $("dij-progress"), L = last();
+    bar.textContent = "";
+    G().states.forEach(function (s, i) {
+      var li = document.createElement("li");
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "prog-step" + (i < cur ? " done" : i === cur ? " active" : "") + (i === L && cur === L ? " finished" : "");
+      if (i === cur) btn.setAttribute("aria-current", "step");
+      btn.setAttribute("aria-label", t("dij.progress.goto", { n: I18N.fmt(i, 0) }));
+      var dot = document.createElement("span"); dot.className = "prog-dot"; dot.textContent = I18N.fmt(i, 0);
+      var lab = document.createElement("span"); lab.className = "prog-label";
+      if (i === 0) lab.textContent = t("dij.prog.start");
+      else {
+        lab.append(t("dij.prog.iter", { n: I18N.fmt(i, 0) }), document.createElement("br"), s.current + (i === L ? " ✓" : ""));
+      }
+      btn.append(dot, lab);
+      btn.addEventListener("click", function () { goTo(i); });
+      li.appendChild(btn);
+      bar.appendChild(li);
+    });
+  }
+
+  // ---- explanation ----
+  function renderExplain(s) {
+    var L = last(), isLast = cur === L;
+    $("dij-explain").classList.toggle("final", isLast);
+    $("dij-ex-iter").textContent = cur === 0 ? t("dij.iter.initial") : t(isLast ? "dij.iter.last" : "dij.iter.n", { n: I18N.fmt(cur, 0) });
+    $("dij-ex-title").textContent = cur === 0 ? t("dij.title.before")
+      : isLast ? t("dij.title.reached", { node: s.current })
+      : t("dij.title.visit", { node: s.current, d: num(s.dist[s.current]) });
+    $("dij-ex-body").innerHTML = t(G().bodyKey + cur);
+  }
+
+  function renderPath(s) {
+    var box = $("dij-path");
+    var isLast = cur === last();
+    box.hidden = !isLast;
+    box.textContent = "";
+    if (!isLast) return;
+    s.optimal.forEach(function (n, i) {
+      if (i) { var ar = document.createElement("span"); ar.className = "path-arrow"; ar.textContent = "→"; box.appendChild(ar); }
+      var nd = document.createElement("span"); nd.className = "path-node"; nd.textContent = n; box.appendChild(nd);
+    });
+    var cost = document.createElement("span"); cost.className = "path-cost";
+    cost.textContent = t("dij.path.cost", { c: num(s.dist[G().dest]) });
+    box.appendChild(cost);
+    $("dij-alt").hidden = !(isLast && mode === "exercise");
+  }
+
+  // ---- whole page ----
+  function render() {
+    var s = G().states[cur], L = last(), isLast = cur === L;
+    ["example", "exercise"].forEach(function (m) { $("dij-mode-" + m).setAttribute("aria-pressed", m === mode ? "true" : "false"); });
+    $("dij-graph-title").textContent = t(G().titleKey);
+    drawGraph(s);
+    renderTable(s);
+    renderProgress();
+    renderExplain(s);
+    renderPath(s);
+    if (!isLast) $("dij-alt").hidden = true;
+
+    $("dij-prev").disabled = cur === 0;
+    var next = $("dij-next");
+    next.textContent = t(isLast ? "dij.btn.end" : "dij.btn.next");
+    next.className = "btn " + (isLast ? "done" : "primary");
+    next.disabled = isLast;
+    $("dij-counter").textContent = t("dij.counter", { n: I18N.fmt(cur, 0), total: I18N.fmt(L, 0) });
+  }
+
+  function goTo(n) { cur = Math.max(0, Math.min(last(), n)); render(); }
+  function step(dir) { goTo(cur + dir); }
+
+  function setMode(m, push) {
+    if (m !== "example" && m !== "exercise") m = "example";
+    var changed = m !== mode;
+    mode = m;
+    if (changed) cur = 0;
+    if (push) {
+      try { history.replaceState(null, "", location.pathname + location.search + "#" + m); } catch (e) { /* ok */ }
+    }
+    render();
+  }
+
+  $("dij-reset").addEventListener("click", function () { goTo(0); });
+  $("dij-prev").addEventListener("click", function () { step(-1); });
+  $("dij-next").addEventListener("click", function () { step(1); });
+  $("dij-mode-example").addEventListener("click", function () { setMode("example", true); });
+  $("dij-mode-exercise").addEventListener("click", function () { setMode("exercise", true); });
+  window.addEventListener("hashchange", function () { setMode(modeFromHash(), false); });
+
+  // Keyboard navigation (as in the original): right/down = next, left/up = previous
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var tag = e.target && e.target.tagName;
+    if (tag === "SELECT" || tag === "INPUT" || tag === "TEXTAREA") return;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") step(1);
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") step(-1);
+  });
+
+  // SVG colors are read from the tokens: redraw when the OS theme flips
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+  I18N.onChange(render); // first render and every language switch
+})();
+</script>
+</body>
+</html>
