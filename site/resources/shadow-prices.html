@@ -308,7 +308,7 @@
 
 <script type="text/x-tex" id="tex-g">
 \begin{array}{lrcll}
-\max & z & = & 3x_1 + 2x_2 & \\[4pt]
+\max & z & = & \rlap{3x_1 + 2x_2} & \\[4pt]
 \text{ST} & 2x_1 + x_2 & \le & 100 & \quad\text{(@fin)} \\
  & x_1 + x_2 & \le & 80 & \quad\text{(@car)} \\
  & x_1 & \le & 40 & \quad\text{(@dem)} \\
@@ -317,7 +317,7 @@
 </script>
 <script type="text/x-tex" id="tex-p">
 \begin{array}{lrcll}
-\max & z & = & 30x_1 + 12x_2 + 15x_3 & \\[4pt]
+\max & z & = & \rlap{30x_1 + 12x_2 + 15x_3} & \\[4pt]
 \text{ST} & 9x_1 + 3x_2 + 5x_3 & \le & 500 & \quad\text{(@mil)} \\
  & 5x_1 + 4x_2 & \le & 350 & \quad\text{(@lat)} \\
  & 3x_1 + 2x_3 & \le & 150 & \quad\text{(@gri)} \\
@@ -456,7 +456,8 @@
     tw = C.res.map(function () { return null; });
     sweep = null;
     fx = { buys: [], coins: [], floats: [], trail: [] };
-    zTop = niceCeil(solveB(C, C.res.map(function (r) { return r.max; })).z * 1.02);
+    C.zBase = niceCeil(1.12 * Math.max.apply(null, base.segs.map(function (sg, i) { return zOn(sg, C.res[i].max); })));
+    zTop = C.zBase;
     // most of each product on its own at the largest data (Problem 1 bar scale)
     C.xTop = niceCeil(Math.max.apply(null, C.c.map(function (_, j) {
       return Math.min.apply(null, C.res.filter(function (r) { return r.a[j] > 0; }).map(function (r) { return r.max / r.a[j]; }));
@@ -481,6 +482,8 @@
     var right = segs.map(function (sg, i) { return rightSeg(sg, disp[i]); });
     var left = segs.map(function (sg, i) { return leftSeg(sg, disp[i]); });
     S = { sol: sol, segs: segs, right: right, left: left };
+    var curMax = Math.max.apply(null, segs.map(function (sg, i) { return zOn(sg, C.res[i].max); }));
+    zTop = Math.max(C.zBase, niceCeil(curMax * 1.05));
     updateDom();
     return true;
   }
@@ -641,15 +644,15 @@
     o = o.concat(labels);
     // x ticks: 0, breakpoints, max (skip crowded ones)
     var ticks = [{ v: 0, bp: false }].concat(bps.map(function (q) { return { v: q.v, bp: true }; }));
-    var lastX = -99;
+    var lastX = -99, lastW = 0;
     ticks.forEach(function (tk) {
-      var x = X(tk.v);
-      if (x - lastX < 26) return;
-      lastX = x;
+      var x = X(tk.v), tw2 = fmt(tk.v, 1).length * 6.2;
+      if (x - lastX < (lastW + tw2) / 2 + 5) return;
+      lastX = x; lastW = tw2;
       o.push('<text x="' + x + '" y="' + (CH - CM.b + 13) + '" text-anchor="middle" font-size="10" font-family="var(--font-mono)" fill="' +
         (tk.bp ? "var(--ink)" : "var(--muted)") + '"' + (tk.bp ? ' font-weight="600"' : "") + '>' + fmt(tk.v, 1) + '</text>');
     });
-    if (X(max) - lastX >= 30) o.push('<text x="' + X(max) + '" y="' + (CH - CM.b + 13) + '" text-anchor="end" font-size="10" font-family="var(--font-mono)" fill="var(--muted)">' + fmt(max, 0) + '</text>');
+    if (X(max) - lastX - lastW / 2 >= fmt(max, 0).length * 6.2 + 5) o.push('<text x="' + X(max) + '" y="' + (CH - CM.b + 13) + '" text-anchor="end" font-size="10" font-family="var(--font-mono)" fill="var(--muted)">' + fmt(max, 0) + '</text>');
     o.push('<text x="' + ((CM.l + CW - CM.r) / 2) + '" y="' + (CH - 4) + '" text-anchor="middle" font-size="11" fill="var(--ink2)" font-family="var(--font-sans)">' + t("shp.cv.x." + r.unit) + '</text>');
     o.push('<text x="' + (CM.l + 4) + '" y="' + (CM.t - 5) + '" font-size="11" fill="var(--ink2)" font-family="var(--font-sans)">' + t("shp.ax.z") + '</text>');
     // breakpoints
