@@ -20,7 +20,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 | 3b | lab-cvar "Beyond VaR: CVaR" (animation) | done | site/lab/beyond-var.html; reviewed (numbers match, LP solves moved to a Web Worker); href in catalog.lab; card text in present tense |
 | 3c | lab-linearization (animation) | done | site/lab/linearizing-markets.html; reviewed (numbers match; exactness condition and notation note fixed); href in catalog.lab; card text in present tense |
 | 3d | lab-ml-methods "Learning Is Optimizing" (animation) | review | site/lab/learning-is-optimizing.html + locales/lab/lab-ml-methods.*.js built; 4 langs x 1200/700/400 x light/dark clean; numbers match independent Python (numpy, scipy BFGS, own GD/network) except the chaotic too-large network final loss |
-| 3e | lab-svm "The Widest Street" (animation) | building | site/lab/widest-street.html, prefix svm. |
+| 3e | lab-svm "The Widest Street" (animation) | review | site/lab/widest-street.html + locales/lab/lab-svm.*.js built; SMO on the dual (KKT gap < 1e-12), LP.solve feasibility; 4 langs x 1200/700/400 x light/dark clean; w, b, width, SVs, errors, objective, every lot's alpha/xi match quadprog, scikit-learn and scipy in en and es |
 | 3f | lab-ml-ai-cases "ML + AI in Optimization" (simulation) | building | site/lab/ml-ai-optimization.html, prefix mlai. |
 | 4 | Final site-wide check, report to the owner, ask for merge | todo | |
 
