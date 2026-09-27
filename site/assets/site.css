@@ -174,3 +174,19 @@ details .body p:last-child { margin-bottom: 0; }
 .note { font-size: 13px; color: var(--muted); max-width: 78ch; margin: 0; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* ---- author and copyright footer (assets/site.js) ---- */
+.site-footer {
+  margin-inline: -16px; margin-top: 40px; margin-bottom: -48px; /* cancels the body bottom padding */
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  background: #000000; color: #c9ced3; border-top: 3px solid var(--mit-red);
+}
+.site-footer-in {
+  max-width: 1080px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 6px 24px;
+  align-items: baseline; justify-content: space-between;
+}
+.site-footer p { margin: 0; font-size: 13.5px; }
+.site-footer a { color: #ffffff; font-weight: 700; text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+.site-footer .sf-domain { font-weight: 600; color: #c9ced3; }
+.site-footer .site-copy { color: #8b959e; }

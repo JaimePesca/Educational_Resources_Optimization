@@ -22,6 +22,7 @@ materials/             material de trabajo que no se publica en el sitio
   CONTRIBUTING.md      cómo aportar un recurso
   workflows/pages.yml  despliegue del sitio en GitHub Pages
 .claude/               configuración de Claude Code
+CLAUDE.md              convenciones del proyecto para Claude (idiomas, diseño, formato de animaciones)
 ```
 
 ## Publicación
