@@ -35,7 +35,7 @@ I18N.register("es", {
   "lab.lab-ml-methods.desc": "La regresión lineal, la regresión logística y las redes neuronales pequeñas aprenden minimizando una pérdida, así que cada una es un problema de optimización. La animación entrena los tres en vivo con descenso por gradiente, mueve la recta ajustada o la frontera de decisión paso a paso mientras la curva de pérdida baja a su lado, y muestra qué pasa cuando el paso es muy pequeño o demasiado grande.",
 
   "lab.lab-svm.title": "La calle más ancha",
-  "lab.lab-svm.desc": "Una máquina de vectores de soporte busca la calle más ancha que separa dos clases, y eso es un problema cuadrático de margen máximo. La animación resaltaría los vectores de soporte que sostienen la calle y luego pasaría al margen suave, donde el parámetro C cambia errores de clasificación por un margen más ancho.",
+  "lab.lab-svm.desc": "Una máquina de vectores de soporte busca la calle más ancha que separa dos clases, y eso es un problema cuadrático de margen máximo. Con 24 lotes de café clasificados por altitud y densidad del grano, la animación resalta los vectores de soporte que sostienen la calle, muestra cómo un lote atípico rompe el margen duro y pasa al margen suave, donde el parámetro C cambia errores de clasificación por un margen más ancho.",
 
   "lab.lab-ml-ai-cases.title": "ML + IA en optimización",
   "lab.lab-ml-ai-cases.desc": "Cuatro casos en los que el aprendizaje ayuda a optimizar: aprender a ramificar, predecir y luego optimizar, aprendizaje por refuerzo para el ruteo de vehículos y agentes de lenguaje que formulan modelos de optimización a partir de un texto. Cada caso tendría un pequeño ejemplo interactivo que corre en el navegador."

@@ -35,7 +35,7 @@ I18N.register("en", {
   "lab.lab-ml-methods.desc": "Linear regression, logistic regression and small neural networks all learn by minimizing a loss, so each one is an optimization problem. The animation trains all three live with gradient descent, moving the fitted line or the decision boundary step by step while the loss curve goes down beside it, and shows what happens when the step is too small or too large.",
 
   "lab.lab-svm.title": "The Widest Street",
-  "lab.lab-svm.desc": "A Support Vector Machine looks for the widest street that separates two classes, which is a quadratic program of maximum margin. The animation would highlight the support vectors that hold the street in place and then switch to the soft margin, where the parameter C trades classification errors for a wider margin.",
+  "lab.lab-svm.desc": "A Support Vector Machine looks for the widest street that separates two classes, which is a quadratic program of maximum margin. On 24 coffee lots sorted by altitude and bean density, the animation highlights the support vectors that hold the street in place, shows how one outlier breaks the hard margin, and switches to the soft margin, where the parameter C trades classification errors for a wider margin.",
 
   "lab.lab-ml-ai-cases.title": "ML + AI in Optimization",
   "lab.lab-ml-ai-cases.desc": "Four cases where learning helps optimization: learning to branch, predict then optimize, reinforcement learning for vehicle routing, and language agents that formulate optimization models from a text description. Each case would come with one small interactive example that runs in the browser."

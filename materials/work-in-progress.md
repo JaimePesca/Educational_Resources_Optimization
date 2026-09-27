@@ -20,7 +20,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 | 3b | lab-cvar "Beyond VaR: CVaR" (animation) | done | site/lab/beyond-var.html; reviewed (numbers match, LP solves moved to a Web Worker); href in catalog.lab; card text in present tense |
 | 3c | lab-linearization (animation) | done | site/lab/linearizing-markets.html; reviewed (numbers match; exactness condition and notation note fixed); href in catalog.lab; card text in present tense |
 | 3d | lab-ml-methods "Learning Is Optimizing" (animation) | done | site/lab/learning-is-optimizing.html; reviewed (numbers match; too-large network step changed to eta 10 so every number is reproducible); href in catalog.lab; card text in present tense |
-| 3e | lab-svm "The Widest Street" (animation) | review | site/lab/widest-street.html + locales/lab/lab-svm.*.js built; SMO on the dual (KKT gap < 1e-12), LP.solve feasibility; 4 langs x 1200/700/400 x light/dark clean; w, b, width, SVs, errors, objective, every lot's alpha/xi match quadprog, scikit-learn and scipy in en and es |
+| 3e | lab-svm "The Widest Street" (animation) | done | site/lab/widest-street.html; reviewed (PASS: w, b, margins, SVs, xi, alpha match quadprog, SLSQP and scikit-learn; outlier infeasibility confirmed by LP); href in catalog.lab; card text in present tense |
 | 3f | lab-ml-ai-cases "ML + AI in Optimization" (simulation) | building | site/lab/ml-ai-optimization.html, prefix mlai. |
 | 4 | Final site-wide check, report to the owner, ask for merge | todo | |
 

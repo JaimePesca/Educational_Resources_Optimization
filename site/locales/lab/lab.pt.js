@@ -35,7 +35,7 @@ I18N.register("pt", {
   "lab.lab-ml-methods.desc": "A regressão linear, a regressão logística e as pequenas redes neurais aprendem minimizando uma perda, então cada uma é um problema de otimização. A animação treina os três ao vivo com descida de gradiente, move a reta ajustada ou a fronteira de decisão passo a passo enquanto a curva de perda desce ao lado e mostra o que acontece quando o passo é pequeno demais ou grande demais.",
 
   "lab.lab-svm.title": "A rua mais larga",
-  "lab.lab-svm.desc": "Uma máquina de vetores de suporte procura a rua mais larga que separa duas classes, e isso é um problema quadrático de margem máxima. A animação destacaria os vetores de suporte que seguram a rua no lugar e depois passaria para a margem suave, em que o parâmetro C troca erros de classificação por uma margem mais larga.",
+  "lab.lab-svm.desc": "Uma máquina de vetores de suporte procura a rua mais larga que separa duas classes, e isso é um problema quadrático de margem máxima. Com 24 lotes de café classificados por altitude e densidade do grão, a animação destaca os vetores de suporte que seguram a rua no lugar, mostra como um lote atípico quebra a margem rígida e passa para a margem suave, em que o parâmetro C troca erros de classificação por uma margem mais larga.",
 
   "lab.lab-ml-ai-cases.title": "ML + IA em otimização",
   "lab.lab-ml-ai-cases.desc": "Quatro casos em que o aprendizado ajuda a otimização: aprender a ramificar, prever e depois otimizar, aprendizado por reforço para roteamento de veículos e agentes de linguagem que formulam modelos de otimização a partir de um texto. Cada caso teria um pequeno exemplo interativo que roda no navegador."
