@@ -53,15 +53,15 @@ I18N.register("en", {
   /* the model */
   "r.nanostores.model.title": "The model",
   "r.nanostores.model.intro": "A mixed integer nonlinear program (MINLP). The decisions are which of the 50 candidate sites to open and which products each open store sells. The objective is weekly profit of the new network: margin (price minus unit cost) times captured demand, minus weekly fixed operating costs. Captured demand comes from a multinomial logit: each household splits its weekly demand for a product among all stores in proportion to exp(utility), where utility falls with distance and price. New stores must be at least dₘᵢₙ apart to avoid cannibalization, a product can be sold only at an open store, and each open store must reach a minimum captured demand. The nonlinear share constraint is linearized with the method of Haase and Müller (2014).",
-  "r.nanostores.v.x": "<code>xᵢ</code>: 1 if candidate nanostore i opens (50 candidates, set I)",
-  "r.nanostores.v.z": "<code>zᵢₚ</code>: 1 if product p (fruits, vegetables or tubers) is sold at store i",
-  "r.nanostores.v.y": "<code>yⱼᵢₚ</code>: probability that household j buys product p at store i",
-  "r.nanostores.v.q": "<code>qᵢₚ</code>: demand of product p captured by store i (kg per week)",
-  "r.nanostores.v.d": "<code>δⱼₚ</code>: weekly fresh food demand of household j for product p",
+  "r.nanostores.v.x": "<code>xᵢ</code>: 1 if candidate nanostore <code>i</code> opens (50 candidates, set I)",
+  "r.nanostores.v.z": "<code>zᵢₚ</code>: 1 if product <code>p</code> (fruits, vegetables or tubers) is sold at store <code>i</code>",
+  "r.nanostores.v.y": "<code>yⱼᵢₚ</code>: probability that household <code>j</code> buys product <code>p</code> at store <code>i</code>",
+  "r.nanostores.v.q": "<code>qᵢₚ</code>: demand of product <code>p</code> captured by store <code>i</code> (kg per week)",
+  "r.nanostores.v.d": "<code>δⱼₚ</code>: weekly fresh food demand of household <code>j</code> for product <code>p</code>",
   "r.nanostores.v.pc": "<code>pᵢₚ, cᵢₚ</code>: price and unit cost in US$ per kg; <code>fᵢ</code>: weekly fixed operating cost",
-  "r.nanostores.v.V": "<code>Vⱼᵣₚ</code>: observed utility; <code>γⱼᵣ</code>: distance from household j to retailer r; <code>β</code>: intercept, distance and price weights by retailer type and product, from the logit regression",
+  "r.nanostores.v.V": "<code>Vⱼᵣₚ</code>: observed utility; <code>γⱼᵣ</code>: distance from household <code>j</code> to retailer <code>r</code>; <code>β</code>: intercept, distance and price weights by retailer type and product, from the logit regression",
   "r.nanostores.v.a": "<code>aⱼᵢ</code>: distance coverage factor, 1 within <code>Maxⱼᵢ</code> and falling to 0 farther away",
-  "r.nanostores.v.dmin": "<code>dₘᵢₙ, dᵢₖ</code>: required and actual distance between two new stores; <code>ndᵢₚ</code>: minimum demand an open store must capture",
+  "r.nanostores.v.dmin": "<code>d_{\\min},\\ d_{ik}</code>: required and actual distance between two new stores; <code>ndᵢₚ</code>: minimum demand an open store must capture",
 
   /* interactive */
   "r.nanostores.ex.title": "Interactive exemplification",
