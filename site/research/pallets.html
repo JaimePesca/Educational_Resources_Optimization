@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en" data-title-key="r.pallets.title" data-i18n-bundles="research/pallets">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Optimizing pallet configuration</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/research.css">
+<style>
+section.block > *, .pipe-grid > *, .lev-grid > * { min-width: 0; }
+.panel h3 { font-size: 17px; font-weight: 600; margin: 0 0 6px; }
+.panel .section-intro { margin-bottom: 12px; }
+.panel + .panel { margin-top: 12px; }
+.deckwrap { overflow-x: auto; margin: 10px 0 4px; }
+.deckwrap svg { display: block; width: 100%; min-width: 640px; height: auto; }
+.deck-pos { cursor: pointer; }
+.deck-pos:focus { outline: none; }
+.deck-pos:focus-visible rect { stroke: var(--accent); stroke-width: 3; }
+.posinfo {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 3px;
+  padding: 10px 12px; font-size: 14px; color: var(--ink2); min-height: 88px;
+}
+.posinfo h4 { margin: 0 0 4px; font-size: 14.5px; color: var(--ink); }
+.posinfo p { margin: 2px 0; }
+.posinfo b { color: var(--ink); }
+.meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 12px; }
+.meter .ml { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13.5px; color: var(--ink2); }
+.meter .ml output { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--ink); }
+.meter .track { height: 10px; background: var(--grid); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+.meter .fill { height: 100%; background: var(--accent); border-radius: 2px; }
+.small { font-size: 13px; color: var(--muted); margin: 8px 0 0; max-width: 90ch; }
+.segrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 4px 0 10px; }
+.segrow .lbl { font-size: 13.5px; color: var(--ink2); }
+.pipe-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin-top: 12px; }
+@media (max-width: 760px) { .pipe-grid { grid-template-columns: 1fr; } }
+.chartcap { font-size: 13px; font-weight: 600; color: var(--ink2); margin: 0 0 4px; }
+.stepdesc { font-size: 14px; color: var(--ink2); margin: 0 0 10px; max-width: 80ch; }
+.ro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
+.ro-grid div { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 8px 10px; }
+.ro-grid .k { font-size: 12.5px; color: var(--muted); }
+.ro-grid .v { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.ro-grid .s { font-size: 12.5px; color: var(--ink2); }
+.lev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.lev-grid .panel + .panel { margin-top: 0; }
+.bar-hit { cursor: pointer; }
+.swd { display: inline-block; width: 12px; height: 12px; border: 1.5px dashed var(--muted); flex: none; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#research" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToResearch"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow" data-i18n="r.pallets.eyebrow"></p>
+    <h1 data-i18n="r.pallets.h1"></h1>
+    <p class="lede" data-i18n="r.pallets.lede"></p>
+    <p class="cite" data-i18n-html="r.pallets.cite"></p>
+  </header>
+
+  <section class="block" aria-labelledby="h-case">
+    <h2 class="section-title" id="h-case" data-i18n="r.pallets.case.h"></h2>
+    <p class="section-intro" data-i18n="r.pallets.case.intro"></p>
+    <div class="stats">
+      <div class="stat"><div class="v" data-i18n="r.pallets.stat.boxes.v"></div><div class="l" data-i18n="r.pallets.stat.boxes.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.pallets.stat.types.v"></div><div class="l" data-i18n="r.pallets.stat.types.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.pallets.stat.pos.v"></div><div class="l" data-i18n="r.pallets.stat.pos.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.pallets.stat.payload.v"></div><div class="l" data-i18n="r.pallets.stat.payload.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.pallets.stat.lat.v"></div><div class="l" data-i18n="r.pallets.stat.lat.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.pallets.stat.vol.v"></div><div class="l" data-i18n="r.pallets.stat.vol.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.pallets.stat.box.v"></div><div class="l" data-i18n="r.pallets.stat.box.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.pallets.stat.manual.v"></div><div class="l" data-i18n="r.pallets.stat.manual.l"></div></div>
+    </div>
+    <p class="sources" data-i18n="r.pallets.sources"></p>
+  </section>
+
+  <section class="block" aria-labelledby="h-model">
+    <h2 class="section-title" id="h-model" data-i18n="r.pallets.model.h"></h2>
+    <p class="section-intro" data-i18n-html="r.pallets.model.p1"></p>
+    <p class="section-intro" data-i18n-html="r.pallets.model.p2"></p>
+    <p class="section-intro" data-i18n-html="r.pallets.model.p3"></p>
+    <div class="model">
+      <div class="formula" data-i18n="r.pallets.model.formula"></div>
+      <ul class="vars">
+        <li data-i18n-html="r.pallets.var.x"></li>
+        <li data-i18n-html="r.pallets.var.mv"></li>
+        <li data-i18n-html="r.pallets.var.V"></li>
+        <li data-i18n-html="r.pallets.var.C"></li>
+        <li data-i18n-html="r.pallets.var.PD"></li>
+        <li data-i18n-html="r.pallets.var.u"></li>
+        <li data-i18n-html="r.pallets.var.mu"></li>
+        <li data-i18n-html="r.pallets.var.k"></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-ex">
+    <h2 class="section-title" id="h-ex" data-i18n="r.pallets.ex.h"></h2>
+    <p class="section-intro" data-i18n="r.pallets.ex.intro"></p>
+
+    <!-- 1. aircraft deck -->
+    <div class="panel">
+      <h3 data-i18n="r.pallets.deck.h"></h3>
+      <p class="section-intro" data-i18n="r.pallets.deck.intro"></p>
+      <div class="segrow">
+        <span class="lbl" id="deck-mode-lbl" data-i18n="r.pallets.deck.mode"></span>
+        <div class="seg" role="group" aria-labelledby="deck-mode-lbl" id="deck-mode">
+          <button type="button" data-mode="cap" aria-pressed="true" data-i18n="r.pallets.deck.mode.cap"></button>
+          <button type="button" data-mode="util" aria-pressed="false" data-i18n="r.pallets.deck.mode.util"></button>
+        </div>
+      </div>
+      <div class="deckwrap">
+        <svg id="deck" viewBox="0 0 800 300" role="img" data-i18n-attr="aria-label:r.pallets.deck.aria"></svg>
+      </div>
+      <div class="legend" id="deck-legend"></div>
+      <div class="posinfo" id="posinfo" aria-live="polite"></div>
+      <div class="meters">
+        <div class="meter">
+          <div class="ml"><span data-i18n="r.pallets.meter.payload"></span><output id="m-pay"></output></div>
+          <div class="track"><div class="fill" id="m-pay-fill"></div></div>
+        </div>
+        <div class="meter">
+          <div class="ml"><span data-i18n="r.pallets.meter.lat"></span><output id="m-lat"></output></div>
+          <div class="track"><div class="fill" id="m-lat-fill"></div></div>
+        </div>
+      </div>
+      <p class="small" data-i18n="r.pallets.meter.note"></p>
+    </div>
+
+    <!-- 2. pipeline explorer -->
+    <div class="panel">
+      <h3 data-i18n="r.pallets.pipe.h"></h3>
+      <p class="section-intro" data-i18n="r.pallets.pipe.intro"></p>
+      <div class="seg" role="group" data-i18n-attr="aria-label:r.pallets.pipe.seg" id="pipe-seg"></div>
+      <p class="stepdesc" id="stepdesc" style="margin-top:12px"></p>
+      <div class="ro-grid" id="ro" aria-live="polite"></div>
+      <div class="pipe-grid">
+        <div>
+          <p class="chartcap" data-i18n="r.pallets.ch.rate"></p>
+          <svg class="chart" id="ch-rate" role="img" data-i18n-attr="aria-label:r.pallets.ch.rateAria"></svg>
+        </div>
+        <div>
+          <p class="chartcap" data-i18n="r.pallets.ch.load"></p>
+          <svg class="chart" id="ch-load" role="img" data-i18n-attr="aria-label:r.pallets.ch.loadAria"></svg>
+        </div>
+      </div>
+      <p class="small" data-i18n="r.pallets.ch.nrNote"></p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-lev">
+    <h2 class="section-title" id="h-lev" data-i18n="r.pallets.lev.h"></h2>
+    <div class="panel">
+      <h3 data-i18n="r.pallets.mu.h"></h3>
+      <p class="section-intro" data-i18n="r.pallets.mu.intro"></p>
+      <div class="segrow">
+        <span class="lbl" id="mu-lbl" data-i18n="r.pallets.mu.seg"></span>
+        <div class="seg" role="group" aria-labelledby="mu-lbl" id="mu-seg"></div>
+      </div>
+      <div class="pipe-grid" style="margin-top:0">
+        <div>
+          <p class="chartcap" data-i18n="r.pallets.mu.axis"></p>
+          <svg class="chart" id="ch-mu" role="img" data-i18n-attr="aria-label:r.pallets.mu.aria"></svg>
+        </div>
+        <div class="tblwrap">
+          <table class="data">
+            <thead><tr>
+              <th data-i18n="r.pallets.mu.th.mu"></th>
+              <th data-i18n="r.pallets.mu.th.cls"></th>
+              <th data-i18n="r.pallets.mu.th.box"></th>
+              <th data-i18n="r.pallets.mu.th.kg"></th>
+              <th data-i18n="r.pallets.mu.th.rate"></th>
+              <th data-i18n="r.pallets.mu.th.geom"></th>
+            </tr></thead>
+            <tbody id="mu-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <p class="small" data-i18n="r.pallets.mu.note"></p>
+    </div>
+    <div class="lev-grid" style="margin-top:12px">
+      <div class="panel">
+        <h3 data-i18n="r.pallets.lever.h"></h3>
+        <p class="section-intro" data-i18n="r.pallets.lever.intro"></p>
+        <svg class="chart" id="ch-lever" role="img" data-i18n-attr="aria-label:r.pallets.lever.aria"></svg>
+        <p class="small" data-i18n="r.pallets.lever.note"></p>
+      </div>
+      <div class="panel">
+        <h3 data-i18n="r.pallets.solo.h"></h3>
+        <p class="section-intro" data-i18n="r.pallets.solo.intro"></p>
+        <svg class="chart" id="ch-solo" role="img" data-i18n-attr="aria-label:r.pallets.solo.aria"></svg>
+        <p class="small" data-i18n="r.pallets.solo.note"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-find">
+    <h2 class="section-title" id="h-find" data-i18n="r.pallets.find.h"></h2>
+    <ol class="findings">
+      <li><span data-i18n-html="r.pallets.find.1"></span></li>
+      <li><span data-i18n-html="r.pallets.find.2"></span></li>
+      <li><span data-i18n-html="r.pallets.find.3"></span></li>
+      <li><span data-i18n-html="r.pallets.find.4"></span></li>
+      <li><span data-i18n-html="r.pallets.find.5"></span></li>
+    </ol>
+  </section>
+
+  <p class="note" data-i18n="r.pallets.note"></p>
+</div>
+<script src="../assets/i18n.js" charset="utf-8"></script>
+<script src="../locales/en.js" charset="utf-8"></script>
+<script src="../locales/research/pallets.en.js" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var fmt = function (v, mx, mn) { return I18N.fmt(v, mx, mn); };
+  var NS = "http://www.w3.org/2000/svg";
+
+  /* ---------- data from the manuscript ---------- */
+  var PAYLOAD = 65000, DELTA = 500, MANUAL_KG = 56332, CHARTER = 59697, MANUAL_COST = 1.060;
+  var STAGE1_KG = 64986.2, STAGE1_IMB = 438.4;
+  // Section 6.1 capacities; centre positions not reported individually (sum by difference from 482.0 m³)
+  var CAP = { pair: 16.74, contour: 17.10, ld: 12.40, p9: 7.80 };
+  var CENTRE_SUM = 482.0 - 16 * CAP.pair - CAP.contour - 10 * CAP.ld - CAP.p9; // 65.26
+
+  // Pipeline steps: Table 2 (10 seeds), Section 7.4 (fill factors, 5 seeds), Section 7.7 (cost)
+  var STEPS = [
+    { id: "plan", assigned: 7967, placed: null, rate: null, geom: null, load: 64986, loadSd: null, cost: 0.918, costPct: -13.3, paper: true },
+    { id: "bl", assigned: 7967, placed: 7041, placedSd: 53, rate: 88.38, geom: 68.33, geomSd: 0.48, load: 57023, loadSd: 421, cost: 1.047, costPct: -1.2 },
+    { id: "bssf", assigned: 7967, placed: 6733, placedSd: 43, rate: 84.50, geom: 64.22, geomSd: 0.54, load: null },
+    { id: "baf", assigned: 7967, placed: 6297, placedSd: 35, rate: 79.04, geom: 60.27, geomSd: 0.40, load: null },
+    { id: "blsf", assigned: 7967, placed: 5698, placedSd: 54, rate: 71.52, geom: 54.38, geomSd: 0.58, load: null },
+    { id: "dqn", assigned: 7967, placed: 6521, placedSd: 40, rate: 81.84, geom: 62.29, geomSd: 0.41, load: null },
+    { id: "ff", assigned: 7967, placed: null, rate: 97.3, rateSd: 0.3, geom: null, load: 63346, loadSd: 167, cost: 0.942, costPct: -11.1 }
+  ];
+  // Table 3
+  var MU = [
+    { mu: 0, cls: 1.91, box: 7967, kg: 64986, rate: 92.07, geom: 0.68 },
+    { mu: 1, cls: 1.84, box: 7967, kg: 64994, rate: 93.83, geom: 0.70 },
+    { mu: 5, cls: 1.78, box: 7967, kg: 64986, rate: 94.25, geom: 0.71 },
+    { mu: 20, cls: 1.50, box: 7961, kg: 64994, rate: 97.18, geom: 0.72 }
+  ];
+
+  var state = { mode: "cap", pos: null, step: "bl", mu: 20 };
+
+  /* ---------- helpers ---------- */
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) if (attrs[k] != null) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  function widthOf(svg, fallback) {
+    var w = svg.getBoundingClientRect().width || svg.parentNode.clientWidth || fallback;
+    return Math.max(260, Math.round(w));
+  }
+  function colors() {
+    return {
+      accent: css("--accent"), silver: css("--mit-silver"), ink: css("--ink"), ink2: css("--ink2"),
+      muted: css("--muted"), grid: css("--grid"), axis: css("--axis"), blue: css("--c-blue"),
+      surface: css("--surface"), surface2: css("--surface2"), crit: css("--crit"), region: css("--region")
+    };
+  }
+
+  /* ---------- 1. deck ---------- */
+  // Schematic order (illustrative): nose at right; SS, TT, 8 L/R pairs, UU, VV, contoured side at tail.
+  var POS = [];
+  (function buildPositions() {
+    var colW = 46, gap = 4, x = 716; // right edge of first column
+    function nextX(w) { var x0 = x - w; x = x0 - gap; return x0; }
+    ["SS", "TT"].forEach(function (c) { POS.push({ id: c, kind: "centre", deck: "main", x: nextX(colW), y: 42, w: colW, h: 108 }); });
+    for (var p = 1; p <= 8; p++) {
+      var x0 = nextX(colW);
+      POS.push({ id: "L" + p, n: p, side: "L", kind: "pair", deck: "main", x: x0, y: 42, w: colW, h: 52 });
+      POS.push({ id: "R" + p, n: p, side: "R", kind: "pair", deck: "main", x: x0, y: 98, w: colW, h: 52 });
+    }
+    ["UU", "VV"].forEach(function (c) { POS.push({ id: c, kind: "centre", deck: "main", x: nextX(colW), y: 42, w: colW, h: 108 }); });
+    POS.push({ id: "CS", kind: "contour", deck: "main", x: nextX(40), y: 52, w: 40, h: 88 });
+    // lower deck
+    x = 716;
+    POS.push({ id: "P9", kind: "p9", deck: "lower", x: nextX(54), y: 214, w: 54, h: 52 });
+    for (var d = 1; d <= 10; d++) {
+      if (d === 6) x -= 40; // wing box gap (schematic)
+      POS.push({ id: "LD" + d, n: d, kind: "ld", deck: "lower", x: nextX(colW), y: 214, w: colW, h: 52 });
+    }
+  })();
+
+  function posCap(p) { return p.kind === "pair" ? CAP.pair : p.kind === "contour" ? CAP.contour : p.kind === "ld" ? CAP.ld : p.kind === "p9" ? CAP.p9 : null; }
+  function posLabel(p) {
+    if (p.kind === "pair") return t(p.side === "L" ? "r.pallets.deck.left" : "r.pallets.deck.right") + p.n;
+    if (p.kind === "contour") return "CS";
+    return p.id;
+  }
+  function posFill(p, c) {
+    if (state.mode === "cap") {
+      var v = posCap(p);
+      if (v == null) return { fill: c.region, op: 1, dash: true };
+      return { fill: c.blue, op: 0.18 + 0.72 * (v - 7) / (17.1 - 7), dash: false };
+    }
+    if (p.kind === "pair") return { fill: c.blue, op: 0.62, dash: false };
+    if (p.kind === "ld") return { fill: c.blue, op: 0.88, dash: false };
+    return { fill: c.region, op: 1, dash: true };
+  }
+
+  function drawDeck() {
+    var svg = document.getElementById("deck"), c = colors();
+    clear(svg);
+    // hatch pattern for "not reported"
+    var defs = el("defs", {}, svg);
+    var pat = el("pattern", { id: "hatch", width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
+    el("line", { x1: 0, y1: 0, x2: 0, y2: 6, stroke: c.muted, "stroke-width": 1.2, "stroke-opacity": 0.6 }, pat);
+    // main deck fuselage outline (nose right)
+    el("path", { d: "M40 34 L720 34 Q790 34 792 96 Q790 158 720 158 L40 158 Q14 150 10 96 Q14 42 40 34 Z", fill: c.surface2, stroke: c.axis, "stroke-width": 1.5 }, svg);
+    el("text", { x: 14, y: 22, fill: c.ink2, "font-size": 13, "font-weight": 600 }, svg, t("r.pallets.deck.main"));
+    el("text", { x: 786, y: 22, fill: c.muted, "font-size": 12, "text-anchor": "end" }, svg, t("r.pallets.deck.fwd") + " →");
+    // centreline
+    el("line", { x1: 30, x2: 770, y1: 96, y2: 96, stroke: c.axis, "stroke-dasharray": "3 4", "stroke-width": 1 }, svg);
+    // lower deck outline
+    el("path", { d: "M40 206 L720 206 Q770 206 772 240 Q770 274 720 274 L40 274 Q20 270 18 240 Q20 210 40 206 Z", fill: c.surface2, stroke: c.axis, "stroke-width": 1.5 }, svg);
+    el("text", { x: 14, y: 196, fill: c.ink2, "font-size": 13, "font-weight": 600 }, svg, t("r.pallets.deck.lower"));
+
+    POS.forEach(function (p) {
+      var g = el("g", { "class": "deck-pos", tabindex: 0, role: "button", "aria-label": posTitle(p), "data-id": p.id }, svg);
+      var f = posFill(p, c);
+      var sel = state.pos === p.id;
+      el("rect", { x: p.x, y: p.y, width: p.w, height: p.h, rx: 2, fill: c.surface, stroke: "none" }, g);
+      el("rect", { x: p.x, y: p.y, width: p.w, height: p.h, rx: 2, fill: f.dash ? "url(#hatch)" : f.fill, "fill-opacity": f.op,
+        stroke: sel ? c.accent : c.axis, "stroke-width": sel ? 3 : 1, "stroke-dasharray": f.dash && !sel ? "4 3" : null }, g);
+      var dark = !f.dash && f.op > 0.6;
+      el("text", { x: p.x + p.w / 2, y: p.y + p.h / 2 + 4, "text-anchor": "middle", "font-size": 12, style: "font-family:var(--font-mono)",
+        "font-weight": 600, fill: dark ? c.surface : c.ink, "pointer-events": "none" }, g, posLabel(p));
+      el("title", {}, g, posTitle(p));
+      function pick() { if (state.pos === p.id) return; state.pos = p.id; markSel(svg); showPos(); }
+      g.addEventListener("mouseenter", pick);
+      g.addEventListener("click", pick);
+      g.addEventListener("focus", function () { if (state.pos !== p.id) { state.pos = p.id; showPos(); markSel(svg); } });
+      g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    });
+    drawDeckLegend(c);
+  }
+  function markSel(svg) {
+    var c = colors();
+    svg.querySelectorAll(".deck-pos").forEach(function (g) {
+      var r = g.querySelectorAll("rect")[1], on = g.getAttribute("data-id") === state.pos;
+      r.setAttribute("stroke", on ? c.accent : c.axis);
+      r.setAttribute("stroke-width", on ? 3 : 1);
+    });
+  }
+  function posTitle(p) {
+    if (p.kind === "pair") return t("r.pallets.pos.pair", { id: posLabel(p), side: t(p.side === "L" ? "r.pallets.pos.pairSideL" : "r.pallets.pos.pairSideR") });
+    if (p.kind === "centre") return t("r.pallets.pos.centre", { id: p.id });
+    if (p.kind === "contour") return t("r.pallets.pos.contour");
+    if (p.kind === "p9") return t("r.pallets.pos.p9");
+    return t("r.pallets.pos.ld", { id: p.n });
+  }
+  function showPos() {
+    var box = document.getElementById("posinfo");
+    var p = POS.filter(function (q) { return q.id === state.pos; })[0];
+    if (!p) { box.innerHTML = ""; var s = document.createElement("p"); s.textContent = t("r.pallets.deck.pick"); box.appendChild(s); return; }
+    var h = document.createElement("h4"); h.textContent = posTitle(p);
+    var parts = [h];
+    var cap = posCap(p);
+    var p1 = document.createElement("p");
+    p1.innerHTML = cap != null ? t("r.pallets.pos.vol", { v: fmt(cap, 2, 2) }) : t("r.pallets.pos.volCentre", { v: fmt(CENTRE_SUM, 1, 1) });
+    var p2 = document.createElement("p"); p2.textContent = t("r.pallets.pos.weight");
+    var p3 = document.createElement("p");
+    p3.textContent = p.kind === "pair" ? t("r.pallets.pos.balIn", { side: t(p.side === "L" ? "r.pallets.pos.pairSideL" : "r.pallets.pos.pairSideR") }) : t("r.pallets.pos.balOut");
+    var p4 = document.createElement("p");
+    p4.textContent = p.kind === "pair" ? t("r.pallets.pos.utilMain") : p.kind === "ld" ? t("r.pallets.pos.utilLD") : t("r.pallets.pos.utilNr");
+    parts.push(p1, p2, p3, p4);
+    box.innerHTML = "";
+    parts.forEach(function (n) { box.appendChild(n); });
+  }
+  function drawDeckLegend(c) {
+    var lg = document.getElementById("deck-legend");
+    lg.innerHTML = "";
+    function item(style, label, dashed) {
+      var s = document.createElement("span");
+      var sw = document.createElement("span");
+      sw.className = dashed ? "swd" : "sw";
+      if (!dashed) sw.style.cssText = style;
+      var tx = document.createElement("span"); tx.textContent = label;
+      s.appendChild(sw); s.appendChild(tx); lg.appendChild(s);
+    }
+    if (state.mode === "cap") {
+      var s = document.createElement("span");
+      var bar = document.createElement("span");
+      bar.style.cssText = "display:inline-block;width:90px;height:12px;background:linear-gradient(90deg," + c.surface + "," + c.blue + ");border:1px solid " + c.axis;
+      var lab = document.createElement("span");
+      lab.textContent = fmt(7.8, 1, 1) + " … " + fmt(17.1, 1, 1) + " m³  ·  " + t("r.pallets.deck.leg.cap");
+      s.appendChild(bar); s.appendChild(lab); lg.appendChild(s);
+      item("", t("r.pallets.deck.leg.nr"), true);
+    } else {
+      item("background:" + c.blue + ";opacity:0.62", t("r.pallets.deck.leg.utilMain"));
+      item("background:" + c.blue + ";opacity:0.88", t("r.pallets.deck.leg.utilLD"));
+      item("", t("r.pallets.deck.leg.utilNr"), true);
+    }
+  }
+  function drawMeters() {
+    document.getElementById("m-pay").textContent = t("r.pallets.meter.payloadV", { v: fmt(STAGE1_KG, 1, 1), max: fmt(PAYLOAD, 0) });
+    document.getElementById("m-pay-fill").style.width = (100 * STAGE1_KG / PAYLOAD) + "%";
+    document.getElementById("m-lat").textContent = t("r.pallets.meter.latV", { v: fmt(STAGE1_IMB, 1, 1), max: fmt(DELTA, 0) });
+    document.getElementById("m-lat-fill").style.width = (100 * STAGE1_IMB / DELTA) + "%";
+  }
+
+  /* ---------- 2. pipeline ---------- */
+  function stepName(s, short) {
+    if (short && (s.id === "plan" || s.id === "ff")) return t("r.pallets.stepShort." + s.id);
+    return t("r.pallets.step." + s.id);
+  }
+  function buildPipeSeg() {
+    var seg = document.getElementById("pipe-seg");
+    seg.innerHTML = "";
+    STEPS.forEach(function (s) {
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = stepName(s, false);
+      b.setAttribute("aria-pressed", String(state.step === s.id));
+      b.addEventListener("click", function () { state.step = s.id; renderPipe(); });
+      seg.appendChild(b);
+    });
+  }
+  function roCell(k, v, sub) {
+    var d = document.createElement("div");
+    var a = document.createElement("div"); a.className = "k"; a.textContent = k;
+    var b = document.createElement("div"); b.className = "v"; b.textContent = v;
+    d.appendChild(a); d.appendChild(b);
+    if (sub) { var c = document.createElement("div"); c.className = "s"; c.textContent = sub; d.appendChild(c); }
+    return d;
+  }
+  function renderPipe() {
+    var s = STEPS.filter(function (q) { return q.id === state.step; })[0];
+    document.querySelectorAll("#pipe-seg button").forEach(function (b, i) { b.setAttribute("aria-pressed", String(STEPS[i].id === s.id)); });
+    document.getElementById("stepdesc").textContent = t("r.pallets.desc." + s.id);
+    var nr = t("r.pallets.ro.nr");
+    var ro = document.getElementById("ro"); ro.innerHTML = "";
+    ro.appendChild(roCell(t("r.pallets.ro.assigned"), fmt(s.assigned, 0)));
+    ro.appendChild(roCell(t("r.pallets.ro.placed"),
+      s.paper ? t("r.pallets.ro.na") : s.placed != null ? t("r.pallets.ro.pm", { v: fmt(s.placed, 0), sd: fmt(s.placedSd, 0) }) : nr));
+    ro.appendChild(roCell(t("r.pallets.ro.rate"),
+      s.paper ? t("r.pallets.ro.na") : (s.rateSd != null ? t("r.pallets.ro.pm", { v: fmt(s.rate, 2, 1), sd: fmt(s.rateSd, 1, 1) }) : fmt(s.rate, 2, 2)) + "%"));
+    ro.appendChild(roCell(t("r.pallets.ro.geom"),
+      s.geom != null ? t("r.pallets.ro.pm", { v: fmt(s.geom, 2, 2), sd: fmt(s.geomSd, 2, 2) }) + "%" : (s.paper ? t("r.pallets.ro.na") : nr)));
+    ro.appendChild(roCell(s.paper ? t("r.pallets.ro.loadPlan") : t("r.pallets.ro.load"),
+      s.load != null ? (s.loadSd != null ? t("r.pallets.ro.pm", { v: fmt(s.load / 1000, 3, 3), sd: fmt(s.loadSd / 1000, 3, 3) }) : fmt(s.load / 1000, 3, 3)) + " t" : nr));
+    ro.appendChild(roCell(t("r.pallets.ro.cost"),
+      s.cost != null ? "US$" + fmt(s.cost, 3, 3) : nr,
+      s.cost != null ? t("r.pallets.ro.vsManual", { d: fmt(s.costPct, 1, 1) }) : null));
+    drawRate(); drawLoad();
+  }
+
+  function vbars(svg, cfg) {
+    var c = colors();
+    var W = widthOf(svg, 420), H = 240, m = { l: 40, r: 10, t: 14, b: 34 };
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    clear(svg);
+    var pw = W - m.l - m.r, ph = H - m.t - m.b;
+    var y = function (v) { return m.t + ph * (1 - v / cfg.max); };
+    cfg.ticks.forEach(function (v) {
+      el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: v === 0 ? c.axis : c.grid, "stroke-width": 1 }, svg);
+      el("text", { x: m.l - 6, y: y(v) + 4, "text-anchor": "end", "font-size": 11, fill: c.muted }, svg, fmt(v, 0));
+    });
+    var n = cfg.items.length, band = pw / n, bw = Math.min(34, band * 0.62);
+    cfg.items.forEach(function (it, i) {
+      var cx = m.l + band * (i + 0.5);
+      var on = it.id === state.step;
+      var g = el("g", { "class": "bar-hit" }, svg);
+      el("rect", { x: m.l + band * i, y: m.t, width: band, height: ph, fill: "transparent" }, g);
+      if (it.v != null) {
+        var col = on ? c.accent : c.silver;
+        el("rect", { x: cx - bw / 2, y: y(it.v), width: bw, height: Math.max(0, y(0) - y(it.v)), rx: 2,
+          fill: it.hollow ? "none" : col, stroke: it.hollow ? col : "none", "stroke-width": it.hollow ? 2 : 0,
+          "stroke-dasharray": it.hollow ? "4 3" : null }, g);
+        el("text", { x: cx, y: y(it.v) - 5, "text-anchor": "middle", "font-size": 11, "font-weight": on ? 700 : 400, fill: on ? c.ink : c.ink2 }, g, fmt(it.v, cfg.dec, cfg.dec));
+      } else {
+        el("text", { x: cx, y: y(0) - 6, "text-anchor": "middle", "font-size": 10.5, fill: c.muted }, g, it.missing);
+      }
+      el("text", { x: cx, y: H - m.b + 16, "text-anchor": "middle", "font-size": 11, "font-weight": on ? 700 : 400, fill: on ? c.ink : c.ink2 }, g, it.label);
+      el("title", {}, g, it.tip);
+      g.addEventListener("click", function () { state.step = it.id; renderPipe(); });
+    });
+    (cfg.refs || []).forEach(function (r) {
+      el("line", { x1: m.l, x2: W - m.r, y1: y(r.v), y2: y(r.v), stroke: r.color || c.ink2, "stroke-width": 1.5, "stroke-dasharray": "5 4" }, svg);
+      el("text", { x: W - m.r - 2, y: y(r.v) + (r.below ? 13 : -4), "text-anchor": "end", "font-size": 10.5, fill: c.ink2,
+        stroke: c.surface, "stroke-width": 3, "paint-order": "stroke" }, svg, r.label);
+    });
+  }
+  function drawRate() {
+    vbars(document.getElementById("ch-rate"), {
+      max: 100, ticks: [0, 20, 40, 60, 80, 100], dec: 1,
+      items: STEPS.map(function (s) {
+        return { id: s.id, v: s.rate, label: stepName(s, true), missing: t("r.pallets.ch.na"),
+          tip: stepName(s, false) + ": " + (s.rate != null ? fmt(s.rate, 2) + "%" : t("r.pallets.ro.na")) };
+      })
+    });
+  }
+  function drawLoad() {
+    vbars(document.getElementById("ch-load"), {
+      max: 70, ticks: [0, 10, 20, 30, 40, 50, 60, 70], dec: 1,
+      refs: [{ v: MANUAL_KG / 1000, label: t("r.pallets.ch.manual"), below: true }, { v: PAYLOAD / 1000, label: t("r.pallets.ch.limit"), color: colors().crit }],
+      items: STEPS.map(function (s) {
+        return { id: s.id, v: s.load != null ? s.load / 1000 : null, hollow: !!s.paper, label: stepName(s, true), missing: t("r.pallets.ch.nr"),
+          tip: stepName(s, false) + ": " + (s.load != null ? fmt(s.load, 0) + " kg" : t("r.pallets.ro.nr")) };
+      })
+    });
+  }
+
+  /* ---------- 3. levers ---------- */
+  function buildMuSeg() {
+    var seg = document.getElementById("mu-seg"); seg.innerHTML = "";
+    MU.forEach(function (r) {
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = "μ = " + fmt(r.mu, 0);
+      b.setAttribute("aria-pressed", String(state.mu === r.mu));
+      b.addEventListener("click", function () { state.mu = r.mu; renderMu(); });
+      seg.appendChild(b);
+    });
+  }
+  function renderMu() {
+    document.querySelectorAll("#mu-seg button").forEach(function (b, i) { b.setAttribute("aria-pressed", String(MU[i].mu === state.mu)); });
+    var tb = document.getElementById("mu-body"); tb.innerHTML = "";
+    MU.forEach(function (r) {
+      var tr = document.createElement("tr");
+      if (r.mu === state.mu) tr.className = "on";
+      [fmt(r.mu, 0), fmt(r.cls, 2, 2), fmt(r.box, 0), fmt(r.kg, 0), fmt(r.rate, 2, 2), fmt(r.geom, 2, 2)].forEach(function (v) {
+        var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    drawMu();
+  }
+  function drawMu() {
+    var svg = document.getElementById("ch-mu"), c = colors();
+    var W = widthOf(svg, 360), H = 200, m = { l: 40, r: 14, t: 16, b: 30 };
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H); clear(svg);
+    var pw = W - m.l - m.r, ph = H - m.t - m.b, lo = 90, hi = 100;
+    var y = function (v) { return m.t + ph * (1 - (v - lo) / (hi - lo)); };
+    [90, 92, 94, 96, 98, 100].forEach(function (v) {
+      el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: c.grid }, svg);
+      el("text", { x: m.l - 6, y: y(v) + 4, "text-anchor": "end", "font-size": 11, fill: c.muted }, svg, fmt(v, 0));
+    });
+    var band = pw / MU.length;
+    var pts = MU.map(function (r, i) { return [m.l + band * (i + 0.5), y(r.rate)]; });
+    el("polyline", { points: pts.map(function (p) { return p.join(","); }).join(" "), fill: "none", stroke: c.silver, "stroke-width": 2 }, svg);
+    MU.forEach(function (r, i) {
+      var on = r.mu === state.mu;
+      var g = el("g", { "class": "bar-hit" }, svg);
+      el("rect", { x: m.l + band * i, y: m.t, width: band, height: ph, fill: "transparent" }, g);
+      el("circle", { cx: pts[i][0], cy: pts[i][1], r: on ? 7 : 5, fill: on ? c.accent : c.silver, stroke: c.surface, "stroke-width": 2 }, g);
+      el("text", { x: pts[i][0], y: pts[i][1] - 11, "text-anchor": "middle", "font-size": 11, "font-weight": on ? 700 : 400, fill: on ? c.ink : c.ink2 }, g, fmt(r.rate, 2, 2));
+      el("text", { x: pts[i][0], y: H - 10, "text-anchor": "middle", "font-size": 11, fill: on ? c.ink : c.ink2, "font-weight": on ? 700 : 400 }, g, "μ = " + fmt(r.mu, 0));
+      el("title", {}, g, "μ = " + r.mu + ": " + fmt(r.rate, 2) + "%");
+      g.addEventListener("click", function () { state.mu = r.mu; renderMu(); });
+    });
+  }
+  function hbars(svg, cfg) {
+    var c = colors();
+    var W = widthOf(svg, 360), rowH = 38, m = { l: 12, r: 16, t: 8, b: 34 };
+    var H = m.t + cfg.items.length * rowH + m.b;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H); clear(svg);
+    var pw = W - m.l - m.r;
+    var x = function (v) { return m.l + pw * v / cfg.max; };
+    cfg.ticks.forEach(function (v) {
+      el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, stroke: v === 0 ? c.axis : c.grid }, svg);
+      el("text", { x: x(v), y: H - m.b + 14, "text-anchor": "middle", "font-size": 11, fill: c.muted }, svg, fmt(v, 0));
+    });
+    el("text", { x: m.l + pw / 2, y: H - 4, "text-anchor": "middle", "font-size": 11, fill: c.ink2 }, svg, cfg.axis);
+    cfg.items.forEach(function (it, i) {
+      var y0 = m.t + i * rowH;
+      el("text", { x: m.l + 2, y: y0 + 12, "font-size": 12, fill: c.ink2 }, svg, it.label);
+      el("rect", { x: x(0), y: y0 + 17, width: Math.max(0, x(it.v) - x(0)), height: 14, rx: 2, fill: it.color || c.silver }, svg);
+      var vx = x(it.v) + 5, anchor = "start";
+      if (vx > W - 50) { vx = x(it.v) - 5; anchor = "end"; }
+      el("text", { x: vx, y: y0 + 28, "text-anchor": anchor, "font-size": 11, "font-weight": 600,
+        fill: anchor === "end" ? c.surface : c.ink }, svg, it.text);
+    });
+    if (cfg.ref) {
+      el("line", { x1: x(cfg.ref.v), x2: x(cfg.ref.v), y1: m.t, y2: H - m.b, stroke: c.crit, "stroke-width": 1.5, "stroke-dasharray": "5 4" }, svg);
+      el("text", { x: x(cfg.ref.v) - 4, y: m.t + 9, "text-anchor": "end", "font-size": 10.5, fill: c.ink2,
+        stroke: c.surface, "stroke-width": 3, "paint-order": "stroke" }, svg, cfg.ref.label);
+    }
+  }
+  function drawLever() {
+    var c = colors();
+    hbars(document.getElementById("ch-lever"), {
+      max: 10, ticks: [0, 2, 4, 6, 8, 10], axis: t("r.pallets.lever.axis"),
+      items: [
+        { label: t("r.pallets.lever.seq"), v: 1.4, text: "+" + fmt(1.4, 1, 1), color: c.silver },
+        { label: t("r.pallets.lever.mu"), v: 5.11, text: "+" + fmt(5.1, 1, 1), color: c.silver },
+        { label: t("r.pallets.lever.ff"), v: 8.8, text: "+" + fmt(8.8, 1, 1), color: c.accent }
+      ]
+    });
+  }
+  function drawSolo() {
+    var c = colors();
+    hbars(document.getElementById("ch-solo"), {
+      max: 70, ticks: [0, 10, 20, 30, 40, 50, 60, 70], axis: t("r.pallets.solo.axis"),
+      ref: { v: 65, label: t("r.pallets.solo.limit") },
+      items: [
+        { label: t("r.pallets.solo.bar.solo"), v: 68.583, text: fmt(68583, 0) + " kg", color: c.crit },
+        { label: t("r.pallets.solo.bar.two"), v: 63.346, text: fmt(63346, 0) + " kg", color: c.accent },
+        { label: t("r.pallets.solo.bar.manual"), v: 56.332, text: fmt(56332, 0) + " kg", color: c.silver }
+      ]
+    });
+  }
+
+  /* ---------- wiring ---------- */
+  document.querySelectorAll("#deck-mode button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.mode = b.getAttribute("data-mode");
+      document.querySelectorAll("#deck-mode button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      drawDeck();
+    });
+  });
+
+  function drawAll() { drawDeck(); drawRate(); drawLoad(); drawMu(); drawLever(); drawSolo(); }
+  function render() {
+    drawDeck(); showPos(); drawMeters();
+    buildPipeSeg(); renderPipe();
+    buildMuSeg(); renderMu();
+    drawLever(); drawSolo();
+  }
+  I18N.onChange(render);
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if (mq.addEventListener) mq.addEventListener("change", drawAll); else if (mq.addListener) mq.addListener(drawAll);
+  var rt;
+  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { drawRate(); drawLoad(); drawMu(); drawLever(); drawSolo(); }, 120); });
+})();
+</script>
+</body>
+</html>
