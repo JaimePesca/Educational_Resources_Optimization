@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="en" data-title-key="flat.title" data-i18n-bundles="resources/nlp-stationary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Flat Is Not a Bottom</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #flat-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 34%)); max-width: none;
+  }
+  #flat-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #flat-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #flat-sec .anim-hud .chip-stat.hot b { color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #flat-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 10.5px; }
+    #flat-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #flat-sec .anim-hud { top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #flat-sec .anim-hud .chip-stat { padding: 3px 7px; font-size: 11px; }
+    #flat-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #flat-sec .anim-legend > span[hidden] { display: none; }
+  #flat-sec .anim-legend i.lg-curve { width: 20px; height: 0; border-top: 2.5px solid var(--ink); }
+  #flat-sec .anim-legend i.lg-tan { width: 20px; height: 0; border-top: 2.5px solid var(--accent); }
+  #flat-sec .anim-legend i.lg-level { width: 20px; height: 0; border-top: 1.6px dashed var(--mit-silver); }
+  #flat-sec .anim-legend i.lg-low { width: 20px; height: 0; border-top: 4px solid var(--mit-bright); }
+  #flat-sec .anim-legend i.lg-quad { width: 14px; height: 14px; border-radius: 50%; border: 2px dashed var(--accent); }
+  #flat-sec .anim-legend i.lg-pt { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent); }
+  #flat-sec .anim-legend i.lg-ball { width: 11px; height: 11px; border-radius: 50%; background: var(--ink2); }
+  #flat-sec .anim-legend i.lg-plane { width: 16px; height: 10px; background: var(--sel); border: 1.5px solid var(--accent); transform: skewX(-25deg); }
+  #flat-sec .anim-legend i.lg-up { width: 20px; height: 0; border-top: 3px solid var(--accent); }
+  #flat-sec .anim-legend i.lg-down { width: 20px; height: 0; border-top: 3.5px dashed var(--mit-bright); }
+  #flat-sec .anim-legend i.lg-surf { background: var(--region); border: 1px solid var(--mit-silver); }
+  /* dark theme: accent and bright red are the same colour there, so the "lower" cues use the crit shade */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #flat-sec .anim-legend i.lg-low,
+    :root:not([data-theme="light"]) #flat-sec .anim-legend i.lg-down { border-top-color: var(--crit); }
+  }
+  :root[data-theme="dark"] #flat-sec .anim-legend i.lg-low,
+  :root[data-theme="dark"] #flat-sec .anim-legend i.lg-down { border-top-color: var(--crit); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- the examples ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  .solcheck { font-size: 14px; color: var(--ink2); margin: 14px 0 0; }
+
+  /* ---- the test table ---- */
+  table.data { min-width: 520px; }
+  @media (max-width: 560px) {
+    table.data { min-width: 0; }
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 6px; }
+  }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.fn { font-weight: 600; color: var(--ink); white-space: nowrap; }
+  table.data td.ok { color: var(--accent-text); font-weight: 600; }
+  table.data td.q { color: var(--muted); }
+  table.data td small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+  .sens-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 78ch; }
+  .sens-p b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="flat.eyebrow"></p>
+    <h1 data-i18n="flat.title"></h1>
+    <p class="lede" data-i18n-html="flat.lede"></p>
+  </header>
+
+  <section class="block" id="flat-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="flat.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="flat-scen-lbl" data-i18n="flat.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="flat-scen-lbl" id="flat-seg">
+        <button type="button" data-sc="d1" aria-pressed="true" data-i18n="flat.sc.d1"></button>
+        <button type="button" data-sc="d2" aria-pressed="false" data-i18n="flat.sc.d2"></button>
+      </div>
+    </div>
+    <div class="anim" id="flat-anim">
+      <div class="anim-stage" role="img">
+        <div class="anim-hud" id="flat-hud">
+          <div class="chip-stat" id="flat-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="flat-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="flat-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="flat-c3"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span data-sc="d1"><i class="lg-curve"></i><span data-i18n="flat.lg.curve"></span></span>
+      <span data-sc="d1"><i class="lg-tan"></i><span data-i18n="flat.lg.tan"></span></span>
+      <span data-sc="d2"><i class="lg-surf"></i><span data-i18n="flat.lg.surf"></span></span>
+      <span data-sc="d2"><i class="lg-plane"></i><span data-i18n="flat.lg.plane"></span></span>
+      <span><i class="lg-pt"></i><span data-i18n="flat.lg.pt"></span></span>
+      <span><i class="lg-ball"></i><span data-i18n="flat.lg.ball"></span></span>
+      <span data-sc="d1"><i class="lg-level"></i><span data-i18n="flat.lg.level"></span></span>
+      <span data-sc="d1"><i class="lg-low"></i><span data-i18n="flat.lg.low"></span></span>
+      <span data-sc="d1"><i class="lg-quad"></i><span data-i18n="flat.lg.quad"></span></span>
+      <span data-sc="d2"><i class="lg-up"></i><span data-i18n="flat.lg.up"></span></span>
+      <span data-sc="d2"><i class="lg-down"></i><span data-i18n="flat.lg.down"></span></span>
+    </div>
+    <p class="scen-status" id="flat-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="flat.model.kicker"></span><span data-i18n="flat.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="flat.first.head"></p>
+        <div class="formula" data-tex="flat.first.tex" data-i18n="flat.first.formula"></div>
+        <p class="mtext" data-i18n="flat.first.why"></p>
+        <p class="mhead" data-i18n="flat.second.head"></p>
+        <div class="formula" data-tex="flat.second.tex" data-i18n="flat.second.formula"></div>
+        <p class="mtext" data-i18n="flat.second.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="flat.hess.head"></p>
+        <div class="formula" data-tex="flat.hess.tex" data-i18n="flat.hess.formula"></div>
+        <div class="formula" data-tex="flat.eigtest.tex" data-i18n="flat.eigtest.formula"></div>
+        <p class="mtext" data-i18n="flat.hess.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="flat.ex.kicker"></span><span id="flat-ex-title"></span></h2>
+    <div class="stats" id="flat-stats"></div>
+    <p class="solcheck" id="flat-ex-check"></p>
+    <div class="formula" id="flat-inst"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="flat.tb.kicker"></span><span data-i18n="flat.tb.title"></span></h2>
+    <p class="sens-p" id="flat-tb-intro" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="flat-tb"></table></div>
+    <p class="sens-p" id="flat-tb-note"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="flat.n.title"></summary>
+      <div class="body">
+        <p id="flat-n1"></p>
+        <p id="flat-n2"></p>
+        <p id="flat-n3"></p>
+        <p id="flat-n4"></p>
+        <p id="flat-n5"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.16" data-refs="flat.refs"></p>
+  <p class="note" data-i18n="flat.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/nlp-stationary.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d, m) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 2 : d, m); };
+  // the sign is chosen after rounding, so a tiny value never shows as "−0"
+  var signed = function (v, d, neg, pos) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? neg : pos) + m; };
+  var num = function (v, d) { return signed(v, d, MINUS, ""); };        // U+2212 for negatives
+  var sgn = function (v, d) { return signed(v, d, MINUS, "+"); };       // explicit sign
+  var texNum = function (v, d) { return signed(v, d, "-", ""); };
+  var pair = function (x, y, d) { return T("flat.pair", { x: num(x, d), y: num(y, d) }); };
+  var eigs = function (e, d) { return T("flat.eig", { a: num(e[0], d), b: num(e[1], d) }); };
+
+  /* ---------- the functions, and their derivatives by central differences ---------- */
+  var TAU = Math.PI * 2;
+  var H = 1e-3;
+  function d1(f, x) { return (f(x + H) - f(x - H)) / (2 * H); }
+  function d2(f, x) { return (f(x + H) - 2 * f(x) + f(x - H)) / (H * H); }
+  function grad(f, x, y) { return [(f(x + H, y) - f(x - H, y)) / (2 * H), (f(x, y + H) - f(x, y - H)) / (2 * H)]; }
+  function hess(f, x, y) {
+    var fxx = (f(x + H, y) - 2 * f(x, y) + f(x - H, y)) / (H * H);
+    var fyy = (f(x, y + H) - 2 * f(x, y) + f(x, y - H)) / (H * H);
+    var fxy = (f(x + H, y + H) - f(x + H, y - H) - f(x - H, y + H) + f(x - H, y - H)) / (4 * H * H);
+    return [fxx, fxy, fyy];
+  }
+  function eig(M) {                                // eigenvalues of a symmetric 2 x 2 matrix, largest first
+    var m = (M[0] + M[2]) / 2, r = Math.hypot((M[0] - M[2]) / 2, M[1]);
+    return [m + r, m - r];
+  }
+  var TOL = 1e-4;                                  // a second derivative this close to zero counts as zero
+  function test1(v) { return v > TOL ? "min" : (v < -TOL ? "max" : "inc"); }
+  function test2(e) {
+    if (e[0] > TOL && e[1] > TOL) return "min";
+    if (e[0] < -TOL && e[1] < -TOL) return "max";
+    if (e[0] > TOL && e[1] < -TOL) return "sad";
+    return "inc";
+  }
+  // what nearby points actually show: f compared with its value at the flat point, within radius 0.3
+  var NR_ = 0.3, N1 = 60, N2R = 30, N2A = 72;    // radius of the check, points per side (1D), rings and angles (2D)
+  function near1(f) {
+    var up = 0, dn = 0, f0 = f(0);
+    for (var k = 1; k <= N1; k++) [-1, 1].forEach(function (s) { var d = f(s * NR_ * k / N1) - f0; if (d > 0) up++; else if (d < 0) dn++; });
+    return dn === 0 && up > 0 ? "min" : (up === 0 && dn > 0 ? "max" : "neither");
+  }
+  function near2(f) {
+    var up = 0, dn = 0, f0 = f(0, 0);
+    for (var k = 1; k <= N2R; k++) for (var j = 0; j < N2A; j++) {
+      var r = NR_ * k / N2R, a = j * TAU / N2A, d = f(r * Math.cos(a), r * Math.sin(a)) - f0;
+      if (d > 0) up++; else if (d < 0) dn++;
+    }
+    return dn === 0 && up > 0 ? "min" : (up === 0 && dn > 0 ? "max" : "neither");
+  }
+  var FN1 = [
+    { k: "sq", f: function (x) { return x * x; }, lo: -1.0, hi: 2.6 },
+    { k: "nsq", f: function (x) { return -x * x; }, lo: -2.6, hi: 1.0 },
+    { k: "cube", f: function (x) { return x * x * x; }, lo: -2.6, hi: 2.6 }
+  ];
+  var ROWS1 = FN1.concat([
+    { k: "quart", f: function (x) { return x * x * x * x; } },
+    { k: "nquart", f: function (x) { return -x * x * x * x; } }
+  ]);
+  var FN2 = [
+    { k: "bowl", f: function (x, y) { return x * x + y * y; } },
+    { k: "saddle", f: function (x, y) { return x * x - y * y; } }
+  ];
+  var ROWS2 = FN2.concat([
+    { k: "cap", f: function (x, y) { return -x * x - y * y; } },
+    { k: "bowl4", f: function (x, y) { return x * x + y * y * y * y; } },
+    { k: "cubic2", f: function (x, y) { return x * x + y * y * y; } }
+  ]);
+  ROWS1.forEach(function (o) { o.fp = d1(o.f, 0); o.fpp = d2(o.f, 0); o.test = test1(o.fpp); o.near = near1(o.f); });
+  ROWS2.forEach(function (o) { o.g = grad(o.f, 0, 0); o.gn = Math.hypot(o.g[0], o.g[1]); o.H = hess(o.f, 0, 0); o.e = eig(o.H); o.test = test2(o.e); o.near = near2(o.f); });
+  var fname = function (k) { return T("flat.f." + k); };
+  var state = { sc: "d1" };
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed from the functions above; the balls, their
+     motion, the camera and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("flat-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("flat-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);                      // counters above the canvas
+  var DUR = 50, CH = [0, 10, 20, 30, 40];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var chapters = CH.map(function (c, k) { return { t: c, key: "flat.ch" + (k + 1) + ".d1" }; });
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  function mixRgb(a, b, u) { var p = rgbOf(a), q = rgbOf(b); return "rgb(" + Math.round(lerp(p[0], q[0], u)) + "," + Math.round(lerp(p[1], q[1], u)) + "," + Math.round(lerp(p[2], q[2], u)) + ")"; }
+  var font = function (w, s, it) { return (it ? "italic " : "") + w + " " + s + "px " + SANS; };
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  function layout() {
+    var W = cv.w, Hh = cv.h, portrait = W / Hh < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: Hh, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11; L.fb = 12.5; L.ft = 13.5; L.lw = 2; L.dot = 5; L.ball = 6;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 12; L.fb = 14; L.ft = 16; L.lw = 2.5; L.dot = 6.5; L.ball = 8;
+    }
+    // room for the longest caption of either scenario, so nothing jumps between chapters
+    var tl = 1, sl = 1;
+    ["d1", "d2"].forEach(function (sc) {
+      CH.forEach(function (c) {
+        var cap = captions(sc, c + 0.1);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    if (portrait) { L.x0 = 10; L.x1 = W - 10; L.y0 = L.capBottom + 12; L.y1 = Hh - 10; }
+    else { L.x0 = hx + hw + 26; L.x1 = W - 16; L.y0 = 16; L.y1 = Hh - 16; }
+    L.pw = L.x1 - L.x0; L.ph = L.y1 - L.y0;
+    L.views1 = views1();
+    L.views2 = views2();
+    hudKey = W + "x" + Hh + ":" + hh + ":" + hw;
+  }
+
+  /* =============================== 1D: three curves =============================== */
+  var PX = [-3.9, 0, 3.9], PW = 1.6, PH = 2.4;
+  var TP = [3.2, 11.6, 21.6];                    // the probe appears on curve i
+  function tFlat(i) { return TP[i] + 3.2; }      // ... and reaches x = 0, where the tangent is flat
+  var TQ = [32, 34.2, 36.4];                     // chapter 4: the osculating circle of curve i
+  var TN5 = 41.8;                                // chapter 5: all three balls are nudged together
+  function fit1(box, mt, mb) {                   // camera {cx, cy, K, ox, oy} that shows a world box
+    var w = L.pw, h = L.ph - mt - mb, K = Math.min(w / (box[1] - box[0]), h / (box[3] - box[2]));
+    return { cx: (box[0] + box[1]) / 2, cy: (box[2] + box[3]) / 2, K: K, ox: L.x0 + w / 2, oy: L.y0 + mt + h / 2 };
+  }
+  function views1() {
+    var mt = L.fs + 16, mb = 2 * (L.fs + 5) + 12;
+    var v = { all: fit1([PX[0] - PW - 0.1, PX[2] + PW + 0.1, -PH, PH], mt, mb), f: [] };
+    FN1.forEach(function (o, i) { v.f.push(fit1([PX[i] - 1.75, PX[i] + 1.75, o.lo, o.hi], 10, 10)); });
+    return v;
+  }
+  function mixCam(a, b, u) {
+    return { cx: lerp(a.cx, b.cx, u), cy: lerp(a.cy, b.cy, u), ox: lerp(a.ox, b.ox, u), oy: lerp(a.oy, b.oy, u),
+      K: Math.exp(lerp(Math.log(a.K), Math.log(b.K), u)) };
+  }
+  var cam = null;
+  function SX(x) { return cam.ox + (x - cam.cx) * cam.K; }
+  function SY(y) { return cam.oy - (y - cam.cy) * cam.K; }
+  function moves1(t) { return [E.inOut(seg(t, 1.8, 3.2)), E.inOut(seg(t, 10.2, 11.6)), E.inOut(seg(t, 20.2, 21.6)), E.inOut(seg(t, 30.2, 31.6))]; }
+  function setCam1(t) {
+    var V = L.views1, u = moves1(t), c = V.all;
+    c = mixCam(c, V.f[0], u[0]); c = mixCam(c, V.f[1], u[1]); c = mixCam(c, V.f[2], u[2]); c = mixCam(c, V.all, u[3]);
+    cam = c;
+  }
+  function focusW(t) {                           // how much each curve is in focus (the others are dimmed)
+    var u = moves1(t), m = [1, 1, 1], D = 0.26;
+    var to = function (e, v) { m = m.map(function (x, i) { return lerp(x, e[i], v); }); };
+    to([1, D, D], u[0]); to([D, 1, D], u[1]); to([D, D, 1], u[2]); to([1, 1, 1], u[3]);
+    return m;
+  }
+  function overviewW(t) { var u = moves1(t); return (1 - u[0]) + u[3]; }
+  function probeX(i, t) { return -1.2 * (1 - E.inOut(seg(t, TP[i] + 0.2, tFlat(i)))); }
+  function focusIdx(t) { return t < TP[1] ? 0 : (t < TP[2] ? 1 : 2); }   // the counters follow the probe
+  // the ball: nudged once in chapters 1 to 3 and once more, on all three curves, in chapter 5
+  function ballPath(i, tau) {
+    if (tau <= 0) return 0;
+    if (i === 0) return 0.6 * Math.exp(-0.7 * tau) * Math.sin(2.8 * tau);
+    if (i === 1) return 0.05 * (Math.exp(1.5 * tau) - 1);
+    if (tau < 1.3) return 0.5 * Math.sin(Math.PI * tau / 1.3);
+    var s = tau - 1.3;
+    return -(0.5 * Math.PI / 1.3) * s - 0.45 * s * s;
+  }
+  function ball1(i, t) {                         // {x, a} or null
+    var tf = tFlat(i), ta = tf + 0.5, tn = tf + 0.8, x, a;
+    if (t < ta) return null;
+    if (t < 40.4 || i === 0) {
+      x = t >= TN5 && i === 0 ? ballPath(0, t - TN5) : ballPath(i, t - tn);
+      a = seg(t, ta, ta + 0.3);
+    } else {
+      x = ballPath(i, t - TN5);
+      a = seg(t, 40.5, 41.1);
+    }
+    a *= 1 - seg(Math.abs(x), 1.25, 1.6);
+    return a > 0.01 ? { x: x, a: a } : null;
+  }
+  function panelClip(i) {
+    ctx.beginPath(); ctx.rect(SX(PX[i] - PW), SY(PH), PW * 2 * cam.K, PH * 2 * cam.K); ctx.clip();
+  }
+  function curvePath(f, i, x0, x1) {
+    ctx.beginPath();
+    var n = Math.max(2, Math.ceil((x1 - x0) / 0.02));
+    for (var k = 0; k <= n; k++) {
+      var x = x0 + (x1 - x0) * k / n, X = SX(PX[i] + x), Y = SY(clamp(f(x), -PH - 1, PH + 1));
+      if (k) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+    }
+  }
+  function drawPanel(i, t, fw) {
+    var o = FN1[i], f = o.f, draw = E.out(seg(t, 0.2 + 0.35 * i, 1.4 + 0.35 * i));
+    if (draw <= 0) return;
+    ctx.save(); panelClip(i);
+    // axes of the panel
+    ctx.globalAlpha = draw * fw; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(SX(PX[i] - PW), SY(0)); ctx.lineTo(SX(PX[i] + PW), SY(0));
+    ctx.moveTo(SX(PX[i]), SY(-PH)); ctx.lineTo(SX(PX[i]), SY(PH)); ctx.stroke();
+    // the level of the flat point, and the parts of the curve below it
+    var tf = tFlat(i), la = seg(t, tf + 0.3, tf + 0.9), f0 = f(0);
+    if (la > 0) {
+      ctx.globalAlpha = la * fw; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.6; ctx.setLineDash([6, 5]);
+      ctx.beginPath(); ctx.moveTo(SX(PX[i] - PW), SY(f0)); ctx.lineTo(SX(PX[i] + PW), SY(f0)); ctx.stroke(); ctx.setLineDash([]);
+    }
+    // the curve, drawn from the left
+    ctx.globalAlpha = fw; ctx.strokeStyle = C.ink; ctx.lineWidth = L.lw; ctx.lineCap = "round";
+    curvePath(f, i, -PW, -PW + 2 * PW * draw); ctx.stroke();
+    if (la > 0) {
+      ctx.save(); ctx.beginPath(); ctx.rect(SX(PX[i] - PW), SY(f0), PW * 2 * cam.K, (PH + 2) * cam.K); ctx.clip();
+      ctx.globalAlpha = la * fw; ctx.strokeStyle = HOT; ctx.lineWidth = L.lw + 2.5;
+      curvePath(f, i, -PW, PW); ctx.stroke(); ctx.restore();
+    }
+    // chapter 4: the osculating circle at the flat point. There f' = 0, so its radius is 1 / |f''(0)|, on the side
+    // the curve bends to; with f''(0) = 0 the radius grows without bound and the circle flattens into the tangent
+    var qa = E.inOut(seg(t, TQ[i], TQ[i] + 1.1));
+    if (qa > 0) {
+      var k = o.fpp, zero = Math.abs(k) <= TOL, R = zero ? 0.5 * Math.exp(5.5 * qa) : 1 / Math.abs(k);
+      var up = zero || k > 0, cyW = f0 + (up ? R : -R), a0 = up ? Math.PI / 2 : -Math.PI / 2;
+      var span = zero ? Math.min(Math.PI, 1.9 / R) : Math.PI * qa;
+      ctx.globalAlpha = fw * (zero ? 1 - seg(qa, 0.55, 1) : 1); ctx.strokeStyle = C.accent; ctx.lineWidth = L.lw - 0.5; ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.arc(SX(PX[i]), SY(cyW), R * cam.K, a0 - span, a0 + span); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.lineCap = "butt"; ctx.restore(); ctx.globalAlpha = 1;
+  }
+  function drawTangent(i, t, fw) {
+    if (t < TP[i]) return;
+    var f = FN1[i].f, x = probeX(i, t), y = f(x), m = d1(f, x), a = seg(t, TP[i], TP[i] + 0.4) * fw;
+    var n = Math.hypot(1, m), hl = 0.95, dx = hl / n, dy = hl * m / n, tf = tFlat(i);
+    var X0 = SX(PX[i] + x - dx), Y0 = SY(y - dy), X1 = SX(PX[i] + x + dx), Y1 = SY(y + dy);
+    var fl = seg(t, tf - 0.15, tf + 0.35);
+    ctx.lineCap = "round";
+    ctx.globalAlpha = a; ctx.strokeStyle = C.surface; ctx.lineWidth = L.lw + 4;
+    ctx.beginPath(); ctx.moveTo(X0, Y0); ctx.lineTo(X1, Y1); ctx.stroke();
+    ctx.globalAlpha = a * (1 - fl); ctx.strokeStyle = C.ink2; ctx.lineWidth = L.lw;
+    ctx.beginPath(); ctx.moveTo(X0, Y0); ctx.lineTo(X1, Y1); ctx.stroke();
+    ctx.globalAlpha = a * fl; ctx.strokeStyle = C.accent; ctx.lineWidth = L.lw + 0.5;
+    ctx.beginPath(); ctx.moveTo(X0, Y0); ctx.lineTo(X1, Y1); ctx.stroke();
+    // the flash when it goes flat
+    var fx = seg(t, tf, tf + 0.9);
+    if (fx > 0 && fx < 1) {
+      ctx.globalAlpha = (1 - fx) * 0.45 * fw; ctx.lineWidth = L.lw + 8 * (1 - fx);
+      ctx.beginPath(); ctx.moveTo(X0, Y0); ctx.lineTo(X1, Y1); ctx.stroke();
+    }
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+    // the point of tangency: ink while it slides, the accent stationary point once flat
+    var X = SX(PX[i] + x), Y = SY(y);
+    if (fl < 1) { ctx.globalAlpha = a * (1 - fl); ctx.fillStyle = C.surface; circle(X, Y, 6); ctx.fill(); ctx.fillStyle = C.ink; circle(X, Y, 4); ctx.fill(); }
+    if (fl > 0) {
+      var r = L.dot * (cam.K < 60 ? 0.8 : 1) * E.back(fl);
+      var ph = ((t - tf) % 1.8) / 1.8, pa = (t < 40 ? 1 : 1 - seg(t, 46, 48)) * fw;
+      if (t > tf) { ctx.globalAlpha = 0.5 * (1 - ph) * pa; ctx.strokeStyle = C.accent; ctx.lineWidth = 2; circle(X, Y, r + 3 + ph * 14); ctx.stroke(); }
+      var bu = seg(t, tf, tf + 1.1);
+      if (bu > 0 && bu < 1) {
+        var rn = A.rng(17 + i);
+        ctx.fillStyle = C.accent;
+        for (var k = 0; k < 14; k++) {
+          var an = rn() * TAU, sp = 12 + rn() * 22, d = sp * E.out(bu);
+          ctx.globalAlpha = (1 - bu) * 0.9 * fw;
+          ctx.fillRect(X + Math.cos(an) * d - 1.2, Y + Math.sin(an) * d - 1.2, 2.4, 2.4);
+        }
+      }
+      ctx.globalAlpha = fw; ctx.fillStyle = C.surface; circle(X, Y, r + 2.5); ctx.fill();
+      ctx.fillStyle = C.accent; circle(X, Y, r); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawBall(X, Y, nx, ny, r, a, col) {   // a ball resting on the curve at (X, Y), on the side of the normal (nx, ny)
+    var bx = X + nx * (r + 1), by = Y + ny * (r + 1);
+    ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(bx, by, r + 2); ctx.fill();
+    ctx.fillStyle = col; circle(bx, by, r); ctx.fill();
+    ctx.globalAlpha = a * 0.5; ctx.fillStyle = C.surface; circle(bx - r * 0.35, by - r * 0.35, r * 0.28); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function ballScreen1(i, x) {                   // screen point of the curve at x, and its slope there
+    var f = FN1[i].f;
+    return { X: SX(PX[i] + x), Y: SY(f(x)), m: d1(f, x) };
+  }
+  function drawBalls1(t, FW) {
+    FN1.forEach(function (o, i) {
+      var b = ball1(i, t);
+      if (!b) return;
+      var r = cam.K < 60 ? L.ball * 0.75 : L.ball, fw = FW[i];
+      ctx.save(); panelClip(i);
+      for (var k = 9; k >= 1; k--) {             // a short trail
+        var bt = ball1(i, t - k * 0.045);
+        if (!bt || Math.abs(bt.x - b.x) < 1e-3) continue;
+        var s = ballScreen1(i, bt.x), nn = Math.hypot(1, s.m);
+        ctx.globalAlpha = b.a * fw * 0.3 * (1 - k / 10); ctx.fillStyle = C.ink2;
+        circle(s.X - s.m / nn * (r + 1), s.Y - 1 / nn * (r + 1), r * (1 - k / 14)); ctx.fill();
+      }
+      // the ball rests on the upper side: in screen coordinates the curve runs along (1, -m), its upper normal is (-m, -1)
+      var p = ballScreen1(i, b.x), n = Math.hypot(1, p.m);
+      drawBall(p.X, p.Y, -p.m / n, -1 / n, r, b.a * fw, C.ink2);
+      ctx.restore();
+    });
+  }
+  function lab1(t) {                              // labels of curve i: "f'(0) = 0", the verdict, and under the panel f''(0)
+    var out = [], ov = overviewW(t), FW = focusW(t);
+    FN1.forEach(function (o, i) {
+      var tf = tFlat(i), X = SX(PX[i]), Y = SY(0), fw = seg(FW[i], 0.3, 1);
+      var small = cam.K < 60, fs = small ? L.fs - 0.5 : L.fb, off = small ? 14 : 22;
+      var za = seg(t, tf + 0.1, tf + 0.6) * (1 - seg(t, tf + 1.9, tf + 2.3));
+      var zy = i === 1 ? Y + off + fs / 2 : Y - off - fs / 2, zx = i === 2 ? X - off * 0.4 : X, zal = i === 2 ? "right" : "center";
+      out.push({ txt: T("flat.l.fp0", { v: num(o.fp) }), x: zx, y: zy, align: zal, col: C["accent-text"], f: font(700, fs, true), a: za * fw });
+      // the verdict of the nudge, on the empty side of the point
+      var va = seg(t, tf + 2.2, tf + 2.8), vk = ["flat.l.min", "flat.l.max", "flat.l.neither"][i];
+      ctx.font = font(700, fs); var vw = ctx.measureText(T(vk)).width;
+      var vx = i === 2 ? Math.min(SX(PX[i] + 0.75), SX(PX[i] + PW) - vw / 2 - 2) : X, vy = i === 0 ? Y + off + fs / 2 : (i === 1 ? Y - off - fs / 2 : SY(-1.0));
+      out.push({ txt: T(vk), x: vx, y: vy, align: "center", col: i === 0 ? C["accent-text"] : C.ink, f: font(700, fs), a: va * fw });
+      // the title above the panel and the curvature under it (overview only)
+      out.push({ txt: T("flat.l.fx", { f: fname(o.k) }), x: X, y: SY(PH) - 10 - L.fs / 2, align: "center", col: C.ink2, f: font(700, L.fs + 0.5), a: ov * seg(t, 0.4 + 0.35 * i, 1.2 + 0.35 * i) });
+      var ca = seg(t, TQ[i] + 0.4, TQ[i] + 1) * ov, cy = SY(-PH) + 9 + L.fs / 2;
+      out.push({ txt: T("flat.l.f2", { v: num(o.fpp) }), x: X, y: cy, align: "center", col: C.ink, f: font(700, L.fs + 0.5, true), a: ca });
+      out.push({ txt: T("flat.l.test." + o.test), x: X, y: cy + L.fs + 5, align: "center", col: o.test === "inc" ? C.muted : C["accent-text"], f: font(400, L.fs), a: ca });
+    });
+    return out;
+  }
+  function render1(t) {
+    setCam1(t);
+    var FW = focusW(t);
+    FN1.forEach(function (o, i) { drawPanel(i, t, FW[i]); });
+    FN1.forEach(function (o, i) { drawTangent(i, t, FW[i]); });
+    drawBalls1(t, FW);
+    lab1(t).forEach(function (o) { label(o.txt, o.x, o.y, o.align, o.col, o.f, o.a); });
+  }
+  function hud1(t) {
+    var pa = seg(t, TP[0], TP[0] + 0.4);
+    if (t >= 40) {
+      var ra = seg(t, 40.2, 40.8);
+      setChip(0, num(FN1[0].fp), T("flat.k.fpAll"), ra, "acc");
+      FN1.forEach(function (o, i) { setChip(i + 1, num(o.fpp), T("flat.k.fppOf", { f: fname(o.k) }), ra, o.test === "min" ? "acc" : ""); });
+      return;
+    }
+    var i = focusIdx(t), x;
+    if (t >= 30.2) { i = 2; TQ.forEach(function (q, k) { if (t >= q - 0.4) i = k; }); x = 0; }
+    else x = t < TP[i] ? -1.2 : probeX(i, t);
+    var f = FN1[i].f, fp = d1(f, x), fpp = d2(f, x);
+    setChip(0, fname(FN1[i].k), T("flat.k.f"), pa, "");
+    setChip(1, num(x), T("flat.k.x"), pa, "");
+    setChip(2, num(fp), T("flat.k.fp"), t >= TP[0] ? pa : 0, Math.abs(fp) < 0.005 ? "acc" : "");
+    setChip(3, num(fpp), T("flat.k.fpp"), t >= TP[0] ? pa : 0, "");
+  }
+
+  /* =============================== 2D: bowl and saddle =============================== */
+  var R2 = 1.5, NR = 10, NS = 36, HZ = 0.42, PHI = 0.52, TH0 = 0.62, PLH = 0.36;
+  function sOf(t) { return 1 - 2 * E.inOut(seg(t, 11.5, 15.5)); }        // f = x^2 + s y^2: the bowl bends into the saddle
+  function fS(s) { return function (x, y) { return x * x + s * y * y; }; }
+  function thOf(t) { return TH0 - 0.12 * Math.sin(Math.PI * clamp(t / 40, 0, 1)); }
+  function P3(V, x, y, z) {
+    var c = Math.cos(V.th), s = Math.sin(V.th), u = x * c - y * s, d = x * s + y * c;
+    return [V.ox + V.K * u, V.oy - V.K * (d * Math.sin(PHI) + z * HZ * Math.cos(PHI))];
+  }
+  function nearness(V, x, y, z) { var d = x * Math.sin(V.th) + y * Math.cos(V.th); return -d * Math.cos(PHI) + z * HZ * Math.sin(PHI); }
+  function bbox(s, ths) {                        // screen box of the surface at K = 1, origin at (0, 0)
+    var b = [Infinity, Infinity, -Infinity, -Infinity], f = fS(s);
+    ths.forEach(function (th) {
+      var V = { ox: 0, oy: 0, K: 1, th: th };
+      for (var k = 0; k < 72; k++) {
+        var a = k * TAU / 72;
+        [R2, R2 * 0.5].forEach(function (r) {
+          var x = r * Math.cos(a), y = r * Math.sin(a), p = P3(V, x, y, f(x, y));
+          b[0] = Math.min(b[0], p[0]); b[1] = Math.min(b[1], p[1]); b[2] = Math.max(b[2], p[0]); b[3] = Math.max(b[3], p[1]);
+        });
+      }
+    });
+    return b;
+  }
+  function views2() {
+    var ths = [TH0, TH0 - 0.04, TH0 - 0.08, TH0 - 0.12], b1 = bbox(1, ths), b2 = bbox(-1, ths);
+    var b = [Math.min(b1[0], b2[0]), Math.min(b1[1], b2[1]), Math.max(b1[2], b2[2]), Math.max(b1[3], b2[3])];
+    var mx = L.portrait ? 44 : 64, my = 16;
+    var K = Math.min((L.pw - 2 * mx) / (b[2] - b[0]), (L.ph - 2 * my) / (b[3] - b[1]));
+    var single = { K: K, ox: L.x0 + L.pw / 2 - K * (b[0] + b[2]) / 2, oy: L.y0 + L.ph / 2 - K * (b[1] + b[3]) / 2 };
+    // side by side: the bowl on the left, the saddle on the right, the same scale, two text lines under each
+    var bb = bbox(1, [TH0]), bs = bbox(-1, [TH0]), gap = L.portrait ? 10 : 24, mb = 2 * (L.fs + 6) + 14, hw = (L.pw - gap) / 2;
+    var K2 = Math.min((hw - (L.portrait ? 18 : 40)) / Math.max(bb[2] - bb[0], bs[2] - bs[0]),
+      (L.ph - mb - 2 * my) / Math.max(bb[3] - bb[1], bs[3] - bs[1]));
+    var top = L.y0 + my, hgt = L.ph - mb - 2 * my;
+    var place = function (b, cxs) { return { K: K2, ox: cxs - K2 * (b[0] + b[2]) / 2, oy: top + hgt / 2 - K2 * (b[1] + b[3]) / 2, bot: top + hgt / 2 + K2 * (b[3] - b[1]) / 2 }; };
+    return { single: single, left: place(bb, L.x0 + hw / 2), right: place(bs, L.x1 - hw / 2) };
+  }
+  function mixV(a, b, u) { return { ox: lerp(a.ox, b.ox, u), oy: lerp(a.oy, b.oy, u), K: Math.exp(lerp(Math.log(a.K), Math.log(b.K), u)), th: lerp(a.th, b.th, u) }; }
+  var shadeCache = { key: "", cols: null };
+  function shades() {                            // 24 fills from the surface colour toward silver gray
+    var key = C.surface + C["mit-silver"];
+    if (shadeCache.key !== key) {
+      var cols = [];
+      for (var k = 0; k < 24; k++) cols.push(mixRgb(C.surface, C["mit-silver"], 0.08 + 0.5 * k / 23));
+      shadeCache = { key: key, cols: cols };
+    }
+    return shadeCache.cols;
+  }
+  var LX = -0.35, LY = -0.55, LZ = 0.76;         // light from the front left, above
+  var meshCache = {};
+  function mesh(key, f, NR, NS) {                // world vertices, quads and their shading, cached per surface and resolution
+    key += ":" + NR + "x" + NS;
+    if (meshCache[key]) return meshCache[key];
+    var verts = [], quads = [], j, k;
+    for (j = 0; j <= NR; j++) for (k = 0; k < NS; k++) {
+      var r = R2 * j / NR, an = k * TAU / NS, x = r * Math.cos(an), y = r * Math.sin(an);
+      verts.push([x, y, f(x, y)]);
+    }
+    for (j = 0; j < NR; j++) for (k = 0; k < NS; k++) {
+      var k1 = (k + 1) % NS, rc = R2 * (j + 0.5) / NR, ac = (k + 0.5) * TAU / NS, xc = rc * Math.cos(ac), yc = rc * Math.sin(ac);
+      var g = grad(f, xc, yc), nx = -HZ * g[0], ny = -HZ * g[1], nn = Math.hypot(nx, ny, 1);
+      var lam = clamp((nx * LX + ny * LY + LZ) / nn, 0, 1);
+      quads.push({ v: [j * NS + k, (j + 1) * NS + k, (j + 1) * NS + k1, j * NS + k1], x: xc, y: yc, z: f(xc, yc), s: Math.round((1 - lam) * 23), ring: j, n: 0 });
+    }
+    var keys = Object.keys(meshCache);
+    if (keys.length > 6) delete meshCache[keys[0]];
+    return (meshCache[key] = { verts: verts, quads: quads, order: quads.slice() });
+  }
+  function drawSurface(V, key, f, t, a) {
+    if (a <= 0.01) return;
+    // a smaller surface (side by side, or on a phone) gets a coarser mesh: the same look for less drawing
+    var small = V.K < 150, NR = small ? 8 : 10, NS = small ? 30 : 36;
+    var M = mesh(key, f, NR, NS), cols = shades(), P = M.verts.map(function (v) { return P3(V, v[0], v[1], v[2]); });
+    var ga = [];
+    for (var j = 0; j < NR; j++) ga.push(clamp(E.out(seg(t, 0.1 + 0.12 * j, 0.7 + 0.12 * j)), 0, 1));
+    M.quads.forEach(function (q) { q.n = nearness(V, q.x, q.y, q.z); });
+    M.order.sort(function (p, q) { return p.n - q.n; });
+    ctx.lineJoin = "miter"; ctx.lineWidth = 0.8; ctx.strokeStyle = rgba(C["mit-silver"], 0.75);
+    var last = -1;
+    M.order.forEach(function (q) {
+      var qa = ga[q.ring];
+      if (qa <= 0) return;
+      var al = a * qa;
+      if (al !== last) { ctx.globalAlpha = al; last = al; }
+      var v = q.v;
+      ctx.beginPath(); ctx.moveTo(P[v[0]][0], P[v[0]][1]); ctx.lineTo(P[v[1]][0], P[v[1]][1]);
+      ctx.lineTo(P[v[2]][0], P[v[2]][1]); ctx.lineTo(P[v[3]][0], P[v[3]][1]); ctx.closePath();
+      ctx.fillStyle = cols[q.s]; ctx.fill(); ctx.stroke();
+    });
+    ctx.globalAlpha = 1; ctx.lineJoin = "round";
+  }
+  function drawSection(V, f, axis, u, col, a) {  // the curve of the surface along the x axis (0) or the y axis (1), out to |r| <= R2 u
+    if (u <= 0 || a <= 0.01) return;
+    // a section that curves down is also dashed, so it does not rely on the shade of red alone
+    var down = f(axis ? 0 : R2, axis ? R2 : 0) < f(0, 0);
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = L.lw + (down ? 1 : 0.5); ctx.lineCap = down ? "butt" : "round";
+    if (down) ctx.setLineDash([9, 5]);
+    ctx.beginPath();
+    for (var k = 0; k <= 60; k++) {
+      var r = -R2 * u + 2 * R2 * u * k / 60, x = axis ? 0 : r, y = axis ? r : 0, p = P3(V, x, y, f(x, y));
+      if (k) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]);
+    }
+    ctx.stroke(); ctx.setLineDash([]); ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+  }
+  function sectionLabel(V, f, axis, txt, fs) {   // where the eigenvalue label of a section goes: beside one of its ends
+    // a section that curves up is labelled at its higher end, one that curves down at its lower end, beside it
+    var ends = [R2, -R2].map(function (r) { var x = axis ? 0 : r, y = axis ? r : 0; return P3(V, x, y, f(x, y)); });
+    var c = P3(V, 0, 0, 0), up = f(axis ? 0 : R2, axis ? R2 : 0) > f(0, 0);
+    var e = up ? (ends[0][1] < ends[1][1] ? ends[0] : ends[1]) : (ends[0][1] > ends[1][1] ? ends[0] : ends[1]);
+    ctx.font = font(700, fs, true);
+    var w = ctx.measureText(txt).width, sx = e[0] >= c[0] ? 1 : -1;
+    // up: just above the end, leaning outward; down: level with the end, beside it
+    var X = up ? e[0] + sx * w * 0.3 : e[0] + sx * (w / 2 + 9), Y = up ? e[1] - fs / 2 - 7 : e[1] - 2;
+    return { X: clamp(X, L.x0 + w / 2 + 2, L.x1 - w / 2 - 2), Y: clamp(Y, L.y0 + fs / 2, L.H - fs / 2 - 4) };
+  }
+  function drawPlane(V, f, x, y, a, flash) {     // the tangent plane at (x, y): a small square
+    if (a <= 0.01) return;
+    var g = grad(f, x, y), z = f(x, y), h = PLH;
+    var P = [[-h, -h], [h, -h], [h, h], [-h, h]].map(function (d) { return P3(V, x + d[0], y + d[1], z + g[0] * d[0] + g[1] * d[1]); });
+    ctx.globalAlpha = a; ctx.beginPath(); ctx.moveTo(P[0][0], P[0][1]);
+    for (var i = 1; i < 4; i++) ctx.lineTo(P[i][0], P[i][1]);
+    ctx.closePath(); ctx.fillStyle = rgba(C.accent, 0.16); ctx.fill();
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 1.6 + 5 * (flash || 0); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  function drawBall2(V, f, x, y, r, a, col) {
+    if (a <= 0.01) return;
+    var p = P3(V, x, y, f(x, y));
+    ctx.globalAlpha = a; ctx.fillStyle = C.surface; circle(p[0], p[1] - r, r + 2); ctx.fill();
+    ctx.fillStyle = col; circle(p[0], p[1] - r, r); ctx.fill();
+    ctx.globalAlpha = a * 0.5; ctx.fillStyle = C.surface; circle(p[0] - r * 0.35, p[1] - r * 1.35, r * 0.28); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function drawTrail(V, f, path, t, r, a) {      // path(t) -> [x, y] or null
+    for (var k = 9; k >= 1; k--) {
+      var q = path(t - k * 0.05);
+      if (!q) continue;
+      var p = P3(V, q[0], q[1], f(q[0], q[1]));
+      ctx.globalAlpha = a * 0.28 * (1 - k / 10); ctx.fillStyle = C.ink2; circle(p[0], p[1] - r, r * (1 - k / 14)); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawStat(V, t0, t) {                  // the stationary point at (0, 0) with its pulse
+    var a = E.back(seg(t, t0, t0 + 0.6));
+    if (a <= 1e-3) return;
+    var p = P3(V, 0, 0, 0), r = L.dot * (V.K < 70 ? 0.8 : 1) * a, ph = ((t - t0) % 1.8) / 1.8;
+    ctx.globalAlpha = 0.5 * (1 - ph) * seg(t, t0, t0 + 0.3); ctx.strokeStyle = C.accent; ctx.lineWidth = 2; circle(p[0], p[1], r + 3 + ph * 14); ctx.stroke();
+    ctx.globalAlpha = 1; ctx.fillStyle = C.surface; circle(p[0], p[1], r + 2.5); ctx.fill();
+    ctx.fillStyle = C.accent; circle(p[0], p[1], r); ctx.fill();
+  }
+  // the balls. Chapter 1: they roll down the bowl (gradient flow, arriving exactly at the bottom at t0 + TR)
+  var TR = 6, RING = (function () {
+    var r = A.rng(11), out = [];
+    for (var k = 0; k < 6; k++) out.push({ a: -0.95 + k * TAU / 6 + (r() - 0.5) * 0.35, r0: 1.3 + 0.12 * r(), t0: 2.4 + 0.18 * k });
+    return out;
+  })();
+  function flow(r0, tau) { var q = Math.exp(-0.75 * TR); return tau <= 0 ? r0 : (tau >= TR ? 0 : r0 * (Math.exp(-0.75 * tau) - q) / (1 - q)); }
+  function ring(k, t) { var b = RING[k], r = flow(b.r0, t - b.t0); return [r * Math.cos(b.a), r * Math.sin(b.a)]; }
+  // chapter 3: balls that come in along x and roll off along y (x -> x0 e^(-kt), y -> y0 e^(kt) on the saddle)
+  var OFF = [[1.35, 0.04, 21.4], [-1.35, -0.05, 21.8], [1.3, -0.07, 22.2], [-1.3, 0.035, 22.6]];
+  function offPath(k, t) { var o = OFF[k], tau = t - o[2]; if (tau < 0) return null; var e = Math.exp(0.65 * tau); return [o[0] / e, o[1] * e]; }
+  function rollOff(tau) { return tau <= 0 ? 0 : -0.03 * (Math.exp(0.95 * tau) - 1); }           // nudged along y on the saddle
+  function wobble(tau) { return tau <= 0 ? 0 : 0.5 * Math.exp(-0.7 * tau) * Math.sin(2.6 * tau); } // nudged, and back
+  function redPt(t) {                            // the tracked (red) ball and its opacity
+    if (t < 20.8) return { p: t < 10 ? ring(0, t) : [0, 0], a: seg(t, 2.2, 2.6) };
+    if (t < 28.8) { var y = rollOff(t - 20.8); return { p: [0, Math.max(y, -R2 - 0.3)], a: 1 - seg(-y, 1.2, 1.5) }; }
+    if (t < 40) return { p: [wobble(t - 35.5), 0], a: seg(t, 28.8, 29.4) };
+    return { p: [0, 0], a: 1 - seg(t, 40, 40.6) };
+  }
+  function lab2(t, VM, VB, fm) {
+    var out = [], fs = L.fb;
+    // "grad f = 0" beside the bottom of the bowl, and again beside the saddle point
+    var za = seg(t, 8.6, 9.2) * (1 - seg(t, 19.2, 19.8)), p = P3(VM, 0, 0, 0), top = p[1];
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (d) { top = Math.min(top, P3(VM, d[0] * PLH, d[1] * PLH, 0)[1]); });
+    out.push({ txt: T("flat.l.g0", { v: num(FN2[0].gn) }), x: p[0], y: top - 10 - fs / 2, align: "center", col: C["accent-text"], f: font(700, fs, true), a: za });
+    // chapter 4: the eigenvalue of each section at its visible end
+    var Hm = hess(fm, 0, 0);
+    var put = function (V, f, axis, txt, col, a) {
+      if (a <= 0.01) return;
+      var P = sectionLabel(V, f, axis, txt, fs);
+      out.push({ txt: txt, x: P.X, y: P.Y, align: "center", col: col, f: font(700, fs, true), a: a });
+    };
+    // (these Hessians are diagonal, so the eigenvalue along x is f_xx and the one along y is f_yy)
+    put(VM, fm, 0, T("flat.l.lam", { v: sgn(Hm[0]) }), C["accent-text"], seg(t, 32.2, 32.8));
+    put(VM, fm, 1, T("flat.l.lam", { v: sgn(Hm[2]) }), HOT, seg(t, 34.4, 35));
+    if (VB) {
+      var fb = FN2[0].f, H0 = hess(fb, 0, 0);
+      put(VB, fb, 0, T("flat.l.lam", { v: sgn(H0[0]) }), C["accent-text"], seg(t, 42.6, 43.2));
+      put(VB, fb, 1, T("flat.l.lam", { v: sgn(H0[2]) }), C["accent-text"], seg(t, 42.8, 43.4));
+      // under each surface: its formula and the verdict of the test
+      var V = L.views2, la = seg(t, 42.8, 43.4), va = seg(t, 46, 46.6), bot = Math.max(V.left.bot, V.right.bot);
+      [[V.left, FN2[0]], [V.right, FN2[1]]].forEach(function (q) {
+        var o = q[1];
+        var bb = bbox(o.k === "bowl" ? 1 : -1, [TH0]), X = q[0].ox + q[0].K * (bb[0] + bb[2]) / 2;
+        out.push({ txt: T("flat.l.fxy", { f: fname(o.k) }), x: X, y: bot + 12 + L.fs / 2, align: "center", col: C.ink2, f: font(700, L.fs + 0.5), a: la });
+        out.push({ txt: T("flat.l.test2." + o.test, { a: num(o.e[0]), b: num(o.e[1]) }), x: X, y: bot + 12 + L.fs * 1.5 + 7, align: "center",
+          col: o.test === "min" ? C["accent-text"] : C.ink, f: font(700, L.fs + 0.5), a: va });
+      });
+    }
+    return out;
+  }
+  function render2(t) {
+    var V = L.views2, th = thOf(t), s = sOf(t), fm = fS(s);
+    var dual = E.inOut(seg(t, 40, 41.8));
+    var S1 = { ox: V.single.ox, oy: V.single.oy, K: V.single.K * lerp(0.82, 1, E.out(seg(t, 0, 1.6))), th: th };
+    var VM = mixV(S1, { ox: V.right.ox, oy: V.right.oy, K: V.right.K, th: TH0 }, dual);
+    var VB = null, ba = seg(t, 41.3, 42.5);
+    if (ba > 0) VB = { ox: V.left.ox - (1 - E.out(ba)) * 30, oy: V.left.oy, K: V.left.K, th: TH0 };
+    // the surfaces
+    if (VB) drawSurface(VB, "s1", FN2[0].f, 50, ba);
+    drawSurface(VM, "s" + s.toFixed(4), fm, t, 1);
+    // chapter 4 (and the recap): the two sections through (0, 0)
+    var ux = E.inOut(seg(t, 30.8, 32.2)), uy = E.inOut(seg(t, 33, 34.4));
+    drawSection(VM, fm, 0, ux, C.accent, 1);
+    drawSection(VM, fm, 1, uy, HOT, 1);
+    if (VB) { drawSection(VB, FN2[0].f, 0, E.inOut(seg(t, 41.8, 42.8)), C.accent, ba); drawSection(VB, FN2[0].f, 1, E.inOut(seg(t, 42, 43)), C.accent, ba); }
+    // the tracked ball and its tangent plane
+    var R = redPt(t), rb = VM.K < 70 ? L.ball * 0.8 : L.ball;
+    var flatAt = [8.4, 29.4], flash = 0;
+    flatAt.forEach(function (q) { var u = seg(t, q, q + 0.9); if (u > 0 && u < 1) flash = Math.max(flash, 1 - u); });
+    drawPlane(VM, fm, R.p[0], R.p[1], R.a * seg(t, 2.4, 2.9), flash);
+    // stationary point (and, in the recap, flat planes on both surfaces)
+    drawStat(VM, 8.4, t);
+    if (t >= 40) drawPlane(VM, fm, 0, 0, seg(t, 40.4, 41), 0);
+    if (VB) { drawPlane(VB, FN2[0].f, 0, 0, seg(t, 42.2, 42.8), 0); drawStat(VB, 42.2, t); }
+    // other balls
+    RING.forEach(function (b, k) {
+      if (k === 0) return;
+      var a = seg(t, b.t0 - 0.2, b.t0 + 0.2) * (1 - seg(t, 7.6, 8.4));
+      if (a <= 0) return;
+      var path = function (tt) { return tt < b.t0 ? null : ring(k, tt); };
+      drawTrail(VM, fm, path, t, rb * 0.85, a); var q = ring(k, t); drawBall2(VM, fm, q[0], q[1], rb * 0.85, a, C.ink2);
+    });
+    if (t < 10) drawTrail(VM, fm, function (tt) { return tt < RING[0].t0 ? null : ring(0, tt); }, t, rb, R.a);
+    OFF.forEach(function (o, k) {
+      var q = offPath(k, t);
+      if (!q || t > 30) return;
+      var a = seg(t, o[2], o[2] + 0.3) * (1 - seg(Math.hypot(q[0], q[1]), 1.25, 1.5));
+      drawTrail(VM, fm, function (tt) { return offPath(k, tt); }, t, rb * 0.85, a);
+      drawBall2(VM, fm, q[0], q[1], rb * 0.85, a, C.ink2);
+    });
+    if (t >= 20.8 && t < 28.8) drawTrail(VM, fm, function (tt) { return tt < 20.8 ? null : [0, rollOff(tt - 20.8)]; }, t, rb, R.a);
+    if (t >= 35.5 && t < 40) drawTrail(VM, fm, function (tt) { return tt < 35.5 ? null : [wobble(tt - 35.5), 0]; }, t, rb, R.a);
+    drawBall2(VM, fm, R.p[0], R.p[1], rb, R.a, C.accent);
+    // chapter 5: one ball on each surface, nudged along y
+    if (t >= 40.4) {
+      var ta = seg(t, 40.6, 41.2), yB = -wobble(t - 43.2), yS = rollOff(t - 43.2), aS = ta * (1 - seg(-yS, 1.2, 1.5));
+      if (VB) {
+        drawTrail(VB, FN2[0].f, function (tt) { return tt < 43.2 ? null : [0, -wobble(tt - 43.2)]; }, t, rb, Math.min(ta, ba));
+        drawBall2(VB, FN2[0].f, 0, yB, rb, Math.min(ta, ba), C.ink2);
+      }
+      drawTrail(VM, fm, function (tt) { return tt < 43.2 ? null : [0, rollOff(tt - 43.2)]; }, t, rb, aS);
+      drawBall2(VM, fm, 0, Math.max(yS, -R2 - 0.3), rb, aS, C.ink2);
+    }
+    lab2(t, VM, VB, fm).forEach(function (o) { label(o.txt, o.x, o.y, o.align, o.col, o.f, o.a); });
+  }
+  function hud2(t) {
+    var pa = seg(t, 2.3, 2.8);
+    if (t >= 40) {
+      var ra = seg(t, 40.2, 40.8), b = FN2[0], sd = FN2[1];
+      setChip(0, pair(0, 0), T("flat.k.stat"), ra, "");
+      setChip(1, num(Math.max(b.gn, sd.gn)), T("flat.k.gBoth"), ra, "acc");
+      setChip(2, eigs(b.e), T("flat.k.eigBowl"), ra, "acc");
+      setChip(3, eigs(sd.e), T("flat.k.eigSaddle"), ra, "hot");
+      return;
+    }
+    var s = sOf(t), f = fS(s), R = redPt(t), g = grad(f, R.p[0], R.p[1]), gn = Math.hypot(g[0], g[1]), e = eig(hess(f, R.p[0], R.p[1]));
+    // the coefficient is named as displayed: one that rounds to 1 is the bowl or the saddle, one that rounds to 0 is x²
+    var sa = fmt(Math.abs(s), 2);
+    var name = sa === fmt(1, 2) ? fname(s > 0 ? "bowl" : "saddle") : (sa === fmt(0, 2) ? fname("sq") :
+      T(s >= 0 ? "flat.f.mixP" : "flat.f.mixN", { s: sa }));
+    setChip(0, name, T("flat.k.fxy"), pa, "");
+    setChip(1, pair(R.p[0], R.p[1]), T("flat.k.pt"), pa, "");
+    setChip(2, num(gn), T("flat.k.gn"), pa, gn < 0.005 ? "acc" : "");
+    setChip(3, eigs(e), T("flat.k.eig"), pa, e[1] < -TOL ? "hot" : "");
+  }
+
+  /* ---------- caption (top left, under the counters) ---------- */
+  function captions(sc, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var k = "flat.cap" + (ci + 1) + "." + sc, v;
+    if (sc === "d1") v = { a: num(FN1[0].fpp), b: num(FN1[1].fpp), c: num(FN1[2].fpp), z: num(FN1[ci < 3 ? ci : 0].fp) };
+    else v = { o: pair(0, 0), g: num(FN2[1].gn), a: num(FN2[1].e[0]), b: num(FN2[1].e[1]), c: num(FN2[0].e[0]), d: num(FN2[0].e[1]) };
+    return [T(k, v), T(k + ".sub", v)];
+  }
+  function drawCaption(t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(state.sc, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3].map(function (i) {
+    var el = document.getElementById("flat-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; c.el.title = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("hot", kind === "hot"); c.k = kind; }
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    // new or urgent cues use bright red; where the theme makes the accent that same red (dark), the crit shade
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    if (state.sc === "d1") hud1(t); else hud2(t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    ctx.save();
+    if (state.sc === "d1") render1(t); else render2(t);
+    ctx.restore();
+    // quiet band under the counters and the caption: solid behind the text, fading out only past it
+    var gr, e1, e2;
+    if (L.portrait) {
+      e2 = L.y0 + 2; e1 = clamp((L.capBottom + 2) / e2, 0, 0.98);
+      gr = ctx.createLinearGradient(0, 0, 0, e2);
+      gr.addColorStop(0, rgba(C.surface, 1)); gr.addColorStop(e1, rgba(C.surface, 1)); gr.addColorStop(1, rgba(C.surface, 0));
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, L.W, e2);
+    } else {
+      e2 = L.x0 + 4; e1 = clamp((L.capX + L.capW + 4) / e2, 0, 0.98);
+      gr = ctx.createLinearGradient(0, 0, e2, 0);
+      gr.addColorStop(0, rgba(C.surface, 1)); gr.addColorStop(e1, rgba(C.surface, 1)); gr.addColorStop(1, rgba(C.surface, 0));
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, e2, L.H);
+    }
+    ctx.globalAlpha = 1;
+    drawCaption(t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: chapters,
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: chapter names, stage description, status line, examples, table, notes
+     ===================================================================================== */
+  function renderChapters() {                    // the chapter names follow the scenario
+    chapters.forEach(function (c, k) { c.key = "flat.ch" + (k + 1) + "." + state.sc; });
+    root.querySelectorAll(".anim-chap").forEach(function (b, k) { b.textContent = (k + 1) + ". " + T(chapters[k].key); });
+  }
+  function renderScenText() {
+    var d1s = state.sc === "d1";
+    document.querySelectorAll("#flat-sec .anim-legend > span[data-sc]").forEach(function (el) { el.hidden = el.getAttribute("data-sc") !== state.sc; });
+    var nums = d1s ? T("flat.anim.aria.d1.nums", { a: num(FN1[0].fpp), b: num(FN1[1].fpp), c: num(FN1[2].fpp), z: num(FN1[2].fp) })
+      : T("flat.anim.aria.d2.nums", { g: num(FN2[1].gn), b: pair(FN2[0].e[0], FN2[0].e[1]), s: pair(FN2[1].e[0], FN2[1].e[1]) });
+    stage.setAttribute("aria-label", T("flat.anim.aria." + state.sc) + " " + nums);
+    var st = document.getElementById("flat-status");
+    if (d1s) st.innerHTML = T("flat.st.d1", { p: num(FN1[0].fp), a: num(FN1[0].fpp), b: num(FN1[1].fpp), c: num(FN1[2].fpp) });
+    else st.innerHTML = T("flat.st.d2", { o: pair(0, 0), g: num(FN2[1].gn), b: pair(FN2[0].e[0], FN2[0].e[1]), s: pair(FN2[1].e[0], FN2[1].e[1]) });
+  }
+  function stat(k, v, l, ink) {
+    return "<div class='stat'><div class='k'>" + k + "</div><div class='v" + (ink ? " ink" : "") + "'>" + v + "</div><div class='l'>" + l + "</div></div>";
+  }
+  function renderExamples() {
+    var h = "";
+    document.getElementById("flat-ex-title").textContent = T("flat.ex.title." + state.sc);
+    if (state.sc === "d1") {
+      h += stat(T("flat.ex.fp"), num(FN1[0].fp), T("flat.ex.fpL"), true);
+      FN1.forEach(function (o) { h += stat(T("flat.ex.fpp", { f: fname(o.k) }), num(o.fpp), T("flat.ex.v." + o.near + "." + o.test)); });
+      var rows = FN1.map(function (o) {
+        return T("flat.inst1.row", { f: T("flat.tex." + o.k), p: texNum(o.fp), q: texNum(o.fpp), v: T("flat.tb.t." + o.test) });
+      }).join(" \\\\ ");
+      TeX.set(document.getElementById("flat-inst"), "\\begin{aligned}" + rows + "\\end{aligned}",
+        FN1.map(function (o) { return T("flat.inst1.plain", { f: fname(o.k), p: num(o.fp), q: num(o.fpp), v: T("flat.tb.t." + o.test) }); }).join("\n"));
+      document.getElementById("flat-ex-check").textContent = T("flat.ex.check.d1");
+    } else {
+      h += stat(T("flat.ex.gn"), num(Math.max(FN2[0].gn, FN2[1].gn)), T("flat.ex.gnL"), true);
+      FN2.forEach(function (o) { h += stat(T("flat.ex.eig", { f: fname(o.k) }), eigs(o.e), T("flat.ex.v2." + o.test)); });
+      var M = function (o) { return "\\begin{pmatrix} " + texNum(o.H[0]) + " & " + texNum(o.H[1]) + " \\\\ " + texNum(o.H[1]) + " & " + texNum(o.H[2]) + " \\end{pmatrix}"; };
+      var rows2 = FN2.map(function (o) {
+        return T("flat.inst2.row", { f: T("flat.tex." + o.k), M: M(o), a: "{" + texNum(o.e[0]) + "}", b: "{" + texNum(o.e[1]) + "}", v: T("flat.ex.word." + (o.test === "sad" ? "sad" : o.near)) });
+      }).join(" \\\\[6pt] ");
+      TeX.set(document.getElementById("flat-inst"), "\\begin{aligned}" + rows2 + "\\end{aligned}",
+        FN2.map(function (o) { return T("flat.inst2.plain", { f: fname(o.k), a: num(o.e[0]), b: num(o.e[1]), v: T("flat.ex.word." + (o.test === "sad" ? "sad" : o.near)) }); }).join("\n"));
+      document.getElementById("flat-ex-check").textContent = T("flat.ex.check.d2");
+    }
+    document.getElementById("flat-stats").innerHTML = h;
+  }
+  function renderTable() {
+    var d1s = state.sc === "d1", h;
+    document.getElementById("flat-tb-intro").textContent = T("flat.tb.intro." + state.sc, { n: d1s ? 2 * N1 : N2R * N2A, r: fmt(NR_) });
+    if (d1s) {
+      h = "<thead><tr><th>" + T("flat.tb.f") + "</th><th class='num wide'>" + T("flat.tb.fp") + "</th><th class='num'>" + T("flat.tb.fpp") +
+        "</th><th>" + T("flat.tb.test") + "</th><th>" + T("flat.tb.near") + "</th></tr></thead><tbody>";
+      ROWS1.forEach(function (o) {
+        h += "<tr><td class='fn'>" + fname(o.k) + "</td><td class='num wide'>" + num(o.fp) + "</td><td class='num'>" + num(o.fpp) + "</td><td class='" +
+          (o.test === "inc" ? "q" : "ok") + "'>" + T("flat.tb.t." + o.test) + "</td><td>" + T("flat.tb.n." + o.near) + "<small>" + T("flat.tb.nd1." + o.near) + "</small></td></tr>";
+      });
+    } else {
+      h = "<thead><tr><th>" + T("flat.tb.fxy") + "</th><th class='num wide'>" + T("flat.tb.gn") + "</th><th class='num'>" + T("flat.tb.eig") +
+        "</th><th>" + T("flat.tb.test") + "</th><th>" + T("flat.tb.near") + "</th></tr></thead><tbody>";
+      ROWS2.forEach(function (o) {
+        h += "<tr><td class='fn'>" + fname(o.k) + "</td><td class='num wide'>" + num(o.gn) + "</td><td class='num'>" + eigs(o.e) + "</td><td class='" +
+          (o.test === "inc" ? "q" : "ok") + "'>" + T("flat.tb.t." + o.test) + "</td><td>" + T("flat.tb.n." + o.near) + "<small>" + T("flat.tb.nd2." + o.near) + "</small></td></tr>";
+      });
+    }
+    document.getElementById("flat-tb").innerHTML = h + "</tbody>";
+    document.getElementById("flat-tb-note").textContent = d1s
+      ? T("flat.tb.note.d1", { p: num(ROWS1[3].fp), q: num(ROWS1[3].fpp), r: num(ROWS1[4].fpp) })
+      : T("flat.tb.note.d2", { a: pair(ROWS2[3].e[0], ROWS2[3].e[1]), b: pair(ROWS2[4].e[0], ROWS2[4].e[1]) });
+  }
+  function renderNotes() {
+    var r = ROWS1, s = ROWS2;
+    document.getElementById("flat-n1").textContent = T("flat.n.p1", { a: num(r[0].fp), b: num(r[1].fp), c: num(r[2].fp) });
+    document.getElementById("flat-n2").textContent = T("flat.n.p2", { a: num(r[0].fpp), b: num(r[1].fpp), c: num(r[2].fpp) });
+    document.getElementById("flat-n3").textContent = T("flat.n.p3", { q: num(r[3].fpp), p: num(r[3].fp) });
+    document.getElementById("flat-n4").textContent = T("flat.n.p4", { o: pair(0, 0), g: num(s[1].gn), a: num(s[1].e[0]), b: num(s[1].e[1]) });
+    document.getElementById("flat-n5").textContent = T("flat.n.p5", { b: eigs(s[0].e) });
+  }
+
+  var segBtns = document.querySelectorAll("#flat-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderChapters(); renderScenText(); renderExamples(); renderTable();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      player.seek(0); player.play();
+    });
+  });
+
+  function renderPage() {
+    renderChapters(); renderScenText(); renderExamples(); renderTable(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>
