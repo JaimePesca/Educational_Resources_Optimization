@@ -1,0 +1,1180 @@
+<!doctype html>
+<html lang="en" data-title-key="spx.title" data-i18n-bundles="resources/edu-simplex">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Simplex Step by Step</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  .statement { margin: 0; color: var(--ink2); max-width: 78ch; }
+  .card > .note { margin-top: 10px; }
+  .intro { margin: 0 0 12px; color: var(--ink2); max-width: 72ch; font-size: 14.5px; }
+
+  /* ---- animation ---- */
+  #spx-anim .anim-controls { margin-bottom: 10px; }
+  #spx-anim .anim-hud {
+    display: grid; grid-template-columns: repeat(4, auto); justify-content: start;
+    max-width: calc(57% - 20px); z-index: 2;
+  }
+  #spx-anim .anim-hud .chip-stat { white-space: nowrap; min-width: 0; }
+  #spx-anim .anim-hud .chip-stat b { font-family: var(--font-mono); font-size: 16px; }
+  @media (max-width: 620px) {
+    #spx-anim { padding: 14px 10px; }
+    #spx-anim .anim-stage { aspect-ratio: 2 / 3; }
+    #spx-anim .anim-hud { grid-template-columns: 1fr 1fr; top: 6px; left: 6px; gap: 4px; max-width: calc(100% - 12px); width: calc(100% - 12px); }
+    #spx-anim .anim-hud .chip-stat { padding: 2px 6px; font-size: 10.5px; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; }
+    #spx-anim .anim-hud .chip-stat b { font-size: 13.5px; }
+  }
+  #spx-anim .anim-legend { margin-top: 2px; }
+  #spx-anim .lg-region { background: var(--region); border: 1px solid var(--mit-silver); }
+  #spx-anim .lg-tight { height: 3px !important; width: 18px !important; background: var(--ink); }
+  #spx-anim .lg-path { height: 4px !important; width: 18px !important; background: var(--accent); }
+  #spx-anim .lg-iso { height: 2px !important; width: 18px !important; background: repeating-linear-gradient(90deg, var(--accent) 0 5px, transparent 5px 8px); }
+  #spx-anim .lg-pivot { background: var(--sel); border: 1.5px solid var(--accent); }
+  #spx-anim .lg-ghost { height: 2px !important; width: 18px !important; background: repeating-linear-gradient(90deg, var(--mit-silver) 0 4px, transparent 4px 7px); }
+  #spx-anim .lg-ghost-item[hidden] { display: none; }
+
+  /* ---- formulation ---- */
+  .fgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 18px; align-items: start; }
+  @media (max-width: 820px) { .fgrid { grid-template-columns: minmax(0, 1fr); } }
+  .spx-vars { margin: 0 0 12px; padding: 0; list-style: none; font-size: 14px; color: var(--ink2); display: grid; gap: 3px; }
+  .spx-vars code { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); margin-right: 4px; }
+  .clist { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 13.5px; color: var(--ink2); }
+  .clist b { color: var(--ink); font-weight: 600; }
+  #scnote { margin-top: 10px; border-left: 3px solid var(--accent); padding-left: 10px; color: var(--ink2); }
+  #scnote[hidden] { display: none; }
+
+  /* ---- iterations ---- */
+  .tblwrap { overflow-x: auto; }
+  table.iter { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 560px; }
+  table.iter th {
+    text-align: left; font-family: var(--font-mono); font-weight: 400; font-size: 11px;
+    letter-spacing: 0.02em; color: var(--muted);
+    border-bottom: 1px solid var(--axis); padding: 6px 10px;
+  }
+  table.iter td { padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  table.iter td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.iter tr.best td { background: var(--sel); font-weight: 600; }
+  table.iter tr.best td:first-child { border-left: 3px solid var(--accent); }
+  #tnote { margin-top: 12px; }
+
+  /* ---- solution tiles ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .stat.opt { border-left: 3px solid var(--accent); }
+  .stat.opt .v { color: var(--accent-text); }
+  #solnote { margin-top: 12px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="spx.eyebrow"></p>
+    <h1 data-i18n="spx.title"></h1>
+    <p class="lede" data-i18n-html="spx.lede"></p>
+  </header>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="spx.stmt.kicker"></span><span data-i18n="spx.stmt.title"></span></h2>
+    <p class="statement" data-i18n="spx.stmt.text"></p>
+  </div>
+
+  <div class="card" id="spx-anim">
+    <h2><span class="kicker" data-i18n="spx.anim.kicker"></span><span data-i18n="spx.anim.title"></span></h2>
+    <p class="intro" data-i18n="spx.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="spx-ctl-lbl" data-i18n="spx.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="spx-ctl-lbl" id="spx-seg">
+        <button type="button" data-scn="0" aria-pressed="true" data-i18n="spx.anim.base"></button>
+        <button type="button" data-scn="1" aria-pressed="false" data-i18n="spx.anim.alt"></button>
+      </div>
+    </div>
+    <div class="anim" id="anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:spx.anim.aria">
+        <div class="anim-hud" id="spx-hud">
+          <div class="chip-stat accent"><b id="h-v1"></b><span id="h-l1"></span></div>
+          <div class="chip-stat"><b id="h-v2"></b><span id="h-l2"></span></div>
+          <div class="chip-stat"><b id="h-v3"></b><span id="h-l3"></span></div>
+          <div class="chip-stat"><b id="h-v4"></b><span id="h-l4"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend" style="margin-top:10px">
+      <span><i class="lg-region"></i><span data-i18n="spx.anim.lg.region"></span></span>
+      <span><i class="lg-tight"></i><span data-i18n="spx.anim.lg.tight"></span></span>
+      <span><i class="lg-path"></i><span data-i18n="spx.anim.lg.path"></span></span>
+      <span><i class="lg-iso"></i><span data-i18n="spx.anim.lg.iso"></span></span>
+      <span><i class="lg-pivot"></i><span data-i18n="spx.anim.lg.pivot"></span></span>
+      <span class="lg-ghost-item" id="lg-ghost" hidden><i class="lg-ghost"></i><span data-i18n="spx.anim.lg.ghost"></span></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="spx.model.kicker"></span><span data-i18n="spx.model.title"></span></h2>
+    <ul class="spx-vars">
+      <li><code>x₁</code><span data-i18n="spx.var.x1"></span></li>
+      <li><code>x₂</code><span data-i18n="spx.var.x2"></span></li>
+      <li><code>s₁, s₂, s₃</code><span data-i18n="spx.var.s"></span></li>
+    </ul>
+    <div class="fgrid">
+      <div>
+        <p class="math-head" data-i18n="spx.model.orig"></p>
+        <div class="math"><script type="text/x-tex">
+\begin{array}{lrcl}
+\max & z & = & 3x_1 + 2x_2 \\[4pt]
+\text{ST} & 2x_1 + x_2 & \le & 100 \\
+ & x_1 + x_2 & \le & 80 \\
+ & x_1 & \le & 40 \\
+ & x_1,\ x_2 & \ge & 0
+\end{array}
+        </script></div>
+        <ul class="clist">
+          <li><b data-i18n="spx.c.fin"></b> <span data-i18n="spx.c.fin.why"></span></li>
+          <li><b data-i18n="spx.c.car"></b> <span data-i18n="spx.c.car.why"></span></li>
+          <li><b data-i18n="spx.c.dem"></b> <span data-i18n="spx.c.dem.why"></span></li>
+        </ul>
+      </div>
+      <div>
+        <p class="math-head" data-i18n="spx.model.std"></p>
+        <div class="math"><script type="text/x-tex">
+\begin{array}{lrcl}
+\max & z & = & 3x_1 + 2x_2 \\[4pt]
+\text{ST} & 2x_1 + x_2 + s_1 & = & 100 \\
+ & x_1 + x_2 + s_2 & = & 80 \\
+ & x_1 + s_3 & = & 40 \\
+ & x_1,\ x_2,\ s_1,\ s_2,\ s_3 & \ge & 0
+\end{array}
+        </script></div>
+        <p class="note" style="margin-top:10px" data-i18n="spx.model.stdnote"></p>
+      </div>
+    </div>
+    <p class="note" id="scnote" hidden></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="spx.tbl.kicker"></span><span data-i18n="spx.tbl.title"></span></h2>
+    <div class="tblwrap">
+      <table class="iter">
+        <thead>
+          <tr>
+            <th data-i18n="spx.tbl.step"></th>
+            <th data-i18n="spx.tbl.basis"></th>
+            <th data-i18n="spx.tbl.pt"></th>
+            <th>z</th>
+            <th data-i18n="spx.tbl.enter"></th>
+            <th data-i18n="spx.tbl.leave"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <p class="note" id="tnote"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="spx.sol.kicker"></span><span data-i18n="spx.sol.title"></span></h2>
+    <div class="stats" id="stats"></div>
+    <p class="note" id="solnote"></p>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="spx.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="spx.d1.p1"></p>
+        <p data-i18n-html="spx.d1.p2"></p>
+        <p data-i18n-html="spx.d1.p3"></p>
+        <p data-i18n-html="spx.d1.p4"></p>
+        <p data-i18n-html="spx.d1.p5"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="spx.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/edu-simplex.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+/* Simplex step by step on Giapetto's problem. Every tableau comes from LP.steps (Dantzig's rule: most negative
+   reduced cost enters, minimum ratio leaves); the optimum and shadow prices are checked against LP.solve.
+   The animation is a pure function of time and of the scenario (profit per train: 2 or 3.5). */
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var fmt = function (v, d, m) { return I18N.fmt(v, d == null ? 2 : d, m); };
+  // numbers with a true minus sign
+  var num = function (v, d) { var s = fmt(Math.abs(v) < 1e-9 ? 0 : Math.abs(v), d); return (v < -1e-9 ? "−" : "") + s; };
+  var money = function (v) { var w = Math.abs(v - Math.round(v)) < 1e-9; return t("spx.money", { v: fmt(w ? Math.round(v) : v, 2, w ? 0 : 2) }); };
+
+  /* ---------------- model and data ---------------- */
+  var ROWS = [
+    { a: [2, 1], op: "<=", b: 100, id: "fin" },
+    { a: [1, 1], op: "<=", b: 80, id: "car" },
+    { a: [1, 0], op: "<=", b: 40, id: "dem" }
+  ];
+  var TRAIN = [2, 3.5];
+  var VN = ["x₁", "x₂", "s₁", "s₂", "s₃"];
+  var SUB = ["₁", "₂", "₃"];
+  var N = 5, M = 3;
+
+  function problem(c2) {
+    return { sense: "max", c: [3, c2], rows: ROWS.map(function (r) { return { a: r.a.slice(), op: r.op, b: r.b }; }) };
+  }
+  function build(c2) {
+    var p = problem(c2), st = LP.steps(p), sol = LP.solve(p), piv = [];
+    for (var i = 0; i + 1 < st.length; i++) {
+      var S = st[i], k = S.entering, r = S.leaving, T = S.tableau;
+      var ratios = T.slice(0, M).map(function (row) {
+        return { q: row[k] > 1e-9 ? row[N] / row[k] : null, b: row[N], a: row[k] };
+      });
+      // direction of travel in (x1, x2) per unit of the entering variable
+      var d = [0, 0];
+      if (k < 2) d[k] = 1;
+      S.basis.forEach(function (bv, q) { if (bv < 2) d[bv] -= T[q][k]; });
+      var pv = T[r][k];
+      var ops = T.map(function (row, q) {
+        if (q === r) return Math.abs(pv - 1) < 1e-9 ? null : { div: pv };
+        return Math.abs(row[k]) < 1e-9 ? null : { f: row[k] };
+      });
+      piv.push({ k: k, r: r, ratios: ratios, d: d, ops: ops, v0: S.x, v1: st[i + 1].x });
+    }
+    var last = st[st.length - 1];
+    var duals = [2, 3, 4].map(function (j) { return last.tableau[M][j]; });
+    duals.forEach(function (y, i) {
+      if (Math.abs(y - sol.duals[i]) > 1e-7) console.warn("simplex: tableau dual differs from LP.solve", i, y, sol.duals[i]);
+    });
+    if (Math.abs(last.z - sol.z) > 1e-7) console.warn("simplex: tableau z differs from LP.solve", last.z, sol.z);
+    return { c2: c2, c: [3, c2], st: st, piv: piv, np: piv.length, V: st.map(function (s) { return s.x; }), sol: sol, duals: duals };
+  }
+  var DATA = TRAIN.map(build);
+  var scn = 0;
+  var D = DATA[0];
+
+  // polygon of the feasible region and the line of each variable (the variable is zero on it)
+  var REGION = [[0, 0], [40, 0], [40, 20], [20, 60], [0, 80]];
+  var XM = 90, YM = 110;
+  var LINES = [
+    [[0, 0], [0, YM]],        // x1 = 0
+    [[0, 0], [XM, 0]],        // x2 = 0
+    [[0, 100], [50, 0]],      // s1 = 0: finishing
+    [[0, 80], [80, 0]],       // s2 = 0: carpentry
+    [[40, 0], [40, YM]]       // s3 = 0: demand
+  ];
+  var CKEY = ["fin", "car", "dem"];
+
+  /* ---------------- timeline ---------------- */
+  var DUR = 56, CH = [0, 10, 22, 34, 46];
+  var chapters = [
+    { t: CH[0], key: "spx.anim.ch1" }, { t: CH[1], key: "spx.anim.ch2" }, { t: CH[2], key: "spx.anim.ch3" },
+    { t: CH[3], key: "spx.anim.ch4" }, { t: CH[4], key: "spx.anim.ch5" }
+  ];
+  // local times inside a 12 s pivot chapter
+  var P_ROW0 = 7.3, P_ROWS = 7.9, P_ROWGAP = 0.45, P_ROWDUR = 0.8, P_MOVE0 = 7.8, P_MOVE1 = 9.6;
+  function rowStart(P, row) {
+    if (row === P.r) return P_ROW0;
+    if (row === M) return P_ROWS + P_ROWGAP * (M - 1);
+    return P_ROWS + P_ROWGAP * (row < P.r ? row : row - 1);
+  }
+  function nonbasic(step) {
+    var out = [];
+    for (var j = 0; j < N; j++) if (step.basis.indexOf(j) < 0) out.push(j);
+    return out;
+  }
+  // index of the last pivot whose chapter has reached local time `at`, or -1
+  function lastPivot(time, at) {
+    var i = -1;
+    for (var q = 0; q < D.np; q++) if (time >= CH[1 + q] + at) i = q;
+    return i;
+  }
+  function phase(time) {
+    var idx = 0;
+    for (var q = 0; q < CH.length; q++) if (time >= CH[q]) idx = q;
+    var kind = idx === 0 ? "setup" : idx === 4 ? "final" : idx - 1 < D.np ? "pivot" : idx === 2 ? "test" : "compare";
+    return { idx: idx, kind: kind, L: time - CH[idx], p: kind === "pivot" ? idx - 1 : -1 };
+  }
+
+  /* ---------------- canvas and layout ---------------- */
+  var root = document.getElementById("anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("spx-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  var G = {};
+  function layout() {
+    var w = cv.w, h = cv.h;
+    var cs = getComputedStyle(document.documentElement);
+    G.FS = cs.getPropertyValue("--font-sans").trim() || "Helvetica, Arial, sans-serif";
+    G.FM = cs.getPropertyValue("--font-mono").trim() || "monospace";
+    G.portrait = h > w * 0.9;
+    var hb = hudEl.offsetTop + hudEl.offsetHeight;
+    var tx0, tx1, ty0, ty1, rh;
+    if (!G.portrait) {
+      tx0 = 18; tx1 = Math.round(w * 0.56);
+      ty0 = hb + 34; ty1 = h - 58;
+      rh = clamp((ty1 - ty0) / 4.9, 30, 62);
+      G.px0 = Math.round(w * 0.615) + 34; G.px1 = w - 22; G.py0 = 30; G.py1 = h - 34;
+      G.split = Math.round(w * 0.588);
+    } else {
+      tx0 = 6; tx1 = w - 6;
+      ty0 = hb + 24;
+      rh = clamp(h * 0.058, 22, 34);
+      ty1 = ty0 + rh * 4.9;
+      G.px0 = 36; G.px1 = w - 14; G.py0 = ty1 + 46; G.py1 = h - 28;
+      G.split = 0;
+    }
+    var fr = [0.1, 0.104, 0.104, 0.104, 0.104, 0.104, 0.13, 0.25];
+    var TW = tx1 - tx0, xs = [tx0];
+    fr.forEach(function (f) { xs.push(xs[xs.length - 1] + f * TW); });
+    G.colX = xs;
+    G.cx = fr.map(function (f, i) { return (xs[i] + xs[i + 1]) / 2; });
+    G.cw = fr.map(function (f) { return f * TW; });
+    G.rh = rh; G.hh = rh * 0.72;
+    var th = G.hh + rh * 4 + 6;
+    var ty = G.portrait ? ty0 : ty0 + Math.max(0, (ty1 - ty0 - th) * 0.3);
+    G.ty = ty; G.tx0 = tx0; G.tx1 = tx1;
+    G.hy = ty + G.hh / 2;
+    G.ry = []; G.rc = [];
+    for (var r = 0; r <= M; r++) {
+      var y = ty + G.hh + r * rh + (r === M ? 6 : 0);
+      G.ry.push(y); G.rc.push(y + rh / 2);
+    }
+    G.tb = G.ry[M] + rh;
+    G.fNum = Math.round(clamp(Math.min(rh * 0.36, G.cw[1] * 0.3), 10.5, 20));
+    G.fSmall = Math.round(clamp(rh * 0.2, 8.5, 12));
+    G.fLbl = G.portrait ? 10 : 12;
+  }
+  function X(x) { return G.px0 + x / XM * (G.px1 - G.px0); }
+  function Y(y) { return G.py1 - y / YM * (G.py1 - G.py0); }
+
+  /* ---------------- drawing helpers ---------------- */
+  var C;
+  function font(px, w, mono) { return (w || 400) + " " + px + "px " + (mono ? G.FM : G.FS); }
+  function text(s, x, y, f, color, align, base, halo) {
+    ctx.font = f; ctx.textAlign = align || "center"; ctx.textBaseline = base || "middle";
+    if (halo) { ctx.lineJoin = "round"; ctx.lineWidth = 3.5; ctx.strokeStyle = C.surface; ctx.strokeText(s, x, y); }
+    ctx.fillStyle = color; ctx.fillText(s, x, y);
+  }
+  function rrect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+  }
+  function pill(s, x, y, px, bg, fg, align) {
+    ctx.font = font(px, 700);
+    var w = ctx.measureText(s).width + px * 0.9, h = px + 6;
+    var x0 = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+    rrect(x0, y - h / 2, w, h, 2); ctx.fillStyle = bg; ctx.fill();
+    text(s, x0 + w / 2, y + 0.5, font(px, 700), fg);
+    return w;
+  }
+  function line(a, b, color, width, dash) {
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.setLineDash(dash || []); ctx.stroke(); ctx.setLineDash([]);
+  }
+  function P(pt) { return [X(pt[0]), Y(pt[1])]; }
+  function mix(a, b, u) { return [lerp(a[0], b[0], u), lerp(a[1], b[1], u)]; }
+  // iso-profit line c·x = z clipped to the plot box (a little past the axes)
+  function isoSeg(c, z) {
+    var X0 = -3, X1 = XM, Y0 = -3, Y1 = YM, pts = [];
+    [X0, X1].forEach(function (x) { var y = (z - c[0] * x) / c[1]; if (y >= Y0 - 1e-9 && y <= Y1 + 1e-9) pts.push([x, y]); });
+    [Y0, Y1].forEach(function (y) { var x = (z - c[1] * y) / c[0]; if (x >= X0 - 1e-9 && x <= X1 + 1e-9) pts.push([x, y]); });
+    var out = [];
+    pts.forEach(function (p) { if (!out.some(function (q) { return Math.abs(p[0] - q[0]) + Math.abs(p[1] - q[1]) < 1e-6; })) out.push(p); });
+    if (out.length < 2) return null;
+    out.sort(function (p, q) { return q[1] - p[1]; });
+    return [out[0], out[out.length - 1]];
+  }
+  function cval(r, c) { return r === M ? "z" : VN[c]; }
+
+  /* ---------------- state at time t ---------------- */
+  // marker position, the pivot being travelled and its progress
+  function travel(time) {
+    var i = lastPivot(time, P_MOVE0);
+    if (i < 0) return { pos: D.V[0], i: -1, mu: 0, reached: 0 };
+    var mu = E.inOut(seg(time - CH[1 + i], P_MOVE0, P_MOVE1));
+    return { pos: mix(D.V[i], D.V[i + 1], mu), i: i, mu: mu, reached: mu >= 1 ? i + 1 : i };
+  }
+  function basisAt(time) {
+    var i = lastPivot(time, 0), u = 1, step = 0;
+    if (i >= 0) {
+      u = seg(time - CH[1 + i], 7.0, 8.0);
+      step = u >= 1 ? i + 1 : i;
+    }
+    return { i: i, u: u, names: D.st[step].basis.map(function (b) { return VN[b]; }), after: i >= 0 ? D.st[i + 1].basis : D.st[0].basis, before: i >= 0 ? D.st[i].basis : D.st[0].basis };
+  }
+  function tightWeights(time) {
+    var w = [0, 0, 0, 0, 0], tr = travel(time);
+    if (tr.i < 0) {
+      var a = seg(time, 7.6, 8.6);
+      nonbasic(D.st[0]).forEach(function (j) { w[j] = a; });
+      return w;
+    }
+    var o = nonbasic(D.st[tr.i]), n = nonbasic(D.st[tr.i + 1]);
+    for (var j = 0; j < N; j++) {
+      var io = o.indexOf(j) >= 0, inn = n.indexOf(j) >= 0;
+      w[j] = io && inn ? 1 : io ? 1 - tr.mu : inn ? tr.mu : 0;
+    }
+    return w;
+  }
+
+  /* ---------------- plot (right, or bottom on phones) ---------------- */
+  function drawPlot(time, ph) {
+    var ax = seg(time, 0, 1.0);
+    ctx.save();
+    ctx.globalAlpha = ax;
+    // grid and ticks
+    var fT = font(G.portrait ? 9 : 10, 400, true);
+    for (var gx = 20; gx <= 80; gx += 20) line([X(gx), Y(0)], [X(gx), Y(YM)], C.grid, 1);
+    for (var gy = 20; gy <= 100; gy += 20) line([X(0), Y(gy)], [X(XM), Y(gy)], C.grid, 1);
+    for (gx = 0; gx <= 80; gx += 20) text(fmt(gx, 0), X(gx), Y(0) + 11, fT, C.muted);
+    for (gy = 20; gy <= 100; gy += 20) text(fmt(gy, 0), X(0) - 6, Y(gy), fT, C.muted, "right");
+    ctx.restore();
+
+    // region
+    var ra = seg(time, 2.2, 3.2);
+    if (ra > 0) {
+      ctx.save(); ctx.globalAlpha = ra;
+      ctx.beginPath();
+      REGION.forEach(function (p, i) { var q = P(p); if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); });
+      ctx.closePath(); ctx.fillStyle = C.region; ctx.fill();
+      ctx.restore();
+    }
+
+    // constraint lines (silver), drawn in during the setup
+    var tw = tightWeights(time);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(X(-2), Y(YM) - 2, X(XM) - X(-2) + 2, Y(-2) - Y(YM) + 2); ctx.clip();
+    [2, 3, 4].forEach(function (j, q) {
+      var u = E.out(seg(time, 0.6 + 0.45 * q, 1.5 + 0.45 * q));
+      if (u <= 0) return;
+      var a = P(LINES[j][0]), b = mix(a, P(LINES[j][1]), u);
+      line(a, b, C["mit-silver"], 1.4);
+      if (tw[j] > 0) { ctx.globalAlpha = tw[j]; line(a, b, C.ink, 2.6); ctx.globalAlpha = 1; }
+    });
+    // axes (x1 = 0 and x2 = 0 are also constraints of the tableau)
+    ctx.globalAlpha = ax;
+    line(P([0, 0]), P([0, YM]), C.ink2, 1.2);
+    line(P([0, 0]), P([XM, 0]), C.ink2, 1.2);
+    [0, 1].forEach(function (j) {
+      if (tw[j] > 0) { ctx.globalAlpha = tw[j] * ax; line(P([0, 0]), P(j === 0 ? [0, YM] : [XM, 0]), C.ink, 3); }
+    });
+    ctx.globalAlpha = 1;
+    ctx.restore();
+
+    // axis names
+    ctx.save(); ctx.globalAlpha = ax;
+    text(t("spx.anim.lbl.x1"), X(XM), Y(0) + (G.portrait ? 22 : 24), font(G.fLbl, 600), C.ink2, "right");
+    text(t("spx.anim.lbl.x2"), X(0) + 6, Y(YM) - 2, font(G.fLbl, 600), C.ink2, "left", "bottom");
+    ctx.restore();
+
+    // constraint names along their lines
+    var fin = ph.kind === "final" ? seg(ph.L, 5.0, 5.6) : 0;
+    var lblPos = [
+      { j: 2, at: scn === 0 ? [8, 84] : [44.6, 11], ang: Math.atan2(Y(0) - Y(100), X(50) - X(0)) },
+      { j: 3, at: scn === 1 ? [69, 11] : [62, 20], below: scn === 1, ang: Math.atan2(Y(0) - Y(80), X(80) - X(0)) },
+      { j: 4, at: [40, G.portrait ? 92 : 97], ang: -Math.PI / 2 }
+    ];
+    lblPos.forEach(function (L, q) {
+      var a = seg(time, 1.2 + 0.45 * q, 1.8 + 0.45 * q);
+      if (a <= 0) return;
+      var p = P(L.at);
+      ctx.save(); ctx.globalAlpha = a;
+      ctx.translate(p[0], p[1]); ctx.rotate(L.ang);
+      var name = t("spx.anim.lbl." + CKEY[q]);
+      var col = tw[L.j] > 0.5 ? C.ink : C.muted;
+      var sg = L.below ? 1 : -1;
+      text(name, 0, sg * 7, font(G.fLbl, 600), col, "center", L.below ? "top" : "bottom", true);
+      if (fin > 0) {
+        ctx.globalAlpha = a * fin;
+        var y = D.duals[q];
+        pill("y" + SUB[q] + " = " + num(y), 0, sg * (7 + G.fLbl + 11), G.fLbl - 1, y > 1e-9 ? C.accent : C["mit-silver"], C["on-solid"]);
+      }
+      ctx.restore();
+    });
+
+    // ghost of the original path (scenario with $3.50 trains)
+    if (scn === 1) {
+      var gu = ph.idx >= 3 ? E.inOut(seg(time, CH[3] + 0.3, CH[3] + 3.0)) : 0;
+      if (gu > 0) drawGhost(gu, ph.idx === 4 ? lerp(1, 0.55, seg(ph.L, 0, 1)) : 1);
+    }
+
+    // vertices of the region
+    var va = seg(time, 3.0, 3.6);
+    if (va > 0) {
+      ctx.save(); ctx.globalAlpha = va;
+      REGION.forEach(function (p) { var q = P(p); ctx.beginPath(); ctx.arc(q[0], q[1], 3, 0, 7); ctx.fillStyle = C.ink2; ctx.fill(); });
+      ctx.restore();
+    }
+
+    // ratio test on the plane: the ray along the entering direction and where each row stops it
+    if (ph.kind === "pivot") drawRay(ph);
+
+    // path so far
+    var tr = travel(time);
+    var pts = D.V.slice(0, tr.i + 1).concat([tr.pos]);
+    if (tr.i >= 0) {
+      ctx.lineJoin = "round"; ctx.lineCap = "round";
+      ctx.beginPath(); pts.forEach(function (p, i) { var q = P(p); if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); });
+      ctx.strokeStyle = C.sel; ctx.lineWidth = 11; ctx.stroke();
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 3.5; ctx.stroke();
+      // comet while moving
+      if (tr.mu > 0 && tr.mu < 1) {
+        for (var k = 1; k <= 7; k++) {
+          var back = Math.max(0, E.inOut(seg(time - k * 0.045 - CH[1 + tr.i], P_MOVE0, P_MOVE1)));
+          var cp = P(mix(D.V[tr.i], D.V[tr.i + 1], back));
+          ctx.beginPath(); ctx.arc(cp[0], cp[1], 6.5 - k * 0.6, 0, 7);
+          ctx.fillStyle = C["mit-bright"]; ctx.globalAlpha = 0.28 - k * 0.03; ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // iso-profit line through the current corner
+    drawIso(time, ph, tr);
+
+    // z at the corners already visited
+    var fV = font(G.portrait ? 9.5 : 11, 600, true);
+    for (var v = 1; v < D.np; v++) {
+      var la = tr.i > v ? 1 : tr.i === v ? clamp(tr.mu * 4, 0, 1) : 0;
+      if (la <= 0) continue;
+      var zv = D.c[0] * D.V[v][0] + D.c[1] * D.V[v][1];
+      ctx.globalAlpha = la;
+      tagAt(D.V[v], ["z = " + num(zv, 1)], fV, C.muted, 0);
+      ctx.globalAlpha = 1;
+    }
+
+    // test chapter ($3.50): probe the neighbouring corner and come back
+    if (ph.kind === "test") drawProbe(ph);
+
+    // marker
+    var ma = E.back(seg(time, 6.8, 7.5));
+    if (ma > 0) {
+      var mp = P(tr.pos), rad = 7 * ma;
+      // pulse on arrival
+      var arr = tr.i >= 0 ? seg(time - CH[1 + tr.i], P_MOVE1, P_MOVE1 + 1.2) : seg(time, 7.2, 8.4);
+      if (arr > 0 && arr < 1) {
+        ctx.beginPath(); ctx.arc(mp[0], mp[1], 8 + 22 * E.out(arr), 0, 7);
+        ctx.strokeStyle = C.accent; ctx.globalAlpha = 1 - arr; ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1;
+      }
+      ctx.beginPath(); ctx.arc(mp[0], mp[1], rad + 2, 0, 7); ctx.fillStyle = C.surface; ctx.fill();
+      ctx.beginPath(); ctx.arc(mp[0], mp[1], rad, 0, 7); ctx.fillStyle = C.accent; ctx.fill();
+    }
+
+    // live z next to the marker; at the optimum it also reads the corner
+    var mla = seg(time, 7.2, 7.8);
+    if (ph.kind === "compare") mla *= 1 - seg(ph.L, 0.2, 0.8);
+    if (ph.kind === "final" && scn === 1) mla *= seg(ph.L, 0, 0.8);
+    if (mla > 0) {
+      var zm = D.c[0] * tr.pos[0] + D.c[1] * tr.pos[1];
+      var lines = ["z = " + num(zm, 1)];
+      var sa = ph.kind === "final" ? seg(ph.L, 2.4, 3.2) : 0;
+      if (sa > 0) lines.push("(" + num(tr.pos[0], 1) + t("spx.sep") + num(tr.pos[1], 1) + ")");
+      ctx.globalAlpha = mla;
+      tagAt(tr.pos, lines, font(G.portrait ? 11 : 13, 700, true), C["accent-text"], sa, tr);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // where a corner's label goes (pixel offset of the block's near corner): up and to the right by default,
+  // inside the region for the corners on the demand line, and lifted clear of the lines at (0, 80)
+  function placeOf(pt) {
+    if (pt[0] > 30) return { dx: -10, dy: -9, left: 1, lead: 0 };
+    if (pt[0] < 5 && pt[1] > 70) return { dx: 30, dy: -28, left: 0, lead: 1 };
+    return { dx: 10, dy: -9, left: 0, lead: 0 };
+  }
+  function tagAt(pt, lines, f, color, secondAlpha, tr) {
+    var pl = placeOf(pt);
+    if (tr && tr.i >= 0 && tr.mu > 0 && tr.mu < 1) {
+      var a0 = placeOf(D.V[tr.i]), a1 = placeOf(D.V[tr.i + 1]), u = tr.mu;
+      pl = { dx: lerp(a0.dx, a1.dx, u), dy: lerp(a0.dy, a1.dy, u), left: lerp(a0.left, a1.left, u), lead: lerp(a0.lead, a1.lead, u) };
+    }
+    var p = P(pt), lh = parseFloat(f.split(" ")[1]) + 3, n = lines.length;
+    ctx.font = f;
+    var wmax = 0;
+    lines.forEach(function (s) { wmax = Math.max(wmax, ctx.measureText(s).width); });
+    var x0 = p[0] + pl.dx - pl.left * wmax, y0 = p[1] + pl.dy - lh * n;
+    if (pl.lead > 0.01) {
+      var a = ctx.globalAlpha;
+      ctx.globalAlpha = a * pl.lead;
+      line([p[0] + 6, p[1] - 6], [p[0] + pl.dx - 2, p[1] + pl.dy - 2], C.ink2, 1);
+      ctx.globalAlpha = a;
+    }
+    lines.forEach(function (s, i) {
+      var a = ctx.globalAlpha;
+      if (i > 0) ctx.globalAlpha = a * secondAlpha;
+      text(s, x0, y0 + lh * (i + 0.5), f, i > 0 ? C.ink : color, "left", "middle", true);
+      ctx.globalAlpha = a;
+    });
+  }
+
+  function drawGhost(u, alpha) {
+    var G0 = DATA[0].V, segs = G0.length - 1, upto = u * segs;
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    var first = P(G0[0]); ctx.moveTo(first[0], first[1]);
+    for (var s = 0; s < segs && s < upto; s++) {
+      var q = P(mix(G0[s], G0[s + 1], Math.min(1, upto - s)));
+      ctx.lineTo(q[0], q[1]);
+    }
+    ctx.setLineDash([5, 4]); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 2.5; ctx.stroke(); ctx.setLineDash([]);
+    for (s = 1; s <= segs && s <= upto + 1e-9; s++) {
+      var d = P(G0[s]); ctx.beginPath(); ctx.arc(d[0], d[1], 4.5, 0, 7); ctx.fillStyle = C["mit-silver"]; ctx.fill();
+    }
+    if (u >= 1) {
+      var e = P([40, 10]);
+      text(t("spx.anim.lbl.pivN", { n: DATA[0].np }), e[0] - 8, e[1], font(G.fLbl, 600), C.muted, "right", "middle", true);
+      var b = P(mix(D.V[0], D.V[D.np], 0.5));
+      text(D.np === 1 ? t("spx.anim.lbl.piv1") : t("spx.anim.lbl.pivN", { n: D.np }), b[0] + 8, b[1], font(G.fLbl, 700), C["accent-text"], "left", "middle", true);
+    }
+    ctx.restore();
+  }
+
+  function drawRay(ph) {
+    var Pv = D.piv[ph.p], L = ph.L;
+    var fin = Pv.ratios.filter(function (r) { return r.q != null; }).map(function (r) { return r.q; });
+    var smax = Math.max.apply(null, fin);
+    var ru = E.out(seg(L, 1.8, 3.2)), fade = 1 - seg(L, 7.0, 7.8);
+    if (ru <= 0 || fade <= 0) return;
+    var v = Pv.v0, end = [v[0] + Pv.d[0] * smax * ru, v[1] + Pv.d[1] * smax * ru];
+    ctx.save(); ctx.globalAlpha = fade;
+    line(P(v), P(end), C.ink2, 1.6, [6, 5]);
+    // arrow head
+    var a = P(v), b = P(end), ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    ctx.beginPath(); ctx.moveTo(b[0], b[1]);
+    ctx.lineTo(b[0] - 9 * Math.cos(ang - 0.4), b[1] - 9 * Math.sin(ang - 0.4));
+    ctx.lineTo(b[0] - 9 * Math.cos(ang + 0.4), b[1] - 9 * Math.sin(ang + 0.4));
+    ctx.closePath(); ctx.fillStyle = C.ink2; ctx.fill();
+    // stop points: one per row with a positive entry
+    var minA = seg(L, 4.8, 5.6);
+    Pv.ratios.forEach(function (r, q) {
+      if (r.q == null) return;
+      var ap = seg(L, 2.6 + 0.6 * q, 3.1 + 0.6 * q);
+      if (ap <= 0) return;
+      var hp = P([v[0] + Pv.d[0] * r.q, v[1] + Pv.d[1] * r.q]);
+      var win = q === Pv.r;
+      ctx.globalAlpha = fade * ap * (win ? 1 : lerp(1, 0.45, minA));
+      ctx.beginPath(); ctx.arc(hp[0], hp[1], 5.5 * E.back(ap), 0, 7);
+      ctx.fillStyle = win ? lerp01color(minA) : C["mit-silver"]; ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = C.surface; ctx.stroke();
+      if (win && minA > 0) {
+        ctx.beginPath(); ctx.arc(hp[0], hp[1], 9 + 3 * Math.sin(L * 6), 0, 7);
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 2; ctx.globalAlpha = fade * minA; ctx.stroke();
+      }
+      ctx.globalAlpha = fade * ap * (win ? 1 : lerp(1, 0.45, minA));
+      var horiz = Pv.d[1] === 0, vert = Pv.d[0] === 0;
+      text(num(r.q, 1), hp[0] + (horiz ? 0 : vert ? -10 : 9), hp[1] + (horiz ? -10 : vert ? 0 : -9),
+        font(G.portrait ? 9.5 : 11, 700, true), win && minA > 0.5 ? C["accent-text"] : C.muted,
+        horiz ? "center" : vert ? "right" : "left", horiz ? "bottom" : vert ? "middle" : "bottom", true);
+    });
+    ctx.restore();
+  }
+  function lerp01color(u) { return u > 0.5 ? C.accent : C["mit-silver"]; }
+
+  function drawIso(time, ph, tr) {
+    var a = seg(time, 7.0, 7.8);
+    if (a <= 0) return;
+    var c = D.c, pos = tr.pos, z = c[0] * pos[0] + c[1] * pos[1], lbl = "z = " + num(z, 1);
+    var hi = 0;
+    if (ph.kind === "compare") {
+      // tilt the objective: train profit 3.5 -> 2 -> 3.5; the iso-line follows the optimal corner
+      var c2 = c2At(ph.L);
+      c = [3, c2];
+      var opt = c2 < 3 - 1e-9 ? [20, 60] : [0, 80];
+      z = c[0] * opt[0] + c[1] * opt[1];
+      lbl = "z = " + num(z, 1);
+      hi = 1 - clamp(Math.abs(c2 - 3) / 0.12, 0, 1);
+      // ring at the optimal corner for this slope
+      var op = P(opt);
+      ctx.beginPath(); ctx.arc(op[0], op[1], 12, 0, 7); ctx.strokeStyle = C["mit-bright"]; ctx.lineWidth = 2;
+      ctx.globalAlpha = seg(ph.L, 3.2, 3.8) * (1 - seg(ph.L, 10.6, 11.4)); ctx.stroke(); ctx.globalAlpha = 1;
+      if (hi > 0) { ctx.globalAlpha = hi; line(P([20, 60]), P([0, 80]), C.accent, 5); ctx.globalAlpha = 1; }
+    }
+    var sgm = isoSeg(c, z);
+    if (!sgm) return;
+    var p0 = P(sgm[0]), p1 = P(sgm[1]);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(X(-3), Y(YM) - 4, X(XM) - X(-3) + 4, Y(-3) - Y(YM) + 4); ctx.clip();
+    ctx.globalAlpha = a;
+    line(p0, p1, C.accent, 2, [7, 5]);
+    ctx.restore();
+    if (ph.kind === "compare") {
+      ctx.globalAlpha = seg(ph.L, 3.2, 3.8) * (1 - seg(ph.L, 10.6, 11.4));
+      tagAt(c2At(ph.L) < 3 - 1e-9 ? [20, 60] : [0, 80], [lbl], font(G.portrait ? 11 : 13, 700, true), C["mit-bright"], 0);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function c2At(L) {
+    if (L < 3.5) return 3.5;
+    if (L < 6.5) return lerp(3.5, 2, E.inOut(seg(L, 3.5, 6.5)));
+    if (L < 7.2) return 2;
+    return lerp(2, 3.5, E.inOut(seg(L, 7.2, 10.5)));
+  }
+
+  function drawProbe(ph) {
+    var L = ph.L, go = E.inOut(seg(L, 3.5, 6.0)), back = E.inOut(seg(L, 8.2, 10.2));
+    var u = go * (1 - back);
+    if (u <= 0) return;
+    var from = D.V[D.np], to = [20, 60], p = P(mix(from, to, u));
+    line(P(from), p, C["mit-silver"], 2, [4, 4]);
+    ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, 7); ctx.fillStyle = C["mit-silver"]; ctx.fill();
+    var za = seg(L, 5.6, 6.2) * (1 - seg(L, 8.0, 8.4));
+    if (za > 0) {
+      var z = D.c[0] * to[0] + D.c[1] * to[1];
+      ctx.globalAlpha = za;
+      text("z = " + num(z, 1), p[0] + 10, p[1] + 4, font(G.portrait ? 10 : 12, 700, true), C.muted, "left", "top", true);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  /* ---------------- tableau (left, or top on phones) ---------------- */
+  function drawTableau(time, ph) {
+    var dim = 1;
+    if (ph.kind === "compare") dim = lerp(1, 0.32, seg(ph.L, 0.2, 1.2)) ;
+    if (ph.kind === "final" && scn === 1) dim = lerp(0.32, 1, seg(ph.L, 0, 0.8));
+    ctx.save(); ctx.globalAlpha = dim;
+
+    var ga = seg(time, 0.3, 1.2);
+    var x0 = G.colX[0], x1 = G.colX[7], x2 = G.colX[8];
+    var Pv = ph.kind === "pivot" ? D.piv[ph.p] : null, L = ph.L;
+
+    // bands: entering column and leaving row
+    if (Pv) {
+      var enterA = seg(L, 1.4, 2.2) * (1 - seg(L, 10.0, 10.8));
+      var minA = seg(L, 4.8, 5.6) * (1 - seg(L, 10.0, 10.8));
+      var cx = G.colX[1 + Pv.k], cw = G.cw[1 + Pv.k];
+      if (enterA > 0) {
+        ctx.globalAlpha = dim * enterA;
+        ctx.fillStyle = C.sel; ctx.fillRect(cx, G.ty, cw, G.tb - G.ty);
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 1.5; ctx.strokeRect(cx + 0.5, G.ty + 0.5, cw - 1, G.tb - G.ty - 1);
+      }
+      if (minA > 0) {
+        ctx.globalAlpha = dim * minA;
+        ctx.fillStyle = C.sel; ctx.fillRect(x0, G.ry[Pv.r], x2 - x0, G.rh);
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 1.5; ctx.strokeRect(x0 + 0.5, G.ry[Pv.r] + 0.5, x2 - x0 - 1, G.rh - 1);
+      }
+      ctx.globalAlpha = dim;
+    }
+
+    // grid
+    ctx.globalAlpha = dim * ga;
+    line([x0, G.ty + G.hh], [x2, G.ty + G.hh], C.axis, 1);
+    for (var r = 1; r < M; r++) line([x0, G.ry[r]], [x1, G.ry[r]], C.grid, 1);
+    line([x0, G.ry[M] - 3], [x1, G.ry[M] - 3], C.ink2, 1.2);
+    line([G.colX[1], G.ty + 4], [G.colX[1], G.tb], C.grid, 1);
+    line([G.colX[6], G.ty + 4], [G.colX[6], G.tb], C.axis, 1.2);
+    line([x1, G.ty + 4], [x1, G.tb], C.grid, 1);
+    ctx.globalAlpha = dim;
+
+    // headers
+    var fH = font(Math.max(10, G.fNum - 3), 700, true);
+    for (var c = 0; c < N; c++) {
+      var ha = c < 2 ? seg(time, 1.0, 1.6) : seg(time, 3.4 + 0.4 * (c - 2), 3.9 + 0.4 * (c - 2));
+      if (ha <= 0) continue;
+      var hot = Pv && c === Pv.k ? seg(L, 1.4, 2.2) * (1 - seg(L, 10.0, 10.8)) : 0;
+      ctx.globalAlpha = dim * ha;
+      text(VN[c], G.cx[1 + c], G.hy, fH, hot > 0.5 ? C["accent-text"] : c < 2 ? C.ink : C.ink2);
+    }
+    ctx.globalAlpha = dim * seg(time, 1.0, 1.6);
+    text("b", G.cx[6], G.hy, font(Math.max(10, G.fNum - 3), 700, true), C.ink);
+    var rhA = seg(time, CH[1] + 2.4, CH[1] + 3.0);
+    if (rhA > 0) {
+      ctx.globalAlpha = dim * rhA * 0.9;
+      text(t("spx.anim.lbl.ratio"), G.cx[7], G.hy, font(Math.max(9, G.fSmall + 1), 600), C.muted);
+    }
+    ctx.globalAlpha = dim;
+
+    // basis labels (with the swap during a pivot)
+    var B = basisAt(time);
+    var fB = font(Math.max(10, G.fNum - 2), 700, true);
+    for (r = 0; r < M; r++) {
+      var ba = seg(time, 4.6 + 0.2 * r, 5.1 + 0.2 * r);
+      if (ba <= 0) continue;
+      var by = G.rc[r], bx = G.cx[0];
+      if (B.i >= 0 && B.before[r] !== B.after[r] && B.u > 0 && B.u < 1) {
+        var u = E.inOut(B.u);
+        ctx.globalAlpha = dim * (1 - u);
+        text(VN[B.before[r]], bx - 18 * u, by, fB, C["mit-bright"]);
+        // the entering name travels from its column header to the basis cell
+        var hx = G.cx[1 + B.after[r]], hy = G.hy;
+        var px = lerp(hx, bx, u), py = lerp(hy, by, u) - Math.sin(u * Math.PI) * G.rh * 0.6;
+        ctx.globalAlpha = dim;
+        text(VN[B.after[r]], px, py, fB, C["accent-text"]);
+        continue;
+      }
+      var leaving = Pv && r === Pv.r && L < 7.0 ? seg(L, 4.8, 5.6) : 0;
+      var fresh = B.i >= 0 && B.before[r] !== B.after[r] ? 1 - seg(time - CH[1 + B.i], 8.0, 10.6) : 0;
+      ctx.globalAlpha = dim * ba;
+      text(B.names[r], bx, by, fB,
+        leaving > 0.5 ? C["mit-bright"] : fresh > 0.3 ? C["accent-text"] : C.ink);
+    }
+    ctx.globalAlpha = dim * seg(time, 5.6, 6.1);
+    text("z", G.cx[0], G.rc[M], fB, C.ink);
+    ctx.globalAlpha = dim;
+
+    // values (morphing during a pivot)
+    var li = lastPivot(time, 0), from = D.st[0].tableau, to = from, Lp = 0, Pm = null;
+    if (li >= 0) { from = D.st[li].tableau; to = D.st[li + 1].tableau; Lp = time - CH[1 + li]; Pm = D.piv[li]; }
+    var fN = font(G.fNum, 600, true);
+    for (r = 0; r <= M; r++) {
+      var ur = Pm ? E.inOut(seg(Lp, rowStart(Pm, r), rowStart(Pm, r) + P_ROWDUR)) : 0;
+      var endT = Pm ? rowStart(Pm, r) + P_ROWDUR : 0;
+      for (c = 0; c <= N; c++) {
+        var a = r < M ? (c <= 1 || c === N ? seg(time, 1.6 + 0.5 * r, 2.2 + 0.5 * r) : seg(time, 3.4 + 0.4 * (c - 2), 3.9 + 0.4 * (c - 2)))
+          : seg(time, 5.6 + 0.12 * c, 6.1 + 0.12 * c);
+        if (a <= 0) continue;
+        var va = from[r][c], vb = to[r][c], v = lerp(va, vb, ur), changed = Math.abs(va - vb) > 1e-9;
+        var s;
+        if (ur > 0 && ur < 1 && changed) {
+          var ints = Math.abs(va - Math.round(va)) < 1e-9 && Math.abs(vb - Math.round(vb)) < 1e-9;
+          s = num(ints ? Math.round(v) : Math.round(v * 10) / 10, ints ? 0 : 1);
+        } else s = num(ur >= 1 ? vb : va, 2);
+        var col = Math.abs(ur >= 1 ? vb : va) < 1e-9 && !(ur > 0 && ur < 1) ? C.muted : C.ink;
+        // flash for the cells a pivot changes, and for the slack identity in the setup
+        var flash = 0;
+        if (changed && Pm) flash = ur > 0 && ur < 1 ? 1 : ur >= 1 ? 1 - seg(Lp, endT, endT + 0.9) : 0;
+        if (r < M && c >= 2 && c < N && Math.abs(from[r][c]) > 1e-9 && li < 0) flash = Math.max(flash, 1 - seg(time, 4.8 + 0.4 * (c - 2), 6.6));
+        // entering scan on the objective row
+        if (Pv && r === M && c < N && L < 7.2) {
+          var scanX = lerp(G.cx[1], G.cx[5] + G.cw[5] / 2, E.inOut(seg(L, 0.2, 1.8)));
+          if (va < -1e-9 && G.cx[1 + c] <= scanX) flash = Math.max(flash, c === Pv.k ? 1 : 1 - seg(L, 2.0, 2.8));
+        }
+        if (flash > 0.02) col = C["mit-bright"];
+        var slide = r < M && (c <= 1 || c === N) ? (1 - E.out(a)) * -18 : 0;
+        var sc = r < M && c >= 2 && c < N ? lerp(1.6, 1, E.out(a)) : 1;
+        ctx.globalAlpha = dim * a;
+        if (sc !== 1) {
+          ctx.save(); ctx.translate(G.cx[1 + c], G.rc[r]); ctx.scale(sc, sc);
+          text(s, 0, 0, fN, col); ctx.restore();
+        } else text(s, G.cx[1 + c] + slide, G.rc[r], fN, col);
+      }
+    }
+    ctx.globalAlpha = dim;
+
+    // pivot chapter overlays: pulse on the entering reduced cost, ratios, pivot ring, row operations
+    if (Pv) drawPivotMarks(Pv, L, dim);
+    if (ph.kind === "final" || ph.kind === "test" || (scn === 1 && ph.kind === "compare")) drawOptimal(ph, dim);
+    ctx.restore();
+  }
+
+  function drawPivotMarks(Pv, L, dim) {
+    var ex = G.cx[1 + Pv.k], ey = G.rc[M], rad = Math.min(G.cw[1], G.rh) * 0.46;
+    // the most negative reduced cost pulses
+    var pa = seg(L, 1.2, 1.8) * (1 - seg(L, 6.8, 7.3));
+    if (pa > 0) {
+      var puls = 0.5 + 0.5 * Math.sin(L * 7);
+      ctx.globalAlpha = dim * pa * (0.5 + 0.5 * puls);
+      ctx.beginPath(); ctx.arc(ex, ey, rad + 3 * puls, 0, 7);
+      ctx.strokeStyle = C["mit-bright"]; ctx.lineWidth = 2.2; ctx.stroke();
+    }
+    // "enters" tag above the column
+    var enterA = seg(L, 1.6, 2.4) * (1 - seg(L, 10.0, 10.8));
+    if (enterA > 0) {
+      ctx.globalAlpha = dim * enterA;
+      pill(t("spx.anim.lbl.enter"), ex, G.ty - (G.portrait ? 9 : 12), G.portrait ? 9 : 10.5, C.accent, C["on-solid"]);
+    }
+    // ratio test values
+    var fq = font(G.fNum - 1, 700, true), fs = font(G.fSmall, 400, true);
+    var rfade = 1 - seg(L, 7.0, 7.4), minA = seg(L, 4.8, 5.6);
+    var twoLines = G.rh >= 40;
+    Pv.ratios.forEach(function (rt, q) {
+      var a = seg(L, 2.6 + 0.6 * q, 3.1 + 0.6 * q) * rfade;
+      if (a <= 0) return;
+      var win = q === Pv.r;
+      ctx.globalAlpha = dim * a * (win ? 1 : lerp(1, 0.5, minA));
+      var cx = G.colX[7] + G.cw[7] * (twoLines ? 0.34 : 0.3), cy = G.rc[q];
+      var val = rt.q == null ? "∞" : num(rt.q, 2);
+      var dy = twoLines ? -6 : 0;
+      text(val, cx, cy + dy, fq, win && minA > 0.5 ? C["accent-text"] : rt.q == null ? C.muted : C.ink);
+      if (twoLines) text(num(rt.b, 2) + " ÷ " + num(rt.a, 2), cx, cy + 12, fs, C.muted);
+      if (win && minA > 0) {
+        ctx.globalAlpha = dim * a * minA;
+        pill(t("spx.anim.lbl.leave"), G.colX[8] - 4, cy + dy, G.portrait ? 8.5 : 10, C["mit-bright"], "#ffffff", "right");
+      }
+    });
+    // pivot element: the ring draws itself
+    var ru = seg(L, 5.8, 6.8), rf = 1 - seg(L, 10.0, 10.8);
+    if (ru > 0 && rf > 0) {
+      var px = G.cx[1 + Pv.k], py = G.rc[Pv.r], pr = Math.min(G.cw[1], G.rh) * 0.47;
+      ctx.globalAlpha = dim * rf;
+      ctx.beginPath(); ctx.arc(px, py, pr, -Math.PI / 2, -Math.PI / 2 + E.inOut(ru) * Math.PI * 2);
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 3; ctx.stroke();
+      if (ru >= 1) {
+        var glow = seg(L, 6.8, 7.6);
+        if (glow < 1) {
+          ctx.globalAlpha = dim * (1 - glow);
+          ctx.beginPath(); ctx.arc(px, py, pr + 10 * glow, 0, 7); ctx.lineWidth = 2; ctx.stroke();
+        }
+      }
+    }
+    // row operations while the rows transform
+    var oa = seg(L, 7.1, 7.5) * (1 - seg(L, 10.2, 10.8));
+    if (oa > 0) {
+      var R = t("spx.anim.lbl.row"), sp = G.portrait ? "" : " ";
+      var rn = function (i) { return i === M ? "z" : R + SUB[i]; };
+      for (var q = 0; q <= M; q++) {
+        var o = Pv.ops[q];
+        if (!o) continue;
+        var s;
+        if (o.div != null) s = rn(q) + sp + "÷" + sp + num(o.div, 2);
+        else {
+          var f = o.f, af = Math.abs(f);
+          s = rn(q) + sp + (f > 0 ? "−" : "+") + sp + (Math.abs(af - 1) < 1e-9 ? "" : num(af, 2)) + rn(Pv.r);
+        }
+        var st = rowStart(Pv, q);
+        ctx.globalAlpha = dim * oa * lerp(0.45, 1, seg(L, st - 0.3, st));
+        text(s, G.cx[7], G.rc[q], font(G.portrait ? 9.5 : Math.max(11, G.fSmall + 1), 600, true), C.ink2);
+      }
+    }
+    ctx.globalAlpha = dim;
+  }
+
+  function drawOptimal(ph, dim) {
+    var L = ph.L, fin = ph.kind === "final";
+    // optimality test: every reduced cost is >= 0
+    var sweep = fin ? seg(L, 0, 2.2) : ph.kind === "test" ? seg(L, 0.2, 2.4) : 1;
+    var persist = scn === 1 && !(ph.kind === "test");
+    if (persist && fin) sweep = 1;
+    var fC = font(G.portrait ? 9 : 11, 700);
+    for (var c = 0; c < N; c++) {
+      var cu = seg(sweep, c / N, (c + 1) / N);
+      if (cu <= 0) continue;
+      var x = G.cx[1 + c] + G.cw[1 + c] * 0.36, y = G.ry[M] + 2 + (G.portrait ? 5 : 7);
+      ctx.globalAlpha = dim * cu;
+      text("✓", x, y, fC, C["accent-text"]);
+    }
+    // test chapter: the x1 reduced cost pulses while the probe visits the neighbour
+    if (ph.kind === "test") {
+      var pa = seg(L, 3.5, 4.0) * (1 - seg(L, 9.8, 10.4));
+      if (pa > 0) {
+        var puls = 0.5 + 0.5 * Math.sin(L * 7);
+        ctx.globalAlpha = dim * pa;
+        ctx.beginPath(); ctx.arc(G.cx[1], G.rc[M], Math.min(G.cw[1], G.rh) * 0.46 + 3 * puls, 0, 7);
+        ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 2.2; ctx.stroke();
+      }
+    }
+    if (!fin) { ctx.globalAlpha = dim; return; }
+    // read the solution: b of the rows where x1 and x2 are basic
+    var last = D.st[D.np], sa = seg(L, 2.4, 3.2);
+    if (sa > 0) {
+      last.basis.forEach(function (bv, r) {
+        if (bv > 1) return;
+        ctx.globalAlpha = dim * sa;
+        var x = G.colX[6], w = G.cw[6];
+        rrect(x + 3, G.ry[r] + 3, w - 6, G.rh - 6, 2);
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 2; ctx.stroke();
+      });
+      rrect(G.colX[6] + 3, G.ry[M] + 3, G.cw[6] - 6, G.rh - 6, 2);
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5; ctx.stroke();
+    }
+    // shadow prices: the objective row under s1, s2, s3
+    for (var j = 0; j < 3; j++) {
+      var da = seg(L, 5.0 + 0.5 * j, 5.6 + 0.5 * j);
+      if (da <= 0) continue;
+      var cx = G.cx[3 + j], cy = G.rc[M];
+      ctx.globalAlpha = dim * da;
+      rrect(G.colX[3 + j] + 3, G.ry[M] + 3, G.cw[3 + j] - 6, G.rh - 6, 2);
+      ctx.strokeStyle = D.duals[j] > 1e-9 ? C.accent : C["mit-silver"]; ctx.lineWidth = 2; ctx.stroke();
+      // constraint name under the column, staggered on two lines so long names never collide
+      var ly = G.tb + 6 + (j % 2) * (G.portrait ? 11 : 15);
+      line([cx, G.tb - 2], [cx, ly], C.axis, 1);
+      text(t("spx.anim.lbl." + CKEY[j]), cx, ly + 1, font(G.portrait ? 9 : 11, 600), D.duals[j] > 1e-9 ? C["accent-text"] : C.muted, "center", "top");
+    }
+    ctx.globalAlpha = dim;
+  }
+
+  /* ---------------- HUD ---------------- */
+  var hudCache = {};
+  function setText(id, s) { if (hudCache[id] !== s) { hudCache[id] = s; document.getElementById(id).textContent = s; } }
+  function hud(time, ph) {
+    var tr = travel(time), B = basisAt(time);
+    var z = D.c[0] * tr.pos[0] + D.c[1] * tr.pos[1];
+    var names = (B.i >= 0 && B.u >= 0.5 ? D.st[B.i + 1] : D.st[Math.max(0, B.i)]).basis.map(function (b) { return VN[b]; });
+    if (ph.kind === "compare") {
+      // the counters follow the tilted objective: its optimal corner, its z and that corner's basis
+      var c2 = c2At(ph.L), low = c2 < 3 - 1e-9, opt = low ? [20, 60] : D.V[D.np];
+      tr = { pos: opt };
+      z = 3 * opt[0] + c2 * opt[1];
+      if (low) names = DATA[0].st[DATA[0].np].basis.map(function (b) { return VN[b]; });
+    }
+    setText("h-v1", num(z, 1));
+    setText("h-l1", t("spx.anim.k.z"));
+    setText("h-v2", "(" + num(Math.round(tr.pos[0] * 10) / 10, 1) + t("spx.sep") + num(Math.round(tr.pos[1] * 10) / 10, 1) + ")");
+    setText("h-l2", t("spx.anim.k.pt"));
+    setText("h-v3", time < 4.6 ? " " : names.join(" "));
+    setText("h-l3", t("spx.anim.k.basis"));
+    if (ph.kind === "final" && ph.L >= 5.0) {
+      setText("h-v4", "(" + D.duals.map(function (y) { return num(y, 2); }).join(t("spx.sep")) + ")");
+      setText("h-l4", t("spx.anim.k.duals"));
+    } else if (ph.kind === "compare") {
+      setText("h-v4", t("spx.money", { v: fmt(c2At(ph.L), 2, 2) }));
+      setText("h-l4", t("spx.anim.k.c2"));
+    } else {
+      var done = 0;
+      for (var i = 0; i < D.np; i++) if (time >= CH[1 + i] + 8.6) done = i + 1;
+      setText("h-v4", done + " / " + D.np);
+      setText("h-l4", t("spx.anim.k.piv"));
+    }
+  }
+
+  /* ---------------- frame ---------------- */
+  function render(time) {
+    C = A.colors();
+    ctx.clearRect(0, 0, cv.w, cv.h);
+    var ph = phase(time);
+    if (G.split) {
+      ctx.globalAlpha = seg(time, 0, 1);
+      line([G.split, 22], [G.split, cv.h - 22], C.grid, 1);
+      ctx.globalAlpha = 1;
+    }
+    drawPlot(time, ph);
+    drawTableau(time, ph);
+    hud(time, ph);
+  }
+
+  function chapterKeys() {
+    chapters[2].key = scn === 0 ? "spx.anim.ch3" : "spx.anim.ch3b";
+    chapters[3].key = scn === 0 ? "spx.anim.ch4" : "spx.anim.ch4b";
+    root.querySelectorAll(".anim-chap").forEach(function (b, i) { b.textContent = (i + 1) + ". " + t(chapters[i].key); });
+  }
+
+  hud(0, phase(0));
+  layout();
+  var player = A.create({
+    root: root, duration: DUR, chapters: chapters,
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+  window.__spxAnim = player;
+
+  /* ---------------- static views ---------------- */
+  function pointText(x) { return "(" + num(x[0], 2) + t("spx.sep") + num(x[1], 2) + ")"; }
+  function renderTable() {
+    var tb = document.getElementById("tbody");
+    tb.textContent = "";
+    D.st.forEach(function (S, i) {
+      var tr = document.createElement("tr");
+      var last = i === D.np;
+      if (last) tr.className = "best";
+      var Pv = D.piv[i];
+      var cells = [
+        String(i),
+        S.basis.map(function (b) { return VN[b]; }).join(", "),
+        pointText(S.x),
+        num(S.z, 2),
+        last ? t("spx.tbl.opt") : VN[Pv.k] + " (" + num(S.tableau[M][Pv.k], 2) + ")",
+        last ? "" : VN[S.basis[Pv.r]] + " (" + num(Pv.ratios[Pv.r].q, 2) + ")"
+      ];
+      cells.forEach(function (c, j) {
+        var td = document.createElement("td");
+        if (j >= 2 && j <= 3) td.className = "num";
+        if (last && j === 4) td.colSpan = 2;
+        if (last && j === 5) return;
+        td.textContent = c;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    var path = D.V.map(pointText).join(" → ");
+    var zs = D.st.map(function (S) { return num(S.z, 2); }).join(" → ");
+    document.getElementById("tnote").textContent = t("spx.tbl.note", {
+      path: path, zs: zs, row: D.st[D.np].tableau[M].slice(0, N).map(function (v) { return num(v, 2); }).join(t("spx.sep"))
+    });
+  }
+  function renderSolution() {
+    var S = D.sol, box = document.getElementById("stats");
+    box.textContent = "";
+    var tiles = [
+      [num(S.x[0], 2), t("spx.sol.x1"), true],
+      [num(S.x[1], 2), t("spx.sol.x2"), true],
+      [money(S.z), t("spx.sol.z"), true],
+      [num(S.duals[0], 2), t("spx.sol.yfin"), false],
+      [num(S.duals[1], 2), t("spx.sol.ycar"), false],
+      [num(S.duals[2], 2), t("spx.sol.ydem"), false]
+    ];
+    tiles.forEach(function (d) {
+      var el = document.createElement("div");
+      el.className = "stat" + (d[2] ? " opt" : "");
+      var v = document.createElement("div"); v.className = "v"; v.textContent = d[0];
+      var l = document.createElement("div"); l.className = "l"; l.textContent = d[1];
+      el.append(v, l); box.appendChild(el);
+    });
+    document.getElementById("solnote").textContent = t("spx.sol.note", {
+      p: money(D.c2), s1: num(S.slack[0], 2), s2: num(S.slack[1], 2), s3: num(S.slack[2], 2),
+      piv: D.np === 1 ? t("spx.anim.lbl.piv1") : t("spx.anim.lbl.pivN", { n: D.np })
+    });
+    var sc = document.getElementById("scnote");
+    sc.hidden = scn === 0;
+    sc.textContent = scn === 0 ? "" : t("spx.model.alt");
+    document.getElementById("lg-ghost").hidden = scn === 0;
+  }
+
+  // MathJax (same loader as the other resources)
+  var blocks = Array.prototype.slice.call(document.querySelectorAll(".math script[type='text/x-tex']"));
+  var mathReady = false;
+  function renderMath() {
+    if (!mathReady) return;
+    var outs = blocks.map(function (s) {
+      var out = s.parentNode.querySelector(".math-out");
+      if (!out) { out = document.createElement("div"); out.className = "math-out"; s.parentNode.appendChild(out); }
+      out.textContent = "\\[" + s.textContent.replace(/\\text\{ST\}/g, "\\text{" + t("ui.st") + "}") + "\\]";
+      return out;
+    });
+    if (window.MathJax.typesetClear) window.MathJax.typesetClear(outs);
+    window.MathJax.typesetPromise(outs).catch(function (e) { console.error(e); });
+  }
+  window.MathJax = {
+    tex: { inlineMath: [["\\(", "\\)"]] },
+    svg: { fontCache: "global" },
+    startup: { typeset: false, ready: function () { window.MathJax.startup.defaultReady(); mathReady = true; renderMath(); } }
+  };
+  var mj = document.createElement("script");
+  mj.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js";
+  mj.async = true;
+  document.head.appendChild(mj);
+
+  function renderStatic() {
+    renderTable();
+    renderSolution();
+    renderMath();
+    chapterKeys();
+    hudCache = {};
+    layout();
+    player.refresh();
+  }
+
+  // scenario control
+  var segBtns = document.querySelectorAll("#spx-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var s = +b.getAttribute("data-scn");
+      if (s === scn) return;
+      scn = s; D = DATA[scn];
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderTable(); renderSolution(); chapterKeys();
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[1]) player.refresh();
+      else { player.seek(CH[1]); player.play(); }
+    });
+  });
+
+  I18N.onChange(renderStatic);
+})();
+</script>
+</body>
+</html>

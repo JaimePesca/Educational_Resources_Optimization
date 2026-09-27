@@ -32,10 +32,14 @@ window.CATALOG = {
     { id: "feasible-region-3d", href: "resources/feasible-region-3d.html", level: "lp", type: "simulation" },
     { id: "compacta", href: "compacta/index.html", level: "lp", type: "game" },
     { id: "dijkstra", href: "resources/dijkstra.html", level: "other", type: "animation" },
+    { id: "lp-inventory", href: "resources/inventory-balance.html", level: "lp", type: "simulation" },
+    { id: "edu-diet", href: "resources/cheapest-feed.html", level: "lp", type: "simulation" },
+    { id: "edu-simplex", href: "resources/simplex-steps.html", level: "lp", type: "animation" },
+    { id: "lp-shadow", href: "resources/shadow-prices.html", level: "lp", type: "simulation" },
+    { id: "lp-machines", href: "resources/machine-scheduling.html", level: "lp", type: "animation" },
+    { id: "lp-workforce", href: "resources/workforce-planning.html", level: "lp", type: "animation" },
 
     // Planned: open for contributors
-    { id: "edu-diet", level: "lp", type: "simulation" },
-    { id: "edu-simplex", level: "lp", type: "animation" },
     { id: "edu-shifts", level: "ip", type: "game" },
     { id: "edu-bnb", level: "ip", type: "animation" },
     { id: "edu-warehouses", level: "milp", type: "simulation" },

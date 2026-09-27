@@ -22,5 +22,9 @@ The four research animations ("See it in motion", placed right before "The model
 - **Honesty:** numbers come from the manuscript/page bundle; anything the paper does not publish (positions, shapes, a sample day) is illustrative but plausible, and the report to the owner says what is illustrative.
 - **Verification before publishing:** all four languages, 1200 px and 400 px, light and dark; no page errors, no raw keys, no horizontal scroll; look at screenshots of several chapters and the final frame.
 
+## Shared tools for learning resources
+- `site/assets/lp.js`: small two-phase simplex solver (`LP.solve` returns x, z, duals/shadow prices, slack, binding; `LP.steps` returns tableaux pivot by pivot). Use it so simulations re-solve live when the user changes data, instead of hard-coding optima. Verified on Giapetto (z = 180, duals 1, 1, 0), the pig diet (60.43) and the inventory Problem 10 (400).
+- The Level 1 source problems are the owner's "Problemas para Modelar" (PL); the Spanish wording of a statement goes verbatim into the Spanish bundle.
+
 ## Local checks
 `cd site && python3 -m http.server 8000`. External CDNs (MathJax on cdnjs, Plotly on jsDelivr) may be blocked in sandboxes; route them to local npm copies when testing with Playwright.

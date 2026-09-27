@@ -1,0 +1,1219 @@
+<!doctype html>
+<html lang="en" data-title-key="inv.title" data-i18n-bundles="resources/lp-inventory">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Inventory Balance</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1060px; }
+  /* ---- case switch + statement ---- */
+  .casebar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 14px; }
+  .casebar .ctl-label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .statement { margin: 0 0 10px; color: var(--ink2); max-width: 80ch; }
+  .statement:last-child { margin-bottom: 0; }
+  .assume { margin-top: 10px; border-left: 3px solid var(--mit-silver); padding: 4px 0 4px 12px; }
+  .dtable { border-collapse: collapse; margin: 4px 0 12px; font-size: 13.5px; min-width: 0; }
+  .dtable th, .dtable td { padding: 5px 12px; border-bottom: 1px solid var(--grid); text-align: right; font-variant-numeric: tabular-nums; }
+  .dtable th { font-weight: 600; font-size: 12px; color: var(--muted); border-bottom-color: var(--axis); }
+  .dtable th:first-child, .dtable td:first-child { text-align: left; padding-left: 0; }
+  .dtable td { font-family: var(--font-mono); font-size: 12.5px; }
+  .dtable td:first-child { font-family: var(--font-sans); font-weight: 600; font-size: 13.5px; }
+  body[data-case="p10"] [data-case-only="p9"], body[data-case="p9"] [data-case-only="p10"] { display: none !important; }
+  .card h2 { margin-bottom: 12px; }
+
+  /* ---- animation ---- */
+  #anim .anim-hud { z-index: 2; }
+  #anim .anim-hud .chip-stat b { font-size: 16px; }
+  #anim .anim-hud .chip-stat.over b { color: var(--mit-bright); }
+  @media (max-width: 620px) {
+    #anim .anim-hud { top: 6px; left: 6px; gap: 4px; max-width: calc(100% - 12px); }
+    #anim .anim-hud .chip-stat { padding: 3px 7px; font-size: 10.5px; }
+    #anim .anim-hud .chip-stat b { font-size: 13.5px; }
+  }
+  .anim-intro { margin: 0 0 12px; color: var(--ink2); max-width: 78ch; font-size: 14.5px; }
+  .anim-controls { margin-bottom: 10px; }
+  .anim-legend { margin-top: 10px; }
+  .anim-legend .lg-a { background: var(--accent); }
+  .anim-legend .lg-b { background: repeating-linear-gradient(135deg, var(--accent) 0 1.4px, color-mix(in srgb, var(--accent) 34%, var(--surface)) 1.4px 4px); outline: 1px solid var(--accent); outline-offset: -1px; }
+  .anim-legend .lg-out { background: var(--mit-silver); }
+  .anim-legend .lg-cap { height: 0 !important; width: 18px !important; border-top: 2px dashed var(--ink); }
+  .anim-legend .lg-bind { height: 0 !important; width: 18px !important; border-top: 2px dashed var(--mit-bright); }
+
+  /* ---- simulation ---- */
+  .sim-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr); gap: 22px; align-items: start; }
+  @media (max-width: 860px) { .sim-grid { grid-template-columns: minmax(0, 1fr); } }
+  .sim-hint { margin: 0 0 14px; }
+  .ctl output { color: var(--accent-text); min-width: 8ch; text-align: right; }
+  .ctl output.inf { color: var(--ink2); }
+  .ctl input[type="range"] { min-width: 0; }
+  .sim-actions { margin-top: 4px; }
+  button.btn-ghost {
+    font: 600 13px var(--font-sans); color: var(--ink); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 2px; padding: 8px 12px; cursor: pointer;
+  }
+  button.btn-ghost:hover { border-color: var(--ink2); }
+  .status {
+    margin-top: 14px; background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 10px 13px; font-size: 14px; color: var(--ink2); line-height: 1.5;
+  }
+  .status p { margin: 0; }
+  .status p + p { margin-top: 6px; }
+  .status b { color: var(--ink); }
+  .status .big { font-size: 22px; font-weight: 700; color: var(--accent-text); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .status.bad { border-left-color: var(--mit-bright); background: color-mix(in srgb, var(--mit-bright) 7%, var(--surface2)); }
+  .status.bad .big { color: var(--mit-bright); }
+  .chart-head { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink2); margin-bottom: 6px; }
+  .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .chart-legend i { width: 11px; height: 11px; display: inline-block; }
+  .chart-box { position: relative; }
+  .chart-box svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart-box.off svg { opacity: 0.25; }
+  .chart-msg { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 700; color: var(--mit-bright); font-size: 15px; pointer-events: none; }
+  .tip {
+    position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--axis); border-radius: 2px;
+    padding: 6px 9px; font: 12px var(--font-mono); color: var(--ink); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    opacity: 0; transition: opacity .12s; z-index: 3;
+  }
+  .tip b { font-family: var(--font-sans); }
+  .plan { margin-top: 18px; }
+  table.data { min-width: 520px; }
+  table.data th:not(:first-child), table.data td:not(:first-child) { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; }
+  table.data td.bind { color: var(--accent-text); font-weight: 700; }
+  table.data td.bind::after { content: " \25CF"; font-size: 8px; vertical-align: middle; }
+  table.data tr.grp td { font-weight: 700; color: var(--ink); border-bottom-color: var(--axis); padding-top: 12px; }
+  table.data tr.tot td { font-weight: 700; border-top: 1px solid var(--axis); }
+  .plan-note { margin-top: 8px; }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .vlist { margin: 0 0 12px; padding: 0; list-style: none; font-size: 14px; color: var(--ink2); display: grid; gap: 6px; }
+  .vlist code { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+  .clist { margin: 0; padding: 0; list-style: none; }
+  .clist li { border-top: 1px solid var(--grid); padding-block: 8px; display: flex; flex-direction: column; gap: 2px; }
+  .clist li:first-child { border-top: none; padding-top: 0; }
+  .cname { font-weight: 600; font-size: 14px; }
+  .ctext { font-size: 13.5px; color: var(--ink2); }
+  .math-head { padding-top: 12px; }
+  .math-head:first-child { padding-top: 0; }
+  .model-note { margin-top: 10px; }
+</style>
+</head>
+<body data-case="p10">
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="inv.eyebrow"></p>
+    <h1 data-i18n="inv.title"></h1>
+    <p class="lede" data-i18n-html="inv.lede"></p>
+  </header>
+
+  <div class="card">
+    <div class="casebar">
+      <span class="ctl-label" id="case-lbl" data-i18n="inv.case.label"></span>
+      <div class="seg" role="group" aria-labelledby="case-lbl" data-case-seg>
+        <button type="button" data-case="p10" aria-pressed="true" data-i18n="inv.case.p10"></button>
+        <button type="button" data-case="p9" aria-pressed="false" data-i18n="inv.case.p9"></button>
+      </div>
+    </div>
+    <div data-case-only="p10">
+      <h2><span class="kicker" data-i18n="inv.stmt.kicker10"></span><span data-i18n="inv.p10.stmt.title"></span></h2>
+      <p class="statement" data-i18n="inv.p10.stmt.p1"></p>
+      <div class="tblwrap"><table class="dtable" id="dtable"></table></div>
+      <p class="statement" data-i18n="inv.p10.stmt.p2"></p>
+    </div>
+    <div data-case-only="p9">
+      <h2><span class="kicker" data-i18n="inv.stmt.kicker9"></span><span data-i18n="inv.p9.stmt.title"></span></h2>
+      <p class="statement" data-i18n="inv.p9.stmt.p1"></p>
+      <p class="note assume" data-i18n-html="inv.p9.stmt.assume"></p>
+    </div>
+  </div>
+
+  <div class="card" id="anim-card">
+    <h2><span class="kicker" data-i18n="inv.anim.kicker"></span><span data-i18n="nav.animation"></span></h2>
+    <p class="anim-intro" id="anim-intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="case-lbl2" data-i18n="inv.case.label"></span>
+      <div class="seg" role="group" aria-labelledby="case-lbl2" data-case-seg>
+        <button type="button" data-case="p10" aria-pressed="true" data-i18n="inv.case.p10s"></button>
+        <button type="button" data-case="p9" aria-pressed="false" data-i18n="inv.case.p9s"></button>
+      </div>
+    </div>
+    <div class="anim" id="anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:inv.anim.aria">
+        <div class="anim-hud" id="hud">
+          <div class="chip-stat" id="h-c1"><b id="h-v1"></b><span id="h-l1"></span></div>
+          <div class="chip-stat" id="h-c2"><b id="h-v2"></b><span id="h-l2"></span></div>
+          <div class="chip-stat accent" id="h-c3"><b id="h-v3"></b><span id="h-l3"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span data-case-only="p10"><i class="lg-a"></i><span data-i18n="inv.lg.A"></span></span>
+      <span data-case-only="p10"><i class="lg-b"></i><span data-i18n="inv.lg.B"></span></span>
+      <span data-case-only="p9"><i class="lg-a"></i><span data-i18n="inv.lg.one"></span></span>
+      <span><i class="lg-out"></i><span data-i18n="inv.lg.out"></span></span>
+      <span><i class="lg-cap"></i><span data-i18n="inv.lg.cap"></span></span>
+      <span><i class="lg-bind"></i><span data-i18n="inv.lg.bind"></span></span>
+    </div>
+  </div>
+
+  <div class="card" id="sim-card">
+    <h2><span class="kicker" data-i18n="inv.sim.kicker"></span><span data-i18n="inv.sim.title"></span></h2>
+    <p class="note sim-hint" data-i18n="inv.sim.hint"></p>
+    <div class="sim-grid">
+      <div>
+        <div class="controls" id="controls"></div>
+        <div class="sim-actions"><button type="button" class="btn-ghost" id="reset" data-i18n="inv.sim.reset"></button></div>
+        <div class="status" id="status" aria-live="polite"></div>
+      </div>
+      <div>
+        <p class="chart-head" data-i18n="inv.ch.title"></p>
+        <div class="chart-legend">
+          <span><i style="background:var(--accent)"></i><span data-i18n="inv.ch.prod"></span></span>
+          <span><i style="background:var(--mit-silver)"></i><span data-i18n="inv.ch.dem"></span></span>
+          <span><i style="background:var(--ink2)"></i><span data-i18n="inv.ch.inv"></span></span>
+        </div>
+        <div class="chart-box" id="chart" role="img" data-i18n-attr="aria-label:inv.ch.aria"></div>
+      </div>
+    </div>
+    <div class="plan">
+      <div class="tblwrap"><table class="data" id="plan"></table></div>
+      <p class="note plan-note" data-i18n="inv.tb.note"></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="inv.model.kicker"></span><span data-i18n="inv.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <ul class="vlist" data-case-only="p10">
+          <li><span><code>P<sub>A,t</sub>, P<sub>B,t</sub></code> <span data-i18n="inv.var.p10.P"></span></span></li>
+          <li><span><code>I<sub>A,t</sub>, I<sub>B,t</sub></code> <span data-i18n-html="inv.var.p10.I"></span></span></li>
+          <li><span><code>d<sub>A,t</sub>, d<sub>B,t</sub></code> <span data-i18n="inv.var.p10.d"></span></span></li>
+        </ul>
+        <ul class="vlist" data-case-only="p9">
+          <li><span><code>P<sub>t</sub></code> <span data-i18n="inv.var.p9.P"></span></span></li>
+          <li><span><code>I<sub>t</sub></code> <span data-i18n-html="inv.var.p9.I"></span></span></li>
+        </ul>
+        <ul class="clist" id="clist"></ul>
+      </div>
+      <div>
+        <div data-case-only="p10">
+          <p class="math-head" data-i18n="inv.model.compact"></p>
+          <div class="math"><script type="text/x-tex">
+\begin{array}{lll}
+\min & z = \displaystyle\sum_{t=1}^{4} \left( 1\,I_{A,t} + 0.8\,I_{B,t} \right) & \\[10pt]
+\text{ST} & I_{A,t} = I_{A,t-1} + P_{A,t} - d_{A,t} & t = 1,\dots,4 \\
+ & I_{B,t} = I_{B,t-1} + P_{B,t} - d_{B,t} & t = 1,\dots,4 \\
+ & I_{A,t} + I_{B,t} \le 250 & t = 1,\dots,4 \\
+ & P_{A,t} \le 500, \quad P_{B,t} \le 700 & t = 1,\dots,4 \\
+ & I_{B,4} \ge 150 & \\
+ & I_{A,0} = 100, \quad I_{B,0} = 150 & \\
+ & P_{A,t},\ P_{B,t},\ I_{A,t},\ I_{B,t} \ge 0 & t = 1,\dots,4
+\end{array}
+          </script></div>
+          <p class="math-head" data-i18n="inv.model.full10"></p>
+          <div class="math"><script type="text/x-tex">
+\begin{array}{rclcrcl}
+I_{A,1} &=& 100 + P_{A,1} - 400 & \qquad & I_{B,1} &=& 150 + P_{B,1} - 600 \\
+I_{A,2} &=& I_{A,1} + P_{A,2} - 500 & & I_{B,2} &=& I_{B,1} + P_{B,2} - 600 \\
+I_{A,3} &=& I_{A,2} + P_{A,3} - 600 & & I_{B,3} &=& I_{B,2} + P_{B,3} - 700 \\
+I_{A,4} &=& I_{A,3} + P_{A,4} - 400 & & I_{B,4} &=& I_{B,3} + P_{B,4} - 600
+\end{array}
+          </script></div>
+        </div>
+        <div data-case-only="p9">
+          <p class="math-head" data-i18n="inv.model.full9"></p>
+          <div class="math"><script type="text/x-tex">
+\begin{array}{ll}
+\min & z = 5P_1 + 8P_2 + 4P_3 + 7P_4 + 2\,(I_1 + I_2 + I_3 + I_4) - 6\,I_4 \\[8pt]
+\text{ST} & I_1 = P_1 - 50 \\
+ & I_2 = I_1 + P_2 - 65 \\
+ & I_3 = I_2 + P_3 - 100 \\
+ & I_4 = I_3 + P_4 - 70 \\
+ & P_t,\ I_t \ge 0, \quad t = 1,\dots,4
+\end{array}
+          </script></div>
+        </div>
+        <p class="note model-note" data-i18n="inv.model.note"></p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="inv.n1.title"></summary>
+      <div class="body"><p id="n1p"></p></div>
+    </details>
+    <details>
+      <summary data-i18n="inv.n2.title"></summary>
+      <div class="body"><p id="n2p"></p><p id="n2q"></p></div>
+    </details>
+    <details>
+      <summary data-i18n="inv.n3.title"></summary>
+      <div class="body"><p id="n3p"></p><p id="n3q"></p></div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="inv.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/lp-inventory.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var fmt = function (v, d, m) { return I18N.fmt(v, d == null ? 2 : d, m); };
+  var money = function (v) { return t("inv.money", { v: fmt(Math.abs(v) < 0.005 ? 0 : v, 2) }); };
+  var INF = Infinity;
+
+  /* ================= data (Problems 10 and 9) ================= */
+  var CASES = {
+    p10: {
+      K: 2, tags: ["A", "B"], D: [[400, 500, 600, 400], [600, 600, 700, 600]], I0: [100, 150], h: [1, 0.8],
+      unit: 10, cols: 5, pUnits: 20,
+      sliders: [
+        { id: "store", key: "inv.s.store", min: 100, max: 350, step: 10, def: 250, relax: 1 },
+        { id: "capA", key: "inv.s.capA", min: 400, max: 700, step: 10, def: 500, relax: 1 },
+        { id: "capB", key: "inv.s.capB", min: 550, max: 900, step: 10, def: 700, relax: 1 },
+        { id: "reqB", key: "inv.s.reqB", min: 0, max: 300, step: 10, def: 150, relax: -1 }
+      ]
+    },
+    p9: {
+      K: 1, tags: [""], D: [[50, 65, 100, 70]], I0: [0], pc: [5, 8, 4, 7], salvage: 6,
+      unit: 5, cols: 5, pUnits: 5,
+      sliders: [
+        { id: "hold", key: "inv.s.hold", min: 1.5, max: 4, step: 0.5, def: 2, money: true },
+        { id: "store", key: "inv.s.store9", min: 0, max: 160, step: 10, def: 160, open: true, relax: 1 },
+        { id: "cap", key: "inv.s.cap9", min: 60, max: 240, step: 10, def: 240, open: true, relax: 1 }
+      ]
+    }
+  };
+  var params = { p10: {}, p9: {} };
+  Object.keys(CASES).forEach(function (c) { CASES[c].sliders.forEach(function (s) { params[c][s.id] = s.def; }); });
+  var caseId = "p10";
+
+  // slider value -> model value ("no limit" at the right end of an open slider)
+  function val(c, id) {
+    var s = CASES[c].sliders.filter(function (q) { return q.id === id; })[0];
+    var v = params[c][id];
+    return s.open && v >= s.max ? INF : v;
+  }
+
+  /* ================= the linear program ================= */
+  function solveCase(c, P) {
+    var cs = CASES[c], K = cs.K, n = 8 * K, rows = [], meta = [], k, tt;
+    var iP = function (k, t) { return k * 4 + t; }, iI = function (k, t) { return 4 * K + k * 4 + t; };
+    function row(pairs, op, b, m) {
+      var a = new Array(n).fill(0);
+      pairs.forEach(function (q) { a[q[0]] += q[1]; });
+      rows.push({ a: a, op: op, b: b }); meta.push(m);
+    }
+    var S = c === "p10" ? P.store : P.store;
+    var caps = c === "p10" ? [P.capA, P.capB] : [P.cap];
+    for (k = 0; k < K; k++) for (tt = 0; tt < 4; tt++) {
+      var pr = [[iI(k, tt), 1], [iP(k, tt), -1]];
+      if (tt > 0) pr.push([iI(k, tt - 1), -1]);
+      row(pr, "=", -cs.D[k][tt] + (tt === 0 ? cs.I0[k] : 0), { type: "bal" });
+    }
+    if (isFinite(S)) for (tt = 0; tt < 4; tt++) {
+      var ps = [];
+      for (k = 0; k < K; k++) ps.push([iI(k, tt), 1]);
+      row(ps, "<=", S, { type: "store", t: tt });
+    }
+    for (k = 0; k < K; k++) if (isFinite(caps[k])) for (tt = 0; tt < 4; tt++) row([[iP(k, tt), 1]], "<=", caps[k], { type: "cap", k: k, t: tt });
+    if (c === "p10") row([[iI(1, 3), 1]], ">=", P.reqB, { type: "req" });
+    var cost = new Array(n).fill(0);
+    for (k = 0; k < K; k++) for (tt = 0; tt < 4; tt++) {
+      if (c === "p10") cost[iI(k, tt)] = cs.h[k];
+      else { cost[iP(k, tt)] = cs.pc[tt]; cost[iI(k, tt)] = P.hold - (tt === 3 ? cs.salvage : 0); }
+    }
+    var r = LP.solve({ sense: "min", c: cost, rows: rows });
+    var out = { status: r.status, c: c, S: S, caps: caps, P: P };
+    if (r.status !== "optimal") return out;
+    out.z = r.z;
+    out.Pq = []; out.I = [];
+    for (k = 0; k < K; k++) {
+      out.Pq.push([0, 1, 2, 3].map(function (q) { return r.x[iP(k, q)]; }));
+      out.I.push([cs.I0[k]].concat([0, 1, 2, 3].map(function (q) { return r.x[iI(k, q)]; })));
+    }
+    // cost of each month, and its parts
+    out.mc = [0, 0, 0, 0]; out.parts = { hold: [0, 0], prod: 0, sal: 0 };
+    for (tt = 0; tt < 4; tt++) for (k = 0; k < K; k++) {
+      if (c === "p10") { out.mc[tt] += cs.h[k] * out.I[k][tt + 1]; out.parts.hold[k] += cs.h[k] * out.I[k][tt + 1]; }
+      else {
+        var pc = cs.pc[tt] * out.Pq[k][tt], hc = P.hold * out.I[k][tt + 1], sv = tt === 3 ? cs.salvage * out.I[k][4] : 0;
+        out.mc[tt] += pc + hc - sv; out.parts.prod += pc; out.parts.hold[0] += hc; out.parts.sal += sv;
+      }
+    }
+    out.peak = 0;
+    for (tt = 1; tt <= 4; tt++) { var s = 0; for (k = 0; k < K; k++) s += out.I[k][tt]; out.peak = Math.max(out.peak, s); }
+    out.bind = meta.map(function (m, i) { return m.type !== "bal" && r.binding[i] ? m : null; }).filter(Boolean);
+    out.isBind = function (type, k, tt) {
+      return out.bind.some(function (m) { return m.type === type && (k == null || m.k === k) && (tt == null || m.t === tt); });
+    };
+    return out;
+  }
+
+  // when infeasible: the nearest value of each slider (others fixed) that makes the plan feasible again
+  function fixes(c) {
+    var out = [];
+    CASES[c].sliders.forEach(function (s) {
+      if (!s.relax) return;
+      var P = modelParams(c), cur = params[c][s.id];
+      for (var v = cur + s.relax * s.step; v >= s.min - 1e-9 && v <= s.max + 1e-9; v += s.relax * s.step) {
+        P[s.id] = s.open && v >= s.max ? INF : v;
+        if (solveCase(c, P).status === "optimal") { out.push({ s: s, v: v }); break; }
+      }
+    });
+    return out;
+  }
+  function modelParams(c) {
+    var P = {};
+    CASES[c].sliders.forEach(function (s) { P[s.id] = val(c, s.id); });
+    return P;
+  }
+
+  var sol = null, base = { p10: solveCase("p10", modelParams("p10")), p9: solveCase("p9", modelParams("p9")) };
+  function resolve() { sol = solveCase(caseId, modelParams(caseId)); sol.fixes = sol.status === "optimal" ? [] : fixes(caseId); }
+  resolve();
+
+  var monthName = function (c, i) { return t("inv.m." + c + "." + i); };
+  var monthShort = function (c, i) { return t("inv.ms." + c + "." + i); };
+
+  /* ================= statement table ================= */
+  function renderDataTable() {
+    var cs = CASES.p10, h = "<thead><tr><th>" + t("inv.tbl.article") + "</th>";
+    for (var i = 1; i <= 4; i++) h += "<th>" + monthName("p10", i) + "</th>";
+    h += "</tr></thead><tbody>";
+    cs.D.forEach(function (d, k) {
+      h += "<tr><td>" + cs.tags[k] + "</td>" + d.map(function (v) { return "<td>" + fmt(v, 0) + "</td>"; }).join("") + "</tr>";
+    });
+    document.getElementById("dtable").innerHTML = h + "</tbody>";
+  }
+
+  /* ================= sliders ================= */
+  var ctlBox = document.getElementById("controls");
+  function sliderText(s, v) {
+    if (s.open && v >= s.max) return t("inv.noLimit");
+    return s.money ? money(v) : t("inv.u.units", { v: fmt(v, 0) });
+  }
+  function buildControls() {
+    ctlBox.textContent = "";
+    CASES[caseId].sliders.forEach(function (s) {
+      var d = document.createElement("div");
+      d.className = "ctl";
+      d.innerHTML = '<label for="s-' + s.id + '"></label><output id="o-' + s.id + '" for="s-' + s.id + '"></output>' +
+        '<input type="range" id="s-' + s.id + '" min="' + s.min + '" max="' + s.max + '" step="' + s.step + '">';
+      ctlBox.appendChild(d);
+      var inp = d.querySelector("input");
+      inp.value = params[caseId][s.id];
+      inp.addEventListener("input", function () { params[caseId][s.id] = +inp.value; syncControls(); schedule(); });
+    });
+    syncControls();
+  }
+  function syncControls() {
+    CASES[caseId].sliders.forEach(function (s) {
+      var v = params[caseId][s.id], o = document.getElementById("o-" + s.id), inp = document.getElementById("s-" + s.id);
+      document.querySelector('label[for="s-' + s.id + '"]').textContent = t(s.key);
+      o.textContent = sliderText(s, v);
+      o.classList.toggle("inf", !!(s.open && v >= s.max));
+      inp.setAttribute("aria-valuetext", sliderText(s, v));
+      if (+inp.value !== v) inp.value = v;
+    });
+  }
+  var pend = false;
+  function schedule() {
+    if (pend) return;
+    pend = true;
+    requestAnimationFrame(function () { pend = false; resolve(); onPlan(); });
+  }
+  document.getElementById("reset").addEventListener("click", function () {
+    CASES[caseId].sliders.forEach(function (s) { params[caseId][s.id] = s.def; });
+    syncControls(); resolve(); onPlan();
+  });
+
+  /* ================= status box ================= */
+  function joinList(xs) {
+    if (xs.length <= 1) return xs.join("");
+    return xs.slice(0, -1).join(", ") + t("inv.and") + xs[xs.length - 1];
+  }
+  function renderStatus() {
+    var el = document.getElementById("status"), h = "";
+    el.classList.toggle("bad", sol.status !== "optimal");
+    if (sol.status !== "optimal") {
+      h = "<p><span class=\"big\">" + t("inv.st.infTitle") + "</span></p><p>" + t("inv.st.inf") + "</p>";
+      if (sol.fixes.length) h += "<p>" + t("inv.st.fix", { list: joinList(sol.fixes.map(fixText)) }) + "</p>";
+      else h += "<p>" + t("inv.st.nofix") + "</p>";
+      el.innerHTML = h;
+      return;
+    }
+    h = "<p><span class=\"big\">" + money(sol.z) + "</span> " + t(caseId === "p10" ? "inv.st.cost10" : "inv.st.cost9") + "</p>";
+    if (caseId === "p10") h += "<p>" + t("inv.st.split10", { a: money(sol.parts.hold[0]), b: money(sol.parts.hold[1]) }) + "</p>";
+    else h += "<p>" + t("inv.st.split9", { p: money(sol.parts.prod), s: money(sol.parts.hold[0]), v: money(sol.parts.sal) }) + "</p>";
+    h += "<p>" + (isFinite(sol.S) ? t("inv.st.peak", { peak: fmt(sol.peak, 0), cap: fmt(sol.S, 0) }) : t("inv.st.peakOpen", { peak: fmt(sol.peak, 0) })) + "</p>";
+    // binding limits, grouped
+    var items = [], grp = {};
+    sol.bind.forEach(function (m) {
+      var key = m.type + (m.k != null ? m.k : "");
+      (grp[key] = grp[key] || { m: m, ts: [] }).ts.push(m.t);
+    });
+    Object.keys(grp).forEach(function (key) {
+      var g = grp[key], ms = joinList(g.ts.map(function (q) { return monthName(caseId, q + 1); }));
+      if (g.m.type === "store") items.push(t("inv.b.store", { m: ms }));
+      else if (g.m.type === "cap") items.push(t(caseId === "p10" ? "inv.b.cap" + CASES.p10.tags[g.m.k] : "inv.b.cap9", { m: ms }));
+      else if (g.m.type === "req") items.push(t("inv.b.req"));
+    });
+    h += "<p>" + (items.length ? t("inv.st.bind", { list: joinList(items) }) : t("inv.st.nobind")) + "</p>";
+    el.innerHTML = h;
+  }
+  function fixText(f) {
+    var id = f.s.id + (caseId === "p9" && f.s.id !== "hold" ? "9" : "");
+    var v = f.s.open && f.v >= f.s.max ? t("inv.noLimit") : fmt(f.v, 0);
+    return t("inv.fix." + id, { v: v });
+  }
+
+  /* ================= chart: production vs demand vs stock ================= */
+  var chartBox = document.getElementById("chart"), tip = document.createElement("div");
+  tip.className = "tip";
+  function niceMax(v) {
+    var p = Math.pow(10, Math.floor(Math.log10(Math.max(v, 1)))), m = v / p;
+    var steps = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+    for (var i = 0; i < steps.length; i++) if (m <= steps[i] + 1e-9) return steps[i] * p;
+    return 10 * p;
+  }
+  function drawChart() {
+    var cs = CASES[caseId], W = Math.max(260, chartBox.clientWidth), K = cs.K;
+    var ok = sol.status === "optimal", src = ok ? sol : base[caseId];
+    var side = K === 2 && W >= 520, pw = side ? (W - 16) / 2 : W, ph = 190;
+    var ml = 40, mr = 6, mt = 22, mb = 24, vmax = 0, k, q;
+    for (k = 0; k < K; k++) for (q = 0; q < 4; q++) vmax = Math.max(vmax, src.Pq[k][q], cs.D[k][q], src.I[k][q + 1]);
+    var ymax = niceMax(vmax * 1.05), H = side || K === 1 ? ph : ph * 2 + 14;
+    var s = '<svg viewBox="0 0 ' + W + " " + H + '" xmlns="http://www.w3.org/2000/svg">';
+    var tipData = [];
+    for (k = 0; k < K; k++) {
+      var ox = side ? k * (pw + 16) : 0, oy = side || K === 1 ? 0 : k * (ph + 14);
+      var iw = pw - ml - mr, ih = ph - mt - mb, y = function (v) { return oy + mt + ih - v / ymax * ih; };
+      if (K > 1) s += '<text x="' + (ox + ml) + '" y="' + (oy + 12) + '" style="fill:var(--ink);font:600 12.5px var(--font-sans)">' + t("inv.ch.art", { a: cs.tags[k] }) + "</text>";
+      for (var g = 0; g <= 4; g++) {
+        var gv = ymax * g / 4, gy = y(gv);
+        s += '<line x1="' + (ox + ml) + '" x2="' + (ox + pw - mr) + '" y1="' + gy + '" y2="' + gy + '" style="stroke:var(' + (g ? "--grid" : "--axis") + ');stroke-width:1"/>';
+        s += '<text x="' + (ox + ml - 6) + '" y="' + (gy + 3.5) + '" text-anchor="end" style="fill:var(--muted);font:10.5px var(--font-mono)">' + fmt(gv, 0) + "</text>";
+      }
+      var gw = iw / 4, bw = Math.min(16, (gw - 14) / 3);
+      for (q = 0; q < 4; q++) {
+        var cx = ox + ml + gw * (q + 0.5), vals = [src.Pq[k][q], cs.D[k][q], src.I[k][q + 1]];
+        var cols = ["--accent", "--mit-silver", "--ink2"];
+        vals.forEach(function (v, j) {
+          var x = cx + (j - 1.5) * (bw + 2) + 1, top = y(v), bot = y(0), hh = bot - top;
+          if (hh < 0.5) { s += '<line x1="' + x + '" x2="' + (x + bw) + '" y1="' + bot + '" y2="' + bot + '" style="stroke:var(' + cols[j] + ');stroke-width:2"/>'; return; }
+          var r = Math.min(3, hh, bw / 2);
+          s += '<path d="M' + x + "," + bot + "V" + (top + r) + "Q" + x + "," + top + " " + (x + r) + "," + top + "H" + (x + bw - r) +
+            "Q" + (x + bw) + "," + top + " " + (x + bw) + "," + (top + r) + "V" + bot + 'Z" style="fill:var(' + cols[j] + ')"/>';
+        });
+        s += '<text x="' + cx + '" y="' + (oy + ph - 7) + '" text-anchor="middle" style="fill:var(--ink2);font:11px var(--font-sans)">' + monthShort(caseId, q + 1) + "</text>";
+        tipData.push({ x: cx - gw / 2, y: oy + mt, w: gw, h: ih, k: k, q: q, vals: vals });
+        s += '<rect data-tip="' + (tipData.length - 1) + '" x="' + (cx - gw / 2) + '" y="' + (oy + mt) + '" width="' + gw + '" height="' + ih + '" style="fill:transparent;cursor:crosshair"/>';
+      }
+    }
+    s += "</svg>";
+    chartBox.innerHTML = s + (ok ? "" : '<div class="chart-msg">' + t("inv.st.infTitle") + "</div>");
+    chartBox.classList.toggle("off", !ok);
+    chartBox.appendChild(tip);
+    var svg = chartBox.querySelector("svg");
+    function show(ev) {
+      var i = ev.target.getAttribute && ev.target.getAttribute("data-tip");
+      if (i == null || !ok) { tip.style.opacity = 0; return; }
+      var d = tipData[+i], r = chartBox.getBoundingClientRect(), sc = r.width / W;
+      tip.innerHTML = "<b>" + (K > 1 ? cs.tags[d.k] + " · " : "") + monthName(caseId, d.q + 1) + "</b><br>" +
+        t("inv.ch.tip", { p: fmt(d.vals[0], 1), d: fmt(d.vals[1], 1), i: fmt(d.vals[2], 1) });
+      tip.style.opacity = 1;
+      var tx = (d.x + d.w / 2) * sc, tw = tip.offsetWidth;
+      tip.style.left = Math.max(0, Math.min(r.width - tw, tx - tw / 2)) + "px";
+      tip.style.top = Math.max(0, d.y * sc - tip.offsetHeight - 4) + "px";
+    }
+    svg.addEventListener("pointermove", show);
+    svg.addEventListener("pointerdown", show);
+    svg.addEventListener("pointerleave", function () { tip.style.opacity = 0; });
+  }
+
+  /* ================= plan table ================= */
+  function renderPlan() {
+    var cs = CASES[caseId], tb = document.getElementById("plan"), ok = sol.status === "optimal";
+    var h = "<thead><tr><th></th>";
+    for (var i = 0; i <= 4; i++) h += "<th>" + monthShort(caseId, i) + "</th>";
+    h += "<th>" + t("inv.tb.total") + "</th></tr></thead><tbody>";
+    if (!ok) { tb.innerHTML = h + '<tr><td colspan="7">' + t("inv.st.infTitle") + "</td></tr></tbody>"; return; }
+    var sum = function (a) { return a.reduce(function (x, y) { return x + y; }, 0); };
+    for (var k = 0; k < cs.K; k++) {
+      if (cs.K > 1) h += '<tr class="grp"><td colspan="7">' + t("inv.ch.art", { a: cs.tags[k] }) + "</td></tr>";
+      h += "<tr><td>" + t("inv.tb.P") + "</td><td class=\"num\"></td>" + sol.Pq[k].map(function (v, q) {
+        return '<td class="num' + (sol.isBind("cap", k, q) ? " bind" : "") + '">' + fmt(v, 1) + "</td>";
+      }).join("") + '<td class="num">' + fmt(sum(sol.Pq[k]), 1) + "</td></tr>";
+      h += "<tr><td>" + t("inv.tb.D") + "</td><td class=\"num\"></td>" + cs.D[k].map(function (v) {
+        return '<td class="num">' + fmt(v, 0) + "</td>";
+      }).join("") + '<td class="num">' + fmt(sum(cs.D[k]), 0) + "</td></tr>";
+      h += "<tr><td>" + t("inv.tb.I") + "</td>" + sol.I[k].map(function (v, q) {
+        var b = q > 0 && (sol.isBind("store", null, q - 1) || (caseId === "p10" && k === 1 && q === 4 && sol.isBind("req")));
+        return '<td class="num' + (b ? " bind" : "") + '">' + fmt(v, 1) + "</td>";
+      }).join("") + '<td class="num"></td></tr>';
+    }
+    h += '<tr class="tot"><td>' + t(caseId === "p10" ? "inv.tb.cost10" : "inv.tb.cost9") + '</td><td class="num"></td>' +
+      sol.mc.map(function (v) { return '<td class="num">' + money(v) + "</td>"; }).join("") + '<td class="num">' + money(sol.z) + "</td></tr>";
+    tb.innerHTML = h + "</tbody>";
+  }
+
+  /* ================= constraint notes, discussion ================= */
+  function renderText() {
+    var ul = document.getElementById("clist"), ids = caseId === "p10" ? ["bal", "store", "cap", "req", "nn"] : ["obj", "bal", "nn"];
+    ul.innerHTML = ids.map(function (id) {
+      return '<li><span class="cname">' + t("inv.c." + caseId + "." + id) + '</span><span class="ctext">' + t("inv.c." + caseId + "." + id + ".why") + "</span></li>";
+    }).join("");
+    var b10 = base.p10, b9 = base.p9;
+    document.getElementById("anim-intro").textContent = t("inv.anim.intro", { u: CASES[caseId].unit });
+    document.getElementById("n1p").innerHTML = t("inv.n1.p");
+    document.getElementById("n2p").innerHTML = t("inv.n2.p", {
+      a1: fmt(b10.I[0][1], 0), a2: fmt(b10.I[0][2], 0), b2: fmt(b10.I[1][2], 0), b3: fmt(b10.I[1][3], 0), b4: fmt(b10.I[1][4], 0),
+      z: money(b10.z), za: money(b10.parts.hold[0]), zb: money(b10.parts.hold[1])
+    });
+    document.getElementById("n2q").innerHTML = t("inv.n2.q", { peak: fmt(b10.peak, 0) });
+    document.getElementById("n3p").innerHTML = t("inv.n3.p", {
+      p1: fmt(b9.Pq[0][0], 0), p3: fmt(b9.Pq[0][2], 0), i1: fmt(b9.I[0][1], 0), i3: fmt(b9.I[0][3], 0), z: money(b9.z)
+    });
+    document.getElementById("n3q").innerHTML = t("inv.n3.q");
+  }
+
+  /* ================= MathJax ================= */
+  var blocks = Array.prototype.slice.call(document.querySelectorAll(".math script[type='text/x-tex']"));
+  var mathReady = false;
+  function renderMath() {
+    if (!mathReady) return;
+    var outs = blocks.map(function (s) {
+      var out = s.parentNode.querySelector(".math-out");
+      if (!out) { out = document.createElement("div"); out.className = "math-out"; s.parentNode.appendChild(out); }
+      out.textContent = "\\[" + s.textContent.replace(/\\text\{ST\}/g, "\\text{" + t("ui.st") + "}") + "\\]";
+      return out;
+    });
+    if (window.MathJax.typesetClear) window.MathJax.typesetClear(outs);
+    window.MathJax.typesetPromise(outs).catch(function (e) { console.error(e); });
+  }
+  window.MathJax = {
+    tex: { inlineMath: [["\\(", "\\)"]] },
+    svg: { fontCache: "global" },
+    startup: { typeset: false, ready: function () { window.MathJax.startup.defaultReady(); mathReady = true; renderMath(); } }
+  };
+  var mj = document.createElement("script");
+  mj.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js";
+  mj.async = true;
+  document.head.appendChild(mj);
+
+  /* =====================================================================
+     The warehouse animation. render(t) is a pure function of time, case and the current plan.
+     0 to 5 s: opening stock; then 10 s per month; 45 to 52 s: total cost.
+     ===================================================================== */
+  var AN = window.Anim, stage = document.querySelector("#anim .anim-stage");
+  var cv = AN.canvas(stage), ctx = cv.ctx;
+  var seg = AN.seg, E = AN.ease, lerp = AN.lerp, clamp = AN.clamp;
+  var DUR = 52, T0 = 5, MD = 10, TF = 45;
+  var FS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif", FM = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var chapters = [{ t: 0, key: "inv.anim.ch.open" }, { t: 5, key: "inv.m.p10.1" }, { t: 15, key: "inv.m.p10.2" },
+    { t: 25, key: "inv.m.p10.3" }, { t: 35, key: "inv.m.p10.4" }, { t: 45, key: "inv.anim.ch.total" }];
+  var L = null, C = null;
+  var hud = document.getElementById("hud");
+
+  function layout() {
+    cv.fit();
+    var W = cv.w, H = cv.h, cs = CASES[caseId], K = cs.K;
+    var portrait = H > W * 0.8, pad = portrait ? 10 : 18;
+    L = { W: W, H: H, portrait: portrait, pad: pad, K: K };
+    var hr = hud.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+    var hudRight = hr.right - sr.left, hudBottom = hr.bottom - sr.top;
+    L.hudW = hud.offsetWidth;
+    var tlX0 = hudRight + 18, below = portrait || W - tlX0 < 330;
+    L.tl = below ? { x0: pad, x1: W - pad, y: hudBottom + 8, h: portrait ? 36 : 40 } : { x0: tlX0, x1: W - pad, y: 12, h: 44 };
+    L.mY0 = L.tl.y + L.tl.h + (portrait ? 12 : 16);
+    L.eqH = portrait ? (K === 2 ? 104 : 66) : (K === 2 ? 128 : 84);
+    L.eqY0 = H - (portrait ? 8 : 14) - L.eqH;
+    L.ground = L.eqY0 - (portrait ? 22 : 30);
+    var mH = L.ground - L.mY0;
+    // buildings
+    var fw = portrait ? W * 0.17 : W * 0.15, ww = portrait ? W * 0.34 : W * 0.3;
+    L.fac = { x: pad + (portrait ? 0 : 6), w: fw, h: Math.min(mH * 0.46, fw * 0.85) };
+    L.mkt = { x: W - pad - fw - (portrait ? 0 : 6), w: fw, h: Math.min(mH * 0.38, fw * 0.72) };
+    L.wh = { x: (W - ww) / 2, w: ww, top: L.mY0 + 4, roof: Math.min(28, mH * 0.12) };
+    // rack of slots, one slot per `unit` units, filled bottom-left first
+    var U = cs.unit, cols = cs.cols, capU = isFinite(sol.S) ? sol.S : INF;
+    var need = 0, k, q;
+    if (sol.status === "optimal") for (q = 0; q <= 4; q++) { var s = 0; for (k = 0; k < K; k++) s += sol.I[k][q]; need = Math.max(need, s); }
+    var i0 = 0; for (k = 0; k < K; k++) i0 += cs.I0[k];
+    need = Math.max(need, i0);
+    var nCap = isFinite(capU) ? Math.ceil(capU / U - 1e-9) : Math.ceil(Math.max(need, 60) / U / cols) * cols + cols;
+    var nSlots = Math.max(nCap, Math.ceil(need / U - 1e-9));
+    var rows = Math.max(1, Math.ceil(nSlots / cols));
+    var innerW = ww - 20, availH = L.ground - (L.wh.top + L.wh.roof) - 22;
+    var pitch = Math.min(innerW / cols, availH / Math.max(rows, 4)), sz = pitch - Math.max(2, pitch * 0.12);
+    L.rack = { U: U, cols: cols, rows: rows, nSlots: nSlots, nCap: isFinite(capU) ? nCap : INF, pitch: pitch, sz: sz,
+      x0: L.wh.x + (ww - cols * pitch) / 2, floor: L.ground - 3 };
+    L.whWallTop = L.wh.top + L.wh.roof;
+    // belts: one per product, into the left door and out of the right door
+    L.belts = [];
+    for (k = 0; k < K; k++) L.belts.push(L.ground - (portrait ? 7 : 9) - k * (portrait ? 11 : 15));
+    L.ps = portrait ? 5 : 8;
+    L.inX0 = L.fac.x + L.fac.w; L.inX1 = L.wh.x;
+    L.outX0 = L.wh.x + ww; L.outX1 = L.mkt.x;
+    // equation panel geometry
+    var ex0 = pad, ex1 = W - pad, tagW = K > 1 ? (portrait ? 28 : 42) : 0, opW = portrait ? 16 : 26;
+    var costW = portrait ? 0 : 110;
+    var bw = Math.min(portrait ? 76 : 130, (ex1 - ex0 - 20 - tagW - 3 * opW - costW) / 4);
+    var totalW = tagW + 4 * bw + 3 * opW + costW;
+    L.eq = { x: (W - totalW) / 2, tagW: tagW, opW: opW, bw: bw, costW: costW, head: portrait ? 18 : 24 };
+    L.eq.rowH = (L.eqH - L.eq.head - 8) / K;
+  }
+
+  /* ---------- drawing helpers ---------- */
+  function rr(x, y, w, h, r) {
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
+  }
+  function txt(s, x, y, font, color, align, base) {
+    ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align || "left"; ctx.textBaseline = base || "alphabetic";
+    ctx.fillText(s, x, y);
+  }
+  var tintCache = {};
+  function tintC(a) {
+    // canvas does not parse color-mix everywhere: blend by hand
+    var key = C.accent + C.surface + a;
+    if (tintCache[key]) return tintCache[key];
+    var p = function (h) { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map(function (c) { return c + c; }).join(""); return [0, 2, 4].map(function (i) { return parseInt(h.substr(i, 2), 16); }); };
+    var A = p(C.accent), S = p(C.surface), f = a / 100;
+    return (tintCache[key] = "rgb(" + A.map(function (v, i) { return Math.round(v * f + S[i] * (1 - f)); }).join(",") + ")");
+  }
+  // one block of article k (A solid, B tinted and hatched)
+  function block(k, x, y, w, h, outline) {
+    if (w <= 0 || h <= 0) return;
+    if (k === 0) { ctx.fillStyle = C.accent; ctx.fillRect(x, y, w, h); return; }
+    ctx.fillStyle = tintC(34); ctx.fillRect(x, y, w, h);
+    ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 1.1; ctx.beginPath();
+    for (var d = -h; d < w; d += 3.6) { ctx.moveTo(x + d, y + h); ctx.lineTo(x + d + h, y); }
+    ctx.stroke(); ctx.restore();
+    if (outline !== false) { ctx.strokeStyle = C.accent; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1); }
+  }
+  function sym(x, y, main, sub, color, size, align) {
+    ctx.font = "italic 600 " + size + "px " + FS;
+    var mw = ctx.measureText(main).width;
+    ctx.font = "600 " + Math.round(size * 0.62) + "px " + FS;
+    var sw = ctx.measureText(sub).width, tw = mw + sw + 1;
+    var x0 = align === "center" ? x - tw / 2 : x;
+    txt(main, x0, y, "italic 600 " + size + "px " + FS, color, "left");
+    txt(sub, x0 + mw + 1, y + size * 0.28, "600 " + Math.round(size * 0.62) + "px " + FS, color, "left");
+  }
+
+  /* ---------- plan state at time tt ---------- */
+  function state(tt) {
+    var cs = CASES[caseId], K = cs.K, s = { m: 0, u: 0, lv: [], cost: 0, closed: 0 };
+    var m = tt < T0 ? 0 : Math.min(4, Math.floor((tt - T0) / MD) + 1);
+    s.m = m;
+    s.tau = m ? tt - T0 - (m - 1) * MD : tt;
+    if (tt >= TF) { s.m = 4; s.tau = MD + (tt - TF); }
+    s.exact = true;
+    s.u = s.m ? E.inOut(seg(s.tau, 1.6, 6.4)) : 0;          // share of the month's flows done
+    for (var k = 0; k < K; k++) {
+      if (!s.m) s.lv.push(cs.I0[k] * E.inOut(seg(tt, 2.0, 3.6)));
+      else s.lv.push(lerp(sol.I[k][s.m - 1], sol.I[k][s.m], s.u));
+    }
+    // cumulative cost: each month's cost counts up as the month closes
+    for (var q = 1; q <= 4; q++) {
+      var st = T0 + (q - 1) * MD + 7.6, f = E.out(seg(tt, st, st + 1.2));
+      s.cost += sol.mc[q - 1] * f;
+      if (f > 0 && f < 1) s.exact = false;
+      if (tt >= st + 1.2) s.closed = q;
+    }
+    return s;
+  }
+
+  /* ---------- scene parts ---------- */
+  function drawTimeline(tt, S) {
+    var tl = L.tl, n = 5, gap = L.portrait ? 5 : 8, pw = (tl.x1 - tl.x0 - gap * (n - 1)) / n, cs = CASES[caseId];
+    var ok = sol.status === "optimal", peak = ok ? sol.peak : 0;
+    var scale = isFinite(sol.S) ? Math.max(sol.S, peak, 1) : Math.max(peak, 1);
+    var i0 = 0; for (var k = 0; k < cs.K; k++) i0 += cs.I0[k];
+    scale = Math.max(scale, i0);
+    for (var i = 0; i < n; i++) {
+      var a = E.out(seg(tt, 0.1 + i * 0.12, 0.7 + i * 0.12));
+      if (a <= 0) continue;
+      var x = tl.x0 + i * (pw + gap), y = tl.y + (1 - a) * 8, h = tl.h;
+      var cur = (i === S.m && tt < TF) || (i === 0 && tt < T0), done = i < S.m || tt >= TF || (i === 0 && tt >= T0);
+      // bar of the stock at the end of this month
+      var shown = !ok ? 0 : i === 0 ? E.out(seg(tt, 3.6, 4.4)) : E.out(seg(tt, T0 + (i - 1) * MD + 7.6, T0 + (i - 1) * MD + 8.6));
+      ctx.globalAlpha = a;
+      rr(x, y, pw, h, 2);
+      ctx.fillStyle = cur ? C.sel : C.surface; ctx.fill();
+      ctx.lineWidth = cur ? 2 : 1; ctx.strokeStyle = cur ? C.accent : done ? C.axis : C.grid; ctx.stroke();
+      var fs = L.portrait ? 10.5 : 12;
+      txt(monthShort(caseId, i), x + 7, y + fs + 4, "700 " + fs + "px " + FS, cur ? C["accent-text"] : done ? C.ink : C.muted);
+      if (shown > 0) {
+        var tot = 0, bx = x + 7, bwMax = pw - 14, by = y + h - (L.portrait ? 9 : 11);
+        for (k = 0; k < cs.K; k++) {
+          var v = sol.I[k][i] * shown, w = v / scale * bwMax;
+          block(k, bx, by, w, L.portrait ? 4 : 5, false);
+          bx += w; tot += sol.I[k][i];
+        }
+        ctx.globalAlpha = a * shown;
+        txt(fmt(tot, 0), x + pw - 7, y + fs + 4, "600 " + (fs - 1) + "px " + FM, C.ink2, "right");
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function drawGround(tt) {
+    var g = E.inOut(seg(tt, 0, 1.2));
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(L.pad, L.ground); ctx.lineTo(L.pad + (L.W - 2 * L.pad) * g, L.ground); ctx.stroke();
+  }
+
+  function drawFactory(tt, S, a) {
+    var f = L.fac, x = f.x, w = f.w, h = f.h, y0 = L.ground - h, rise = (1 - a) * 14;
+    var active = S.m && S.tau > 0.4 && S.tau < 6.6 && tt < TF;
+    ctx.save(); ctx.globalAlpha *= a; ctx.translate(0, rise);
+    // chimney and smoke
+    var chx = x + w * 0.72, chw = Math.max(5, w * 0.1), chTop = y0 - h * 0.45;
+    ctx.fillStyle = C.ink2; ctx.fillRect(chx, chTop, chw, h * 0.45 + 2);
+    if (S.m && tt < TF) {
+      for (var p = 0; p < 6; p++) {
+        var ph = ((S.tau * 0.55 + p / 6) % 1), on = seg(S.tau, 0.6, 1.4) * (1 - seg(S.tau, 6.2, 7.2));
+        if (on <= 0) continue;
+        ctx.globalAlpha = a * on * (1 - ph) * 0.5;
+        ctx.fillStyle = C["mit-silver"];
+        ctx.beginPath(); ctx.arc(chx + chw / 2 + ph * w * 0.18 + Math.sin(ph * 6 + p) * 2, chTop - ph * h * 0.55, 2 + ph * w * 0.07, 0, 7); ctx.fill();
+      }
+      ctx.globalAlpha = a;
+    }
+    // body with a saw-tooth roof
+    var teeth = 3, tw = w / teeth, th = Math.min(h * 0.28, tw * 0.7);
+    ctx.beginPath(); ctx.moveTo(x, L.ground); ctx.lineTo(x, y0 + th);
+    for (var i = 0; i < teeth; i++) { ctx.lineTo(x + i * tw, y0); ctx.lineTo(x + (i + 1) * tw, y0 + th); }
+    ctx.lineTo(x + w, L.ground); ctx.closePath();
+    ctx.fillStyle = C.surface2; ctx.fill(); ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.stroke();
+    // windows light up while producing
+    var glow = active ? 0.55 + 0.45 * Math.sin(tt * 7) : 0;
+    for (i = 0; i < teeth; i++) {
+      var wx = x + i * tw + tw * 0.28, wy = y0 + th + h * 0.14, wwid = tw * 0.44, wh = Math.max(4, h * 0.16);
+      ctx.fillStyle = active ? tintC(35 + glow * 45) : C.grid; ctx.fillRect(wx, wy, wwid, wh);
+    }
+    // door where the belts leave
+    ctx.fillStyle = C.ink; ctx.fillRect(x + w - Math.max(6, w * 0.14), L.ground - Math.min(h * 0.45, L.K * 16 + 6), Math.max(6, w * 0.14), Math.min(h * 0.45, L.K * 16 + 6));
+    ctx.restore();
+    // production gauges (P_t / cap) or the unit production cost
+    ctx.save(); ctx.globalAlpha *= a;
+    var cs = CASES[caseId], gy = y0 - h * 0.45 - (L.portrait ? 10 : 14);
+    if (S.m && tt < TF + 0.01 && sol.status === "optimal") {
+      for (var k = 0; k < cs.K; k++) {
+        var cap = sol.caps[k];
+        if (!isFinite(cap)) continue;
+        var yy = gy - k * (L.portrait ? 8 : 10), gw = w, fr = sol.Pq[k][S.m - 1] * S.u / cap;
+        ctx.fillStyle = C.grid; ctx.fillRect(x, yy, gw, L.portrait ? 4 : 5);
+        block(k, x, yy, gw * Math.min(1, fr), L.portrait ? 4 : 5, false);
+        var full = sol.isBind("cap", k, S.m - 1) && S.u > 0.98;
+        ctx.fillStyle = full ? C["mit-bright"] : C.ink2;
+        ctx.fillRect(x + gw - 1, yy - 3, 2, (L.portrait ? 4 : 5) + 6);
+        if (full) {
+          var pl = 0.5 + 0.5 * Math.sin(tt * 8);
+          ctx.globalAlpha = a * pl; ctx.strokeStyle = C["mit-bright"]; ctx.lineWidth = 1.5;
+          ctx.strokeRect(x - 2, yy - 2, gw + 4, (L.portrait ? 4 : 5) + 4); ctx.globalAlpha = a;
+        }
+      }
+      if (caseId === "p9") {
+        var tag = t("inv.lbl.unitCost", { v: fmt(cs.pc[S.m - 1], 0) });
+        var fsz = L.portrait ? 10 : 12;
+        ctx.font = "700 " + fsz + "px " + FM;
+        var tw2 = ctx.measureText(tag).width + 10, ty = gy - (isFinite(sol.caps[0]) ? 22 : 8);
+        rr(x, ty - fsz - 2, tw2, fsz + 8, 2); ctx.fillStyle = C.accent; ctx.fill();
+        txt(tag, x + 5, ty + 2, "700 " + fsz + "px " + FM, C["on-solid"]);
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawMarket(tt, S, a) {
+    var m = L.mkt, x = m.x, w = m.w, h = m.h, y0 = L.ground - h, rise = (1 - a) * 14;
+    ctx.save(); ctx.globalAlpha *= a; ctx.translate(0, rise);
+    ctx.fillStyle = C.surface2; ctx.fillRect(x, y0, w, h);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.strokeRect(x, y0, w, h);
+    // awning
+    var n = 5, sw = (w + 8) / n, ah = Math.max(6, h * 0.2);
+    for (var i = 0; i < n; i++) {
+      ctx.fillStyle = i % 2 ? C.surface : C["mit-silver"];
+      ctx.beginPath(); ctx.moveTo(x - 4 + i * sw, y0 - 2); ctx.lineTo(x - 4 + (i + 1) * sw, y0 - 2);
+      ctx.lineTo(x - 4 + (i + 1) * sw, y0 + ah); ctx.arc(x - 4 + (i + 0.5) * sw, y0 + ah, sw / 2, 0, Math.PI); ctx.closePath(); ctx.fill();
+    }
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.strokeRect(x - 4, y0 - 2 - ah * 0.5, w + 8, ah * 0.5);
+    ctx.fillStyle = C.ink; ctx.fillRect(x - 4, y0 - 2 - ah * 0.5, w + 8, ah * 0.5);
+    // door where the belts arrive
+    ctx.fillStyle = C.ink; var dw = Math.max(6, w * 0.14), dh = Math.min(h * 0.55, L.K * 16 + 6);
+    ctx.fillRect(x, L.ground - dh, dw, dh);
+    ctx.restore();
+  }
+
+  function slotRect(j) {
+    var R = L.rack, row = Math.floor(j / R.cols), col = j % R.cols;
+    return { x: R.x0 + col * R.pitch + (R.pitch - R.sz) / 2, y: R.floor - (row + 1) * R.pitch + (R.pitch - R.sz) / 2 };
+  }
+
+  function drawWarehouse(tt, S, a) {
+    var wh = L.wh, R = L.rack, x = wh.x, w = wh.w, top = L.whWallTop, cs = CASES[caseId];
+    var rise = (1 - a) * 14;
+    ctx.save(); ctx.globalAlpha *= a; ctx.translate(0, rise);
+    // walls and roof
+    ctx.fillStyle = C.surface; ctx.fillRect(x, top, w, L.ground - top);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x, L.ground); ctx.lineTo(x, top); ctx.lineTo(x + w / 2, wh.top); ctx.lineTo(x + w, top); ctx.lineTo(x + w, L.ground); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - 6, top + 3); ctx.lineTo(x + w / 2, wh.top - 3); ctx.lineTo(x + w + 6, top + 3);
+    ctx.lineWidth = 3; ctx.strokeStyle = C.ink; ctx.stroke();
+    // doors
+    var dh = L.K * (L.portrait ? 11 : 15) + (L.portrait ? 8 : 10);
+    ctx.fillStyle = C.surface2; ctx.fillRect(x - 1.5, L.ground - dh, 3, dh); ctx.fillRect(x + w - 1.5, L.ground - dh, 3, dh);
+    // slots
+    var tot = 0; S.lv.forEach(function (v) { tot += v; });
+    var appear = seg(tt, 1.0, 2.4);
+    for (var j = 0; j < R.nSlots; j++) {
+      var sr = slotRect(j), over = j >= R.nCap;
+      var ap = E.back(clamp(appear * (R.nSlots + 8) / 8 - j / 8, 0, 1));
+      if (ap <= 0) continue;
+      var c = R.sz * (1 - ap) / 2, sz = R.sz * ap;
+      // fill: A from the bottom of the stack, then B
+      var lo = j * R.U, acc = 0, parts = [];
+      for (var k = 0; k < cs.K; k++) {
+        var f = clamp(acc + S.lv[k] - lo, 0, R.U) - clamp(acc - lo, 0, R.U);
+        parts.push(f / R.U); acc += S.lv[k];
+      }
+      var used = parts.reduce(function (p, q) { return p + q; }, 0);
+      if (over && used <= 0.001) continue;
+      ctx.strokeStyle = over ? C["mit-bright"] : C.axis; ctx.lineWidth = 1;
+      ctx.setLineDash(over ? [3, 2] : []);
+      ctx.strokeRect(sr.x + c + 0.5, sr.y + c + 0.5, sz - 1, sz - 1);
+      ctx.setLineDash([]);
+      var yb = sr.y + c + sz;
+      parts.forEach(function (p, k2) {
+        if (p <= 0) return;
+        var hh = sz * p;
+        block(k2, sr.x + c, yb - hh, sz, hh, k2 === 1);
+        yb -= hh;
+      });
+      if (over) {
+        // stock above the storage capacity (only the given February stock can do this)
+        ctx.strokeStyle = C["mit-bright"]; ctx.lineWidth = 2; ctx.setLineDash([3, 2]);
+        ctx.strokeRect(sr.x + c - 1, sr.y + c - 1, sz + 2, sz + 2); ctx.setLineDash([]);
+      }
+    }
+    // capacity line (step shape when the capacity ends mid-row)
+    if (isFinite(R.nCap)) {
+      var la = E.inOut(seg(tt, 1.6, 2.6));
+      if (la > 0) {
+        var full = Math.floor(R.nCap / R.cols), rem = R.nCap % R.cols, P = R.pitch;
+        var yF = R.floor - full * P, yT = R.floor - (full + 1) * P, x0 = R.x0 - 4, x1 = R.x0 + R.cols * P + 4;
+        var bindNow = S.m && tt < TF && S.u > 0.98 && sol.isBind("store", null, S.m - 1);
+        var pulse = bindNow ? 0.5 + 0.5 * Math.sin(tt * 8) : 0;
+        ctx.strokeStyle = bindNow ? C["mit-bright"] : C.ink; ctx.lineWidth = bindNow ? 2 + pulse : 1.8; ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        if (rem) { ctx.moveTo(x0, yT); ctx.lineTo(R.x0 + rem * P, yT); ctx.lineTo(R.x0 + rem * P, yF); ctx.lineTo(x0 + (x1 - x0) * la, yF); }
+        else { ctx.moveTo(x0, yF); ctx.lineTo(x0 + (x1 - x0) * la, yF); }
+        ctx.stroke(); ctx.setLineDash([]);
+        ctx.globalAlpha *= la;
+        var lab = t("inv.lbl.max", { v: fmt(sol.S, 0) }), lfs = L.portrait ? 9.5 : 11, ly = (rem ? yT : yF) - 5;
+        ctx.font = "600 " + lfs + "px " + FM;
+        var lw = ctx.measureText(lab).width;
+        ctx.fillStyle = C.surface; ctx.fillRect(x1 - lw - 4, ly - lfs, lw + 6, lfs + 3);
+        txt(lab, x1, ly, "600 " + lfs + "px " + FM, bindNow ? C["mit-bright"] : C.ink2, "right");
+      }
+    } else if (appear > 0.9) {
+      txt(t("inv.lbl.noLimit"), x + w / 2, top + 16, "600 " + (L.portrait ? 9.5 : 11) + "px " + FM, C.muted, "center");
+    }
+    ctx.restore();
+  }
+
+  // belts with moving rollers, and the boxes riding them
+  function drawBelts(tt, S, a) {
+    var cs = CASES[caseId], K = cs.K, ps = L.ps;
+    ctx.save(); ctx.globalAlpha *= a;
+    var run = S.m && tt < TF ? S.tau : 0;
+    for (var k = 0; k < K; k++) {
+      var by = L.belts[k];
+      [[L.inX0, L.inX1], [L.outX0, L.outX1]].forEach(function (seg2, side) {
+        var x0 = seg2[0] + 2, x1 = seg2[1] - 2;
+        ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x0, by); ctx.lineTo(x1, by); ctx.moveTo(x0, by + 3); ctx.lineTo(x1, by + 3); ctx.stroke();
+        var off = (run * 26) % 8;
+        ctx.fillStyle = C.axis;
+        for (var rx = x0 + off; rx < x1; rx += 8) { ctx.beginPath(); ctx.arc(rx, by + 1.5, 1, 0, 7); ctx.fill(); }
+      });
+    }
+    if (S.m && tt < TF) {
+      var m = S.m - 1, tau = S.tau;
+      for (k = 0; k < K; k++) {
+        var by2 = L.belts[k] - ps - 0.5;
+        // production boxes arrive at the warehouse door during [1.6, 6.4]
+        var nP = Math.round(sol.Pq[k][m] / cs.pUnits), nD = Math.round(cs.D[k][m] / cs.pUnits);
+        var lenIn = L.inX1 - L.inX0, lenOut = L.outX1 - L.outX0, tr = 1.0;
+        for (var i = 0; i < nP; i++) {
+          var arr = 1.6 + 4.8 * (i + 0.5) / nP, u = (tau - (arr - tr)) / tr;
+          if (u < 0 || u > 1) continue;
+          var px = L.inX0 + u * lenIn - ps / 2;
+          ctx.globalAlpha = a * Math.min(1, u * 5, (1 - u) * 6);
+          block(k, px, by2, ps, ps);
+        }
+        for (i = 0; i < nD; i++) {
+          var dep = 1.6 + 4.8 * (i + 0.5) / nD, v = (tau - dep) / tr;
+          if (v < 0 || v > 1) continue;
+          var qx = L.outX0 + v * lenOut - ps / 2;
+          ctx.globalAlpha = a * Math.min(1, v * 6, (1 - v) * 5);
+          ctx.fillStyle = C["mit-silver"];
+          if (k === 0) ctx.fillRect(qx, by2, ps, ps);
+          else { ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.4; ctx.strokeRect(qx + 0.7, by2 + 0.7, ps - 1.4, ps - 1.4); }
+        }
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawLabels(a) {
+    var fs = L.portrait ? 9.5 : 11.5, y = L.ground + fs + 5;
+    ctx.save(); ctx.globalAlpha *= a;
+    txt(t("inv.lbl.production"), L.fac.x + L.fac.w / 2, y, "600 " + fs + "px " + FS, C.muted, "center");
+    txt(t("inv.lbl.warehouse"), L.wh.x + L.wh.w / 2, y, "600 " + fs + "px " + FS, C.muted, "center");
+    txt(t("inv.lbl.demand"), L.mkt.x + L.mkt.w / 2, y, "600 " + fs + "px " + FS, C.muted, "center");
+    ctx.restore();
+  }
+
+  // I_t = I_{t-1} + P_t − D_t, filled with the plan's numbers
+  function drawEquation(tt, S) {
+    var ok = sol.status === "optimal", a = ok ? E.out(seg(tt, 2.6, 3.6)) : 0.6;
+    if (a <= 0) return;
+    var cs = CASES[caseId], K = cs.K, Q = L.eq, y0 = L.eqY0 + (1 - a) * 16;
+    ctx.save(); ctx.globalAlpha = a;
+    rr(L.pad, y0, L.W - 2 * L.pad, L.eqH, 3); ctx.fillStyle = C.surface2; ctx.fill();
+    ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.stroke();
+    var bx = function (i) { return Q.x + Q.tagW + i * (Q.bw + Q.opW); };
+    var hs = L.portrait ? 12 : 15, hy = y0 + Q.head - (L.portrait ? 5 : 6);
+    var hc = [C["accent-text"], C.ink2, C["accent-text"], C.muted];
+    [["I", "t"], ["I", "t−1"], ["P", "t"], ["D", "t"]].forEach(function (s, i) { sym(bx(i) + Q.bw / 2, hy, s[0], s[1], hc[i], hs, "center"); });
+    ["=", "+", "−"].forEach(function (o, i) { txt(o, bx(i) + Q.bw + Q.opW / 2, hy, "600 " + hs + "px " + FS, C.ink2, "center"); });
+    if (Q.costW) txt(t("inv.lbl.cost"), bx(4) - Q.opW + Q.costW / 2 + 6, hy, "600 " + (hs - 3) + "px " + FS, C.muted, "center");
+    var m = S.m, tau = S.tau, vfs = L.portrait ? 13 : 19, rh = Q.rowH, bh = Math.min(rh - 8, L.portrait ? 30 : 40);
+    for (var k = 0; k < K; k++) {
+      var ry = y0 + Q.head + 4 + k * rh + (rh - bh) / 2, cy = ry + bh / 2;
+      if (Q.tagW) { block(k, Q.x, cy - (L.portrait ? 6 : 8), L.portrait ? 12 : 16, L.portrait ? 12 : 16); txt(cs.tags[k], Q.x + (L.portrait ? 15 : 21), cy + 5, "700 " + (L.portrait ? 11 : 14) + "px " + FS, C.ink); }
+      for (var i = 0; i < 4; i++) {
+        rr(bx(i), ry, Q.bw, bh, 2);
+        ctx.fillStyle = i === 2 ? C.sel : C.surface; ctx.fill();
+        ctx.lineWidth = 1.2; ctx.strokeStyle = i === 0 ? C.accent : i === 2 ? C.accent : i === 3 ? C["mit-silver"] : C.axis;
+        ctx.stroke();
+      }
+      for (i = 0; i < 3; i++) txt(["=", "+", "−"][i], bx(i) + Q.bw + Q.opW / 2, cy + vfs * 0.35, "600 " + vfs + "px " + FS, C.ink2, "center");
+      var num = function (v, i2, col, sc, whole) {
+        ctx.save(); var xc = bx(i2) + Q.bw / 2;
+        ctx.translate(xc, cy); ctx.scale(sc || 1, sc || 1);
+        txt(typeof v === "string" ? v : fmt(v, whole ? 0 : 1), 0, vfs * 0.36, "700 " + vfs + "px " + FM, col, "center"); ctx.restore();
+      };
+      if (!ok) { for (i = 0; i < 4; i++) num("?", i, C.muted); continue; }
+      if (!m) {
+        // opening stock: the result box shows I_0
+        var o = E.back(seg(tt, 3.2, 3.8));
+        if (o > 0) {
+          ctx.save(); rr(bx(0), ry, Q.bw, bh, 2); ctx.globalAlpha = a * clamp(o, 0, 1); ctx.fillStyle = C.accent; ctx.fill(); ctx.restore();
+          num(cs.I0[k], 0, C["on-solid"], o);
+        }
+        continue;
+      }
+      var prev = sol.I[k][m - 1], cur = sol.I[k][m], fin = tt >= TF;
+      // 1. last month's result moves into I_{t-1}
+      var fly = fin ? 1 : E.inOut(seg(tau, 0.2, 1.3));
+      if (fly < 1) {
+        var fx = lerp(bx(0), bx(1), fly) + Q.bw / 2, fy = cy - Math.sin(fly * Math.PI) * bh * 0.55;
+        ctx.save(); ctx.globalAlpha = a;
+        rr(fx - Q.bw * 0.42, fy - bh * 0.38, Q.bw * 0.84, bh * 0.76, 2); ctx.fillStyle = C.accent; ctx.fill();
+        txt(fmt(prev, 1), fx, fy + vfs * 0.33, "700 " + (vfs - 2) + "px " + FM, C["on-solid"], "center");
+        ctx.restore();
+      } else num(prev, 1, C.ink);
+      // 2. production and demand count up together, so the balance holds at every instant
+      if (tau > 1.3 || fin) {
+        num(sol.Pq[k][m - 1] * S.u, 2, C["accent-text"], 1, S.u < 1);
+        num(cs.D[k][m - 1] * S.u, 3, C.ink2, 1, S.u < 1);
+      }
+      // 3. the month closes: I_t pops in
+      var pop = fin ? 1 : seg(tau, 7.0, 7.8);
+      if (pop > 0) {
+        var sc = E.back(pop);
+        ctx.save(); ctx.translate(bx(0) + Q.bw / 2, cy); ctx.scale(sc, sc);
+        rr(-Q.bw / 2, -bh / 2, Q.bw, bh, 2); ctx.fillStyle = C.accent; ctx.fill(); ctx.restore();
+        num(cur, 0, C["on-solid"], sc);
+      } else {
+        ctx.save(); ctx.setLineDash([3, 3]); rr(bx(0) + 3, ry + 3, Q.bw - 6, bh - 6, 2); ctx.strokeStyle = C.axis; ctx.stroke(); ctx.restore();
+      }
+      // cost of the month (per article), with a small flash
+      if (Q.costW) {
+        var ca = fin ? 1 : seg(tau, 7.6, 8.4), cx0 = bx(4) - Q.opW + 12;
+        if (ca > 0) {
+          var mcost = caseId === "p10" ? cs.h[k] * cur : sol.mc[m - 1];
+          ctx.save(); ctx.globalAlpha = a * ca;
+          txt(t("inv.lbl.plus", { v: money(mcost) }), cx0, cy + 6, "700 " + (L.portrait ? 12 : 16) + "px " + FM, C["accent-text"], "left");
+          ctx.restore();
+        }
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawFinale(tt) {
+    var a = E.out(seg(tt, TF, TF + 1.4));
+    if (a <= 0) return;
+    var top = L.mY0, bot = L.ground + 20;
+    ctx.save();
+    ctx.globalAlpha = a * 0.72; ctx.fillStyle = C.surface; ctx.fillRect(0, top - 4, L.W, bot - top + 4);
+    ctx.globalAlpha = a;
+    var w = Math.min(L.W - 40, L.portrait ? 300 : 420), h = L.portrait ? 104 : 132, x = (L.W - w) / 2, y = top + (bot - top - h) / 2 + (1 - a) * 12;
+    rr(x, y, w, h, 3); ctx.fillStyle = C.surface; ctx.fill(); ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y, 4, h);
+    var z = sol.z * E.out(seg(tt, TF + 0.3, TF + 2.2));
+    txt(money(z), x + w / 2, y + h * 0.5, "700 " + (L.portrait ? 34 : 46) + "px " + FS, C["accent-text"], "center");
+    txt(t(caseId === "p10" ? "inv.fin.lbl10" : "inv.fin.lbl9"), x + w / 2, y + h * 0.5 + (L.portrait ? 20 : 26), "600 " + (L.portrait ? 11.5 : 13.5) + "px " + FS, C.ink2, "center");
+    var sub = caseId === "p10" ? t("inv.fin.p10", { a: money(sol.parts.hold[0]), b: money(sol.parts.hold[1]) })
+      : t("inv.fin.p9", { p: money(sol.parts.prod), s: money(sol.parts.hold[0]), v: money(sol.parts.sal) });
+    ctx.globalAlpha = a * seg(tt, TF + 1.4, TF + 2.4);
+    txt(sub, x + w / 2, y + h * 0.5 + (L.portrait ? 38 : 48), "500 " + (L.portrait ? 10.5 : 12.5) + "px " + FM, C.muted, "center");
+    ctx.restore();
+  }
+
+  function drawInfeasible(tt) {
+    var a = E.out(seg(tt, 0.3, 1.2)), top = L.mY0, bot = L.ground + 20;
+    ctx.save();
+    ctx.globalAlpha = 0.7; ctx.fillStyle = C.surface; ctx.fillRect(0, top - 4, L.W, bot - top + 4);
+    ctx.globalAlpha = a;
+    var w = Math.min(L.W - 30, L.portrait ? 320 : 460), h = L.portrait ? 84 : 100, x = (L.W - w) / 2, y = top + (bot - top - h) / 2;
+    rr(x, y, w, h, 3); ctx.fillStyle = C.surface; ctx.fill(); ctx.strokeStyle = C["mit-bright"];
+    ctx.lineWidth = 2 + 1.2 * (0.5 + 0.5 * Math.sin(tt * 4)); ctx.stroke();
+    txt(t("inv.st.infTitle"), x + w / 2, y + h * 0.42, "700 " + (L.portrait ? 20 : 26) + "px " + FS, C["mit-bright"], "center");
+    var line = sol.fixes.length ? t("inv.lbl.try", { fix: fixText(sol.fixes[0]) }) : t("inv.st.nofix");
+    txt(line, x + w / 2, y + h * 0.42 + (L.portrait ? 22 : 28), "600 " + (L.portrait ? 11 : 13) + "px " + FS, C.ink2, "center");
+    ctx.restore();
+  }
+
+  var hudCache = {}, hudDirty = false;
+  function setText(id, s) { if (hudCache[id] !== s) { hudCache[id] = s; hudDirty = true; document.getElementById(id).textContent = s; } }
+  function drawHud(tt, S) {
+    var ok = sol.status === "optimal";
+    setText("h-l1", t("inv.hud.month"));
+    setText("h-v1", monthName(caseId, tt >= TF ? 4 : S.m));
+    setText("h-l2", t("inv.hud.stock"));
+    var tot = 0; if (ok) S.lv.forEach(function (v) { tot += v; });
+    setText("h-v2", !ok ? "✕" : fmt(tot, 0) + (isFinite(sol.S) ? " / " + fmt(sol.S, 0) : ""));
+    document.getElementById("h-c2").classList.toggle("over", ok && isFinite(sol.S) && tot > sol.S + 0.5);
+    setText("h-l3", t(caseId === "p10" ? "inv.hud.cost10" : "inv.hud.cost9"));
+    setText("h-v3", !ok ? "✕" : money(S.exact ? S.cost : Math.round(S.cost)));
+  }
+
+  function render(tt) {
+    C = AN.colors();
+    hudDirty = false;
+    var ok0 = sol.status === "optimal";
+    drawHud(tt, ok0 ? state(tt) : { m: 0, lv: [], cost: 0 });
+    // the timeline sits right of the counters: re-measure when they grow
+    if (!L || (hudDirty && !L.portrait && hud.offsetWidth > L.hudW + 1)) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    var ok = sol.status === "optimal";
+    if (!ok) {
+      var S0 = { m: 0, tau: 0, u: 0, lv: CASES[caseId].I0.map(function () { return 0; }), cost: 0 };
+      drawTimeline(DUR, { m: -1 });
+      drawGround(DUR);
+      drawBelts(DUR, S0, 1);
+      drawFactory(DUR, S0, 1); drawWarehouse(DUR, S0, 1); drawMarket(DUR, S0, 1); drawLabels(1);
+      drawEquation(DUR, S0);
+      drawInfeasible(tt);
+      return;
+    }
+    var S = state(tt);
+    drawTimeline(tt, S);
+    drawGround(tt);
+    var ab = [0.4, 0.6, 0.8].map(function (s0) { return E.out(seg(tt, s0, s0 + 0.9)); });
+    drawBelts(tt, S, ab[1]);
+    drawFactory(tt, S, ab[0]);
+    drawWarehouse(tt, S, ab[1]);
+    drawMarket(tt, S, ab[2]);
+    drawLabels(ab[1]);
+    drawEquation(tt, S);
+    drawFinale(tt);
+  }
+
+  var player = AN.create({
+    root: document.getElementById("anim"), duration: DUR, chapters: chapters, render: render,
+    onResize: function () { layout(); }
+  });
+
+  /* ================= wiring ================= */
+  function setChapterKeys() {
+    for (var i = 1; i <= 4; i++) chapters[i].key = "inv.m." + caseId + "." + i;
+    document.querySelectorAll("#anim .anim-chap").forEach(function (b, i) { b.textContent = (i + 1) + ". " + t(chapters[i].key); });
+  }
+  function onPlan() {
+    layout();
+    player.refresh();
+    renderStatus();
+    drawChart();
+    renderPlan();
+  }
+  function setCase(c) {
+    if (c === caseId) return;
+    caseId = c;
+    document.body.setAttribute("data-case", c);
+    document.querySelectorAll("[data-case-seg] button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.case === c ? "true" : "false"); });
+    buildControls();
+    resolve();
+    setChapterKeys();
+    renderText();
+    hudCache = {};
+    onPlan();
+    if (AN.reducedMotion) player.seek(DUR); else player.restart();
+  }
+  document.querySelectorAll("[data-case-seg] button").forEach(function (b) {
+    b.addEventListener("click", function () { setCase(b.dataset.case); });
+  });
+  var rz = 0;
+  window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(drawChart, 120); });
+
+  function renderAll() {
+    renderDataTable();
+    buildControls();
+    renderText();
+    setChapterKeys();
+    hudCache = {};
+    L = null;
+    renderStatus();
+    drawChart();
+    renderPlan();
+    renderMath();
+    player.refresh();
+  }
+  I18N.onChange(renderAll);
+})();
+</script>
+</body>
+</html>
