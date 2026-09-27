@@ -83,7 +83,21 @@
     <p class="section-intro" data-i18n="r.wildfire.model.intro"></p>
     <p class="section-intro" data-i18n="r.wildfire.model.intro2"></p>
     <div class="model">
-      <div class="formula" data-i18n="r.wildfire.formula"></div>
+      <div><div class="math"><script type="text/x-tex">\begin{aligned}
+\mathrm{cyc}(f,k) &= 2\,\tau^{fw}(f,k)+\delta\\
+d(i,f,k) &= \max\!\left(0,\ \left\lfloor \frac{W-\tau^{bf}(i,f)}{\mathrm{cyc}(f,k)} \right\rfloor\right)\\
+L(i,f,k) &= d(i,f,k)\, Q\\
+R(f) &= c\, A_0\, e^{\rho_f\, t^{arr}(f)}
+\end{aligned}</script></div>
+      <div class="math"><script type="text/x-tex">\begin{aligned}
+\min\;& (1-\lambda)\sum_{s} p_s\,\ell_s+\lambda\left[\eta+\frac{1}{1-\alpha}\sum_{s} p_s\, t_s\right]\\[4pt]
+\text{ST}\;& \sum_{i} c^{base}\, y_i+\sum_{i} c^{air}\, n_i+\sum_{k} c^{wat}\, w_k\le B\\
+& n_i\le M\, y_i,\qquad z_{fks}\le w_k,\qquad \sum_{k} z_{fks}\le 1,\qquad \sum_{f} x_{ifs}\le n_i\\
+& q_{fs}=\sum_{i}\sum_{k} L(i,f,k)\, x_{ifs}\, z_{fks}\\
+& q_{fs}\ge R(f)\left(1-e_{fs}\right)\\
+& \ell_s=\sum_{f} D_f\, e_{fs},\qquad t_s\ge \ell_s-\eta,\qquad t_s\ge 0\\
+& y,\ w,\ z,\ e\in\{0,1\},\qquad n,\ x\in\mathbb{Z}_{+}
+\end{aligned}</script></div></div>
       <ul class="vars">
         <li data-i18n-html="r.wildfire.var.y"></li>
         <li data-i18n-html="r.wildfire.var.n"></li>
@@ -206,6 +220,8 @@
 <script src="../assets/i18n.js" charset="utf-8"></script>
 <script src="../locales/en.js" charset="utf-8"></script>
 <script src="../locales/research/wildfire.en.js" charset="utf-8"></script>
+<script src="../assets/catalog.js" charset="utf-8"></script>
+<script src="../assets/research.js" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";

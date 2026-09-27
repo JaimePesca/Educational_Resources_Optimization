@@ -86,7 +86,26 @@ section.block > *, .pipe-grid > *, .lev-grid > * { min-width: 0; }
     <p class="section-intro" data-i18n-html="r.pallets.model.p2"></p>
     <p class="section-intro" data-i18n-html="r.pallets.model.p3"></p>
     <div class="model">
-      <div class="formula" data-i18n="r.pallets.model.formula"></div>
+      <div><div class="math"><p class="math-head" data-i18n="r.pallets.model.h1"></p>
+        <script type="text/x-tex">\begin{aligned}
+\max\;& \sum_{i}\sum_{j}\left(m_i+v_i\right)x_{ij}-\rho\sum_{i} u_i && \rho=10\\[4pt]
+\text{ST}\;& \sum_{j} x_{ij}+u_i=1 && \forall\, i\in I\\
+& \sum_{i} v_i\, x_{ij}\le \hat V_j\, y_j && \forall\, j\in J\\
+& \sum_{i} m_i\, x_{ij}\le C_j\,\lambda_j\, y_j && \forall\, j\in J\\
+& \sum_{i}\sum_{j} m_i\, x_{ij}\le P && P=65\,000\ \mathrm{kg}\\
+& \left|\sum_{i}\sum_{j\in L} m_i\, x_{ij}-\sum_{i}\sum_{j\in R} m_i\, x_{ij}\right|\le \Delta && \Delta=500\ \mathrm{kg}\\
+& x_{ij},\ y_j,\ u_i\in\{0,1\}
+\end{aligned}</script></div>
+      <div class="math"><p class="math-head" data-i18n="r.pallets.model.h2"></p>
+        <script type="text/x-tex">\max\;(\cdots)-\mu\sum_{t}\sum_{j} z_{tj},\qquad X_{tj}\le n_t\, z_{tj}</script></div>
+      <div class="math"><p class="math-head" data-i18n="r.pallets.model.h3"></p>
+        <script type="text/x-tex">\begin{aligned}
+\hat V_j &= \min\!\left(V_j,\ \hat u_j\, V_j^{\,\mathrm{prism}}\right)\\
+\hat V_j^{(t+1)} &= \min\!\left(\hat V_j^{(t)},\ \hat u_j\, V_j^{\,\mathrm{prism}}\right)
+\end{aligned}</script></div>
+      <div class="math"><p class="math-head" data-i18n="r.pallets.model.h4"></p>
+        <script type="text/x-tex">W_t=\left(b_t,\dots,b_{t+k-1}\right),\quad k=7,\qquad \sigma(b)>\alpha=0.5</script></div>
+      <p class="sources" data-i18n="r.pallets.model.stage2"></p></div>
       <ul class="vars">
         <li data-i18n-html="r.pallets.var.x"></li>
         <li data-i18n-html="r.pallets.var.mv"></li>
@@ -216,6 +235,8 @@ section.block > *, .pipe-grid > *, .lev-grid > * { min-width: 0; }
 <script src="../assets/i18n.js" charset="utf-8"></script>
 <script src="../locales/en.js" charset="utf-8"></script>
 <script src="../locales/research/pallets.en.js" charset="utf-8"></script>
+<script src="../assets/catalog.js" charset="utf-8"></script>
+<script src="../assets/research.js" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";

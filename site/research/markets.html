@@ -103,7 +103,17 @@ table.crit { min-width: 560px; }
     <p class="section-intro" data-i18n="r.markets.model.intro"></p>
     <p class="section-intro" data-i18n="r.markets.model.rules"></p>
     <div class="model">
-      <div class="formula" data-i18n="r.markets.formula"></div>
+      <div class="math"><script type="text/x-tex">\begin{aligned}
+\max\; Z \;&= \sum_{i}\sum_{j}\sum_{t} w_i\, d_{jt}\, y_{ijt} && (13)\\[4pt]
+\text{ST}\quad y_{ijt} &= \frac{e^{V_{ij}}\, a_{ij}\, x_{it}}{\sum_{s\in I} e^{V_{sj}}\, a_{sj}\, x_{st}+\sum_{s\in S\setminus I} e^{V_{sj}}\, a_{sj}} && \forall\, i,\ j,\ t \quad (14)\\
+x_{it}+x_{i,t+1}+x_{i,t+2} &\le 1 && \forall\, i,\ t\le |T|-2 \quad (15)\\
+x_{i1}+x_{i2}+x_{i7} &= 0 && \forall\, i \quad (16)\\
+\sum_{i}\sum_{t} x_{it} &= M_d && (17)\\
+\sum_{i} x_{it} &\le 0.3\, M_d && t\in\{6,7\} \quad (18)\\
+\sum_{i} x_{it} &\le 0.2\, M_d && t\in\{1,\dots,5\} \quad (19)\\
+\sum_{i}\sum_{t=1}^{5} x_{it} &= 0.4\, M_d && (20)\\
+x_{it} &\in\{0,1\} && (21)
+\end{aligned}</script></div>
       <div>
         <ul class="vars">
           <li data-i18n-html="r.markets.var.i"></li>
@@ -220,6 +230,8 @@ table.crit { min-width: 560px; }
 <script src="../assets/i18n.js" charset="utf-8"></script>
 <script src="../locales/en.js" charset="utf-8"></script>
 <script src="../locales/research/markets.en.js" charset="utf-8"></script>
+<script src="../assets/catalog.js" charset="utf-8"></script>
+<script src="../assets/research.js" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";

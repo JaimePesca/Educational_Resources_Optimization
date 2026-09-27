@@ -11,7 +11,8 @@
  * Education: a resource has a level and a type; `author` (optional) credits whoever built it.
  * An entry without `href` is planned: it shows up as an open idea that anyone can build.
  * Research: each case links to its page in research/, whose own strings live in
- * locales/research/<id>.<lang>.js.
+ * locales/research/<id>.<lang>.js. `paper` (optional) is the published article's link; when present the
+ * case page shows a "Read the paper" button.
  */
 window.CATALOG = {
   levels: [
@@ -42,7 +43,7 @@ window.CATALOG = {
   ],
 
   research: [
-    { id: "nanostores", href: "research/nanostores.html", methods: ["cfl", "logit", "minlp", "linearization"] },
+    { id: "nanostores", href: "research/nanostores.html", paper: "https://doi.org/10.1007/978-3-032-19656-9_4", methods: ["cfl", "logit", "minlp", "linearization"] },
     { id: "markets", href: "research/markets.html", methods: ["cfl", "logit", "minlp", "fahp"] },
     { id: "wildfire", href: "research/wildfire.html", methods: ["twostage", "cvar", "matheuristic"] },
     { id: "pallets", href: "research/pallets.html", methods: ["ilp", "packing", "drl"] }

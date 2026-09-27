@@ -79,7 +79,16 @@ table.data tr.clickable { cursor: pointer; }
     <h2 class="section-title" data-i18n="r.nanostores.model.title"></h2>
     <p class="section-intro" data-i18n="r.nanostores.model.intro"></p>
     <div class="model">
-      <div class="formula" data-i18n="r.nanostores.formula"></div>
+      <div class="math"><script type="text/x-tex">\begin{aligned}
+\max\; g \;&= \sum_{p\in P}\sum_{i\in I}\left(p_{ip}-c_{ip}\right) q_{ip}-\sum_{i\in I} f_i\, x_i\\[4pt]
+\text{ST}\quad q_{ip} &= \sum_{j\in J}\delta_{jp}\, y_{jip} && \forall\, i\in I,\ p\in P\\
+y_{jip} &= \frac{e^{V_{jip}}\, z_{ip}\, a_{ji}}{\sum_{i'\in I} e^{V_{ji'p}}\, z_{i'p}\, a_{ji'}+\sum_{r\in R\setminus I} e^{V_{jrp}}\, a_{jr}} && \forall\, j,\ i,\ p\\
+V_{jrp} &= \beta^{0}_{rp}+\beta^{\mathrm{dist}}_{rp}\,\gamma_{jr}+\beta^{\mathrm{price}}_{rp}\, p_{rp}\\
+d_{\min}+\left(\mathit{Max}_{ji}-d_{ik}\right)x_i+\left(\mathit{Max}_{ji}-d_{ik}\right)x_k &\le 2\,\mathit{Max}_{ji}-d_{ik} && \forall\, i<k\in I,\ j\in J\\
+z_{ip} &\le x_i && \forall\, i\in I,\ p\in P\\
+\sum_{p\in P} q_{ip} &\ge nd_{ip}\, x_i && \forall\, i\in I\\
+x_i,\ z_{ip}\in\{0,1\},\quad y_{jip}&\in[0,1],\quad q_{ip}\ge 0
+\end{aligned}</script></div>
       <ul class="vars">
         <li data-i18n-html="r.nanostores.v.x"></li>
         <li data-i18n-html="r.nanostores.v.z"></li>
@@ -212,6 +221,8 @@ table.data tr.clickable { cursor: pointer; }
 <script src="../assets/i18n.js" charset="utf-8"></script>
 <script src="../locales/en.js" charset="utf-8"></script>
 <script src="../locales/research/nanostores.en.js" charset="utf-8"></script>
+<script src="../assets/catalog.js" charset="utf-8"></script>
+<script src="../assets/research.js" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";
