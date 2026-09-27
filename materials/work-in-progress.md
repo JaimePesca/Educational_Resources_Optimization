@@ -15,7 +15,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 | # | Task | Status | Commit / notes |
 |---|---|---|---|
 | 1 | Logic game answer leak | done | see git log "Say It with Constraints" |
-| 2 | Navigation dropdown | building | agent started (site.js + site.css + locales) |
+| 2 | Navigation dropdown | done | Browse menu in site.js + site.css, keys nav.menu etc.; 96 checks passed |
 | 3a | lab-solver "Inside the Solver" (animation) | building | site/lab/inside-the-solver.html, prefix solv. |
 | 3b | lab-cvar "Beyond VaR: CVaR" (animation) | building | site/lab/beyond-var.html, prefix cvar. |
 | 3c | lab-linearization (animation) | todo | uses materials/lab-notes.md |
