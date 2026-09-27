@@ -1191,7 +1191,7 @@ I_{A,4} &=& I_{A,3} + P_{A,4} - 400 & & I_{B,4} &=& I_{B,3} + P_{B,4} - 600
     renderText();
     hudCache = {};
     onPlan();
-    player.restart();
+    if (AN.reducedMotion) player.seek(DUR); else player.restart();
   }
   document.querySelectorAll("[data-case-seg] button").forEach(function (b) {
     b.addEventListener("click", function () { setCase(b.dataset.case); });

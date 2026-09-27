@@ -55,7 +55,7 @@ I18N.register("es", {
   "spx.var.s": "variables de holgura: horas de acabado sin usar, horas de carpintería sin usar y demanda de soldados sin atender",
   "spx.model.orig": "Programa lineal",
   "spx.model.std": "Forma estándar para la tabla",
-  "spx.model.stdnote": "Cada holgura convierte una restricción ≤ en una ecuación. En x₁ = x₂ = 0 las holguras forman la primera base: s₁ = 100, s₂ = 80, s₃ = 40 y z = 0.",
+  "spx.model.stdnote": "Cada holgura convierte una restricción ≤ en una ecuación. En x₁ = x₂ = 0 las holguras forman la primera base: s₁ = 100, s₂ = 80, s₃ = 40 y z = 0. Las holguras no dan ganancia, así que la fila objetivo z − 3x₁ − 2x₂ = 0 arranca la tabla con −3 y −2.",
   "spx.model.alt": "Escenario activo: los trenes dejan $3,50, así que el objetivo pasa a z = 3x₁ + 3,5x₂ y la primera fila objetivo tiene −3,5 bajo x₂.",
   "spx.c.fin": "Acabado:",
   "spx.c.fin.why": "2 horas por soldado y 1 por tren, como máximo 100 horas a la semana.",

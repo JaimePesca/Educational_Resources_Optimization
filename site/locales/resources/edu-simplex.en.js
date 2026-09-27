@@ -55,7 +55,7 @@ I18N.register("en", {
   "spx.var.s": "slack variables: unused finishing hours, unused carpentry hours and unmet soldier demand",
   "spx.model.orig": "Linear program",
   "spx.model.std": "Standard form for the tableau",
-  "spx.model.stdnote": "Each slack turns a ≤ constraint into an equation. At x₁ = x₂ = 0 the slacks form the first basis: s₁ = 100, s₂ = 80, s₃ = 40 and z = 0.",
+  "spx.model.stdnote": "Each slack turns a ≤ constraint into an equation. At x₁ = x₂ = 0 the slacks form the first basis: s₁ = 100, s₂ = 80, s₃ = 40 and z = 0. The slacks earn nothing, so the objective row z − 3x₁ − 2x₂ = 0 starts the tableau with −3 and −2.",
   "spx.model.alt": "Scenario on: trains earn $3.50, so the objective becomes z = 3x₁ + 3.5x₂ and the first objective row holds −3.5 under x₂.",
   "spx.c.fin": "Finishing:",
   "spx.c.fin.why": "2 hours per soldier and 1 per train, at most 100 hours a week.",

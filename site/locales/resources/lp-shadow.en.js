@@ -137,8 +137,8 @@ I18N.register("en", {
   "shp.tb.slack": "Slack",
   "shp.tb.price": "Shadow price",
   "shp.tb.range": "Price holds for",
-  "shp.tb.rangev": "{lo} to {hi}",
-  "shp.tb.rangeinf": "{lo} or more",
+  "shp.tb.rangev": "{lo} to {hi} {unit}",
+  "shp.tb.rangeinf": "{lo} {unit} or more",
   "shp.sol.note": "Solved in your browser with the simplex method. The ranges come from solving the model again for other amounts of one resource at a time, with the original data for the rest.",
 
   "shp.n.title": "What to notice",

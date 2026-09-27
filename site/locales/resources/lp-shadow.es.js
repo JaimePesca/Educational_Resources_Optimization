@@ -137,8 +137,8 @@ I18N.register("es", {
   "shp.tb.slack": "Holgura",
   "shp.tb.price": "Precio sombra",
   "shp.tb.range": "El precio vale para",
-  "shp.tb.rangev": "{lo} a {hi}",
-  "shp.tb.rangeinf": "{lo} o más",
+  "shp.tb.rangev": "{lo} a {hi} {unit}",
+  "shp.tb.rangeinf": "{lo} {unit} o más",
   "shp.sol.note": "Resuelto en tu navegador con el método símplex. Los rangos salen de resolver el modelo de nuevo para otras cantidades de un recurso a la vez, con los datos originales en el resto.",
 
   "shp.n.title": "Qué observar",

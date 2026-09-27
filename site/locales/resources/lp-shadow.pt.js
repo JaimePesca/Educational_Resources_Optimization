@@ -137,8 +137,8 @@ I18N.register("pt", {
   "shp.tb.slack": "Folga",
   "shp.tb.price": "Preço-sombra",
   "shp.tb.range": "O preço vale para",
-  "shp.tb.rangev": "{lo} a {hi}",
-  "shp.tb.rangeinf": "{lo} ou mais",
+  "shp.tb.rangev": "{lo} a {hi} {unit}",
+  "shp.tb.rangeinf": "{lo} {unit} ou mais",
   "shp.sol.note": "Resolvido no seu navegador com o método simplex. As faixas vêm de resolver o modelo de novo para outras quantidades de um recurso por vez, com os dados originais no resto.",
 
   "shp.n.title": "O que observar",

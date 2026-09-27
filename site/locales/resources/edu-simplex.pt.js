@@ -55,7 +55,7 @@ I18N.register("pt", {
   "spx.var.s": "variáveis de folga: horas de acabamento não usadas, horas de carpintaria não usadas e demanda de soldados não atendida",
   "spx.model.orig": "Programa linear",
   "spx.model.std": "Forma padrão para a tabela",
-  "spx.model.stdnote": "Cada folga transforma uma restrição ≤ em uma equação. Em x₁ = x₂ = 0 as folgas formam a primeira base: s₁ = 100, s₂ = 80, s₃ = 40 e z = 0.",
+  "spx.model.stdnote": "Cada folga transforma uma restrição ≤ em uma equação. Em x₁ = x₂ = 0 as folgas formam a primeira base: s₁ = 100, s₂ = 80, s₃ = 40 e z = 0. As folgas não dão lucro, então a linha objetivo z − 3x₁ − 2x₂ = 0 começa a tabela com −3 e −2.",
   "spx.model.alt": "Cenário ativo: os trens rendem US$ 3,50, então o objetivo passa a z = 3x₁ + 3,5x₂ e a primeira linha objetivo tem −3,5 sob x₂.",
   "spx.c.fin": "Acabamento:",
   "spx.c.fin.why": "2 horas por soldado e 1 por trem, no máximo 100 horas por semana.",

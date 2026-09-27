@@ -155,7 +155,7 @@
   table.stm caption { text-align: left; font-size: 13px; color: var(--ink2); padding-bottom: 4px; font-style: italic; }
   table.stm th { text-transform: none; letter-spacing: 0.02em; font-size: 12px; }
   .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px; align-items: start; }
-  @media (max-width: 820px) { .model-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 820px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
   .vars { margin: 0 0 10px; padding: 0; list-style: none; font-size: 14px; color: var(--ink2); }
   .vars li { padding-block: 2px; }
   .vars code { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
@@ -734,10 +734,10 @@
       : t("shp.sol.p", { x1: fmt(bs.x[0]), x2: fmt(bs.x[1]), x3: fmt(bs.x[2]), z: money(bs.z) });
     $("senbody").innerHTML = C.res.map(function (r, i) {
       var slack = Math.max(0, bs.slack[i]), seg = rightSeg(base.segs[i], r.b), u = unitLabel(r);
-      var range = seg.hi === Infinity ? t("shp.tb.rangeinf", { lo: fmt(seg.lo) }) : t("shp.tb.rangev", { lo: fmt(seg.lo), hi: fmt(seg.hi) });
+      var range = seg.hi === Infinity ? t("shp.tb.rangeinf", { lo: fmt(seg.lo), unit: u }) : t("shp.tb.rangev", { lo: fmt(seg.lo), hi: fmt(seg.hi), unit: u });
       return "<tr><td>" + resName(r) + '</td><td class="num">' + fmt(r.b) + " " + u + '</td><td class="num">' + fmt(r.b - slack) +
         '</td><td class="num">' + fmt(slack) + '</td><td class="num"><b' + (bs.duals[i] > 1e-9 ? ' class="pos"' : "") + ">" + money(bs.duals[i]) +
-        '</b></td><td class="num">' + range + " " + u + "</td></tr>";
+        '</b></td><td class="num">' + range + "</td></tr>";
     }).join("");
     // what to notice (Giapetto numbers, then Problem 1)
     var G = BASE.g, gs = G.sol, P = BASE.p, ps = P.sol;

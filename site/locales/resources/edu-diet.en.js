@@ -82,7 +82,7 @@ I18N.register("en", {
   "diet.iso.opt": "<b>{c}: the line touches the region at a single corner, {a} kg of corn and {b} kg of alfalfa.</b> It is the corner where the carbohydrate and protein lines cross: the cheapest feed.",
   "diet.iso.above": "{c}: the line cuts through the region. The thick segment holds mixes that cost exactly {c} and meet every requirement, so cheaper ones exist. Lower C toward {copt}.",
   "diet.leg.region": "Feasible mixes",
-  "diet.leg.c": "{n} minimum",
+  "diet.leg.c": "Minimum for {n}",
   "diet.leg.iso": "Iso-cost line",
   "diet.leg.you": "Your mix",
 

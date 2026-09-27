@@ -137,8 +137,8 @@ I18N.register("fr", {
   "shp.tb.slack": "Écart",
   "shp.tb.price": "Prix fictif",
   "shp.tb.range": "Le prix tient pour",
-  "shp.tb.rangev": "{lo} à {hi}",
-  "shp.tb.rangeinf": "{lo} ou plus",
+  "shp.tb.rangev": "{lo} à {hi} {unit}",
+  "shp.tb.rangeinf": "{lo} {unit} ou plus",
   "shp.sol.note": "Résolu dans votre navigateur avec la méthode du simplexe. Les domaines viennent de la résolution du modèle pour d'autres quantités d'une ressource à la fois, avec les données d'origine pour le reste.",
 
   "shp.n.title": "À retenir",

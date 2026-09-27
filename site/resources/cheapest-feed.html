@@ -106,6 +106,12 @@
   .tag.slack { color: var(--muted); font-weight: 600; }
   .dualbar { display: inline-block; height: 8px; background: var(--accent); border-radius: 1px; vertical-align: middle; margin-right: 8px; transition: width .6s; }
   .result .note { margin-top: 10px; }
+  @media (max-width: 560px) {
+    table.req { min-width: 0; font-size: 12.5px; }
+    table.req th, table.req td { padding: 6px 5px; }
+    table.req td.num { font-size: 11.5px; white-space: normal; }
+    .dualbar { display: none; }
+  }
 
   /* ---- formulation ---- */
   .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
@@ -890,9 +896,10 @@
         c.lineTo(x0 - 10, yL);
         c.lineTo(x0 - 6, yL);
         c.stroke();
-        c.textAlign = "right";
-        c.fillStyle = alpha(COL.muted, reveal);
-        c.fillText("+" + fmt(v - n.min, 1), x0 - 13, (yMin + yL) / 2);
+        c.textAlign = "center";
+        c.textBaseline = "bottom";
+        c.fillStyle = alpha(COL.ink2, reveal);
+        c.fillText("+" + fmt(v - n.min, 1), cx, Math.min(yL, yMin) - 7);
       }
       // value and state
       c.textAlign = "center";
@@ -1324,8 +1331,8 @@
       c.fillStyle = isOpt && hit ? COL["accent-text"] : COL.ink2;
       c.textAlign = "left"; c.textBaseline = "middle";
       var lab = money(z);
-      var off = v[0] < 0.01 ? 10 : 10;
-      c.fillText(lab, px + off, py - (v[0] < 0.01 ? 0 : 12));
+      // the optimum's label sits above its corner, the others below theirs, so close corners never collide
+      c.fillText(lab, px + 10, v[0] < 0.01 ? py : isOpt ? py - 13 : py + 13);
     });
     P.dot = [dpx, dpy];
   }
@@ -1470,10 +1477,10 @@
       d0: money(SOL.duals[0], 3), d1: money(SOL.duals[1], 3), d2: money(SOL.duals[2], 3),
       w: money(worth(1, SOL.duals)), p: money(FOODS[1].c), rc: money(FOODS[1].c - worth(1, SOL.duals))
     });
-    document.getElementById("rck0").textContent = t("diet.rc.key.n", { n: t("diet.nut.carb") });
-    document.getElementById("rck1").textContent = t("diet.rc.key.n", { n: t("diet.nut.prot") });
-    document.getElementById("rck2").textContent = t("diet.rc.key.n", { n: t("diet.nut.vit") });
-    for (var j = 0; j < 3; j++) document.getElementById("lgc" + j).textContent = t("diet.leg.c", { n: t("diet.nut." + NUTS[j].id) });
+    document.getElementById("rck0").textContent = t("diet.rc.key.n", { n: t("diet.nut.carb.lc") });
+    document.getElementById("rck1").textContent = t("diet.rc.key.n", { n: t("diet.nut.prot.lc") });
+    document.getElementById("rck2").textContent = t("diet.rc.key.n", { n: t("diet.nut.vit.lc") });
+    for (var j = 0; j < 3; j++) document.getElementById("lgc" + j).textContent = t("diet.leg.c", { n: t("diet.nut." + NUTS[j].id + ".lc") });
 
     var alfOnly = Math.max.apply(null, NUTS.map(function (n, j) { return n.min / FOODS[2].n[j]; }));
     document.getElementById("n1p1").innerHTML = t("diet.n1.p1", { v: fmt(nv[2], 2), s: fmt(nv[2] - 150, 2) });

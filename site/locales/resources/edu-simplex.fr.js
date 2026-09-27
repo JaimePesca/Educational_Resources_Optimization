@@ -55,7 +55,7 @@ I18N.register("fr", {
   "spx.var.s": "variables d'écart : heures de finition inutilisées, heures de menuiserie inutilisées et demande de soldats non servie",
   "spx.model.orig": "Programme linéaire",
   "spx.model.std": "Forme standard pour le tableau",
-  "spx.model.stdnote": "Chaque variable d'écart transforme une contrainte ≤ en équation. En x₁ = x₂ = 0, les écarts forment la première base : s₁ = 100, s₂ = 80, s₃ = 40 et z = 0.",
+  "spx.model.stdnote": "Chaque variable d'écart transforme une contrainte ≤ en équation. En x₁ = x₂ = 0, les écarts forment la première base : s₁ = 100, s₂ = 80, s₃ = 40 et z = 0. Les écarts ne rapportent rien : la ligne objectif z − 3x₁ − 2x₂ = 0 commence donc le tableau avec −3 et −2.",
   "spx.model.alt": "Scénario actif : les trains rapportent 3,50 $, l'objectif devient donc z = 3x₁ + 3,5x₂ et la première ligne objectif porte −3,5 sous x₂.",
   "spx.c.fin": "Finition :",
   "spx.c.fin.why": "2 heures par soldat et 1 par train, au plus 100 heures par semaine.",
