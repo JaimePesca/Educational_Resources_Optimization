@@ -24,6 +24,7 @@ The four research animations ("See it in motion", placed right before "The model
 
 ## Shared tools for learning resources
 - `site/assets/lp.js`: small two-phase simplex solver (`LP.solve` returns x, z, duals/shadow prices, slack, binding; `LP.steps` returns tableaux pivot by pivot). Use it so simulations re-solve live when the user changes data, instead of hard-coding optima. Verified on Giapetto (z = 180, duals 1, 1, 0), the pig diet (60.43) and the inventory Problem 10 (400).
+- `site/assets/tex.js`: every formula on a learning resource is typeset with MathJax, never plain monospace text. Static: `<div class="formula" data-tex="<key>.tex" data-i18n="<key>.formula">` (the plain-text key is only the fallback). Built by a script: `TeX.set(el, texString, fallbackText)`. Models use `\begin{aligned}` with the columns `\max\;& expression && \text{(comment)}` / `\text{ST}\;& constraint && \forall ...`; wrap a leading minus after `&` as `{-3x}`; write sets as `\{0, 1\}`. Research pages keep their `.math` blocks (assets/research.js).
 - The Level 1 source problems are the owner's "Problemas para Modelar" (PL); the Spanish wording of a statement goes verbatim into the Spanish bundle.
 
 ## Local checks

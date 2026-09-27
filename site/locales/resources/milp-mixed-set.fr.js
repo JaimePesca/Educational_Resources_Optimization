@@ -119,7 +119,7 @@ I18N.register("fr", {
   "mset.tag.int": "entière",
   "mset.tag.cont": "continue",
   "mset.d1.formula": "max   {obj}   (profit, milliers de $)\ns.c.  6x +  y ≤ {B}            (budget, milliers de $)\n      2x + 4y ≤ 27            (eau, milliers de m³)\n       x +  y ≤ 9             (terre, ha)\n      −3x + y ≤ 2             (plants : y ≤ 3x + 2)\n      x ∈ {0, 1, 2, ...}      (entière)\n      y ≥ 0                   (continue)",
-  "mset.d1.tex": "\\begin{aligned}\n\\max\\;& {c1}\\,x+{c2}\\,y && \\text{(profit, milliers de \\$)}\\\\\n\\text{ST}\\;& 6x+y\\le {B} && \\text{(budget, milliers de \\$)}\\\\\n& 2x+4y\\le 27 && \\text{(eau, milliers de m³)}\\\\\n& x+y\\le 9 && \\text{(terre, ha)}\\\\\n& {-3x}+y\\le 2 && \\text{(plants : } y\\le 3x+2\\text{)}\\\\\n& x\\in\\{0, 1, 2, \\dots\\} && \\text{(entière)}\\\\\n& y\\ge 0 && \\text{(continue)}\n\\end{aligned}",
+  "mset.d1.tex": "\\begin{aligned}\n\\max\\;& {c1}\\,x+{c2}\\,y && \\text{(profit, milliers de \\$)}\\\\\n\\text{ST}\\;& 6x+y\\le {B} && \\text{(budget, milliers de \\$)}\\\\\n& 2x+4y\\le 27 && \\text{(eau, milliers de m³)}\\\\\n& x+y\\le 9 && \\text{(terre, ha)}\\\\\n& {-3x}+y\\le 2 && \\text{(plants : } y\\le 3x+2\\text{)}\\\\\n& {xset} && \\text{({xtag})}\\\\\n& {yset} && \\text{({ytag})}\n\\end{aligned}",
   "mset.d1.p2": "Les boutons ci-dessus ne changent que les deux dernières lignes, c'est-à-dire <b>quelles variables doivent être entières</b>. Les quatre inégalités ne changent jamais. Les curseurs changent c1, c2 et le budget.",
 
   "mset.d2.title": "PL, PLMNE et PNE : les mêmes contraintes, des ensembles différents",
