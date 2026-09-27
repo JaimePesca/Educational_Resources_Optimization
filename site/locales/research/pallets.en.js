@@ -171,5 +171,36 @@ I18N.register("en", {
   "r.pallets.find.4": "<b>Stage 1 buys admissibility.</b> Packing the raw stream without it averages 68,583 kg, over the 65,000 kg payload in every audited run, with 7.7 positions over their weight limits.",
   "r.pallets.find.5": "<b>Composition beats sequencing.</b> Penalising mixed pallets raises placement from 92.1% to 97.2% at a cost of 6 boxes, while controlling the arrival order is worth at most 1.4 points.",
 
-  "r.pallets.note": "Data and results from the manuscript \"A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight\" (working paper). Figures reproduce the study for illustration; see the paper for the full analysis."
+  "r.pallets.note": "Data and results from the manuscript \"A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight\" (working paper). Figures reproduce the study for illustration; see the paper for the full analysis.",
+
+  /* ---- animation ---- */
+  "r.pallets.anim.intro": "The whole study in under a minute: the manifest, the plan, the ramp and the loop that closes the gap.",
+  "r.pallets.anim.aria": "Animation: the 8,500 boxes of the manifest are planned onto the 32 positions of an Airbus A330-200F, stacked as they arrive on the ramp, and the fill that could really be stacked is fed back into the plan.",
+  "r.pallets.anim.ctl": "Scenario",
+  "r.pallets.anim.off": "Without feedback",
+  "r.pallets.anim.on": "With fill-factor feedback",
+  "r.pallets.anim.ch1": "The manifest",
+  "r.pallets.anim.ch2": "Stage 1: the plan",
+  "r.pallets.anim.ch3": "Stage 2: the ramp",
+  "r.pallets.anim.ch4": "What really flies",
+  "r.pallets.anim.ch5": "Closing the gap",
+  "r.pallets.anim.k.manifest": "boxes on the manifest",
+  "r.pallets.anim.k.plan": "boxes in the plan",
+  "r.pallets.anim.k.stacked": "of planned boxes stacked",
+  "r.pallets.anim.k.planned": "planned on paper",
+  "r.pallets.anim.k.loaded": "actually loaded",
+  "r.pallets.anim.k.cost": "per kg (manual US${v})",
+  "r.pallets.anim.k.costV": "US${v}",
+  "r.pallets.anim.k.pct": "{v}%",
+  "r.pallets.anim.lbl.yard": "35 box types · 45 classes",
+  "r.pallets.anim.lbl.window": "next 7 boxes",
+  "r.pallets.anim.lbl.plan": "plan",
+  "r.pallets.anim.lbl.ground": "left on the ground",
+  "r.pallets.anim.lbl.ff": "measured fill feeds the plan",
+  "r.pallets.anim.lbl.gap": "planned, not stackable",
+  "r.pallets.anim.lbl.balance": "imbalance {v} / 500 kg",
+  "r.pallets.anim.lg.fam": "Box class families",
+  "r.pallets.anim.lg.plan": "Planned by Stage 1",
+  "r.pallets.anim.lg.stack": "Stacked on the pallet",
+  "r.pallets.anim.lg.ground": "Left on the ground"
 }, "research/pallets");

@@ -63,6 +63,18 @@ table.crit { min-width: 560px; }
 .sw.dot { border-radius: 50%; }
 .sw.cand { background: var(--surface); border: 1.5px solid var(--mit-silver); border-radius: 50%; }
 .sw.rest { background: var(--grid); border: 1px dashed var(--axis); }
+/* animation section */
+#anim .anim-hud { flex-direction: column; align-items: flex-start; }
+#anim .anim-hud .chip-stat span { white-space: nowrap; }
+@media (max-width: 620px) { #anim .anim-hud { flex-direction: row; } #anim .anim-hud .chip-stat b { font-size: 15px; } }
+@media (max-width: 420px) { #anim .anim-hud .chip-stat { font-size: 11px; padding: 4px 7px; } }
+#anim-section .anim-legend i { border-radius: 50%; }
+#anim-section .anim-legend i.lg-home { background: var(--ink2); opacity: 0.55; }
+#anim-section .anim-legend i.lg-fruver { background: var(--ink2); border-radius: 1px; width: 8px; height: 8px; margin: 0 1.5px; transform: rotate(45deg); }
+#anim-section .anim-legend i.lg-super { background: var(--mit-silver); border: 1.5px solid var(--ink2); border-radius: 1px; width: 9px; height: 9px; margin: 0 1px; }
+#anim-section .anim-legend i.lg-park { background: var(--surface); border: 1.8px solid var(--ink); width: 9px; height: 9px; margin: 0 1px; }
+#anim-section .anim-legend i.lg-open { background: var(--accent); }
+#anim-section .anim-legend i.lg-radius { border: 1.5px solid var(--accent); background: var(--sel); width: 13px; height: 13px; }
 </style>
 </head>
 <body>
@@ -96,6 +108,31 @@ table.crit { min-width: 560px; }
       <div class="stat"><div class="v" data-i18n="r.markets.stat.crit.v"></div><div class="l" data-i18n="r.markets.stat.crit.l"></div></div>
     </div>
     <p class="sources" data-i18n="r.markets.sources"></p>
+  </section>
+
+  <section class="block" id="anim-section" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="r.markets.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="lab-anim-b" data-i18n="r.markets.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="lab-anim-b" id="anim-seg"></div>
+    </div>
+    <div class="anim" id="anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:r.markets.anim.aria">
+        <div class="anim-hud" id="anim-hud">
+          <div class="chip-stat"><b id="ak1">0</b><span data-i18n="r.markets.anim.k1"></span></div>
+          <div class="chip-stat accent" id="ak2c"><b id="ak2">0</b><span id="ak2l"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-home"></i><span data-i18n="r.markets.anim.lg.home"></span></span>
+      <span><i class="lg-fruver"></i><span data-i18n="r.markets.anim.lg.fruver"></span></span>
+      <span><i class="lg-super"></i><span data-i18n="r.markets.anim.lg.super"></span></span>
+      <span><i class="lg-park"></i><span data-i18n="r.markets.anim.lg.park"></span></span>
+      <span><i class="lg-open"></i><span data-i18n="r.markets.anim.lg.open"></span></span>
+      <span><i class="lg-radius"></i><span data-i18n="r.markets.anim.lg.radius"></span></span>
+    </div>
   </section>
 
   <section class="block" aria-labelledby="h-model">
@@ -660,6 +697,804 @@ x_{it} &\in\{0,1\} && (21)
   });
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
   I18N.onChange(render); // runs once the language is ready and on every language switch
+})();
+</script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+/* "See it in motion": Bosa's demand, its competitors, the candidate parks and one week of street markets.
+   Positions are real (authors' repository); counters use the manuscript's numbers. */
+(function () {
+  "use strict";
+  var A = window.Anim;
+  var P = "r.markets.anim.";
+  var FONT = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+
+  /* ---------- data ---------- */
+  // 160 household demand cells [lat, lon, people] from the repository (Coordenadas_Hogares_Bosa.xlsx, Demanda_Bosa.xlsx)
+  var HH = [[4.63516,-74.20751,5166],[4.63661,-74.20464,4974],[4.63770,-74.20197,5899],[4.63959,-74.19996,5636],[4.64103,-74.19676,7191],[4.64263,-74.19358,6323],[4.64309,-74.18896,7136],[4.63341,-74.20594,6376],[4.63342,-74.20371,5703],[4.63515,-74.20086,5989],[4.63618,-74.19799,7256],[4.63825,-74.19456,7542],[4.63996,-74.19124,7351],[4.64156,-74.18561,11673],[4.62639,-74.20902,14893],[4.62862,-74.20268,10445],[4.63064,-74.19841,6623],[4.63228,-74.19538,6210],[4.63419,-74.19107,7924],[4.63551,-74.18814,8107],[4.63797,-74.18354,6607],[4.62231,-74.21182,6724],[4.62445,-74.20722,6998],[4.62521,-74.20096,10168],[4.62753,-74.19721,8057],[4.62918,-74.19352,7313],[4.63158,-74.19036,4656],[4.63317,-74.18713,4463],[4.63478,-74.18353,6796],[4.62137,-74.20609,7802],[4.62211,-74.20289,6409],[4.62298,-74.19974,4745],[4.62423,-74.19608,6097],[4.62871,-74.18890,7964],[4.63042,-74.18577,6580],[4.63221,-74.18254,8848],[4.61720,-74.20965,5951],[4.61863,-74.20545,6443],[4.61912,-74.20003,4007],[4.62150,-74.19685,4024],[4.62278,-74.19343,5980],[4.62319,-74.19073,5488],[4.62478,-74.18855,5881],[4.62631,-74.18615,4378],[4.62788,-74.18375,5601],[4.62915,-74.18199,3942],[4.63057,-74.17971,3988],[4.61397,-74.20926,4134],[4.61581,-74.20591,3719],[4.61482,-74.20161,3949],[4.61597,-74.19882,4843],[4.61770,-74.19790,2219],[4.61905,-74.19597,3509],[4.61971,-74.19330,3803],[4.62077,-74.19052,4509],[4.62180,-74.18756,5732],[4.62301,-74.18562,4149],[4.62388,-74.18381,4182],[4.62541,-74.18201,5619],[4.62697,-74.18026,4226],[4.62786,-74.17829,4520],[4.61274,-74.20729,4703],[4.61263,-74.20387,7194],[4.61239,-74.19976,4680],[4.61393,-74.19645,4492],[4.61580,-74.19364,5141],[4.61774,-74.19006,3735],[4.61937,-74.18780,4078],[4.61987,-74.18454,2845],[4.62199,-74.18244,4075],[4.62397,-74.17933,2883],[4.62003,-74.18063,5678],[4.62172,-74.17794,5119],[4.62286,-74.17615,2959],[4.61894,-74.17765,4395],[4.62041,-74.17566,3228],[4.62155,-74.17354,3962],[4.61705,-74.17641,4359],[4.61865,-74.17435,3119],[4.62017,-74.17248,3273],[4.60714,-74.20737,3905],[4.60834,-74.20507,4043],[4.60934,-74.20185,4535],[4.61042,-74.19896,4355],[4.61147,-74.19628,4385],[4.61215,-74.19368,3918],[4.61254,-74.19061,4783],[4.61510,-74.18884,6692],[4.61639,-74.18631,5041],[4.60675,-74.20422,3570],[4.60776,-74.20114,3551],[4.60873,-74.19871,3238],[4.60921,-74.19618,4534],[4.61020,-74.19366,3043],[4.61069,-74.19072,3368],[4.61145,-74.18713,3861],[4.61268,-74.18506,4524],[4.61353,-74.18292,6054],[4.60571,-74.20189,3740],[4.60566,-74.19940,3592],[4.60656,-74.19755,3315],[4.60718,-74.19569,3217],[4.60803,-74.19346,3311],[4.60869,-74.19160,3447],[4.60929,-74.18960,3267],[4.60975,-74.18597,3750],[4.61066,-74.18382,3333],[4.61153,-74.18113,4055],[4.60321,-74.20146,3596],[4.60335,-74.19860,3491],[4.60418,-74.19671,3569],[4.60503,-74.19461,3092],[4.60583,-74.19243,3381],[4.60691,-74.18990,3256],[4.60741,-74.18780,2858],[4.60776,-74.18551,3699],[4.60895,-74.18308,4023],[4.61004,-74.17963,3984],[4.60122,-74.19935,3411],[4.60142,-74.19742,3000],[4.60249,-74.19553,2786],[4.60337,-74.19379,2753],[4.60409,-74.19185,2825],[4.60526,-74.18966,3096],[4.60558,-74.18723,3543],[4.60621,-74.18480,3246],[4.60701,-74.18229,3141],[4.60799,-74.17943,3751],[4.59985,-74.19613,4077],[4.60054,-74.19396,2851],[4.60193,-74.19264,2631],[4.60242,-74.19047,2533],[4.60360,-74.18811,3266],[4.60401,-74.18600,3607],[4.60527,-74.18137,3073],[4.60643,-74.17935,3176],[4.59918,-74.19312,4242],[4.60025,-74.19034,2512],[4.60117,-74.18762,4304],[4.60218,-74.18565,2775],[4.60262,-74.18306,4661],[4.60359,-74.18027,3273],[4.60464,-74.17776,4694],[4.59841,-74.18860,4708],[4.59875,-74.18524,3652],[4.60014,-74.18189,5743],[4.59969,-74.17928,5561],[4.59709,-74.18454,4031],[4.59795,-74.18085,6122],[4.59809,-74.17517,3162],[4.60243,-74.16705,4955],[4.60294,-74.16397,6041],[4.60230,-74.16029,3250],[4.59997,-74.16547,5981],[4.60080,-74.15852,5081],[4.60078,-74.15549,5551],[4.59747,-74.16572,5614],[4.59793,-74.16300,5261],[4.59822,-74.16005,5371],[4.59914,-74.15713,3896]];
+  // 25 candidate parks and 44 large competitors (lat, lon), same as the schematic map below
+  var PK = [[4.64393,-74.19698],[4.63547,-74.20983],[4.64334,-74.18546],[4.63323,-74.20128],[4.62614,-74.21147],[4.63253,-74.19558],[4.63568,-74.18593],[4.62259,-74.20903],[4.6195,-74.20865],[4.62651,-74.19296],[4.61544,-74.20315],[4.63036,-74.1791],[4.60787,-74.20534],[4.61611,-74.1953],[4.61896,-74.18849],[4.62396,-74.17494],[4.60196,-74.20027],[4.60516,-74.19833],[4.61004,-74.19358],[4.61199,-74.18823],[4.61175,-74.18087],[4.60456,-74.18084],[4.60305,-74.15857],[4.59981,-74.19054],[4.59963,-74.1736]];
+  // sellers 26 to 47 carry individual prices in the repository (produce shops), 48 to 69 three chain price tiers (supermarkets)
+  var CP = [[4.60481,-74.19724],[4.60289,-74.19995],[4.6049,-74.20046],[4.59964,-74.19267],[4.59949,-74.19181],[4.61115,-74.20941],[4.61159,-74.20072],[4.60481,-74.18726],[4.60625,-74.18562],[4.60788,-74.17899],[4.61886,-74.1889],[4.62121,-74.1897],[4.6215,-74.18857],[4.63455,-74.18924],[4.63362,-74.19639],[4.64235,-74.19139],[4.63538,-74.19757],[4.62679,-74.20834],[4.62642,-74.20858],[4.59951,-74.19195],[4.59983,-74.193],[4.59972,-74.18365],[4.60467,-74.18286],[4.60484,-74.18462],[4.60492,-74.1874],[4.60667,-74.19953],[4.60788,-74.19587],[4.61069,-74.19902],[4.62423,-74.1958],[4.62221,-74.19262],[4.6203,-74.18887],[4.61719,-74.18816],[4.62448,-74.18634],[4.62726,-74.18791],[4.62873,-74.18533],[4.63026,-74.19398],[4.6352,-74.18676],[4.63628,-74.19211],[4.6323,-74.20487],[4.64164,-74.19507],[4.63636,-74.19219],[4.63531,-74.1867],[4.63679,-74.18416],[4.59974,-74.18374]];
+  var NFRUVER = 22;
+  // Table 4 base-case schedule (day 0 = Monday), as encoded on this page
+  var OPEN = [{ n: 1, days: [5] }, { n: 10, days: [5] }, { n: 13, days: [2, 6] },
+              { n: 14, days: [3, 6] }, { n: 19, days: [1, 5] }, { n: 20, days: [2, 6] }];
+  var MD = 10;
+  // parks that would break a rule on that day (illustrative choice of park; the rules are the model's)
+  var FLASH = [{ d: 2, n: 6, k: "cap" }, { d: 3, n: 13, k: "gap" }, { d: 4, n: 9, k: "quota" },
+               { d: 5, n: 15, k: "cap" }, { d: 6, n: 19, k: "gap" }];
+  var TOTAL = 1025623, POP = 823000;       // Figure 6 total weekly demand; 2018 census
+  var RES = {
+    750: { kg: 68858, segs: [{ k: "sm", kg: 68858, pct: 7, c: "accent" }, { k: "fruver", kg: 346458, pct: 34, c: "ink" },
+                             { k: "super", kg: 327451, pct: 32, c: "mit-silver" }, { k: "other", kg: 282856, pct: 27, c: "axis" }] },
+    2000: { kg: 85025, derived: true, segs: [{ k: "sm", kg: 85025, c: "accent" }, { k: "rest", kg: TOTAL - 85025, c: "grid" }] }
+  };
+  RES[2000].segs.forEach(function (s) { s.pct = Math.round(100 * s.kg / TOTAL); });
+  var buf = 750;
+
+  /* ---------- timeline (s) ---------- */
+  var T2 = 9, T3 = 18, T4 = 24, TW = 25.2, DL = 3, T5 = 46.4, DUR = 57;
+
+  /* ---------- projection to km ---------- */
+  var kx = Math.cos(4.62 * Math.PI / 180) * 111.32, ky = 110.57;
+  var minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+  HH.concat(PK, CP).forEach(function (p) {
+    minLat = Math.min(minLat, p[0]); maxLat = Math.max(maxLat, p[0]);
+    minLon = Math.min(minLon, p[1]); maxLon = Math.max(maxLon, p[1]);
+  });
+  var WKM = (maxLon - minLon) * kx, HKM = (maxLat - minLat) * ky;
+  function km(p) { return { x: (p[1] - minLon) * kx, y: (maxLat - p[0]) * ky }; }
+  var H = HH.map(function (p, i) { var q = km(p); q.p = p[2]; q.i = i; return q; });
+  var K = PK.map(function (p, i) { var q = km(p); q.n = i + 1; return q; });
+  var C = CP.map(function (p, i) { var q = km(p); q.sup = i >= NFRUVER; return q; });
+  var maxPeople = 0, sumPeople = 0;
+  H.forEach(function (h) { maxPeople = Math.max(maxPeople, h.p); sumPeople += h.p; });
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+  /* ---------- deterministic choreography ---------- */
+  var rnd = A.rng(7);
+  var cxm = 0, cym = 0;
+  H.forEach(function (h) { cxm += h.x * h.p; cym += h.y * h.p; });
+  cxm /= sumPeople; cym /= sumPeople;
+  // cells ripple out from the demand centroid
+  var order = H.slice().sort(function (a, b) { return Math.hypot(a.x - cxm, a.y - cym) - Math.hypot(b.x - cxm, b.y - cym); });
+  order.forEach(function (h, r) { h.ta = 0.9 + 4.8 * Math.pow(r / (H.length - 1), 0.85) + 0.15 * rnd(); });
+  H.forEach(function (h) { h.ph = rnd(); h.ph2 = rnd(); });
+  // competitors: produce shops, then supermarkets, west to east with jitter
+  function stagger(list, a, b) {
+    var s = list.slice().sort(function (p, q) { return (p.x + 0.8 * p.y) - (q.x + 0.8 * q.y); });
+    s.forEach(function (c, r) { c.ta = a + (b - a) * r / Math.max(1, s.length - 1) + 0.12 * rnd(); });
+  }
+  stagger(C.filter(function (c) { return !c.sup; }), T2 + 0.3, T2 + 2.8);
+  stagger(C.filter(function (c) { return c.sup; }), T2 + 2.9, T2 + 5.4);
+  // nearest competitor of each cell
+  H.forEach(function (h) {
+    var best = 0, bd = Infinity;
+    C.forEach(function (c, j) { var d = dist(h, c); if (d < bd) { bd = d; best = j; } });
+    h.nc = best;
+  });
+  // candidate parks
+  var kOrder = K.slice().sort(function () { return rnd() - 0.5; });
+  kOrder.forEach(function (k, r) { k.ta = T3 + 0.4 + 3.6 * r / (K.length - 1); });
+  // market openings: one event per (park, day)
+  var EV = [];
+  for (var d = 0; d < 7; d++) {
+    var idx = 0;
+    OPEN.forEach(function (o) {
+      if (o.days.indexOf(d) >= 0) {
+        var ds = TW + d * DL;
+        EV.push({ n: o.n, d: d, t0: ds + 0.1 * DL + idx * 0.22, t1: ds + 0.9 * DL });
+        idx++;
+      }
+    });
+  }
+  EV.sort(function (a, b) { return a.t0 - b.t0; });
+  var openSet = {};
+  OPEN.forEach(function (o) { openSet[o.n] = true; });
+  var LABEL_LEFT = { 19: true, 13: true };
+
+  // coverage for the current walking radius
+  var cover = [];   // per event: [{h, ph}]
+  var covered = []; // per cell: covered by any opened park
+  function computeCoverage() {
+    var R = buf / 1000;
+    var r2 = A.rng(11);
+    cover = EV.map(function (e) {
+      var k = K[e.n - 1], list = [];
+      H.forEach(function (h) {
+        if (dist(h, k) <= R) {
+          var np = h.p > 9000 ? 3 : h.p > 5500 ? 2 : 1;
+          for (var q = 0; q < np; q++) list.push({ h: h, ph: r2(), bend: (r2() - 0.5) * 0.5 });
+        }
+      });
+      return list;
+    });
+    covered = H.map(function (h) {
+      return OPEN.some(function (o) { return dist(h, K[o.n - 1]) <= R; });
+    });
+  }
+  computeCoverage();
+
+  /* ---------- canvas and layout ---------- */
+  var stage = document.querySelector("#anim .anim-stage");
+  var hud = document.getElementById("anim-hud");
+  var cv = Anim.canvas(stage);
+  var ctx = cv.ctx;
+  var L = {};
+  var land = null, landColors = null, landS = 1, landM = 0;
+  var MG = 0.8; // km of margin around the district (room for the 750 m walking circles)
+  var uc = document.createElement("canvas"), ucx = uc.getContext("2d");
+
+  function layout() {
+    var W = cv.w, Hh = cv.h, pad = 16;
+    var phone = W < 560 || Hh > W * 0.9;
+    var hudB = hud ? hud.offsetTop + hud.offsetHeight : 60;
+    var hudR = hud ? hud.offsetLeft + hud.offsetWidth : 170;
+    L.phone = phone; L.W = W; L.H = Hh; L.hudH = hud ? hud.offsetHeight : 0;
+    if (phone) {
+      var top = hudB + 6;
+      L.full = { x: 4, y: top, w: W - 8, h: Hh - top - 18 };
+      var mh = Math.min((W - 8) / (WKM + 2 * MG) * (HKM + 2 * MG), (Hh - top) * 0.6);
+      L.split = { x: 4, y: top - 4, w: W - 8, h: mh };
+      var py = L.split.y + mh + 4;
+      L.panel = { x: 12, y: py, w: W - 24, h: Hh - py - 8 };
+    } else {
+      var pw = Math.max(230, Math.min(380, W * 0.33));
+      var fx = Math.max(pad, hudR + 8);
+      L.full = { x: fx, y: 4, w: W - 2 * fx, h: Hh - 22 };
+      L.split = { x: pw + 2 * pad, y: 4, w: W - pw - 2 * pad - 4, h: Hh - 22 };
+      var py2 = hudB + 18;
+      L.panel = { x: pad, y: py2, w: pw, h: Hh - py2 - pad };
+    }
+    function fit(r) {
+      var s = Math.min(r.w / (WKM + 2 * MG), r.h / (HKM + 2 * MG));
+      return { s: s, ox: r.x + (r.w - WKM * s) / 2, oy: r.y + (r.h - HKM * s) / 2 };
+    }
+    L.mf = fit(L.full); L.ms = fit(L.split);
+    // week strip, schedule matrix and donut
+    var pn = L.panel, gap = phone ? 4 : 6, labW = phone ? 32 : 42;
+    var bw = (pn.w - labW - 6 * gap) / 7, bh = phone ? 34 : Math.max(38, Math.min(54, bw * 1.1));
+    var rh = phone ? Math.max(9, Math.min(13, (pn.h - bh - 20) / OPEN.length)) : Math.max(13, Math.min(19, bw * 0.4));
+    L.strip = { x: pn.x + labW, y: pn.y, bw: bw, bh: bh, gap: gap, labW: labW, rh: rh,
+                my: pn.y + bh + (phone ? 14 : 20) };
+    L.strip.bottom = L.strip.my + OPEN.length * rh;
+    if (phone) {
+      var r = Math.max(34, Math.min(pn.h / 2 - 6, 62));
+      L.donut = { cx: pn.x + r + 4, cy: pn.y + pn.h / 2, r: r };
+    } else {
+      var top2 = L.strip.bottom + 18, avail = pn.y + pn.h - top2;
+      var r2 = Math.max(36, Math.min(avail / 2 - 4, pn.w * 0.24, 92));
+      L.donut = { cx: pn.x + r2 + 4, cy: top2 + avail / 2, r: r2 };
+    }
+    L.legX = L.donut.cx + L.donut.r + (phone ? 16 : 22);
+    L.legW = pn.x + pn.w - L.legX;
+    // offscreen layer for the outline of the union of walking circles
+    var dpr = window.devicePixelRatio || 1;
+    uc.width = Math.round(W * dpr); uc.height = Math.round(Hh * dpr);
+    ucx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    land = null; // rebuilt at the new scale
+  }
+
+  function rgbOf(col) {
+    var g = document.createElement("canvas").getContext("2d");
+    g.fillStyle = "#000"; g.fillStyle = col;
+    var v = g.fillStyle;
+    if (v.charAt(0) === "#") return [parseInt(v.slice(1, 3), 16), parseInt(v.slice(3, 5), 16), parseInt(v.slice(5, 7), 16)];
+    var m = v.match(/[\d.]+/g) || [0, 0, 0];
+    return [+m[0], +m[1], +m[2]];
+  }
+
+  // Bosa as a smooth shape: union of the demand cells, blurred and thresholded, with a hairline outline
+  function buildLand(c) {
+    var sMax = Math.max(L.mf.s, L.ms.s) * 1.14;
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    landS = sMax; landM = 0.5 * sMax;
+    var w = WKM * sMax + 2 * landM, h = HKM * sMax + 2 * landM;
+    var W2 = Math.ceil(w * dpr), H2 = Math.ceil(h * dpr);
+    function mk() { var o = document.createElement("canvas"); o.width = W2; o.height = H2; return o; }
+    var m = mk(), g = m.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = "#000";
+    g.beginPath();
+    var rr = 0.3 * sMax;
+    H.forEach(function (q) {
+      var x = landM + q.x * sMax, y = landM + q.y * sMax;
+      g.moveTo(x + rr, y); g.arc(x, y, rr, 0, Math.PI * 2);
+    });
+    g.fill();
+    var o = mk(), og = o.getContext("2d");
+    og.filter = "blur(" + (0.12 * sMax * dpr).toFixed(1) + "px)";
+    og.drawImage(m, 0, 0);
+    og.filter = "none";
+    var src = og.getImageData(0, 0, W2, H2), d = src.data;
+    var out = og.createImageData(W2, H2), od = out.data;
+    var fc = rgbOf(c.surface2), lc = rgbOf(c.axis), th = 0.45, lw = 1.2 * dpr;
+    for (var y = 1; y < H2 - 1; y++) {
+      for (var x = 1; x < W2 - 1; x++) {
+        var i = (y * W2 + x) * 4, a = d[i + 3] / 255;
+        if (a < th - 0.2) continue;
+        var gx = (d[i + 7] - d[i - 1]) / 510, gy = (d[i + 3 + 4 * W2] - d[i + 3 - 4 * W2]) / 510;
+        var gr = Math.max(1e-3, Math.hypot(gx, gy));
+        var dist = (a - th) / gr; // device px inside the edge
+        var fcov = clamp(dist + 0.5, 0, 1);
+        var lcov = clamp(lw / 2 + 0.5 - Math.abs(dist - lw / 2), 0, 1);
+        var al = Math.max(fcov, lcov);
+        if (al <= 0) continue;
+        od[i] = lc[0] * lcov + fc[0] * (1 - lcov);
+        od[i + 1] = lc[1] * lcov + fc[1] * (1 - lcov);
+        od[i + 2] = lc[2] * lcov + fc[2] * (1 - lcov);
+        od[i + 3] = 255 * al;
+      }
+    }
+    og.putImageData(out, 0, 0);
+    // 1 km grid clipped to the district
+    og.setTransform(dpr, 0, 0, dpr, 0, 0);
+    og.globalCompositeOperation = "source-atop";
+    og.strokeStyle = c.grid; og.lineWidth = 1;
+    og.beginPath();
+    for (var kx2 = 0; kx2 <= WKM + 0.6; kx2 += 1) { og.moveTo(landM + kx2 * sMax, 0); og.lineTo(landM + kx2 * sMax, h); }
+    for (var ky2 = 0; ky2 <= HKM + 0.6; ky2 += 1) { og.moveTo(0, landM + ky2 * sMax); og.lineTo(w, landM + ky2 * sMax); }
+    og.stroke();
+    og.globalCompositeOperation = "source-over";
+    land = o; land.cssW = w; land.cssH = h; landColors = c;
+  }
+
+  /* ---------- helpers ---------- */
+  var seg = A.seg, ease = A.ease, lerp = A.lerp, clamp = A.clamp;
+  var M = { s: 1, ox: 0, oy: 0 };
+  function X(q) { return M.ox + q.x * M.s; }
+  function Y(q) { return M.oy + q.y * M.s; }
+  function frac(v) { return v - Math.floor(v); }
+  function font(px, w) { return (w || 600) + " " + px + "px " + FONT; }
+  function haloText(s, x, y, c, fill, align) {
+    ctx.textAlign = align || "left";
+    ctx.lineWidth = 3.5; ctx.lineJoin = "round"; ctx.strokeStyle = c.surface;
+    ctx.strokeText(s, x, y);
+    ctx.fillStyle = fill; ctx.fillText(s, x, y);
+  }
+  function dayName(d) { return I18N.t("r.markets.day." + d); }
+
+  /* ---------- HUD ---------- */
+  var ak1 = document.getElementById("ak1"), ak2 = document.getElementById("ak2"), ak2l = document.getElementById("ak2l");
+  var ak2c = document.getElementById("ak2c");
+  var hudCache = {};
+  function setText(el, key, s) { if (hudCache[key] !== s) { hudCache[key] = s; el.textContent = s; return true; } return false; }
+  function setOp(el, key, v) { v = Math.round(v * 20) / 20; if (hudCache[key] !== v) { hudCache[key] = v; el.style.opacity = v; } }
+
+  /* ---------- render ---------- */
+  function render(t) {
+    var c = A.colors();
+    if (!land || landColors !== c) buildLand(c);
+    var W = L.W, Hh = L.H, fmt = I18N.fmt;
+    ctx.clearRect(0, 0, W, Hh);
+
+    // camera: slow pull back in chapter 1, move aside for the week
+    var cam = ease.inOut(seg(t, T4, T4 + 1.2));
+    var zoom = 1 + 0.12 * (1 - ease.out(seg(t, 0, 7)));
+    var sB = lerp(L.mf.s, L.ms.s, cam);
+    var cxB = lerp(L.mf.ox + WKM * L.mf.s / 2, L.ms.ox + WKM * L.ms.s / 2, cam);
+    var cyB = lerp(L.mf.oy + HKM * L.mf.s / 2, L.ms.oy + HKM * L.ms.s / 2, cam);
+    M.s = sB * zoom; M.ox = cxB - WKM * M.s / 2; M.oy = cyB - HKM * M.s / 2;
+    var s = M.s;
+
+    // keep the map out of the side panel once the week starts
+    ctx.save();
+    ctx.beginPath();
+    if (L.phone) { var cly = lerp(0, L.split.y, cam); ctx.rect(0, cly, W, lerp(Hh, L.panel.y - 2, cam) - cly); }
+    else { var clx = lerp(0, L.split.x - 10, cam); ctx.rect(clx, 0, W - clx, Hh); }
+    ctx.clip();
+
+    // land
+    var aLand = ease.out(seg(t, 0, 1.4));
+    if (aLand > 0) {
+      var k = s / landS;
+      ctx.globalAlpha = aLand;
+      ctx.drawImage(land, M.ox - landM * k, M.oy - landM * k, land.cssW * k, land.cssH * k);
+      ctx.globalAlpha = 1;
+    }
+    var aBosa = seg(t, 1.2, 2.4) * (1 - 0.5 * seg(t, T4, T4 + 1));
+    if (aBosa > 0) {
+      ctx.globalAlpha = aBosa;
+      ctx.font = font(L.phone ? 11 : 12.5, 700);
+      haloText(I18N.t(P + "bosa").toUpperCase(), M.ox + 0.15 * s, M.oy + 0.35 * s, c, c.ink2);
+      ctx.globalAlpha = 1;
+    }
+
+    var R = buf / 1000 * s;
+    var inWeek = t >= TW && t < T5;
+    var aRes = ease.out(seg(t, T5, T5 + 1.4));
+
+    // ---- chapter 5: union of walking radii around the six parks ----
+    if (aRes > 0) {
+      var Rr = R * (0.6 + 0.4 * aRes);
+      var circles = function (g, rad) {
+        g.beginPath();
+        OPEN.forEach(function (o) { var q = K[o.n - 1]; g.moveTo(X(q) + rad, Y(q)); g.arc(X(q), Y(q), rad, 0, Math.PI * 2); });
+      };
+      circles(ctx, Rr);
+      ctx.globalAlpha = 0.1 * aRes; ctx.fillStyle = c.accent; ctx.fill();
+      // outline of the union only: ring = (r + 1.3) minus r
+      ucx.clearRect(0, 0, W, Hh);
+      ucx.globalCompositeOperation = "source-over";
+      circles(ucx, Rr + 1.3); ucx.fillStyle = c.accent; ucx.fill();
+      ucx.globalCompositeOperation = "destination-out";
+      circles(ucx, Rr); ucx.fill();
+      ucx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 0.8 * aRes;
+      ctx.drawImage(uc, 0, 0, W, Hh);
+      ctx.globalAlpha = 1;
+    }
+
+    // ---- chapter 4: today's walking circles ----
+    var activeCells = null;
+    if (inWeek || (t >= TW && t < T5 + 0.5)) {
+      activeCells = {};
+      EV.forEach(function (e, ei) {
+        if (t < e.t0 || t > e.t1 + 0.5) return;
+        var grow = ease.out(seg(t, e.t0, e.t0 + 0.7)), fade = 1 - seg(t, e.t1, e.t1 + 0.5);
+        var q = K[e.n - 1], x = X(q), y = Y(q);
+        ctx.beginPath(); ctx.arc(x, y, R * grow, 0, Math.PI * 2);
+        ctx.globalAlpha = 0.1 * fade; ctx.fillStyle = c.accent; ctx.fill();
+        ctx.globalAlpha = 0.85 * fade; ctx.strokeStyle = c.accent; ctx.lineWidth = 1.6; ctx.stroke();
+        // expanding wave
+        var wv = seg(t, e.t0 + 0.2, e.t0 + 1.4);
+        if (wv > 0 && wv < 1) {
+          ctx.beginPath(); ctx.arc(x, y, R * ease.out(wv), 0, Math.PI * 2);
+          ctx.globalAlpha = 0.5 * (1 - wv); ctx.lineWidth = 3; ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        if (grow > 0.4) cover[ei].forEach(function (pp) { activeCells[pp.h.i] = Math.max(activeCells[pp.h.i] || 0, fade * seg(grow, 0.4, 1)); });
+      });
+    }
+
+    // ---- chapter 2 and 3: pull toward the nearest competitor ----
+    var aFlow = seg(t, T2, T2 + 0.5) * lerp(1, 0.28, seg(t, T3, T3 + 1.5)) * (1 - seg(t, T4, T4 + 1.2));
+    if (aFlow > 0) {
+      ctx.beginPath();
+      H.forEach(function (h) {
+        var cp = C[h.nc], g = ease.out(seg(t, cp.ta + 0.25, cp.ta + 1.0));
+        if (g <= 0) return;
+        ctx.moveTo(X(h), Y(h)); ctx.lineTo(lerp(X(h), X(cp), g), lerp(Y(h), Y(cp), g));
+      });
+      ctx.globalAlpha = 0.28 * aFlow; ctx.strokeStyle = c.ink2; ctx.lineWidth = 0.8; ctx.stroke();
+      // particles
+      var aPart = aFlow * (1 - seg(t, T3, T3 + 1.2));
+      if (aPart > 0) {
+        ctx.beginPath();
+        H.forEach(function (h) {
+          var cp = C[h.nc];
+          if (t < cp.ta + 0.8) return;
+          for (var q = 0; q < 2; q++) {
+            var u = frac((t - cp.ta) * 0.42 + (q ? h.ph2 : h.ph));
+            var x = lerp(X(h), X(cp), u), y = lerp(Y(h), Y(cp), u);
+            var sz = 1.1 + 0.9 * Math.sin(u * Math.PI);
+            ctx.moveTo(x + sz, y); ctx.arc(x, y, sz, 0, Math.PI * 2);
+          }
+        });
+        ctx.globalAlpha = 0.75 * aPart; ctx.fillStyle = c.ink2; ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // ---- households ----
+    var rUnit = Math.max(1.6, s * 0.05);
+    var aDim = 1 - 0.25 * seg(t, T2, T2 + 1) + 0.1 * seg(t, T4, T4 + 1);
+    var demandF = 0, popF = 0;
+    ctx.fillStyle = c.ink;
+    H.forEach(function (h, i) {
+      var a = seg(t, h.ta, h.ta + 0.7);
+      if (a <= 0) return;
+      demandF += h.p * a;
+      var sc = ease.back(a);
+      var breathe = t < T4 ? 1 + 0.05 * Math.sin(t * 2.2 + h.ph * 6.28) * seg(t, h.ta + 0.7, h.ta + 1.5) : 1;
+      var r = rUnit * Math.sqrt(h.p / 5000) * sc * breathe;
+      var dens = h.p / maxPeople;
+      var x = X(h), y = Y(h);
+      // appearance ripple
+      if (a < 1) {
+        ctx.beginPath(); ctx.arc(x, y, r + 10 * ease.out(a), 0, Math.PI * 2);
+        ctx.globalAlpha = 0.25 * (1 - a); ctx.strokeStyle = c.ink2; ctx.lineWidth = 1; ctx.stroke();
+      }
+      ctx.beginPath(); ctx.arc(x, y, Math.max(0.1, r), 0, Math.PI * 2);
+      ctx.globalAlpha = (0.2 + 0.45 * dens) * aDim; ctx.fillStyle = c.ink; ctx.fill();
+      var hot = 0;
+      if (activeCells && activeCells[i]) hot = activeCells[i];
+      if (aRes > 0 && covered[i]) hot = Math.max(hot, aRes);
+      if (hot > 0) {
+        ctx.globalAlpha = 0.85 * hot; ctx.fillStyle = c.accent; ctx.fill();
+      }
+    });
+    ctx.globalAlpha = 1;
+    demandF /= sumPeople;
+
+    // ---- chapter 4: households walk to today's markets (short trails) ----
+    if (inWeek) {
+      ctx.beginPath();
+      EV.forEach(function (e, ei) {
+        var a0 = e.t0 + 0.45;
+        if (t < a0 || t > e.t1 + 0.3) return;
+        var env = seg(t, a0, a0 + 0.4) * (1 - seg(t, e.t1 - 0.2, e.t1 + 0.3));
+        var q = K[e.n - 1], kx2 = X(q), ky2 = Y(q);
+        cover[ei].forEach(function (pp) {
+          var u = frac((t - a0) * 0.55 + pp.ph);
+          var hx = X(pp.h), hy = Y(pp.h);
+          var mx = (hx + kx2) / 2 - (ky2 - hy) * pp.bend, my = (hy + ky2) / 2 + (kx2 - hx) * pp.bend;
+          var len = 0.16 * env * Math.min(1, u * 4, (1 - u) * 6);
+          if (len <= 0.005) return;
+          for (var k = 0; k <= 3; k++) {
+            var ue = clamp(u - len * k / 3, 0, 1), v = 1 - ue;
+            var x = v * v * hx + 2 * v * ue * mx + ue * ue * kx2, y = v * v * hy + 2 * v * ue * my + ue * ue * ky2;
+            if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+        });
+      });
+      ctx.strokeStyle = c.accent; ctx.lineWidth = L.phone ? 1.5 : 2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.globalAlpha = 0.9; ctx.stroke(); ctx.globalAlpha = 1; ctx.lineCap = "butt";
+    }
+
+    // ---- competitors ----
+    var aComp = 1 - 0.35 * seg(t, T4, T4 + 1) - 0.2 * aRes;
+    var nComp = 0;
+    C.forEach(function (cp) {
+      var a = seg(t, cp.ta, cp.ta + 0.5);
+      if (a <= 0) return;
+      nComp += t >= cp.ta + 0.1 ? 1 : 0;
+      var x = X(cp), y = Y(cp);
+      var pu = seg(t, cp.ta, cp.ta + 1.1);
+      if (pu < 1) {
+        ctx.beginPath(); ctx.arc(x, y, 4 + 22 * ease.out(pu), 0, Math.PI * 2);
+        ctx.globalAlpha = 0.55 * (1 - pu); ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.stroke();
+      }
+      var z = Math.max(3, s * 0.03) * ease.back(a);
+      ctx.globalAlpha = aComp;
+      if (cp.sup) {
+        ctx.fillStyle = c["mit-silver"]; ctx.strokeStyle = c.ink2; ctx.lineWidth = 1.3;
+        ctx.fillRect(x - z, y - z, 2 * z, 2 * z); ctx.strokeRect(x - z, y - z, 2 * z, 2 * z);
+      } else {
+        ctx.beginPath(); ctx.moveTo(x, y - z * 1.3); ctx.lineTo(x + z * 1.3, y); ctx.lineTo(x, y + z * 1.3); ctx.lineTo(x - z * 1.3, y); ctx.closePath();
+        ctx.fillStyle = c.ink2; ctx.fill();
+      }
+    });
+    ctx.globalAlpha = 1;
+
+    // ---- candidate parks and markets ----
+    var nParks = 0, nDays = 0;
+    EV.forEach(function (e) { if (t >= e.t0) nDays++; });
+    var rPark = Math.max(3.6, s * 0.042);
+    var flashNow = {};
+    FLASH.forEach(function (f) {
+      var ds = TW + f.d * DL, u = seg(t, ds + 0.42 * DL, ds + 0.92 * DL);
+      if (u > 0 && u < 1) flashNow[f.n] = { u: u, k: f.k };
+    });
+    K.forEach(function (q) {
+      var a = seg(t, q.ta, q.ta + 0.55);
+      if (a <= 0) return;
+      if (t >= q.ta + 0.1) nParks++;
+      var x = X(q), y = Y(q);
+      var pu = seg(t, q.ta, q.ta + 1.2);
+      if (pu < 1) {
+        ctx.beginPath(); ctx.arc(x, y, rPark + 16 * ease.out(pu), 0, Math.PI * 2);
+        ctx.globalAlpha = 0.5 * (1 - pu); ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2; ctx.stroke();
+      }
+      var chosen = !!openSet[q.n];
+      // state: open today? opened before?
+      var today = 0, ever = 0;
+      EV.forEach(function (e) {
+        if (e.n !== q.n) return;
+        if (t >= e.t0) ever = 1;
+        if (t >= e.t0 && t <= e.t1 + 0.4) today = Math.max(today, seg(t, e.t0, e.t0 + 0.35) * (1 - seg(t, e.t1, e.t1 + 0.4)));
+      });
+      if (aRes > 0 && chosen) today = Math.max(today, aRes);
+      var dimOthers = chosen ? 1 : 1 - 0.55 * aRes;
+      var r = rPark * ease.back(a) * (1 + 0.45 * today);
+      ctx.globalAlpha = dimOthers;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = c.surface; ctx.fill();
+      ctx.lineWidth = 1.7; ctx.strokeStyle = ever ? c.accent : c.ink; ctx.stroke();
+      if (today > 0) {
+        ctx.beginPath(); ctx.arc(x, y, r * today, 0, Math.PI * 2);
+        ctx.fillStyle = c.accent; ctx.fill();
+      } else if (ever) {
+        ctx.beginPath(); ctx.arc(x, y, r * 0.45, 0, Math.PI * 2);
+        ctx.fillStyle = c.accent; ctx.fill();
+      }
+      // a park that would break a rule today: flash, then grey out
+      var f = flashNow[q.n];
+      if (f) {
+        var u = f.u, fl = Math.abs(Math.sin(u * Math.PI * 3));
+        var gray = seg(u, 0.35, 0.5) * (1 - seg(u, 0.85, 1));
+        ctx.globalAlpha = (1 - seg(u, 0.4, 0.6)) * 0.9;
+        ctx.beginPath(); ctx.arc(x, y, r + 3 + 10 * frac(u * 3), 0, Math.PI * 2);
+        ctx.strokeStyle = c["mit-bright"]; ctx.lineWidth = 2; ctx.stroke();
+        ctx.globalAlpha = (1 - gray) * fl * (1 - seg(u, 0.4, 0.5));
+        ctx.beginPath(); ctx.arc(x, y, r + 1, 0, Math.PI * 2); ctx.fillStyle = c["mit-bright"]; ctx.fill();
+        if (gray > 0) {
+          ctx.globalAlpha = gray;
+          ctx.beginPath(); ctx.arc(x, y, r + 1, 0, Math.PI * 2); ctx.fillStyle = c.muted; ctx.fill();
+          var z = r * 0.62;
+          ctx.beginPath(); ctx.moveTo(x - z, y - z); ctx.lineTo(x + z, y + z); ctx.moveTo(x - z, y + z); ctx.lineTo(x + z, y - z);
+          ctx.strokeStyle = c.surface; ctx.lineWidth = 1.8; ctx.stroke();
+        }
+        var la = seg(u, 0.12, 0.3) * (1 - seg(u, 0.85, 1));
+        if (la > 0) {
+          ctx.globalAlpha = la;
+          ctx.font = font(L.phone ? 10.5 : 12, 700);
+          haloText(I18N.t(P + "rule." + f.k), x, y - r - 8 - 4 * (1 - la), c, c["mit-bright"], "center");
+        }
+      }
+      ctx.globalAlpha = 1;
+    });
+
+    // ---- chapter 5: names of the six parks ----
+    if (aRes > 0) {
+      ctx.font = font(L.phone ? 10.5 : 12, 700);
+      ctx.globalAlpha = seg(t, T5 + 0.6, T5 + 1.4);
+      OPEN.forEach(function (o, i) {
+        var q = K[o.n - 1], x = X(q), y = Y(q);
+        var lab = "ST" + (o.n < 10 ? "0" : "") + o.n;
+        var left = !!LABEL_LEFT[o.n];
+        haloText(lab, x + (left ? -1 : 1) * (rPark * 1.5 + 5), y + 4, c, c.ink, left ? "right" : "left");
+        // soft heartbeat
+        var hb = frac((t - T5 - 1.5) * 0.5 + i * 0.13);
+        if (t > T5 + 1.5) {
+          ctx.save(); ctx.globalAlpha = 0.45 * (1 - hb);
+          ctx.beginPath(); ctx.arc(x, y, rPark * 1.45 + 12 * hb, 0, Math.PI * 2);
+          ctx.strokeStyle = c.accent; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+        }
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    // ---- scale bar ----
+    var aSb = seg(t, 1, 2);
+    if (aSb > 0) {
+      var sbx = M.ox + 0.1 * s, sby = M.oy + HKM * s + (L.phone ? 2 : 6);
+      if (!L.phone || cam < 0.5) {
+        ctx.globalAlpha = aSb * 0.8; ctx.strokeStyle = c.ink2; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(sbx, sby - 4); ctx.lineTo(sbx, sby); ctx.lineTo(sbx + s, sby); ctx.lineTo(sbx + s, sby - 4); ctx.stroke();
+        ctx.font = font(11); ctx.fillStyle = c.ink2; ctx.textAlign = "left";
+        ctx.fillText(I18N.t("r.markets.map.km"), sbx + s + 6, sby + 1);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    ctx.restore();
+
+    // ---- panel: the week strip ----
+    var aPanel = seg(t, T4 + 0.3, T4 + 1.2);
+    var aStrip = aPanel * (L.phone ? 1 - seg(t, T5, T5 + 0.5) : 1);
+    if (aStrip > 0) drawStrip(t, c, aStrip);
+    var aDonut = L.phone ? seg(t, T5 + 0.5, T5 + 1.1) : seg(t, T5 + 0.3, T5 + 1.2);
+    if (aDonut > 0) drawDonut(t, c, aDonut);
+
+    // ---- HUD ----
+    var ch = t < T2 ? 0 : t < T3 ? 1 : t < T4 ? 2 : t < T5 ? 3 : 4;
+    setText(ak1, "v1", fmt(Math.round(TOTAL * demandF), 0));
+    var lk = ["pop", "comp", "parks", "days", "kg"][ch];
+    var relayout = setText(ak2l, "l2", I18N.t(P + "k." + lk));
+    var v2;
+    if (ch === 0) v2 = fmt(Math.round(POP * demandF), 0);
+    else if (ch === 1) v2 = fmt(nComp);
+    else if (ch === 2) v2 = fmt(nParks);
+    else if (ch === 3) v2 = fmt(nDays) + " / " + fmt(MD);
+    else v2 = fmt(Math.round(RES[buf].kg * ease.out(seg(t, T5 + 0.6, T5 + 3))), 0);
+    setText(ak2, "v2", v2);
+    setOp(ak1.parentNode, "o1", seg(t, 0.2, 0.9));
+    setOp(ak2c, "o2", seg(t, 0.6, 1.3));
+    if (relayout && hud.offsetHeight !== L.hudH) { layout(); }
+  }
+
+  function drawStrip(t, c, alpha) {
+    var S = L.strip, fmt = I18N.fmt;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    var cur = t >= TW && t < T5 ? Math.floor((t - TW) / DL) : -1;
+    var wdOpened = 0, weOpened = 0;
+    var capFlash = {}, quotaFlash = 0;
+    FLASH.forEach(function (f) {
+      var ds = TW + f.d * DL, u = seg(t, ds + 0.42 * DL, ds + 0.92 * DL);
+      if (u > 0 && u < 1) {
+        var fl = Math.abs(Math.sin(u * Math.PI * 3)) * (1 - seg(u, 0.6, 1));
+        if (f.k === "cap") capFlash[f.d] = fl;
+        if (f.k === "quota") quotaFlash = fl;
+      }
+    });
+    for (var d = 0; d < 7; d++) {
+      var x = S.x + d * (S.bw + S.gap), y = S.y;
+      var we = d >= 5, cap = we ? 0.3 * MD : 0.2 * MD;
+      var isCur = d === cur, past = cur < 0 ? t >= T5 : d < cur;
+      var ap = isCur ? ease.out(seg(t, TW + d * DL, TW + d * DL + 0.35)) : 0;
+      ctx.fillStyle = isCur ? c.sel : c.surface;
+      ctx.fillRect(x, y, S.bw, S.bh);
+      ctx.lineWidth = isCur ? 2 : 1;
+      ctx.strokeStyle = isCur ? c.accent : c.border;
+      if (capFlash[d]) { ctx.strokeStyle = c["mit-bright"]; ctx.lineWidth = 2 + capFlash[d]; }
+      ctx.strokeRect(x + 0.5, y + 0.5, S.bw - 1, S.bh - 1);
+      if (isCur) { ctx.fillStyle = c.accent; ctx.fillRect(x, y, S.bw * ap, 3); }
+      ctx.font = font(L.phone ? 10.5 : 12, isCur ? 700 : 600);
+      ctx.fillStyle = isCur ? c.ink : past ? c.ink2 : c.muted;
+      ctx.textAlign = "center";
+      ctx.fillText(dayName(d), x + S.bw / 2, y + (L.phone ? 15 : 18));
+      // slots: the daily cap (0.2 Md on weekdays, 0.3 Md on weekend days)
+      var ss = Math.min(10, (S.bw - 10) / 3 - 3), sg = 3;
+      var sw = cap * ss + (cap - 1) * sg, sx = x + (S.bw - sw) / 2, sy = y + S.bh - ss - (L.phone ? 7 : 10);
+      var dayEv = EV.filter(function (e) { return e.d === d; });
+      for (var i = 0; i < cap; i++) {
+        var e = dayEv[i], f = e && t > e.t0 ? ease.back(seg(t, e.t0, e.t0 + 0.4)) : 0;
+        ctx.strokeStyle = c.axis; ctx.lineWidth = 1;
+        ctx.strokeRect(sx + i * (ss + sg) + 0.5, sy + 0.5, ss - 1, ss - 1);
+        if (f > 0) {
+          var z = ss * f;
+          ctx.fillStyle = c.accent;
+          ctx.fillRect(sx + i * (ss + sg) + (ss - z) / 2, sy + (ss - z) / 2, z, z);
+          if (t >= e.t0) { if (we) weOpened++; else wdOpened++; }
+        }
+      }
+    }
+    // weekly quota bars: 0.4 Md on weekdays, the rest on the weekend
+    var by = S.y + S.bh + 6, bh = 4;
+    function bar(x0, x1, n, filled, flash) {
+      var g = 2, w = (x1 - x0 - (n - 1) * g) / n;
+      for (var i = 0; i < n; i++) {
+        ctx.fillStyle = i < filled ? c.accent : c.grid;
+        ctx.fillRect(x0 + i * (w + g), by, w, bh);
+      }
+      if (flash) {
+        ctx.strokeStyle = c["mit-bright"]; ctx.lineWidth = 1.5 + flash;
+        ctx.strokeRect(x0 - 2, by - 2, x1 - x0 + 4, bh + 4);
+      }
+    }
+    bar(S.x, S.x + 5 * S.bw + 4 * S.gap, 0.4 * MD, wdOpened, quotaFlash);
+    bar(S.x + 5 * (S.bw + S.gap), S.x + 7 * S.bw + 6 * S.gap, 0.6 * MD, weOpened, 0);
+
+    // the schedule (Table 4) filling in, one row per opened park
+    var rh = S.rh, cs = Math.max(5, Math.min(rh - 4, S.bw * 0.45));
+    if (cur >= 0) {
+      ctx.fillStyle = c.sel;
+      ctx.fillRect(S.x + cur * (S.bw + S.gap), S.my - 3, S.bw, OPEN.length * rh + 6);
+    }
+    ctx.font = font(L.phone ? 9.5 : 11, 600);
+    OPEN.forEach(function (o, r) {
+      var yc = S.my + r * rh + rh / 2;
+      var anyOpen = EV.some(function (e) { return e.n === o.n && t >= e.t0; });
+      ctx.textAlign = "right"; ctx.fillStyle = anyOpen ? c.ink : c.muted;
+      ctx.fillText("ST" + (o.n < 10 ? "0" : "") + o.n, S.x - 7, yc + (L.phone ? 3.5 : 4));
+      for (var d2 = 0; d2 < 7; d2++) {
+        var xc = S.x + d2 * (S.bw + S.gap) + S.bw / 2;
+        var ev = null;
+        EV.forEach(function (e) { if (e.n === o.n && e.d === d2) ev = e; });
+        var u2 = ev ? seg(t, ev.t0, ev.t0 + 0.45) : 0, f2 = ease.back(u2);
+        if (u2 > 0) {
+          var z2 = cs * f2;
+          ctx.fillStyle = c.accent;
+          ctx.fillRect(xc - z2 / 2, yc - z2 / 2, z2, z2);
+        } else {
+          ctx.fillStyle = c.grid;
+          ctx.fillRect(xc - 1.5, yc - 1.5, 3, 3);
+        }
+      }
+    });
+    // a rule-breaking attempt at an opened park shows as a red cross in its row
+    FLASH.forEach(function (f) {
+      if (!openSet[f.n]) return;
+      var ds = TW + f.d * DL, u = seg(t, ds + 0.42 * DL, ds + 0.92 * DL);
+      if (u <= 0 || u >= 1) return;
+      var r = 0;
+      OPEN.forEach(function (o, i) { if (o.n === f.n) r = i; });
+      var xc = S.x + f.d * (S.bw + S.gap) + S.bw / 2, yc = S.my + r * rh + rh / 2, z = cs / 2;
+      ctx.globalAlpha = alpha * seg(u, 0.05, 0.2) * (1 - seg(u, 0.8, 1));
+      ctx.strokeStyle = c["mit-bright"]; ctx.lineWidth = 2; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(xc - z, yc - z); ctx.lineTo(xc + z, yc + z); ctx.moveTo(xc - z, yc + z); ctx.lineTo(xc + z, yc - z); ctx.stroke();
+      ctx.lineCap = "butt";
+    });
+    ctx.restore();
+  }
+
+  function drawDonut(t, c, alpha) {
+    var D = L.donut, res = RES[buf], fmt = I18N.fmt;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    var p = ease.inOut(seg(t, T5 + 0.5, T5 + 3));
+    var th = D.r * 0.3, rr = D.r - th / 2;
+    ctx.lineWidth = th;
+    ctx.beginPath(); ctx.arc(D.cx, D.cy, rr, 0, Math.PI * 2); ctx.strokeStyle = c.surface2; ctx.stroke();
+    var a0 = -Math.PI / 2, acc = 0;
+    res.segs.forEach(function (sg, i) {
+      var f0 = acc / TOTAL, f1 = (acc + sg.kg) / TOTAL;
+      acc += sg.kg;
+      var e = Math.min(f1, p);
+      if (e <= f0) return;
+      var gapA = 0.012;
+      ctx.beginPath();
+      ctx.arc(D.cx, D.cy, rr + (i === 0 ? th * 0.12 : 0), a0 + f0 * 2 * Math.PI + gapA, a0 + e * 2 * Math.PI - (e >= f1 ? gapA : 0));
+      ctx.lineWidth = i === 0 ? th * 1.24 : th;
+      ctx.strokeStyle = c[sg.c]; ctx.stroke();
+    });
+    // centre: share captured by street markets
+    var pv = seg(t, T5 + 0.6, T5 + 3);
+    ctx.textAlign = "center";
+    ctx.fillStyle = c.accent;
+    ctx.font = font(Math.round(D.r * 0.42), 700);
+    ctx.fillText(I18N.t(P + "pct", { v: fmt(Math.round(res.segs[0].pct * ease.out(pv))) }), D.cx, D.cy + D.r * 0.12);
+    ctx.font = font(L.phone ? 10 : 11, 600); ctx.fillStyle = c.ink2;
+    var cap2 = I18N.t(P + "cat.sm");
+    if (ctx.measureText(cap2).width < (D.r - th) * 1.8) ctx.fillText(cap2, D.cx, D.cy + D.r * 0.12 + (L.phone ? 13 : 16));
+    // legend
+    var rows = res.segs.length, rh = L.phone ? 19 : 23;
+    var y0 = D.cy - (rows - 1) * rh / 2 - (res.derived ? rh / 2 : 0);
+    res.segs.forEach(function (sg, i) {
+      var la = seg(t, T5 + 1 + i * 0.3, T5 + 1.6 + i * 0.3);
+      if (la <= 0) return;
+      var y = y0 + i * rh, x = L.legX + 6 * (1 - la);
+      ctx.globalAlpha = alpha * la;
+      ctx.fillStyle = c[sg.c]; ctx.fillRect(x, y - 5, 10, 10);
+      if (sg.k === "rest") { ctx.strokeStyle = c.axis; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y - 4.5, 9, 9); }
+      var pctTxt = I18N.t(P + "pct", { v: fmt(sg.pct) });
+      ctx.font = font(L.phone ? 11 : 12.5, 700);
+      var room = L.legX + L.legW - ctx.measureText(pctTxt).width - 8 - (x + 16);
+      // long category names (e.g. "Mercados campesinos") shrink, then truncate, so they never touch the value
+      var fs = L.phone ? 11 : 12.5, lab = I18N.t(P + "cat." + sg.k);
+      ctx.font = font(fs, i === 0 ? 700 : 600);
+      while (ctx.measureText(lab).width > room && fs > 9) { fs -= 0.5; ctx.font = font(fs, i === 0 ? 700 : 600); }
+      while (ctx.measureText(lab).width > room && lab.length > 3) lab = lab.slice(0, -2) + "…";
+      ctx.fillStyle = i === 0 ? c.ink : c.ink2; ctx.textAlign = "left";
+      ctx.fillText(lab, x + 16, y + 4);
+      ctx.textAlign = "right"; ctx.fillStyle = i === 0 ? c.accent : c.ink;
+      ctx.font = font(L.phone ? 11 : 12.5, 700);
+      ctx.fillText(pctTxt, L.legX + L.legW, y + 4);
+    });
+    if (res.derived) {
+      var la2 = seg(t, T5 + 2, T5 + 2.6);
+      ctx.globalAlpha = alpha * la2;
+      ctx.font = font(L.phone ? 9.5 : 10.5, 600); ctx.fillStyle = c.muted; ctx.textAlign = "left";
+      ctx.fillText(I18N.t(P + "derived"), L.legX, y0 + rows * rh + 2);
+    }
+    ctx.restore();
+  }
+
+  /* ---------- scenario control ---------- */
+  var segEl = document.getElementById("anim-seg");
+  var player = null;
+  function buildSeg() {
+    segEl.innerHTML = "";
+    [750, 2000].forEach(function (b) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = I18N.t("r.markets.sc.b.val", { v: I18N.fmt(b) });
+      btn.setAttribute("aria-pressed", b === buf ? "true" : "false");
+      btn.addEventListener("click", function () {
+        if (buf === b) return;
+        buf = b;
+        computeCoverage();
+        buildSeg();
+        if (player) {
+          if (player.time >= T5) { player.seek(T5); player.play(); }
+          else player.refresh();
+        }
+      });
+      segEl.appendChild(btn);
+    });
+  }
+
+  I18N.onChange(function () {
+    buildSeg();
+    hudCache = {};
+    if (!player) {
+      layout();
+      player = Anim.create({
+        root: document.getElementById("anim"),
+        duration: DUR,
+        chapters: [{ t: 0, key: P + "ch1" }, { t: T2, key: P + "ch2" }, { t: T3, key: P + "ch3" },
+                   { t: T4, key: P + "ch4" }, { t: T5, key: P + "ch5" }],
+        onResize: function () { cv.fit(); layout(); },
+        render: render
+      });
+      window.__marketsAnim = player;
+    } else {
+      layout();
+    }
+  });
 })();
 </script>
 </body>

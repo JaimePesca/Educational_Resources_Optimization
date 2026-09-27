@@ -36,6 +36,15 @@
 table.data caption { text-align: left; font-size: 13px; color: var(--muted); padding: 0 0 6px; }
 table.data td.num, table.data th.num { text-align: right; }
 table.data tr.clickable { cursor: pointer; }
+/* animation: counters stack in a column beside the map on wide stages */
+#anim .anim-hud { flex-direction: column; align-items: flex-start; z-index: 1; }
+#anim .anim-hud .chip-stat { min-width: 118px; }
+@media (max-width: 620px) {
+  #anim .anim-hud { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); right: 10px; }
+  #anim .anim-hud .chip-stat { min-width: 0; padding: 4px 7px; font-size: 11px; line-height: 1.2; }
+  #anim .anim-hud .chip-stat b { font-size: 15px; }
+}
+#anim-section .anim-legend svg { width: 14px; height: 14px; flex: none; overflow: visible; }
 </style>
 </head>
 <body>
@@ -72,6 +81,42 @@ table.data tr.clickable { cursor: pointer; }
       <p class="hint" data-i18n="r.nanostores.comp.note"></p>
     </div>
     <p class="sources" data-i18n="r.nanostores.sources"></p>
+  </section>
+
+  <!-- 2b. Animation -->
+  <section class="block" id="anim-section">
+    <h2 class="section-title" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="r.nanostores.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="anLbl" data-i18n="r.nanostores.sc.dist"></span>
+      <div class="seg" role="group" aria-labelledby="anLbl" id="anSeg">
+        <button type="button" data-d="500"></button><button type="button" data-d="750"></button><button type="button" data-d="1000"></button>
+      </div>
+    </div>
+    <div class="anim" id="anim">
+      <div class="anim-stage">
+        <div class="anim-hud">
+          <div class="chip-stat" id="cHh"><b id="kHh"></b><span data-i18n="r.nanostores.anim.k.hh"></span></div>
+          <div class="chip-stat" id="cComp"><b id="kComp"></b><span data-i18n="r.nanostores.anim.k.comp"></span></div>
+          <div class="chip-stat" id="cCand"><b id="kCand"></b><span data-i18n="r.nanostores.anim.k.cand"></span></div>
+          <div class="chip-stat accent" id="cStores"><b id="kStores"></b><span data-i18n="r.nanostores.anim.k.stores"></span></div>
+          <div class="chip-stat" id="cKg"><b id="kKg"></b><span data-i18n="r.nanostores.anim.k.kg"></span></div>
+          <div class="chip-stat" id="cProfit"><b id="kProfit"></b><span data-i18n="r.nanostores.anim.k.profit"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><circle r="2.2" style="fill:var(--mit-silver)"/></svg><span data-i18n="r.nanostores.anim.lg.hh"></span></span>
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><rect x="-3.2" y="-3.2" width="6.4" height="6.4" style="fill:var(--ink2)"/></svg><span data-i18n="r.nanostores.type.nano"></span></span>
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><circle r="3.6" style="fill:var(--mit-silver)"/></svg><span data-i18n="r.nanostores.type.fruver"></span></span>
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><path d="M0,-4.2L4,3.2H-4Z" style="fill:var(--ink2)"/></svg><span data-i18n="r.nanostores.type.butcher"></span></span>
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><rect x="-4.2" y="-4.2" width="8.4" height="8.4" style="fill:none;stroke:var(--ink);stroke-width:1.6"/></svg><span data-i18n="r.nanostores.type.super"></span></span>
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><path d="M0,-4.6L4.6,0L0,4.6L-4.6,0Z" style="fill:var(--ink)"/></svg><span data-i18n="r.nanostores.type.hd"></span></span>
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><path d="M-4,0H4M0,-4V4" style="stroke:var(--ink2);stroke-width:2"/></svg><span data-i18n="r.nanostores.type.conv"></span></span>
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><circle r="4.4" style="fill:none;stroke:var(--ink2);stroke-width:1.3;stroke-dasharray:2.4 2"/></svg><span data-i18n="r.nanostores.anim.lg.cand"></span></span>
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><rect x="-4.4" y="-4.4" width="8.8" height="8.8" rx="1.5" style="fill:var(--accent)"/></svg><span data-i18n="r.nanostores.type.newnano"></span></span>
+      <span><svg viewBox="-7 -7 14 14" aria-hidden="true"><circle r="6" style="fill:var(--sel);stroke:var(--accent);stroke-width:1;stroke-dasharray:3 2"/></svg><span data-i18n="r.nanostores.anim.lg.excl"></span></span>
+    </div>
   </section>
 
   <!-- 3. The model -->
@@ -482,6 +527,680 @@ x_i,\ z_{ip}\in\{0,1\},\quad y_{jip}&\in[0,1],\quad q_{ip}\ge 0
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawCharts);
 
   I18N.onChange(render); // runs once the language is ready and on every language switch
+})();
+</script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+/* "See it in motion": the real case of Chía and Cajicá animated.
+ * Real figures: 537 households (288 Chía, 249 Cajicá), 188 competitors by type, 50 candidate sites and the
+ * Table 3 results for 500, 750 and 1,000 m. The paper publishes no coordinates, so the towns are stylized and
+ * every position below is illustrative (fixed seeds, identical on every load). */
+(function () {
+  "use strict";
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var K = "r.nanostores.";
+  function tk(k, v) { return I18N.t(K + k, v); }
+  function fmt(v, mx, mn) { return I18N.fmt(v, mx == null ? 0 : mx, mn); }
+  var FONT = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+
+  /* ---- real data (Section 2 and Table 3 of the manuscript) ---- */
+  var SCEN = {
+    500:  { st: 32, obj: 42643, kg: 108210, pct: 27 },
+    750:  { st: 21, obj: 30886, kg: 77844,  pct: 19 },
+    1000: { st: 17, obj: 26254, kg: 65954,  pct: 16 }
+  };
+  var TYPES = [
+    { k: "nano", n: 81 }, { k: "fruver", n: 60 }, { k: "butcher", n: 17 },
+    { k: "super", n: 13 }, { k: "hd", n: 9 }, { k: "conv", n: 8 }
+  ];
+  var N_HH = [288, 249], N_CAND = 50;
+  var dmin = 1000;
+
+  /* ---- timeline (seconds) ---- */
+  var DUR = 55, T2 = 9.5, T3 = 18.5, T4 = 25, T5 = 47;
+  var HH0 = 2.8, HH1 = 8.4;            // household pops
+  var CT0 = 9.9, CTSTEP = 0.78;        // competitor groups
+  var LN0 = 14.4, LN1 = 17.2;          // purchase lines
+  var CD0 = 18.9, CD1 = 22.4;          // candidates
+  var OPEN1 = 26.5, OPEN2 = 31.2, OPEN_END = 45.2;
+
+  /* ---- stylized geography (world units are km, y grows southwards) ---- */
+  var TOWNS = [
+    { cx: 0, cy: 0, R: 2.5, ph: [0.4, 1.9, 3.1], amp: [0.10, 0.06, 0.035], sx: 0.95, sy: 1.05,
+      core: { x: 0.2, y: -0.15, r: 0.75 }, cand: 28, key: "anim.chia", side: -1 },
+    { cx: 3.6, cy: -3.9, R: 2.0, ph: [2.2, 0.3, 4.4], amp: [0.09, 0.07, 0.04], sx: 1, sy: 1,
+      core: { x: 3.5, y: -3.8, r: 0.6 }, cand: 22, key: "anim.cajica", side: 1 }
+  ];
+  function townR(T, th) {
+    return T.R * (1 + T.amp[0] * Math.sin(2 * th + T.ph[0]) + T.amp[1] * Math.sin(3 * th + T.ph[1]) + T.amp[2] * Math.sin(5 * th + T.ph[2]));
+  }
+  function inTown(T, x, y, k) {
+    var dx = (x - T.cx) / T.sx, dy = (y - T.cy) / T.sy;
+    return Math.hypot(dx, dy) < townR(T, Math.atan2(dy, dx)) * k;
+  }
+  function polyOf(T) {
+    var p = [];
+    for (var i = 0; i < 120; i++) {
+      var th = i / 120 * Math.PI * 2, r = townR(T, th);
+      p.push(T.cx + Math.cos(th) * r * T.sx, T.cy + Math.sin(th) * r * T.sy);
+    }
+    return p;
+  }
+  function corePoly(T, seed) {
+    var R = A.rng(seed), a = R() * 6, b = R() * 6, p = [];
+    for (var i = 0; i < 60; i++) {
+      var th = i / 60 * Math.PI * 2, r = T.core.r * (1 + 0.12 * Math.sin(2 * th + a) + 0.08 * Math.sin(3 * th + b));
+      p.push(T.core.x + Math.cos(th) * r, T.core.y + Math.sin(th) * r);
+    }
+    return p;
+  }
+  function bez(p0, p1, p2, p3, n) {
+    var o = [];
+    for (var i = 0; i <= n; i++) {
+      var u = i / n, v = 1 - u;
+      o.push(v * v * v * p0[0] + 3 * v * v * u * p1[0] + 3 * v * u * u * p2[0] + u * u * u * p3[0],
+             v * v * v * p0[1] + 3 * v * v * u * p1[1] + 3 * v * u * u * p2[1] + u * u * u * p3[1]);
+    }
+    return o;
+  }
+  var ROADS = [
+    bez([0.2, -0.15], [1.1, -1.8], [2.2, -2.9], [3.5, -3.8], 40),      // Chía to Cajicá
+    bez([0.2, -0.15], [0.6, 1.4], [1.6, 2.4], [2.4, 4.4], 30),          // south, towards Bogotá
+    bez([3.5, -3.8], [3.8, -5.0], [4.4, -6.0], [4.7, -7.6], 30),        // north
+    bez([0.2, -0.15], [-1.1, -0.45], [-2.2, -0.2], [-3.8, -1.1], 30)    // west
+  ];
+  function polyLen(p) {
+    var L = [0];
+    for (var i = 2; i < p.length; i += 2) L.push(L[L.length - 1] + Math.hypot(p[i] - p[i - 2], p[i + 1] - p[i - 1]));
+    return L;
+  }
+  var ROADLEN = ROADS.map(polyLen);
+
+  /* ---- illustrative but deterministic positions ---- */
+  var W = { towns: [], hh: [], comp: [], cand: [] };
+  (function build() {
+    TOWNS.forEach(function (T, i) { W.towns.push({ poly: polyOf(T), core: corePoly(T, 71 + i) }); });
+
+    // households: part spread over the town, part denser around downtown
+    var R = A.rng(20200537);
+    TOWNS.forEach(function (T, ti) {
+      var n = 0;
+      while (n < N_HH[ti]) {
+        var x, y;
+        if (R() < 0.55) {
+          var th = R() * Math.PI * 2, rr = Math.sqrt(R()) * townR(T, th) * 0.95;
+          x = T.cx + Math.cos(th) * rr * T.sx; y = T.cy + Math.sin(th) * rr * T.sy;
+        } else {
+          var g1 = Math.sqrt(-2 * Math.log(R() + 1e-9)), g2 = R() * Math.PI * 2, s = T.R * 0.3;
+          x = T.core.x + Math.cos(g2) * g1 * s; y = T.core.y + Math.sin(g2) * g1 * s;
+        }
+        if (!inTown(T, x, y, 0.95)) continue;
+        var dc = Math.hypot(x - T.core.x, y - T.core.y) / T.R;
+        W.hh.push({ x: x, y: y, town: ti, pop: dc + R() * 0.35, ph: R(), lr: R() });
+        n++;
+      }
+    });
+    var mx = 0, mn = 1e9;
+    W.hh.forEach(function (h) { mx = Math.max(mx, h.pop); mn = Math.min(mn, h.pop); });
+    W.hh.forEach(function (h) { h.pop = HH0 + (h.pop - mn) / (mx - mn) * (HH1 - HH0 - 0.5); });
+
+    // competitors, concentrated downtown
+    R = A.rng(188);
+    TYPES.forEach(function (ty, k) {
+      for (var i = 0; i < ty.n; i++) {
+        var ti = R() < 0.55 ? 0 : 1, T = TOWNS[ti], x, y, ok = false, tries = 0;
+        while (!ok && tries++ < 60) {
+          var s = T.R * (R() < 0.72 ? 0.2 : 0.42);
+          var g1 = Math.sqrt(-2 * Math.log(R() + 1e-9)), g2 = R() * Math.PI * 2;
+          x = T.core.x + Math.cos(g2) * g1 * s; y = T.core.y + Math.sin(g2) * g1 * s;
+          ok = inTown(T, x, y, 0.88) && W.comp.every(function (c) { return Math.hypot(c.x - x, c.y - y) > 0.07; });
+        }
+        W.comp.push({ x: x, y: y, type: k, pop: CT0 + k * CTSTEP + (i / ty.n) * 0.6 + R() * 0.05 });
+      }
+    });
+
+    // where each household shops today: one of its nearest competitors
+    R = A.rng(4217);
+    W.hh.forEach(function (h) {
+      var near = W.comp.map(function (c, i) { return { i: i, d: Math.hypot(c.x - h.x, c.y - h.y) }; })
+        .sort(function (a, b) { return a.d - b.d; }).slice(0, 4);
+      var tot = 0;
+      near.forEach(function (n) { n.w = 1 / Math.pow(n.d + 0.12, 2); tot += n.w; });
+      var r = R() * tot, pick = near[0];
+      for (var i = 0; i < near.length; i++) { r -= near[i].w; if (r <= 0) { pick = near[i]; break; } }
+      h.store = pick.i;
+      h.line = LN0 + h.lr * (LN1 - LN0 - 0.7);
+    });
+
+    // 50 candidate sites, mostly on the outskirts; the score favors sites far from downtown
+    R = A.rng(1870);
+    TOWNS.forEach(function (T, ti) {
+      var n = 0, guard = 0;
+      while (n < T.cand && guard++ < 20000) {
+        var th = R() * Math.PI * 2, f = R() < 0.82 ? 0.62 + 0.33 * R() : 0.22 + 0.38 * R(), rr = townR(T, th) * f;
+        var x = T.cx + Math.cos(th) * rr * T.sx, y = T.cy + Math.sin(th) * rr * T.sy;
+        if (W.cand.some(function (c) { return Math.hypot(c.x - x, c.y - y) < 0.42; })) continue;
+        W.cand.push({ x: x, y: y, town: ti, s: f + 0.15 * R() });
+        n++;
+      }
+    });
+    R = A.rng(50);
+    var order = W.cand.map(function (c, i) { return { i: i, k: R() }; }).sort(function (a, b) { return a.k - b.k; });
+    order.forEach(function (o, j) { W.cand[o.i].pop = CD0 + j / N_CAND * (CD1 - CD0 - 0.6); });
+
+    // world bounds
+    var b = { x0: 1e9, x1: -1e9, y0: 1e9, y1: -1e9 };
+    W.towns.forEach(function (t) {
+      for (var i = 0; i < t.poly.length; i += 2) {
+        b.x0 = Math.min(b.x0, t.poly[i]); b.x1 = Math.max(b.x1, t.poly[i]);
+        b.y0 = Math.min(b.y0, t.poly[i + 1]); b.y1 = Math.max(b.y1, t.poly[i + 1]);
+      }
+    });
+    b.x0 -= 0.45; b.x1 += 0.45; b.y0 -= 0.5; b.y1 += 0.5;
+    W.b = b;
+  })();
+
+  /* ---- scenario: greedy opening that respects the minimum distance ---- */
+  var S = null;
+  function solve() {
+    var sc = SCEN[dmin], d = dmin / 1000;
+    var order = W.cand.map(function (c, i) { return i; }).sort(function (a, b) { return W.cand[b].s - W.cand[a].s; });
+    var open = [];
+    order.forEach(function (i) {
+      if (open.length >= sc.st) return;
+      var c = W.cand[i];
+      if (open.every(function (j) { return Math.hypot(W.cand[j].x - c.x, W.cand[j].y - c.y) >= d; })) open.push(i);
+    });
+    var n = open.length, openT = open.map(function (_, k) {
+      return k === 0 ? OPEN1 : OPEN2 + (k - 1) * (OPEN_END - OPEN2) / Math.max(1, n - 2);
+    });
+    var isOpen = {};
+    open.forEach(function (i, k) { isOpen[i] = k; });
+    // candidates inside an exclusion circle gray out when the circle reaches them
+    var excl = [], gray = W.cand.map(function (c, i) {
+      excl[i] = false;
+      if (isOpen[i] != null) return Infinity;
+      for (var k = 0; k < n; k++) {
+        var o = W.cand[open[k]], dd = Math.hypot(o.x - c.x, o.y - c.y);
+        if (dd < d) { excl[i] = true; return openT[k] + 0.25 + 0.8 * dd / d; }
+      }
+      return OPEN_END + 0.9; // feasible but not chosen: fades at the end
+    });
+    // households that switch: the ones that gain the most from a nearby new store (share = captured %)
+    var gain = W.hh.map(function (h, j) {
+      var best = -1, bd = 1e9;
+      open.forEach(function (i, k) { var c = W.cand[i], dd = Math.hypot(c.x - h.x, c.y - h.y); if (dd < bd) { bd = dd; best = k; } });
+      var s = W.comp[h.store];
+      return { j: j, k: best, dn: bd, g: Math.hypot(s.x - h.x, s.y - h.y) - bd };
+    }).sort(function (a, b) { return b.g - a.g; });
+    var M = Math.round(sc.pct / 100 * W.hh.length);
+    var sw = new Array(W.hh.length), swT = new Array(W.hh.length);
+    for (var j = 0; j < W.hh.length; j++) { sw[j] = -1; swT[j] = Infinity; }
+    gain.slice(0, M).forEach(function (g) { sw[g.j] = g.k; swT[g.j] = openT[g.k] + 0.3 + Math.min(1, g.dn / 1.2) * 0.6; });
+    S = { sc: sc, d: d, open: open, openT: openT, gray: gray, excl: excl, sw: sw, swT: swT, M: M };
+  }
+  solve();
+
+  /* ---- DOM ---- */
+  var root = document.getElementById("anim"), stage = root.querySelector(".anim-stage");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  cv.el.setAttribute("role", "img");
+  var hud = {};
+  ["Hh", "Comp", "Cand", "Stores", "Kg", "Profit"].forEach(function (k) {
+    hud[k] = { c: document.getElementById("c" + k), v: document.getElementById("k" + k), on: null, txt: null };
+  });
+  function chip(k, on, val) {
+    var h = hud[k];
+    if (h.on !== on) { h.c.style.display = on ? "" : "none"; h.on = on; }
+    if (on && h.txt !== val) { h.v.textContent = val; h.txt = val; }
+  }
+
+  /* ---- screen layout ---- */
+  var L = {};
+  function layout() {
+    var w = cv.w, h = cv.h, b = W.b, phone = w / h < 1.05;
+    var top = phone ? 74 : 14, bot = phone ? 12 : 14;
+    var bw = b.x1 - b.x0, bh = b.y1 - b.y0;
+    var s = Math.min((w - (phone ? 8 : 24)) / bw, (h - top - bot) / bh);
+    L = { w: w, h: h, phone: phone, s: s, cx: w / 2, cy: top + (h - top - bot) / 2,
+      wx: (b.x0 + b.x1) / 2, wy: (b.y0 + b.y1) / 2, g: clamp(s * 0.052, 2.2, 4.4) };
+  }
+
+  /* ---- camera ---- */
+  var cam = { S: 1, ox: 0, oy: 0, z: 1 };
+  function camera(t) {
+    var z = 1, fx = L.wx, fy = L.wy, k = 0;
+    z *= lerp(1.12, 1, E.inOut(seg(t, 0, 4)));
+    if (S.open.length) {
+      var f = W.cand[S.open[0]];
+      k = E.inOut(seg(t, T4, OPEN1 + 0.1)) * (1 - E.inOut(seg(t, 29.8, OPEN2 + 0.2)));
+      var Z = L.phone ? 1.6 : 1.8;
+      z *= lerp(1, Z, k);
+      fx = lerp(L.wx, f.x, k); fy = lerp(L.wy, f.y, k);
+    }
+    var sy = L.cy;
+    if (L.phone) { // make room for the result bar at the bottom
+      var r = E.inOut(seg(t, T5, T5 + 1.4));
+      z *= lerp(1, 0.84, r);
+      sy = lerp(L.cy, L.cy - 38, r);
+    }
+    cam.z = z; cam.S = L.s * z;
+    cam.ox = L.cx - fx * cam.S; cam.oy = sy - fy * cam.S;
+    cam.gz = L.g * Math.sqrt(z);
+  }
+  function X(x) { return cam.ox + x * cam.S; }
+  function Y(y) { return cam.oy + y * cam.S; }
+
+  function pop(t, t0, d) {
+    var u = seg(t, t0, t0 + (d || 0.45));
+    return u <= 0 ? 0 : E.back(u);
+  }
+  function tracePoly(p, cx, cy, e) {
+    ctx.moveTo(X(cx + (p[0] - cx) * e), Y(cy + (p[1] - cy) * e));
+    for (var i = 2; i < p.length; i += 2) ctx.lineTo(X(cx + (p[i] - cx) * e), Y(cy + (p[i + 1] - cy) * e));
+    ctx.closePath();
+  }
+  function glyph(type, x, y, g) {
+    switch (type) {
+      case 0: ctx.rect(x - g * 0.8, y - g * 0.8, g * 1.6, g * 1.6); break;
+      case 1: ctx.moveTo(x + g * 0.9, y); ctx.arc(x, y, g * 0.9, 0, Math.PI * 2); break;
+      case 2: ctx.moveTo(x, y - g * 1.05); ctx.lineTo(x + g, y + g * 0.8); ctx.lineTo(x - g, y + g * 0.8); ctx.closePath(); break;
+      case 3: ctx.rect(x - g * 1.05, y - g * 1.05, g * 2.1, g * 2.1); break;
+      case 4: ctx.moveTo(x, y - g * 1.15); ctx.lineTo(x + g * 1.15, y); ctx.lineTo(x, y + g * 1.15); ctx.lineTo(x - g * 1.15, y); ctx.closePath(); break;
+      case 5: ctx.moveTo(x - g, y); ctx.lineTo(x + g, y); ctx.moveTo(x, y - g); ctx.lineTo(x, y + g); break;
+    }
+  }
+  var STROKED = { 3: true, 5: true };
+  function typeStyle(C, k) {
+    return [C.ink2, C["mit-silver"], C.ink2, C.ink, C.ink, C.ink2][k];
+  }
+  function label(txt, x, y, align, col, size, weight) {
+    ctx.font = (weight || 600) + " " + (size || 12) + "px " + FONT;
+    ctx.textAlign = align || "center";
+    ctx.textBaseline = "middle";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = C.surface;
+    ctx.strokeText(txt, x, y);
+    ctx.fillStyle = col;
+    ctx.fillText(txt, x, y);
+  }
+  function rrect(x, y, w, h, r) {
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+  }
+
+  var C = null;
+  function render(t) {
+    C = A.colors();
+    var w = cv.w, h = cv.h, g = 0, i, j, k, u, e;
+    ctx.clearRect(0, 0, w, h);
+    camera(t);
+    g = cam.gz;
+    var TAU = Math.PI * 2, sil = C["mit-silver"], acc = C.accent, bright = C["mit-bright"];
+    var end5 = seg(t, T5, T5 + 1.2);
+
+    /* towns */
+    TOWNS.forEach(function (T, ti) {
+      var tw = W.towns[ti], e1 = E.out(seg(t, 0.2 + ti * 0.35, 2.4 + ti * 0.35));
+      if (e1 <= 0) return;
+      ctx.globalAlpha = Math.min(1, e1 * 1.4);
+      ctx.beginPath(); tracePoly(tw.poly, T.core.x, T.core.y, e1);
+      ctx.fillStyle = C.region; ctx.fill();
+      // faint street grid
+      ctx.save(); ctx.clip();
+      ctx.beginPath();
+      var st = 0.3, bx0 = T.cx - T.R * 1.2, bx1 = T.cx + T.R * 1.2, by0 = T.cy - T.R * 1.3, by1 = T.cy + T.R * 1.3;
+      for (var gx = Math.ceil(bx0 / st) * st; gx < bx1; gx += st) { ctx.moveTo(X(gx), Y(by0)); ctx.lineTo(X(gx + 0.25), Y(by1)); }
+      for (var gy = Math.ceil(by0 / st) * st; gy < by1; gy += st) { ctx.moveTo(X(bx0), Y(gy)); ctx.lineTo(X(bx1), Y(gy - 0.2)); }
+      ctx.strokeStyle = C.surface; ctx.lineWidth = 1; ctx.globalAlpha = 0.55 * Math.min(1, e1 * 1.4); ctx.stroke();
+      ctx.restore();
+      // downtown core
+      var e2 = E.out(seg(t, 1.0 + ti * 0.35, 2.8 + ti * 0.35));
+      if (e2 > 0) {
+        ctx.globalAlpha = e2;
+        ctx.beginPath(); tracePoly(tw.core, T.core.x, T.core.y, e2);
+        ctx.fillStyle = C.region; ctx.fill();
+      }
+      ctx.globalAlpha = Math.min(1, e1 * 1.4);
+      ctx.beginPath(); tracePoly(tw.poly, T.core.x, T.core.y, e1);
+      ctx.strokeStyle = C.axis; ctx.lineWidth = 1; ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+
+    /* roads, drawn in along their length */
+    ROADS.forEach(function (p, ri) {
+      var Ls = ROADLEN[ri], tot = Ls[Ls.length - 1], lim = E.inOut(seg(t, 1.4 + ri * 0.25, 3.4 + ri * 0.25)) * tot;
+      if (lim <= 0) return;
+      ctx.beginPath(); ctx.moveTo(X(p[0]), Y(p[1]));
+      for (var q = 1; q < Ls.length; q++) {
+        if (Ls[q] <= lim) ctx.lineTo(X(p[2 * q]), Y(p[2 * q + 1]));
+        else {
+          var f = (lim - Ls[q - 1]) / (Ls[q] - Ls[q - 1]);
+          ctx.lineTo(X(lerp(p[2 * q - 2], p[2 * q], f)), Y(lerp(p[2 * q - 1], p[2 * q + 1], f)));
+          break;
+        }
+      }
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.strokeStyle = C.axis; ctx.lineWidth = Math.max(3, cam.S * 0.075); ctx.stroke();
+      ctx.strokeStyle = C.surface; ctx.lineWidth = Math.max(1.2, cam.S * 0.03); ctx.stroke();
+    });
+
+    /* exclusion circles of the opened stores */
+    var n = S.open.length, dpx = S.d * cam.S;
+    if (t >= OPEN1) {
+      // one path for all zones so overlaps do not stack up
+      ctx.beginPath();
+      for (k = 0; k < n; k++) {
+        u = E.out(seg(t, S.openT[k] + 0.15, S.openT[k] + 1.05));
+        if (u <= 0) break;
+        var c = W.cand[S.open[k]];
+        ctx.moveTo(X(c.x) + dpx * u, Y(c.y)); ctx.arc(X(c.x), Y(c.y), dpx * u, 0, TAU);
+      }
+      ctx.fillStyle = C.sel; ctx.fill("nonzero");
+      ctx.strokeStyle = acc; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+      for (k = 0; k < n; k++) {
+        u = E.out(seg(t, S.openT[k] + 0.15, S.openT[k] + 1.05));
+        if (u <= 0) break;
+        c = W.cand[S.open[k]];
+        ctx.beginPath(); ctx.arc(X(c.x), Y(c.y), dpx * u, 0, TAU);
+        ctx.globalAlpha = lerp(0.95, 0.35, seg(t, S.openT[k] + 1, S.openT[k] + 2.2)) * lerp(1, 0.6, end5); ctx.stroke();
+        var fresh = 1 - seg(t, S.openT[k] + 0.6, S.openT[k] + 1.6);
+        if (fresh > 0) { ctx.globalAlpha = fresh; ctx.fillStyle = C.sel; ctx.fill(); }
+      }
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    }
+
+    /* purchase lines: today (silver) and switched to a new store (red) */
+    var lineA = lerp(0.2, 0.09, end5), sx, sy, ex, ey, hh, cs;
+    if (t >= LN0) {
+      ctx.beginPath();
+      for (j = 0; j < W.hh.length; j++) {
+        hh = W.hh[j];
+        u = seg(t, hh.line, hh.line + 0.7);
+        if (u <= 0 || t >= S.swT[j]) continue;
+        u = E.out(u); cs = W.comp[hh.store];
+        ctx.moveTo(X(hh.x), Y(hh.y)); ctx.lineTo(X(lerp(hh.x, cs.x, u)), Y(lerp(hh.y, cs.y, u)));
+      }
+      ctx.strokeStyle = sil; ctx.lineWidth = 0.8; ctx.globalAlpha = lineA * 2.2; ctx.stroke();
+      if (t >= OPEN1) {
+        ctx.beginPath();
+        for (j = 0; j < W.hh.length; j++) {
+          if (t < S.swT[j]) continue;
+          hh = W.hh[j]; cs = W.comp[hh.store]; c = W.cand[S.open[S.sw[j]]];
+          u = E.inOut(seg(t, S.swT[j], S.swT[j] + 0.6));
+          ctx.moveTo(X(hh.x), Y(hh.y));
+          ctx.lineTo(X(lerp(cs.x, c.x, u)), Y(lerp(cs.y, c.y, u)));
+        }
+        ctx.strokeStyle = acc; ctx.lineWidth = 1; ctx.globalAlpha = 0.55; ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+
+      /* particles flowing from each household to its store */
+      var pr = Math.max(1, g * 0.3);
+      ctx.fillStyle = C.ink2; ctx.globalAlpha = lerp(0.55, 0.25, end5);
+      for (j = 0; j < W.hh.length; j++) {
+        hh = W.hh[j];
+        if (t < hh.line + 0.7 || t >= S.swT[j]) continue;
+        cs = W.comp[hh.store];
+        u = ((t - hh.line) * 0.42 + hh.ph) % 1;
+        ctx.fillRect(X(lerp(hh.x, cs.x, u)) - pr, Y(lerp(hh.y, cs.y, u)) - pr, pr * 2, pr * 2);
+      }
+      if (t >= OPEN1) {
+        ctx.fillStyle = bright; ctx.globalAlpha = 0.95; pr *= 1.35;
+        for (j = 0; j < W.hh.length; j++) {
+          if (t < S.swT[j] + 0.6) continue;
+          hh = W.hh[j]; c = W.cand[S.open[S.sw[j]]];
+          u = ((t - S.swT[j]) * 0.75 + hh.ph) % 1;
+          ctx.fillRect(X(lerp(hh.x, c.x, u)) - pr, Y(lerp(hh.y, c.y, u)) - pr, pr * 2, pr * 2);
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    /* households */
+    var hr = Math.max(1.3, g * 0.42), popped = 0;
+    ctx.beginPath();
+    for (j = 0; j < W.hh.length; j++) {
+      hh = W.hh[j]; u = pop(t, hh.pop, 0.5);
+      if (u <= 0) continue;
+      popped++;
+      if (t >= S.swT[j] + 0.6) continue;
+      ctx.moveTo(X(hh.x) + hr * u, Y(hh.y)); ctx.arc(X(hh.x), Y(hh.y), hr * u * (1 + 0.8 * (1 - seg(t, hh.pop, hh.pop + 0.5))), 0, TAU);
+    }
+    ctx.fillStyle = sil; ctx.fill();
+    if (t >= OPEN1) {
+      ctx.beginPath();
+      for (j = 0; j < W.hh.length; j++) {
+        if (t < S.swT[j] + 0.6) continue;
+        hh = W.hh[j];
+        ctx.moveTo(X(hh.x) + hr * 1.15, Y(hh.y)); ctx.arc(X(hh.x), Y(hh.y), hr * 1.15, 0, TAU);
+      }
+      ctx.fillStyle = acc; ctx.fill();
+    }
+
+    /* competitors, one glyph shape per type */
+    var compN = 0, cg = g * 0.95, dimC = lerp(1, 0.55, end5);
+    for (k = 0; k < TYPES.length; k++) {
+      ctx.beginPath();
+      var any = false;
+      for (i = 0; i < W.comp.length; i++) {
+        var cp = W.comp[i];
+        if (cp.type !== k) continue;
+        u = pop(t, cp.pop, 0.4);
+        if (u <= 0) continue;
+        compN++; any = true;
+        glyph(k, X(cp.x), Y(cp.y), cg * u);
+      }
+      if (!any) continue;
+      ctx.globalAlpha = dimC;
+      if (STROKED[k]) { ctx.strokeStyle = typeStyle(C, k); ctx.lineWidth = k === 5 ? 1.8 : 1.4; ctx.stroke(); }
+      else { ctx.fillStyle = typeStyle(C, k); ctx.fill(); if (k === 1) { ctx.strokeStyle = C.surface; ctx.lineWidth = 0.8; ctx.stroke(); } }
+    }
+    ctx.globalAlpha = 1;
+
+    /* candidate sites */
+    var candN = 0, cr = g * 1.75;
+    if (t >= CD0) {
+      ctx.setLineDash([2.6, 2.2]);
+      ctx.beginPath();
+      var grayPath = [];
+      for (i = 0; i < W.cand.length; i++) {
+        c = W.cand[i]; u = pop(t, c.pop, 0.5);
+        if (u <= 0) continue;
+        candN++;
+        var gu = seg(t, S.gray[i], S.gray[i] + 0.4), ok = S.open.indexOf(i);
+        if (ok >= 0 && t >= S.openT[ok]) continue;
+        if (gu > 0) { grayPath.push(i, gu); continue; }
+        var breathe = t > CD1 && t < T4 ? 1 + 0.12 * Math.sin((t - CD1) * 5 + i) : 1;
+        ctx.moveTo(X(c.x) + cr * u * breathe, Y(c.y)); ctx.arc(X(c.x), Y(c.y), cr * u * breathe, 0, TAU);
+      }
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.3; ctx.stroke();
+      ctx.setLineDash([]);
+      for (i = 0; i < grayPath.length; i += 2) {
+        c = W.cand[grayPath[i]]; gu = grayPath[i + 1];
+        var rr = cr * lerp(1, 0.7, gu), px = X(c.x), py = Y(c.y);
+        ctx.beginPath(); ctx.arc(px, py, rr, 0, TAU);
+        ctx.strokeStyle = sil; ctx.lineWidth = 1.1; ctx.globalAlpha = lerp(1, 0.7, gu); ctx.stroke();
+        if (!S.excl[grayPath[i]]) continue;
+        ctx.beginPath(); var q = rr * 0.55 * gu;
+        ctx.moveTo(px - q, py - q); ctx.lineTo(px + q, py + q); ctx.moveTo(px + q, py - q); ctx.lineTo(px - q, py + q);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      // arrival rings
+      ctx.lineWidth = 1;
+      for (i = 0; i < W.cand.length; i++) {
+        c = W.cand[i]; u = seg(t, W.cand[i].pop, W.cand[i].pop + 0.8);
+        if (u <= 0 || u >= 1) continue;
+        ctx.beginPath(); ctx.arc(X(c.x), Y(c.y), cr * (1 + 2 * E.out(u)), 0, TAU);
+        ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.5 * (1 - u); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    /* new stores */
+    var opened = 0, ng = g * 1.25;
+    for (k = 0; k < n; k++) {
+      var t0 = S.openT[k];
+      if (t < t0) break;
+      opened++;
+      c = W.cand[S.open[k]];
+      var px2 = X(c.x), py2 = Y(c.y);
+      u = seg(t, t0, t0 + 1.0);
+      if (u < 1) {
+        ctx.beginPath(); ctx.arc(px2, py2, ng * (1.2 + 4.5 * E.out(u)), 0, TAU);
+        ctx.strokeStyle = bright; ctx.lineWidth = 2; ctx.globalAlpha = 1 - u; ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      if (t > T5 + 0.8) { // result: gentle staggered pulses
+        var pu = ((t - T5 - 0.8) / 2.4 + k / n) % 1;
+        ctx.beginPath(); ctx.arc(px2, py2, ng * (1.3 + 2.6 * pu), 0, TAU);
+        ctx.strokeStyle = acc; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.6 * (1 - pu); ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      var sc2 = pop(t, t0, 0.5), sz = ng * sc2;
+      ctx.beginPath(); rrect(px2 - sz, py2 - sz, sz * 2, sz * 2, sz * 0.3);
+      var flash = 1 - seg(t, t0 + 0.2, t0 + 0.9);
+      ctx.fillStyle = flash > 0.5 ? bright : acc; ctx.fill();
+      ctx.strokeStyle = C.surface; ctx.lineWidth = 1.2; ctx.stroke();
+    }
+
+    /* labels */
+    var la = seg(t, 2.4, 3.2);
+    if (la > 0) {
+      ctx.globalAlpha = la;
+      TOWNS.forEach(function (T) {
+        var txt = tk(T.key), lx = X(T.cx + T.side * (T.R * T.sx + 0.12)), ly = Y(T.cy + T.side * 0.35);
+        ctx.font = "700 13px " + FONT;
+        var tw = ctx.measureText(txt).width;
+        if (T.side < 0) label(txt, Math.max(8 + tw, lx), ly, "right", C.ink, 13, 700);
+        else label(txt, Math.min(w - 8 - tw, lx), ly, "left", C.ink, 13, 700);
+      });
+      ctx.globalAlpha = 1;
+    }
+    var da = seg(t, 12.2, 13.2) * (1 - seg(t, 17.8, 18.6)) + seg(t, T5 + 1.2, T5 + 2.2);
+    if (da > 0) {
+      ctx.globalAlpha = Math.min(1, da);
+      TOWNS.forEach(function (T) { label(tk("anim.downtown"), X(T.core.x), Y(T.core.y + T.core.r + 0.14), "center", C.ink2, 11.5, 600); });
+      ctx.globalAlpha = 1;
+    }
+    // minimum distance, shown on the first store while the camera is close
+    var ra = seg(t, OPEN1 + 0.9, OPEN1 + 1.5) * (1 - seg(t, 29.8, 30.6));
+    if (ra > 0 && n) {
+      c = W.cand[S.open[0]];
+      var ang = -Math.PI / 5, x0 = X(c.x), y0 = Y(c.y), x1 = x0 + Math.cos(ang) * dpx, y1 = y0 + Math.sin(ang) * dpx;
+      ctx.globalAlpha = ra;
+      ctx.beginPath(); ctx.moveTo(x0 + Math.cos(ang) * ng * 1.4, y0 + Math.sin(ang) * ng * 1.4); ctx.lineTo(x1, y1);
+      ctx.strokeStyle = C["accent-text"]; ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.beginPath(); ctx.arc(x1, y1, 2.4, 0, TAU); ctx.fillStyle = C["accent-text"]; ctx.fill();
+      label(tk("sc.m", { v: fmt(dmin) }), (x0 + x1) / 2 + Math.sin(ang) * 16, (y0 + y1) / 2 - Math.cos(ang) * 16, "center", C["accent-text"], 13, 700);
+      ctx.globalAlpha = 1;
+    }
+
+    /* overlay: competitor type readout (chapter 2) */
+    for (k = 0; k < TYPES.length; k++) {
+      var a0 = CT0 + k * CTSTEP, a1 = a0 + CTSTEP;
+      var oa = seg(t, a0, a0 + 0.18) * (1 - (k === TYPES.length - 1 ? seg(t, 16.2, 16.8) : seg(t, a1 - 0.22, a1 - 0.04)));
+      if (oa <= 0) continue;
+      var cnt = Math.round(TYPES[k].n * clamp(seg(t, a0, a0 + 0.6), 0, 1));
+      var tx, ty2, al;
+      if (L.phone) { tx = 14; ty2 = 96; al = "left"; } else { tx = w - 18; ty2 = h - 46; al = "right"; }
+      ctx.globalAlpha = oa;
+      var num = fmt(cnt), nm = tk("type." + TYPES[k].k);
+      label(num, tx, ty2, al, C.ink, 28, 700);
+      ctx.font = "600 12.5px " + FONT;
+      var nmw = ctx.measureText(nm).width;
+      label(nm, al === "left" ? tx + 18 : tx, ty2 + 25, al, C.ink2, 12.5, 600);
+      var gxp = al === "left" ? tx + 6 : tx - nmw - 12, gg = 5;
+      ctx.beginPath(); glyph(k, gxp, ty2 + 25, gg);
+      if (STROKED[k]) { ctx.strokeStyle = typeStyle(C, k); ctx.lineWidth = k === 5 ? 2.2 : 1.6; ctx.stroke(); }
+      else { ctx.fillStyle = typeStyle(C, k); ctx.fill(); }
+      ctx.globalAlpha = 1;
+    }
+
+    /* overlay: captured share (chapter 5) */
+    var pa = E.out(seg(t, T5 + 0.3, T5 + 1.3));
+    if (pa > 0) {
+      var pw = L.phone ? w - 24 : Math.min(270, w * 0.3), ph = L.phone ? 62 : 78;
+      var pxp = L.phone ? 12 : w - pw - 16, pyp = h - ph - 12 + (1 - pa) * 12;
+      ctx.globalAlpha = pa;
+      ctx.beginPath(); rrect(pxp, pyp, pw, ph, 3);
+      ctx.fillStyle = C.surface; ctx.fill(); ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.stroke();
+      var bu = E.inOut(seg(t, T5 + 0.9, T5 + 2.6)), pct = S.sc.pct * bu;
+      var bx = pxp + 12, bwid = pw - 24, byy = pyp + ph - (L.phone ? 16 : 22), bht = L.phone ? 8 : 10;
+      ctx.font = "700 " + (L.phone ? 24 : 32) + "px " + FONT;
+      ctx.textAlign = "left"; ctx.textBaseline = "alphabetic"; ctx.fillStyle = C["accent-text"];
+      var ptxt = fmt(Math.round(pct)) + "%";
+      ctx.fillText(ptxt, bx, byy - (L.phone ? 10 : 14));
+      var ptw = ctx.measureText(ptxt).width;
+      ctx.font = "600 12px " + FONT; ctx.fillStyle = C.ink2;
+      ctx.fillText(tk("tile.pct"), bx + ptw + 8, byy - (L.phone ? 12 : 17));
+      ctx.beginPath(); rrect(bx, byy, bwid, bht, bht / 2); ctx.fillStyle = C.surface2; ctx.fill();
+      if (pct > 0) { ctx.beginPath(); rrect(bx, byy, Math.max(bht, bwid * pct / 100), bht, bht / 2); ctx.fillStyle = acc; ctx.fill(); }
+      // where the other two distances land
+      [500, 750, 1000].forEach(function (dd) {
+        if (dd === dmin) return;
+        var xx = bx + bwid * SCEN[dd].pct / 100;
+        ctx.beginPath(); ctx.moveTo(xx, byy - 3); ctx.lineTo(xx, byy + bht + 3);
+        ctx.strokeStyle = C.muted; ctx.lineWidth = 1.5; ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    /* HUD counters */
+    var early = t < T4;
+    chip("Hh", early, fmt(popped));
+    chip("Comp", early && t >= T2, fmt(compN));
+    chip("Cand", early && t >= T3, fmt(candN));
+    var prog = 0;
+    if (!early) for (j = 0; j < W.hh.length; j++) if (S.swT[j] < t) prog += seg(t, S.swT[j], S.swT[j] + 0.6);
+    var fr = S.M ? prog / S.M : 0;
+    chip("Stores", !early, fmt(opened));
+    chip("Kg", !early, fmt(Math.round(S.sc.kg * fr)));
+    chip("Profit", !early, fmt(Math.round(S.sc.obj * fr)));
+  }
+
+  function aria() {
+    cv.el.setAttribute("aria-label", tk("anim.aria", {
+      d: fmt(dmin), n: fmt(S.sc.st), kg: fmt(S.sc.kg), usd: fmt(S.sc.obj), pct: fmt(S.sc.pct)
+    }));
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: [
+      { t: 0, key: K + "anim.ch1" }, { t: T2, key: K + "anim.ch2" }, { t: T3, key: K + "anim.ch3" },
+      { t: T4, key: K + "anim.ch4" }, { t: T5, key: K + "anim.ch5" }
+    ],
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* scenario control: minimum distance between new stores */
+  var segEl = document.getElementById("anSeg");
+  function syncSeg() {
+    segEl.querySelectorAll("button").forEach(function (b) {
+      var d = +b.getAttribute("data-d");
+      b.textContent = tk("sc.m", { v: fmt(d) });
+      b.setAttribute("aria-pressed", String(d === dmin));
+    });
+    aria();
+  }
+  segEl.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button");
+    if (!b) return;
+    var d = +b.getAttribute("data-d");
+    if (d === dmin) return;
+    dmin = d; solve(); syncSeg();
+    if (player.time > T4) { player.seek(T4 + 0.001); player.play(); } else player.refresh();
+  });
+  I18N.onChange(syncSeg);
 })();
 </script>
 </body>

@@ -171,5 +171,36 @@ I18N.register("fr", {
   "r.pallets.find.4": "<b>L'étape 1 garantit l'admissibilité.</b> Charger le flux brut sans elle donne en moyenne 68 583 kg, au-delà de la charge utile de 65 000 kg dans chaque exécution auditée, avec 7,7 positions au-dessus de leur limite de poids.",
   "r.pallets.find.5": "<b>La composition l'emporte sur le séquencement.</b> Pénaliser les palettes mixtes porte le placement de 92,1 % à 97,2 % au prix de 6 cartons, tandis que contrôler l'ordre d'arrivée rapporte au plus 1,4 point.",
 
-  "r.pallets.note": "Données et résultats issus du manuscrit « A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight » (document de travail). Les figures reproduisent l'étude à titre d'illustration ; consultez l'article pour l'analyse complète."
+  "r.pallets.note": "Données et résultats issus du manuscrit « A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight » (document de travail). Les figures reproduisent l'étude à titre d'illustration ; consultez l'article pour l'analyse complète.",
+
+  /* ---- animation ---- */
+  "r.pallets.anim.intro": "Toute l'étude en moins d'une minute : le manifeste, le plan, l'aire de chargement et la boucle qui comble l'écart.",
+  "r.pallets.anim.aria": "Animation : les 8 500 cartons du manifeste sont planifiés sur les 32 positions d'un Airbus A330-200F, empilés à mesure qu'ils arrivent sur l'aire de chargement, et le remplissage réellement atteint est réinjecté dans le plan.",
+  "r.pallets.anim.ctl": "Scénario",
+  "r.pallets.anim.off": "Sans rétroaction",
+  "r.pallets.anim.on": "Avec rétroaction par facteurs de remplissage",
+  "r.pallets.anim.ch1": "Le manifeste",
+  "r.pallets.anim.ch2": "Étape 1 : le plan",
+  "r.pallets.anim.ch3": "Étape 2 : l'aire de chargement",
+  "r.pallets.anim.ch4": "Ce qui vole vraiment",
+  "r.pallets.anim.ch5": "Combler l'écart",
+  "r.pallets.anim.k.manifest": "cartons au manifeste",
+  "r.pallets.anim.k.plan": "cartons dans le plan",
+  "r.pallets.anim.k.stacked": "des cartons planifiés, empilés",
+  "r.pallets.anim.k.planned": "planifiées sur le papier",
+  "r.pallets.anim.k.loaded": "réellement chargées",
+  "r.pallets.anim.k.cost": "par kg (manuel {v} US$)",
+  "r.pallets.anim.k.costV": "{v} US$",
+  "r.pallets.anim.k.pct": "{v} %",
+  "r.pallets.anim.lbl.yard": "35 types de cartons · 45 classes",
+  "r.pallets.anim.lbl.window": "7 prochains cartons",
+  "r.pallets.anim.lbl.plan": "plan",
+  "r.pallets.anim.lbl.ground": "laissés au sol",
+  "r.pallets.anim.lbl.ff": "le remplissage mesuré revient au plan",
+  "r.pallets.anim.lbl.gap": "planifié, non empilable",
+  "r.pallets.anim.lbl.balance": "déséquilibre {v} / 500 kg",
+  "r.pallets.anim.lg.fam": "Familles de classes de cartons",
+  "r.pallets.anim.lg.plan": "Planifié par l'étape 1",
+  "r.pallets.anim.lg.stack": "Empilé sur la palette",
+  "r.pallets.anim.lg.ground": "Laissé au sol"
 }, "research/pallets");
