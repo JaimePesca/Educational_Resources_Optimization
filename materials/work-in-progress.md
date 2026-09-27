@@ -15,9 +15,9 @@ Read this first after any interruption (credits, context reset). It is the singl
 | # | Task | Status | Commit / notes |
 |---|---|---|---|
 | 1 | Logic game answer leak | done | see git log "Say It with Constraints" |
-| 2 | Navigation dropdown | todo | |
-| 3a | lab-solver "Inside the Solver" (animation) | todo | |
-| 3b | lab-cvar "Beyond VaR: CVaR" (animation) | todo | |
+| 2 | Navigation dropdown | building | agent started (site.js + site.css + locales) |
+| 3a | lab-solver "Inside the Solver" (animation) | building | site/lab/inside-the-solver.html, prefix solv. |
+| 3b | lab-cvar "Beyond VaR: CVaR" (animation) | building | site/lab/beyond-var.html, prefix cvar. |
 | 3c | lab-linearization (animation) | todo | uses materials/lab-notes.md |
 | 3d | lab-ml-methods "Learning Is Optimizing" (animation) | todo | |
 | 3e | lab-svm "The Widest Street" (animation) | todo | |
@@ -25,6 +25,12 @@ Read this first after any interruption (credits, context reset). It is the singl
 | 4 | Final site-wide check, report to the owner, ask for merge | todo | |
 
 Status values: todo, building, review, done. For each lab page: build agent, then an independent review agent (numbers recomputed separately, four languages, 1200/700/400 px, light and dark, screenshots), then commit, then set `href` on its entry in `catalog.js` → `lab`.
+
+## Planned files for the next batches
+- 3c lab-linearization → site/lab/linearizing-markets.html, prefix lin.
+- 3d lab-ml-methods → site/lab/learning-is-optimizing.html, prefix learn.
+- 3e lab-svm → site/lab/widest-street.html, prefix svm.
+- 3f lab-ml-ai-cases → site/lab/ml-ai-optimization.html, prefix mlai.
 
 ## Decisions already taken
 - Lab pages live in `site/lab/<file>.html` with bundles `site/locales/lab/<id>.<lang>.js`, keep `noindex, nofollow`, back link to the lab (not the home page), same player and tex.js as the learning resources, Further reading line (`data-further`) like the resources.
