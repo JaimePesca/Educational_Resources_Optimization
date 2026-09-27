@@ -823,7 +823,7 @@ x_{it} &\in\{0,1\} && (21)
   var ctx = cv.ctx;
   var L = {};
   var land = null, landColors = null, landS = 1, landM = 0;
-  var MG = 0.3; // km of margin around the district
+  var MG = 0.8; // km of margin around the district (room for the 750 m walking circles)
   var uc = document.createElement("canvas"), ucx = uc.getContext("2d");
 
   function layout() {
@@ -1430,12 +1430,19 @@ x_{it} &\in\{0,1\} && (21)
       ctx.globalAlpha = alpha * la;
       ctx.fillStyle = c[sg.c]; ctx.fillRect(x, y - 5, 10, 10);
       if (sg.k === "rest") { ctx.strokeStyle = c.axis; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y - 4.5, 9, 9); }
-      ctx.font = font(L.phone ? 11 : 12.5, i === 0 ? 700 : 600);
+      var pctTxt = I18N.t(P + "pct", { v: fmt(sg.pct) });
+      ctx.font = font(L.phone ? 11 : 12.5, 700);
+      var room = L.legX + L.legW - ctx.measureText(pctTxt).width - 8 - (x + 16);
+      // long category names (e.g. "Mercados campesinos") shrink, then truncate, so they never touch the value
+      var fs = L.phone ? 11 : 12.5, lab = I18N.t(P + "cat." + sg.k);
+      ctx.font = font(fs, i === 0 ? 700 : 600);
+      while (ctx.measureText(lab).width > room && fs > 9) { fs -= 0.5; ctx.font = font(fs, i === 0 ? 700 : 600); }
+      while (ctx.measureText(lab).width > room && lab.length > 3) lab = lab.slice(0, -2) + "…";
       ctx.fillStyle = i === 0 ? c.ink : c.ink2; ctx.textAlign = "left";
-      ctx.fillText(I18N.t(P + "cat." + sg.k), x + 16, y + 4);
+      ctx.fillText(lab, x + 16, y + 4);
       ctx.textAlign = "right"; ctx.fillStyle = i === 0 ? c.accent : c.ink;
       ctx.font = font(L.phone ? 11 : 12.5, 700);
-      ctx.fillText(I18N.t(P + "pct", { v: fmt(sg.pct) }), L.legX + L.legW, y + 4);
+      ctx.fillText(pctTxt, L.legX + L.legW, y + 4);
     });
     if (res.derived) {
       var la2 = seg(t, T5 + 2, T5 + 2.6);
