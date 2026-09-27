@@ -198,7 +198,7 @@
   var sgn = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? MINUS : "+") + m; };
   var texNum = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? "-" : "") + m; };
   var pct = function (v, d) { return T("cvar.pct", { v: num(v, d == null ? 2 : d) }); };
-  var spct = function (v, d) { return T("cvar.pct", { v: sgn(v, d == null ? 2 : d) }); };
+  var ppt = function (v, d) { return T("cvar.pp", { v: sgn(v, d == null ? 2 : d) }); };   // a change in percentage points
 
   /* =====================================================================================
      The data: S equally likely monthly scenarios of returns (in %) for three assets, drawn from a
@@ -306,8 +306,10 @@
 
   /* Minimum CVaR (Rockafellar and Uryasev 2000) as an LP over the S scenarios:
        min eta + (1/m) sum u_s  s.t. u_s >= -r_s'x - eta, u_s >= 0, sum x = 1, mu'x >= R, x >= 0,
-     with m = (1 - alpha) S and eta free (eta = eta+ - eta-). Solved in the browser with LP.solve. */
-  function cvarLP(alpha) {
+     with m = (1 - alpha) S and eta free (eta = eta+ - eta-). Solved in the browser with LP.solve, in a
+     Web Worker when one can be started (each solve takes a noticeable fraction of a second, so it stays off
+     the page's main thread), else on the main thread after the first paint. */
+  function cvarProblem(alpha) {
     var m = Math.round((1 - alpha) * S), N = NA + 2 + S, c = new Array(N).fill(0), rows = [], s, i;
     c[NA] = 1; c[NA + 1] = -1;
     for (s = 0; s < S; s++) c[NA + 2 + s] = 1 / m;
@@ -321,26 +323,53 @@
     for (i = 0; i < NA; i++) { ab[i] = 1; ar[i] = MU[i]; }
     rows.push({ a: ab, op: "=", b: 1 });
     rows.push({ a: ar, op: ">=", b: RMIN });
-    var res = LP.solve({ sense: "min", c: c, rows: rows });
-    if (res.status !== "optimal") return null;
+    return { sense: "min", c: c, rows: rows };
+  }
+  function cvarRead(p, res) {
+    if (!res || res.status !== "optimal") return null;
     var x = res.x.slice(0, NA), sx = x[0] + x[1] + x[2];
     return { x: x.map(function (v) { return v / sx; }), eta: res.x[NA] - res.x[NA + 1], z: res.z, it: res.iterations,
-      nv: N, nr: rows.length, retDual: res.duals[S + 1] };
+      nv: p.c.length, nr: p.rows.length, retDual: res.duals[S + 1] };
   }
+  var solveLP = (function () {
+    var w = null, jobs = [], lpSrc = (document.querySelector('script[src*="assets/lp.js"]') || {}).src;
+    function local() {                               // main thread fallback, one solve per task
+      if (!jobs.length) return;
+      var j = jobs.shift();
+      setTimeout(function () { j.cb(LP.solve(j.p)); local(); }, 30);
+    }
+    try {
+      var code = "self.window = self; importScripts(" + JSON.stringify(lpSrc) + ");" +
+        "onmessage = function (e) { postMessage(LP.solve(e.data)); };";
+      w = new Worker(URL.createObjectURL(new Blob([code], { type: "text/javascript" })));
+      w.onmessage = function (e) { var j = jobs.shift(); if (j) j.cb(e.data); };
+      w.onerror = function (ev) { if (ev && ev.preventDefault) ev.preventDefault(); w.terminate(); w = null; local(); };
+    } catch (e) { w = null; }
+    return function (p, cb) {
+      jobs.push({ p: p, cb: cb });
+      if (w) w.postMessage(p); else if (jobs.length === 1) local();
+    };
+  })();
 
-  var cache = {};
-  function scen(key) {
-    if (cache[key]) return cache[key];
-    var alpha = ALPHA[key], lp = cvarLP(alpha), LB = lossOf(lp.x);
-    var A = risk(LMV, alpha), B = risk(LB, alpha);
-    return (cache[key] = {
-      key: key, alpha: alpha, m: A.m, k: A.k, lp: lp, xA: MV.x, xB: lp.x, A: A, B: B,
-      sdA: Math.sqrt(varOf(MV.x)), sdB: Math.sqrt(varOf(lp.x)), vA: varOf(MV.x), vB: varOf(lp.x),
-      retA: retOf(MV.x), retB: retOf(lp.x)
+  var cache = {}, asked = {};
+  function scen(key) { return cache[key] || null; }
+  function request(key) {
+    if (asked[key]) return;
+    asked[key] = true;
+    var alpha = ALPHA[key], p = cvarProblem(alpha);
+    solveLP(p, function (res) {
+      var lp = cvarRead(p, res);
+      if (!lp) return;
+      var LB = lossOf(lp.x), A = risk(LMV, alpha), B = risk(LB, alpha);
+      cache[key] = {
+        key: key, alpha: alpha, m: A.m, k: A.k, lp: lp, xA: MV.x, xB: lp.x, A: A, B: B,
+        sdA: Math.sqrt(varOf(MV.x)), sdB: Math.sqrt(varOf(lp.x)), vA: varOf(MV.x), vB: varOf(lp.x),
+        retA: retOf(MV.x), retB: retOf(lp.x)
+      };
+      solved(key);
     });
   }
   var state = { sc: "a95" };
-  scen(state.sc);
 
   /* =====================================================================================
      "See it in motion". Every number is computed above; the dot layout, the path of η and
@@ -819,6 +848,10 @@
     C = A_.colors();
     HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
     var S_ = scen(state.sc);
+    if (!S_) {                                     // the LP of this level is still being solved
+      ctx.clearRect(0, 0, cv.w, cv.h); ctx.fillStyle = C.surface; ctx.fillRect(0, 0, cv.w, cv.h);
+      return;
+    }
     hud(S_, t);
     if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth + ":" + state.sc) layout();
     ctx.clearRect(0, 0, L.W, L.H);
@@ -848,12 +881,11 @@
     drawInset(S_, t);
   }
 
-  layout();
   var player = A_.create({
     root: root,
     duration: DUR,
     chapters: CH.map(function (c, k) { return { t: c, key: "cvar.ch" + (k + 1) }; }),
-    onResize: function () { cv.fit(); layout(); },
+    onResize: function () { cv.fit(); if (scen(state.sc)) layout(); },
     render: render
   });
 
@@ -868,7 +900,9 @@
     });
   }
   function renderScenText() {
-    var S_ = scen(state.sc), A = S_.A, B = S_.B;
+    var S_ = scen(state.sc);
+    if (!S_) return;
+    var A = S_.A, B = S_.B;
     document.getElementById("cvar-lg-dot").textContent = T("cvar.lg.dot", { S: S });
     document.getElementById("cvar-lg-tail").textContent = T("cvar.lg.tail", { m: S_.m });
     stage.setAttribute("aria-label", T("cvar.anim.aria") + " " + T("cvar.anim.aria.nums", {
@@ -893,7 +927,9 @@
     document.getElementById("cvar-assets").innerHTML = h + "</tbody>";
   }
   function renderSolution() {
-    var S_ = scen(state.sc), A = S_.A, B = S_.B, p = pctA(S_), lp = S_.lp;
+    var S_ = scen(state.sc);
+    if (!S_) return;
+    var A = S_.A, B = S_.B, p = pctA(S_), lp = S_.lp;
     document.getElementById("cvar-sol-title").textContent = T("cvar.sol.title", { a: fmt(S_.alpha, 2) });
     var row = function (name, a, b, d, better, cls) {
       return "<tr" + (cls ? " class='" + cls + "'" : "") + "><td class='rowh'>" + name + "</td><td class='num" + (better === 0 ? " best" : "") + "'>" + a +
@@ -904,12 +940,12 @@
     for (var i = 0; i < NA; i++) {
       h += row(T("cvar.sol.w", { a: aName(i) }), pct(S_.xA[i] * 100, 1), pct(S_.xB[i] * 100, 1), T("cvar.pp", { v: sgn((S_.xB[i] - S_.xA[i]) * 100, 1) }), -1, i === NA - 1 ? "sep" : "");
     }
-    h += row(T("cvar.sol.ret"), pct(S_.retA, 3), pct(S_.retB, 3), spct(S_.retB - S_.retA, 3), -1);
+    h += row(T("cvar.sol.ret"), pct(S_.retA, 3), pct(S_.retB, 3), ppt(S_.retB - S_.retA, 3), -1);
     h += row(T("cvar.sol.var"), fmt(S_.vA, 3), fmt(S_.vB, 3), sgn(S_.vB - S_.vA, 3), 0);
-    h += row(T("cvar.sol.sd"), pct(S_.sdA), pct(S_.sdB), spct(S_.sdB - S_.sdA, 2), 0, "sep");
-    h += row(T("cvar.sol.VaR", { p: p }), pct(A.VaR), pct(B.VaR), spct(B.VaR - A.VaR, 2), B.VaR < A.VaR - 1e-9 ? 1 : A.VaR < B.VaR - 1e-9 ? 0 : -1);
-    h += row(T("cvar.sol.CVaR", { p: p }), pct(A.CVaR), pct(B.CVaR), spct(B.CVaR - A.CVaR, 2), 1);
-    h += row(T("cvar.sol.worst"), pct(A.worst), pct(B.worst), spct(B.worst - A.worst, 2), B.worst < A.worst ? 1 : 0);
+    h += row(T("cvar.sol.sd"), pct(S_.sdA), pct(S_.sdB), ppt(S_.sdB - S_.sdA, 2), 0, "sep");
+    h += row(T("cvar.sol.VaR", { p: p }), pct(A.VaR), pct(B.VaR), ppt(B.VaR - A.VaR, 2), B.VaR < A.VaR - 1e-9 ? 1 : A.VaR < B.VaR - 1e-9 ? 0 : -1);
+    h += row(T("cvar.sol.CVaR", { p: p }), pct(A.CVaR), pct(B.CVaR), ppt(B.CVaR - A.CVaR, 2), 1);
+    h += row(T("cvar.sol.worst"), pct(A.worst), pct(B.worst), ppt(B.worst - A.worst, 2), B.worst < A.worst ? 1 : 0);
     document.getElementById("cvar-sol").innerHTML = h + "</tbody>";
     document.getElementById("cvar-lpinfo").innerHTML = T("cvar.sol.lp", {
       nv: lp.nv, nr: lp.nr, it: lp.it, S: S, eta: pct(lp.eta), v: pct(B.VaR), z: pct(lp.z), m: S_.m, c: pct(B.CVaR), g: fmt(lp.retDual, 2), g1: fmt(lp.retDual / 100, 2), d: fmt(0.01, 2)
@@ -948,10 +984,12 @@
     var note = document.getElementById("cvar-lv-note");
     if (!all) { note.textContent = ""; return; }
     var up = KEYS.filter(function (k) { return cache[k].B.VaR > cache[k].A.VaR + 1e-9; }).map(function (k) { return fmt(ALPHA[k], 2); });
-    note.textContent = T("cvar.lv.note", { sd: pct(Math.sqrt(MV.v)), x: wStr(MV.x) }) + (up.length ? " " + T("cvar.lv.up", { a: up.join(", ") }) : "");
+    note.textContent = T("cvar.lv.note", { sd: pct(Math.sqrt(MV.v)), x: wStr(MV.x) }) + (up.length ? " " + T("cvar.lv.up", { a: andList(up) }) : "");
   }
   function renderNotes() {
-    var S_ = scen(state.sc), A = S_.A, B = S_.B;
+    var S_ = scen(state.sc);
+    if (!S_) return;
+    var A = S_.A, B = S_.B;
     document.getElementById("cvar-n1").textContent = T("cvar.n.p1", { k: A.k, S: S, v: pct(A.VaR), m: S_.m, c: pct(A.CVaR), w: pct(A.worst), a: fmt(S_.alpha, 2) });
     document.getElementById("cvar-n2").textContent = T("cvar.n.p2", { S: S, nv: S_.lp.nv, nr: S_.lp.nr, it: S_.lp.it, eta: pct(S_.lp.eta), v: pct(B.VaR) });
     document.getElementById("cvar-n3").textContent = T("cvar.n.p3", {
@@ -963,17 +1001,26 @@
     document.getElementById("cvar-n4").textContent = T(up ? "cvar.n.p4.up" : "cvar.n.p4.down", { a: fmt(S_.alpha, 2), v0: pct(A.VaR), v1: pct(B.VaR) });
   }
 
-  var segBtns = document.querySelectorAll("#cvar-seg button");
+  var segBtns = document.querySelectorAll("#cvar-seg button"), first = true;
+  function showScen() {                            // the chosen level is solved: lay it out and play it
+    layout();
+    renderScenText(); renderSolution(); renderLevels(); renderNotes();
+    if (first) { first = false; if (!A_.reducedMotion && player.time < 1.2) player.seek(0); else player.refresh(); return; }
+    if (A_.reducedMotion) { player.seek(DUR); return; }
+    if (player.time < CH[1]) player.refresh();
+    else { player.seek(CH[1] + 0.001); player.play(); }
+  }
+  function solved(key) {
+    renderLevels();
+    if (key === state.sc) showScen();
+  }
   segBtns.forEach(function (b) {
     b.addEventListener("click", function () {
       if (state.sc === b.getAttribute("data-sc")) return;
       state.sc = b.getAttribute("data-sc");
       segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
-      scen(state.sc); layout();
-      renderScenText(); renderSolution(); renderLevels(); renderNotes();
-      if (A_.reducedMotion) { player.seek(DUR); return; }
-      if (player.time < CH[1]) player.refresh();
-      else { player.seek(CH[1] + 0.001); player.play(); }
+      if (scen(state.sc)) showScen();
+      else { request(state.sc); renderLevels(); player.refresh(); }
     });
   });
 
@@ -983,12 +1030,10 @@
     player.refresh();
   }
   I18N.onChange(renderPage);
-  // the other two levels are solved after the first paint (each LP takes a fraction of a second)
-  var pend = KEYS.filter(function (k) { return !cache[k]; });
-  (function next() {
-    if (!pend.length) { renderLevels(); return; }
-    setTimeout(function () { scen(pend.shift()); renderLevels(); next(); }, 60);
-  })();
+  renderSeg(); renderData(); renderLevels();
+  // the chosen level first, then the other two (solveLP runs them one after another, off the main thread)
+  request(state.sc);
+  KEYS.forEach(request);
 })();
 </script>
 </body>

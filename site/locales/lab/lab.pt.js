@@ -14,7 +14,7 @@ I18N.register("pt", {
   "lab.lab-solver.desc": "A animação acompanharia um solver de MILP desde o pré-processamento (presolve) e a relaxação linear até a árvore de branch and bound, com cortes que apertam o limitante e heurísticas que encontram novas incumbentes pelo caminho. Duas curvas, a incumbente e o melhor limitante, se aproximam enquanto o gap cai para 0, como no registro (log) do Gurobi.",
 
   "lab.lab-cvar.title": "Além do VaR: o CVaR",
-  "lab.lab-cvar.desc": "A partir de uma distribuição de perdas, a animação marcaria o VaR como um quantil e o CVaR como a média da cauda além dele. Depois mostraria como a formulação de Rockafellar e Uryasev (2000) transforma o CVaR em um programa linear sobre cenários e compararia uma carteira de variância mínima com uma de CVaR mínimo.",
+  "lab.lab-cvar.desc": "Com 200 meses simulados de ações colombianas, títulos TES e dólares, a animação marca o VaR como um quantil e o CVaR como a média da cauda além dele. Depois mostra como a formulação de Rockafellar e Uryasev (2000) transforma o CVaR em um programa linear sobre cenários e compara a carteira de variância mínima com a de CVaR mínimo.",
 
   "lab.lab-linearization.title": "Linearizar o modelo de feiras livres",
   "lab.lab-linearization.desc": "A restrição (14) é a única parte não linear do modelo de feiras livres: a probabilidade logit de comprar em um parque tem as decisões de abertura no numerador e no denominador. Adaptando o método de Haase e Müller (2014), o artigo a substitui pelas restrições lineares (24) a (26), apoiadas na razão (23). A animação acompanha uma célula de demanda enquanto os parques abrem, desenha as retas que fixam a divisão logit e mostra quando o modelo linear é exato e quando é só um limite superior.",

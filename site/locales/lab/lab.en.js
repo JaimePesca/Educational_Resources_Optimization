@@ -14,7 +14,7 @@ I18N.register("en", {
   "lab.lab-solver.desc": "The animation would follow a MILP solver from presolve and the LP relaxation through the branch-and-bound tree, with cuts tightening the bound and heuristics finding new incumbents along the way. Two curves, the incumbent and the best bound, close in on each other while the gap falls to 0, as in a Gurobi log.",
 
   "lab.lab-cvar.title": "Beyond VaR: CVaR",
-  "lab.lab-cvar.desc": "Starting from a loss distribution, the animation would mark VaR as a quantile and CVaR as the average of the tail beyond it. It would then show how the Rockafellar and Uryasev (2000) formulation turns CVaR into a linear program over scenarios, and compare a minimum variance portfolio with a minimum CVaR portfolio.",
+  "lab.lab-cvar.desc": "From 200 simulated months of Colombian stocks, TES bonds and dollars, the animation marks VaR as a quantile and CVaR as the average of the tail beyond it. It then shows how the Rockafellar and Uryasev (2000) formulation turns CVaR into a linear program over scenarios, and compares the minimum variance portfolio with the minimum CVaR portfolio.",
 
   "lab.lab-linearization.title": "Linearizing the Street Markets Model",
   "lab.lab-linearization.desc": "Constraint (14) is the only nonlinear piece of the street markets model: the logit probability of buying at a park has the opening decisions in both the numerator and the denominator. Adapting the method of Haase and Müller (2014), the paper replaces it with the linear constraints (24) to (26), built on the ratio (23). The animation follows one demand cell as parks open, draws the straight lines that pin the logit split, and shows when the linear model is exact and when it is only an upper bound.",

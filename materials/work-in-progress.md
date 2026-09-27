@@ -17,7 +17,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 | 1 | Logic game answer leak | done | see git log "Say It with Constraints" |
 | 2 | Navigation dropdown | done | Browse menu in site.js + site.css, keys nav.menu etc.; 96 checks passed |
 | 3a | lab-solver "Inside the Solver" (animation) | building | site/lab/inside-the-solver.html, prefix solv. |
-| 3b | lab-cvar "Beyond VaR: CVaR" (animation) | review | site/lab/beyond-var.html, prefix cvar.; built and self-checked (4 langs, 1200/700/400, light/dark, Python numpy/scipy check of every number: 0 mismatches) |
+| 3b | lab-cvar "Beyond VaR: CVaR" (animation) | done | site/lab/beyond-var.html; reviewed (numbers match, LP solves moved to a Web Worker); href in catalog.lab; card text in present tense |
 | 3c | lab-linearization (animation) | review | site/lab/linearizing-markets.html + locales/lab/lab-linearization.*.js, prefix lin.; illustrative cell (3 parks), LP.solve live, numbers checked with scipy, 4 langs x 1200/700/400 x light/dark pass |
 | 3d | lab-ml-methods "Learning Is Optimizing" (animation) | todo | |
 | 3e | lab-svm "The Widest Street" (animation) | todo | |
