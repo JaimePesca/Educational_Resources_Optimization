@@ -18,7 +18,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 | 2 | Navigation dropdown | done | Browse menu in site.js + site.css, keys nav.menu etc.; 96 checks passed |
 | 3a | lab-solver "Inside the Solver" (animation) | building | site/lab/inside-the-solver.html, prefix solv. |
 | 3b | lab-cvar "Beyond VaR: CVaR" (animation) | building | site/lab/beyond-var.html, prefix cvar. |
-| 3c | lab-linearization (animation) | todo | uses materials/lab-notes.md |
+| 3c | lab-linearization (animation) | building | site/lab/linearizing-markets.html, prefix lin.; uses materials/lab-notes.md |
 | 3d | lab-ml-methods "Learning Is Optimizing" (animation) | todo | |
 | 3e | lab-svm "The Widest Street" (animation) | todo | |
 | 3f | lab-ml-ai-cases "ML + AI in Optimization" (simulation) | todo | |
