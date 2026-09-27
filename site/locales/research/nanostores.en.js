@@ -29,6 +29,27 @@ I18N.register("en", {
   "r.nanostores.type.newnano": "New nanostore",
   "r.nanostores.sources": "Sources: structured household survey (2020) of 537 households, 288 in Chía and 249 in Cajicá, run with Universidad de La Sabana and the RAP-E regional planning scheme, used to extrapolate potential weekly demand; geolocation of households and retailers; average price per kg of each food category per retail channel, collected from representative retailers in the region; descriptive analysis in da Silva-Ovando et al. (2021).",
 
+  /* animation */
+  "r.nanostores.anim.intro": "The study's real counts and results for Chía and Cajicá, on a stylized map where positions are illustrative.",
+  "r.nanostores.anim.ch1": "Two towns, 537 homes",
+  "r.nanostores.anim.ch2": "Where they shop today",
+  "r.nanostores.anim.ch3": "50 candidate sites",
+  "r.nanostores.anim.ch4": "Opening new stores",
+  "r.nanostores.anim.ch5": "The captured share",
+  "r.nanostores.anim.k.hh": "households",
+  "r.nanostores.anim.k.comp": "competitors",
+  "r.nanostores.anim.k.cand": "candidate sites",
+  "r.nanostores.anim.k.stores": "new stores",
+  "r.nanostores.anim.k.kg": "kg captured",
+  "r.nanostores.anim.k.profit": "USD weekly profit",
+  "r.nanostores.anim.lg.hh": "Surveyed household",
+  "r.nanostores.anim.lg.cand": "Candidate site",
+  "r.nanostores.anim.lg.excl": "Minimum distance zone",
+  "r.nanostores.anim.chia": "Chía",
+  "r.nanostores.anim.cajica": "Cajicá",
+  "r.nanostores.anim.downtown": "Downtown",
+  "r.nanostores.anim.aria": "Animated map of Chía and Cajicá: 537 surveyed households, 188 competing retailers concentrated downtown and 50 candidate sites. With a minimum distance of {d} m the model opens {n} new nanostores, mostly on the outskirts, and captures {kg} kg ({pct}% of total demand) for a weekly profit of USD {usd}. Positions are illustrative.",
+
   /* the model */
   "r.nanostores.model.title": "The model",
   "r.nanostores.model.intro": "A mixed integer nonlinear program (MINLP). The decisions are which of the 50 candidate sites to open and which products each open store sells. The objective is weekly profit of the new network: margin (price minus unit cost) times captured demand, minus weekly fixed operating costs. Captured demand comes from a multinomial logit: each household splits its weekly demand for a product among all stores in proportion to exp(utility), where utility falls with distance and price. New stores must be at least dₘᵢₙ apart to avoid cannibalization, a product can be sold only at an open store, and each open store must reach a minimum captured demand. The nonlinear share constraint is linearized with the method of Haase and Müller (2014).",

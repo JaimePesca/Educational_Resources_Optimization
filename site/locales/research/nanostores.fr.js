@@ -29,6 +29,27 @@ I18N.register("fr", {
   "r.nanostores.type.newnano": "Nouveau nanostore",
   "r.nanostores.sources": "Sources : enquête structurée auprès des ménages (2020) portant sur 537 ménages, 288 à Chía et 249 à Cajicá, menée avec l'Universidad de La Sabana et le dispositif de planification régionale RAP-E, et utilisée pour extrapoler la demande hebdomadaire potentielle ; géolocalisation des ménages et des commerces ; prix moyen au kg de chaque catégorie d'aliments par canal de vente, relevé auprès de commerces représentatifs de la région ; analyse descriptive dans da Silva-Ovando et al. (2021).",
 
+  /* animation */
+  "r.nanostores.anim.intro": "Les effectifs et les résultats réels de l'étude à Chía et Cajicá, sur une carte stylisée où les positions sont illustratives.",
+  "r.nanostores.anim.ch1": "Deux communes, 537 ménages",
+  "r.nanostores.anim.ch2": "Où ils achètent aujourd'hui",
+  "r.nanostores.anim.ch3": "50 sites candidats",
+  "r.nanostores.anim.ch4": "Ouverture des commerces",
+  "r.nanostores.anim.ch5": "La part captée",
+  "r.nanostores.anim.k.hh": "ménages",
+  "r.nanostores.anim.k.comp": "concurrents",
+  "r.nanostores.anim.k.cand": "sites candidats",
+  "r.nanostores.anim.k.stores": "nouveaux commerces",
+  "r.nanostores.anim.k.kg": "kg captés",
+  "r.nanostores.anim.k.profit": "USD de bénéfice hebdo",
+  "r.nanostores.anim.lg.hh": "Ménage enquêté",
+  "r.nanostores.anim.lg.cand": "Site candidat",
+  "r.nanostores.anim.lg.excl": "Zone de distance minimale",
+  "r.nanostores.anim.chia": "Chía",
+  "r.nanostores.anim.cajica": "Cajicá",
+  "r.nanostores.anim.downtown": "Centre-ville",
+  "r.nanostores.anim.aria": "Carte animée de Chía et Cajicá : 537 ménages enquêtés, 188 commerces concurrents concentrés au centre-ville et 50 sites candidats. Avec une distance minimale de {d} m, le modèle ouvre {n} nouveaux nanostores, surtout en périphérie, et capte {kg} kg ({pct} % de la demande totale) pour un bénéfice hebdomadaire de {usd} USD. Les positions sont illustratives.",
+
   /* le modèle */
   "r.nanostores.model.title": "Le modèle",
   "r.nanostores.model.intro": "Un programme non linéaire mixte en nombres entiers (MINLP). Les décisions portent sur les sites à ouvrir parmi les 50 candidats et sur les produits vendus par chaque commerce ouvert. L'objectif est le bénéfice hebdomadaire du nouveau réseau : la marge (prix moins coût unitaire) multipliée par la demande captée, moins les coûts fixes d'exploitation hebdomadaires. La demande captée provient d'un logit multinomial : chaque ménage répartit sa demande hebdomadaire d'un produit entre tous les commerces proportionnellement à exp(utilité), l'utilité diminuant avec la distance et le prix. Les nouveaux commerces doivent être distants d'au moins dₘᵢₙ pour éviter la cannibalisation, un produit ne peut être vendu que dans un commerce ouvert, et chaque commerce ouvert doit capter une demande minimale. La contrainte non linéaire de parts est linéarisée avec la méthode de Haase et Müller (2014).",

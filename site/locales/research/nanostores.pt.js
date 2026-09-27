@@ -29,6 +29,27 @@ I18N.register("pt", {
   "r.nanostores.type.newnano": "Nova nanostore",
   "r.nanostores.sources": "Fontes: pesquisa estruturada com domicílios (2020) com 537 domicílios, 288 em Chía e 249 em Cajicá, realizada com a Universidad de La Sabana e o esquema de planejamento regional RAP-E, usada para extrapolar a demanda semanal potencial; georreferenciamento de domicílios e varejistas; preço médio por kg de cada categoria de alimento por canal de varejo, coletado em varejistas representativos da região; análise descritiva em da Silva-Ovando et al. (2021).",
 
+  /* animação */
+  "r.nanostores.anim.intro": "As contagens e os resultados reais do estudo em Chía e Cajicá, em um mapa estilizado no qual as posições são ilustrativas.",
+  "r.nanostores.anim.ch1": "Dois municípios, 537 domicílios",
+  "r.nanostores.anim.ch2": "Onde compram hoje",
+  "r.nanostores.anim.ch3": "50 locais candidatos",
+  "r.nanostores.anim.ch4": "Abrem as novas lojas",
+  "r.nanostores.anim.ch5": "A demanda captada",
+  "r.nanostores.anim.k.hh": "domicílios",
+  "r.nanostores.anim.k.comp": "concorrentes",
+  "r.nanostores.anim.k.cand": "locais candidatos",
+  "r.nanostores.anim.k.stores": "novas lojas",
+  "r.nanostores.anim.k.kg": "kg captados",
+  "r.nanostores.anim.k.profit": "USD de lucro semanal",
+  "r.nanostores.anim.lg.hh": "Domicílio entrevistado",
+  "r.nanostores.anim.lg.cand": "Local candidato",
+  "r.nanostores.anim.lg.excl": "Zona de distância mínima",
+  "r.nanostores.anim.chia": "Chía",
+  "r.nanostores.anim.cajica": "Cajicá",
+  "r.nanostores.anim.downtown": "Centro",
+  "r.nanostores.anim.aria": "Mapa animado de Chía e Cajicá: 537 domicílios entrevistados, 188 varejistas concorrentes concentrados no centro e 50 locais candidatos. Com uma distância mínima de {d} m o modelo abre {n} novas nanostores, principalmente na periferia, e capta {kg} kg ({pct}% da demanda total) com um lucro semanal de USD {usd}. As posições são ilustrativas.",
+
   /* the model */
   "r.nanostores.model.title": "O modelo",
   "r.nanostores.model.intro": "Um programa não linear inteiro misto (MINLP). As decisões são quais dos 50 locais candidatos abrir e quais produtos cada loja aberta vende. O objetivo é o lucro semanal da nova rede: a margem (preço menos custo unitário) vezes a demanda captada, menos os custos fixos semanais de operação. A demanda captada vem de um logit multinomial: cada domicílio divide sua demanda semanal por um produto entre todas as lojas em proporção a exp(utilidade), onde a utilidade diminui com a distância e o preço. As novas lojas devem estar a pelo menos dₘᵢₙ de distância entre si para evitar a canibalização, um produto só pode ser vendido em uma loja aberta, e cada loja aberta deve atingir uma demanda captada mínima. A restrição não linear de participação é linearizada com o método de Haase e Müller (2014).",
