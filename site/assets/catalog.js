@@ -70,7 +70,7 @@ window.CATALOG = {
     { id: "nlp-newton", level: "nlp", type: "animation" },
     { id: "nlp-penalty-barrier", level: "nlp", type: "animation" },
     { id: "nlp-weber", level: "nlp", type: "animation" },
-    { id: "nlp-slow-steaming", level: "nlp", type: "game" },
+    { id: "nlp-slow-steaming", href: "resources/slow-steaming.html", level: "nlp", type: "game" },
     { id: "nlp-fairness", level: "nlp", type: "simulation" },
     // Level 5 · Other OR methods (being built), in learning order
     { id: "other-queue-explode", level: "other", type: "animation" },
