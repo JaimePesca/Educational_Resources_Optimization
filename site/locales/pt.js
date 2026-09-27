@@ -3,6 +3,8 @@ I18N.register("pt", {
   /* ---- compartilhado ---- */
   "site.name": "Otimização em Ação",
   "ui.language": "Idioma",
+  "ui.readPaper": "Ler o artigo",
+  "ui.st": "s.a.",
   "nav.sections": "Seções",
   "nav.research": "Pesquisa",
   "nav.learn": "Trilha de aprendizagem",

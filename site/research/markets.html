@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en" data-title-key="r.markets.title" data-i18n-bundles="research/markets">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Locating street markets</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/research.css">
+<style>
+.repo { font-size: 13.5px; margin: 8px 0 0; }
+.tblwrap { position: relative; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.panel { display: grid; gap: 14px; min-width: 0; }
+.panel h3 { font-family: var(--font-sans); font-weight: 600; font-size: 17px; margin: 0; }
+.panel h4 { font-family: var(--font-sans); font-weight: 600; font-size: 14.5px; margin: 0; color: var(--ink); }
+.panel p { margin: 0; }
+.muted { color: var(--ink2); font-size: 14px; max-width: 78ch; }
+.small { font-size: 12.5px; color: var(--muted); max-width: 90ch; }
+.panels { display: grid; gap: 16px; }
+.grp { display: grid; gap: 6px; min-width: 0; }
+.grp-l { font-size: 13.5px; color: var(--ink2); }
+.ctlgrid .wide { grid-column: 1 / -1; }
+.ctlgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 18px; align-items: start; }
+.panel .seg { display: flex; width: fit-content; max-width: 100%; }
+.panel .seg button { flex: 1 1 auto; }
+.seg button:disabled { opacity: 0.38; cursor: not-allowed; }
+.seg button:not(:disabled):not([aria-pressed="true"]):hover { background: var(--surface2); color: var(--ink); }
+.btn {
+  font: 600 13px var(--font-sans); padding: 8px 12px; border: 1px solid var(--border); border-radius: 2px;
+  background: var(--surface); color: var(--ink); cursor: pointer; justify-self: start;
+}
+.btn:hover { background: var(--surface2); }
+.btn:disabled { opacity: 0.38; cursor: default; }
+.hint { font-size: 13px; color: var(--muted); border-left: 3px solid var(--axis); padding: 2px 0 2px 10px; max-width: 90ch; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.kpi { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 10px 12px; min-width: 0; }
+.kpi .v { font-weight: 700; font-size: 22px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.kpi .l { font-size: 12.5px; color: var(--ink2); margin-top: 2px; }
+.chartbox { min-width: 0; }
+.chartbox svg text { font-family: var(--font-sans); }
+.split-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+@media (max-width: 860px) { .split-grid { grid-template-columns: 1fr; } }
+.sched-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .sched-grid { grid-template-columns: 1fr; } }
+table.sched { min-width: 0; }
+table.sched th, table.sched td { text-align: center; padding: 6px 4px; }
+table.sched th:first-child, table.sched td:first-child { text-align: left; padding-left: 8px; }
+table.sched td.hl, table.sched th.hl { background: var(--sel); }
+table.sched tfoot td { font-size: 12.5px; color: var(--ink2); border-bottom: none; }
+.mk { display: inline-block; width: 14px; height: 14px; border-radius: 2px; background: var(--accent); vertical-align: middle; }
+.rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 13.5px; color: var(--ink2); }
+.rules li { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; }
+.ok { font: 600 11px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--good-text); border: 1px solid var(--good); border-radius: 2px; padding: 0 5px; white-space: nowrap; }
+.badge { font: 600 10.5px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--on-solid); background: var(--accent); border-radius: 2px; padding: 1px 5px; margin-left: 6px; white-space: nowrap; }
+table.crit td:first-child { font-weight: 600; white-space: nowrap; }
+table.crit { min-width: 560px; }
+.crit-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .crit-grid { grid-template-columns: 1fr; } }
+.statrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.sw.ring { background: transparent; border: 2px solid var(--accent); border-radius: 50%; }
+.sw.dot { border-radius: 50%; }
+.sw.cand { background: var(--surface); border: 1.5px solid var(--mit-silver); border-radius: 50%; }
+.sw.rest { background: var(--grid); border: 1px dashed var(--axis); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#research" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToResearch"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow" data-i18n="r.markets.eyebrow"></p>
+    <h1 data-i18n="r.markets.h1"></h1>
+    <p class="lede" data-i18n-html="r.markets.lede"></p>
+    <p class="cite" data-i18n-html="r.markets.cite"></p>
+    <p class="repo"><a href="https://github.com/JaimePesca/Locating-street-markets-Using-a-discrete-choice-model-MINLP-and-fuzzy-AHP" rel="noopener" data-i18n="r.markets.repo"></a></p>
+  </header>
+
+  <section class="block" aria-labelledby="h-case">
+    <h2 class="section-title" id="h-case" data-i18n="r.markets.case.h"></h2>
+    <p class="section-intro" data-i18n="r.markets.case.intro"></p>
+    <div class="stats">
+      <div class="stat"><div class="v" data-i18n="r.markets.stat.pop.v"></div><div class="l" data-i18n="r.markets.stat.pop.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.markets.stat.cells.v"></div><div class="l" data-i18n="r.markets.stat.cells.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.markets.stat.cand.v"></div><div class="l" data-i18n="r.markets.stat.cand.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.markets.stat.comp.v"></div><div class="l" data-i18n="r.markets.stat.comp.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.markets.stat.cons.v"></div><div class="l" data-i18n="r.markets.stat.cons.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.markets.stat.buffer.v"></div><div class="l" data-i18n="r.markets.stat.buffer.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.markets.stat.days.v"></div><div class="l" data-i18n="r.markets.stat.days.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.markets.stat.crit.v"></div><div class="l" data-i18n="r.markets.stat.crit.l"></div></div>
+    </div>
+    <p class="sources" data-i18n="r.markets.sources"></p>
+  </section>
+
+  <section class="block" aria-labelledby="h-model">
+    <h2 class="section-title" id="h-model" data-i18n="r.markets.model.h"></h2>
+    <p class="section-intro" data-i18n="r.markets.model.intro"></p>
+    <p class="section-intro" data-i18n="r.markets.model.rules"></p>
+    <div class="model">
+      <div class="math"><script type="text/x-tex">\begin{aligned}
+\max\; Z \;&= \sum_{i}\sum_{j}\sum_{t} w_i\, d_{jt}\, y_{ijt} && (13)\\[4pt]
+\text{ST}\quad y_{ijt} &= \frac{e^{V_{ij}}\, a_{ij}\, x_{it}}{\sum_{s\in I} e^{V_{sj}}\, a_{sj}\, x_{st}+\sum_{s\in S\setminus I} e^{V_{sj}}\, a_{sj}} && \forall\, i,\ j,\ t \quad (14)\\
+x_{it}+x_{i,t+1}+x_{i,t+2} &\le 1 && \forall\, i,\ t\le |T|-2 \quad (15)\\
+x_{i1}+x_{i2}+x_{i7} &= 0 && \forall\, i \quad (16)\\
+\sum_{i}\sum_{t} x_{it} &= M_d && (17)\\
+\sum_{i} x_{it} &\le 0.3\, M_d && t\in\{6,7\} \quad (18)\\
+\sum_{i} x_{it} &\le 0.2\, M_d && t\in\{1,\dots,5\} \quad (19)\\
+\sum_{i}\sum_{t=1}^{5} x_{it} &= 0.4\, M_d && (20)\\
+x_{it} &\in\{0,1\} && (21)
+\end{aligned}</script></div>
+      <div>
+        <ul class="vars">
+          <li data-i18n-html="r.markets.var.i"></li>
+          <li data-i18n-html="r.markets.var.j"></li>
+          <li data-i18n-html="r.markets.var.w"></li>
+          <li data-i18n-html="r.markets.var.d"></li>
+          <li data-i18n-html="r.markets.var.v"></li>
+          <li data-i18n-html="r.markets.var.a"></li>
+          <li data-i18n-html="r.markets.var.m"></li>
+          <li data-i18n-html="r.markets.var.x"></li>
+          <li data-i18n-html="r.markets.var.y"></li>
+        </ul>
+        <p class="small" style="margin-top:10px" data-i18n="r.markets.var.note"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-int">
+    <h2 class="section-title" id="h-int" data-i18n="r.markets.int.h"></h2>
+    <p class="section-intro" data-i18n="r.markets.int.intro"></p>
+    <div class="panels">
+
+      <!-- 1. scenario explorer -->
+      <div class="panel" id="p-sc">
+        <h3 data-i18n="r.markets.sc.h"></h3>
+        <p class="muted" data-i18n="r.markets.sc.intro"></p>
+        <div class="ctlgrid">
+          <div class="grp"><span class="grp-l" id="lab-m" data-i18n="r.markets.sc.ctl.m"></span><div class="seg" role="group" aria-labelledby="lab-m" data-key="m"></div></div>
+          <div class="grp"><span class="grp-l" id="lab-b" data-i18n="r.markets.sc.ctl.b"></span><div class="seg" role="group" aria-labelledby="lab-b" data-key="b"></div></div>
+          <div class="grp"><span class="grp-l" id="lab-f" data-i18n="r.markets.sc.ctl.f"></span><div class="seg" role="group" aria-labelledby="lab-f" data-key="f"></div></div>
+          <div class="grp wide"><span class="grp-l" id="lab-d" data-i18n="r.markets.sc.ctl.d"></span><div class="seg" role="group" aria-labelledby="lab-d" data-key="d"></div></div>
+        </div>
+        <button type="button" class="btn" id="reset" data-i18n="r.markets.sc.reset"></button>
+        <p class="hint" data-i18n="r.markets.sc.disabled"></p>
+        <div class="kpis" aria-live="polite">
+          <div class="kpi"><div class="v" id="k-kg"></div><div class="l" data-i18n="r.markets.sc.kpi.kg"></div></div>
+          <div class="kpi"><div class="v" id="k-share"></div><div class="l" data-i18n="r.markets.sc.kpi.share"></div></div>
+          <div class="kpi"><div class="v" id="k-delta"></div><div class="l" data-i18n="r.markets.sc.kpi.delta"></div></div>
+          <div class="kpi"><div class="v" id="k-src"></div><div class="l" data-i18n="r.markets.sc.kpi.src"></div></div>
+        </div>
+        <p class="muted" id="sc-pair"></p>
+        <div class="split-grid">
+          <div class="chartbox">
+            <h4 data-i18n="r.markets.split.h"></h4>
+            <div id="c-split"></div>
+            <div class="legend" id="lg-split"></div>
+            <p class="small" style="margin-top:6px" data-i18n="r.markets.split.note"></p>
+            <p class="small" style="margin-top:4px" data-i18n="r.markets.sc.shareNote"></p>
+          </div>
+          <div class="chartbox">
+            <h4 data-i18n="r.markets.all.h"></h4>
+            <div id="c-all"></div>
+            <p class="small" data-i18n="r.markets.all.hint"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. schedule -->
+      <div class="panel" id="p-sch">
+        <h3 data-i18n="r.markets.sch.h"></h3>
+        <p class="muted" data-i18n="r.markets.sch.intro"></p>
+        <div class="grp"><span class="grp-l" id="lab-day" data-i18n="r.markets.sch.ctl"></span><div class="seg" role="group" aria-labelledby="lab-day" id="seg-day"></div></div>
+        <div class="sched-grid">
+          <div class="grp">
+            <div class="tblwrap"><table class="data sched" id="t-sched"></table></div>
+            <h4 style="margin-top:8px" data-i18n="r.markets.rules.h"></h4>
+            <ul class="rules" id="rules"></ul>
+            <p class="small" data-i18n="r.markets.rule.note"></p>
+          </div>
+          <div class="chartbox">
+            <div id="c-map"></div>
+            <div class="legend" id="lg-map"></div>
+            <p class="small" style="margin-top:6px" data-i18n="r.markets.map.note"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. criteria -->
+      <div class="panel" id="p-cr">
+        <h3 data-i18n="r.markets.cr.h"></h3>
+        <p class="muted" data-i18n="r.markets.cr.intro"></p>
+        <p class="hint" data-i18n="r.markets.cr.noWeights"></p>
+        <div class="crit-grid">
+          <div class="tblwrap"><table class="data crit" id="t-crit"></table></div>
+          <div class="grp">
+            <div class="statrow">
+              <div class="kpi"><div class="v">10.370</div><div class="l" data-i18n="r.markets.cr.stat.lambda"></div></div>
+              <div class="kpi"><div class="v">0.041</div><div class="l" data-i18n="r.markets.cr.stat.ci"></div></div>
+              <div class="kpi"><div class="v">0.028</div><div class="l" data-i18n="r.markets.cr.stat.cr"></div></div>
+            </div>
+            <h4 style="margin-top:6px" data-i18n="r.markets.fz.h"></h4>
+            <div class="chartbox" id="c-fz"></div>
+            <div class="legend" id="lg-fz"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-find">
+    <h2 class="section-title" id="h-find" data-i18n="r.markets.find.h"></h2>
+    <ol class="findings">
+      <li><span data-i18n-html="r.markets.find.1"></span></li>
+      <li><span data-i18n-html="r.markets.find.2"></span></li>
+      <li><span data-i18n-html="r.markets.find.3"></span></li>
+      <li><span data-i18n-html="r.markets.find.4"></span></li>
+      <li><span data-i18n-html="r.markets.find.5"></span></li>
+    </ol>
+  </section>
+
+  <p class="note" data-i18n="r.markets.note"></p>
+</div>
+<script src="../assets/i18n.js" charset="utf-8"></script>
+<script src="../locales/en.js" charset="utf-8"></script>
+<script src="../locales/research/markets.en.js" charset="utf-8"></script>
+<script src="../assets/catalog.js" charset="utf-8"></script>
+<script src="../assets/research.js" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var fmt = function (v, max, min) { return I18N.fmt(v, max, min); };
+  var NS = "http://www.w3.org/2000/svg";
+  var P = "r.markets.";
+
+  /* ---------- data from the manuscript ---------- */
+  var TOTAL = 1025623; // Figure 6: 68,858 + 346,458 + 327,451 + 282,856 kg
+  var SPLIT = [
+    { k: "sm", kg: 68858, c: "--accent" },
+    { k: "fruver", kg: 346458, c: "--ink" },
+    { k: "super", kg: 327451, c: "--mit-silver" },
+    { k: "other", kg: 282856, c: "--axis" }
+  ];
+  // Reported runs: Table 5 (buffer x fuzzy AHP), Table 6 (market days), Table 7 (demand split)
+  var SC = [
+    { id: "base",  m: 10, b: 750,  f: 1, d: "5050", kg: 68858, src: "fig6", row: "base" },
+    { id: "b750o", m: 10, b: 750,  f: 0, d: "5050", kg: 69046, src: "t5", row: "baseOff" },
+    { id: "b1000", m: 10, b: 1000, f: 1, d: "5050", kg: 72595, src: "t5", row: "buf" },
+    { id: "b1000o",m: 10, b: 1000, f: 0, d: "5050", kg: 75450, src: "t5", row: "bufOff" },
+    { id: "b1500", m: 10, b: 1500, f: 1, d: "5050", kg: 78159, src: "t5", row: "buf" },
+    { id: "b1500o",m: 10, b: 1500, f: 0, d: "5050", kg: 84342, src: "t5", row: "bufOff" },
+    { id: "b2000", m: 10, b: 2000, f: 1, d: "5050", kg: 85025, src: "t5", row: "buf" },
+    { id: "b2000o",m: 10, b: 2000, f: 0, d: "5050", kg: 93085, src: "t5", row: "bufOff" },
+    { id: "m5",    m: 5,  b: 750,  f: 1, d: "5050", kg: 34569, src: "t6", row: "days" },
+    { id: "m15",   m: 15, b: 750,  f: 1, d: "5050", kg: 89942, src: "t6", row: "days" },
+    { id: "d4060", m: 10, b: 750,  f: 1, d: "4060", kg: 76059, src: "t7", row: "4060" },
+    { id: "deq",   m: 10, b: 750,  f: 1, d: "eq",   kg: 54651, src: "t7", row: "eq" }
+  ];
+  var BASE = SC[0];
+  var OPTS = { m: [5, 10, 15], b: [750, 1000, 1500, 2000], f: [1, 0], d: ["5050", "4060", "eq"] };
+  var state = { m: 10, b: 750, f: 1, d: "5050" };
+
+  // Table 4: base-case schedule (day index 0 = Monday)
+  var SCHED = [ { n: 1, days: [5] }, { n: 10, days: [5] }, { n: 13, days: [2, 6] },
+                { n: 14, days: [3, 6] }, { n: 19, days: [1, 5] }, { n: 20, days: [2, 6] } ];
+  var MD = 10;
+  var day = -1; // -1 = whole week
+
+  // Coordinates (lat, lon) from the authors' public repository: 25 candidate parks, 44 large competitors
+  var PARKS = [[4.64393,-74.19698],[4.63547,-74.20983],[4.64334,-74.18546],[4.63323,-74.20128],[4.62614,-74.21147],[4.63253,-74.19558],[4.63568,-74.18593],[4.62259,-74.20903],[4.6195,-74.20865],[4.62651,-74.19296],[4.61544,-74.20315],[4.63036,-74.1791],[4.60787,-74.20534],[4.61611,-74.1953],[4.61896,-74.18849],[4.62396,-74.17494],[4.60196,-74.20027],[4.60516,-74.19833],[4.61004,-74.19358],[4.61199,-74.18823],[4.61175,-74.18087],[4.60456,-74.18084],[4.60305,-74.15857],[4.59981,-74.19054],[4.59963,-74.1736]];
+  var COMP = [[4.60481,-74.19724],[4.60289,-74.19995],[4.6049,-74.20046],[4.59964,-74.19267],[4.59949,-74.19181],[4.61115,-74.20941],[4.61159,-74.20072],[4.60481,-74.18726],[4.60625,-74.18562],[4.60788,-74.17899],[4.61886,-74.1889],[4.62121,-74.1897],[4.6215,-74.18857],[4.63455,-74.18924],[4.63362,-74.19639],[4.64235,-74.19139],[4.63538,-74.19757],[4.62679,-74.20834],[4.62642,-74.20858],[4.59951,-74.19195],[4.59983,-74.193],[4.59972,-74.18365],[4.60467,-74.18286],[4.60484,-74.18462],[4.60492,-74.1874],[4.60667,-74.19953],[4.60788,-74.19587],[4.61069,-74.19902],[4.62423,-74.1958],[4.62221,-74.19262],[4.6203,-74.18887],[4.61719,-74.18816],[4.62448,-74.18634],[4.62726,-74.18791],[4.62873,-74.18533],[4.63026,-74.19398],[4.6352,-74.18676],[4.63628,-74.19211],[4.6323,-74.20487],[4.64164,-74.19507],[4.63636,-74.19219],[4.63531,-74.1867],[4.63679,-74.18416],[4.59974,-74.18374]];
+
+  // Table 2 criteria; top: the three the manuscript names as most important
+  var CRIT = [
+    { k: "pop", top: true }, { k: "strat" }, { k: "roads" }, { k: "side" }, { k: "morph" },
+    { k: "serv" }, { k: "land", top: true }, { k: "traffic" }, { k: "trans", top: true }, { k: "house" }
+  ];
+  // Table 3 fuzzy scale
+  var FZ = [ { n: 1, l: 1, m: 1, u: 1 }, { n: 3, l: 2, m: 3, u: 4 }, { n: 5, l: 4, m: 5, u: 6 },
+             { n: 7, l: 6, m: 7, u: 8 }, { n: 9, l: 9, m: 9, u: 9 } ];
+
+  /* ---------- helpers ---------- */
+  function $(id) { return document.getElementById(id); }
+  function col(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function svgEl(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var a in attrs) if (Object.prototype.hasOwnProperty.call(attrs, a) && attrs[a] != null) e.setAttribute(a, attrs[a]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function txt(parent, x, y, s, attrs) {
+    var a = attrs || {};
+    a.x = x; a.y = y;
+    var e = svgEl("text", a, parent);
+    e.textContent = s;
+    return e;
+  }
+  function tip(node, s) { var ti = svgEl("title", {}, node); ti.textContent = s; }
+  function newSvg(host, w, h, ariaKey) {
+    host.innerHTML = "";
+    var s = svgEl("svg", { viewBox: "0 0 " + w + " " + h, width: w, height: h, role: "img", "aria-label": t(P + ariaKey), "class": "chart" }, host);
+    s.style.maxWidth = "100%";
+    return s;
+  }
+  function widthOf(host) { return Math.max(260, Math.floor(host.clientWidth || 320)); }
+  function find(s) {
+    for (var i = 0; i < SC.length; i++) {
+      var c = SC[i];
+      if (c.m === s.m && c.b === s.b && c.f === s.f && c.d === s.d) return c;
+    }
+    return null;
+  }
+  function rowLabel(c) {
+    var v = c.row === "days" ? fmt(c.m) : fmt(c.b);
+    return t(P + "row." + c.row, { v: v });
+  }
+  function optLabel(k, v) {
+    if (k === "m") return t(P + "sc.m.val", { v: fmt(v) });
+    if (k === "b") return t(P + "sc.b.val", { v: fmt(v) });
+    if (k === "f") return t(P + (v ? "sc.f.on" : "sc.f.off"));
+    return t(P + "sc.d." + v);
+  }
+  function dayName(i) { return t(P + "day." + i); }
+
+  /* ---------- panel 1: scenario explorer ---------- */
+  function buildSegs() {
+    document.querySelectorAll("#p-sc .seg[data-key]").forEach(function (seg) {
+      var k = seg.getAttribute("data-key");
+      seg.innerHTML = "";
+      OPTS[k].forEach(function (v) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = optLabel(k, v);
+        var probe = { m: state.m, b: state.b, f: state.f, d: state.d };
+        probe[k] = v;
+        var ok = !!find(probe);
+        b.disabled = !ok;
+        if (!ok) b.title = t(P + "sc.disabledTip");
+        b.setAttribute("aria-pressed", state[k] === v ? "true" : "false");
+        b.addEventListener("click", function () { state[k] = v; renderScenario(); });
+        seg.appendChild(b);
+      });
+    });
+    $("reset").disabled = find(state) === BASE;
+  }
+
+  function renderScenario() {
+    buildSegs();
+    var c = find(state) || BASE;
+    $("k-kg").textContent = fmt(c.kg, 0);
+    $("k-share").textContent = fmt(100 * c.kg / TOTAL, 1, 1) + "%";
+    var dk = c.kg - BASE.kg;
+    $("k-delta").textContent = c === BASE ? "0" : (dk > 0 ? "+" : "−") + fmt(Math.abs(dk), 0) + " (" + (dk > 0 ? "+" : "−") + fmt(Math.abs(100 * dk / BASE.kg), 1, 1) + "%)";
+    $("k-src").textContent = t(P + "sc.src." + c.src);
+    var pair = "";
+    if (c.src === "t5" || c === BASE) {
+      var other = find({ m: c.m, b: c.b, f: c.f ? 0 : 1, d: c.d });
+      if (other) {
+        var withF = c.f ? c : other, noF = c.f ? other : c;
+        var diff = noF.kg - withF.kg;
+        pair = c.f ? t(P + "sc.pair", { kg: fmt(diff, 0), pct: fmt(100 * diff / withF.kg, 1, 1) })
+                   : t(P + "sc.pairOff", { kg: fmt(diff, 0), pct: fmt(100 * diff / noF.kg, 1, 1) });
+      }
+    }
+    if (c === BASE) pair = t(P + "sc.basecase") + " " + pair;
+    $("sc-pair").textContent = pair;
+    drawSplit(c);
+    drawAll(c);
+  }
+
+  function drawSplit(c) {
+    var host = $("c-split");
+    var W = widthOf(host);
+    var rows = [];
+    if (c !== BASE) rows.push({ label: t(P + "split.sel"), segs: [
+      { k: "sm", kg: c.kg, c: "--accent" }, { k: "rest", kg: TOTAL - c.kg, c: "--grid", rest: true } ] });
+    rows.push({ label: t(P + "split.base"), segs: SPLIT });
+    var rowH = 78, top = 6;
+    var H = top + rows.length * rowH;
+    var svg = newSvg(host, W, H, "split.aria");
+    var ink = col("--ink"), ink2 = col("--ink2"), axis = col("--axis");
+    var bw = W - 2;
+    rows.forEach(function (r, ri) {
+      var y0 = top + ri * rowH;
+      txt(svg, 0, y0 + 12, r.label, { fill: ink, "font-size": 13, "font-weight": 600 });
+      var x = 1, by = y0 + 20, bh = 26;
+      r.segs.forEach(function (s, si) {
+        var w = bw * s.kg / TOTAL;
+        var gap = si < r.segs.length - 1 ? 2 : 0;
+        var rect = svgEl("rect", { x: x, y: by, width: Math.max(1, w - gap), height: bh, rx: 2,
+          fill: col(s.c), stroke: s.rest ? axis : "none", "stroke-dasharray": s.rest ? "4 3" : null }, svg);
+        tip(rect, t(P + "cat." + s.k) + ": " + fmt(s.kg, 0) + " kg (" + fmt(100 * s.kg / TOTAL, 1, 1) + "%)");
+        var pct = fmt(100 * s.kg / TOTAL, 1, 1) + "%";
+        if (w > 44) {
+          txt(svg, x + w / 2, by + bh + 16, pct, { fill: ink2, "font-size": 12, "text-anchor": "middle", "font-variant-numeric": "tabular-nums" });
+        } else {
+          txt(svg, x + 2, by + bh + 16, pct, { fill: ink2, "font-size": 12 });
+        }
+        if (w > 90 && s.k === "sm") {
+          txt(svg, x + 6, by + 17, fmt(s.kg, 0) + " kg", { fill: col("--on-solid"), "font-size": 12, "font-weight": 600 });
+        }
+        x += w;
+      });
+    });
+    // legend
+    var lg = $("lg-split");
+    lg.innerHTML = "";
+    var items = SPLIT.slice();
+    if (c !== BASE) items.push({ k: "rest", c: "--grid", rest: true });
+    items.forEach(function (s) {
+      var sp = document.createElement("span");
+      var sw = document.createElement("i");
+      sw.className = "sw" + (s.rest ? " rest" : "");
+      if (!s.rest) sw.style.background = "var(" + s.c + ")";
+      sp.appendChild(sw);
+      sp.appendChild(document.createTextNode(t(P + "cat." + s.k)));
+      lg.appendChild(sp);
+    });
+  }
+
+  function drawAll(sel) {
+    var host = $("c-all");
+    var W = widthOf(host);
+    var rowH = 30, top = 4, bottom = 44, left = 0, right = 58;
+    var H = top + SC.length * rowH + bottom;
+    var svg = newSvg(host, W, H, "all.aria");
+    var ink = col("--ink"), ink2 = col("--ink2"), muted = col("--muted"), grid = col("--grid"), axis = col("--axis");
+    var acc = col("--accent"), sil = col("--mit-silver");
+    var xmax = 100000, pw = W - left - right;
+    var X = function (v) { return left + pw * v / xmax; };
+    var plotB = top + SC.length * rowH;
+    [0, 25000, 50000, 75000, 100000].forEach(function (v) {
+      svgEl("line", { x1: X(v), x2: X(v), y1: top, y2: plotB, stroke: v === 0 ? axis : grid, "stroke-width": 1 }, svg);
+      txt(svg, X(v), plotB + 15, fmt(v / 1000, 0) + "k", { fill: muted, "font-size": 11.5, "text-anchor": v === 0 ? "start" : (v === xmax ? "end" : "middle") });
+    });
+    txt(svg, left + pw / 2, plotB + 36, t(P + "all.axis"), { fill: ink2, "font-size": 12, "text-anchor": "middle" });
+    SC.forEach(function (c, i) {
+      var y = top + i * rowH;
+      var on = c === sel;
+      var g = svgEl("g", { "class": "row" }, svg);
+      g.style.cursor = "pointer";
+      svgEl("rect", { x: 0, y: y, width: W, height: rowH, fill: on ? col("--sel") : "transparent" }, g);
+      txt(g, X(0) + 1, y + 11, rowLabel(c), { fill: on ? ink : ink2, "font-size": 11.5, "font-weight": on ? 700 : 400 });
+      svgEl("rect", { x: X(0), y: y + 15, width: Math.max(2, X(c.kg) - X(0)), height: 10, rx: 2, fill: on ? acc : sil, opacity: on ? 1 : (c.f ? 0.85 : 0.5) }, g);
+      txt(g, X(c.kg) + 5, y + 24, fmt(c.kg, 0), { fill: on ? ink : ink2, "font-size": 11.5, "font-weight": on ? 700 : 400, "font-variant-numeric": "tabular-nums" });
+      tip(g, t(P + "tip.kg", { label: rowLabel(c), kg: fmt(c.kg, 0) }));
+      g.addEventListener("click", function () { state = { m: c.m, b: c.b, f: c.f, d: c.d }; renderScenario(); });
+    });
+  }
+
+  /* ---------- panel 2: schedule + map ---------- */
+  function buildDaySeg() {
+    var seg = $("seg-day");
+    seg.innerHTML = "";
+    [-1, 0, 1, 2, 3, 4, 5, 6].forEach(function (d) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = d < 0 ? t(P + "sch.all") : dayName(d);
+      b.setAttribute("aria-pressed", d === day ? "true" : "false");
+      b.addEventListener("click", function () { day = d; renderSchedule(); });
+      seg.appendChild(b);
+    });
+  }
+
+  function renderSchedule() {
+    buildDaySeg();
+    var tb = $("t-sched");
+    var h = "<thead><tr><th>" + t(P + "sch.park") + "</th>";
+    for (var d = 0; d < 7; d++) h += "<th" + (d === day ? " class=\"hl\"" : "") + ">" + dayName(d) + "</th>";
+    h += "</tr></thead><tbody>";
+    var counts = [0, 0, 0, 0, 0, 0, 0];
+    SCHED.forEach(function (p) {
+      var on = day < 0 || p.days.indexOf(day) >= 0;
+      h += "<tr" + (day >= 0 && on ? " class=\"on\"" : "") + "><td>ST" + (p.n < 10 ? "0" : "") + p.n + "</td>";
+      for (var d = 0; d < 7; d++) {
+        var open = p.days.indexOf(d) >= 0;
+        if (open) counts[d]++;
+        h += "<td" + (d === day ? " class=\"hl\"" : "") + ">" + (open ? "<span class=\"mk\" aria-hidden=\"true\"></span><span class=\"sr-only\">" + t(P + "sch.open") + "</span>" : "") + "</td>";
+      }
+      h += "</tr>";
+    });
+    h += "</tbody><tfoot><tr><td>" + t(P + "sch.count") + "</td>";
+    for (d = 0; d < 7; d++) h += "<td" + (d === day ? " class=\"hl\"" : "") + "><b>" + fmt(counts[d]) + "</b></td>";
+    h += "</tr><tr><td>" + t(P + "sch.cap") + "</td>";
+    for (d = 0; d < 7; d++) h += "<td" + (d === day ? " class=\"hl\"" : "") + ">≤ " + fmt(d < 5 ? 0.2 * MD : 0.3 * MD) + "</td>";
+    h += "</tr></tfoot>";
+    tb.innerHTML = h;
+
+    // rules, computed from the schedule
+    var total = counts.reduce(function (a, b) { return a + b; }, 0);
+    var wd = counts.slice(0, 5).reduce(function (a, b) { return a + b; }, 0);
+    var maxWd = Math.max.apply(null, counts.slice(0, 5));
+    var minGap = 99;
+    SCHED.forEach(function (p) {
+      for (var i = 1; i < p.days.length; i++) minGap = Math.min(minGap, p.days[i] - p.days[i - 1]);
+    });
+    var rules = [
+      t(P + "rule.total", { v: fmt(total) }),
+      t(P + "rule.weekday", { v: fmt(wd) }),
+      t(P + "rule.capWd", { v: fmt(maxWd) }),
+      t(P + "rule.capWe", { sat: fmt(counts[5]), sun: fmt(counts[6]) }),
+      t(P + "rule.gap", { v: fmt(minGap) })
+    ];
+    var ok = [total === MD, wd === 0.4 * MD, maxWd <= 0.2 * MD, counts[5] <= 0.3 * MD && counts[6] <= 0.3 * MD, minGap >= 3];
+    var ul = $("rules");
+    ul.innerHTML = "";
+    rules.forEach(function (r, i) {
+      var li = document.createElement("li");
+      var b = document.createElement("span");
+      b.className = "ok";
+      b.textContent = ok[i] ? t(P + "rule.ok") : "×";
+      var s = document.createElement("span");
+      s.textContent = r;
+      li.appendChild(b); li.appendChild(s);
+      ul.appendChild(li);
+    });
+    drawMap();
+  }
+
+  function drawMap() {
+    var host = $("c-map");
+    var W = widthOf(host);
+    var lat0 = 4.62, kx = Math.cos(lat0 * Math.PI / 180) * 111.32, ky = 110.57;
+    var all = PARKS.concat(COMP);
+    var minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+    all.forEach(function (p) {
+      minLat = Math.min(minLat, p[0]); maxLat = Math.max(maxLat, p[0]);
+      minLon = Math.min(minLon, p[1]); maxLon = Math.max(maxLon, p[1]);
+    });
+    var wKm = (maxLon - minLon) * kx, hKm = (maxLat - minLat) * ky;
+    var pad = 26;
+    var s = (W - 2 * pad) / wKm;
+    var H = Math.round(hKm * s + 2 * pad + 18);
+    var svg = newSvg(host, W, H, "map.aria");
+    var ink = col("--ink"), muted = col("--muted"), grid = col("--grid"), acc = col("--accent"),
+        sil = col("--mit-silver"), surf = col("--surface"), halo = col("--halo"), border = col("--axis");
+    function X(lon) { return pad + (lon - minLon) * kx * s; }
+    function Y(lat) { return pad + (maxLat - lat) * ky * s; }
+    svgEl("rect", { x: 0.5, y: 0.5, width: W - 1, height: H - 1, fill: "none", stroke: border, rx: 3 }, svg);
+    // 1 km grid
+    for (var gx = 0; gx <= wKm + 0.01; gx += 1) svgEl("line", { x1: pad + gx * s, x2: pad + gx * s, y1: pad - 8, y2: H - pad - 10, stroke: grid }, svg);
+    for (var gy = 0; gy <= hKm + 0.01; gy += 1) svgEl("line", { x1: pad - 8, x2: W - pad + 8, y1: pad + gy * s, y2: pad + gy * s, stroke: grid }, svg);
+    // competitors
+    COMP.forEach(function (p) {
+      var x = X(p[1]), y = Y(p[0]);
+      var g = svgEl("g", {}, svg);
+      svgEl("path", { d: "M" + (x - 3) + " " + (y - 3) + "L" + (x + 3) + " " + (y + 3) + "M" + (x - 3) + " " + (y + 3) + "L" + (x + 3) + " " + (y - 3), stroke: muted, "stroke-width": 1.5 }, g);
+      tip(g, t(P + "map.compTip"));
+    });
+    // candidates
+    var openBy = {};
+    SCHED.forEach(function (p) { openBy[p.n] = p.days; });
+    PARKS.forEach(function (p, i) {
+      var n = i + 1;
+      if (openBy[n]) return;
+      var c = svgEl("circle", { cx: X(p[1]), cy: Y(p[0]), r: 4.5, fill: surf, stroke: sil, "stroke-width": 1.8 }, svg);
+      tip(c, t(P + "map.parkTip", { n: n }));
+    });
+    // opened parks
+    SCHED.forEach(function (p) {
+      var q = PARKS[p.n - 1], x = X(q[1]), y = Y(q[0]);
+      var active = day < 0 || p.days.indexOf(day) >= 0;
+      var g = svgEl("g", {}, svg);
+      svgEl("circle", { cx: x, cy: y, r: 8, fill: active ? acc : surf, stroke: acc, "stroke-width": 2.5 }, g);
+      var lab = "ST" + (p.n < 10 ? "0" : "") + p.n;
+      txt(g, x + 11, y + 4, lab, { fill: active ? ink : muted, "font-size": 12, "font-weight": 700, stroke: halo, "stroke-width": 3, "paint-order": "stroke" });
+      tip(g, t(P + "map.openTip", { n: (p.n < 10 ? "0" : "") + p.n, days: p.days.map(dayName).join(", ") }));
+    });
+    // scale bar and north
+    var sbY = H - 14;
+    svgEl("line", { x1: pad, x2: pad + s, y1: sbY, y2: sbY, stroke: ink, "stroke-width": 2 }, svg);
+    svgEl("line", { x1: pad, x2: pad, y1: sbY - 4, y2: sbY + 1, stroke: ink, "stroke-width": 2 }, svg);
+    svgEl("line", { x1: pad + s, x2: pad + s, y1: sbY - 4, y2: sbY + 1, stroke: ink, "stroke-width": 2 }, svg);
+    txt(svg, pad + s + 6, sbY + 4, t(P + "map.km"), { fill: ink, "font-size": 11.5 });
+    svgEl("path", { d: "M" + (W - 18) + " 10 L" + (W - 23) + " 22 L" + (W - 13) + " 22 Z", fill: ink }, svg);
+    txt(svg, W - 18, 34, "N", { fill: ink, "font-size": 11, "text-anchor": "middle", "font-weight": 700 });
+
+    var lg = $("lg-map");
+    lg.innerHTML = "";
+    [["dot", "map.opened", "--accent"], ["ring", "map.openedOther"], ["cand", "map.cand"], ["x", "map.comp"]].forEach(function (it) {
+      var sp = document.createElement("span");
+      var sw = document.createElement("i");
+      sw.className = "sw " + it[0];
+      if (it[0] === "dot") sw.style.background = "var(--accent)";
+      if (it[0] === "x") { sw.textContent = "×"; sw.style.cssText = "color:var(--muted);font-style:normal;font-weight:700;line-height:12px;text-align:center"; }
+      sp.appendChild(sw);
+      sp.appendChild(document.createTextNode(t(P + it[1])));
+      lg.appendChild(sp);
+    });
+  }
+
+  /* ---------- panel 3: criteria ---------- */
+  function renderCriteria() {
+    var h = "<thead><tr><th>" + t(P + "cr.th.c") + "</th><th>" + t(P + "cr.th.i") + "</th><th>" + t(P + "cr.th.s") + "</th></tr></thead><tbody>";
+    CRIT.forEach(function (c) {
+      h += "<tr" + (c.top ? " class=\"on\"" : "") + "><td>" + t(P + "cr." + c.k) + (c.top ? "<span class=\"badge\">" + t(P + "cr.top") + "</span>" : "") +
+           "</td><td>" + t(P + "cr." + c.k + ".i") + "</td><td>" + t(P + "cr." + c.k + ".s") + "</td></tr>";
+    });
+    $("t-crit").innerHTML = h + "</tbody>";
+    drawFuzzy();
+  }
+
+  function drawFuzzy() {
+    var host = $("c-fz");
+    var W = widthOf(host), H = 170;
+    var svg = newSvg(host, W, H, "fz.aria");
+    var ink = col("--ink"), ink2 = col("--ink2"), muted = col("--muted"), grid = col("--grid"), axis = col("--axis"), acc = col("--accent");
+    var L = 30, R = 10, T = 18, B = 40;
+    var X = function (v) { return L + (W - L - R) * v / 10; };
+    var Y = function (m) { return T + (H - T - B) * (1 - m); };
+    [0, 0.5, 1].forEach(function (m) {
+      svgEl("line", { x1: L, x2: W - R, y1: Y(m), y2: Y(m), stroke: m === 0 ? axis : grid }, svg);
+      txt(svg, L - 5, Y(m) + 4, fmt(m, 1), { fill: muted, "font-size": 11, "text-anchor": "end" });
+    });
+    for (var v = 0; v <= 10; v++) {
+      txt(svg, X(v), Y(0) + 15, fmt(v), { fill: muted, "font-size": 11, "text-anchor": "middle" });
+    }
+    txt(svg, L + (W - L - R) / 2, H - 6, t(P + "fz.axis"), { fill: ink2, "font-size": 12, "text-anchor": "middle" });
+    FZ.forEach(function (f) {
+      var g = svgEl("g", {}, svg);
+      if (f.l === f.u) {
+        svgEl("line", { x1: X(f.m), x2: X(f.m), y1: Y(0), y2: Y(1), stroke: acc, "stroke-width": 2 }, g);
+        svgEl("circle", { cx: X(f.m), cy: Y(1), r: 3.5, fill: acc }, g);
+      } else {
+        svgEl("path", { d: "M" + X(f.l) + " " + Y(0) + " L" + X(f.m) + " " + Y(1) + " L" + X(f.u) + " " + Y(0), fill: col("--sel"), stroke: acc, "stroke-width": 2, "stroke-linejoin": "round" }, g);
+      }
+      txt(g, X(f.m), Y(1) - 6, fmt(f.n), { fill: ink, "font-size": 12, "font-weight": 700, "text-anchor": "middle" });
+      svgEl("rect", { x: X(f.l) - 6, y: T - 10, width: X(f.u) - X(f.l) + 12, height: H - T - B + 10, fill: "transparent" }, g);
+      tip(g, t(P + "fz.tip", { n: fmt(f.n), name: t(P + "fz." + f.n), l: fmt(f.l), m: fmt(f.m), u: fmt(f.u) }));
+    });
+    var lg = $("lg-fz");
+    lg.innerHTML = "";
+    FZ.forEach(function (f) {
+      var sp = document.createElement("span");
+      sp.textContent = fmt(f.n) + ": " + t(P + "fz." + f.n) + " (" + fmt(f.l) + ", " + fmt(f.m) + ", " + fmt(f.u) + ")";
+      lg.appendChild(sp);
+    });
+  }
+
+  function render() {
+    renderScenario();
+    renderSchedule();
+    renderCriteria();
+  }
+
+  $("reset").addEventListener("click", function () { state = { m: 10, b: 750, f: 1, d: "5050" }; renderScenario(); });
+  var rt = null, lastW = window.innerWidth;
+  window.addEventListener("resize", function () {
+    if (window.innerWidth === lastW) return;
+    lastW = window.innerWidth;
+    clearTimeout(rt);
+    rt = setTimeout(render, 120);
+  });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+  I18N.onChange(render); // runs once the language is ready and on every language switch
+})();
+</script>
+</body>
+</html>

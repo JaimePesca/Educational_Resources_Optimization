@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en" data-title-key="r.wildfire.title" data-i18n-bundles="research/wildfire">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Wildfire suppression</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/research.css">
+<style>
+.pipeline { font-size: 14px; color: var(--ink2); max-width: 90ch; margin: 10px 0 0; }
+.pipeline b { color: var(--ink); }
+.panel h3 { font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+.panel-note { font-size: 13px; color: var(--muted); margin: 6px 0 0; max-width: 90ch; }
+#interactive, .panels { grid-template-columns: minmax(0, 1fr); }
+.panels { display: grid; gap: 14px; }
+.controls, .seg-row { min-width: 0; }
+.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr); gap: 18px; margin-top: 12px; }
+@media (max-width: 820px) { .calc { grid-template-columns: minmax(0, 1fr); } }
+.seg-row { display: grid; gap: 5px; }
+.seg-row > span { font-size: 13.5px; color: var(--ink2); }
+.out { display: grid; gap: 0; border-top: 1px solid var(--grid); margin-top: 4px; }
+.out div { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--grid); font-size: 13.5px; }
+.out div span:first-child { color: var(--ink2); }
+.out div span:last-child { font-family: var(--font-mono); font-size: 13px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.out .sub { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.verdict {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin-top: 10px; padding: 10px 12px;
+  border-radius: 3px; border: 1px solid var(--border); background: var(--surface2);
+}
+.verdict b { font-size: 18px; font-weight: 700; }
+.verdict.ok b { color: var(--good-text); }
+.verdict.bad b { color: var(--accent-text); }
+.verdict span { font-size: 13.5px; color: var(--ink2); }
+.chartbox { overflow-x: auto; }
+.chartbox svg { min-width: 340px; }
+.schem { max-width: 460px; }
+.budget-top { display: grid; gap: 10px; margin-top: 12px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.tiles .stat .v { font-size: 22px; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; margin-top: 12px; align-items: start; }
+@media (max-width: 820px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.splitbar { display: flex; height: 14px; border-radius: 2px; overflow: hidden; border: 1px solid var(--border); }
+.splitbar i { display: block; height: 100%; }
+.h4 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+.tblwrap h4 { margin-top: 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#research" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToResearch"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow" data-i18n="r.wildfire.eyebrow"></p>
+    <h1 data-i18n="r.wildfire.h1"></h1>
+    <p class="lede" data-i18n="r.wildfire.lede"></p>
+    <p class="cite" data-i18n-html="r.wildfire.cite"></p>
+  </header>
+
+  <section class="block" id="case">
+    <h2 class="section-title" data-i18n="r.wildfire.case.h"></h2>
+    <p class="section-intro" data-i18n="r.wildfire.case.intro"></p>
+    <div class="stats">
+      <div class="stat"><div class="v" data-i18n="r.wildfire.stat.fires.v"></div><div class="l" data-i18n="r.wildfire.stat.fires.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.wildfire.stat.bases.v"></div><div class="l" data-i18n="r.wildfire.stat.bases.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.wildfire.stat.water.v"></div><div class="l" data-i18n="r.wildfire.stat.water.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.wildfire.stat.scen.v"></div><div class="l" data-i18n="r.wildfire.stat.scen.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.wildfire.stat.air.v"></div><div class="l" data-i18n="r.wildfire.stat.air.l"></div></div>
+      <div class="stat"><div class="v" data-i18n="r.wildfire.stat.hist.v"></div><div class="l" data-i18n="r.wildfire.stat.hist.l"></div></div>
+    </div>
+    <p class="pipeline" data-i18n-html="r.wildfire.pipeline"></p>
+    <p class="sources" data-i18n="r.wildfire.sources"></p>
+  </section>
+
+  <section class="block" id="model">
+    <h2 class="section-title" data-i18n="r.wildfire.model.h"></h2>
+    <p class="section-intro" data-i18n="r.wildfire.model.intro"></p>
+    <p class="section-intro" data-i18n="r.wildfire.model.intro2"></p>
+    <div class="model">
+      <div><div class="math"><script type="text/x-tex">\begin{aligned}
+\mathrm{cyc}(f,k) &= 2\,\tau^{fw}(f,k)+\delta\\
+d(i,f,k) &= \max\!\left(0,\ \left\lfloor \frac{W-\tau^{bf}(i,f)}{\mathrm{cyc}(f,k)} \right\rfloor\right)\\
+L(i,f,k) &= d(i,f,k)\, Q\\
+R(f) &= c\, A_0\, e^{\rho_f\, t^{arr}(f)}
+\end{aligned}</script></div>
+      <div class="math"><script type="text/x-tex">\begin{aligned}
+\min\;& (1-\lambda)\sum_{s} p_s\,\ell_s+\lambda\left[\eta+\frac{1}{1-\alpha}\sum_{s} p_s\, t_s\right]\\[4pt]
+\text{ST}\;& \sum_{i} c^{base}\, y_i+\sum_{i} c^{air}\, n_i+\sum_{k} c^{wat}\, w_k\le B\\
+& n_i\le M\, y_i,\qquad z_{fks}\le w_k,\qquad \sum_{k} z_{fks}\le 1,\qquad \sum_{f} x_{ifs}\le n_i\\
+& q_{fs}=\sum_{i}\sum_{k} L(i,f,k)\, x_{ifs}\, z_{fks}\\
+& q_{fs}\ge R(f)\left(1-e_{fs}\right)\\
+& \ell_s=\sum_{f} D_f\, e_{fs},\qquad t_s\ge \ell_s-\eta,\qquad t_s\ge 0\\
+& y,\ w,\ z,\ e\in\{0,1\},\qquad n,\ x\in\mathbb{Z}_{+}
+\end{aligned}</script></div></div>
+      <ul class="vars">
+        <li data-i18n-html="r.wildfire.var.y"></li>
+        <li data-i18n-html="r.wildfire.var.n"></li>
+        <li data-i18n-html="r.wildfire.var.x"></li>
+        <li data-i18n-html="r.wildfire.var.cyc"></li>
+        <li data-i18n-html="r.wildfire.var.q"></li>
+        <li data-i18n-html="r.wildfire.var.R"></li>
+        <li data-i18n-html="r.wildfire.var.D"></li>
+        <li data-i18n-html="r.wildfire.var.cvar"></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="interactive">
+    <h2 class="section-title" data-i18n="r.wildfire.ex.h"></h2>
+    <p class="section-intro" data-i18n="r.wildfire.ex.intro"></p>
+    <div class="panels">
+
+      <div class="panel" id="calc-panel">
+        <span class="kicker" data-i18n="r.wildfire.calc.kicker"></span>
+        <h3 data-i18n="r.wildfire.calc.h"></h3>
+        <p class="panel-note" data-i18n="r.wildfire.calc.params"></p>
+        <div class="calc">
+          <div class="controls">
+            <div class="ctl">
+              <label for="dbf" data-i18n="r.wildfire.calc.dbf"></label>
+              <output id="dbf-o" for="dbf"></output>
+              <input type="range" id="dbf" min="0" max="300" step="1" value="79">
+            </div>
+            <div class="ctl">
+              <label for="dfw" data-i18n="r.wildfire.calc.dfw"></label>
+              <output id="dfw-o" for="dfw"></output>
+              <input type="range" id="dfw" min="0.5" max="30" step="0.5" value="5">
+            </div>
+            <div class="ctl">
+              <label for="a0" data-i18n="r.wildfire.calc.a0"></label>
+              <output id="a0-o" for="a0"></output>
+              <input type="range" id="a0" min="0.1" max="14" step="0.1" value="1">
+            </div>
+            <div class="seg-row">
+              <span id="w-lab" data-i18n="r.wildfire.calc.w"></span>
+              <div class="seg" id="w-seg" role="group" aria-labelledby="w-lab"></div>
+            </div>
+            <div class="seg-row">
+              <span id="rho-lab" data-i18n="r.wildfire.calc.rho"></span>
+              <div class="seg" id="rho-seg" role="group" aria-labelledby="rho-lab"></div>
+            </div>
+            <div class="out" id="calc-out"></div>
+            <div class="verdict" id="verdict" aria-live="polite"></div>
+          </div>
+          <div>
+            <div class="chartbox"><svg class="chart" id="cyc-chart" viewBox="0 0 560 330" role="img" data-i18n-attr="aria-label:r.wildfire.chart.aria"></svg></div>
+            <div class="legend" id="cyc-legend"></div>
+            <div class="chartbox"><svg class="chart schem" id="schem" viewBox="0 0 460 118" role="img" data-i18n-attr="aria-label:r.wildfire.sch.aria"></svg></div>
+            <p class="panel-note" id="reach"></p>
+            <p class="panel-note" data-i18n="r.wildfire.out.tight"></p>
+          </div>
+        </div>
+        <p class="panel-note" data-i18n="r.wildfire.calc.rhonote"></p>
+      </div>
+
+      <div class="panel" id="budget-panel">
+        <span class="kicker" data-i18n="r.wildfire.bud.kicker"></span>
+        <h3 data-i18n="r.wildfire.bud.h"></h3>
+        <p class="panel-note" data-i18n="r.wildfire.bud.intro"></p>
+        <div class="budget-top">
+          <div class="seg-row">
+            <span id="bud-lab" data-i18n="r.wildfire.bud.seg"></span>
+            <div class="seg" id="bud-seg" role="group" aria-labelledby="bud-lab"></div>
+          </div>
+          <div class="tiles" id="bud-tiles"></div>
+          <div class="splitbar" id="splitbar" aria-hidden="true"></div>
+          <p class="panel-note" id="bud-split"></p>
+          <p class="panel-note" id="bud-note"></p>
+        </div>
+        <div class="two">
+          <div>
+            <div class="chartbox"><svg class="chart" id="bud-chart" viewBox="0 0 480 300" role="img" data-i18n-attr="aria-label:r.wildfire.bud.aria"></svg></div>
+            <div class="legend" id="bud-legend"></div>
+          </div>
+          <div>
+            <p class="h4" data-i18n="r.wildfire.cliff.h"></p>
+            <p class="panel-note" data-i18n="r.wildfire.cliff.intro"></p>
+            <div class="seg-row" style="margin-top:8px">
+              <span id="cliff-lab" data-i18n="r.wildfire.cliff.seg"></span>
+              <div class="seg" id="cliff-seg" role="group" aria-labelledby="cliff-lab"></div>
+            </div>
+            <div class="chartbox"><svg class="chart" id="cliff-chart" viewBox="0 0 480 280" role="img" data-i18n-attr="aria-label:r.wildfire.cliff.aria"></svg></div>
+            <p class="panel-note" data-i18n="r.wildfire.cliff.note"></p>
+          </div>
+        </div>
+        <div class="tblwrap" style="margin-top:14px">
+          <p class="h4" data-i18n="r.wildfire.sens.h"></p>
+          <table class="data">
+            <thead><tr>
+              <th data-i18n="r.wildfire.sens.axis"></th><th data-i18n="r.wildfire.sens.set"></th>
+              <th data-i18n="r.wildfire.sens.eff"></th><th data-i18n="r.wildfire.sens.st"></th>
+            </tr></thead>
+            <tbody id="sens-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="block" id="findings">
+    <h2 class="section-title" data-i18n="r.wildfire.find.h"></h2>
+    <ol class="findings">
+      <li><span data-i18n-html="r.wildfire.find.1"></span></li>
+      <li><span data-i18n-html="r.wildfire.find.2"></span></li>
+      <li><span data-i18n-html="r.wildfire.find.3"></span></li>
+      <li><span data-i18n-html="r.wildfire.find.4"></span></li>
+      <li><span data-i18n-html="r.wildfire.find.5"></span></li>
+    </ol>
+  </section>
+
+  <p class="note" data-i18n="r.wildfire.note"></p>
+</div>
+<script src="../assets/i18n.js" charset="utf-8"></script>
+<script src="../locales/en.js" charset="utf-8"></script>
+<script src="../locales/research/wildfire.en.js" charset="utf-8"></script>
+<script src="../assets/catalog.js" charset="utf-8"></script>
+<script src="../assets/research.js" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var fmt = I18N.fmt;
+  var NS = "http://www.w3.org/2000/svg";
+
+  /* ---- manuscript parameters (Section 4.3, Table 3) ---- */
+  var Q = 3785;            // liters per drop (1,000 gallon tank)
+  var V = 277.8;           // km per hour (150 knot cruise)
+  var C = 3;               // liters per m2 (base case c)
+  var DELTA = 1.5 / 60;    // hours: refill under one minute (taken as 1 min) + 30 s drop allowance
+  var XMAX = 300;          // km, chart range
+
+  var state = { dbf: 79, dfw: 5, a0: 1, w: 2, rho: 1, bud: 150, cliff: "a0" };
+
+  /* ---- Figures 2 and 5, Sections 6.3 and 6.6 ---- */
+  var BUDGETS = [
+    { b: 80,  n: 1, obj: 22242, approx: true,  proven: true,  chg: null, s: "s80",  note: "n80" },
+    { b: 150, n: 1, obj: 22242, approx: false, proven: true,  chg: 0,    s: "s150", note: "n150" },
+    { b: 225, n: 2, obj: 18240, approx: true,  proven: false, chg: 18,   s: "s225", note: "n225" },
+    { b: 300, n: 3, obj: 14478.11, approx: false, proven: false, chg: 35, s: "s300", note: "n300" }
+  ];
+  /* Section 6.6: fires escaped out of 81 */
+  var CLIFF = {
+    a0: [
+      { x: "0.1 ha", lo: 71, hi: null, kind: "floor" },
+      { x: "1 ha",   lo: 74, hi: 74, kind: "base" },
+      { x: "5 ha",   lo: 80, hi: 81, kind: "hi" },
+      { x: "14 ha",  lo: 81, hi: 81, kind: "none" }
+    ],
+    c: [
+      { x: "1.5 L/m²", lo: 71, hi: null, kind: "floor" },
+      { x: "3 L/m²",   lo: 74, hi: 74, kind: "base" },
+      { x: "10 L/m²",  lo: 80, hi: 81, kind: "hi" }
+    ]
+  };
+
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function el(tag, attrs, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) if (attrs[k] !== undefined && attrs[k] !== null) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  function h(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+
+  /* ---- cycle model, equations (1) to (4) ---- */
+  function drops(dbf, dfw, w) {
+    var tb = dbf / V, cyc = 2 * dfw / V + DELTA;
+    return Math.max(0, Math.floor((w - tb) / cyc + 1e-9));
+  }
+  function required(dbf) { return C * state.a0 * 10000 * Math.exp(state.rho * dbf / V); }
+
+  function niceStep(range, n) {
+    var raw = range / n, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+  }
+
+  function segButtons(host, items, current, onPick) {
+    clear(host);
+    items.forEach(function (it) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = it.label;
+      b.setAttribute("aria-pressed", String(it.value === current));
+      b.addEventListener("click", function () { onPick(it.value); });
+      host.appendChild(b);
+    });
+  }
+
+  function legendItem(host, color, label, dashed, ring) {
+    var s = document.createElement("span");
+    var sw = document.createElement("i");
+    sw.className = "sw";
+    if (ring) { sw.style.border = "2px solid " + color; sw.style.borderRadius = "50%"; }
+    else if (dashed) { sw.style.borderTop = "2px dashed " + color; sw.style.height = "0"; }
+    else sw.style.background = color;
+    s.appendChild(sw);
+    s.appendChild(document.createTextNode(label));
+    host.appendChild(s);
+  }
+
+  /* ---- panel 1: calculator ---- */
+  function renderCalc() {
+    var tb = state.dbf / V, cycH = 2 * state.dfw / V + DELTA;
+    var n = drops(state.dbf, state.dfw, state.w);
+    var deliv = n * Q, req = required(state.dbf);
+    var ok = deliv >= req;
+
+    document.getElementById("dbf-o").textContent = t("r.wildfire.unit.km", { v: fmt(state.dbf, 0) });
+    document.getElementById("dfw-o").textContent = t("r.wildfire.unit.km", { v: fmt(state.dfw, 1) });
+    document.getElementById("a0-o").textContent = t("r.wildfire.unit.ha", { v: fmt(state.a0, 1) });
+
+    segButtons(document.getElementById("w-seg"), [1, 2, 4, 8].map(function (v) {
+      return { value: v, label: t("r.wildfire.unit.h", { v: fmt(v, 0) }) };
+    }), state.w, function (v) { state.w = v; renderCalc(); });
+    segButtons(document.getElementById("rho-seg"), [0.5, 1, 2].map(function (v) {
+      return { value: v, label: t("r.wildfire.unit.perh", { v: fmt(v, 1) }) };
+    }), state.rho, function (v) { state.rho = v; renderCalc(); });
+
+    var out = document.getElementById("calc-out");
+    clear(out);
+    function row(label, val, sub) {
+      var d = h("div");
+      d.appendChild(h("span", null, label));
+      var v = h("span", null, val);
+      if (sub) v.appendChild(h("span", "sub", sub));
+      d.appendChild(v);
+      out.appendChild(d);
+    }
+    row(t("r.wildfire.out.arr"), t("r.wildfire.out.min", { v: fmt(tb * 60, 1) }));
+    row(t("r.wildfire.out.cyc"), t("r.wildfire.out.min", { v: fmt(cycH * 60, 2) }));
+    row(t("r.wildfire.out.drops"), fmt(n, 0), t("r.wildfire.out.dropsf", {
+      w: t("r.wildfire.unit.h", { v: fmt(state.w, 0) }),
+      tb: t("r.wildfire.unit.h", { v: fmt(tb, 3) }),
+      cy: t("r.wildfire.unit.h", { v: fmt(cycH, 3) }), n: fmt(n, 0)
+    }));
+    row(t("r.wildfire.out.deliv"), t("r.wildfire.out.l", { v: fmt(deliv, 0) }));
+    row(t("r.wildfire.out.req"), t("r.wildfire.out.l", { v: fmt(req, 0) }));
+
+    var vd = document.getElementById("verdict");
+    vd.className = "verdict " + (ok ? "ok" : "bad");
+    clear(vd);
+    vd.appendChild(h("b", null, t(ok ? "r.wildfire.out.contained" : "r.wildfire.out.escaped")));
+    vd.appendChild(h("span", null, t("r.wildfire.out.margin", { p: fmt(req > 0 ? 100 * deliv / req : 0, 0) })));
+
+    // largest contained base distance (scan 0 to 300 km)
+    var reachMax = -1, allOk = true;
+    for (var d = 0; d <= XMAX; d += 0.5) {
+      if (drops(d, state.dfw, state.w) * Q >= required(d)) reachMax = d; else allOk = false;
+    }
+    var reachTxt = reachMax < 0 ? t("r.wildfire.out.noreach")
+      : allOk ? t("r.wildfire.out.allreach")
+      : t("r.wildfire.out.reach", { d: fmt(reachMax, 0) });
+    document.getElementById("reach").textContent = reachTxt;
+
+    drawCycleChart(n, deliv, req, ok);
+    drawSchematic(tb, cycH, n);
+  }
+
+  function drawCycleChart(nNow, delivNow, reqNow, okNow) {
+    var svg = document.getElementById("cyc-chart");
+    clear(svg);
+    var W = 560, H = 330, m = { l: 58, r: 22, t: 16, b: 46 };
+    var pw = W - m.l - m.r, ph = H - m.t - m.b;
+    var cInk2 = css("--ink2"), cGrid = css("--grid"), cAxis = css("--axis"), cBlue = css("--c-blue"),
+        cAcc = css("--accent"), cInk = css("--ink"), cReg = css("--region"), cMuted = css("--muted");
+
+    var ymaxData = Math.max(drops(0, state.dfw, state.w) * Q, required(0)) * 1.15;
+    var step = niceStep(ymaxData / 1000, 5) * 1000;
+    var ymax = Math.ceil(ymaxData / step) * step;
+    function X(d) { return m.l + pw * d / XMAX; }
+    function Y(v) { return m.t + ph * (1 - Math.min(v, ymax) / ymax); }
+
+    // contained zones (shaded where delivered >= required)
+    var inZone = false, z0 = 0;
+    for (var d = 0; d <= XMAX + 0.25; d += 0.5) {
+      var okd = d <= XMAX && drops(d, state.dfw, state.w) * Q >= required(d);
+      if (okd && !inZone) { inZone = true; z0 = d; }
+      if (!okd && inZone) {
+        inZone = false;
+        svg.appendChild(el("rect", { x: X(z0), y: m.t, width: Math.max(1, X(d - 0.5) - X(z0)), height: ph, fill: cReg }));
+      }
+    }
+
+    // grid + y axis
+    for (var v = 0; v <= ymax + 1e-6; v += step) {
+      svg.appendChild(el("line", { x1: m.l, x2: m.l + pw, y1: Y(v), y2: Y(v), stroke: cGrid, "stroke-width": 1 }));
+      svg.appendChild(el("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end", "font-size": 11, fill: cInk2, "font-family": css("--font-mono") }, fmt(v / 1000, 0)));
+    }
+    for (var xk = 0; xk <= XMAX; xk += 50) {
+      svg.appendChild(el("line", { x1: X(xk), x2: X(xk), y1: m.t + ph, y2: m.t + ph + 4, stroke: cAxis }));
+      svg.appendChild(el("text", { x: X(xk), y: m.t + ph + 17, "text-anchor": "middle", "font-size": 11, fill: cInk2, "font-family": css("--font-mono") }, fmt(xk, 0)));
+    }
+    svg.appendChild(el("line", { x1: m.l, x2: m.l + pw, y1: m.t + ph, y2: m.t + ph, stroke: cAxis }));
+    svg.appendChild(el("text", { x: m.l + pw / 2, y: H - 8, "text-anchor": "middle", "font-size": 12, fill: cInk2 }, t("r.wildfire.chart.x")));
+    svg.appendChild(el("text", { x: 14, y: m.t + ph / 2, "text-anchor": "middle", "font-size": 12, fill: cInk2, transform: "rotate(-90 14 " + (m.t + ph / 2) + ")" }, t("r.wildfire.chart.y")));
+
+    // delivered step function
+    var pts = [], prev = null;
+    for (var d2 = 0; d2 <= XMAX; d2 += 0.25) {
+      var L = drops(d2, state.dfw, state.w) * Q;
+      if (prev !== null && L !== prev) pts.push(X(d2).toFixed(1) + "," + Y(prev).toFixed(1));
+      pts.push(X(d2).toFixed(1) + "," + Y(L).toFixed(1));
+      prev = L;
+    }
+    svg.appendChild(el("polyline", { points: pts.join(" "), fill: "none", stroke: cBlue, "stroke-width": 2, "stroke-linejoin": "miter" }));
+
+    // required curve (clipped at the top)
+    var rp = [];
+    for (var d3 = 0; d3 <= XMAX; d3 += 2) {
+      var R = required(d3);
+      if (R > ymax) { rp.push(X(d3).toFixed(1) + "," + Y(ymax).toFixed(1)); break; }
+      rp.push(X(d3).toFixed(1) + "," + Y(R).toFixed(1));
+    }
+    svg.appendChild(el("polyline", { points: rp.join(" "), fill: "none", stroke: cAcc, "stroke-width": 2, "stroke-dasharray": "6 4" }));
+
+    // current setting marker
+    var cx = X(state.dbf);
+    svg.appendChild(el("line", { x1: cx, x2: cx, y1: m.t, y2: m.t + ph, stroke: cMuted, "stroke-width": 1, "stroke-dasharray": "2 3" }));
+    svg.appendChild(el("circle", { cx: cx, cy: Y(delivNow), r: 5, fill: cBlue, stroke: css("--surface"), "stroke-width": 1.5 }));
+    svg.appendChild(el("circle", { cx: cx, cy: Y(reqNow), r: 5, fill: cAcc, stroke: css("--surface"), "stroke-width": 1.5 }));
+    var lblRight = cx < m.l + pw * 0.7;
+    svg.appendChild(el("text", {
+      x: cx + (lblRight ? 7 : -7), y: m.t + 12, "text-anchor": lblRight ? "start" : "end",
+      "font-size": 11.5, "font-weight": 600, fill: cInk
+    }, t("r.wildfire.chart.now") + ": " + t(okNow ? "r.wildfire.out.contained" : "r.wildfire.out.escaped")));
+
+    var lg = document.getElementById("cyc-legend");
+    clear(lg);
+    legendItem(lg, cBlue, t("r.wildfire.chart.deliv"));
+    legendItem(lg, cAcc, t("r.wildfire.chart.req"), true);
+    legendItem(lg, cReg, t("r.wildfire.chart.ok"));
+  }
+
+  function drawSchematic(tb, cycH, n) {
+    var svg = document.getElementById("schem");
+    clear(svg);
+    var cInk = css("--ink"), cInk2 = css("--ink2"), cBlue = css("--c-blue"), cAcc = css("--accent");
+    var y = 58;
+    var bx = 30;
+    var fx = bx + 50 + 190 * state.dbf / XMAX;
+    var wx = fx + 36 + 110 * state.dfw / 30;
+
+    // arrow marker
+    var defs = el("defs");
+    var mk = el("marker", { id: "arr", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" });
+    mk.appendChild(el("path", { d: "M0,0 L10,5 L0,10 z", fill: cInk2 }));
+    defs.appendChild(mk);
+    svg.appendChild(defs);
+
+    // base to fire, once
+    svg.appendChild(el("line", { x1: bx + 10, y1: y, x2: fx - 12, y2: y, stroke: cInk2, "stroke-width": 1.5, "stroke-dasharray": "5 4", "marker-end": "url(#arr)" }));
+    svg.appendChild(el("text", { x: (bx + fx) / 2, y: y - 10, "text-anchor": "middle", "font-size": 11, fill: cInk2 }, t("r.wildfire.sch.once", { m: fmt(tb * 60, 1) })));
+    // shuttle loop fire <-> water
+    var mid = (fx + wx) / 2, span = wx - fx;
+    svg.appendChild(el("path", { d: "M" + (fx + 8) + "," + (y - 6) + " Q" + mid + "," + (y - 26 - span * 0.08) + " " + (wx - 10) + "," + (y - 6), fill: "none", stroke: cBlue, "stroke-width": 1.8, "marker-end": "url(#arr)" }));
+    svg.appendChild(el("path", { d: "M" + (wx - 10) + "," + (y + 6) + " Q" + mid + "," + (y + 26 + span * 0.08) + " " + (fx + 8) + "," + (y + 6), fill: "none", stroke: cBlue, "stroke-width": 1.8, "marker-end": "url(#arr)" }));
+    var loopTxt = t("r.wildfire.sch.loop", { n: fmt(n, 0), m: fmt(cycH * 60, 2) });
+    var lx = Math.min(Math.max(mid, 120), 460 - 120);
+    svg.appendChild(el("text", { x: lx, y: y + 50, "text-anchor": "middle", "font-size": 11, fill: cBlue, "font-weight": 600 }, loopTxt));
+
+    // base (square), fire (triangle), water (circle)
+    svg.appendChild(el("rect", { x: bx - 9, y: y - 9, width: 18, height: 18, fill: cInk }));
+    svg.appendChild(el("path", { d: "M" + fx + "," + (y - 11) + " L" + (fx + 10) + "," + (y + 8) + " L" + (fx - 10) + "," + (y + 8) + " z", fill: cAcc }));
+    svg.appendChild(el("circle", { cx: wx, cy: y, r: 9, fill: cBlue }));
+    svg.appendChild(el("text", { x: bx, y: y + 26, "text-anchor": "middle", "font-size": 11.5, "font-weight": 600, fill: cInk }, t("r.wildfire.sch.base")));
+    svg.appendChild(el("text", { x: fx, y: y - 30, "text-anchor": "middle", "font-size": 11.5, "font-weight": 600, fill: cInk }, t("r.wildfire.sch.fire")));
+    svg.appendChild(el("text", { x: wx, y: y - 30, "text-anchor": "middle", "font-size": 11.5, "font-weight": 600, fill: cInk }, t("r.wildfire.sch.water")));
+  }
+
+  /* ---- panel 2: budgets ---- */
+  function renderBudget() {
+    segButtons(document.getElementById("bud-seg"), BUDGETS.map(function (b) {
+      return { value: b.b, label: t("r.wildfire.bud.opt", { b: fmt(b.b, 0) }) };
+    }), state.bud, function (v) { state.bud = v; renderBudget(); });
+    var cur = BUDGETS.filter(function (b) { return b.b === state.bud; })[0];
+
+    var tiles = document.getElementById("bud-tiles");
+    clear(tiles);
+    function tile(v, l) {
+      var s = h("div", "stat");
+      s.appendChild(h("div", "v", v));
+      s.appendChild(h("div", "l", l));
+      tiles.appendChild(s);
+    }
+    tile(fmt(cur.n, 0), t("r.wildfire.bud.air"));
+    tile((cur.approx ? "≈ " : "") + fmt(cur.obj, cur.obj % 1 ? 2 : 0), t("r.wildfire.bud.obj"));
+    tile(cur.chg === null ? t("r.wildfire.bud.same") : cur.chg === 0 ? t("r.wildfire.bud.base") : "+" + fmt(cur.chg, 0) + "%", t("r.wildfire.bud.chg"));
+    tile(t("r.wildfire.bud." + cur.s), t("r.wildfire.bud.status"));
+    tiles.lastChild.querySelector(".v").style.fontSize = "15px";
+
+    var air = cur.n * 75, pct = 100 * air / cur.b;
+    var sb = document.getElementById("splitbar");
+    clear(sb);
+    var a = document.createElement("i"); a.style.width = pct + "%"; a.style.background = css("--accent");
+    var r = document.createElement("i"); r.style.width = (100 - pct) + "%"; r.style.background = css("--mit-silver");
+    sb.append(a, r);
+    document.getElementById("bud-split").textContent = t("r.wildfire.bud.split", { a: fmt(air, 0), b: fmt(cur.b, 0), p: fmt(pct, 0) });
+    document.getElementById("bud-note").textContent = t("r.wildfire.bud." + cur.note);
+
+    drawBudgetChart(cur);
+    renderCliff();
+    renderSens();
+  }
+
+  function drawBudgetChart(cur) {
+    var svg = document.getElementById("bud-chart");
+    clear(svg);
+    var W = 480, H = 300, m = { l: 62, r: 18, t: 26, b: 44 };
+    var pw = W - m.l - m.r, ph = H - m.t - m.b;
+    var cInk2 = css("--ink2"), cGrid = css("--grid"), cAxis = css("--axis"), cBlue = css("--c-blue"),
+        cAcc = css("--accent"), cInk = css("--ink"), cSurf = css("--surface"), cSil = css("--mit-silver");
+    var x0 = 60, x1 = 320, y0 = 14000, y1 = 23000;
+    function X(b) { return m.l + pw * (b - x0) / (x1 - x0); }
+    function Y(v) { return m.t + ph * (1 - (v - y0) / (y1 - y0)); }
+    for (var v = y0; v <= y1; v += 1000) {
+      svg.appendChild(el("line", { x1: m.l, x2: m.l + pw, y1: Y(v), y2: Y(v), stroke: cGrid }));
+      if ((v - y0) % 2000 === 0) svg.appendChild(el("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end", "font-size": 11, fill: cInk2, "font-family": css("--font-mono") }, fmt(v, 0)));
+    }
+    [100, 150, 200, 250, 300].forEach(function (b) {
+      svg.appendChild(el("text", { x: X(b), y: m.t + ph + 17, "text-anchor": "middle", "font-size": 11, fill: cInk2, "font-family": css("--font-mono") }, fmt(b, 0)));
+    });
+    svg.appendChild(el("line", { x1: m.l, x2: m.l + pw, y1: m.t + ph, y2: m.t + ph, stroke: cAxis }));
+    svg.appendChild(el("text", { x: m.l + pw / 2, y: H - 8, "text-anchor": "middle", "font-size": 12, fill: cInk2 }, t("r.wildfire.bud.x")));
+    svg.appendChild(el("text", { x: 14, y: m.t + ph / 2, "text-anchor": "middle", "font-size": 12, fill: cInk2, transform: "rotate(-90 14 " + (m.t + ph / 2) + ")" }, t("r.wildfire.bud.y")));
+    svg.appendChild(el("polyline", { points: BUDGETS.map(function (b) { return X(b.b) + "," + Y(b.obj); }).join(" "), fill: "none", stroke: cSil, "stroke-width": 1.5 }));
+    BUDGETS.forEach(function (b) {
+      var on = b.b === cur.b;
+      if (on) svg.appendChild(el("circle", { cx: X(b.b), cy: Y(b.obj), r: 11, fill: "none", stroke: cAcc, "stroke-width": 2 }));
+      svg.appendChild(el("circle", { cx: X(b.b), cy: Y(b.obj), r: 5.5, fill: b.proven ? cBlue : cSurf, stroke: cBlue, "stroke-width": 2 }));
+      svg.appendChild(el("text", { x: X(b.b), y: Y(b.obj) - 15, "text-anchor": "middle", "font-size": 11, fill: on ? cInk : cInk2, "font-weight": on ? 700 : 400 }, t("r.wildfire.bud.acft", { n: fmt(b.n, 0) })));
+    });
+    var lg = document.getElementById("bud-legend");
+    clear(lg);
+    legendItem(lg, cBlue, t("r.wildfire.bud.proven"));
+    legendItem(lg, cBlue, t("r.wildfire.bud.inc"), false, true);
+  }
+
+  function renderCliff() {
+    segButtons(document.getElementById("cliff-seg"), [
+      { value: "a0", label: t("r.wildfire.cliff.a0") },
+      { value: "c", label: t("r.wildfire.cliff.c") }
+    ], state.cliff, function (v) { state.cliff = v; renderCliff(); });
+    var data = CLIFF[state.cliff];
+    var svg = document.getElementById("cliff-chart");
+    clear(svg);
+    var W = 480, H = 280, m = { l: 50, r: 16, t: 20, b: 40 };
+    var pw = W - m.l - m.r, ph = H - m.t - m.b;
+    var cInk2 = css("--ink2"), cGrid = css("--grid"), cAxis = css("--axis"), cAcc = css("--accent"),
+        cInk = css("--ink"), cSurf = css("--surface"), cSil = css("--mit-silver");
+    var y0 = 60, y1 = 82;
+    function Y(v) { return m.t + ph * (1 - (v - y0) / (y1 - y0)); }
+    function X(i) { return m.l + pw * (i + 0.5) / data.length; }
+    [60, 65, 70, 75, 81].forEach(function (v) {
+      svg.appendChild(el("line", { x1: m.l, x2: m.l + pw, y1: Y(v), y2: Y(v), stroke: cGrid, "stroke-dasharray": v === 81 ? "4 3" : null }));
+      svg.appendChild(el("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end", "font-size": 11, fill: cInk2, "font-family": css("--font-mono") }, fmt(v, 0)));
+    });
+    svg.appendChild(el("line", { x1: m.l, x2: m.l + pw, y1: m.t + ph, y2: m.t + ph, stroke: cAxis }));
+    svg.appendChild(el("text", { x: 13, y: m.t + ph / 2, "text-anchor": "middle", "font-size": 12, fill: cInk2, transform: "rotate(-90 13 " + (m.t + ph / 2) + ")" }, t("r.wildfire.cliff.y")));
+    // step line through the reported points
+    var line = data.filter(function (d) { return d.kind !== "floor"; }).map(function (d) {
+      return X(data.indexOf(d)) + "," + Y(d.lo);
+    });
+    svg.appendChild(el("polyline", { points: line.join(" "), fill: "none", stroke: cSil, "stroke-width": 1.5 }));
+    data.forEach(function (d, i) {
+      var x = X(i);
+      svg.appendChild(el("text", { x: x, y: m.t + ph + 18, "text-anchor": "middle", "font-size": 11.5, fill: cInk2, "font-family": css("--font-mono") }, d.x));
+      var lbl;
+      if (d.kind === "floor") {
+        svg.appendChild(el("line", { x1: x, x2: x, y1: Y(71), y2: Y(81), stroke: cSil, "stroke-width": 2, "stroke-dasharray": "3 3" }));
+        svg.appendChild(el("path", { d: "M" + (x - 7) + "," + (Y(71) - 6) + " L" + x + "," + Y(71) + " L" + (x + 7) + "," + (Y(71) - 6), fill: "none", stroke: cSil, "stroke-width": 2 }));
+        lbl = t("r.wildfire.cliff.floor");
+        wrapText(svg, x, Y(71) + 16, lbl, cInk2, 120);
+        return;
+      }
+      if (d.hi !== d.lo) {
+        svg.appendChild(el("line", { x1: x, x2: x, y1: Y(d.lo), y2: Y(d.hi), stroke: cAcc, "stroke-width": 6, "stroke-linecap": "round" }));
+      }
+      svg.appendChild(el("circle", { cx: x, cy: Y(d.lo), r: 6, fill: cAcc, stroke: cSurf, "stroke-width": 1.5 }));
+      lbl = t("r.wildfire.cliff." + d.kind);
+      var ly = d.kind === "base" ? Y(d.lo) + 20 : Y(d.lo) + 22;
+      wrapText(svg, x, ly, lbl, cInk, 120);
+    });
+  }
+
+  function wrapText(svg, x, y, txt, color, maxW) {
+    var words = txt.split(" "), lines = [], cur = "";
+    var maxChars = Math.floor(maxW / 6.2);
+    words.forEach(function (w) {
+      if ((cur + " " + w).trim().length > maxChars) { lines.push(cur.trim()); cur = w; } else cur += " " + w;
+    });
+    if (cur.trim()) lines.push(cur.trim());
+    lines.forEach(function (l, i) {
+      svg.appendChild(el("text", { x: x, y: y + i * 13, "text-anchor": "middle", "font-size": 11, fill: color }, l));
+    });
+  }
+
+  function renderSens() {
+    var tb = document.getElementById("sens-body");
+    clear(tb);
+    for (var i = 1; i <= 9; i++) {
+      var tr = document.createElement("tr");
+      if ((i === 1 && state.bud === 225) || (i === 2 && state.bud === 300)) tr.className = "on";
+      ["a", "b", "c", "d"].forEach(function (k) { tr.appendChild(h("td", null, t("r.wildfire.sens.r" + i + k))); });
+      tb.appendChild(tr);
+    }
+  }
+
+  function render() {
+    renderCalc();
+    renderBudget();
+  }
+
+  ["dbf", "dfw", "a0"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function (e) {
+      state[id] = parseFloat(e.target.value);
+      renderCalc();
+    });
+  });
+
+  I18N.onChange(render);
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if (mq.addEventListener) mq.addEventListener("change", render); else if (mq.addListener) mq.addListener(render);
+})();
+</script>
+</body>
+</html>
