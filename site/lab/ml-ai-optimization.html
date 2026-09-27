@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="en" data-title-key="mlai.title" data-i18n-bundles="lab/lab-ml-ai-cases">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>ML + AI in Optimization</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  [hidden] { display: none !important; }
+  /* ---- case index ---- */
+  .case-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 760px) { .case-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .case-nav a {
+    display: flex; gap: 9px; align-items: baseline; padding: 10px 12px; min-width: 0;
+    background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 3px;
+    color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14px; line-height: 1.3;
+  }
+  .case-nav a:hover { background: var(--surface2); }
+  .case-nav .n, .case-num { font-family: var(--font-mono); color: var(--accent-text); font-weight: 600; }
+  .case-num { display: block; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+  section.block { scroll-margin-top: 70px; }
+
+  /* ---- controls ---- */
+  .ctl-row { display: flex; flex-wrap: wrap; gap: 12px 26px; align-items: flex-end; }
+  .ctl-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ctl-group .lbl { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .ctl-inline { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chk {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: var(--ink); cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); padding: 7px 10px; border-radius: 2px; user-select: none;
+  }
+  .chk input { accent-color: var(--accent); margin: 0; width: 15px; height: 15px; }
+  .chk:has(input:checked) { border-color: var(--accent); }
+  .chk:has(input:disabled) { cursor: default; opacity: 0.75; }
+  button.btn {
+    font: 600 13px var(--font-sans); color: var(--on-solid); background: var(--accent); border: 1px solid var(--accent); border-radius: 2px;
+    padding: 8px 12px; cursor: pointer; white-space: nowrap;
+  }
+  button.btn:hover { filter: brightness(1.1); }
+  button.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
+  button.btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--border); }
+  .rng { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; min-width: 220px; flex: 1 1 240px; max-width: 360px; }
+  .rng label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .rng output { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); text-align: right; }
+  .rng input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 0; }
+  .status { font-size: 13px; color: var(--muted); margin: 10px 0 0; min-height: 1.4em; }
+  .status b { color: var(--ink2); }
+
+  /* ---- live numbers ---- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
+  @media (max-width: 460px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .kpi { border: 1px solid var(--border); border-radius: 3px; padding: 8px 11px; background: var(--surface); min-width: 0; }
+  .kpi b { display: block; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: -0.01em; line-height: 1.2; }
+  .kpi span { display: block; font-size: 12.5px; color: var(--ink2); line-height: 1.3; margin-top: 2px; }
+  .kpi.accent { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .kpi.accent b { color: var(--accent-text); }
+  @media (max-width: 460px) { .kpi b { font-size: 17px; } .kpi span { font-size: 12px; } }
+
+  /* ---- charts ---- */
+  .chartbox { margin-top: 14px; min-width: 0; }
+  .chartbox svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart-title { margin: 0 0 4px; font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .anim-legend { margin-top: 8px; }
+  .anim-legend i.sw-mf { background: var(--mit-silver); }
+  .anim-legend i.sw-ln { background: var(--accent); }
+  .anim-legend i.sw-sb { background: var(--ink); }
+  .anim-legend i.ln { width: 18px; height: 3px; }
+  .anim-legend i.ln-ink { background: var(--ink); }
+  .anim-legend i.ln-dash { background: repeating-linear-gradient(90deg, var(--ink) 0 5px, transparent 5px 8px); }
+  .anim-legend i.ln-red { background: var(--accent); }
+  .anim-legend i.ln-gray { background: var(--ink2); }
+  .anim-legend i.ln-silver { background: var(--mit-silver); }
+  .anim-legend i.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mit-silver); }
+  .anim-legend i.ave { width: 18px; height: 5px; background: var(--mit-silver); }
+  .anim-legend i.side { width: 18px; height: 2px; background: var(--axis); }
+
+  /* ---- tables ---- */
+  table.data { min-width: 0; margin-top: 14px; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.best { color: var(--accent-text); font-weight: 700; }
+  table.data tr.avg td { border-top: 1px solid var(--axis); font-weight: 700; }
+  @media (max-width: 560px) {
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 5px; font-size: 12px; }
+    table.data td.num { font-size: 11.5px; }
+  }
+
+  /* ---- limits ---- */
+  .limits {
+    border-left: 3px solid var(--mit-silver); background: var(--surface2); border-radius: 2px;
+    padding: 10px 14px; font-size: 14px; color: var(--ink2); margin: 0; max-width: 92ch;
+  }
+  .limits b { color: var(--ink); }
+  .mhead { margin: 16px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+
+  /* ---- case 3 ---- */
+  .rl-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 18px; align-items: start; margin-top: 14px; }
+  @media (max-width: 820px) { .rl-grid { grid-template-columns: minmax(0, 1fr); } }
+  .rl-grid .chartbox { margin-top: 0; }
+  #c3-map { max-width: 440px; }
+
+  /* ---- case 4 ---- */
+  .c4-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 860px) { .c4-grid { grid-template-columns: minmax(0, 1fr); } }
+  .c4-grid > div { min-width: 0; }
+  .statement { margin: 0; font-size: 14.5px; color: var(--ink); background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 12px 14px; }
+  .proposal { margin-top: 14px; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); }
+  .proposal-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .proposal-head b { font-size: 14px; }
+  .badge {
+    font: 600 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink2); border: 1px dashed var(--mit-silver); padding: 2px 7px; border-radius: 2px;
+  }
+  .proposal .formula { margin: 8px 10px 10px; }
+  .proposal-note { margin: 0 12px 10px; font-size: 13px; color: var(--muted); }
+  .checks { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+  .checks li {
+    display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start;
+    border: 1px solid var(--border); border-radius: 3px; padding: 9px 12px; background: var(--surface);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .checks li.wait { opacity: 0; transform: translateY(4px); }
+  .checks .mark {
+    width: 24px; height: 24px; border-radius: 2px; display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px; color: var(--on-solid); background: var(--ink);
+  }
+  .checks li.fail { border-color: var(--accent); }
+  .checks li.fail .mark { background: var(--accent); }
+  .checks .t { display: block; font-weight: 600; font-size: 14px; color: var(--ink); }
+  .checks .d { display: block; font-size: 13px; color: var(--ink2); margin-top: 2px; }
+  .verdict { margin: 12px 0 0; padding: 10px 14px; border-radius: 3px; font-size: 14.5px; border: 1px solid var(--border); background: var(--surface2); color: var(--ink); }
+  .verdict.fail { border-color: var(--accent); background: var(--sel); }
+  .verdict b { color: var(--ink); }
+  .verdict.fail b { color: var(--accent-text); }
+  details.ref { margin-top: 14px; }
+  details.ref .body { max-width: none; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="mlai.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="mlai.eyebrow"></p>
+    <h1 data-i18n="mlai.title"></h1>
+    <p class="lede" data-i18n-html="mlai.lede"></p>
+  </header>
+
+  <nav class="case-nav" data-i18n-attr="aria-label:mlai.nav.aria">
+    <a href="#c1"><span class="n">1</span><span data-i18n="mlai.c1.title"></span></a>
+    <a href="#c2"><span class="n">2</span><span data-i18n="mlai.c2.title"></span></a>
+    <a href="#c3"><span class="n">3</span><span data-i18n="mlai.c3.title"></span></a>
+    <a href="#c4"><span class="n">4</span><span data-i18n="mlai.c4.title"></span></a>
+  </nav>
+
+  <!-- =================================================================== case 1 -->
+  <section class="block" id="c1" aria-labelledby="c1-h">
+    <h2 class="section-title" id="c1-h"><span class="case-num" data-i18n="mlai.case1"></span><span data-i18n="mlai.c1.title"></span></h2>
+    <p class="section-intro" data-i18n-html="mlai.c1.intro"></p>
+    <div class="card">
+      <div class="ctl-row">
+        <div class="ctl-group" role="group" aria-labelledby="c1-feat-lbl">
+          <span class="lbl" id="c1-feat-lbl" data-i18n="mlai.c1.feat"></span>
+          <div class="ctl-inline">
+            <label class="chk"><input type="checkbox" data-f="1" checked><span data-i18n="mlai.c1.f.frac"></span></label>
+            <label class="chk"><input type="checkbox" data-f="2" checked><span data-i18n="mlai.c1.f.val"></span></label>
+            <label class="chk"><input type="checkbox" data-f="3" checked><span data-i18n="mlai.c1.f.size"></span></label>
+          </div>
+        </div>
+        <div class="ctl-group">
+          <span class="lbl" id="c1-tr-lbl" data-i18n="mlai.c1.train"></span>
+          <div class="seg" role="group" aria-labelledby="c1-tr-lbl" id="c1-tr">
+            <button type="button" data-n="1" aria-pressed="false">1</button>
+            <button type="button" data-n="3" aria-pressed="false">3</button>
+            <button type="button" data-n="10" aria-pressed="true">10</button>
+          </div>
+        </div>
+        <div class="ctl-group">
+          <button type="button" class="btn ghost" id="c1-new" data-i18n="mlai.c1.new"></button>
+        </div>
+      </div>
+      <p class="status" id="c1-status" aria-live="polite"></p>
+      <div class="kpis" id="c1-kpis"></div>
+      <div class="chartbox" id="c1-chart" role="img"></div>
+      <div class="anim-legend">
+        <span><i class="sw-mf"></i><span data-i18n="mlai.c1.r.mf"></span></span>
+        <span><i class="sw-ln"></i><span data-i18n="mlai.c1.r.ln"></span></span>
+        <span><i class="sw-sb"></i><span data-i18n="mlai.c1.r.sb"></span></span>
+      </div>
+      <div class="tblwrap"><table class="data" id="c1-table"></table></div>
+      <p class="mhead" data-i18n="mlai.c1.model.head"></p>
+      <div class="formula" data-tex="mlai.c1.model.tex" data-i18n="mlai.c1.model.formula"></div>
+      <p class="mhead" data-i18n="mlai.c1.fit.head"></p>
+      <div class="formula" id="c1-fit"></div>
+    </div>
+    <p class="limits" data-i18n-html="mlai.c1.limits"></p>
+  </section>
+
+  <!-- =================================================================== case 2 -->
+  <section class="block" id="c2" aria-labelledby="c2-h">
+    <h2 class="section-title" id="c2-h"><span class="case-num" data-i18n="mlai.case2"></span><span data-i18n="mlai.c2.title"></span></h2>
+    <p class="section-intro" data-i18n-html="mlai.c2.intro"></p>
+    <div class="card">
+      <div class="ctl-row">
+        <div class="rng">
+          <label for="c2-cu" data-i18n="mlai.c2.cu"></label><output id="c2-cu-out" for="c2-cu"></output>
+          <input type="range" id="c2-cu" min="500" max="6000" step="250" value="4000">
+        </div>
+        <div class="rng">
+          <label for="c2-k" data-i18n="mlai.c2.k"></label><output id="c2-k-out" for="c2-k"></output>
+          <input type="range" id="c2-k" min="0.5" max="2" step="0.25" value="1">
+        </div>
+        <div class="ctl-group">
+          <span class="lbl" id="c2-n-lbl" data-i18n="mlai.c2.n"></span>
+          <div class="seg" role="group" aria-labelledby="c2-n-lbl" id="c2-n">
+            <button type="button" data-n="20" aria-pressed="false">20</button>
+            <button type="button" data-n="60" aria-pressed="true">60</button>
+            <button type="button" data-n="200" aria-pressed="false">200</button>
+          </div>
+        </div>
+      </div>
+      <p class="status" id="c2-status" aria-live="polite"></p>
+      <div class="kpis" id="c2-kpis"></div>
+      <div class="chartbox" id="c2-chart" role="img"></div>
+      <div class="anim-legend">
+        <span><i class="dot"></i><span data-i18n="mlai.c2.lg.data"></span></span>
+        <span><i class="ln ln-dash"></i><span data-i18n="mlai.c2.p.or"></span></span>
+        <span><i class="ln ln-gray"></i><span data-i18n="mlai.c2.p.ls"></span></span>
+        <span><i class="ln ln-red"></i><span data-i18n="mlai.c2.p.qr"></span></span>
+      </div>
+      <div class="tblwrap"><table class="data" id="c2-table"></table></div>
+      <p class="mhead" data-i18n="mlai.c2.model.head"></p>
+      <div class="formula" data-tex="mlai.c2.model.tex" data-i18n="mlai.c2.model.formula"></div>
+      <p class="mhead" data-i18n="mlai.c2.fit.head"></p>
+      <div class="formula" id="c2-fit"></div>
+    </div>
+    <p class="limits" id="c2-limits"></p>
+  </section>
+
+  <!-- =================================================================== case 3 -->
+  <section class="block" id="c3" aria-labelledby="c3-h">
+    <h2 class="section-title" id="c3-h"><span class="case-num" data-i18n="mlai.case3"></span><span data-i18n="mlai.c3.title"></span></h2>
+    <p class="section-intro" data-i18n-html="mlai.c3.intro"></p>
+    <div class="card">
+      <div class="ctl-row">
+        <div class="ctl-group">
+          <span class="lbl" id="c3-sc-lbl" data-i18n="mlai.c3.sc"></span>
+          <div class="seg" role="group" aria-labelledby="c3-sc-lbl" id="c3-sc">
+            <button type="button" data-v="off" aria-pressed="true" data-i18n="mlai.c3.sc.off"></button>
+            <button type="button" data-v="rush" aria-pressed="false" data-i18n="mlai.c3.sc.rush"></button>
+          </div>
+        </div>
+        <div class="rng">
+          <label for="c3-ep" data-i18n="mlai.c3.ep"></label><output id="c3-ep-out" for="c3-ep"></output>
+          <input type="range" id="c3-ep" min="100" max="3000" step="100" value="1500">
+        </div>
+        <div class="ctl-group">
+          <span class="lbl" id="c3-eps-lbl" data-i18n="mlai.c3.eps"></span>
+          <div class="seg" role="group" aria-labelledby="c3-eps-lbl" id="c3-eps">
+            <button type="button" data-v="0.05" aria-pressed="false"></button>
+            <button type="button" data-v="0.1" aria-pressed="true"></button>
+            <button type="button" data-v="0.3" aria-pressed="false"></button>
+          </div>
+        </div>
+        <div class="ctl-group">
+          <button type="button" class="btn ghost" id="c3-seed"></button>
+        </div>
+      </div>
+      <p class="status" id="c3-status" aria-live="polite"></p>
+      <div class="kpis" id="c3-kpis"></div>
+      <div class="rl-grid">
+        <div>
+          <p class="chart-title" data-i18n="mlai.c3.map"></p>
+          <div class="chartbox" id="c3-map" role="img"></div>
+          <div class="anim-legend">
+            <span><i class="ave"></i><span data-i18n="mlai.c3.lg.ave"></span></span>
+            <span><i class="side"></i><span data-i18n="mlai.c3.lg.side"></span></span>
+            <span><i class="ln ln-dash"></i><span data-i18n="mlai.c3.lg.dp"></span></span>
+            <span><i class="ln ln-red"></i><span data-i18n="mlai.c3.lg.q"></span></span>
+          </div>
+        </div>
+        <div>
+          <p class="chart-title" data-i18n="mlai.c3.curve"></p>
+          <div class="chartbox" id="c3-chart" role="img"></div>
+          <div class="anim-legend">
+            <span><i class="ln ln-silver"></i><span data-i18n="mlai.c3.lg.avg"></span></span>
+            <span><i class="ln ln-red"></i><span data-i18n="mlai.c3.lg.greedy"></span></span>
+            <span><i class="ln ln-dash"></i><span data-i18n="mlai.c3.lg.opt"></span></span>
+          </div>
+        </div>
+      </div>
+      <p class="mhead" data-i18n="mlai.c3.model.head"></p>
+      <div class="formula" data-tex="mlai.c3.model.tex" data-i18n="mlai.c3.model.formula"></div>
+    </div>
+    <p class="limits" id="c3-limits"></p>
+  </section>
+
+  <!-- =================================================================== case 4 -->
+  <section class="block" id="c4" aria-labelledby="c4-h">
+    <h2 class="section-title" id="c4-h"><span class="case-num" data-i18n="mlai.case4"></span><span data-i18n="mlai.c4.title"></span></h2>
+    <p class="section-intro" data-i18n-html="mlai.c4.intro"></p>
+    <div class="card">
+      <div class="c4-grid">
+        <div>
+          <p class="mhead" style="margin-top:0" data-i18n="mlai.c4.stmt.head"></p>
+          <p class="statement" data-i18n="mlai.c4.stmt"></p>
+          <div class="ctl-row" style="margin-top:14px">
+            <div class="ctl-group">
+              <span class="lbl" id="c4-pick-lbl" data-i18n="mlai.c4.pick"></span>
+              <div class="seg" role="group" aria-labelledby="c4-pick-lbl" id="c4-pick">
+                <button type="button" data-v="A" aria-pressed="true"></button>
+                <button type="button" data-v="B" aria-pressed="false"></button>
+              </div>
+            </div>
+            <div class="ctl-group">
+              <button type="button" class="btn" id="c4-run" data-i18n="mlai.c4.run"></button>
+            </div>
+          </div>
+          <div class="proposal">
+            <div class="proposal-head"><b id="c4-cand-name"></b><span class="badge" data-i18n="mlai.c4.badge"></span></div>
+            <div class="formula" id="c4-cand"></div>
+            <p class="proposal-note" data-i18n="mlai.c4.units.note"></p>
+          </div>
+        </div>
+        <div>
+          <p class="mhead" style="margin-top:0" data-i18n="mlai.c4.check.head"></p>
+          <ol class="checks" id="c4-checks"></ol>
+          <p class="verdict" id="c4-verdict" aria-live="polite"></p>
+          <div class="kpis" id="c4-kpis"></div>
+        </div>
+      </div>
+      <details class="ref">
+        <summary data-i18n="mlai.c4.ref.title"></summary>
+        <div class="body">
+          <p data-i18n="mlai.c4.ref.p"></p>
+          <div class="formula" id="c4-ref"></div>
+          <p id="c4-ref-sol"></p>
+        </div>
+      </details>
+    </div>
+    <p class="limits" data-i18n-html="mlai.c4.limits"></p>
+  </section>
+
+  <section>
+    <details open>
+      <summary data-i18n="mlai.n.title"></summary>
+      <div class="body">
+        <p id="mlai-n1"></p>
+        <p id="mlai-n2"></p>
+        <p id="mlai-n3"></p>
+        <p id="mlai-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.1" data-refs="mlai.refs"></p>
+  <p class="note" data-i18n="mlai.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-ml-ai-cases.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var MINUS = "−";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function fmt(v, d) {
+    d = d == null ? 1 : d;
+    if (Math.abs(v) < 0.5 * Math.pow(10, -d)) v = 0;
+    return (v < 0 ? MINUS : "") + I18N.fmt(Math.abs(v), d, d);
+  }
+  function sgn(v, d) { var s = fmt(v, d); return v > 0 && s !== fmt(0, d) ? "+" + s : s; }
+  function pct(v, d) { return T("mlai.pct", { v: fmt(v, d == null ? 1 : d) }); }
+  function pctS(v, d) { return T("mlai.pct", { v: sgn(v, d == null ? 1 : d) }); }
+  function pesos(v) { return T("mlai.cop", { v: fmt(v, 0) }); }
+  // numbers inside TeX: no grouping, local decimal mark (tex.js turns "d,d" into a decimal comma)
+  function texNum(v, d) {
+    if (Math.abs(v) < 0.5 * Math.pow(10, -d)) v = 0;
+    var dec = I18N.fmt(1.5, 1, 1).charAt(1);
+    return (v < 0 ? "-" : "") + Math.abs(v).toFixed(d).replace(".", dec);
+  }
+  function texSigned(v, d, first) {
+    var s = texNum(Math.abs(v), d);
+    return first ? (v < 0 ? "-" + s : s) : (v < 0 ? " - " + s : " + " + s);
+  }
+  function setText(el, s) { if (el && el._t !== s) { el._t = s; el.textContent = s; } }
+  function setHTML(el, s) { if (el && el._h !== s) { el._h = s; el.innerHTML = s; } }
+  function kpis(host, items) {
+    setHTML(host, items.map(function (k) {
+      return '<div class="kpi' + (k.accent ? " accent" : "") + '"><b>' + k.v + "</b><span>" + k.l + "</span></div>";
+    }).join(""));
+  }
+  function segPick(id, attr, cb) {
+    var host = $(id);
+    host.addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b || !host.contains(b)) return;
+      host.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      cb(b.getAttribute(attr));
+    });
+  }
+  function niceStep(range, n) {
+    var raw = range / n, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+    return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7 ? 5 : 10) * p;
+  }
+  function boxWidth(el) { return Math.max(260, Math.round(el.clientWidth || 600)); }
+  var SANS = "var(--font-sans)", MONO = "var(--font-mono)";
+  function txt(x, y, s, o) {
+    o = o || {};
+    return '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" font-size="' + (o.size || 11) + '" font-family="' + (o.mono ? MONO : SANS) + '"' +
+      ' fill="' + (o.fill || "var(--muted)") + '"' + (o.anchor ? ' text-anchor="' + o.anchor + '"' : "") + (o.weight ? ' font-weight="' + o.weight + '"' : "") + ">" + s + "</text>";
+  }
+  function line(x1, y1, x2, y2, stroke, w, extra) {
+    return '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + stroke + '" stroke-width="' + (w || 1) + '"' + (extra || "") + "/>";
+  }
+
+  /* =====================================================================================
+     Case 1. Learning to branch on 0-1 knapsacks with three limits (weight, volume, loading time).
+     Branch and bound solves every node LP with LP.solve. To measure only the branching rule, each tree
+     starts knowing the optimal value z* (found first by an ordinary branch and bound), so a node is
+     closed when floor(LP bound) <= z* (the data are integers). The tree size then does not depend on
+     the order in which nodes are explored. Instances are illustrative (seeded).
+     ===================================================================================== */
+  var C1 = { N: 16, M: 3, NTRAIN: 10, NTEST: 8, EPS: 1e-6 };
+  function c1gen(seed) {
+    var r = Anim.rng(seed), n = C1.N, m = C1.M, i, j, big = [], A = [], c = [], b = [];
+    for (j = 0; j < n; j++) big.push(r() < 0.3);
+    for (i = 0; i < m; i++) { A.push([]); for (j = 0; j < n; j++) A[i].push(big[j] ? 30 + Math.floor(r() * 51) : 5 + Math.floor(r() * 21)); }
+    for (j = 0; j < n; j++) { var s = 0; for (i = 0; i < m; i++) s += A[i][j]; c.push(Math.floor(s / m * (0.8 + 0.4 * r())) + Math.floor(r() * 6)); }
+    for (i = 0; i < m; i++) { var t = 0; for (j = 0; j < n; j++) t += A[i][j]; b.push(Math.floor(0.5 * t)); }
+    var cmax = Math.max.apply(null, c);
+    var wn = c.map(function (_, j2) { var s2 = 0; for (var i2 = 0; i2 < m; i2++) s2 += A[i2][j2] / b[i2]; return s2; });
+    var wmax = Math.max.apply(null, wn);
+    return { seed: seed, c: c, A: A, b: b, cmax: cmax, wn: wn, wmax: wmax, cache: {}, nlp: 0 };
+  }
+  // LP relaxation at a node: fix[j] = -1 free, 0 or 1 fixed; fixed items are substituted out
+  function c1lp(I, fix) {
+    var key = fix.join(",");
+    if (Object.prototype.hasOwnProperty.call(I.cache, key)) return I.cache[key];
+    var n = I.c.length, m = I.A.length, free = [], z0 = 0, bb = I.b.slice(), i, j, out;
+    for (j = 0; j < n; j++) {
+      if (fix[j] < 0) free.push(j);
+      else if (fix[j] === 1) { z0 += I.c[j]; for (i = 0; i < m; i++) bb[i] -= I.A[i][j]; }
+    }
+    if (bb.some(function (v) { return v < 0; })) out = null;
+    else if (!free.length) out = { z: z0, x: fix.slice() };
+    else {
+      I.nlp++;
+      var rows = [];
+      for (i = 0; i < m; i++) rows.push({ a: free.map(function (q) { return I.A[i][q]; }), op: "<=", b: bb[i] });
+      free.forEach(function (q, k) { var a = new Array(free.length).fill(0); a[k] = 1; rows.push({ a: a, op: "<=", b: 1 }); });
+      var r = LP.solve({ sense: "max", c: free.map(function (q) { return I.c[q]; }), rows: rows });
+      if (r.status !== "optimal") out = null;
+      else { var x = fix.slice(); free.forEach(function (q, k) { x[q] = r.x[k]; }); out = { z: z0 + r.z, x: x }; }
+    }
+    I.cache[key] = out;
+    return out;
+  }
+  function frac(v) { return Math.min(v - Math.floor(v), Math.ceil(v) - v); }
+  function fracList(x) { var c = []; for (var j = 0; j < x.length; j++) if (Math.abs(x[j] - Math.round(x[j])) > C1.EPS) c.push(j); return c; }
+  function argmax(C, score) { var bj = C[0], bs = score(C[0]); for (var q = 1; q < C.length; q++) { var s = score(C[q]); if (s > bs + 1e-12) { bs = s; bj = C[q]; } } return bj; }
+  function c1opt(I) {                                  // ordinary depth first branch and bound with an incumbent
+    var n = I.c.length, inc = -Infinity, st = [new Array(n).fill(-1)];
+    while (st.length) {
+      var f = st.pop(), s = c1lp(I, f);
+      if (!s || Math.floor(s.z + C1.EPS) <= inc) continue;
+      var C = fracList(s.x);
+      if (!C.length) { inc = Math.round(s.z); continue; }
+      var j = argmax(C, function (k) { return frac(s.x[k]); });
+      for (var v = 0; v <= 1; v++) { var g = f.slice(); g[j] = v; st.push(g); }
+    }
+    return inc;
+  }
+  function c1feats(I, x, k) { return [1, frac(x[k]), I.c[k] / I.cmax, I.wn[k] / I.wmax]; }
+  // strong branching score of each candidate: product of the two child bound drops (capped at the gap to z*)
+  function c1sb(I, f, s, C) {
+    var g = s.z - I.zs;
+    return C.map(function (k) {
+      var d = [0, 1].map(function (v) { var h = f.slice(); h[k] = v; var t = c1lp(I, h); return t ? Math.min(s.z - t.z, g) : g; });
+      return Math.max(d[0], 1e-6) * Math.max(d[1], 1e-6);
+    });
+  }
+  function c1bb(I, rule, w, mask, samples) {
+    var n = I.c.length, nodes = 0, lps = 0, st = [new Array(n).fill(-1)];
+    while (st.length) {
+      var f = st.pop(); nodes++; lps++;
+      var s = c1lp(I, f);
+      if (!s || Math.floor(s.z + C1.EPS) <= I.zs) continue;
+      var C = fracList(s.x), j;
+      if (rule === "mf") j = argmax(C, function (k) { return frac(s.x[k]); });
+      else if (rule === "sb") {
+        var sc = c1sb(I, f, s, C), mx = Math.max.apply(null, sc);
+        lps += 2 * C.length;
+        j = C[argmax(C.map(function (_, q) { return q; }), function (q) { return sc[q]; })];
+        if (samples) C.forEach(function (k, q) { samples.push({ f: c1feats(I, s.x, k), y: sc[q] / mx }); });
+      } else {
+        j = argmax(C, function (k) { var ff = c1feats(I, s.x, k), v = 0; for (var q = 0; q < 4; q++) if (mask[q]) v += w[q] * ff[q]; return v; });
+      }
+      for (var v = 0; v <= 1; v++) { var g = f.slice(); g[j] = v; st.push(g); }
+    }
+    return { nodes: nodes, lps: lps };
+  }
+  // least squares with a tiny ridge (1e-6) so a small training set never gives a singular system
+  function lsq(X, Y) {
+    var p = X[0].length, A = [], b = [], i, j, k;
+    for (i = 0; i < p; i++) { A.push(new Array(p).fill(0)); b.push(0); A[i][i] = 1e-6; }
+    X.forEach(function (x, r) { for (i = 0; i < p; i++) { b[i] += x[i] * Y[r]; for (j = 0; j < p; j++) A[i][j] += x[i] * x[j]; } });
+    for (k = 0; k < p; k++) {
+      var pv = k; for (i = k + 1; i < p; i++) if (Math.abs(A[i][k]) > Math.abs(A[pv][k])) pv = i;
+      var t = A[k]; A[k] = A[pv]; A[pv] = t; t = b[k]; b[k] = b[pv]; b[pv] = t;
+      for (i = k + 1; i < p; i++) { var q = A[i][k] / A[k][k]; for (j = k; j < p; j++) A[i][j] -= q * A[k][j]; b[i] -= q * b[k]; }
+    }
+    var w = new Array(p);
+    for (i = p - 1; i >= 0; i--) { var s = b[i]; for (j = i + 1; j < p; j++) s -= A[i][j] * w[j]; w[i] = s / A[i][i]; }
+    return w;
+  }
+
+  var c1 = { draw: 1, ntrain: 10, mask: [true, true, true, true], train: [], test: [], ready: false, busy: false, w: null, nsamp: 0 };
+  function c1compute() {
+    c1.ready = false; c1.busy = true; c1render();
+    var base = 1000 * c1.draw, jobs = [], k;
+    c1.train = []; c1.test = [];
+    for (k = 0; k < C1.NTRAIN; k++) (function (k2) { jobs.push(function () {
+      var I = c1gen(base + k2); I.zs = c1opt(I); I.samples = []; c1bb(I, "sb", null, null, I.samples); c1.train.push(I);
+    }); })(k);
+    for (k = 0; k < C1.NTEST; k++) (function (k2) { jobs.push(function () {
+      var I = c1gen(base + 500 + k2); I.zs = c1opt(I); I.mf = c1bb(I, "mf"); I.sb = c1bb(I, "sb"); c1.test.push(I);
+    }); })(k);
+    var token = c1.token = {};
+    (function next() {
+      if (token !== c1.token) return;
+      if (!jobs.length) { c1.busy = false; c1fit(); return; }
+      jobs.shift()();
+      setTimeout(next, 0);
+    })();
+  }
+  function c1fit() {
+    var X = [], Y = [], m = c1.mask;
+    c1.train.slice(0, c1.ntrain).forEach(function (I) { I.samples.forEach(function (s) { X.push(s.f.filter(function (_, q) { return m[q]; })); Y.push(s.y); }); });
+    var wr = lsq(X, Y), w = [0, 0, 0, 0], q2 = 0;
+    for (var q = 0; q < 4; q++) if (m[q]) w[q] = wr[q2++];
+    c1.w = w; c1.nsamp = Y.length;
+    c1.test.forEach(function (I) { I.ln = c1bb(I, "ln", w, m); });
+    c1.ready = true;
+    c1render();
+    notice();
+  }
+  function c1stats() {
+    var n = c1.test.length, s = { mf: 0, ln: 0, sb: 0, sblp: 0 };
+    c1.test.forEach(function (I) { s.mf += I.mf.nodes; s.ln += I.ln.nodes; s.sb += I.sb.nodes; s.sblp += I.sb.lps; });
+    s.mf /= n; s.ln /= n; s.sb /= n; s.sblp /= n;
+    s.gap = s.mf - s.sb > 1e-9 ? (s.mf - s.ln) / (s.mf - s.sb) * 100 : null;
+    return s;
+  }
+  function c1render() {
+    if (!c1.ready) {
+      setText($("c1-status"), T("mlai.c1.busy"));
+      $("c1-new").disabled = true;
+      return;
+    }
+    $("c1-new").disabled = false;
+    var s = c1stats();
+    setHTML($("c1-status"), T("mlai.c1.status", { d: c1.draw, n: c1.ntrain, s: fmt(c1.nsamp, 0), t: C1.NTEST }));
+    kpis($("c1-kpis"), [
+      { v: fmt(s.mf, 1), l: T("mlai.c1.k.mf") },
+      { v: fmt(s.ln, 1), l: T("mlai.c1.k.ln"), accent: true },
+      { v: fmt(s.sb, 1), l: T("mlai.c1.k.sb") },
+      { v: fmt(s.sblp, 1), l: T("mlai.c1.k.sblp") },
+      { v: s.gap == null ? T("mlai.na") : pct(s.gap, 0), l: T("mlai.c1.k.gap") }
+    ]);
+    // table
+    var h = "<thead><tr><th>" + T("mlai.c1.th.inst") + '</th><th class="num wide">' + T("mlai.c1.th.opt") + '</th><th class="num">' + T("mlai.c1.th.mf") +
+      '</th><th class="num">' + T("mlai.c1.th.ln") + '</th><th class="num">' + T("mlai.c1.th.sb") + '</th><th class="num">' + T("mlai.c1.th.sblp") + "</th></tr></thead><tbody>";
+    c1.test.forEach(function (I, k) {
+      h += "<tr><td>" + T("mlai.c1.inst", { k: k + 1 }) + '</td><td class="num wide">' + fmt(I.zs, 0) + '</td><td class="num">' + fmt(I.mf.nodes, 0) +
+        '</td><td class="num' + (I.ln.nodes < I.mf.nodes ? " best" : "") + '">' + fmt(I.ln.nodes, 0) + '</td><td class="num">' + fmt(I.sb.nodes, 0) +
+        '</td><td class="num">' + fmt(I.sb.lps, 0) + "</td></tr>";
+    });
+    h += '<tr class="avg"><td>' + T("mlai.c1.avg") + '</td><td class="num wide"></td><td class="num">' + fmt(s.mf, 1) + '</td><td class="num">' + fmt(s.ln, 1) +
+      '</td><td class="num">' + fmt(s.sb, 1) + '</td><td class="num">' + fmt(s.sblp, 1) + "</td></tr></tbody>";
+    setHTML($("c1-table"), h);
+    c1chart(s);
+    // fitted score
+    var w = c1.w, parts = [texSigned(w[0], 2, true)];
+    var sym = [null, "f_j", "\\bar c_j", "\\bar a_j"];
+    for (var q = 1; q < 4; q++) if (c1.mask[q]) parts.push(texSigned(w[q], 2, false) + "\\," + sym[q]);
+    var plain = [fmt(w[0], 2)];
+    var psym = [null, "f", "c", "a"];
+    for (q = 1; q < 4; q++) if (c1.mask[q]) plain.push((w[q] < 0 ? " " + MINUS + " " : " + ") + fmt(Math.abs(w[q]), 2) + " " + psym[q]);
+    TeX.set($("c1-fit"), "\\begin{aligned}\\text{" + T("mlai.c1.score") + "}_j &= " + parts.join("") + "\\end{aligned}",
+      T("mlai.c1.score") + " = " + plain.join(""));
+  }
+  function c1chart(s) {
+    var host = $("c1-chart"), W = boxWidth(host), H = W < 520 ? 210 : 240;
+    var ml = 40, mr = 8, mt = 12, mb = 26, pw = W - ml - mr, ph = H - mt - mb;
+    var groups = c1.test.map(function (I, k) { return { lab: String(k + 1), v: [I.mf.nodes, I.ln.nodes, I.sb.nodes] }; });
+    groups.push({ lab: T("mlai.c1.avgs"), v: [s.mf, s.ln, s.sb], avg: true });
+    var ymax = 0; groups.forEach(function (g) { g.v.forEach(function (v) { ymax = Math.max(ymax, v); }); });
+    var st = niceStep(ymax, 4); ymax = Math.ceil(ymax / st) * st;
+    var Y = function (v) { return mt + ph - v / ymax * ph; };
+    var o = [];
+    for (var v = 0; v <= ymax + 1e-9; v += st) { o.push(line(ml, Y(v), W - mr, Y(v), "var(--grid)")); o.push(txt(ml - 6, Y(v) + 3.5, fmt(v, 0), { anchor: "end", mono: true, size: 10 })); }
+    o.push(line(ml, Y(0), W - mr, Y(0), "var(--axis)"));
+    var gw = pw / groups.length, bw = Math.min(16, gw * 0.24), cols = ["var(--mit-silver)", "var(--accent)", "var(--ink)"];
+    groups.forEach(function (g, k) {
+      var cx = ml + gw * (k + 0.5);
+      if (g.avg) o.push('<rect x="' + (cx - gw / 2 + 2).toFixed(1) + '" y="' + mt + '" width="' + (gw - 4).toFixed(1) + '" height="' + ph + '" fill="var(--sel)"/>');
+      g.v.forEach(function (val, q) {
+        var x = cx + (q - 1.5) * bw * 1.12, y = Y(val);
+        o.push('<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(0, Y(0) - y).toFixed(1) + '" fill="' + cols[q] + '"/>');
+      });
+      o.push(txt(cx, H - 8, g.lab, { anchor: "middle", size: 11, fill: g.avg ? "var(--ink)" : "var(--muted)", weight: g.avg ? 700 : null }));
+    });
+    o.push(txt(ml, mt - 2, T("mlai.c1.ax"), { size: 11, fill: "var(--ink2)" }));
+    host.setAttribute("aria-label", T("mlai.c1.chart.aria", { mf: fmt(s.mf, 1), ln: fmt(s.ln, 1), sb: fmt(s.sb, 1) }));
+    host.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">' + o.join("") + "</svg>";
+  }
+  document.querySelectorAll("#c1 input[type=checkbox]").forEach(function (cb) {
+    cb.addEventListener("change", function () {
+      var boxes = document.querySelectorAll("#c1 input[type=checkbox]");
+      boxes.forEach(function (b) { c1.mask[+b.getAttribute("data-f")] = b.checked; });
+      var on = Array.prototype.filter.call(boxes, function (b) { return b.checked; });
+      boxes.forEach(function (b) { b.disabled = on.length === 1 && b.checked; });
+      if (c1.ready) c1fit();
+    });
+  });
+  segPick("c1-tr", "data-n", function (v) { c1.ntrain = +v; if (c1.ready) c1fit(); });
+  $("c1-new").addEventListener("click", function () { c1.draw++; c1compute(); });
+
+  /* =====================================================================================
+     Case 2. Predict then optimize: a juice stand orders cups for the day from the forecast
+     temperature. Demand given temperature t is normal with mean 60 + 8(t - 28) and standard deviation
+     k(4 + 2(t - 28)). Illustrative. Costs: co per unsold cup, cu per missed sale; the newsvendor
+     orders the tau = cu/(cu + co) quantile. Expected costs are exact normal integrals averaged over
+     t uniform on [28, 36] (Simpson's rule, 160 intervals).
+     ===================================================================================== */
+  var C2 = { T0: 28, T1: 36, CO: 1600, NMAX: 200, TC: 32 };
+  var c2data = (function () {
+    var r = Anim.rng(2024), out = [];
+    for (var i = 0; i < C2.NMAX; i++) {
+      var t = C2.T0 + (C2.T1 - C2.T0) * r(), u1 = r(), u2 = r();
+      out.push({ t: t, z: Math.sqrt(-2 * Math.log(1 - u1)) * Math.cos(2 * Math.PI * u2) });
+    }
+    return out;
+  })();
+  function mu(t) { return 60 + 8 * (t - 28); }
+  function sd(t, k) { return k * (4 + 2 * (t - 28)); }
+  // standard normal pdf, cdf (erf series and erfc continued fraction, about 1e-15) and inverse cdf
+  function phi(z) { return Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI); }
+  function Phi(z) {
+    var x = Math.abs(z) / Math.SQRT2, e;
+    if (x < 3) {
+      var term = x, sum = x, n = 0;
+      while (Math.abs(term) > 1e-17 * Math.abs(sum) && n < 200) { n++; term *= -x * x / n; sum += term / (2 * n + 1); }
+      e = 1 - 2 / Math.sqrt(Math.PI) * sum;                    // erfc(x)
+    } else {
+      var f = 0; for (var k = 60; k >= 1; k--) f = k / 2 / (x + f);
+      e = Math.exp(-x * x) / Math.sqrt(Math.PI) / (x + f);
+    }
+    return z >= 0 ? 1 - e / 2 : e / 2;
+  }
+  function PhiInv(p) {                                         // Acklam's approximation plus two Newton steps
+    var a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+    var b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+    var c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+    var d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+    var q, r, x;
+    if (p < 0.02425) { q = Math.sqrt(-2 * Math.log(p)); x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    else if (p > 1 - 0.02425) { q = Math.sqrt(-2 * Math.log(1 - p)); x = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    else { q = p - 0.5; r = q * q; x = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1); }
+    for (var it = 0; it < 2; it++) x -= (Phi(x) - p) / phi(x);
+    return x;
+  }
+  // expected cost of ordering q at temperature t, and the chance of running out
+  function nvCost(q, t, k, cu) {
+    var m = mu(t), s = sd(t, k), z = (q - m) / s;
+    var short = s * (phi(z) - z * (1 - Phi(z)));                // E[(D - q)+]
+    var left = short + (q - m);                                 // E[(q - D)+]
+    return { cost: cu * short + C2.CO * left, out: 1 - Phi(z) };
+  }
+  function avgOver(fn) {                                        // average over t uniform on [28, 36], Simpson
+    var n = 160, h = (C2.T1 - C2.T0) / n, sc = 0, so = 0;
+    for (var i = 0; i <= n; i++) {
+      var t = C2.T0 + i * h, w = i === 0 || i === n ? 1 : i % 2 ? 4 : 2, r = fn(t);
+      sc += w * r.cost; so += w * r.out;
+    }
+    return { cost: sc * h / 3 / (C2.T1 - C2.T0), out: so * h / 3 / (C2.T1 - C2.T0) };
+  }
+  var c2 = { cu: 4000, k: 1, n: 60 };
+  function c2solve() {
+    var n = c2.n, k = c2.k, cu = c2.cu, tau = cu / (cu + C2.CO), i;
+    var D = c2data.slice(0, n).map(function (o) { return { t: o.t, d: mu(o.t) + sd(o.t, k) * o.z }; });
+    // least squares line d = a + b (t - 32)
+    var mt = 0, md = 0; D.forEach(function (o) { mt += o.t - C2.TC; md += o.d; }); mt /= n; md /= n;
+    var sxy = 0, sxx = 0; D.forEach(function (o) { var x = o.t - C2.TC - mt; sxy += x * (o.d - md); sxx += x * x; });
+    var lb = sxy / sxx, la = md - lb * mt;
+    // quantile regression at tau as an LP: min sum tau u_i + (1 - tau) v_i, g0 + g1 (t_i - 32) + u_i - v_i = d_i
+    var nv = 4 + 2 * n, cvec = [0, 0, 0, 0], rows = [];
+    for (i = 0; i < n; i++) cvec.push(tau);
+    for (i = 0; i < n; i++) cvec.push(1 - tau);
+    D.forEach(function (o, i2) {
+      var a = new Array(nv).fill(0), x = o.t - C2.TC;
+      a[0] = 1; a[1] = -1; a[2] = x; a[3] = -x; a[4 + i2] = 1; a[4 + n + i2] = -1;
+      rows.push({ a: a, op: "=", b: o.d });
+    });
+    var res = LP.solve({ sense: "min", c: cvec, rows: rows });
+    var g0 = res.x[0] - res.x[1], g1 = res.x[2] - res.x[3];
+    // two step alternative for the limits note: least squares plus the empirical tau quantile of its residuals
+    var resid = D.map(function (o) { return o.d - (la + lb * (o.t - C2.TC)); }).sort(function (x, y) { return x - y; });
+    var rq = resid[Math.ceil(tau * n) - 1];
+    var zt = PhiInv(tau);
+    var P = {
+      or: function (t) { return mu(t) + sd(t, k) * zt; },
+      ls: function (t) { return la + lb * (t - C2.TC); },
+      qr: function (t) { return g0 + g1 * (t - C2.TC); },
+      ts: function (t) { return la + lb * (t - C2.TC) + rq; }
+    };
+    var E = {};
+    Object.keys(P).forEach(function (key) { E[key] = avgOver(function (t) { return nvCost(P[key](t), t, k, cu); }); });
+    return { D: D, tau: tau, la: la, lb: lb, g0: g0, g1: g1, lpz: res.z, lpit: res.iterations, lpst: res.status, rq: rq, zt: zt, P: P, E: E };
+  }
+  var c2res = null, c2raf = 0;
+  function c2update() {
+    setText($("c2-cu-out"), T("mlai.c2.cu.v", { cu: pesos(c2.cu), co: pesos(C2.CO) }));
+    setText($("c2-k-out"), T("mlai.c2.k.v", { k: fmt(c2.k, 2) }));
+    if (c2raf) return;
+    c2raf = requestAnimationFrame(function () { c2raf = 0; c2res = c2solve(); c2render(); notice(); });
+  }
+  function c2render() {
+    var R = c2res; if (!R) return;
+    var E = R.E, ex = function (key) { return (E[key].cost / E.or.cost - 1) * 100; };
+    var win = E.qr.cost <= E.ls.cost ? "qr" : "ls";
+    setHTML($("c2-status"), T("mlai.c2.status", { n: c2.n, tau: fmt(R.tau, 3), win: T("mlai.c2.p." + win) }));
+    kpis($("c2-kpis"), [
+      { v: fmt(R.tau, 3), l: T("mlai.c2.k.tau") },
+      { v: pesos(E.or.cost), l: T("mlai.c2.k.or") },
+      { v: pesos(E.ls.cost), l: T("mlai.c2.k.ls", { e: pctS(ex("ls")) }), accent: win === "ls" },
+      { v: pesos(E.qr.cost), l: T("mlai.c2.k.qr", { e: pctS(ex("qr")) }), accent: win === "qr" }
+    ]);
+    var rowsP = ["or", "ls", "qr"];
+    var h = "<thead><tr><th>" + T("mlai.c2.th.pol") + '</th><th class="num wide">' + T("mlai.c2.th.q30") + '</th><th class="num">' + T("mlai.c2.th.q34") +
+      '</th><th class="num">' + T("mlai.c2.th.cost") + '</th><th class="num">' + T("mlai.c2.th.extra") + '</th><th class="num">' + T("mlai.c2.th.out") + "</th></tr></thead><tbody>";
+    rowsP.forEach(function (key) {
+      h += "<tr><td>" + T("mlai.c2.p." + key) + '</td><td class="num wide">' + fmt(R.P[key](30), 1) + '</td><td class="num">' + fmt(R.P[key](34), 1) +
+        '</td><td class="num' + (key === win ? " best" : "") + '">' + pesos(E[key].cost) + '</td><td class="num">' + (key === "or" ? T("mlai.c2.base") : pctS(ex(key))) +
+        '</td><td class="num">' + pct(E[key].out * 100, 1) + "</td></tr>";
+    });
+    setHTML($("c2-table"), h + "</tbody>");
+    TeX.set($("c2-fit"),
+      "\\begin{aligned}\\hat d(t) &= " + texSigned(R.la, 2, true) + texSigned(R.lb, 2, false) + "\\,(t - 32) && \\text{(" + T("mlai.c2.fit.ls") + ")}\\\\" +
+      "\\hat q_{" + texNum(R.tau, 3) + "}(t) &= " + texSigned(R.g0, 2, true) + texSigned(R.g1, 2, false) + "\\,(t - 32) && \\text{(" + T("mlai.c2.fit.qr") + ")}\\\\" +
+      "q^{*}(t) &= \\mu(t) " + texSigned(R.zt, 3, false) + "\\,\\sigma(t) && \\text{(" + T("mlai.c2.fit.or") + ")}\\end{aligned}",
+      T("mlai.c2.fit.plain", { la: fmt(R.la, 2), lb: fmt(R.lb, 2), g0: fmt(R.g0, 2), g1: fmt(R.g1, 2), z: fmt(R.zt, 3) }));
+    setHTML($("c2-limits"), T("mlai.c2.limits", { ts: pesos(E.ts.cost), e: pctS(ex("ts")) }));
+    c2chart();
+  }
+  function c2chart() {
+    var R = c2res, host = $("c2-chart"), W = boxWidth(host), H = W < 520 ? 250 : 280;
+    var ml = 42, mr = 10, mt = 14, mb = 34, pw = W - ml - mr, ph = H - mt - mb;
+    var lo = Infinity, hi = -Infinity;
+    R.D.forEach(function (o) { lo = Math.min(lo, o.d); hi = Math.max(hi, o.d); });
+    [28, 36].forEach(function (t) { ["or", "ls", "qr"].forEach(function (key) { var v = R.P[key](t); lo = Math.min(lo, v); hi = Math.max(hi, v); }); });
+    var st = niceStep(hi - lo, 5); lo = Math.floor(lo / st) * st; hi = Math.ceil(hi / st) * st;
+    var X = function (t) { return ml + (t - 28) / 8 * pw; }, Y = function (v) { return mt + ph - (v - lo) / (hi - lo) * ph; };
+    var o = [];
+    for (var v = lo; v <= hi + 1e-9; v += st) { o.push(line(ml, Y(v), W - mr, Y(v), "var(--grid)")); o.push(txt(ml - 6, Y(v) + 3.5, fmt(v, 0), { anchor: "end", mono: true, size: 10 })); }
+    for (var t = 28; t <= 36; t += 2) o.push(txt(X(t), H - mb + 14, T("mlai.c2.deg", { t: fmt(t, 0) }), { anchor: "middle", mono: true, size: 10 }));
+    o.push(line(ml, Y(lo), W - mr, Y(lo), "var(--axis)"));
+    o.push(txt(ml + pw / 2, H - 4, T("mlai.c2.ax.x"), { anchor: "middle", size: 11, fill: "var(--ink2)" }));
+    o.push(txt(ml, mt - 3, T("mlai.c2.ax.y"), { size: 11, fill: "var(--ink2)" }));
+    R.D.forEach(function (d) { o.push('<circle cx="' + X(d.t).toFixed(1) + '" cy="' + Y(d.d).toFixed(1) + '" r="' + (c2.n > 100 ? 2.2 : 3) + '" fill="var(--mit-silver)" fill-opacity="0.75"/>'); });
+    var path = function (fn) { var s = ""; for (var i = 0; i <= 40; i++) { var tt = 28 + i * 0.2; s += (i ? "L" : "M") + X(tt).toFixed(1) + " " + Y(fn(tt)).toFixed(1); } return s; };
+    o.push('<path d="' + path(R.P.ls) + '" fill="none" stroke="var(--ink2)" stroke-width="2.2"/>');
+    o.push('<path d="' + path(R.P.qr) + '" fill="none" stroke="var(--accent)" stroke-width="3"/>');
+    o.push('<path d="' + path(R.P.or) + '" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="6 4"/>');
+    host.setAttribute("aria-label", T("mlai.c2.chart.aria", { n: c2.n, tau: fmt(R.tau, 3) }));
+    host.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">' + o.join("") + "</svg>";
+  }
+  $("c2-cu").addEventListener("input", function () { c2.cu = +this.value; c2update(); });
+  $("c2-k").addEventListener("input", function () { c2.k = +this.value; c2update(); });
+  segPick("c2-n", "data-n", function (v) { c2.n = +v; c2update(); });
+
+  /* =====================================================================================
+     Case 3. Tabular Q-learning for a delivery van on a 5 x 5 street grid (illustrative times). The
+     row y = 2 and the column x = 2 are avenues: 2 minutes per block, but an incident adds 10 minutes
+     with probability 8% (off peak) or 45% (rush hour). Side streets take 3 to 5 minutes, and add 4
+     minutes with probability 5% (off peak) or 10% (rush). The exact benchmark is Dijkstra on expected
+     times (the Bellman equation of this shortest path problem).
+     ===================================================================================== */
+  var C3 = { K: 5, ALPHA: 0.1, CAP: 100, WIN: 50, EVERY: 25 };
+  var DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];              // east, north, west, south
+  function c3id(i, j) { return j * C3.K + i; }
+  function c3build(scn) {
+    var r = Anim.rng(77), K = C3.K, E = {}, list = [];
+    for (var j = 0; j < K; j++) for (var i = 0; i < K; i++) {
+      [[1, 0], [0, 1]].forEach(function (d) {
+        var ii = i + d[0], jj = j + d[1];
+        if (ii >= K || jj >= K) return;
+        var ave = (d[1] === 0 && j === 2) || (d[0] === 0 && i === 2), e;
+        if (ave) e = { base: 2, p: scn === "rush" ? 0.45 : 0.08, d: 10, ave: true };
+        else e = { base: 3 + Math.floor(r() * 3), p: scn === "rush" ? 0.10 : 0.05, d: 4, ave: false };
+        e.u = c3id(i, j); e.v = c3id(ii, jj); e.exp = e.base + e.p * e.d;
+        E[e.u + "-" + e.v] = e; E[e.v + "-" + e.u] = e; list.push(e);
+      });
+    }
+    var nb = [];
+    for (var s = 0; s < K * K; s++) {
+      var x = s % K, y = Math.floor(s / K), a = [];
+      DIRS.forEach(function (d) { var xx = x + d[0], yy = y + d[1]; if (xx >= 0 && xx < K && yy >= 0 && yy < K) a.push(c3id(xx, yy)); });
+      nb.push(a);
+    }
+    return { E: E, list: list, nb: nb, start: 0, goal: K * K - 1 };
+  }
+  function c3dijkstra(G) {
+    var n = G.nb.length, dist = new Array(n).fill(Infinity), done = new Array(n).fill(false);
+    dist[G.goal] = 0;
+    for (var it = 0; it < n; it++) {
+      var u = -1; for (var q = 0; q < n; q++) if (!done[q] && (u < 0 || dist[q] < dist[u])) u = q;
+      if (u < 0 || dist[u] === Infinity) break;
+      done[u] = true;
+      G.nb[u].forEach(function (v) { var nd = dist[u] + G.E[u + "-" + v].exp; if (nd < dist[v] - 1e-12) dist[v] = nd; });
+    }
+    var path = [G.start], s = G.start;
+    while (s !== G.goal) {
+      var best = null, bv = Infinity;
+      G.nb[s].forEach(function (v) { var val = G.E[s + "-" + v].exp + dist[v]; if (val < bv - 1e-9) { bv = val; best = v; } });
+      s = best; path.push(s);
+    }
+    return { dist: dist, path: path, cost: dist[G.start] };
+  }
+  function c3greedy(G, Q) {
+    var s = G.start, seen = {}, path = [s], cost = 0;
+    seen[s] = true;
+    while (s !== G.goal) {
+      var A = G.nb[s], a = A[0];
+      for (var q = 1; q < A.length; q++) if (Q[s][A[q]] < Q[s][a] - 1e-12) a = A[q];
+      cost += G.E[s + "-" + a].exp; s = a; path.push(s);
+      if (seen[s]) return { path: path, cost: null };
+      seen[s] = true;
+    }
+    return { path: path, cost: cost };
+  }
+  function c3train(G, episodes, eps, seed) {
+    var r = Anim.rng(seed), n = G.nb.length, Q = [], costs = [], checks = [];
+    for (var s = 0; s < n; s++) { Q.push({}); G.nb[s].forEach(function (v) { Q[s][v] = 0; }); }
+    for (var ep = 0; ep < episodes; ep++) {
+      var st = G.start, tot = 0, steps = 0;
+      while (st !== G.goal && steps < C3.CAP) {
+        var A = G.nb[st], a;
+        if (r() < eps) a = A[Math.floor(r() * A.length)];
+        else { a = A[0]; for (var q = 1; q < A.length; q++) if (Q[st][A[q]] < Q[st][a] - 1e-12) a = A[q]; }
+        var e = G.E[st + "-" + a], c = e.base + (r() < e.p ? e.d : 0);
+        var nxt = 0;
+        if (a !== G.goal) { nxt = Infinity; G.nb[a].forEach(function (v) { if (Q[a][v] < nxt) nxt = Q[a][v]; }); }
+        Q[st][a] += C3.ALPHA * (c + nxt - Q[st][a]);
+        tot += c; st = a; steps++;
+      }
+      costs.push(tot);
+      if ((ep + 1) % C3.EVERY === 0) checks.push({ ep: ep + 1, cost: c3greedy(G, Q).cost });
+    }
+    return { Q: Q, costs: costs, checks: checks };
+  }
+  var c3 = { scn: "off", ep: 1500, eps: 0.1, seed: 1, G: null, dp: null, run: null };
+  var c3raf = 0;
+  function c3update() {
+    setText($("c3-ep-out"), fmt(c3.ep, 0));
+    setText($("c3-seed"), T("mlai.c3.seed", { s: c3.seed }));
+    if (c3raf) return;
+    c3raf = requestAnimationFrame(function () {
+      c3raf = 0;
+      c3.G = c3build(c3.scn); c3.dp = c3dijkstra(c3.G);
+      c3.run = c3train(c3.G, c3.ep, c3.eps, c3.seed);
+      c3.greedy = c3greedy(c3.G, c3.run.Q);
+      c3render(); notice();
+    });
+  }
+  function c3last(n) { var c = c3.run.costs, a = 0, k = Math.min(n, c.length); for (var i = c.length - k; i < c.length; i++) a += c[i]; return a / k; }
+  function c3render() {
+    if (!c3.run) return;
+    var dp = c3.dp, g = c3.greedy, gap = g.cost == null ? null : (g.cost / dp.cost - 1) * 100;
+    setHTML($("c3-status"), T(g.cost == null ? "mlai.c3.status.loop" : "mlai.c3.status", { ep: fmt(c3.ep, 0), eps: fmt(c3.eps, 2), s: c3.seed, a: fmt(C3.ALPHA, 1) }));
+    kpis($("c3-kpis"), [
+      { v: T("mlai.min", { v: fmt(dp.cost, 1) }), l: T("mlai.c3.k.dp") },
+      { v: g.cost == null ? T("mlai.c3.noroute") : T("mlai.min", { v: fmt(g.cost, 1) }), l: T("mlai.c3.k.q"), accent: true },
+      { v: gap == null ? T("mlai.na") : pctS(gap, 1), l: T("mlai.c3.k.gap") },
+      { v: T("mlai.min", { v: fmt(c3last(100), 1) }), l: T("mlai.c3.k.last") }
+    ]);
+    c3map(); c3chart();
+    setHTML($("c3-limits"), T("mlai.c3.limits", { cap: C3.CAP }));
+  }
+  function c3map() {
+    var host = $("c3-map"), W = Math.min(440, boxWidth(host)), K = C3.K, pad = W < 340 ? 30 : 36, H = W;
+    var step = (W - 2 * pad) / (K - 1);
+    var P = function (s) { var i = s % K, j = Math.floor(s / K); return [pad + i * step, H - pad - j * step]; };
+    var o = [], G = c3.G, labels = W >= 330;
+    G.list.forEach(function (e) {
+      var a = P(e.u), b = P(e.v);
+      o.push(line(a[0], a[1], b[0], b[1], e.ave ? "var(--mit-silver)" : "var(--axis)", e.ave ? 7 : 2.5, ' stroke-linecap="round"'));
+    });
+    if (labels) G.list.forEach(function (e) {
+      var a = P(e.u), b = P(e.v), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, hor = a[1] === b[1];
+      o.push(txt(mx + (hor ? 0 : 9), my + (hor ? -7 : 3.5), fmt(e.exp, 1), { anchor: hor ? "middle" : "start", mono: true, size: 9.5, fill: e.ave ? "var(--ink2)" : "var(--muted)" }));
+    });
+    var route = function (path, off, stroke, w, dash) {
+      var d = path.map(function (s, q) { var p = P(s); return (q ? "L" : "M") + (p[0] + off).toFixed(1) + " " + (p[1] - off).toFixed(1); }).join("");
+      return '<path d="' + d + '" fill="none" stroke="' + stroke + '" stroke-width="' + w + '" stroke-linejoin="round" stroke-linecap="round"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + "/>";
+    };
+    if (c3.greedy) o.push(route(c3.greedy.path, 3, "var(--accent)", 4, null));
+    o.push(route(c3.dp.path, -3, "var(--ink)", 2.2, "6 4"));
+    for (var s = 0; s < K * K; s++) { var p = P(s); o.push('<rect x="' + (p[0] - 3).toFixed(1) + '" y="' + (p[1] - 3).toFixed(1) + '" width="6" height="6" fill="var(--ink2)"/>'); }
+    var ps = P(G.start), pg = P(G.goal);
+    o.push('<rect x="' + (ps[0] - 8) + '" y="' + (ps[1] - 8) + '" width="16" height="16" fill="var(--ink)"/>');
+    o.push('<circle cx="' + pg[0] + '" cy="' + pg[1] + '" r="9" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>');
+    o.push(txt(ps[0] - 4, ps[1] + 24, T("mlai.c3.depot"), { size: 11, fill: "var(--ink)", weight: 700 }));
+    o.push(txt(pg[0] + 6, pg[1] - 16, T("mlai.c3.client"), { size: 11, fill: "var(--accent-text)", weight: 700, anchor: "end" }));
+    host.setAttribute("aria-label", T("mlai.c3.map.aria", { dp: fmt(c3.dp.cost, 1), q: c3.greedy.cost == null ? T("mlai.c3.noroute") : fmt(c3.greedy.cost, 1) }));
+    host.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">' + o.join("") + "</svg>";
+  }
+  function c3chart() {
+    var host = $("c3-chart"), W = boxWidth(host), H = W < 520 ? 240 : 280, run = c3.run, N = run.costs.length;
+    var ml = 40, mr = 10, mt = 14, mb = 34, pw = W - ml - mr, ph = H - mt - mb;
+    var mov = [], acc = 0;
+    for (var i = 0; i < N; i++) { acc += run.costs[i]; if (i >= C3.WIN) acc -= run.costs[i - C3.WIN]; mov.push(acc / Math.min(i + 1, C3.WIN)); }
+    var lo = c3.dp.cost * 0.9, hi = c3.dp.cost;
+    mov.forEach(function (v, q) { if (q >= 10) hi = Math.max(hi, v); });
+    run.checks.forEach(function (c) { if (c.cost != null) hi = Math.max(hi, c.cost); });
+    hi = Math.min(hi, c3.dp.cost * 3.2);
+    var st = niceStep(hi - lo, 4); lo = Math.floor(lo / st) * st; hi = Math.ceil(hi / st) * st;
+    var X = function (e) { return ml + e / N * pw; }, Y = function (v) { return mt + ph - (Math.min(v, hi) - lo) / (hi - lo) * ph; };
+    var o = [];
+    for (var v = lo; v <= hi + 1e-9; v += st) { o.push(line(ml, Y(v), W - mr, Y(v), "var(--grid)")); o.push(txt(ml - 6, Y(v) + 3.5, fmt(v, 0), { anchor: "end", mono: true, size: 10 })); }
+    var xs = niceStep(N, W < 520 ? 3 : 5);
+    for (var e = 0; e <= N + 1e-9; e += xs) o.push(txt(X(e), H - mb + 14, fmt(e, 0), { anchor: e === 0 ? "start" : "middle", mono: true, size: 10 }));
+    o.push(line(ml, Y(lo), W - mr, Y(lo), "var(--axis)"));
+    o.push(txt(ml + pw / 2, H - 4, T("mlai.c3.ax.x"), { anchor: "middle", size: 11, fill: "var(--ink2)" }));
+    o.push(txt(ml, mt - 3, T("mlai.c3.ax.y"), { size: 11, fill: "var(--ink2)" }));
+    var stride = Math.max(1, Math.floor(N / 400)), d = "";
+    for (i = 0; i < N; i += stride) d += (i ? "L" : "M") + X(i + 1).toFixed(1) + " " + Y(mov[i]).toFixed(1);
+    d += "L" + X(N).toFixed(1) + " " + Y(mov[N - 1]).toFixed(1);
+    o.push('<path d="' + d + '" fill="none" stroke="var(--mit-silver)" stroke-width="1.8"/>');
+    var gd = "", pen = false;
+    run.checks.forEach(function (c) {
+      if (c.cost == null) { pen = false; return; }
+      gd += (pen ? "L" : "M") + X(c.ep).toFixed(1) + " " + Y(c.cost).toFixed(1); pen = true;
+    });
+    o.push('<path d="' + gd + '" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round"/>');
+    o.push(line(ml, Y(c3.dp.cost), W - mr, Y(c3.dp.cost), "var(--ink)", 1.6, ' stroke-dasharray="6 4"'));
+    host.setAttribute("aria-label", T("mlai.c3.chart.aria", { n: fmt(N, 0), dp: fmt(c3.dp.cost, 1) }));
+    host.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">' + o.join("") + "</svg>";
+  }
+  segPick("c3-sc", "data-v", function (v) { c3.scn = v; c3update(); });
+  segPick("c3-eps", "data-v", function (v) { c3.eps = +v; c3update(); });
+  $("c3-ep").addEventListener("input", function () { c3.ep = +this.value; c3update(); });
+  $("c3-seed").addEventListener("click", function () { c3.seed++; c3update(); });
+
+  /* =====================================================================================
+     Case 4. Checking a formulation. The two candidates are PREWRITTEN examples of what a language agent
+     might propose (no AI service is called). The checker is real: it solves each candidate with
+     LP.solve and runs five tests against the statement and a reference model written by a person.
+     Profits in thousands of pesos. Illustrative data.
+     ===================================================================================== */
+  var REF = {
+    c: [50, 130],
+    rows: [
+      { id: "carp", a: [0.75, 2], b: 80 },
+      { id: "fin", a: [0.5, 1], b: 50 },
+      { id: "wood", a: [3, 8], b: 340 },
+      { id: "sales", a: [0, 1], b: 30 }
+    ]
+  };
+  var PLAN = [40, 20];
+  var CAND = {
+    A: { c: [50, 130], rows: [
+      { id: "carp", a: [45, 120], b: 4800, u: ["min", "min"], ub: "min" },
+      { id: "fin", a: [30, 60], b: 3000, u: ["min", "min"], ub: "min" },
+      { id: "wood", a: [3, 8], b: 340, u: ["board", "board"], ub: "board" },
+      { id: "sales", a: [0, 1], b: 30, u: ["table", "table"], ub: "table" }
+    ] },
+    B: { c: [50, 130], rows: [
+      { id: "carp", a: [45, 2], b: 80, u: ["min", "h"], ub: "h" },
+      { id: "fin", a: [0.5, 1], b: 50, u: ["h", "h"], ub: "h" },
+      { id: "wood", a: [3, 8], b: 340, u: ["board", "board"], ub: "board" },
+      { id: "sales", a: [0, 1], b: 30, u: ["table", "table"], ub: "table" }
+    ] }
+  };
+  function lpOf(M) { return { sense: "max", c: M.c, rows: M.rows.map(function (r) { return { a: r.a, op: "<=", b: r.b }; }) }; }
+  function dot(a, x) { return a[0] * x[0] + a[1] * x[1]; }
+  var c4ref = LP.solve(lpOf(REF));
+  function c4check(key) {
+    var M = CAND[key], sol = LP.solve(lpOf(M)), tests = [];
+    tests.push({ id: "solve", ok: sol.status === "optimal", status: sol.status });
+    var badU = M.rows.filter(function (r) { return r.u.some(function (u, j) { return r.a[j] !== 0 && u !== r.ub; }); });
+    tests.push({ id: "units", ok: !badU.length, rows: badU });
+    var badP = M.rows.filter(function (r) { return dot(r.a, PLAN) > r.b + 1e-9; });
+    tests.push({ id: "plan", ok: !badP.length, rows: badP });
+    var x = sol.status === "optimal" ? sol.x : null;
+    var badR = x ? REF.rows.filter(function (r) { return dot(r.a, x) > r.b + 1e-7; }) : [];
+    tests.push({ id: "ref", ok: !!x && !badR.length, rows: badR, x: x });
+    var zx = x ? dot(REF.c, x) : null;
+    tests.push({ id: "obj", ok: !!x && Math.abs(zx - c4ref.z) <= 1e-6 * Math.max(1, Math.abs(c4ref.z)), z: zx });
+    return { key: key, M: M, sol: sol, tests: tests, zx: zx };
+  }
+  var c4 = { key: "A", res: null, timers: [] };
+  function unitName(u) { return T("mlai.c4.u." + u); }
+  function c4tex(M, withUnits) {
+    var lines = ["\\max\\;& " + termTex(M.c) + " && \\text{(" + T("mlai.c4.obj") + ")}"];
+    M.rows.forEach(function (r, i) {
+      var cm = "\\text{(" + T("mlai.c4.row." + r.id) + ")}";
+      if (withUnits) cm = "\\text{(" + T("mlai.c4.row." + r.id) + ": " + r.u.filter(function (_, j) { return r.a[j] !== 0; }).map(unitName).join(", ") +
+        "} \\le \\text{" + unitName(r.ub) + ")}";
+      lines.push((i === 0 ? "\\text{ST}\\;" : "") + "& " + termTex(r.a) + " \\le " + texNum(r.b, r.b % 1 ? 2 : 0) + " && " + cm);
+    });
+    lines.push("& x_1,\\ x_2 \\ge 0 &&");
+    return "\\begin{aligned}" + lines.join("\\\\") + "\\end{aligned}";
+  }
+  function termTex(a) {
+    var s = "";
+    [0, 1].forEach(function (j) {
+      if (a[j] === 0) return;
+      var coef = a[j] === 1 ? "" : texNum(a[j], a[j] % 1 ? 2 : 0);
+      s += (s ? " + " : "") + coef + "x_" + (j + 1);
+    });
+    return s;
+  }
+  function c4plain(M) {
+    return T("mlai.c4.plain.max") + " " + M.c[0] + " x1 + " + M.c[1] + " x2; " + M.rows.map(function (r) {
+      return T("mlai.c4.row." + r.id) + ": " + [0, 1].filter(function (j) { return r.a[j] !== 0; }).map(function (j) { return fmt(r.a[j], r.a[j] % 1 ? 2 : 0) + " x" + (j + 1); }).join(" + ") + " ≤ " + fmt(r.b, 0);
+    }).join("; ");
+  }
+  function rowNames(rows) { return rows.map(function (r) { return T("mlai.c4.row." + r.id); }).join(", "); }
+  function c4render(animate) {
+    var R = c4.res = c4check(c4.key), M = R.M;
+    setText($("c4-cand-name"), T("mlai.c4.cand", { k: c4.key }));
+    TeX.set($("c4-cand"), c4tex(M, true), c4plain(M));
+    var html = R.tests.map(function (t) {
+      var d;
+      if (t.id === "solve") d = T(t.ok ? "mlai.c4.t.solve.ok" : "mlai.c4.t.solve.no", { s: t.status, it: R.sol.iterations });
+      else if (t.id === "units") d = t.ok ? T("mlai.c4.t.units.ok") : T("mlai.c4.t.units.no", { rows: rowNames(t.rows), detail: t.rows.map(function (r) {
+        return T("mlai.c4.t.units.row", { r: T("mlai.c4.row." + r.id), u: r.u.filter(function (_, j) { return r.a[j] !== 0; }).map(unitName).join(", "), b: unitName(r.ub) });
+      }).join("; ") });
+      else if (t.id === "plan") d = t.ok ? T("mlai.c4.t.plan.ok", { x1: PLAN[0], x2: PLAN[1] }) : T("mlai.c4.t.plan.no", { x1: PLAN[0], x2: PLAN[1], detail: t.rows.map(function (r) {
+        return T("mlai.c4.t.plan.row", { r: T("mlai.c4.row." + r.id), lhs: fmt(dot(r.a, PLAN), 0), b: fmt(r.b, 0) });
+      }).join("; ") });
+      else if (t.id === "ref") d = !t.x ? T("mlai.c4.t.skip") : t.ok ? T("mlai.c4.t.ref.ok", { x1: fmt(t.x[0], 2), x2: fmt(t.x[1], 2) }) : T("mlai.c4.t.ref.no", { x1: fmt(t.x[0], 2), x2: fmt(t.x[1], 2), rows: rowNames(t.rows) });
+      else d = t.z == null ? T("mlai.c4.t.skip") : T(t.ok ? "mlai.c4.t.obj.ok" : "mlai.c4.t.obj.no", { z: fmt(t.z, 2), ref: fmt(c4ref.z, 2), e: pctS((t.z / c4ref.z - 1) * 100, 1) });
+      return '<li class="' + (t.ok ? "pass" : "fail") + (animate && !reduce ? " wait" : "") + '"><span class="mark" aria-hidden="true">' + (t.ok ? "✓" : "✗") + '</span><div><span class="t">' +
+        T("mlai.c4.t." + t.id) + '</span><span class="d">' + d + '</span></div></li>';
+    }).join("");
+    c4.timers.forEach(clearTimeout); c4.timers = [];
+    var list = $("c4-checks");
+    list.innerHTML = html; list._h = null;
+    var nfail = R.tests.filter(function (t) { return !t.ok; }).length;
+    var v = $("c4-verdict");
+    v.className = "verdict" + (nfail ? " fail" : "");
+    v.innerHTML = nfail ? T("mlai.c4.v.no", { n: nfail, names: R.tests.filter(function (t) { return !t.ok; }).map(function (t) { return T("mlai.c4.t." + t.id); }).join(", ") }) : T("mlai.c4.v.ok");
+    if (animate && !reduce) {
+      v.style.opacity = "0";
+      Array.prototype.forEach.call(list.children, function (li, q) { c4.timers.push(setTimeout(function () { li.classList.remove("wait"); }, 140 + 220 * q)); });
+      c4.timers.push(setTimeout(function () { v.style.opacity = ""; }, 140 + 220 * list.children.length));
+    } else v.style.opacity = "";
+    var x = R.sol.x || [0, 0];
+    kpis($("c4-kpis"), [
+      { v: fmt(x[0], 2), l: T("mlai.c4.k.x1") },
+      { v: fmt(x[1], 2), l: T("mlai.c4.k.x2") },
+      { v: R.zx == null ? T("mlai.na") : fmt(R.zx, 2), l: T("mlai.c4.k.z"), accent: !!nfail },
+      { v: fmt(c4ref.z, 2), l: T("mlai.c4.k.ref") }
+    ]);
+  }
+  function c4static() {
+    document.querySelectorAll("#c4-pick button").forEach(function (b) { b.textContent = T("mlai.c4.cand", { k: b.getAttribute("data-v") }); });
+    var refM = { c: REF.c, rows: REF.rows };
+    TeX.set($("c4-ref"), c4tex(refM, false), c4plain(refM));
+    setText($("c4-ref-sol"), T("mlai.c4.ref.sol", { x1: fmt(c4ref.x[0], 2), x2: fmt(c4ref.x[1], 2), z: fmt(c4ref.z, 2), dc: fmt(c4ref.duals[0], 2), df: fmt(c4ref.duals[1], 2) }));
+  }
+  segPick("c4-pick", "data-v", function (v) { c4.key = v; c4render(true); notice(); });
+  $("c4-run").addEventListener("click", function () { c4render(true); });
+
+  /* ===================================================================================== what to notice */
+  function notice() {
+    if (c1.ready) {
+      var s = c1stats();
+      setHTML($("mlai-n1"), T("mlai.n.p1", { mf: fmt(s.mf, 1), ln: fmt(s.ln, 1), sb: fmt(s.sb, 1), lp: fmt(s.sblp, 1), g: s.gap == null ? T("mlai.na") : pct(s.gap, 0) }));
+    } else setText($("mlai-n1"), T("mlai.c1.busy"));
+    if (c2res) {
+      var E = c2res.E;
+      setHTML($("mlai-n2"), T("mlai.n.p2", { tau: fmt(c2res.tau, 3), ls: pctS((E.ls.cost / E.or.cost - 1) * 100), qr: pctS((E.qr.cost / E.or.cost - 1) * 100), out: pct(E.ls.out * 100, 1), outq: pct(E.qr.out * 100, 1) }));
+    }
+    if (c3.run) {
+      var gp = c3.greedy.cost == null ? T("mlai.c3.noroute") : T("mlai.min", { v: fmt(c3.greedy.cost, 1) });
+      setHTML($("mlai-n3"), T("mlai.n.p3", { dp: T("mlai.min", { v: fmt(c3.dp.cost, 1) }), q: gp, last: T("mlai.min", { v: fmt(c3last(100), 1) }), ep: fmt(c3.ep, 0) }));
+    }
+    var a = c4check("A"), b = c4check("B");
+    setHTML($("mlai-n4"), T("mlai.n.p4", { za: fmt(a.zx, 2), zb: fmt(b.zx, 2), ref: fmt(c4ref.z, 2), fb: b.tests.filter(function (t) { return !t.ok; }).length }));
+  }
+
+  /* ===================================================================================== language + resize */
+  function renderAll() {
+    document.querySelectorAll("#c3-eps button").forEach(function (b) { b.textContent = T("mlai.c3.eps.v", { e: fmt(+b.getAttribute("data-v"), 2) }); });
+    c1render(); c2update(); c3update(); c4static(); c4render(false); notice();
+  }
+  var started = false;
+  I18N.onChange(function () {
+    renderAll();
+    if (!started) { started = true; setTimeout(c1compute, 30); }
+  });
+  var rt = 0, lastW = window.innerWidth;
+  window.addEventListener("resize", function () {
+    if (window.innerWidth === lastW) return;
+    lastW = window.innerWidth;
+    clearTimeout(rt);
+    rt = setTimeout(function () { if (c1.ready) c1chart(c1stats()); if (c2res) c2chart(); if (c3.run) { c3map(); c3chart(); } }, 120);
+  });
+})();
+</script>
+</body>
+</html>

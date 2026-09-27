@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en" data-title-key="svm.title" data-i18n-bundles="lab/lab-svm">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>The Widest Street</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #svm-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(300px, max(220px, 32%)); max-width: none;
+  }
+  #svm-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #svm-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #svm-sec .anim-hud .chip-stat.hot b { color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #svm-sec .anim-hud { width: 252px; }
+    #svm-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #svm-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #svm-sec .anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #svm-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 11px; }
+    #svm-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #svm-sec .anim-legend i.lg-spec { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
+  #svm-sec .anim-legend i.lg-std { width: 9px; height: 9px; border: 1.8px solid var(--ink); background: var(--surface); }
+  #svm-sec .anim-legend i.lg-bd { width: 20px; height: 0; border-top: 2.5px solid var(--accent); }
+  #svm-sec .anim-legend i.lg-mg { width: 20px; height: 10px; border-top: 1.5px dashed var(--accent); border-bottom: 1.5px dashed var(--accent); background: var(--sel); }
+  #svm-sec .anim-legend i.lg-sv { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--accent); }
+  #svm-sec .anim-legend i.lg-bsv { width: 14px; height: 14px; border-radius: 50%; border: 2px dashed var(--mit-bright); }
+  #svm-sec .anim-legend i.lg-xi { width: 18px; height: 0; border-top: 2.5px solid var(--mit-bright); }
+  #svm-sec .anim-legend i.lg-try { width: 20px; height: 0; border-top: 1.5px solid var(--mit-silver); }
+  /* dark theme: accent and bright red are the same colour there, so the slack cues use the crit shade */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #svm-sec .anim-legend i.lg-bsv { border-color: var(--crit); }
+    :root:not([data-theme="light"]) #svm-sec .anim-legend i.lg-xi { border-color: var(--crit); }
+  }
+  :root[data-theme="dark"] #svm-sec .anim-legend i.lg-bsv, :root[data-theme="dark"] #svm-sec .anim-legend i.lg-xi { border-color: var(--crit); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 14px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- solution ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 20px; }
+    .stat .l { font-size: 12px; }
+  }
+  .sol-p { font-size: 14px; color: var(--ink2); margin: 12px 0 0; max-width: 80ch; }
+  .sol-p b { color: var(--ink); }
+
+  /* ---- tables ---- */
+  table.data { min-width: 0; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.acc { color: var(--accent-text); font-weight: 600; }
+  table.data td.hot { color: var(--crit); font-weight: 600; }
+  table.data td.dim { color: var(--muted); }
+  table.data th.rowh, table.data td.rowh { text-align: left; }
+  @media (max-width: 560px) {
+    table.data th, table.data td { padding-inline: 5px; font-size: 12px; }
+    table.data td.num { font-size: 11.5px; }
+    table.data .wide { display: none; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="svm.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="svm.eyebrow"></p>
+    <h1 data-i18n="svm.title"></h1>
+    <p class="lede" data-i18n-html="svm.lede"></p>
+  </header>
+
+  <section class="block" id="svm-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="svm.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="svm-scen-lbl" data-i18n="svm.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="svm-scen-lbl" id="svm-seg">
+        <button type="button" data-sc="small" aria-pressed="false"></button>
+        <button type="button" data-sc="medium" aria-pressed="true"></button>
+        <button type="button" data-sc="large" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="anim" id="svm-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:svm.anim.aria">
+        <div class="anim-hud" id="svm-hud">
+          <div class="chip-stat" id="svm-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="svm-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="svm-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="svm-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="svm-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="svm-c5"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-spec"></i><span data-i18n="svm.lg.spec"></span></span>
+      <span><i class="lg-std"></i><span data-i18n="svm.lg.std"></span></span>
+      <span><i class="lg-try"></i><span data-i18n="svm.lg.try"></span></span>
+      <span><i class="lg-bd"></i><span data-i18n="svm.lg.bd"></span></span>
+      <span><i class="lg-mg"></i><span data-i18n="svm.lg.mg"></span></span>
+      <span><i class="lg-sv"></i><span data-i18n="svm.lg.sv"></span></span>
+      <span><i class="lg-bsv"></i><span data-i18n="svm.lg.bsv"></span></span>
+      <span><i class="lg-xi"></i><span data-i18n-html="svm.lg.xi"></span></span>
+    </div>
+    <p class="scen-status" id="svm-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="svm.model.kicker"></span><span data-i18n="svm.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="svm.hard.head"></p>
+        <div class="formula" data-tex="svm.hard.tex" data-i18n="svm.hard.formula"></div>
+        <p class="mtext" data-i18n-html="svm.hard.why"></p>
+        <p class="mhead" data-i18n="svm.soft.head"></p>
+        <div class="formula" data-tex="svm.soft.tex" data-i18n="svm.soft.formula"></div>
+        <p class="mtext" data-i18n-html="svm.soft.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="svm.dual.head"></p>
+        <div class="formula" data-tex="svm.dual.tex" data-i18n="svm.dual.formula"></div>
+        <p class="mtext" data-i18n-html="svm.dual.why"></p>
+        <p class="mhead" data-i18n="svm.geo.head"></p>
+        <div class="formula" data-tex="svm.geo.tex" data-i18n="svm.geo.formula"></div>
+        <p class="mtext" data-i18n-html="svm.geo.why"></p>
+      </div>
+    </div>
+    <p class="mhead" data-i18n="svm.data.head"></p>
+    <p class="mtext" id="svm-data"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="svm.sol.kicker"></span><span id="svm-sol-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="svm.sol.w"></div><div class="v" id="svm-sw"></div><div class="l" id="svm-swl"></div></div>
+      <div class="stat"><div class="k" data-i18n="svm.sol.width"></div><div class="v" id="svm-swd"></div><div class="l" id="svm-swdl"></div></div>
+      <div class="stat"><div class="k" data-i18n="svm.sol.sv"></div><div class="v ink" id="svm-ssv"></div><div class="l" id="svm-ssvl"></div></div>
+      <div class="stat"><div class="k" data-i18n="svm.sol.obj"></div><div class="v" id="svm-sobj"></div><div class="l" id="svm-sobjl"></div></div>
+    </div>
+    <p class="sol-p" id="svm-sol-p"></p>
+    <div class="formula" id="svm-inst"></div>
+    <p class="sol-p" id="svm-sol-lp"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="svm.cmp.kicker"></span><span data-i18n="svm.cmp.title"></span></h2>
+    <div class="tblwrap"><table class="data" id="svm-cmp"></table></div>
+    <p class="sol-p" id="svm-cmp-note"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="svm.lots.kicker"></span><span id="svm-lots-title"></span></h2>
+    <p class="sol-p" id="svm-lots-p" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="svm-lots"></table></div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="svm.n.title"></summary>
+      <div class="body">
+        <p id="svm-n1"></p>
+        <p id="svm-n2"></p>
+        <p id="svm-n3"></p>
+        <p id="svm-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.1" data-refs="svm.refs"></p>
+  <p class="note" data-i18n="svm.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-svm.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d) { d = d == null ? 2 : d; if (Math.abs(v) < 0.5 * Math.pow(10, -d)) v = 0; return I18N.fmt(v, d, d); };
+  var num = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? MINUS : "") + m; };
+  var texNum = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? "-" : "") + m; };
+  var cFmt = function (c) { return isFinite(c) ? I18N.fmt(Number(c.toPrecision(2)), 2, 0) : "∞"; };   // C with two significant digits
+  var intFmt = function (v) { return I18N.fmt(v, 0, 0); };
+
+  /* =====================================================================================
+     The data: 24 coffee lots (12 specialty, 12 standard), each with two measured traits, drawn from two
+     normal clouds with Anim.rng(SEED), plus one standard lot from a high farm (the outlier). Illustrative.
+     Model units: x1 = altitude in hundreds of meters, x2 = bean density in tens of g/L.
+     ===================================================================================== */
+  var SEED = 112, NPER = 12;
+  var CLOUD = { spec: { m: [18.0, 71.5] }, std: { m: [14.6, 67.8] }, sd: [1.1, 1.4] };
+  var OUTLIER = [18.8, 72.1];
+  var DATA = (function () {
+    var r = Anim.rng(SEED), X = [], Y = [];
+    var z = function () { var u1 = r(), u2 = r(); return Math.sqrt(-2 * Math.log(1 - u1)) * Math.cos(2 * Math.PI * u2); };
+    for (var i = 0; i < 2 * NPER; i++) {
+      var y = i % 2 === 0 ? 1 : -1, m = y > 0 ? CLOUD.spec.m : CLOUD.std.m;
+      var a = Math.round((m[0] + CLOUD.sd[0] * z()) * 10) / 10, d = Math.round((m[1] + CLOUD.sd[1] * z()) * 10) / 10;
+      X.push([a, d]); Y.push(y);
+    }
+    return { X: X, Y: Y };
+  })();
+  var X1 = DATA.X, Y1 = DATA.Y, N1 = Y1.length;             // the separable data (chapters 1 and 2)
+  var X2 = X1.concat([OUTLIER]), Y2 = Y1.concat([-1]), N2 = Y2.length, IOUT = N2 - 1;
+
+  /* ---------- the QP, solved exactly: the dual by SMO (Platt 1998) with the second order working set
+     selection of Fan, Chen and Lin (2005), linear kernel, on centred data, to a KKT gap below 1e-12 ---------- */
+  var EPS = 1e-12;
+  function svm(X, Y, C) {
+    var n = Y.length, i, j, t, mx = 0, my = 0;
+    X.forEach(function (p) { mx += p[0]; my += p[1]; }); mx /= n; my /= n;
+    var Z = X.map(function (p) { return [p[0] - mx, p[1] - my]; }), Q = [];
+    for (i = 0; i < n; i++) { Q.push(new Float64Array(n)); for (j = 0; j < n; j++) Q[i][j] = Y[i] * Y[j] * (Z[i][0] * Z[j][0] + Z[i][1] * Z[j][1]); }
+    var al = new Float64Array(n), G = new Float64Array(n).fill(-1), it = 0, TINY = 1e-12, gmax = 0, gmin = 0;
+    var up = function (t) { return (Y[t] > 0 && al[t] < C) || (Y[t] < 0 && al[t] > 0); };
+    var low = function (t) { return (Y[t] < 0 && al[t] < C) || (Y[t] > 0 && al[t] > 0); };
+    for (; it < 200000; it++) {
+      var ii = -1, jj = -1, obmin = Infinity;
+      gmax = -Infinity; gmin = Infinity;
+      for (t = 0; t < n; t++) if (up(t) && -Y[t] * G[t] >= gmax) { gmax = -Y[t] * G[t]; ii = t; }
+      for (t = 0; t < n; t++) if (low(t)) {
+        var v = -Y[t] * G[t];
+        if (v < gmin) gmin = v;
+        var bb = gmax - v;
+        if (bb > 0) {
+          var aa = Q[ii][ii] + Q[t][t] - 2 * Y[ii] * Y[t] * Q[ii][t];
+          if (aa <= 0) aa = TINY;
+          if (-(bb * bb) / aa <= obmin) { jj = t; obmin = -(bb * bb) / aa; }
+        }
+      }
+      if (gmax - gmin < EPS || jj < 0) break;
+      i = ii; j = jj;
+      var oi = al[i], oj = al[j], quad, delta, diff, sum;
+      if (Y[i] !== Y[j]) {
+        quad = Q[i][i] + Q[j][j] + 2 * Q[i][j]; if (quad <= 0) quad = TINY;
+        delta = (-G[i] - G[j]) / quad; diff = al[i] - al[j];
+        al[i] += delta; al[j] += delta;
+        if (diff > 0) { if (al[j] < 0) { al[j] = 0; al[i] = diff; } } else if (al[i] < 0) { al[i] = 0; al[j] = -diff; }
+        if (diff > 0) { if (al[i] > C) { al[i] = C; al[j] = C - diff; } } else if (al[j] > C) { al[j] = C; al[i] = C + diff; }
+      } else {
+        quad = Q[i][i] + Q[j][j] - 2 * Q[i][j]; if (quad <= 0) quad = TINY;
+        delta = (G[i] - G[j]) / quad; sum = al[i] + al[j];
+        al[i] -= delta; al[j] += delta;
+        if (sum > C) { if (al[i] > C) { al[i] = C; al[j] = sum - C; } } else if (al[j] < 0) { al[j] = 0; al[i] = sum; }
+        if (sum > C) { if (al[j] > C) { al[j] = C; al[i] = sum - C; } } else if (al[i] < 0) { al[i] = 0; al[j] = sum; }
+      }
+      var di = al[i] - oi, dj = al[j] - oj;
+      for (t = 0; t < n; t++) G[t] += Q[t][i] * di + Q[t][j] * dj;
+    }
+    var w = [0, 0];
+    for (t = 0; t < n; t++) { w[0] += al[t] * Y[t] * Z[t][0]; w[1] += al[t] * Y[t] * Z[t][1]; }
+    // b from the free support vectors (0 < alpha < C), else the middle of its feasible interval
+    var nf = 0, sf = 0, ub = Infinity, lb = -Infinity;
+    for (t = 0; t < n; t++) {
+      var yg = Y[t] * G[t];
+      if (al[t] > 0 && al[t] < C) { nf++; sf += yg; }
+      else if ((al[t] >= C && Y[t] < 0) || (al[t] <= 0 && Y[t] > 0)) ub = Math.min(ub, yg);
+      else lb = Math.max(lb, yg);
+    }
+    var b = -(nf ? sf / nf : (ub + lb) / 2) - (w[0] * mx + w[1] * my);
+    var nw2 = w[0] * w[0] + w[1] * w[1], nw = Math.sqrt(nw2), m = [], xi = [], role = [], sxi = 0, sal = 0, tol = 1e-9 * (isFinite(C) ? Math.max(1, C) : 1);
+    var nsv = 0, nmar = 0, viol = 0, err = 0;
+    for (t = 0; t < n; t++) {
+      m[t] = Y[t] * (w[0] * X[t][0] + w[1] * X[t][1] + b);
+      xi[t] = Math.max(0, 1 - m[t]); if (xi[t] < 1e-9) xi[t] = 0;
+      sxi += xi[t]; sal += al[t];
+      // role: 0 outside the street, 1 support vector on the edge, 2 inside the street, 3 on the wrong side
+      role[t] = al[t] <= tol ? 0 : (xi[t] === 0 ? 1 : (m[t] < 0 ? 3 : 2));
+      if (al[t] > tol) nsv++;
+      if (role[t] === 1) nmar++;
+      if (xi[t] > 0) viol++;
+      if (m[t] < 0) err++;
+    }
+    var th = Math.atan2(w[1], w[0]);
+    return { C: C, w: w, b: b, nw: nw, alpha: Array.from(al), m: m, xi: xi, role: role, it: it, gap: gmax - gmin,
+      width: 2 / nw, half: 0.5 * nw2, sxi: sxi, sal: sal, obj: 0.5 * nw2 + (isFinite(C) ? C * sxi : 0), dual: sal - 0.5 * nw2,
+      nsv: nsv, nmar: nmar, viol: viol, err: err, st: streetOf(w, b) };
+  }
+  // a street for drawing: normal angle, a point of the boundary near the data, half width
+  var GX = 0, GY = 0;
+  X2.forEach(function (p) { GX += p[0] / N2; GY += p[1] / N2; });
+  function streetOf(w, b) {
+    var nw = Math.hypot(w[0], w[1]), nx = w[0] / nw, ny = w[1] / nw, d = -b / nw, s = nx * GX + ny * GY - d;
+    return { th: Math.atan2(ny, nx), px: GX - s * nx, py: GY - s * ny, h: 1 / nw };
+  }
+
+  /* ---------- is the hard margin feasible? y_i (w'x_i + b) >= 1 for all i, as an LP (w, b free) ---------- */
+  function lpCheck(X, Y) {
+    var n = Y.length, mx = 0, my = 0;
+    X.forEach(function (p) { mx += p[0] / n; my += p[1] / n; });
+    var rows = X.map(function (p, i) {
+      var a = Y[i] * (p[0] - mx), c = Y[i] * (p[1] - my);
+      return { a: [a, -a, c, -c, Y[i], -Y[i]], op: ">=", b: 1 };
+    });
+    var r = LP.solve({ sense: "min", c: [1, 1, 1, 1, 1, 1], rows: rows });
+    return { status: r.status, rows: n, it: r.iterations };
+  }
+  var LP1 = lpCheck(X1, Y1), LP2 = lpCheck(X2, Y2);
+
+  /* ---------- solutions ---------- */
+  var HARD = svm(X1, Y1, Infinity);
+  var CS = { small: 0.1, medium: 1, large: 10 }, KEYS = ["small", "medium", "large"];
+  var GRID = [], GK = 40;                         // log10 C from -1 to 1 in steps of 1/40
+  for (var k = 0; k <= 2 * GK; k++) GRID.push(svm(X2, Y2, Math.pow(10, (k - GK) / GK)));
+  var GIDX = { small: 0, medium: GK, large: 2 * GK };
+  var SOFT = {}; KEYS.forEach(function (key) { SOFT[key] = GRID[GIDX[key]]; });
+  var state = { sc: "medium" };
+
+  /* ---------- chapter 1: random lines that separate the 24 lots (deterministic) ---------- */
+  var NTRY = 10;
+  var TRY = (function () {
+    var r = Anim.rng(7), out = [], cp = [0, 0], cn = [0, 0], guard = 0;
+    X1.forEach(function (p, i) { var c = Y1[i] > 0 ? cp : cn; c[0] += p[0] / NPER; c[1] += p[1] / NPER; });
+    while (out.length < NTRY && guard++ < 20000) {
+      var th = HARD.st.th + (r() - 0.5) * 1.7, u = 0.32 + 0.36 * r();
+      var nx = Math.cos(th), ny = Math.sin(th), px = cn[0] + u * (cp[0] - cn[0]), py = cn[1] + u * (cp[1] - cn[1]), d = nx * px + ny * py;
+      var h = Infinity;
+      X1.forEach(function (p, i) { h = Math.min(h, Y1[i] * (nx * p[0] + ny * p[1] - d)); });
+      if (h > 0.06) out.push({ th: th, px: px, py: py, h: h });
+    }
+    return out;
+  })();
+  var BEST = TRY.reduce(function (a, c) { return c.h > a.h ? c : a; }, TRY[0]);
+
+  /* ---------- chapter 3: at each angle, the line with the fewest lots on the wrong side ---------- */
+  var SCAN = (function () {
+    var out = [], NS = 120, SPAN = 0.62;
+    for (var s = 0; s <= NS; s++) {
+      var th = HARD.st.th + (s / NS * 2 - 1) * SPAN, nx = Math.cos(th), ny = Math.sin(th);
+      var pr = X2.map(function (p, i) { return { v: nx * p[0] + ny * p[1], y: Y2[i], i: i }; }).sort(function (a, b) { return a.v - b.v; });
+      var best = null;
+      for (var q = 0; q < pr.length - 1; q++) {
+        var d = (pr[q].v + pr[q + 1].v) / 2, e = 0, wrong = [];
+        pr.forEach(function (o) { if ((o.y > 0 && o.v < d) || (o.y < 0 && o.v > d)) { e++; wrong.push(o.i); } });
+        var gap = pr[q + 1].v - pr[q].v;
+        if (!best || e < best.e || (e === best.e && gap > best.gap)) best = { e: e, d: d, gap: gap, wrong: wrong };
+      }
+      var sd = nx * GX + ny * GY - best.d;
+      out.push({ th: th, px: GX - sd * nx, py: GY - sd * ny, h: best.gap / 2, e: best.e, wrong: best.wrong });
+    }
+    return out;
+  })();
+  var SCANMIN = SCAN.reduce(function (a, c) { return Math.min(a, c.e); }, Infinity);
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed above; the random lines, the timing and the
+     camera are illustrative.
+     ===================================================================================== */
+  var A_ = window.Anim, E = A_.ease, seg = A_.seg, lerp = A_.lerp, clamp = A_.clamp;
+  var root = document.getElementById("svm-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("svm-hud");
+  var cv = A_.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var DUR = 57, CH = [0, 10, 22, 31, 47];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var TAU = Math.PI * 2;
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [128, 128, 128];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  function isDark() { var s = rgbOf(C.surface); return s[0] + s[1] + s[2] < 300; }
+
+  /* ---------- time model ---------- */
+  var T_DROP = [0.3, 3.0], T_TRY = 3.4, T_TRYD = 0.6;
+  var T_MORPH = [10.5, 14.6], T_SV = 14.9, T_DIM = 16.2, T_FOCUS = [18.2, 19.0, 21.2, 21.9];
+  var T_OUT = [22.6, 23.6], T_VIO = 24.2, T_FADE = [25.8, 26.4], T_SCAN = [26.4, 28.0, 30.0, 30.8];
+  var T_SOFT = [31.2, 33.4], T_XI = 33.2, T_SWEEP = [36, 38.4, 38.8, 42.6, 43.0, 44.6], T_GHOST = 47.4;
+  function tryIdx(t) { return Math.floor((t - T_TRY) / T_TRYD); }
+  function logC(t) {                              // log10 C along chapters 4 and 5
+    var target = Math.log10(CS[state.sc]), S = T_SWEEP;
+    if (t < S[1]) return lerp(0, -1, E.inOut(seg(t, S[0], S[1])));
+    if (t < S[3]) return lerp(-1, 1, E.inOut(seg(t, S[2], S[3])));
+    return lerp(1, target, E.inOut(seg(t, S[4], S[5])));
+  }
+  function gridAt(t) {                            // fractional grid position, and the nearest solution
+    var g = clamp((logC(t) + 1) * GK, 0, 2 * GK);
+    return { g: g, sol: GRID[Math.round(g)] };
+  }
+  function mixSt(a, b, u) {
+    return { th: lerp(a.th, b.th, u), px: lerp(a.px, b.px, u), py: lerp(a.py, b.py, u), h: lerp(a.h, b.h, u) };
+  }
+  function softSt(t) {                            // the drawn soft street: interpolated between neighbouring grid solutions
+    var G = gridAt(t), i0 = Math.floor(G.g), i1 = Math.min(2 * GK, i0 + 1);
+    return mixSt(GRID[i0].st, GRID[i1].st, G.g - i0);
+  }
+  function scanAt(t) {
+    var s = SCAN.length - 1, mid = s / 2, x;
+    if (t < T_SCAN[1]) x = lerp(mid, s, E.inOut(seg(t, T_SCAN[0], T_SCAN[1])));
+    else if (t < T_SCAN[2]) x = lerp(s, 0, E.inOut(seg(t, T_SCAN[1], T_SCAN[2])));
+    else x = lerp(0, mid, E.inOut(seg(t, T_SCAN[2], T_SCAN[3])));
+    return SCAN[Math.round(x)];
+  }
+
+  /* ---------- layout ---------- */
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  var WB = { x0: 12.4, x1: 20.0, y0: 65.4, y1: 75.4 };   // the data box (model units) that must stay in view
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11; L.ft = 13.5; L.lw = 2; L.r = 4.2; L.tick = 10;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 11.5; L.ft = 16; L.lw = 2.5; L.r = Math.max(4.5, Math.min(6.2, H / 95)); L.tick = 10.5;
+    }
+    // room for the longest caption of every scenario, so nothing jumps between chapters
+    var tl = 1, sl = 1, keep = state.sc;
+    KEYS.forEach(function (key) {
+      state.sc = key;
+      CH.forEach(function (c) {
+        var cap = captions(c + 0.1);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    state.sc = keep;
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    // the plot rectangle: everything drawn in model units is clipped to it
+    if (portrait) { L.x0 = 8; L.x1 = W - 8; L.y0 = L.capBottom + 8; L.y1 = H - 8; }
+    else { L.x0 = hx + hw + 24; L.x1 = W - 12; L.y0 = 12; L.y1 = H - 12; }
+    // equal scale on both axes; room at the left and bottom for the tick labels
+    var padL = portrait ? 30 : 40, padB = portrait ? 30 : 36, padT = portrait ? 18 : 22, padR = 8;
+    var bw = WB.x1 - WB.x0, bh = WB.y1 - WB.y0;
+    L.K = Math.min((L.x1 - L.x0 - padL - padR) / bw, (L.y1 - L.y0 - padB - padT) / bh);
+    var cx = (L.x0 + padL + L.x1 - padR) / 2, cy = (L.y0 + padT + L.y1 - padB) / 2;
+    L.ox = cx - (WB.x0 + WB.x1) / 2 * L.K; L.oy = cy + (WB.y0 + WB.y1) / 2 * L.K;
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+  function SX(x) { return L.ox + x * L.K; }
+  function SY(y) { return L.oy - y * L.K; }
+  function WX(X) { return (X - L.ox) / L.K; }
+  function WY(Y) { return (L.oy - Y) / L.K; }
+
+  /* ---------- geometry ---------- */
+  function rectPoly() {
+    return [[WX(L.x0), WY(L.y1)], [WX(L.x1), WY(L.y1)], [WX(L.x1), WY(L.y0)], [WX(L.x0), WY(L.y0)]];
+  }
+  function clipHalf(poly, nx, ny, d, sign) {      // keep sign * (n.x - d) <= 0
+    var out = [];
+    for (var i = 0; i < poly.length; i++) {
+      var P = poly[i], Q = poly[(i + 1) % poly.length];
+      var da = sign * (nx * P[0] + ny * P[1] - d), db = sign * (nx * Q[0] + ny * Q[1] - d);
+      if (da <= 0) out.push(P);
+      if ((da < 0 && db > 0) || (da > 0 && db < 0)) { var u = da / (da - db); out.push([P[0] + u * (Q[0] - P[0]), P[1] + u * (Q[1] - P[1])]); }
+    }
+    return out;
+  }
+  function lineSeg(nx, ny, d) {                   // the line n.x = d inside the plot rectangle (model units)
+    var R = { x0: WX(L.x0), x1: WX(L.x1), y0: WY(L.y1), y1: WY(L.y0) };
+    var fx = nx * d, fy = ny * d, dx = -ny, dy = nx, t0 = -1e4, t1 = 1e4;
+    function edge(pp, qq) {
+      if (Math.abs(pp) < 1e-12) return qq >= 0;
+      var r = qq / pp;
+      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      return true;
+    }
+    if (!edge(-dx, fx - R.x0) || !edge(dx, R.x1 - fx) || !edge(-dy, fy - R.y0) || !edge(dy, R.y1 - fy)) return null;
+    return [fx + t0 * dx, fy + t0 * dy, fx + t1 * dx, fy + t1 * dy];
+  }
+  function stN(st) { var nx = Math.cos(st.th), ny = Math.sin(st.th); return { nx: nx, ny: ny, d: nx * st.px + ny * st.py, h: st.h }; }
+  function polyPath(poly) {
+    ctx.beginPath();
+    poly.forEach(function (P, i) { if (i) ctx.lineTo(SX(P[0]), SY(P[1])); else ctx.moveTo(SX(P[0]), SY(P[1])); });
+    ctx.closePath();
+  }
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function tw(txt, f) { ctx.font = f; return ctx.measureText(txt).width; }
+  function drawLine(nx, ny, d, col, lw, a, dash, u) {   // u: how much of the line is drawn (0..1), from its lower end
+    if (a <= 0.01) return;
+    var s = lineSeg(nx, ny, d);
+    if (!s) return;
+    if (s[1] > s[3]) s = [s[2], s[3], s[0], s[1]];
+    var e = u == null ? 1 : u;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+    ctx.beginPath(); ctx.moveTo(SX(s[0]), SY(s[1])); ctx.lineTo(SX(lerp(s[0], s[2], e)), SY(lerp(s[1], s[3], e))); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  function drawStreet(st, a, opt) {               // band, margin lines and boundary
+    if (a <= 0.01) return;
+    opt = opt || {};
+    var S = stN(st), band = clipHalf(clipHalf(rectPoly(), S.nx, S.ny, S.d + S.h, 1), S.nx, S.ny, S.d - S.h, -1);
+    var col = opt.col || C.accent;
+    if (band.length > 2) { polyPath(band); ctx.globalAlpha = a * (opt.fill == null ? (isDark() ? 0.13 : 0.08) : opt.fill); ctx.fillStyle = col; ctx.fill(); ctx.globalAlpha = 1; }
+    drawLine(S.nx, S.ny, S.d + S.h, col, opt.mlw || 1.5, a * (opt.ma == null ? 0.95 : opt.ma), [6, 5]);
+    drawLine(S.nx, S.ny, S.d - S.h, col, opt.mlw || 1.5, a * (opt.ma == null ? 0.95 : opt.ma), [6, 5]);
+    drawLine(S.nx, S.ny, S.d, col, opt.lw || L.lw + 0.5, a, null, opt.u);
+  }
+
+  /* ---------- axes ---------- */
+  function drawAxes(t) {
+    var a = E.out(seg(t, 0.05, 1.2));
+    if (a <= 0) return;
+    var x, y, fs = L.tick;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0); ctx.clip();
+    ctx.globalAlpha = a; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    for (x = Math.ceil(WX(L.x0)); x <= WX(L.x1); x++) { ctx.beginPath(); ctx.moveTo(SX(x), L.y0); ctx.lineTo(SX(x), L.y1); ctx.stroke(); }
+    for (y = Math.ceil(WY(L.y1)); y <= WY(L.y0); y++) { ctx.beginPath(); ctx.moveTo(L.x0, SY(y)); ctx.lineTo(L.x1, SY(y)); ctx.stroke(); }
+    ctx.restore();
+    // tick labels in real units, inside the plot along its left and bottom edges
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.strokeStyle = C.surface; ctx.lineWidth = 3; ctx.lineJoin = "round";
+    var step = L.K < 34 ? 2 : 1, yb = L.y1 - 6, xl = L.x0 + 5;   // x labels every 200 m, y labels every 10 or 20 g/L
+    ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+    for (x = Math.ceil(WX(L.x0 + 30)); x <= WX(L.x1 - 16); x++) {
+      if (x % 2) continue;
+      var s = intFmt(x * 100); ctx.strokeText(s, SX(x), yb); ctx.fillText(s, SX(x), yb);
+    }
+    ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    for (y = Math.ceil(WY(L.y1 - 28)); y <= WY(L.y0 + 12); y++) {
+      if (y % step) continue;
+      var s2 = intFmt(y * 10); ctx.strokeText(s2, xl, SY(y)); ctx.fillText(s2, xl, SY(y));
+    }
+    ctx.restore();
+    label(T("svm.l.xaxis"), L.x1 - 6, L.y1 - 8 - fs - 8, "right", C.ink2, font(600, fs + 0.5), a);
+    label(T("svm.l.yaxis"), L.x0 + 5, L.y0 + 10, "left", C.ink2, font(600, fs + 0.5), a);
+  }
+
+  /* ---------- lots ---------- */
+  function dropU(i, t) {                          // chapter 1: the lots fall into place, staggered
+    if (i === IOUT) return seg(t, T_OUT[0], T_OUT[1]);
+    var t0 = T_DROP[0] + i / N1 * (T_DROP[1] - T_DROP[0] - 0.7);
+    return seg(t, t0, t0 + 0.7);
+  }
+  function lotPos(i, t) {
+    var p = X2[i], u = dropU(i, t), X = SX(p[0]), Y = SY(p[1]);
+    if (u < 1) Y -= (i === IOUT ? 90 : 26) * (1 - E.out(u));
+    return [X, Y, u];
+  }
+  function drawLot(i, X, Y, a, col) {
+    var r = L.r;
+    ctx.globalAlpha = a;
+    if (Y2[i] > 0) { ctx.fillStyle = col; circle(X, Y, r); ctx.fill(); }
+    else {
+      var s = r * 0.92;
+      ctx.fillStyle = C.surface; ctx.fillRect(X - s, Y - s, 2 * s, 2 * s);
+      ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.strokeRect(X - s, Y - s, 2 * s, 2 * s);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function pulse(X, Y, t, t0, col, r0) {
+    var u = seg(t, t0, t0 + 0.9);
+    if (u <= 0 || u >= 1) return;
+    ctx.globalAlpha = 0.8 * (1 - u); ctx.strokeStyle = col; ctx.lineWidth = 2;
+    circle(X, Y, r0 + 16 * E.out(u)); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  function ring(X, Y, col, a, dashed, grow) {
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.setLineDash(dashed ? [3, 2.5] : []);
+    circle(X, Y, (L.r + 4.5) * (grow == null ? 1 : grow)); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  function cross(X, Y, col, a) {
+    if (a <= 0.01) return;
+    var s = L.r + 3.5;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = 2.2; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(X - s, Y - s); ctx.lineTo(X + s, Y + s); ctx.moveTo(X + s, Y - s); ctx.lineTo(X - s, Y + s); ctx.stroke();
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+  }
+  function slackSeg(i, st, a) {                   // from the lot to the edge of its own side of the street
+    if (a <= 0.01) return;
+    var S = stN(st), p = X2[i], y = Y2[i], m = y * (S.nx * p[0] + S.ny * p[1] - S.d) / S.h;
+    if (m >= 1 - 1e-9) return;
+    var len = (1 - m) * S.h, qx = p[0] + y * S.nx * len, qy = p[1] + y * S.ny * len;
+    var X0 = SX(p[0]), Y0 = SY(p[1]), X1 = SX(qx), Y1 = SY(qy), L2 = Math.hypot(X1 - X0, Y1 - Y0);
+    if (L2 < 1) return;
+    var ux = (X1 - X0) / L2, uy = (Y1 - Y0) / L2;
+    ctx.globalAlpha = a; ctx.strokeStyle = HOT; ctx.lineWidth = 2.4; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(X0 + ux * (L.r + 1), Y0 + uy * (L.r + 1)); ctx.lineTo(X1, Y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X1 - uy * 5, Y1 + ux * 5); ctx.lineTo(X1 + uy * 5, Y1 - ux * 5); ctx.stroke();
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+  }
+
+  /* ---------- the width marker: a double arrow across the street ---------- */
+  function widthMarker(st, a, txt) {
+    if (a <= 0.01) return;
+    var S = stN(st), dx = -S.ny, dy = S.nx;       // along the boundary
+    if (dy < 0) { dx = -dx; dy = -dy; }           // towards the top of the plot
+    // anchor: the boundary point at 80% of the way up the data box, kept inside the plot
+    var sgn0 = (WB.y0 + 0.8 * (WB.y1 - WB.y0) - (S.ny * S.d)) / (Math.abs(dy) > 0.2 ? dy : 1);
+    var bx = S.nx * S.d + dx * sgn0, by = S.ny * S.d + dy * sgn0;
+    var ax = bx - S.nx * S.h, ay = by - S.ny * S.h, cx2 = bx + S.nx * S.h, cy2 = by + S.ny * S.h;
+    var X0 = SX(ax), Y0 = SY(ay), X1 = SX(cx2), Y1 = SY(cy2), len = Math.hypot(X1 - X0, Y1 - Y0);
+    if (len < 6) return;
+    var ux = (X1 - X0) / len, uy = (Y1 - Y0) / len, hl = Math.min(8, len / 3), hw = hl * 0.55;
+    ctx.globalAlpha = a; ctx.strokeStyle = C.ink; ctx.fillStyle = C.ink; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(X0 + ux * hl, Y0 + uy * hl); ctx.lineTo(X1 - ux * hl, Y1 - uy * hl); ctx.stroke();
+    [[X0, Y0, 1], [X1, Y1, -1]].forEach(function (E_) {
+      var X = E_[0], Y = E_[1], s = E_[2];
+      ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(X + s * ux * hl - uy * hw, Y + s * uy * hl + ux * hw); ctx.lineTo(X + s * ux * hl + uy * hw, Y + s * uy * hl - ux * hw); ctx.closePath(); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    // the label beside the outer end on the specialty side, kept inside the plot
+    var f = font(700, L.portrait ? 11.5 : 13), w = tw(txt, f), fh = L.portrait ? 11.5 : 13;
+    var cands = [[X1 + 8, Y1 - 10], [X1 + 8, Y1 + 12], [X0 - 8 - w, Y0 - 10], [X0 - 8 - w, Y0 + 12]], pick = null;
+    for (var c = 0; c < cands.length && !pick; c++) {
+      var lx = clamp(cands[c][0], L.x0 + 4, L.x1 - 4 - w), ly = Math.max(L.y0 + 12, cands[c][1]), hit = false;
+      for (var i = 0; i < N2 && !hit; i++) {
+        var P = [SX(X2[i][0]), SY(X2[i][1])], rr = L.r + 3;
+        if (P[0] > lx - rr && P[0] < lx + w + rr && P[1] > ly - fh / 2 - rr && P[1] < ly + fh / 2 + rr) hit = true;
+      }
+      if (!hit) pick = [lx, ly];
+    }
+    if (!pick) pick = [clamp(X1 + 8, L.x0 + 4, L.x1 - 4 - w), Math.max(L.y0 + 12, Y1 - 10)];
+    label(txt, pick[0], pick[1], "left", C["accent-text"], f, a);
+  }
+
+  /* ---------- caption ---------- */
+  function capC(sol) { return T("svm.cval", { c: cFmt(sol.C) }); }
+  function captions(t) {
+    var S = SOFT[state.sc];
+    if (t < CH[1]) return [T("svm.cap1", { n: N1 }), T("svm.cap1.sub", { k: NTRY, w: fmt(2 * BEST.h) })];
+    if (t < CH[2]) return [T("svm.cap2", { w: fmt(HARD.width) }), T("svm.cap2.sub", { s: HARD.nsv, o: fmt(HARD.obj, 3) })];
+    if (t < CH[3]) return [T("svm.cap3"), T("svm.cap3.sub", { a: intFmt(OUTLIER[0] * 100), d: intFmt(OUTLIER[1] * 10), n: N2 })];
+    if (t < CH[4]) return [T("svm.cap4"), T("svm.cap4.sub")];
+    return [T("svm.cap5", { c: capC(S), w: fmt(S.width) }), T("svm.cap5.sub", { s: S.nsv, v: S.viol, e: S.err, o: fmt(S.obj, 3) })];
+  }
+  function drawCaption(t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) {
+    var el = document.getElementById("svm-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("hot", kind === "hot"); c.k = kind; }
+  }
+  function hud(t) {
+    var a1 = seg(t, T_TRY, T_TRY + 0.3), aS = seg(t, T_SV - 0.2, T_SV + 0.3);
+    if (t < CH[1]) {
+      var k = clamp(tryIdx(t), 0, NTRY - 1), cur = TRY[k];
+      setChip(0, T("svm.of", { a: k + 1, b: NTRY }), T("svm.k.tried"), a1, "");
+      setChip(1, fmt(2 * cur.h), T("svm.k.line"), a1, "");
+      [2, 3, 4, 5].forEach(function (i) { setChip(i, "\u00a0", "\u00a0", 0, ""); });   // hidden but full height: the layout never jumps
+      return;
+    }
+    if (t < T_SOFT[0]) {
+      var brk = t >= T_VIO, scan = t >= T_SCAN[0] ? scanAt(t) : null;
+      setChip(0, "∞", T("svm.k.Chard"), 1, "");
+      var wv = t < T_MORPH[1] ? 2 * lerp(BEST.h, HARD.st.h, E.inOut(seg(t, T_MORPH[0], T_MORPH[1]))) : HARD.width;
+      setChip(1, fmt(wv), T("svm.k.width"), 1, "acc");
+      setChip(2, String(HARD.nsv), T("svm.k.sv"), aS, "");
+      var outIn = t >= T_OUT[1];
+      setChip(3, String(outIn ? 1 : 0), T("svm.k.inside"), aS, outIn ? "hot" : "");
+      setChip(4, String(scan ? scan.e : (brk ? 1 : 0)), T("svm.k.err"), aS, brk ? "hot" : "");
+      setChip(5, brk ? "∞" : fmt(HARD.obj, 3), T(brk ? "svm.k.objInf" : "svm.k.obj"), aS, brk ? "hot" : "acc");
+      return;
+    }
+    var S = gridAt(t).sol;
+    setChip(0, cFmt(S.C), T("svm.k.C"), 1, "");
+    setChip(1, fmt(S.width), T("svm.k.width"), 1, "acc");
+    setChip(2, String(S.nsv), T("svm.k.sv"), 1, "");
+    setChip(3, String(S.viol), T("svm.k.inside"), 1, "");
+    setChip(4, String(S.err), T("svm.k.err"), 1, S.err ? "hot" : "");
+    setChip(5, fmt(S.obj, 3), T("svm.k.obj"), 1, "acc");
+  }
+
+  /* ---------- the frame ---------- */
+  var HARDST = HARD.st;
+  function render(t) {
+    C = A_.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    hud(t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    drawAxes(t);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0); ctx.clip();
+
+    var i, P, soft = t >= T_SOFT[0], S = soft ? gridAt(t).sol : null;
+    /* chapter 1: the tried lines (and they fade in chapter 2) */
+    if (t >= T_TRY && t < T_MORPH[1] + 0.6) {
+      var kk = Math.min(tryIdx(t), NTRY - 1), fadeAll = 1 - seg(t, T_MORPH[0] - 0.4, T_MORPH[1] + 0.6);
+      for (var q = 0; q <= kk; q++) {
+        var st = stN(TRY[q]), t0 = T_TRY + q * T_TRYD, isCur = q === kk && t < CH[1];
+        if (isCur) {
+          var u = E.out(seg(t, t0, t0 + 0.28));
+          drawStreet(TRY[q], seg(t, t0, t0 + 0.15) * (1 - seg(t, t0 + T_TRYD - 0.05, t0 + T_TRYD)), { col: C.ink, fill: 0.07, ma: 0.55, mlw: 1.1, lw: 1.8, u: u });
+          if (q === NTRY - 1) drawStreet(TRY[q], seg(t, t0 + T_TRYD - 0.05, t0 + T_TRYD), { col: C.ink, fill: 0.07, ma: 0.55, mlw: 1.1, lw: 1.8 });
+        } else {
+          var isBest = TRY[q] === BEST, fb = isBest ? seg(t, CH[1] - 0.2, CH[1] + 0.5) : 0;
+          drawLine(st.nx, st.ny, st.d, C["mit-silver"], 1.3, 0.75 * fadeAll * (1 - fb));
+        }
+      }
+    }
+    /* chapter 2: from the widest tried street to the widest street */
+    var hardA = seg(t, T_MORPH[0] - 0.4, T_MORPH[0]) * (1 - 0.8 * seg(t, T_FADE[0], T_FADE[1])) * (1 - seg(t, T_SOFT[0], T_SOFT[0] + 0.01));
+    var hst = mixSt(BEST, HARDST, E.inOut(seg(t, T_MORPH[0], T_MORPH[1])));
+    if (hardA > 0.01 && !soft) drawStreet(hst, hardA, t >= T_FADE[0] ? { col: t >= T_FADE[1] ? C["mit-silver"] : C.accent } : null);
+    /* chapter 3: the scan of angles */
+    var scan = null;
+    if (t >= T_SCAN[0] && t < T_SOFT[0]) {
+      scan = scanAt(t);
+      var sa = seg(t, T_SCAN[0], T_SCAN[0] + 0.4) * (1 - seg(t, T_SCAN[3], T_SOFT[0]));
+      var sn = stN(scan);
+      drawLine(sn.nx, sn.ny, sn.d, C.ink, 2, sa, [8, 5]);
+    }
+    /* chapters 4 and 5: the soft street */
+    var sst = null;
+    if (soft) {
+      sst = mixSt(HARDST, softSt(t), E.inOut(seg(t, T_SOFT[0], T_SOFT[1])));
+      // chapter 5: the boundaries of the other two values of C
+      var ga = seg(t, T_GHOST, T_GHOST + 1);
+      if (ga > 0) KEYS.forEach(function (key) {
+        if (key === state.sc) return;
+        var g = stN(SOFT[key].st);
+        drawLine(g.nx, g.ny, g.d, C["mit-silver"], 1.6, ga * 0.95, [7, 5]);
+      });
+      drawStreet(sst, 1);
+    }
+
+    /* the lots */
+    var focus = seg(t, T_FOCUS[0], T_FOCUS[1]) * (1 - seg(t, T_FOCUS[2], T_FOCUS[3]));
+    for (i = 0; i < N2; i++) {
+      P = lotPos(i, t);
+      if (P[2] <= 0) continue;
+      var a = seg(P[2], 0, 0.35);
+      if (focus > 0 && i < N1 && HARD.role[i] === 0) a *= 1 - 0.7 * focus;
+      drawLot(i, P[0], P[1], a, C.ink);
+    }
+    /* slack segments and support vector rings */
+    if (soft) {
+      var xa = seg(t, T_XI, T_XI + 0.9), ra = seg(t, T_SOFT[1], T_SOFT[1] + 0.5);
+      for (i = 0; i < N2; i++) slackSeg(i, sst, xa);
+      for (i = 0; i < N2; i++) {
+        P = lotPos(i, t);
+        var rl = S.role[i];
+        if (rl === 1) ring(P[0], P[1], C.accent, ra);
+        else if (rl >= 2) ring(P[0], P[1], HOT, ra, true);
+      }
+      if (t >= T_GHOST + 1) for (i = 0; i < N2; i++) if (S.role[i] > 0) { P = lotPos(i, t); pulse(P[0], P[1], t, T_GHOST + 1.2 + 0.05 * i, C.accent, L.r + 4); }
+    } else if (t >= T_SV) {
+      var rh = seg(t, T_SV, T_SV + 0.4) * (1 - seg(t, T_FADE[0], T_FADE[1]));
+      var kx = 0;
+      for (i = 0; i < N1; i++) {
+        if (HARD.role[i] !== 1) continue;
+        P = lotPos(i, t);
+        var ts = T_SV + 0.3 * kx++;
+        ring(P[0], P[1], C.accent, rh * seg(t, ts, ts + 0.3), false, 1 + 0.4 * (1 - E.out(seg(t, ts, ts + 0.5))));
+        pulse(P[0], P[1], t, ts, C.accent, L.r + 4);
+      }
+    }
+    /* chapter 3: the outlier and the lots the scan leaves on the wrong side */
+    if (t >= T_OUT[0] && t < T_SOFT[0] + 0.6) {
+      P = lotPos(IOUT, t);
+      var oa = seg(t, T_OUT[0], T_OUT[0] + 0.3) * (1 - seg(t, T_SOFT[0], T_SOFT[0] + 0.6));
+      ctx.globalAlpha = oa * 0.22; ctx.fillStyle = HOT; circle(P[0], P[1], L.r + 7); ctx.fill(); ctx.globalAlpha = 1;
+      pulse(P[0], P[1], t, T_OUT[1], HOT, L.r + 3);
+      pulse(P[0], P[1], t, T_OUT[1] + 0.7, HOT, L.r + 3);
+      if (t >= T_VIO && t < T_SCAN[0]) slackSeg(IOUT, HARDST, seg(t, T_VIO, T_VIO + 0.8) * (1 - seg(t, T_FADE[0], T_SCAN[0])));
+      if (scan) scan.wrong.forEach(function (j) { var Q = lotPos(j, t); cross(Q[0], Q[1], HOT, seg(t, T_SCAN[0], T_SCAN[0] + 0.4) * (1 - seg(t, T_SCAN[3], T_SOFT[0]))); });
+    }
+    /* the width marker */
+    var wa = seg(t, T_DIM, T_DIM + 0.7) * (1 - seg(t, T_OUT[0], T_OUT[0] + 0.5));
+    if (wa > 0 && !soft) widthMarker(hst, wa, T("svm.l.width", { w: fmt(HARD.width) }));
+    if (soft) widthMarker(sst, seg(t, T_SOFT[1], T_SOFT[1] + 0.6), T("svm.l.width", { w: fmt(S.width) }));
+    /* chapter 5: labels of the three values of C, at the top ends of their boundaries */
+    if (soft && t >= T_GHOST) drawCLabels(t);
+    ctx.restore();
+    drawCaption(t);
+  }
+  function drawCLabels(t) {
+    var a = seg(t, T_GHOST + 0.3, T_GHOST + 1.1), f = font(700, L.portrait ? 11 : 12), items = [], GAP = 12;
+    KEYS.forEach(function (key) {
+      var g = stN(SOFT[key].st), s = lineSeg(g.nx, g.ny, g.d);
+      if (!s) return;
+      var top = s[1] > s[3] ? [s[0], s[1]] : [s[2], s[3]];
+      var txt = capC(SOFT[key]), w = tw(txt, f), X = SX(top[0]) + 6, Y = Math.max(L.y0 + 11, SY(top[1]) + 11);
+      items.push({ X: X, Y: Y, w: w, txt: txt, on: key === state.sc });
+    });
+    items.sort(function (p, q) { return p.X - q.X; });
+    // left aligned just right of where each boundary leaves the plot; pushed apart, then back inside
+    for (var i = 1; i < items.length; i++) {
+      var prev = items[i - 1];
+      if (Math.abs(items[i].Y - prev.Y) < 16) items[i].X = Math.max(items[i].X, prev.X + prev.w + GAP);
+    }
+    // the first label starts after the title of the density axis, which sits in the same row
+    var x0 = L.x0 + 5 + tw(T("svm.l.yaxis"), font(600, L.tick + 0.5)) + GAP;
+    if (items.length && items[0].X < x0 && Math.abs(items[0].Y - (L.y0 + 10)) < 16) {
+      items[0].X = x0;
+      for (var j = 1; j < items.length; j++) if (Math.abs(items[j].Y - items[j - 1].Y) < 16) items[j].X = Math.max(items[j].X, items[j - 1].X + items[j - 1].w + GAP);
+    }
+    var last = items[items.length - 1], over = last ? last.X + last.w - (L.x1 - 6) : 0;
+    if (over > 0) items.forEach(function (o) { o.X -= over; });
+    items.forEach(function (o) { label(o.txt, Math.max(L.x0 + 4, o.X), o.Y, "left", o.on ? C["accent-text"] : C.muted, f, a); });
+  }
+
+  layout();
+  var player = A_.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "svm.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status line, data, solution, comparison, lots, notes
+     ===================================================================================== */
+  function roleName(r) { return T(["svm.role.out", "svm.role.edge", "svm.role.in", "svm.role.wrong"][r]); }
+  function renderSeg() {
+    document.querySelectorAll("#svm-seg button").forEach(function (b) {
+      var key = b.getAttribute("data-sc");
+      b.textContent = T("svm.sc." + key, { c: cFmt(CS[key]) });
+    });
+  }
+  function renderScenText() {
+    var S = SOFT[state.sc];
+    var nums = { c: capC(S), w: fmt(S.width), s: S.nsv, v: S.viol, e: S.err, o: fmt(S.obj, 3), hw: fmt(HARD.width), hs: HARD.nsv };
+    stage.setAttribute("aria-label", T("svm.anim.aria") + " " + T("svm.anim.aria.nums", nums));
+    document.getElementById("svm-status").innerHTML = T("svm.st", {
+      c: capC(S), w: fmt(S.width), s: S.nsv, m: S.nmar, v: S.viol, e: S.err, o: fmt(S.obj, 3), h: fmt(S.half, 3), x: fmt(S.sxi, 3)
+    });
+  }
+  function renderData() {
+    document.getElementById("svm-data").textContent = T("svm.data.p", {
+      n: N1, k: NPER, seed: SEED, a: intFmt(OUTLIER[0] * 100), d: intFmt(OUTLIER[1] * 10), N: N2,
+      ma: intFmt(CLOUD.spec.m[0] * 100), md: intFmt(CLOUD.spec.m[1] * 10), sa: intFmt(CLOUD.std.m[0] * 100), sd: intFmt(CLOUD.std.m[1] * 10),
+      ea: intFmt(CLOUD.sd[0] * 100), ed: intFmt(CLOUD.sd[1] * 10)
+    });
+  }
+  function sup(k) { return String(k).split("").map(function (ch) { return "⁰¹²³⁴⁵⁶⁷⁸⁹"[+ch] || (ch === "-" ? "⁻" : ch); }).join(""); }
+  function fx(sol, tex) {                          // f(x) = w1 x1 + w2 x2 + b as text
+    var sp = tex ? " " : " ", m = tex ? "-" : MINUS, x1 = tex ? "\\,x_1" : " x₁", x2 = tex ? "\\,x_2" : " x₂";
+    return (tex ? texNum : num)(sol.w[0], 3) + x1 + sp + (sol.w[1] < 0 ? m : "+") + sp + fmt(Math.abs(sol.w[1]), 3) + x2 + sp + (sol.b < 0 ? m : "+") + sp + fmt(Math.abs(sol.b), 3);
+  }
+  function renderSolution() {
+    var S = SOFT[state.sc];
+    document.getElementById("svm-sol-title").textContent = T("svm.sol.title", { c: capC(S) });
+    document.getElementById("svm-sw").textContent = T("svm.pair", { x: num(S.w[0], 3), y: num(S.w[1], 3) });
+    document.getElementById("svm-swl").textContent = T("svm.sol.wl", { b: num(S.b, 3) });
+    document.getElementById("svm-swd").textContent = fmt(S.width, 3);
+    document.getElementById("svm-swdl").textContent = T("svm.sol.widthl", { n: fmt(S.nw, 3) });
+    document.getElementById("svm-ssv").textContent = String(S.nsv);
+    document.getElementById("svm-ssvl").textContent = T("svm.sol.svl", { m: S.nmar, v: S.nsv - S.nmar, e: S.err });
+    document.getElementById("svm-sobj").textContent = fmt(S.obj, 3);
+    document.getElementById("svm-sobjl").textContent = T("svm.sol.objl", { h: fmt(S.half, 3), c: cFmt(S.C), x: fmt(S.sxi, 3) });
+    document.getElementById("svm-sol-p").innerHTML = T("svm.sol.p", {
+      n: N2, it: S.it, g: "10" + sup(Math.round(Math.log10(EPS))), d: fmt(S.dual, 3), o: fmt(S.obj, 3), a: fmt(S.sal, 3)
+    });
+    var v = { f: fx(S, true), h: texNum(S.half, 3), c: cFmt(S.C), x: texNum(S.sxi, 3), o: texNum(S.obj, 3), a: texNum(S.sal, 3), d: texNum(S.dual, 3) };
+    var vp = { f: fx(S, false), h: num(S.half, 3), c: cFmt(S.C), x: num(S.sxi, 3), o: num(S.obj, 3), a: num(S.sal, 3), d: num(S.dual, 3) };
+    TeX.set(document.getElementById("svm-inst"), T("svm.inst.tex", v), T("svm.inst.formula", vp));
+    document.getElementById("svm-sol-lp").innerHTML = T("svm.sol.lp", {
+      n1: N1, n2: N2, s1: T("svm.lp." + LP1.status), s2: T("svm.lp." + LP2.status), m: SCANMIN, ns: SCAN.length
+    });
+  }
+  function renderCompare() {
+    var rows = [{ lab: T("svm.cmp.hard", { n: N1 }), s: HARD, key: "" }].concat(KEYS.map(function (key) {
+      return { lab: T("svm.cmp.soft", { n: N2, c: cFmt(CS[key]) }), s: SOFT[key], key: key };
+    }));
+    var h = "<thead><tr><th class='rowh'>" + T("svm.cmp.case") + "</th><th class='num wide'>w₁</th><th class='num wide'>w₂</th><th class='num wide'>b</th><th class='num'>" +
+      T("svm.cmp.width") + "</th><th class='num'>" + T("svm.cmp.sv") + "</th><th class='num'>" + T("svm.cmp.in") + "</th><th class='num'>" + T("svm.cmp.err") +
+      "</th><th class='num'>" + T("svm.cmp.obj") + "</th></tr></thead><tbody>";
+    rows.forEach(function (r) {
+      var s = r.s;
+      h += "<tr" + (r.key === state.sc ? " class='on'" : "") + "><td class='rowh'>" + r.lab + "</td><td class='num wide'>" + num(s.w[0], 3) + "</td><td class='num wide'>" +
+        num(s.w[1], 3) + "</td><td class='num wide'>" + num(s.b, 3) + "</td><td class='num acc'>" + fmt(s.width, 3) + "</td><td class='num'>" + s.nsv +
+        "</td><td class='num'>" + s.viol + "</td><td class='num" + (s.err ? " hot" : "") + "'>" + s.err + "</td><td class='num'>" + fmt(s.obj, 3) + "</td></tr>";
+    });
+    document.getElementById("svm-cmp").innerHTML = h + "</tbody>";
+    var a = SOFT.small, c = SOFT.large;
+    document.getElementById("svm-cmp-note").textContent = T("svm.cmp.note", {
+      c0: cFmt(a.C), c1: cFmt(c.C), w0: fmt(a.width), w1: fmt(c.width), v0: a.viol, v1: c.viol, e0: a.err, e1: c.err, hw: fmt(HARD.width)
+    });
+  }
+  function renderLots() {
+    var S = SOFT[state.sc];
+    document.getElementById("svm-lots-title").textContent = T("svm.lots.title", { n: N2, c: cFmt(S.C) });
+    document.getElementById("svm-lots-p").textContent = T("svm.lots.p", { c: cFmt(S.C), n: N2 });
+    var h = "<thead><tr><th class='num'>#</th><th class='num'>" + T("svm.lots.alt") + "</th><th class='num'>" + T("svm.lots.den") + "</th><th class='rowh'>" +
+      T("svm.lots.cls") + "</th><th class='num'>y f(x)</th><th class='num wide'>ξ</th><th class='num wide'>α</th><th class='rowh'>" + T("svm.lots.role") + "</th></tr></thead><tbody>";
+    var order = X2.map(function (p, i) { return i; }).sort(function (p, q) { return S.m[p] - S.m[q] || p - q; });
+    order.forEach(function (i) {
+      var rl = S.role[i], cls = rl === 3 ? " hot" : rl === 1 ? " acc" : rl === 2 ? " hot" : " dim";
+      h += "<tr><td class='num'>" + (i + 1) + (i === IOUT ? "*" : "") + "</td><td class='num'>" + intFmt(X2[i][0] * 100) + "</td><td class='num'>" + intFmt(X2[i][1] * 10) +
+        "</td><td class='rowh'>" + T(Y2[i] > 0 ? "svm.cls.spec" : "svm.cls.std") + "</td><td class='num'>" + num(S.m[i], 3) + "</td><td class='num wide'>" + fmt(S.xi[i], 3) +
+        "</td><td class='num wide'>" + fmt(S.alpha[i], 3) + "</td><td class='rowh" + cls + "'>" + roleName(rl) + "</td></tr>";
+    });
+    document.getElementById("svm-lots").innerHTML = h + "</tbody>";
+  }
+  function renderNotes() {
+    var S = SOFT[state.sc], a = SOFT.small, c = SOFT.large;
+    document.getElementById("svm-n1").innerHTML = T("svm.n.p1", { k: NTRY, b: fmt(2 * BEST.h), w: fmt(HARD.width), s: HARD.nsv, n: N1 });
+    document.getElementById("svm-n2").innerHTML = T("svm.n.p2", { n: N2 });
+    document.getElementById("svm-n3").innerHTML = T("svm.n.p3", {
+      c0: cFmt(a.C), c1: cFmt(c.C), w0: fmt(a.width), w1: fmt(c.width), s0: a.nsv, s1: c.nsv, v0: a.viol, v1: c.viol, e0: a.err, e1: c.err
+    });
+    document.getElementById("svm-n4").innerHTML = T("svm.n.p4", { c: cFmt(S.C), s: S.nsv, n: N2 });
+  }
+
+  var segBtns = document.querySelectorAll("#svm-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderSolution(); renderCompare(); renderLots(); renderNotes();
+      hudKey = "";
+      if (A_.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[3]) player.refresh();
+      else { player.seek(CH[3] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderSeg(); renderScenText(); renderData(); renderSolution(); renderCompare(); renderLots(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

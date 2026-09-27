@@ -19,7 +19,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 | 3a | lab-solver "Inside the Solver" (animation) | done | site/lab/inside-the-solver.html; reviewed (every node LP, cut and counts match; chapter 4 paced); href in catalog.lab; card text in present tense, no product log claim |
 | 3b | lab-cvar "Beyond VaR: CVaR" (animation) | done | site/lab/beyond-var.html; reviewed (numbers match, LP solves moved to a Web Worker); href in catalog.lab; card text in present tense |
 | 3c | lab-linearization (animation) | done | site/lab/linearizing-markets.html; reviewed (numbers match; exactness condition and notation note fixed); href in catalog.lab; card text in present tense |
-| 3d | lab-ml-methods "Learning Is Optimizing" (animation) | building | site/lab/learning-is-optimizing.html, prefix learn. |
+| 3d | lab-ml-methods "Learning Is Optimizing" (animation) | review | site/lab/learning-is-optimizing.html + locales/lab/lab-ml-methods.*.js built; 4 langs x 1200/700/400 x light/dark clean; numbers match independent Python (numpy, scipy BFGS, own GD/network) except the chaotic too-large network final loss |
 | 3e | lab-svm "The Widest Street" (animation) | building | site/lab/widest-street.html, prefix svm. |
 | 3f | lab-ml-ai-cases "ML + AI in Optimization" (simulation) | building | site/lab/ml-ai-optimization.html, prefix mlai. |
 | 4 | Final site-wide check, report to the owner, ask for merge | todo | |

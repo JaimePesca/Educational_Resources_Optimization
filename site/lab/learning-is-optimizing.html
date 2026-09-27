@@ -265,7 +265,7 @@
   var K = { lin: 60, log: 200, nn: 1500 };
   var ETA = {
     small: { lin: 0.02, log: 0.15, nn: 0.2 },
-    good:  { lin: 0.15, log: 5, nn: 2 },
+    good:  { lin: 0.1, log: 3, nn: 2 },
     large: { lin: 0.25, log: 20, nn: 40 }
   };
   var SCS = ["small", "good", "large"];
@@ -433,7 +433,7 @@
   var cv = A_.canvas(stage), ctx = cv.ctx;
   stage.appendChild(hudEl);
   var DUR = 56, CH = [0, 12, 24, 38, 47];
-  var WIN = { lin: [2.0, 9.4, 1.0], log: [13.8, 22.2, 2.6], nn: [25.8, 35.8, 4.2], land: [39.8, 44.6, 1.0] };
+  var WIN = { lin: [2.0, 9.4, 3.0], log: [13.8, 22.2, 4.5], nn: [25.8, 35.8, 6.5], land: [39.8, 44.6, 3.0] };
   var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
   var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
   var TAU = Math.PI * 2;
@@ -498,7 +498,7 @@
     state.sc = keep;
     L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
     if (portrait) {
-      L.pb = { x: 10, y: L.capBottom + 6, w: W - 20, h: Math.round(clamp(H * 0.2, 78, 110)) };
+      L.pb = { x: 10, y: L.capBottom + 4, w: W - 20, h: Math.round(clamp(H * 0.25, 96, 124)) };
       L.x0 = 42; L.x1 = W - 12; L.top = L.pb.y + L.pb.h + 30; L.base = H - 38;
     } else {
       L.pb = { x: L.capX, y: L.capBottom + 14, w: L.capW - 4, h: Math.min(230, H - L.capBottom - 36) };
@@ -561,7 +561,7 @@
     };
   }
   function mainBox() { return { x0: L.x0, x1: L.x1, top: L.top, base: L.base }; }
-  function niceTicks(lo, hi, step) { var out = []; for (var v = Math.ceil(lo / step - 1e-9) * step; v <= hi + 1e-9; v += step) out.push(Math.round(v / step) * step); return out; }
+  function niceTicks(lo, hi, step) { var out = []; for (var v = Math.ceil(lo / step - 1e-9) * step; v <= hi + 1e-9; v += step) out.push(Math.round(v / step) * step + 0); return out; }
   function axes(M, xt, yt, xname, yname, fx, fy, a) {
     if (a <= 0.01) return;
     var b = M.b, fs = L.fk;
@@ -610,9 +610,10 @@
       for (i = 0; i < NR; i++) {
         X = M.X(D.reg[i].alt); Y = M.Y(D.reg[i].y); Yl = M.Y(lineY(b, w, D.reg[i].alt));
         var side = Math.min(Math.abs(Yl - Y), 4000), dir = X > (box.x0 + box.x1) / 2 ? -1 : 1;
-        ctx.globalAlpha = a * sq * 0.1; ctx.fillStyle = hot;
+        var big = 1 - seg(side, 0.6 * (box.base - box.top), box.base - box.top);   // squares larger than the plot fade out
+        ctx.globalAlpha = a * sq * 0.07 * big; ctx.fillStyle = hot;
         ctx.fillRect(dir > 0 ? X : X - side, Math.min(Y, Yl), side, side);
-        ctx.globalAlpha = a * sq * 0.35; ctx.strokeStyle = hot; ctx.lineWidth = 1;
+        ctx.globalAlpha = a * sq * 0.35 * big; ctx.strokeStyle = hot; ctx.lineWidth = 1;
         ctx.strokeRect(dir > 0 ? X : X - side, Math.min(Y, Yl), side, side);
         ctx.globalAlpha = a * sq * 0.9; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(X, Yl); ctx.stroke();
@@ -745,8 +746,7 @@
       var na = seg(t, t0 + 1.2, t0 + 1.8), fl = font(600, L.fs);
       if (na > 0) {
         var k1 = m === "log" ? "learn.l.repaid" : "learn.l.moonA", k0 = m === "log" ? "learn.l.default" : "learn.l.moonB";
-        var yL = box.base - 10, xL = box.x1 - 8, w0 = tw(T(k0), fl), w1 = tw(T(k1), fl);
-        if (m === "log") { yL = box.top + 12; }
+        var yL = box.top - 14, xL = box.x1 - 2, w0 = tw(T(k0), fl), w1 = tw(T(k1), fl);
         ctx.save(); ctx.globalAlpha = a * na;
         var xr0 = xL - w0, xr1 = xr0 - 22 - w1;
         dot(xr1 - 9, yL, 4, true); label(T(k1), xr1, yL, "left", C.ink, fl, 1);
@@ -838,8 +838,10 @@
       } else drawCls(m, t, aa, b, true);
       var r = run(m);
       label(T("learn.m." + m), b.cx, b.ty, "center", C.ink, font(700, b.fsT), aa);
-      label(metricStr(m, r.M[r.K], L.portrait), b.cx, b.my - b.fsT - 2, "center", C["accent-text"], font(700, b.fsT), aa * seg(t, CH[4] + 3.2 + k * 0.3, CH[4] + 3.8 + k * 0.3));
-      label(T("learn.l.loss", { v: lossStr(r.L[r.K], true) }), b.cx, b.my + 2, "center", C.ink2, font(400, b.fsT - 0.5), aa * seg(t, CH[4] + 3.2 + k * 0.3, CH[4] + 3.8 + k * 0.3));
+      var ms = metricStr(m, r.M[r.K], L.portrait), room = b.x1 - b.x0 + (L.portrait ? 6 : 14);
+      if (tw(ms, font(700, b.fsT)) > room) ms = m === "lin" ? r2Str(r.M[r.K], true) : pct(r.M[r.K]);   // too long for a narrow panel: the number alone
+      label(ms, b.cx, b.my - b.fsT + 2, "center", C["accent-text"], font(700, b.fsT), aa * seg(t, CH[4] + 3.2 + k * 0.3, CH[4] + 3.8 + k * 0.3));
+      label(T("learn.l.loss", { v: lossStr(r.L[r.K], true) }), b.cx, b.my + 5, "center", C.ink2, font(400, b.fsT - 0.5), aa * seg(t, CH[4] + 3.2 + k * 0.3, CH[4] + 3.8 + k * 0.3));
     });
   }
 
@@ -851,36 +853,45 @@
     if (ci < 4) a *= 1 - seg(t, CH[ci + 1] - 0.5, CH[ci + 1] - 0.05);
     if (t >= DUR - 1e-6) a = 1;
     if (a <= 0.01) return;
-    var px0 = P.x + 30, px1 = P.x + P.w - 6, py0 = P.y + fs + 12, py1 = P.y + P.h - fs - 8;
+    var px0 = P.x + 30, px1 = P.x + P.w - 6, py0 = P.y + fs + 12, py1 = P.y + P.h - 2 * fs - 10;
     ctx.save(); ctx.globalAlpha = a;
     if (ci === 4) { drawNormCurves(t, px0, px1, py0, py1, fs); ctx.restore(); return; }
     var m = ci === 0 || ci === 3 ? "lin" : ci === 1 ? "log" : "nn", r = run(m), lr = L.lr[m];
     var kf = ci === 3 ? kAt("land", r.K, t) : kAt(m, r.K, t);
-    var X = function (k) { return px0 + k / r.K * (px1 - px0); };
+    var X = function (k) { return px0 + Math.log(1 + k) / Math.log(1 + r.K) * (px1 - px0); };
     var Y = function (v) { return py1 - (Math.log10(v) - lr.lo) / (lr.hi - lr.lo) * (py1 - py0); };
     // frame, title and axis
     ctx.font = font(700, fs + 0.5); ctx.fillStyle = C["accent-text"]; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
     ctx.fillText(T("learn.p." + m), P.x, P.y + fs + 1);
+    var tW = ctx.measureText(T("learn.p." + m)).width;
     ctx.font = font(400, fs); ctx.fillStyle = C.muted; ctx.textAlign = "right";
-    ctx.fillText(T("learn.p.logscale"), px1, P.y + fs + 1);
+    if (tW + ctx.measureText(T("learn.p.logscale")).width + 12 < px1 - P.x) ctx.fillText(T("learn.p.logscale"), px1, P.y + fs + 1);
     ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(px0, py0 - 2); ctx.lineTo(px0, py1); ctx.lineTo(px1, py1); ctx.stroke();
     ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.textBaseline = "top";
-    ctx.textAlign = "left"; ctx.fillText("0", px0, py1 + 3);
-    ctx.textAlign = "right"; ctx.fillText(int(r.K), px1, py1 + 3);
-    ctx.font = font(400, fs); ctx.textAlign = "center"; ctx.fillText(T("learn.p.it"), (px0 + px1) / 2, py1 + 3);
+    var xt = [0, 1, 10, 100, 1000].filter(function (v) { return v < r.K * 0.5; }).concat([r.K]), lastR = -1e9;
+    xt.forEach(function (v, i) {
+      var xx = X(v), s = int(v), w = tw(s, font(400, fs, true));
+      ctx.font = font(400, fs, true); ctx.textAlign = i === xt.length - 1 ? "right" : "center";
+      var l = i === xt.length - 1 ? xx - w : xx - w / 2;
+      if (l < lastR + 4) return;
+      ctx.fillText(s, xx, py1 + 3); lastR = l + w;
+      ctx.beginPath(); ctx.moveTo(xx, py1); ctx.lineTo(xx, py1 + 2); ctx.stroke();
+    });
+    ctx.font = font(400, fs); ctx.textAlign = "left"; ctx.fillText(T("learn.p.it"), px0, py1 + fs + 5);
     // y ticks: powers of ten inside the range, else the two ends
     var decs = []; for (var d = Math.ceil(lr.lo); d <= Math.floor(lr.hi); d++) decs.push(d);
     ctx.font = font(400, fs - 0.5, true); ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.fillStyle = C.muted;
     var tick = function (v) { return v >= 1e4 ? sci(v, true) : v >= 1 ? int(v) : fmt(v, Math.max(0, -Math.floor(Math.log10(v) + 1e-9))); };
-    if (decs.length >= 2) decs.forEach(function (dd) { ctx.fillText(tick(Math.pow(10, dd)), px0 - 4, Y(Math.pow(10, dd))); });
+    var every = Math.max(1, Math.ceil((fs + 2) / ((py1 - py0) / (lr.hi - lr.lo))));
+    if (decs.length >= 2) decs.forEach(function (dd) { if ((dd - decs[decs.length - 1]) % every === 0) ctx.fillText(tick(Math.pow(10, dd)), px0 - 4, Y(Math.pow(10, dd))); });
     else [lr.lo + 0.12, lr.hi - 0.12].forEach(function (lv) { var v = Math.pow(10, lv); ctx.fillText(fmt(v, 2), px0 - 4, Y(v)); });
     // the reference minimum
     if (REF[m] != null) {
       var yr = Y(REF[m]);
       ctx.strokeStyle = C.ink2; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(px0, yr); ctx.lineTo(px1, yr); ctx.stroke(); ctx.setLineDash([]);
-      label(T(m === "lin" ? "learn.p.cf" : "learn.p.newton"), px1, yr + fs * 0.5 + 4, "right", C.ink2, font(400, fs), 1);
+      label(T(m === "lin" ? "learn.p.cf" : "learn.p.newton"), px1, yr > (py0 + py1) / 2 ? yr - fs * 0.5 - 3 : yr + fs * 0.5 + 4, "right", C.ink2, font(400, fs), 1);
     }
     // the curve up to the current iteration, clipped at the top of the panel
     var k0 = Math.floor(kf), clipTop = py0 - 2, over = false;
@@ -907,12 +918,15 @@
     var P = L.pb, cols = { lin: C.ink, log: C.accent, nn: HOT }, lo = -3.2, hi = 1.3;
     ctx.font = font(700, fs + 0.5); ctx.fillStyle = C["accent-text"]; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
     ctx.fillText(T("learn.p.norm"), P.x, P.y + fs + 1);
-    ctx.font = font(400, fs); ctx.fillStyle = C.muted; ctx.textAlign = "right"; ctx.fillText(T("learn.p.logscale"), px1, P.y + fs + 1);
+    var tW = ctx.measureText(T("learn.p.norm")).width;
+    ctx.font = font(400, fs); ctx.fillStyle = C.muted; ctx.textAlign = "right";
+    if (tW + ctx.measureText(T("learn.p.logscale")).width + 12 < px1 - P.x) ctx.fillText(T("learn.p.logscale"), px1, P.y + fs + 1);
     ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(px0, py0 - 2); ctx.lineTo(px0, py1); ctx.lineTo(px1, py1); ctx.stroke();
     var Y = function (v) { return py1 - (Math.log10(v) - lo) / (hi - lo) * (py1 - py0); };
     ctx.font = font(400, fs - 0.5, true); ctx.fillStyle = C.muted; ctx.textAlign = "right"; ctx.textBaseline = "middle";
-    [1, 0.1, 0.01, 0.001].forEach(function (v, i) { ctx.fillText(i === 0 ? "1" : fmt(v, i), px0 - 4, Y(v)); });
+    var every = (py1 - py0) / (hi - lo) < fs + 2 ? 2 : 1;
+    [1, 0.1, 0.01, 0.001].forEach(function (v, i) { if (i % every === 0) ctx.fillText(i === 0 ? "1" : fmt(v, i), px0 - 4, Y(v)); });
     ctx.strokeStyle = C.grid; ctx.beginPath(); ctx.moveTo(px0, Math.round(Y(1)) + 0.5); ctx.lineTo(px1, Math.round(Y(1)) + 0.5); ctx.stroke();
     ctx.font = font(400, fs); ctx.textBaseline = "top"; ctx.textAlign = "left"; ctx.fillText(T("learn.p.start"), px0, py1 + 3);
     ctx.textAlign = "right"; ctx.fillText(T("learn.p.end"), px1, py1 + 3);
@@ -920,16 +934,16 @@
     ctx.save(); ctx.beginPath(); ctx.rect(px0, py0 - 2, px1 - px0 + 2, py1 - py0 + 3); ctx.clip();
     var ends = [];
     MODELS.forEach(function (m) {
-      var r = run(m), n = r.K, l0 = r.L[0], kmax = u * n;
+      var r = run(m), n = r.K, l0 = r.L[0], kmax = Math.pow(1 + n, u) - 1;
       ctx.strokeStyle = cols[m]; ctx.lineWidth = 2; ctx.setLineDash(m === "nn" ? [5, 3] : []); ctx.beginPath();
-      var step = Math.max(1, Math.floor(n / 300)), last = null;
-      for (var k = 0; k <= kmax; k += step) {
-        var v = r.L[k] / l0, yy = isFinite(v) ? Math.max(Y(v), py0 - 60) : py0 - 60, xx = px0 + k / n * (px1 - px0);
+      var last = null;
+      for (var k = 0; k <= kmax; k += (k < 100 ? 1 : 5)) {
+        var v = r.L[k] / l0, yy = isFinite(v) ? Math.max(Y(v), py0 - 60) : py0 - 60, xx = px0 + Math.log(1 + k) / Math.log(1 + n) * (px1 - px0);
         if (k) ctx.lineTo(xx, yy); else ctx.moveTo(xx, yy);
         last = [xx, yy, v];
       }
       ctx.stroke(); ctx.setLineDash([]);
-      if (last) ends.push({ m: m, x: last[0], y: clamp(last[1], py0 + 4, py1 - 4) });
+      if (last) ends.push({ m: m, x: last[0], y: clamp(last[1], py0 + fs + 4, py1 - 4) });
     });
     ctx.restore();
     // names at the curve ends, pushed apart so they never overlap
@@ -972,33 +986,38 @@
     var el = document.getElementById("learn-c" + i);
     return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
   });
-  function setChip(i, val, lab, op, kind) {
-    var c = chips[i];
+  function setChip(i, val, lab, op, kind) {       // lab: [full label, short label]; the short one when the full one does not fit
+    var c = chips[i], key = lab.join("|") + "|" + (L.portrait ? 1 : 0) + hudEl.offsetWidth;
     op = Math.round(clamp(op, 0, 1) * 20) / 20;
     if (c.v !== val) { c.b.textContent = val; c.v = val; }
-    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.l !== key) {
+      c.l = key;
+      c.s.textContent = L.portrait ? lab[1] : lab[0];
+      if (!L.portrait && c.s.scrollWidth > c.s.clientWidth + 1) c.s.textContent = lab[1];
+    }
     if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
     if (c.k !== kind) { c.el.classList.toggle("hot", kind === "hot"); c.k = kind; }
   }
   function hud(t) {
     var ci = chapterAt(t), op = seg(t, 0.6, 1.2), tight = L.portrait;
+    var K_ = function (k, v) { return [T(k, v), T(k + ".s", v)]; };
     if (ci === 4) {
       var rl = run("lin"), rg = run("log"), rn = run("nn");
-      setChip(0, r2Str(rl.M[rl.K], tight), T("learn.k.r2l"), 1, "");
-      setChip(1, pct(rg.M[rg.K]), T("learn.k.accl"), 1, "");
-      setChip(2, pct(rn.M[rn.K]), T("learn.k.accn"), 1, "");
-      setChip(3, T("learn.sc." + state.sc), T("learn.k.step"), 1, "hot");
+      setChip(0, r2Str(rl.M[rl.K], tight), K_("learn.k.r2l"), 1, "");
+      setChip(1, pct(rg.M[rg.K]), K_("learn.k.accl"), 1, "");
+      setChip(2, pct(rn.M[rn.K]), K_("learn.k.accn"), 1, "");
+      setChip(3, T("learn.sc." + state.sc + ".s"), K_("learn.k.step"), 1, "hot");
       return;
     }
     var m = ci === 1 ? "log" : ci === 2 ? "nn" : "lin", r = run(m);
     var kf = ci === 3 ? kAt("land", r.K, t) : kAt(m, r.K, t), k = Math.floor(kf + 1e-9);
-    setChip(0, int(k), T("learn.k.it", { K: int(r.K) }), op, "");
-    setChip(1, lossStr(r.L[k], tight), T("learn.k." + (m === "lin" ? "mse" : "ll")), op, "hot");
+    setChip(0, int(k), K_("learn.k.it", { K: int(r.K) }), op, "");
+    setChip(1, lossStr(r.L[k], tight), K_("learn.k." + (m === "lin" ? "mse" : "ll")), op, "hot");
     if (ci === 3) {
       var dd = Math.hypot(r.P[2 * k] - CF.b, r.P[2 * k + 1] - CF.w);
-      setChip(2, dd >= 1e4 ? sci(dd, tight) : dd < 5e-5 ? fmt(0, 4) : fmt(dd, 4), T("learn.k.dist"), op, "");
-    } else setChip(2, m === "lin" ? r2Str(r.M[k], tight) : pct(r.M[k]), T(m === "lin" ? "learn.k.r2" : "learn.k.acc"), op, "");
-    setChip(3, etaS(r.eta), T("learn.k.eta"), op, "");
+      setChip(2, dd >= 1e4 ? sci(dd, tight) : dd >= 10 ? fmt(dd, 1) : fmt(dd, 4), K_("learn.k.dist"), op, "");
+    } else setChip(2, m === "lin" ? r2Str(r.M[k], tight) : pct(r.M[k]), K_(m === "lin" ? "learn.k.r2" : "learn.k.acc"), op, "");
+    setChip(3, etaS(r.eta), K_("learn.k.eta"), op, "");
   }
 
   /* ---------- the frame ---------- */
@@ -1082,11 +1101,11 @@
     // least squares: the normal equations with their numbers
     document.getElementById("learn-cf-p").innerHTML = T("learn.sol.cf.p", { n: NR });
     var A = CF.A;
-    var tex = "\\begin{pmatrix} " + texNum(A[0][0], 0) + " & " + texNum(A[0][1], 4) + " \\\\ " + texNum(A[1][0], 4) + " & " + texNum(A[1][1], 4) +
+    var tex = "\\begin{aligned}& \\begin{pmatrix} " + texNum(A[0][0], 0) + " & " + texNum(A[0][1], 4) + " \\\\ " + texNum(A[1][0], 4) + " & " + texNum(A[1][1], 4) +
       " \\end{pmatrix}\\begin{pmatrix} b \\\\ w \\end{pmatrix} = \\begin{pmatrix} " + texNum(CF.rhs[0], 4) + " \\\\ " + texNum(CF.rhs[1], 4) +
-      " \\end{pmatrix} \\;\\Rightarrow\\; \\begin{pmatrix} b^{*} \\\\ w^{*} \\end{pmatrix} = \\begin{pmatrix} " + texNum(CF.b, 4) + " \\\\ " + texNum(CF.w, 4) + " \\end{pmatrix}";
-    var plain = "[" + num(A[0][0], 0) + "  " + num(A[0][1], 4) + "; " + num(A[1][0], 4) + "  " + num(A[1][1], 4) + "] (b, w) = (" + num(CF.rhs[0], 4) + ", " +
-      num(CF.rhs[1], 4) + ")  →  b* = " + num(CF.b, 4) + ", w* = " + num(CF.w, 4);
+      " \\end{pmatrix} \\\\[4pt] & \\Rightarrow\\; \\begin{pmatrix} b^{*} \\\\ w^{*} \\end{pmatrix} = \\begin{pmatrix} " + texNum(CF.b, 4) + " \\\\ " + texNum(CF.w, 4) + " \\end{pmatrix}\\end{aligned}";
+    var plain = "[" + num(A[0][0], 0) + "  " + num(A[0][1], 4) + "; " + num(A[1][0], 4) + "  " + num(A[1][1], 4) + "] (b; w) = (" + num(CF.rhs[0], 4) + "; " +
+      num(CF.rhs[1], 4) + ")  →  b* = " + num(CF.b, 4) + "; w* = " + num(CF.w, 4);
     TeX.set(document.getElementById("learn-cf"), tex, plain);
     var rl = R_.lin, bK = rl.P[2 * rl.K], wK = rl.P[2 * rl.K + 1], gap = Math.max(Math.abs(bK - CF.b), Math.abs(wK - CF.w));
     var gapS = !isFinite(gap) ? "∞" : gap >= 1e4 ? sci(gap) : gap < 1e-4 ? sciSmall(gap) : fmt(gap, 4);
