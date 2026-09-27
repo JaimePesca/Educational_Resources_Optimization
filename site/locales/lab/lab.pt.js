@@ -32,7 +32,7 @@ I18N.register("pt", {
   "lab.lab-linearization.eqNote": "(14) está escrita como na página de pesquisa, e (23) usa os mesmos concorrentes S∖I com a_{sj}. O manuscrito escreve a_{ij} nas duas somas do denominador de (14), J∖I sem a_{sj} em (23) e um v minúsculo nessas somas e em (23); seu texto na p. 16 chama o parâmetro de φ_{jt}.",
 
   "lab.lab-ml-methods.title": "Aprender é otimizar",
-  "lab.lab-ml-methods.desc": "A regressão linear, a regressão logística e as pequenas redes neurais aprendem minimizando uma perda, então cada uma é um problema de otimização. A animação moveria a reta ajustada ou a fronteira de decisão passo a passo enquanto a curva de perda desce ao lado.",
+  "lab.lab-ml-methods.desc": "A regressão linear, a regressão logística e as pequenas redes neurais aprendem minimizando uma perda, então cada uma é um problema de otimização. A animação treina os três ao vivo com descida de gradiente, move a reta ajustada ou a fronteira de decisão passo a passo enquanto a curva de perda desce ao lado e mostra o que acontece quando o passo é pequeno demais ou grande demais.",
 
   "lab.lab-svm.title": "A rua mais larga",
   "lab.lab-svm.desc": "Uma máquina de vetores de suporte procura a rua mais larga que separa duas classes, e isso é um problema quadrático de margem máxima. A animação destacaria os vetores de suporte que seguram a rua no lugar e depois passaria para a margem suave, em que o parâmetro C troca erros de classificação por uma margem mais larga.",

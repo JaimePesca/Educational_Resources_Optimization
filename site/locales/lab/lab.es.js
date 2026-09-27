@@ -32,7 +32,7 @@ I18N.register("es", {
   "lab.lab-linearization.eqNote": "(14) se escribe como en la página de investigación, y (23) usa los mismos competidores S∖I con a_{sj}. El manuscrito escribe a_{ij} en las dos sumas del denominador de (14), J∖I sin a_{sj} en (23) y una v minúscula en esas sumas y en (23); su texto en la p. 16 llama al parámetro φ_{jt}.",
 
   "lab.lab-ml-methods.title": "Aprender es optimizar",
-  "lab.lab-ml-methods.desc": "La regresión lineal, la regresión logística y las redes neuronales pequeñas aprenden minimizando una pérdida, así que cada una es un problema de optimización. La animación movería la recta ajustada o la frontera de decisión paso a paso mientras la curva de pérdida baja a su lado.",
+  "lab.lab-ml-methods.desc": "La regresión lineal, la regresión logística y las redes neuronales pequeñas aprenden minimizando una pérdida, así que cada una es un problema de optimización. La animación entrena los tres en vivo con descenso por gradiente, mueve la recta ajustada o la frontera de decisión paso a paso mientras la curva de pérdida baja a su lado, y muestra qué pasa cuando el paso es muy pequeño o demasiado grande.",
 
   "lab.lab-svm.title": "La calle más ancha",
   "lab.lab-svm.desc": "Una máquina de vectores de soporte busca la calle más ancha que separa dos clases, y eso es un problema cuadrático de margen máximo. La animación resaltaría los vectores de soporte que sostienen la calle y luego pasaría al margen suave, donde el parámetro C cambia errores de clasificación por un margen más ancho.",

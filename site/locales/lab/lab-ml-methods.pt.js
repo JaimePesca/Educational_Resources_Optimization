@@ -101,7 +101,7 @@ I18N.register("pt", {
   "learn.cap.oc.conv": "Chega ao mínimo exato.",
   "learn.cap.oc.slow": "Passo pequeno demais: a perda ainda está acima do mínimo.",
   "learn.cap.oc.div": "Passo grande demais: cada passo passa do ponto e a perda explode.",
-  "learn.cap.oc.bounce": "Passo grande demais: a perda salta e nunca se acomoda.",
+  "learn.cap.oc.bounce": "Passo grande demais: a perda anda em zigue-zague em vez de cair suavemente.",
   "learn.cap.oc.steady": "A perda continua caindo, cada vez mais devagar.",
   "learn.cap4.oc.conv": "Ladeira abaixo através dos contornos até o fundo da tigela.",
   "learn.cap4.oc.slow": "Passos pequenos: ainda na encosta quando o tempo acaba.",
@@ -165,7 +165,7 @@ I18N.register("pt", {
   "learn.oc.conv": "no mínimo",
   "learn.oc.slow": "ainda descendo",
   "learn.oc.div": "diverge",
-  "learn.oc.bounce": "nunca se acomoda",
+  "learn.oc.bounce": "sobe e desce",
   "learn.oc.bounce2": "salta entre duas",
   "learn.oc.steady": "ainda caindo",
 
@@ -178,7 +178,7 @@ I18N.register("pt", {
   "learn.n.title": "O que observar",
   "learn.n.p1": "Os mínimos quadrados são o único caso com fórmula: b* = {b} e uma inclinação de {w} kg/ha por 100 m, com R² = {r2}. A descida de gradiente não conhece a fórmula, só segue a inclinação da perda, e com η = {eta} chega aos mesmos números em {k} passos. Para grandes conjuntos de dados e para modelos sem fórmula, seguir a inclinação é o único caminho.",
   "learn.n.p2": "A regressão logística não tem fórmula, mas a sua perda logarítmica é convexa, então todo mínimo local é global. O método de Newton chega lá em {it} iterações (perda {L}, {acc} de acertos); a descida de gradiente com o passo adequado coincide com ele em quatro casas decimais em {k} passos ({g}). A acurácia pode andar um pouco na direção errada enquanto a perda cai: o modelo minimiza a perda logarítmica, não a contagem de erros.",
-  "learn.n.p3": "A perda da rede não é convexa, então o resultado depende de onde o treinamento começa; esta página fixa a semente. Com o passo adequado a perda cai para {l} após {k} passos e {acc} dos pontos são classificados corretamente. Com o passo grande demais a perda salta até {top} e a acurácia termina em {accL}. Nesse regime o percurso é caótico: uma mudança no último dígito da aritmética o leva para outro lugar, então outro navegador ou linguagem pode terminar em um valor diferente, mas também não se acomoda. Com tão poucos pontos uma rede também pode decorar ruído, e por isso os projetos reais guardam dados à parte para conferir.",
+  "learn.n.p3": "A perda da rede não é convexa, então o resultado depende de onde o treinamento começa; esta página fixa a semente. Com o passo adequado a perda cai para {l} após {k} passos e {acc} dos pontos são classificados corretamente. Com o passo grande demais (η = {eL}) a perda volta a subir nos primeiros passos, até {top}, e segue em zigue-zague durante quase todo o percurso; termina em {lL}, acima do passo adequado. A página para aí de propósito: com um passo ainda maior, como η = {eC}, o percurso fica caótico e uma mudança no último dígito da aritmética o leva para outro lugar, então outro navegador poderia mostrar números diferentes. Com η = {eL} todo número desta página é reproduzível. Com tão poucos pontos uma rede também pode decorar ruído, e por isso os projetos reais guardam dados à parte para conferir.",
   "learn.n.p4": "Os três são o mesmo problema: escolher parâmetros que minimizem uma perda média. O que muda é a forma da superfície de perda: uma tigela para a reta, um vale convexo mas curvo para a regressão logística, uma paisagem com muitos vales para a rede. A descida de gradiente, o método de gradiente do Nível 4 (Programação não linear), é a ferramenta comum. O aprendizado de máquina em grande escala troca o gradiente completo por estimativas com pequenos lotes aleatórios de dados (gradiente estocástico), como revisam Bottou, Curtis e Nocedal (2018).",
 
   "learn.refs": "Rumelhart, D. E., Hinton, G. E., e Williams, R. J. (1986). Learning representations by back-propagating errors. Nature, 323, 533-536. Bottou, L., Curtis, F. E., e Nocedal, J. (2018). Optimization methods for large-scale machine learning. SIAM Review, 60(2), 223-311. Hastie, T., Tibshirani, R., e Friedman, J. (2009). The Elements of Statistical Learning (2nd ed.). Springer.",

@@ -101,7 +101,7 @@ I18N.register("es", {
   "learn.cap.oc.conv": "Llega al mínimo exacto.",
   "learn.cap.oc.slow": "Paso demasiado pequeño: la pérdida sigue por encima del mínimo.",
   "learn.cap.oc.div": "Paso demasiado grande: cada paso se pasa y la pérdida explota.",
-  "learn.cap.oc.bounce": "Paso demasiado grande: la pérdida salta y nunca se asienta.",
+  "learn.cap.oc.bounce": "Paso demasiado grande: la pérdida va en zigzag en lugar de bajar con suavidad.",
   "learn.cap.oc.steady": "La pérdida sigue bajando, cada vez más despacio.",
   "learn.cap4.oc.conv": "Cuesta abajo a través de los contornos hasta el fondo del tazón.",
   "learn.cap4.oc.slow": "Pasos pequeños: todavía en la ladera cuando se acaba el tiempo.",
@@ -165,7 +165,7 @@ I18N.register("es", {
   "learn.oc.conv": "en el mínimo",
   "learn.oc.slow": "sigue bajando",
   "learn.oc.div": "diverge",
-  "learn.oc.bounce": "nunca se asienta",
+  "learn.oc.bounce": "sube y baja",
   "learn.oc.bounce2": "salta entre dos",
   "learn.oc.steady": "sigue bajando",
 
@@ -178,7 +178,7 @@ I18N.register("es", {
   "learn.n.title": "Qué observar",
   "learn.n.p1": "Los mínimos cuadrados son el único caso con fórmula: b* = {b} y una pendiente de {w} kg/ha por 100 m, con R² = {r2}. El descenso de gradiente no conoce la fórmula, solo sigue la pendiente de la pérdida, y con η = {eta} llega a los mismos números en {k} pasos. Para conjuntos de datos grandes y para modelos sin fórmula, seguir la pendiente es el único camino.",
   "learn.n.p2": "La regresión logística no tiene fórmula, pero su pérdida logarítmica es convexa, así que todo mínimo local es global. El método de Newton llega en {it} iteraciones (pérdida {L}, {acc} de aciertos); el descenso de gradiente con el paso adecuado coincide con él en cuatro decimales en {k} pasos ({g}). La exactitud puede moverse un poco en la dirección equivocada mientras la pérdida baja: el modelo minimiza la pérdida logarítmica, no el número de errores.",
-  "learn.n.p3": "La pérdida de la red no es convexa, así que el resultado depende de dónde arranca el entrenamiento; esta página fija la semilla. Con el paso adecuado la pérdida baja a {l} tras {k} pasos y el {acc} de los puntos queda bien clasificado. Con el paso demasiado grande la pérdida salta hasta {top} y la exactitud termina en {accL}. En ese régimen el recorrido es caótico: un cambio en el último dígito de la aritmética lo lleva a otro lugar, así que otro navegador u otro lenguaje puede terminar en un valor distinto, pero tampoco se asienta. Con tan pocos puntos una red también puede memorizar ruido, y por eso los proyectos reales guardan datos aparte para comprobarlo.",
+  "learn.n.p3": "La pérdida de la red no es convexa, así que el resultado depende de dónde arranca el entrenamiento; esta página fija la semilla. Con el paso adecuado la pérdida baja a {l} tras {k} pasos y el {acc} de los puntos queda bien clasificado. Con el paso demasiado grande (η = {eL}) la pérdida vuelve a subir en los primeros pasos, hasta {top}, y sigue en zigzag durante casi todo el recorrido; termina en {lL}, por encima del paso adecuado. La página se detiene ahí a propósito: con un paso aún mayor, como η = {eC}, el recorrido se vuelve caótico y un cambio en el último dígito de la aritmética lo lleva a otro lugar, así que otro navegador podría mostrar números distintos. Con η = {eL} cada número de esta página es reproducible. Con tan pocos puntos una red también puede memorizar ruido, y por eso los proyectos reales guardan datos aparte para comprobarlo.",
   "learn.n.p4": "Los tres son el mismo problema: elegir parámetros que minimicen una pérdida promedio. Lo que cambia es la forma de la superficie de pérdida: un tazón para la recta, un valle convexo pero curvo para la regresión logística, un paisaje con muchos valles para la red. El descenso de gradiente, el método de gradiente del Nivel 4 (Programación no lineal), es la herramienta común. El aprendizaje automático a gran escala reemplaza el gradiente completo por estimaciones con pequeños lotes aleatorios de datos (gradiente estocástico), como lo revisan Bottou, Curtis y Nocedal (2018).",
 
   "learn.refs": "Rumelhart, D. E., Hinton, G. E., y Williams, R. J. (1986). Learning representations by back-propagating errors. Nature, 323, 533-536. Bottou, L., Curtis, F. E., y Nocedal, J. (2018). Optimization methods for large-scale machine learning. SIAM Review, 60(2), 223-311. Hastie, T., Tibshirani, R., y Friedman, J. (2009). The Elements of Statistical Learning (2nd ed.). Springer.",

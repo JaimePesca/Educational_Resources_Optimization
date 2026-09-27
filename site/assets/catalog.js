@@ -107,7 +107,7 @@ window.CATALOG = {
     { id: "lab-solver", type: "animation", href: "lab/inside-the-solver.html" },
     { id: "lab-cvar", type: "animation", href: "lab/beyond-var.html" },
     { id: "lab-linearization", type: "animation", href: "lab/linearizing-markets.html" },
-    { id: "lab-ml-methods", type: "animation" },
+    { id: "lab-ml-methods", type: "animation", href: "lab/learning-is-optimizing.html" },
     { id: "lab-svm", type: "animation" },
     { id: "lab-ml-ai-cases", type: "simulation" }
   ],

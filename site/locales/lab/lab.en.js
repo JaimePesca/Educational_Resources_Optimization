@@ -32,7 +32,7 @@ I18N.register("en", {
   "lab.lab-linearization.eqNote": "(14) is written as on the research page, and (23) uses the same competitors S∖I with a_{sj}. The manuscript prints a_{ij} in both denominator sums of (14), J∖I without a_{sj} in (23), and a lower case v in those sums and in (23); its text on p. 16 names the parameter φ_{jt}.",
 
   "lab.lab-ml-methods.title": "Learning Is Optimizing",
-  "lab.lab-ml-methods.desc": "Linear regression, logistic regression and small neural networks all learn by minimizing a loss, so each one is an optimization problem. The animation would move the fitted line or the decision boundary step by step while the loss curve goes down beside it.",
+  "lab.lab-ml-methods.desc": "Linear regression, logistic regression and small neural networks all learn by minimizing a loss, so each one is an optimization problem. The animation trains all three live with gradient descent, moving the fitted line or the decision boundary step by step while the loss curve goes down beside it, and shows what happens when the step is too small or too large.",
 
   "lab.lab-svm.title": "The Widest Street",
   "lab.lab-svm.desc": "A Support Vector Machine looks for the widest street that separates two classes, which is a quadratic program of maximum margin. The animation would highlight the support vectors that hold the street in place and then switch to the soft margin, where the parameter C trades classification errors for a wider margin.",

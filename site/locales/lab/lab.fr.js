@@ -32,7 +32,7 @@ I18N.register("fr", {
   "lab.lab-linearization.eqNote": "(14) est écrite comme sur la page de recherche, et (23) utilise les mêmes concurrents S∖I avec a_{sj}. Le manuscrit écrit a_{ij} dans les deux sommes du dénominateur de (14), J∖I sans a_{sj} dans (23) et un v minuscule dans ces sommes et dans (23) ; son texte, p. 16, appelle le paramètre φ_{jt}.",
 
   "lab.lab-ml-methods.title": "Apprendre, c'est optimiser",
-  "lab.lab-ml-methods.desc": "La régression linéaire, la régression logistique et les petits réseaux de neurones apprennent en minimisant une perte : chacun est donc un problème d'optimisation. L'animation déplacerait la droite ajustée ou la frontière de décision pas à pas pendant que la courbe de perte descend à côté.",
+  "lab.lab-ml-methods.desc": "La régression linéaire, la régression logistique et les petits réseaux de neurones apprennent en minimisant une perte : chacun est donc un problème d'optimisation. L'animation entraîne les trois en direct par descente de gradient, déplace la droite ajustée ou la frontière de décision pas à pas pendant que la courbe de perte descend à côté, et montre ce qui se passe quand le pas est trop petit ou trop grand.",
 
   "lab.lab-svm.title": "La rue la plus large",
   "lab.lab-svm.desc": "Une machine à vecteurs de support cherche la rue la plus large qui sépare deux classes, ce qui est un problème quadratique de marge maximale. L'animation mettrait en évidence les vecteurs de support qui tiennent la rue en place, puis passerait à la marge souple, où le paramètre C échange des erreurs de classification contre une marge plus large.",

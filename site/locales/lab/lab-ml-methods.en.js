@@ -101,7 +101,7 @@ I18N.register("en", {
   "learn.cap.oc.conv": "It reaches the exact minimum.",
   "learn.cap.oc.slow": "Step too small: the loss is still above the minimum.",
   "learn.cap.oc.div": "Step too large: each step overshoots and the loss explodes.",
-  "learn.cap.oc.bounce": "Step too large: the loss jumps and never settles.",
+  "learn.cap.oc.bounce": "Step too large: the loss zigzags instead of falling smoothly.",
   "learn.cap.oc.steady": "The loss keeps falling, more and more slowly.",
   "learn.cap4.oc.conv": "Downhill across the contours to the bottom of the bowl.",
   "learn.cap4.oc.slow": "Small steps: still on the slope when time is up.",
@@ -165,7 +165,7 @@ I18N.register("en", {
   "learn.oc.conv": "at the minimum",
   "learn.oc.slow": "still descending",
   "learn.oc.div": "diverges",
-  "learn.oc.bounce": "never settles",
+  "learn.oc.bounce": "jumps up and down",
   "learn.oc.bounce2": "jumps between two",
   "learn.oc.steady": "still falling",
 
@@ -178,7 +178,7 @@ I18N.register("en", {
   "learn.n.title": "What to notice",
   "learn.n.p1": "Least squares is the one case with a formula: b* = {b} and a slope of {w} kg/ha per 100 m, with R² = {r2}. Gradient descent does not know the formula, it only follows the slope of the loss, and with η = {eta} it lands on the same numbers in {k} steps. For big data sets and for models without a formula, following the slope is the only way.",
   "learn.n.p2": "Logistic regression has no formula, but its log loss is convex, so every local minimum is global. Newton's method gets there in {it} iterations (loss {L}, {acc} correct); gradient descent with the good step matches it to four decimals in {k} steps ({g}). Accuracy can move a little the wrong way while the loss falls: the model minimizes the log loss, not the count of errors.",
-  "learn.n.p3": "The network's loss is not convex, so the result depends on where training starts; this page fixes the seed. With the good step the loss falls to {l} after {k} steps and {acc} of the points are classified correctly. With the step too large the loss jumps as high as {top} and the accuracy ends at {accL}. In that regime the path is chaotic: a change in the last digit of the arithmetic sends it somewhere else, so another browser or language can end at a different value, but it does not settle either. On so few points a network can also memorize noise, which is why real projects keep data aside to check it.",
+  "learn.n.p3": "The network's loss is not convex, so the result depends on where training starts; this page fixes the seed. With the good step the loss falls to {l} after {k} steps and {acc} of the points are classified correctly. With the step too large (η = {eL}) the loss jumps back up in the first steps, as high as {top}, and keeps zigzagging for most of the run; it ends at {lL}, above the good step. The page stops there on purpose: with a still larger step, such as η = {eC}, the path turns chaotic, and a change in the last digit of the arithmetic sends it somewhere else, so another browser could show different numbers. With η = {eL} every number on this page is reproducible. On so few points a network can also memorize noise, which is why real projects keep data aside to check it.",
   "learn.n.p4": "All three are the same problem: choose parameters to minimize an average loss. What changes is the shape of the loss surface: a bowl for the line, a convex but curved valley for logistic regression, a landscape with many valleys for the network. Gradient descent, the gradient method of Level 4 (Nonlinear programming), is the common tool. Large scale machine learning replaces the full gradient by estimates from small random batches of data (stochastic gradient), as surveyed by Bottou, Curtis and Nocedal (2018).",
 
   "learn.refs": "Rumelhart, D. E., Hinton, G. E., and Williams, R. J. (1986). Learning representations by back-propagating errors. Nature, 323, 533-536. Bottou, L., Curtis, F. E., and Nocedal, J. (2018). Optimization methods for large-scale machine learning. SIAM Review, 60(2), 223-311. Hastie, T., Tibshirani, R., and Friedman, J. (2009). The Elements of Statistical Learning (2nd ed.). Springer.",

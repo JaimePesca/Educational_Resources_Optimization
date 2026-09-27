@@ -266,8 +266,12 @@
   var ETA = {
     small: { lin: 0.02, log: 0.15, nn: 0.2 },
     good:  { lin: 0.1, log: 3, nn: 2 },
-    large: { lin: 0.25, log: 20, nn: 40 }
+    large: { lin: 0.25, log: 20, nn: 10 }
   };
+  // Not 40 or more for the network: from about η = 12 its path is chaotic, so a change in the last digit of the
+  // arithmetic (another browser, another math library) changes the numbers. At η = 10 the zigzag is stable and
+  // every value shown is reproducible. ETA_CHAOS is only named in the notes.
+  var ETA_CHAOS = 40;
   var SCS = ["small", "good", "large"];
   var LIN0 = [0.8, 0.1];                              // starting line: intercept 0.8 t/ha, slope +0.1 t/ha per 100 m
   var SSTR = (function () { var m = 0, s = 0; YR.forEach(function (y) { m += y; }); m /= NR; YR.forEach(function (y) { s += (y - m) * (y - m); }); return s; })();
@@ -1157,7 +1161,8 @@
       it: NEWTON.it, L: lossStr(NEWTON.L), acc: pct(NEWTON.acc), g: lossStr(RUN.good.log.L[K.log]), k: int(K.log)
     });
     document.getElementById("learn-n3").textContent = T("learn.n.p3", {
-      np: NP, h: NH, l: lossStr(rn.L[K.nn]), acc: pct(rn.M[K.nn]), top: lossStr(rnL.top), k: int(K.nn), accL: pct(rnL.M[K.nn])
+      np: NP, h: NH, l: lossStr(rn.L[K.nn]), acc: pct(rn.M[K.nn]), top: lossStr(rnL.top), k: int(K.nn), accL: pct(rnL.M[K.nn]),
+      lL: lossStr(rnL.L[K.nn]), eL: etaS(rnL.eta), eC: etaS(ETA_CHAOS)
     });
     document.getElementById("learn-n4").textContent = T("learn.n.p4");
     void R_;
