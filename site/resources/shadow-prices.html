@@ -1060,13 +1060,13 @@
       ctx.fillStyle = K.ink; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(txt, lx, ly);
     });
 
-    // price tags on each constraint: at the middle of its edge of the region, pushed outward
+    // price tags on each constraint: toward the end of the line far from the optimal corner, pushed outward
     C.res.forEach(function (r, i) {
-      var on = reg.filter(function (p) { return Math.abs(r.a[0] * p[0] + r.a[1] * p[1] - disp[i]) < 1e-6; });
-      var anchor;
-      if (on.length >= 2) anchor = [(on[0][0] + on[1][0]) / 2, (on[0][1] + on[1][1]) / 2];
-      else { var sg = lineInBox(r.a, disp[i]); if (!sg) return; anchor = [sg[0][0] * 0.35 + sg[1][0] * 0.65, sg[0][1] * 0.35 + sg[1][1] * 0.65]; }
-      var ax = PX(anchor[0]), ay = PY(anchor[1]);
+      var sg = lineInBox(r.a, disp[i]);
+      if (!sg) return;
+      var d0 = Math.hypot(PX(sg[0][0]) - V[0], PY(sg[0][1]) - V[1]), d1 = Math.hypot(PX(sg[1][0]) - V[0], PY(sg[1][1]) - V[1]);
+      var far = d0 > d1 ? sg[0] : sg[1], near = d0 > d1 ? sg[1] : sg[0];
+      var ax = PX(near[0] + 0.8 * (far[0] - near[0])), ay = PY(near[1] + 0.8 * (far[1] - near[1]));
       // outward normal in pixels: gradient of a·x
       var nx = r.a[0] / C.box[0] * P.w, ny = -r.a[1] / C.box[1] * P.h, nl = Math.hypot(nx, ny);
       nx /= nl; ny /= nl;

@@ -487,7 +487,7 @@
     var fin = ph.kind === "final" ? seg(ph.L, 5.0, 5.6) : 0;
     var lblPos = [
       { j: 2, at: scn === 0 ? [8, 84] : [44.6, 11], ang: Math.atan2(Y(0) - Y(100), X(50) - X(0)) },
-      { j: 3, at: [62, 20], ang: Math.atan2(Y(0) - Y(80), X(80) - X(0)) },
+      { j: 3, at: scn === 1 ? [69, 11] : [62, 20], below: scn === 1, ang: Math.atan2(Y(0) - Y(80), X(80) - X(0)) },
       { j: 4, at: [40, G.portrait ? 92 : 97], ang: -Math.PI / 2 }
     ];
     lblPos.forEach(function (L, q) {
@@ -498,11 +498,12 @@
       ctx.translate(p[0], p[1]); ctx.rotate(L.ang);
       var name = t("spx.anim.lbl." + CKEY[q]);
       var col = tw[L.j] > 0.5 ? C.ink : C.muted;
-      text(name, 0, -7, font(G.fLbl, 600), col, "center", "bottom", true);
+      var sg = L.below ? 1 : -1;
+      text(name, 0, sg * 7, font(G.fLbl, 600), col, "center", L.below ? "top" : "bottom", true);
       if (fin > 0) {
         ctx.globalAlpha = a * fin;
         var y = D.duals[q];
-        pill("y" + SUB[q] + " = " + num(y), 0, -7 - G.fLbl - 11, G.fLbl - 1, y > 1e-9 ? C.accent : C["mit-silver"], C["on-solid"]);
+        pill("y" + SUB[q] + " = " + num(y), 0, sg * (7 + G.fLbl + 11), G.fLbl - 1, y > 1e-9 ? C.accent : C["mit-silver"], C["on-solid"]);
       }
       ctx.restore();
     });
@@ -1003,11 +1004,18 @@
   function hud(time, ph) {
     var tr = travel(time), B = basisAt(time);
     var z = D.c[0] * tr.pos[0] + D.c[1] * tr.pos[1];
+    var names = (B.i >= 0 && B.u >= 0.5 ? D.st[B.i + 1] : D.st[Math.max(0, B.i)]).basis.map(function (b) { return VN[b]; });
+    if (ph.kind === "compare") {
+      // the counters follow the tilted objective: its optimal corner, its z and that corner's basis
+      var c2 = c2At(ph.L), low = c2 < 3 - 1e-9, opt = low ? [20, 60] : D.V[D.np];
+      tr = { pos: opt };
+      z = 3 * opt[0] + c2 * opt[1];
+      if (low) names = DATA[0].st[DATA[0].np].basis.map(function (b) { return VN[b]; });
+    }
     setText("h-v1", num(z, 1));
     setText("h-l1", t("spx.anim.k.z"));
     setText("h-v2", "(" + num(Math.round(tr.pos[0] * 10) / 10, 1) + t("spx.sep") + num(Math.round(tr.pos[1] * 10) / 10, 1) + ")");
     setText("h-l2", t("spx.anim.k.pt"));
-    var names = (B.i >= 0 && B.u >= 0.5 ? D.st[B.i + 1] : D.st[Math.max(0, B.i)]).basis.map(function (b) { return VN[b]; });
     setText("h-v3", time < 4.6 ? " " : names.join(" "));
     setText("h-l3", t("spx.anim.k.basis"));
     if (ph.kind === "final" && ph.L >= 5.0) {
