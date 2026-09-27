@@ -26,7 +26,7 @@ I18N.register("fr", {
   "two.m.r5": "achat maximal de l'intrant 1",
   "two.m.r6": "achat maximal de l'intrant 2",
   "two.m.r7": "non-négativité",
-  "two.sol": "Optimum dans les deux cas : <span class=\"mono\">x₁ = 35, x₂ = 15, y₁ = y₂ = 0</span>, avec <span class=\"mono\">z = 15</span>. Le modèle ne sait pas s'il mélange des médicaments ou du jus : il ne voit que des intrants, des produits, des prix et des limites.",
+  "two.sol": "Valeur optimale dans les deux cas : <span class=\"mono\">z = 15</span>, par exemple avec <span class=\"mono\">x₁ = 35, x₂ = 15, y₁ = y₂ = 0</span>. Ce n'est pas le seul optimum : la fonction objectif se simplifie en z = x₂ − y₁, donc y₂ peut prendre n'importe quelle valeur entre 0 et 25 sans changer z. Le modèle ne sait pas s'il mélange des médicaments ou du jus : il ne voit que des intrants, des produits, des prix et des limites.",
 
   "two.hint": "Touchez un nombre de l'énoncé pour voir à quelle ligne du modèle il correspond.",
   "two.footer": "Ressource pédagogique · Les mêmes données racontées comme deux entreprises différentes. Les nombres et le programme linéaire ne changent jamais ; seuls les mots changent.",

@@ -26,7 +26,7 @@ I18N.register("pt", {
   "two.m.r5": "compra máxima do insumo 1",
   "two.m.r6": "compra máxima do insumo 2",
   "two.m.r7": "não negatividade",
-  "two.sol": "Ótimo nos dois casos: <span class=\"mono\">x₁ = 35, x₂ = 15, y₁ = y₂ = 0</span>, com <span class=\"mono\">z = 15</span>. O modelo não sabe se está misturando medicamentos ou suco: ele só vê insumos, produtos, preços e limites.",
+  "two.sol": "Valor ótimo nos dois casos: <span class=\"mono\">z = 15</span>, por exemplo com <span class=\"mono\">x₁ = 35, x₂ = 15, y₁ = y₂ = 0</span>. Não é o único ótimo: a função objetivo se simplifica para z = x₂ − y₁, então y₂ pode assumir qualquer valor entre 0 e 25 sem mudar z. O modelo não sabe se está misturando medicamentos ou suco: ele só vê insumos, produtos, preços e limites.",
 
   "two.hint": "Toque em um número do enunciado para ver a qual linha do modelo ele chega.",
   "two.footer": "Recurso didático · Os mesmos dados contados como dois negócios diferentes. Os números e o programa linear nunca mudam; só mudam as palavras.",

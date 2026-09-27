@@ -26,7 +26,7 @@ I18N.register("en", {
   "two.m.r5": "maximum purchase of input 1",
   "two.m.r6": "maximum purchase of input 2",
   "two.m.r7": "non-negativity",
-  "two.sol": "Optimal in both cases: <span class=\"mono\">x₁ = 35, x₂ = 15, y₁ = y₂ = 0</span>, with <span class=\"mono\">z = 15</span>. The model does not know whether it is blending drugs or juice: it only sees inputs, products, prices and limits.",
+  "two.sol": "Optimal value in both cases: <span class=\"mono\">z = 15</span>, for example with <span class=\"mono\">x₁ = 35, x₂ = 15, y₁ = y₂ = 0</span>. It is not the only optimum: the objective simplifies to z = x₂ − y₁, so y₂ can take any value from 0 to 25 without changing z. The model does not know whether it is blending drugs or juice: it only sees inputs, products, prices and limits.",
 
   "two.hint": "Touch a number in the statement to see which line of the model it reaches.",
   "two.footer": "Educational resource · The same data told as two different businesses. The numbers and the linear program never change; only the words do.",

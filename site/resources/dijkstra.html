@@ -261,15 +261,12 @@
         { current: "B", updated: ["D", "E"], visited: ["A", "C", "B"], optimal: [],
           dist: { A: 0, B: 3, C: 2, D: 8, E: 4, F: INF },
           pred: { A: null, B: "C", C: "A", D: "B", E: "B", F: null }, activeArcs: ["B-D", "B-E"] },
-        { current: "E", updated: ["F", "D"], visited: ["A", "C", "B", "E"], optimal: [],
-          dist: { A: 0, B: 3, C: 2, D: 6, E: 4, F: 6 },
-          pred: { A: null, B: "C", C: "A", D: "E", E: "B", F: "E" }, activeArcs: ["E-F", "D-E"] },
-        { current: "D", updated: [], visited: ["A", "C", "B", "E", "D"], optimal: [],
-          dist: { A: 0, B: 3, C: 2, D: 6, E: 4, F: 6 },
-          pred: { A: null, B: "C", C: "A", D: "E", E: "B", F: "E" }, activeArcs: ["D-F"] },
-        { current: "F", updated: [], visited: ["A", "C", "B", "E", "D", "F"], optimal: ["A", "C", "B", "E", "F"],
-          dist: { A: 0, B: 3, C: 2, D: 6, E: 4, F: 6 },
-          pred: { A: null, B: "C", C: "A", D: "E", E: "B", F: "E" }, activeArcs: ["A-C", "C-B", "B-E", "E-F"] }
+        { current: "E", updated: ["F"], visited: ["A", "C", "B", "E"], optimal: [],
+          dist: { A: 0, B: 3, C: 2, D: 8, E: 4, F: 6 },
+          pred: { A: null, B: "C", C: "A", D: "B", E: "B", F: "E" }, activeArcs: ["E-F"] },
+        { current: "F", updated: [], visited: ["A", "C", "B", "E", "F"], optimal: ["A", "C", "B", "E", "F"],
+          dist: { A: 0, B: 3, C: 2, D: 8, E: 4, F: 6 },
+          pred: { A: null, B: "C", C: "A", D: "B", E: "B", F: "E" }, activeArcs: ["A-C", "C-B", "B-E", "E-F"] }
       ]
     },
     exercise: {
