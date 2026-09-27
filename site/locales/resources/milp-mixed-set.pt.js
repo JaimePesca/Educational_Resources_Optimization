@@ -119,6 +119,7 @@ I18N.register("pt", {
   "mset.tag.int": "inteira",
   "mset.tag.cont": "contínua",
   "mset.d1.formula": "max   {obj}   (lucro, mil $)\ns.a.  6x +  y ≤ {B}            (orçamento, mil $)\n      2x + 4y ≤ 27            (água, mil m³)\n       x +  y ≤ 9             (terra, ha)\n      −3x + y ≤ 2             (mudas: y ≤ 3x + 2)\n      x ∈ {0, 1, 2, ...}      (inteira)\n      y ≥ 0                   (contínua)",
+  "mset.d1.tex": "\\begin{aligned}\n\\max\\;& {c1}\\,x+{c2}\\,y && \\text{(lucro, mil \\$)}\\\\\n\\text{ST}\\;& 6x+y\\le {B} && \\text{(orçamento, mil \\$)}\\\\\n& 2x+4y\\le 27 && \\text{(água, mil m³)}\\\\\n& x+y\\le 9 && \\text{(terra, ha)}\\\\\n& {-3x}+y\\le 2 && \\text{(mudas: } y\\le 3x+2\\text{)}\\\\\n& x\\in\\{0, 1, 2, \\dots\\} && \\text{(inteira)}\\\\\n& y\\ge 0 && \\text{(contínua)}\n\\end{aligned}",
   "mset.d1.p2": "Os botões acima mudam só as duas últimas linhas, ou seja, <b>quais variáveis devem ser inteiras</b>. As quatro desigualdades nunca mudam. Os controles deslizantes mudam c1, c2 e o orçamento.",
 
   "mset.d2.title": "PL, PLIM e PI: as mesmas restrições, conjuntos diferentes",

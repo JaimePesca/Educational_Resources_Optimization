@@ -119,6 +119,7 @@ I18N.register("es", {
   "mset.tag.int": "entera",
   "mset.tag.cont": "continua",
   "mset.d1.formula": "max   {obj}   (utilidad, miles de $)\ns.a.  6x +  y ≤ {B}            (presupuesto, miles de $)\n      2x + 4y ≤ 27            (agua, miles de m³)\n       x +  y ≤ 9             (tierra, ha)\n      −3x + y ≤ 2             (plántulas: y ≤ 3x + 2)\n      x ∈ {0, 1, 2, ...}      (entera)\n      y ≥ 0                   (continua)",
+  "mset.d1.tex": "\\begin{aligned}\n\\max\\;& {c1}\\,x+{c2}\\,y && \\text{(utilidad, miles de \\$)}\\\\\n\\text{ST}\\;& 6x+y\\le {B} && \\text{(presupuesto, miles de \\$)}\\\\\n& 2x+4y\\le 27 && \\text{(agua, miles de m³)}\\\\\n& x+y\\le 9 && \\text{(tierra, ha)}\\\\\n& {-3x}+y\\le 2 && \\text{(plántulas: } y\\le 3x+2\\text{)}\\\\\n& x\\in\\{0, 1, 2, \\dots\\} && \\text{(entera)}\\\\\n& y\\ge 0 && \\text{(continua)}\n\\end{aligned}",
   "mset.d1.p2": "Los botones de arriba cambian solo las dos últimas líneas, es decir, <b>qué variables deben ser enteras</b>. Las cuatro desigualdades nunca cambian. Los deslizadores cambian c1, c2 y el presupuesto.",
 
   "mset.d2.title": "PL, PLEM y PE: las mismas restricciones, conjuntos distintos",

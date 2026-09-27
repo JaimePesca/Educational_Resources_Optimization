@@ -119,6 +119,7 @@ I18N.register("en", {
   "mset.tag.int": "integer",
   "mset.tag.cont": "continuous",
   "mset.d1.formula": "max   {obj}   (profit, thousand $)\ns.t.  6x +  y ≤ {B}            (budget, thousand $)\n      2x + 4y ≤ 27            (water, thousand m³)\n       x +  y ≤ 9             (land, ha)\n      −3x + y ≤ 2             (seedlings: y ≤ 3x + 2)\n      x ∈ {0, 1, 2, ...}      (integer)\n      y ≥ 0                   (continuous)",
+  "mset.d1.tex": "\\begin{aligned}\n\\max\\;& {c1}\\,x+{c2}\\,y && \\text{(profit, thousand \\$)}\\\\\n\\text{ST}\\;& 6x+y\\le {B} && \\text{(budget, thousand \\$)}\\\\\n& 2x+4y\\le 27 && \\text{(water, thousand m³)}\\\\\n& x+y\\le 9 && \\text{(land, ha)}\\\\\n& {-3x}+y\\le 2 && \\text{(seedlings: } y\\le 3x+2\\text{)}\\\\\n& x\\in\\{0, 1, 2, \\dots\\} && \\text{(integer)}\\\\\n& y\\ge 0 && \\text{(continuous)}\n\\end{aligned}",
   "mset.d1.p2": "The buttons above change only the last two lines, that is, <b>which variables must be whole</b>. The four inequalities never change. The sliders change c1, c2 and the budget.",
 
   "mset.d2.title": "LP, MILP and IP: the same constraints, different sets",

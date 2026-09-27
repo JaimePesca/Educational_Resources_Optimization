@@ -302,6 +302,7 @@
 <script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/resources/milp-mixed-set.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";
@@ -702,8 +703,9 @@
     drawBars();
     drawRounding();
     drawChallenges();
-    document.getElementById("formula").textContent = t("mset.d1.formula", {
-      obj: (st.c1 + "·x + " + st.c2 + "·y" + "                     ").slice(0, 21), B: st.B });
+    TeX.set(document.getElementById("formula"),
+      t("mset.d1.tex", { c1: I18N.fmt(st.c1), c2: I18N.fmt(st.c2), B: I18N.fmt(st.B) }),
+      t("mset.d1.formula", { obj: (st.c1 + "·x + " + st.c2 + "·y" + "                     ").slice(0, 21), B: st.B }));
   }
 
   // ---- slice bar chart ----
