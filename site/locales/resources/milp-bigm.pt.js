@@ -104,6 +104,7 @@ I18N.register("pt", {
   "bigm.d1.x2": "lotes de cadeiras por semana, de 0 a 6",
   "bigm.d1.z": "1 = modo A (cadeiras limitadas), 0 = modo B (mesas limitadas)",
   "bigm.d1.formula": "max   p₁·x₁ + p₂·x₂\ns.a.  x₁ ≤ a + M₁·z          (limite de mesas, desligado se z = 1)\n      x₂ ≤ b + M₂·(1 − z)    (limite de cadeiras, desligado se z = 0)\n      0 ≤ x₁ ≤ 6,   0 ≤ x₂ ≤ 6\n      z ∈ {0, 1}",
+  "bigm.d1.tex": "\\begin{aligned}\n\\max\\;& p_1x_1+p_2x_2 \\\\\n\\text{ST}\\;& x_1\\le a+M_1z && \\text{(limite de mesas, desligado se }z=1\\text{)}\\\\\n& x_2\\le b+M_2(1-z) && \\text{(limite de cadeiras, desligado se }z=0\\text{)}\\\\\n& \\rlap{0\\le x_1\\le 6,\\quad 0\\le x_2\\le 6} \\\\\n& z\\in\\{0, 1\\}\n\\end{aligned}",
   "bigm.d1.p2": "<b>O que M significa.</b> M é a maior quantidade em que pode ser preciso relaxar uma restrição, e ele vem dos limites das variáveis. Quando o limite de mesas está desligado, x₁ pode chegar a 6, então a + M₁ precisa ser pelo menos 6: M₁ ≥ 6 − a. Da mesma forma, M₂ ≥ 6 − b. Os menores valores válidos, M₁* = 6 − a e M₂* = 6 − b, são os mais justos.",
 
   "bigm.d2.title": "Pequeno demais, grande demais, na medida",
@@ -114,6 +115,7 @@ I18N.register("pt", {
   "bigm.d3.title": "Relaxação, envoltória convexa e por que modelos justos resolvem mais rápido",
   "bigm.d3.p1": "Troque z ∈ {0, 1} por 0 ≤ z ≤ 1. Para cada z fracionário, as duas restrições descrevem o retângulo x₁ ≤ a + M₁·z, x₂ ≤ b + M₂·(1 − z); seu canto se move pelo segmento de (a, b + M₂) a (a + M₁, b). Eliminando z de (x₁ − a)/M₁ ≤ z ≤ 1 − (x₂ − b)/M₂ e 0 ≤ z ≤ 1, obtemos a região que a relaxação linear realmente vê:",
   "bigm.d3.formula": "x₁ ≤ a + M₁,   x₂ ≤ b + M₂,\n(x₁ − a)/M₁ + (x₂ − b)/M₂ ≤ 1,   dentro da caixa de 0 a 6.",
+  "bigm.d3.tex": "\\begin{aligned}\n& x_1\\le a+M_1,\\quad x_2\\le b+M_2,\\\\\n& \\frac{x_1-a}{M_1}+\\frac{x_2-b}{M_2}\\le 1,\\quad \\text{dentro da caixa de 0 a 6.}\n\\end{aligned}",
   "bigm.d3.p2": "O menor conjunto convexo que contém todos os planos válidos é a <b>envoltória convexa</b> do L: a caixa cortada pela reta de (6, b) a (a, 6). Nenhuma formulação pode ter uma relaxação menor. Com o M mais justo, a reta inclinada passa exatamente por (6, b) e (a, 6), então a relaxação <b>é igual</b> à envoltória e, para quaisquer lucros, o limitante linear é igual ao ótimo verdadeiro.",
   "bigm.d3.p3": "Por que isso importa: o branch and bound usa o limitante linear para descartar partes da busca. Quanto mais perto o limitante estiver do ótimo verdadeiro (menor o gap nos resultados), menos nós o solver explora. Em um modelo grande com milhares de restrições big-M, um M folgado pode transformar minutos em horas, e um M enorme ainda acrescenta problemas numéricos.",
 

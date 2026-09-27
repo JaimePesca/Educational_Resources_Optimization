@@ -93,6 +93,7 @@ I18N.register("pt", {
   "land.d1.v.t": "t<sub>i</sub> ≥ 0: horário de pouso do voo i",
   "land.d1.v.d": "d<sub>i</sub> ≥ 0: atraso do voo i",
   "land.d1.formula": "min   Σ<sub>i</sub> w<sub>i</sub>·d<sub>i</sub>\ns.a.  δ<sub>ij</sub> + δ<sub>ji</sub> = 1                        cada par i &lt; j\n      t<sub>j</sub> ≥ t<sub>i</sub> + S<sub>ij</sub> − M<sub>ij</sub>·(1 − δ<sub>ij</sub>)       cada i ≠ j\n      E<sub>i</sub> ≤ t<sub>i</sub> ≤ L<sub>i</sub>                            cada i\n      d<sub>i</sub> ≥ t<sub>i</sub> − T<sub>i</sub>,  d<sub>i</sub> ≥ 0                  cada i\n      δ<sub>ij</sub> ∈ {0, 1}\ncom   M<sub>ij</sub> = L<sub>i</sub> + S<sub>ij</sub> − E<sub>j</sub>",
+  "land.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{i} w_i\\,d_i \\\\\n\\text{ST}\\;& \\delta_{ij}+\\delta_{ji}=1 && \\text{cada par }i<j\\\\\n& t_j\\ge t_i+S_{ij}-M_{ij}\\,(1-\\delta_{ij}) && \\text{cada }i\\ne j\\\\\n& E_i\\le t_i\\le L_i && \\text{cada }i\\\\\n& d_i\\ge t_i-T_i,\\quad d_i\\ge 0 && \\text{cada }i\\\\\n& \\delta_{ij}\\in\\{0, 1\\} \\\\\n\\text{com}\\;& M_{ij}=L_i+S_{ij}-E_j\n\\end{aligned}",
   "land.d1.p2": "O modelo tem n(n − 1) binárias e 2n variáveis contínuas: 56 e 16 para 8 voos, 132 e 24 para 12, 240 e 32 para 16. As separações mínimas usadas aqui (em minutos; as linhas são o líder, as colunas o seguidor):",
   "land.sep.caption": "Separação mínima S (minutos)",
   "land.sep.corner": "Líder \\ seguidor",

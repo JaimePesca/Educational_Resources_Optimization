@@ -100,6 +100,7 @@ I18N.register("en", {
   "rnd.model.st": "s.t.",
   "rnd.model.int": "x₁, x₂ ≥ 0 and integer",
   "rnd.model.rel": "LP relaxation: the same model, but with\nx₁, x₂ ≥ 0 real (fractions allowed)",
+  "rnd.model.tex": "\\begin{aligned}\n\\max\\;& Z={c1}\\,x_1+{c2}\\,x_2 && \\text{(monthly margin, M COP)}\\\\\n\\text{ST}\\;& {rows}\\\\\n& x_1, x_2\\ge 0 \\text{ and integer}\\\\[8pt]\n& \\rlap{\\text{LP relaxation: the same model, but with}}\\\\\n& \\rlap{x_1, x_2\\ge 0 \\text{ real (fractions allowed)}}\n\\end{aligned}",
 
   "rnd.d1.title": "The model: LP relaxation vs integer program",
   "rnd.d1.p1": "The cooperative faces an <strong>integer program</strong> (IP): a linear objective and linear constraints, plus the requirement that x₁ and x₂ be whole numbers. With the current sliders it reads:",

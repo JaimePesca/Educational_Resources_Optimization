@@ -104,6 +104,7 @@ I18N.register("fr", {
   "bigm.d1.x2": "lots de chaises par semaine, de 0 à 6",
   "bigm.d1.z": "1 = mode A (chaises limitées), 0 = mode B (tables limitées)",
   "bigm.d1.formula": "max   p₁·x₁ + p₂·x₂\ns.c.  x₁ ≤ a + M₁·z          (limite des tables, désactivée si z = 1)\n      x₂ ≤ b + M₂·(1 − z)    (limite des chaises, désactivée si z = 0)\n      0 ≤ x₁ ≤ 6,   0 ≤ x₂ ≤ 6\n      z ∈ {0, 1}",
+  "bigm.d1.tex": "\\begin{aligned}\n\\max\\;& p_1x_1+p_2x_2 \\\\\n\\text{ST}\\;& x_1\\le a+M_1z && \\text{(limite des tables, désactivée si }z=1\\text{)}\\\\\n& x_2\\le b+M_2(1-z) && \\text{(limite des chaises, désactivée si }z=0\\text{)}\\\\\n& \\rlap{0\\le x_1\\le 6,\\quad 0\\le x_2\\le 6} \\\\\n& z\\in\\{0, 1\\}\n\\end{aligned}",
   "bigm.d1.p2": "<b>Ce que signifie M.</b> M est la plus grande quantité dont une contrainte peut devoir être relâchée, et il découle des bornes. Quand la limite des tables est désactivée, x₁ peut atteindre 6, donc a + M₁ doit valoir au moins 6 : M₁ ≥ 6 − a. De même, M₂ ≥ 6 − b. Les plus petites valeurs valides, M₁* = 6 − a et M₂* = 6 − b, sont les plus serrées.",
 
   "bigm.d2.title": "Trop petit, trop grand, juste ce qu'il faut",
@@ -114,6 +115,7 @@ I18N.register("fr", {
   "bigm.d3.title": "Relaxation, enveloppe convexe et pourquoi les modèles serrés se résolvent plus vite",
   "bigm.d3.p1": "Remplacez z ∈ {0, 1} par 0 ≤ z ≤ 1. Pour chaque z fractionnaire, les deux contraintes décrivent le rectangle x₁ ≤ a + M₁·z, x₂ ≤ b + M₂·(1 − z) ; son coin se déplace sur le segment qui va de (a, b + M₂) à (a + M₁, b). En éliminant z de (x₁ − a)/M₁ ≤ z ≤ 1 − (x₂ − b)/M₂ et 0 ≤ z ≤ 1, on obtient la région que voit réellement la relaxation linéaire :",
   "bigm.d3.formula": "x₁ ≤ a + M₁,   x₂ ≤ b + M₂,\n(x₁ − a)/M₁ + (x₂ − b)/M₂ ≤ 1,   dans la boîte de 0 à 6.",
+  "bigm.d3.tex": "\\begin{aligned}\n& x_1\\le a+M_1,\\quad x_2\\le b+M_2,\\\\\n& \\frac{x_1-a}{M_1}+\\frac{x_2-b}{M_2}\\le 1,\\quad \\text{dans la boîte de 0 à 6.}\n\\end{aligned}",
   "bigm.d3.p2": "Le plus petit ensemble convexe qui contient tous les plans valides est l'<b>enveloppe convexe</b> du L : la boîte coupée par la droite qui va de (6, b) à (a, 6). Aucune formulation ne peut avoir une relaxation plus petite. Avec le M le plus serré, la droite inclinée passe exactement par (6, b) et (a, 6) : la relaxation <b>est égale</b> à l'enveloppe et, pour tous les profits, la borne linéaire est égale au vrai optimum.",
   "bigm.d3.p3": "Pourquoi c'est important : le branch and bound utilise la borne linéaire pour écarter des parties de la recherche. Plus la borne est proche du vrai optimum (plus l'écart affiché est petit), moins le solveur explore de nœuds. Dans un grand modèle avec des milliers de contraintes big-M, un M lâche peut transformer des minutes en heures, et un M énorme ajoute des problèmes numériques.",
 

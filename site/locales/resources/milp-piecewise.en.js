@@ -89,6 +89,7 @@ I18N.register("en", {
   "pw.d1.title": "The model",
   "pw.d1.p1": "Each mill's cost is split into three tier variables. You buy s<sub>mk</sub> tons in tier k of mill m at price p<sub>mk</sub>, between 0 and len<sub>k</sub> = 100 t. The binary δ<sub>mk</sub> says whether tier k is open.",
   "pw.d1.formula": "min   Σk pAk·sAk + Σk pBk·sBk             total cost\ns.t.  qA + qB = D                          meet the demand\n      qm = sm1 + sm2 + sm3                 m = A, B\n      0 ≤ smk ≤ lenk·δmk                   use tier k only if it is open\n      smk ≥ lenk·δm,k+1                    open tier k+1 only if tier k is full\n      smk ≥ 0,  δmk ∈ {0, 1}",
+  "pw.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{k} p_{Ak}\\,s_{Ak}+\\sum_{k} p_{Bk}\\,s_{Bk} && \\text{total cost}\\\\\n\\text{ST}\\;& q_A+q_B=D && \\text{meet the demand}\\\\\n& q_m=s_{m1}+s_{m2}+s_{m3} && m=A,\\,B\\\\\n& 0\\le s_{mk}\\le \\mathrm{len}_k\\,\\delta_{mk} && \\text{use tier }k\\text{ only if it is open}\\\\\n& s_{mk}\\ge \\mathrm{len}_k\\,\\delta_{m,k+1} && \\text{open tier }k+1\\text{ only if tier }k\\text{ is full}\\\\\n& s_{mk}\\ge 0,\\quad \\delta_{mk}\\in\\{0, 1\\}\n\\end{aligned}",
   "pw.d1.v1": "tons bought in tier k of mill m (0 to 100 t)",
   "pw.d1.v2": "total tons bought from mill m",
   "pw.d1.v3": "1 if tier k of mill m is open (used), 0 otherwise",
@@ -106,6 +107,7 @@ I18N.register("en", {
   "pw.d3.p1": "Volume discounts, bigger trucks that cost less per ton, learning curves, machines with a setup cost: whenever the next unit is cheaper than the previous one, the cost is concave and an LP will be too optimistic.",
   "pw.d3.p2": "The extreme case is a <b>fixed charge</b>: you pay F as soon as you buy anything, then c per unit. The cost jumps at 0, the most concave shape possible, and it takes a single binary y to model it:",
   "pw.d3.formula": "cost = F·y + c·q\n0 ≤ q ≤ M·y,   y ∈ {0, 1}",
+  "pw.d3.tex": "\\begin{aligned}\n\\text{cost}&=F\\,y+c\\,q\\\\\n0\\le q&\\le M\\,y,\\quad y\\in\\{0, 1\\}\n\\end{aligned}",
   "pw.d3.p3": "A tiered discount is a softer version of the same idea, with one binary per tier. Binaries are not free: each one can double the search a solver may have to do. That is why it pays to check the curvature first and add binaries only where the cost is not convex, as the badge on each mill does.",
 
   "pw.d4.title": "Challenges",

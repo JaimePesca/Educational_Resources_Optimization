@@ -256,6 +256,7 @@
 <script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/resources/rounding-trap.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";
@@ -628,10 +629,15 @@
   function renderModel() {
     var pad = function (s, n) { while (s.length < n) s += " "; return s; };
     var w = Math.max.apply(null, cons.map(function (r) { return eqCoef(r).length; })) + 3;
-    $("modelbox").textContent =
+    var plain =
       "max  Z = " + c1 + "x₁ + " + c2 + "x₂      (" + t("rnd.model.obj") + ")\n" +
       t("rnd.model.st") + " " + cons.map(function (r) { return pad(eqCoef(r), w) + "· " + cname(r).toLocaleLowerCase(I18N.locale); }).join("\n     ") +
       "\n     " + t("rnd.model.int") + "\n\n" + t("rnd.model.rel");
+    var tco = function (v) { return v === 1 ? "" : v + "\\,"; };
+    var rows = cons.map(function (r) {
+      return tco(r.a) + "x_1+" + tco(r.b) + "x_2\\le " + r.rhs + " && \\text{(" + cname(r).toLocaleLowerCase(I18N.locale) + ")}";
+    }).join("\\\\ & ");
+    TeX.set($("modelbox"), t("rnd.model.tex", { c1: c1, c2: c2, rows: rows }), plain);
   }
 
   function renderAll() {

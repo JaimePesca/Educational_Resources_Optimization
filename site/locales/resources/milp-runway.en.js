@@ -93,6 +93,7 @@ I18N.register("en", {
   "land.d1.v.t": "t<sub>i</sub> ≥ 0: landing time of flight i",
   "land.d1.v.d": "d<sub>i</sub> ≥ 0: delay of flight i",
   "land.d1.formula": "min   Σ<sub>i</sub> w<sub>i</sub>·d<sub>i</sub>\ns.t.  δ<sub>ij</sub> + δ<sub>ji</sub> = 1                        every pair i &lt; j\n      t<sub>j</sub> ≥ t<sub>i</sub> + S<sub>ij</sub> − M<sub>ij</sub>·(1 − δ<sub>ij</sub>)       every i ≠ j\n      E<sub>i</sub> ≤ t<sub>i</sub> ≤ L<sub>i</sub>                            every i\n      d<sub>i</sub> ≥ t<sub>i</sub> − T<sub>i</sub>,  d<sub>i</sub> ≥ 0                  every i\n      δ<sub>ij</sub> ∈ {0, 1}\nwith  M<sub>ij</sub> = L<sub>i</sub> + S<sub>ij</sub> − E<sub>j</sub>",
+  "land.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{i} w_i\\,d_i \\\\\n\\text{ST}\\;& \\delta_{ij}+\\delta_{ji}=1 && \\text{every pair }i<j\\\\\n& t_j\\ge t_i+S_{ij}-M_{ij}\\,(1-\\delta_{ij}) && \\text{every }i\\ne j\\\\\n& E_i\\le t_i\\le L_i && \\text{every }i\\\\\n& d_i\\ge t_i-T_i,\\quad d_i\\ge 0 && \\text{every }i\\\\\n& \\delta_{ij}\\in\\{0, 1\\} \\\\\n\\text{with}\\;& M_{ij}=L_i+S_{ij}-E_j\n\\end{aligned}",
   "land.d1.p2": "The model has n(n − 1) binaries and 2n continuous variables: 56 and 16 for 8 flights, 132 and 24 for 12, 240 and 32 for 16. The minimum gaps used here (in minutes, rows are the leader, columns the follower):",
   "land.sep.caption": "Minimum gap S (minutes)",
   "land.sep.corner": "Leader \\ follower",

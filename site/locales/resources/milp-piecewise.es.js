@@ -89,6 +89,7 @@ I18N.register("es", {
   "pw.d1.title": "El modelo",
   "pw.d1.p1": "El costo de cada molino se divide en tres variables de tramo. Compras s<sub>mk</sub> toneladas en el tramo k del molino m al precio p<sub>mk</sub>, entre 0 y len<sub>k</sub> = 100 t. La binaria δ<sub>mk</sub> indica si el tramo k está abierto.",
   "pw.d1.formula": "min   Σk pAk·sAk + Σk pBk·sBk             costo total\ns.a.  qA + qB = D                          cubrir la demanda\n      qm = sm1 + sm2 + sm3                 m = A, B\n      0 ≤ smk ≤ lenk·δmk                   usar el tramo k solo si está abierto\n      smk ≥ lenk·δm,k+1                    abrir el tramo k+1 solo si el k está lleno\n      smk ≥ 0,  δmk ∈ {0, 1}",
+  "pw.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{k} p_{Ak}\\,s_{Ak}+\\sum_{k} p_{Bk}\\,s_{Bk} && \\text{costo total}\\\\\n\\text{ST}\\;& q_A+q_B=D && \\text{cubrir la demanda}\\\\\n& q_m=s_{m1}+s_{m2}+s_{m3} && m=A,\\,B\\\\\n& 0\\le s_{mk}\\le \\mathrm{len}_k\\,\\delta_{mk} && \\text{usar el tramo }k\\text{ solo si está abierto}\\\\\n& s_{mk}\\ge \\mathrm{len}_k\\,\\delta_{m,k+1} && \\text{abrir el tramo }k+1\\text{ solo si el }k\\text{ está lleno}\\\\\n& s_{mk}\\ge 0,\\quad \\delta_{mk}\\in\\{0, 1\\}\n\\end{aligned}",
   "pw.d1.v1": "toneladas compradas en el tramo k del molino m (0 a 100 t)",
   "pw.d1.v2": "toneladas totales compradas al molino m",
   "pw.d1.v3": "1 si el tramo k del molino m está abierto (se usa), 0 si no",
@@ -106,6 +107,7 @@ I18N.register("es", {
   "pw.d3.p1": "Descuentos por volumen, camiones más grandes que cuestan menos por tonelada, curvas de aprendizaje, máquinas con costo de alistamiento: siempre que la siguiente unidad sea más barata que la anterior, el costo es cóncavo y un PL será demasiado optimista.",
   "pw.d3.p2": "El caso extremo es un <b>cargo fijo</b>: pagas F apenas compras algo y luego c por unidad. El costo salta en 0, la forma más cóncava posible, y basta una sola binaria y para modelarlo:",
   "pw.d3.formula": "costo = F·y + c·q\n0 ≤ q ≤ M·y,   y ∈ {0, 1}",
+  "pw.d3.tex": "\\begin{aligned}\n\\text{costo}&=F\\,y+c\\,q\\\\\n0\\le q&\\le M\\,y,\\quad y\\in\\{0, 1\\}\n\\end{aligned}",
   "pw.d3.p3": "Un descuento por tramos es una versión más suave de la misma idea, con una binaria por tramo. Las binarias no son gratis: cada una puede duplicar la búsqueda que tiene que hacer un solver. Por eso conviene revisar primero la curvatura y agregar binarias solo donde el costo no es convexo, como hace la etiqueta de cada molino.",
 
   "pw.d4.title": "Retos",

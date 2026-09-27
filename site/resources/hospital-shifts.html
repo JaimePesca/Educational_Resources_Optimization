@@ -221,6 +221,7 @@
 <script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
 <script src="../locales/resources/hospital-shifts.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";
@@ -647,7 +648,16 @@
       lines.push("  " + pad(t("shift.model.rule"), 7) + "[" + SPLIT.map(function (v) { return " " + v + "  "; }).join("") + "] · x  ≤  " + L().split);
     }
     lines.push("  " + t("shift.model.int"));
-    $("modelbox").textContent = lines.join("\n");
+    // typeset version: the same 0/1 matrix as an array (start days in columns, days in rows)
+    var tx = function (w) { return "\\text{" + w + "}"; };
+    var row = function (label, coef, rel) { return tx(label) + " & " + coef.join(" & ") + " & " + rel; };
+    var body = [0, 1, 2, 3, 4, 5, 6].map(function (q) {
+      return row(days[q], [0, 1, 2, 3, 4, 5, 6].map(function (d) { return works(d, q) ? 1 : 0; }), "\\ge " + L().dem[q]);
+    }).join(" \\\\ ");
+    if (L().split != null) body += " \\\\ \\hline " + row(t("shift.model.rule"), SPLIT, "\\le " + L().split);
+    var arr = "\\begin{array}{l|ccccccc|l}" + tx(t("shift.model.start")) + " & " + days.map(tx).join(" & ") +
+      " & \\\\ \\hline " + body + "\\end{array}";
+    TeX.set($("modelbox"), t("shift.model.tex", { coverage: arr }), lines.join("\n"));
   }
 
   function renderAll() { renderLevels(); renderLegend(); renderBoard(); renderResult(); }

@@ -125,6 +125,7 @@ I18N.register("es", {
   "wh.d1.title": "El modelo",
   "wh.d1.p1": "Una decisión binaria por sitio y una decisión continua por cada par de sitio y ciudad. El costo fijo se paga solo cuando y<sub>j</sub> = 1, y la restricción de capacidad une los dos tipos de variables: una bodega cerrada (y<sub>j</sub> = 0) tiene capacidad 0.",
   "wh.d1.formula": "minimizar   Σ_j f_j·y_j  +  Σ_i Σ_j c_ij·x_ij\nsujeto a    Σ_j x_ij = d_i          para cada ciudad i   (demanda)\n            Σ_i x_ij ≤ u_j·y_j      para cada sitio j    (capacidad, solo si abre)\n            x_ij ≤ d_i·y_j          para cada i y j      (cortes fuertes)\n            y_j ∈ {0, 1},   x_ij ≥ 0",
+  "wh.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{j} f_j\\,y_j+\\sum_{i}\\sum_{j} c_{ij}\\,x_{ij}\\\\\n\\text{ST}\\;& \\sum_{j} x_{ij}=d_i && \\forall\\, i && \\text{(demanda)}\\\\\n& \\sum_{i} x_{ij}\\le u_j\\,y_j && \\forall\\, j && \\text{(capacidad, solo si abre)}\\\\\n& x_{ij}\\le d_i\\,y_j && \\forall\\, i, j && \\text{(cortes fuertes)}\\\\\n& y_j\\in\\{0, 1\\},\\quad x_{ij}\\ge 0\n\\end{aligned}",
   "wh.var.y": "1 si la bodega j está abierta, 0 si está cerrada (5 variables)",
   "wh.var.x": "unidades enviadas por semana desde la bodega j a la ciudad i (40 variables)",
   "wh.var.fu": "costo fijo del sitio j ($ por semana) y su capacidad (unidades por semana)",
@@ -146,6 +147,7 @@ I18N.register("es", {
   "wh.d3.title": "Formulaciones débil y fuerte",
   "wh.d3.p1": "Dos formulaciones pueden aceptar exactamente las mismas soluciones enteras y aun así comportarse muy distinto dentro de un solver. Ambas son modelos correctos del problema:",
   "wh.d3.formula": "Débil:   Σ_i x_ij ≤ u_j·y_j                        (5 restricciones)\nFuerte:  Σ_i x_ij ≤ u_j·y_j  y  x_ij ≤ d_i·y_j       (5 + 40 restricciones)",
+  "wh.d3.tex": "\\begin{aligned}\n&\\text{Débil:} && \\sum_{i} x_{ij}\\le u_j\\,y_j && \\text{(5 restricciones)}\\\\\n&\\text{Fuerte:} && \\sum_{i} x_{ij}\\le u_j\\,y_j\\quad\\text{y}\\quad x_{ij}\\le d_i\\,y_j && \\text{(5 + 40 restricciones)}\n\\end{aligned}",
   "wh.d3.p2": "Cuando y vale 0 o 1, las restricciones adicionales no agregan nada: si y<sub>j</sub> = 1 dicen que una ciudad recibe como máximo su propia demanda, lo cual ya es cierto, y si y<sub>j</sub> = 0 la restricción de capacidad ya prohíbe enviar. Solo actúan cuando y es fraccionaria, que es justo lo que permite la relajación lineal.",
   "wh.d3.p3": "Una relajación más ajustada da una cota inferior más alta. En ramificación y acotamiento, una cota más alta poda más ramas del árbol de búsqueda, así que el solver demuestra la optimalidad explorando menos nodos. Agregar restricciones válidas que eliminan puntos fraccionarios es uno de los trucos más efectivos del modelado entero mixto.",
 

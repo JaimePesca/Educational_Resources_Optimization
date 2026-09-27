@@ -88,6 +88,7 @@ I18N.register("es", {
   "shift.model.start": "inicio:",
   "shift.model.rule": "Regla",
   "shift.model.int": "x_d ∈ {0, 1, 2, …}   (enfermeras completas)",
+  "shift.model.tex": "\\begin{aligned}\n\\min\\;& \\sum_{d} x_d \\qquad \\text{(enfermeras contratadas)}\\\\\n\\text{ST}\\;& {coverage}\\\\\n& x_d\\in\\{0, 1, 2, \\dots\\} \\qquad \\text{(enfermeras completas)}\n\\end{aligned}",
 
   "shift.d1.title": "El modelo: programación cíclica de descansos",
   "shift.d1.p1": "Una enfermera queda descrita por completo con el día en que empieza su bloque, así que la variable de decisión es x<sub>d</sub> = número de enfermeras que empiezan el día d. El objetivo es contratar la menor cantidad posible y que cada día t reciba al menos su demanda. Esta es la matriz del nivel actual: cada columna es un día de inicio y cada fila un día de la semana.",

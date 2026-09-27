@@ -171,6 +171,13 @@ details .body p:last-child { margin-bottom: 0; }
   border: 1px solid var(--border); border-radius: 3px; padding: 10px 13px; margin: 8px 0;
   overflow-x: auto; white-space: pre; line-height: 1.7; color: var(--ink);
 }
+/* a formula typeset by assets/tex.js (MathJax SVG follows currentColor, so it follows the theme) */
+.formula.tex-on {
+  font-family: inherit; font-size: 15px; white-space: normal; line-height: 1.2;
+  background: var(--surface); border-left: 3px solid var(--accent); padding: 4px 14px;
+}
+.formula.tex-on mjx-container[display="true"] { margin: 0.55em 0 !important; text-align: left !important; }
+@media (max-width: 620px) { .formula.tex-on { font-size: 12.5px; padding: 3px 10px; } }
 .note { font-size: 13px; color: var(--muted); max-width: 78ch; margin: 0; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }

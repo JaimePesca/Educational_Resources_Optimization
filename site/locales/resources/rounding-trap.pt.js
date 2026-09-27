@@ -100,6 +100,7 @@ I18N.register("pt", {
   "rnd.model.st": "s.a.",
   "rnd.model.int": "x₁, x₂ ≥ 0 e inteiros",
   "rnd.model.rel": "Relaxação linear: o mesmo modelo, mas com\nx₁, x₂ ≥ 0 reais (frações permitidas)",
+  "rnd.model.tex": "\\begin{aligned}\n\\max\\;& Z={c1}\\,x_1+{c2}\\,x_2 && \\text{(margem mensal, M COP)}\\\\\n\\text{ST}\\;& {rows}\\\\\n& x_1, x_2\\ge 0 \\text{ e inteiros}\\\\[8pt]\n& \\rlap{\\text{Relaxação linear: o mesmo modelo, mas com}}\\\\\n& \\rlap{x_1, x_2\\ge 0 \\text{ reais (frações permitidas)}}\n\\end{aligned}",
 
   "rnd.d1.title": "O modelo: relaxação linear contra programa inteiro",
   "rnd.d1.p1": "A cooperativa enfrenta um <strong>programa inteiro</strong> (PI): uma função objetivo linear e restrições lineares, mais a exigência de que x₁ e x₂ sejam números inteiros. Com os controles atuais, fica assim:",

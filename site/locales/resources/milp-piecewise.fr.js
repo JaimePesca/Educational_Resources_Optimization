@@ -89,6 +89,7 @@ I18N.register("fr", {
   "pw.d1.title": "Le modèle",
   "pw.d1.p1": "Le coût de chaque moulin est découpé en trois variables de tranche. Vous achetez s<sub>mk</sub> tonnes dans la tranche k du moulin m au prix p<sub>mk</sub>, entre 0 et len<sub>k</sub> = 100 t. La binaire δ<sub>mk</sub> indique si la tranche k est ouverte.",
   "pw.d1.formula": "min   Σk pAk·sAk + Σk pBk·sBk             coût total\nc.q.  qA + qB = D                          satisfaire la demande\n      qm = sm1 + sm2 + sm3                 m = A, B\n      0 ≤ smk ≤ lenk·δmk                   utiliser la tranche k seulement si elle est ouverte\n      smk ≥ lenk·δm,k+1                    ouvrir la tranche k+1 seulement si k est pleine\n      smk ≥ 0,  δmk ∈ {0, 1}",
+  "pw.d1.tex": "\\begin{aligned}\n\\min\\;& \\sum_{k} p_{Ak}\\,s_{Ak}+\\sum_{k} p_{Bk}\\,s_{Bk} && \\text{coût total}\\\\\n\\text{ST}\\;& q_A+q_B=D && \\text{satisfaire la demande}\\\\\n& q_m=s_{m1}+s_{m2}+s_{m3} && m=A,\\,B\\\\\n& 0\\le s_{mk}\\le \\mathrm{len}_k\\,\\delta_{mk} && \\text{utiliser la tranche }k\\text{ seulement si elle est ouverte}\\\\\n& s_{mk}\\ge \\mathrm{len}_k\\,\\delta_{m,k+1} && \\text{ouvrir la tranche }k+1\\text{ seulement si }k\\text{ est pleine}\\\\\n& s_{mk}\\ge 0,\\quad \\delta_{mk}\\in\\{0, 1\\}\n\\end{aligned}",
   "pw.d1.v1": "tonnes achetées dans la tranche k du moulin m (0 à 100 t)",
   "pw.d1.v2": "tonnes totales achetées au moulin m",
   "pw.d1.v3": "1 si la tranche k du moulin m est ouverte (utilisée), 0 sinon",
@@ -106,6 +107,7 @@ I18N.register("fr", {
   "pw.d3.p1": "Remises sur volume, camions plus grands qui coûtent moins cher à la tonne, courbes d'apprentissage, machines avec un coût de lancement : chaque fois que l'unité suivante coûte moins que la précédente, le coût est concave et un PL sera trop optimiste.",
   "pw.d3.p2": "Le cas extrême est un <b>coût fixe</b> : vous payez F dès que vous achetez quelque chose, puis c par unité. Le coût saute en 0, la forme la plus concave possible, et une seule binaire y suffit pour le modéliser :",
   "pw.d3.formula": "coût = F·y + c·q\n0 ≤ q ≤ M·y,   y ∈ {0, 1}",
+  "pw.d3.tex": "\\begin{aligned}\n\\text{coût}&=F\\,y+c\\,q\\\\\n0\\le q&\\le M\\,y,\\quad y\\in\\{0, 1\\}\n\\end{aligned}",
   "pw.d3.p3": "Une remise par tranches est une version plus douce de la même idée, avec une binaire par tranche. Les binaires ne sont pas gratuites : chacune peut doubler la recherche qu'un solveur doit mener. C'est pourquoi il vaut la peine de vérifier d'abord la courbure et de n'ajouter des binaires que là où le coût n'est pas convexe, comme le fait l'étiquette de chaque moulin.",
 
   "pw.d4.title": "Défis",

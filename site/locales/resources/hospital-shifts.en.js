@@ -88,6 +88,7 @@ I18N.register("en", {
   "shift.model.start": "start:",
   "shift.model.rule": "Rule",
   "shift.model.int": "x_d ∈ {0, 1, 2, …}   (whole nurses)",
+  "shift.model.tex": "\\begin{aligned}\n\\min\\;& \\sum_{d} x_d \\qquad \\text{(nurses hired)}\\\\\n\\text{ST}\\;& {coverage}\\\\\n& x_d\\in\\{0, 1, 2, \\dots\\} \\qquad \\text{(whole nurses)}\n\\end{aligned}",
 
   "shift.d1.title": "The model: cyclic days-off scheduling",
   "shift.d1.p1": "A nurse is fully described by the day she starts her block, so the decision variable is x<sub>d</sub> = number of nurses who start on day d. The goal is to hire as few as possible while each day t gets at least its demand. This is the matrix of the current level: each column is a start day and each row a day of the week.",

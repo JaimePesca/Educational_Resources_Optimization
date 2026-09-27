@@ -104,6 +104,7 @@ I18N.register("es", {
   "bigm.d1.x2": "lotes de sillas por semana, de 0 a 6",
   "bigm.d1.z": "1 = modo A (sillas limitadas), 0 = modo B (mesas limitadas)",
   "bigm.d1.formula": "max   p₁·x₁ + p₂·x₂\ns.a.  x₁ ≤ a + M₁·z          (límite de mesas, apagado si z = 1)\n      x₂ ≤ b + M₂·(1 − z)    (límite de sillas, apagado si z = 0)\n      0 ≤ x₁ ≤ 6,   0 ≤ x₂ ≤ 6\n      z ∈ {0, 1}",
+  "bigm.d1.tex": "\\begin{aligned}\n\\max\\;& p_1x_1+p_2x_2 \\\\\n\\text{ST}\\;& x_1\\le a+M_1z && \\text{(límite de mesas, apagado si }z=1\\text{)}\\\\\n& x_2\\le b+M_2(1-z) && \\text{(límite de sillas, apagado si }z=0\\text{)}\\\\\n& \\rlap{0\\le x_1\\le 6,\\quad 0\\le x_2\\le 6} \\\\\n& z\\in\\{0, 1\\}\n\\end{aligned}",
   "bigm.d1.p2": "<b>Qué significa M.</b> M es la mayor cantidad en que puede ser necesario relajar una restricción, y sale de las cotas. Cuando el límite de mesas está apagado, x₁ puede llegar a 6, así que a + M₁ debe ser al menos 6: M₁ ≥ 6 − a. Del mismo modo, M₂ ≥ 6 − b. Los menores valores válidos, M₁* = 6 − a y M₂* = 6 − b, son los más ajustados.",
 
   "bigm.d2.title": "Muy pequeño, muy grande, justo",
@@ -114,6 +115,7 @@ I18N.register("es", {
   "bigm.d3.title": "Relajación, envolvente convexa y por qué los modelos ajustados se resuelven más rápido",
   "bigm.d3.p1": "Cambia z ∈ {0, 1} por 0 ≤ z ≤ 1. Para cada z fraccionario, las dos restricciones describen el rectángulo x₁ ≤ a + M₁·z, x₂ ≤ b + M₂·(1 − z); su esquina se mueve por el segmento que va de (a, b + M₂) a (a + M₁, b). Al eliminar z de (x₁ − a)/M₁ ≤ z ≤ 1 − (x₂ − b)/M₂ y 0 ≤ z ≤ 1 queda la región que realmente ve la relajación lineal:",
   "bigm.d3.formula": "x₁ ≤ a + M₁,   x₂ ≤ b + M₂,\n(x₁ − a)/M₁ + (x₂ − b)/M₂ ≤ 1,   dentro de la caja de 0 a 6.",
+  "bigm.d3.tex": "\\begin{aligned}\n& x_1\\le a+M_1,\\quad x_2\\le b+M_2,\\\\\n& \\frac{x_1-a}{M_1}+\\frac{x_2-b}{M_2}\\le 1,\\quad \\text{dentro de la caja de 0 a 6.}\n\\end{aligned}",
   "bigm.d3.p2": "El menor conjunto convexo que contiene todos los planes válidos es la <b>envolvente convexa</b> de la L: la caja cortada por la recta que va de (6, b) a (a, 6). Ninguna formulación puede tener una relajación más pequeña. Con el M más ajustado, la recta inclinada pasa exactamente por (6, b) y (a, 6), así que la relajación <b>es igual</b> a la envolvente y, para cualquier utilidad, la cota lineal es igual al óptimo verdadero.",
   "bigm.d3.p3": "Por qué importa: ramificación y acotamiento usa la cota lineal para descartar partes de la búsqueda. Entre más cerca esté la cota del óptimo verdadero (menor brecha en los resultados), menos nodos explora el solver. En un modelo grande con miles de restricciones big-M, un M holgado puede convertir minutos en horas, y un M enorme suma además problemas numéricos.",
 
