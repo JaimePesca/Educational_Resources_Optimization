@@ -240,7 +240,7 @@
       weightOffset: 11, badgeStroke: false,
       nodes: ["A", "B", "C", "D", "E", "F"],
       pos: { A: { x: 34, y: 148 }, B: { x: 114, y: 54 }, C: { x: 114, y: 242 }, D: { x: 194, y: 148 }, E: { x: 262, y: 54 }, F: { x: 262, y: 214 } },
-      labelBelow: function () { return true; },
+      labelBelow: function (name, p) { return p.y > 100; },
       arcs: [
         { f: "A", t: "B", w: 4 }, { f: "A", t: "C", w: 2 },
         { f: "B", t: "D", w: 5 }, { f: "B", t: "E", w: 1 },
