@@ -67,7 +67,7 @@ window.CATALOG = {
     { id: "nlp-convexity", href: "resources/chord-test.html", level: "nlp", type: "animation" },
     { id: "nlp-stationary", href: "resources/flat-is-not-a-bottom.html", level: "nlp", type: "animation" },
     { id: "nlp-kkt", href: "resources/where-contours-touch.html", level: "nlp", type: "animation" },
-    { id: "nlp-newton", level: "nlp", type: "animation" },
+    { id: "nlp-newton", href: "resources/zigzag-or-leap.html", level: "nlp", type: "animation" },
     { id: "nlp-penalty-barrier", level: "nlp", type: "animation" },
     { id: "nlp-weber", level: "nlp", type: "animation" },
     { id: "nlp-slow-steaming", href: "resources/slow-steaming.html", level: "nlp", type: "game" },
