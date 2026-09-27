@@ -64,7 +64,7 @@ window.CATALOG = {
     { id: "lp-machines", href: "resources/machine-scheduling.html", level: "lp", type: "animation" },
     { id: "lp-workforce", href: "resources/workforce-planning.html", level: "lp", type: "animation" },
     // Level 4 · Nonlinear programming (being built), in learning order
-    { id: "nlp-convexity", level: "nlp", type: "animation" },
+    { id: "nlp-convexity", href: "resources/chord-test.html", level: "nlp", type: "animation" },
     { id: "nlp-stationary", level: "nlp", type: "animation" },
     { id: "nlp-kkt", href: "resources/where-contours-touch.html", level: "nlp", type: "animation" },
     { id: "nlp-newton", level: "nlp", type: "animation" },
