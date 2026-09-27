@@ -54,7 +54,7 @@ I18N.register("fr", {
   "diet.res.th.dual": "Prix fictif",
   "diet.res.binding": "saturée",
   "diet.res.slack": "satisfaite avec {v} de marge",
-  "diet.res.dualv": "{v} par unité supplémentaire",
+  "diet.res.dualu": "par unité supplémentaire",
   "diet.res.note": "Le prix fictif indique de combien l'aliment le moins cher augmenterait si ce minimum montait d'une unité : {d0} pour une unité de glucides en plus et {d1} pour une unité de protéines en plus. L'exigence en {nut} n'est pas saturée (la ration a déjà {s} unités de marge), donc l'augmenter un peu ne coûte rien.",
 
   "diet.model.kicker": "Formulation",

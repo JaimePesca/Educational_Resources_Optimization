@@ -54,7 +54,7 @@ I18N.register("pt", {
   "diet.res.th.dual": "Preço sombra",
   "diet.res.binding": "ativa",
   "diet.res.slack": "atendida com {v} de folga",
-  "diet.res.dualv": "{v} por unidade extra",
+  "diet.res.dualu": "por unidade extra",
   "diet.res.note": "O preço sombra diz quanto a ração mais barata subiria se esse mínimo aumentasse uma unidade: {d0} por uma unidade a mais de carboidratos e {d1} por uma unidade a mais de proteínas. A exigência de {nut} não está ativa (a ração já tem {s} unidades de folga), então aumentá-la um pouco não custa nada.",
 
   "diet.model.kicker": "Formulação",

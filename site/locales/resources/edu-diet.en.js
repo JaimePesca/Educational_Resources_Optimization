@@ -54,7 +54,7 @@ I18N.register("en", {
   "diet.res.th.dual": "Shadow price",
   "diet.res.binding": "binding",
   "diet.res.slack": "met with {v} to spare",
-  "diet.res.dualv": "{v} per extra unit",
+  "diet.res.dualu": "per extra unit",
   "diet.res.note": "A shadow price says how much the cheapest feed would go up if that minimum rose by one unit: {d0} for one more unit of carbohydrates and {d1} for one more unit of proteins. The {nut} requirement is not binding (the feed already has {s} units to spare), so raising it a little costs nothing.",
 
   "diet.model.kicker": "Formulation",

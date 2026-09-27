@@ -54,7 +54,7 @@ I18N.register("es", {
   "diet.res.th.dual": "Precio sombra",
   "diet.res.binding": "activa",
   "diet.res.slack": "se cumple con {v} de sobra",
-  "diet.res.dualv": "{v} por unidad adicional",
+  "diet.res.dualu": "por unidad adicional",
   "diet.res.note": "El precio sombra dice cuánto subiría el alimento más barato si ese mínimo aumentara en una unidad: {d0} por una unidad más de carbohidratos y {d1} por una unidad más de proteínas. El requerimiento de {nut} no está activo (el alimento ya tiene {s} unidades de sobra), así que subirlo un poco no cuesta nada.",
 
   "diet.model.kicker": "Formulación",

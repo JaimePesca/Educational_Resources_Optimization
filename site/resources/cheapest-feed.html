@@ -110,7 +110,7 @@
     table.req { min-width: 0; font-size: 12.5px; }
     table.req th, table.req td { padding: 6px 5px; }
     table.req td.num { font-size: 11.5px; white-space: normal; }
-    .dualbar { display: none; }
+    .dualbar, .dlong { display: none; }
   }
 
   /* ---- formulation ---- */
@@ -1104,7 +1104,7 @@
         : '<span class="tag slack">' + t("diet.res.slack", { v: fmt(nv[j] - n.min, 2) }) + "</span>";
       tr.innerHTML = "<td>" + t("diet.nut." + n.id) + '</td><td class="num">' + fmt(nv[j], 2) + '</td><td class="num">' + fmt(n.min, 0) +
         "</td><td>" + state + '</td><td class="num" style="text-align:left"><span class="dualbar" style="width:' +
-        Math.round(SOL.duals[j] / dmax * 60) + 'px"></span>' + t("diet.res.dualv", { v: money(SOL.duals[j], 3) }) + "</td>";
+        Math.round(SOL.duals[j] / dmax * 60) + 'px"></span>' + money(SOL.duals[j], 3) + '<span class="dlong"> ' + t("diet.res.dualu") + "</span></td>";
       tb.appendChild(tr);
     });
     var jb = SOL.binding.indexOf(false);
@@ -1332,7 +1332,11 @@
       c.textAlign = "left"; c.textBaseline = "middle";
       var lab = money(z);
       // the optimum's label sits above its corner, the others below theirs, so close corners never collide
-      c.fillText(lab, px + 10, v[0] < 0.01 ? py : isOpt ? py - 13 : py + 13);
+      var ly = v[0] < 0.01 ? py : isOpt ? py - 13 : py + 13, lw = c.measureText(lab).width;
+      c.fillStyle = alpha(COL.surface, 0.85);
+      c.fillRect(px + 8, ly - 8, lw + 4, 16);
+      c.fillStyle = isOpt && hit ? COL["accent-text"] : COL.ink2;
+      c.fillText(lab, px + 10, ly);
     });
     P.dot = [dpx, dpy];
   }
