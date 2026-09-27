@@ -75,7 +75,15 @@
     .solv-log { padding: 6px 6px 4px; font-size: 11px; }
     .solv-log th { font-size: 10px; }
     .solv-log th, .solv-log td { padding: 1px 2px; height: 18px; }
-    .solv-log td.msg { font-size: 11.5px; }
+    .solv-log td.msg { font-size: 11px; }
+    .solv-log th { font-size: 9.5px; letter-spacing: -0.02em; }
+    .solv-log col.c-mk { width: 4%; }
+    .solv-log col.c-ex { width: 11%; }
+    .solv-log col.c-op { width: 14%; }
+    .solv-log col.c-in { width: 19%; }
+    .solv-log col.c-bd { width: 19%; }
+    .solv-log col.c-gp { width: 18%; }
+    .solv-log col.c-pv { width: 15%; }
   }
   .scen-status {
     background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
@@ -761,7 +769,7 @@
           drawLine(ln, bv, P.raw[j] - P.ub[j] > 1e-9 ? HOT : C.ink, 1.8, ba * (1 - seg(t, 8.4, 9.8)), 1, mv < 1 ? [6, 4] : null);
           var lt = T("solv.l.ub", { x: xn(j), u: num(P.ub[j], 0) });
           var la = seg(t, 4.8, 5.4) * (1 - seg(t, 8.6, 9.4)) * inA;
-          if (j === 0) label(lt, SX(bv) - 6, SY(VIEW.y1 - 0.35), "right", C.ink, font(600, fs, true), la);
+          if (j === 0) label(lt, SX(bv) + 7, SY(P.ub[1] / 2 + 0.5), "left", C.ink, font(600, fs, true), la);
           else label(lt, SX(VIEW.x1 - 0.5), SY(bv) - fs * 0.9, "right", C.ink, font(600, fs, true), la);
         }
       }
@@ -928,7 +936,7 @@
     var w = box.x1 - box.x0, h = box.y1 - box.y0;
     var sw = Math.min(w / S.leaves, L.portrait ? 70 : 150), lh = Math.min(h / Math.max(1, S.maxD + 0.8), L.portrait ? 52 : 86);
     var r = clamp(Math.min(sw * 0.26, lh * 0.3), 4.5, L.portrait ? 10 : 13);
-    var tw = sw * S.leaves, x0 = box.x0 + (w - tw) / 2 + sw / 2, y0 = box.y0 + r + 2;
+    var th = S.maxD * lh + 2 * r + 4, tw = sw * S.leaves, x0 = box.x0 + (w - tw) / 2 + sw / 2, y0 = box.y0 + r + 2 + Math.max(0, h - th) * 0.3;
     return { sw: sw, lh: lh, r: r, X: function (nd) { return x0 + nd.u * sw; }, Y: function (nd) { return y0 + nd.depth * lh; } };
   }
   function drawTree(S, t, box, alpha) {
@@ -1267,7 +1275,7 @@
     var pt = "\\begin{aligned}", pp = "";
     for (j = 0; j < NV; j++) {
       var r = DATA.rows[P.rawRow[j]];
-      pt += (j ? "\\\\ " : "") + "& x_{" + (j + 1) + "} \\le \\left\\lfloor \\tfrac{" + r.b + "}{" + r.a[j] + "} \\right\\rfloor = " + P.ub[j] + " && \\text{(" + T("solv.m." + r.k) + ")}";
+      pt += (j ? "\\\\ " : "") + "& x_{" + (j + 1) + "} \\le \\left\\lfloor \\frac{" + r.b + "}{" + r.a[j] + "} \\right\\rfloor = " + P.ub[j] + " && \\text{(" + T("solv.m." + r.k) + ")}";
       pp += (j ? "\n" : "") + xn(j) + " ≤ ⌊" + r.b + "/" + r.a[j] + "⌋ = " + P.ub[j] + "   (" + T("solv.m." + r.k) + ")";
     }
     P.red.forEach(function (i) {
@@ -1330,6 +1338,7 @@
   function bText(nd) {
     var p = [];
     for (var j = 0; j < NV; j++) {
+      if (nd.lo[j] > 0 && nd.hi[j] === nd.lo[j]) { p.push(xn(j) + " = " + nd.lo[j]); continue; }
       if (nd.lo[j] > 0) p.push(xn(j) + " ≥ " + nd.lo[j]);
       if (nd.hi[j] < PRE.ub[j]) p.push(xn(j) + " ≤ " + nd.hi[j]);
     }
