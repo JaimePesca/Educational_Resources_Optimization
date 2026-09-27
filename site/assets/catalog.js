@@ -15,6 +15,13 @@
  * case page shows a "Read the paper" button.
  * A research entry without `href` is a placeholder for a coming project: the home page shows it as a
  * dimmed, unlinked card with only its title (project.<id>.title).
+ *
+ * Lab: `lab` lists proposals { id, type } for the hidden proposals lab (lab/index.html). They are ideas
+ * only, nothing is built, the cards link nowhere and they are not part of the education catalog. Their
+ * text lives in locales/lab/lab.<lang>.js: lab.<id>.title / .desc, plus lab.<id>.step1, step2… when a
+ * proposal has numbered steps, and lab.<id>.eq1.tex / .formula / .cap, eq2… (+ .eqNote) for key equations,
+ * typeset by assets/tex.js in a closed "The equations" box (lab.eqHead). The home page reaches the lab through an invisible door above the footer.
+ * `labInNav` (default false) also shows a "Lab" link (nav.lab) in the home page's top menu when true.
  */
 window.CATALOG = {
   levels: [
@@ -93,5 +100,17 @@ window.CATALOG = {
     { id: "wildfire", href: "research/wildfire.html", methods: ["twostage", "cvar", "matheuristic"] },
     { id: "pallets", href: "research/pallets.html", methods: ["ilp", "packing", "drl"] },
     { id: "ml-opt" }
-  ]
+  ],
+
+  // Hidden proposals lab (lab/index.html), in display order. Ideas only: no href, nothing is built.
+  lab: [
+    { id: "lab-solver", type: "animation" },
+    { id: "lab-cvar", type: "animation" },
+    { id: "lab-linearization", type: "animation" },
+    { id: "lab-ml-methods", type: "animation" },
+    { id: "lab-svm", type: "animation" },
+    { id: "lab-ml-ai-cases", type: "simulation" }
+  ],
+  // true adds a "Lab" link to the home page's top menu; false keeps the lab reachable only by its door
+  labInNav: false
 };

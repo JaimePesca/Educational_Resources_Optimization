@@ -22,6 +22,8 @@ I18N.register("fr", {
   "nav.learn": "Parcours d'apprentissage",
   "nav.backToPath": "L'optimisation en action",
   "nav.backToResearch": "Cas de recherche",
+  "nav.lab": "Laboratoire",
+  "lab.door": "Laboratoire de propositions",
 
   /* ---- accueil ---- */
   "home.eyebrow": "Recherche opérationnelle · Ressources interactives",

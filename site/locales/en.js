@@ -22,6 +22,8 @@ I18N.register("en", {
   "nav.learn": "Learning path",
   "nav.backToPath": "Optimization in Action",
   "nav.backToResearch": "Research cases",
+  "nav.lab": "Lab",
+  "lab.door": "Proposals lab",
 
   /* ---- home ---- */
   "home.eyebrow": "Operations research · Interactive resources",
