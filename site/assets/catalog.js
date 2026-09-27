@@ -26,7 +26,14 @@ window.CATALOG = {
   education: [
     // Published
     { id: "feasible-region", href: "resources/feasible-region.html", level: "lp", type: "simulation" },
+    { id: "ip-rounding", href: "resources/rounding-trap.html", level: "ip", type: "simulation" },
     { id: "critical-load", href: "resources/critical-load.html", level: "ip", type: "game" },
+    { id: "ip-coins", href: "resources/exact-change.html", level: "ip", type: "animation" },
+    { id: "edu-bnb", href: "resources/search-tree.html", level: "ip", type: "animation" },
+    { id: "ip-cuts", href: "resources/cutting-planes.html", level: "ip", type: "animation" },
+    { id: "ip-cover", href: "resources/signal-coverage.html", level: "ip", type: "game" },
+    { id: "edu-shifts", href: "resources/hospital-shifts.html", level: "ip", type: "game" },
+    { id: "ip-assignment", href: "resources/perfect-assignment.html", level: "ip", type: "simulation" },
     { id: "patrol-route", href: "resources/patrol-route.html", level: "other", type: "animation" },
     { id: "two-stories", href: "resources/two-stories.html", level: "lp", type: "example" },
     { id: "feasible-region-3d", href: "resources/feasible-region-3d.html", level: "lp", type: "simulation" },
@@ -40,8 +47,6 @@ window.CATALOG = {
     { id: "lp-workforce", href: "resources/workforce-planning.html", level: "lp", type: "animation" },
 
     // Planned: open for contributors
-    { id: "edu-shifts", level: "ip", type: "game" },
-    { id: "edu-bnb", level: "ip", type: "animation" },
     { id: "edu-warehouses", level: "milp", type: "simulation" },
     { id: "edu-power", level: "milp", type: "game" },
     { id: "edu-portfolio", level: "nlp", type: "simulation" },

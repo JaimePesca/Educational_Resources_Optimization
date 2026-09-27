@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en" data-title-key="cut.title" data-i18n-bundles="resources/cutting-planes">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Cutting Planes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<style>
+  .wrap { max-width: 1080px; }
+  .insts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ibtn {
+    font: 600 13.5px var(--font-sans); padding: 8px 14px; border-radius: 99px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink2); cursor: pointer;
+  }
+  .ibtn[aria-pressed="true"] { background: var(--pine); color: var(--on-solid); border-color: var(--pine); }
+  .brief { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px 18px; align-items: start; }
+  .brief p { margin: 0; color: var(--ink2); font-size: 14.5px; }
+  .brief .formula { margin: 0; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 880px) { .layout, .brief { grid-template-columns: minmax(0, 1fr); } }
+  .stack { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+  svg.plot { display: block; width: 100%; height: auto; max-height: 500px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 12.5px; color: var(--ink2); }
+  .legend > span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 14px; height: 3px; border-radius: 2px; flex: none; }
+  .sw.area { width: 13px; height: 13px; border-radius: 2px; }
+  .sw.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
+  .sw.ring { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent); background: transparent; }
+  .sw.dash { background: repeating-linear-gradient(90deg, var(--good) 0 5px, transparent 5px 8px); }
+  .sw.dash2 { background: repeating-linear-gradient(90deg, var(--muted) 0 4px, transparent 4px 7px); }
+  .chk { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13.5px; color: var(--ink2); cursor: pointer; }
+  .chk input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+
+  .crow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  button.btn {
+    font: 600 14px var(--font-sans); border-radius: 3px; padding: 9px 14px; cursor: pointer;
+    background: transparent; color: var(--ink2); border: 1.5px solid var(--border);
+  }
+  button.btn:hover { background: var(--surface2); }
+  button.btn.primary { background: var(--accent); color: var(--on-solid); border-color: var(--accent); }
+  button.btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+  button.btn.ghost { color: var(--accent-text); border-color: var(--accent-text); }
+  button.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
+  .speed { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink2); margin-left: auto; }
+  .speed select {
+    font: 500 13.5px var(--font-sans); color: var(--ink); background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 3px; padding: 6px 8px;
+  }
+  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+  .tile { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 9px 11px; min-width: 0; }
+  .tile .tl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .tile .tv { font-family: var(--font-mono); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .tile .ts { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink2); }
+  .tile .tv.best { color: var(--good-text); }
+
+  .explain { border-left: 4px solid var(--accent); }
+  .explain.final { border-left-color: var(--good); }
+  .ex-iter { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 4px; }
+  .explain.final .ex-iter { color: var(--good-text); }
+  .ex-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 6px; }
+  .ex-body { font-size: 14.5px; color: var(--ink2); line-height: 1.65; }
+  .ex-body b { color: var(--ink); font-weight: 600; }
+  .deriv { margin: 0; font-size: 12.5px; min-height: 5.5em; }
+
+  .tblwrap { overflow-x: auto; }
+  table.tab { border-collapse: collapse; font-family: var(--font-mono); font-size: 12.5px; min-width: 100%; }
+  table.tab th {
+    font-weight: 600; font-size: 12px; color: var(--muted); text-align: right;
+    border-bottom: 1px solid var(--axis); padding: 5px 9px; white-space: nowrap;
+  }
+  table.tab td { padding: 5px 9px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  table.tab th:first-child, table.tab td:first-child { text-align: left; color: var(--ink2); font-weight: 600; border-left: 3px solid transparent; }
+  table.tab th.rhs, table.tab td.rhs { border-left: 1px solid var(--axis); }
+  table.tab tr.zrow td { border-bottom: 1.5px solid var(--axis); color: var(--ink2); }
+  table.tab tr.src td { background: var(--sel); }
+  table.tab tr.src td:first-child { border-left-color: var(--accent); }
+  table.tab td.fr { color: var(--accent-text); font-weight: 600; }
+  table.tab td.ok { color: var(--good-text); font-weight: 600; }
+  .defs { margin-top: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--ink2); line-height: 1.7; }
+
+  .ctl { display: grid; grid-template-columns: minmax(0, 8.5em) minmax(0, 1fr) 3.5em; gap: 10px; align-items: center; padding-block: 5px; }
+  .ctl label { font-size: 13.5px; color: var(--ink2); overflow-wrap: anywhere; }
+  .ctl output { font-family: var(--font-mono); font-size: 14px; font-weight: 600; text-align: right; color: var(--accent-text); }
+  input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; min-width: 0; }
+  .intro { margin: 0 0 10px; color: var(--ink2); font-size: 14.5px; }
+  ul.checks { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--ink2); }
+  ul.checks li { display: grid; grid-template-columns: 1.3em minmax(0, 1fr); gap: 6px; line-height: 1.5; }
+  ul.checks b { color: var(--ink); font-weight: 600; }
+  .ic { font-weight: 700; text-align: center; }
+  .ic.y { color: var(--good-text); } .ic.n { color: var(--crit); } .ic.i { color: var(--muted); }
+  .bnote { margin-top: 10px; }
+  details ol { margin: 6px 0 0; padding-left: 1.3em; }
+  details ol li { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#learn" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="cut.eyebrow"></p>
+    <h1 data-i18n="cut.title"></h1>
+    <p class="lede" data-i18n-html="cut.lede"></p>
+  </header>
+
+  <div class="insts" id="insts" role="group" data-i18n-attr="aria-label:cut.inst.aria"></div>
+
+  <div class="card brief">
+    <div>
+      <h2><span class="kicker" data-i18n="cut.brief.kicker"></span><span id="bname"></span></h2>
+      <p id="btext"></p>
+    </div>
+    <div class="formula" id="model"></div>
+  </div>
+
+  <div class="layout">
+    <div class="card">
+      <h2><span class="kicker" data-i18n="cut.a.kicker"></span><span data-i18n="cut.a.title"></span></h2>
+      <svg id="plotA" class="plot" role="img" data-i18n-attr="aria-label:cut.plot.aria"></svg>
+      <div class="legend">
+        <span><span class="sw area" style="background:var(--region)"></span><span data-i18n="cut.lg.region"></span></span>
+        <span><span class="sw dot"></span><span data-i18n="cut.lg.int"></span></span>
+        <span><span class="sw ring"></span><span data-i18n="cut.lg.opt"></span></span>
+        <span><span class="sw" style="background:var(--c-violet)"></span><span data-i18n="cut.lg.new"></span></span>
+        <span><span class="sw" style="background:var(--accent)"></span><span data-i18n="cut.lg.old"></span></span>
+        <span><span class="sw area" style="background:var(--c-violet);opacity:.35"></span><span data-i18n="cut.lg.sliver"></span></span>
+        <span><span class="sw dash"></span><span data-i18n="cut.lg.hull"></span></span>
+      </div>
+      <label class="chk" for="hull"><input type="checkbox" id="hull"> <span data-i18n="cut.hull"></span></label>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="crow">
+          <button class="btn" id="back" type="button" data-i18n="cut.btn.back"></button>
+          <button class="btn primary" id="step" type="button" data-i18n="cut.btn.step"></button>
+          <button class="btn" id="play" type="button"></button>
+          <button class="btn" id="restart" type="button" data-i18n="cut.btn.restart"></button>
+          <label class="speed" for="speed"><span data-i18n="cut.speed"></span>
+            <select id="speed">
+              <option value="0.5">0.5×</option>
+              <option value="1" selected>1×</option>
+              <option value="2">2×</option>
+            </select>
+          </label>
+        </div>
+        <div class="tiles">
+          <div class="tile"><div class="tl" data-i18n="cut.tile.cuts"></div><div class="tv" id="tcuts"></div></div>
+          <div class="tile"><div class="tl" data-i18n="cut.tile.lp"></div><div class="tv" id="tlp"></div><div class="ts" id="tlps"></div></div>
+          <div class="tile"><div class="tl" data-i18n="cut.tile.ip"></div><div class="tv best" id="tip"></div><div class="ts" data-i18n="cut.tile.ipSub"></div></div>
+          <div class="tile"><div class="tl" data-i18n="cut.tile.area"></div><div class="tv" id="tarea"></div><div class="ts" id="tareas"></div></div>
+        </div>
+      </div>
+      <div class="card explain" id="explain" aria-live="polite">
+        <div class="ex-iter" id="exiter"></div>
+        <h2 class="ex-title" id="extitle"></h2>
+        <div class="ex-body" id="exbody"></div>
+      </div>
+      <div class="card">
+        <h2><span class="kicker" data-i18n="cut.d.kicker"></span><span data-i18n="cut.d.title"></span></h2>
+        <div class="formula deriv" id="deriv"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="cut.tab.kicker"></span><span data-i18n="cut.tab.title"></span></h2>
+    <div class="tblwrap"><table class="tab" id="tab"></table></div>
+    <div class="defs" id="defs"></div>
+    <p class="note bnote" data-i18n="cut.tab.note"></p>
+  </div>
+
+  <div class="layout">
+    <div class="card">
+      <h2><span class="kicker" data-i18n="cut.b.kicker"></span><span data-i18n="cut.b.title"></span></h2>
+      <svg id="plotB" class="plot" role="img" data-i18n-attr="aria-label:cut.b.aria"></svg>
+      <div class="legend">
+        <span><span class="sw area" style="background:var(--region)"></span><span data-i18n="cut.lg.region"></span></span>
+        <span><span class="sw dash2"></span><span data-i18n="cut.b.lgComb"></span></span>
+        <span><span class="sw" style="background:var(--c-violet)"></span><span data-i18n="cut.b.lgCut"></span></span>
+        <span><span class="sw area" style="background:var(--c-violet);opacity:.35"></span><span data-i18n="cut.b.lgRem"></span></span>
+        <span><span class="sw dash"></span><span data-i18n="cut.lg.hull"></span></span>
+      </div>
+    </div>
+    <div class="card">
+      <p class="intro" data-i18n-html="cut.b.intro"></p>
+      <div class="ctl"><label for="u1" id="u1l"></label><input type="range" id="u1" min="0" max="12" step="1"><output id="u1o" for="u1"></output></div>
+      <div class="ctl"><label for="u2" id="u2l"></label><input type="range" id="u2" min="0" max="12" step="1"><output id="u2o" for="u2"></output></div>
+      <div class="formula" id="cgsteps"></div>
+      <ul class="checks" id="checks"></ul>
+      <div class="crow" style="margin-top:14px">
+        <button class="btn ghost" id="gom" type="button" data-i18n="cut.b.gomory"></button>
+        <button class="btn" id="ureset" type="button" data-i18n="cut.b.reset"></button>
+      </div>
+      <p class="note bnote" id="gnote"></p>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="cut.d1.title"></summary>
+      <div class="body">
+        <p data-i18n-html="cut.d1.p1"></p>
+        <div class="formula" data-i18n="cut.d1.formula"></div>
+        <p data-i18n-html="cut.d1.p2"></p>
+        <p data-i18n-html="cut.d1.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="cut.d2.title"></summary>
+      <div class="body">
+        <p data-i18n-html="cut.d2.p1"></p>
+        <div class="formula" data-i18n="cut.d2.formula"></div>
+        <p data-i18n-html="cut.d2.p2"></p>
+        <p data-i18n-html="cut.d2.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="cut.d3.title"></summary>
+      <div class="body">
+        <p data-i18n-html="cut.d3.p1"></p>
+        <p data-i18n-html="cut.d3.p2"></p>
+        <p data-i18n-html="cut.d3.p3"></p>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="cut.d4.title"></summary>
+      <div class="body">
+        <p data-i18n-html="cut.d4.p0"></p>
+        <ol>
+          <li data-i18n-html="cut.d4.q1"></li>
+          <li data-i18n-html="cut.d4.q2"></li>
+          <li data-i18n-html="cut.d4.q3"></li>
+          <li data-i18n-html="cut.d4.q4"></li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <p class="note" data-i18n="cut.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/resources/cutting-planes.en.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var css = function (n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
+  var SANS = "Neue Haas Grotesk Text, Helvetica Neue, Helvetica, Arimo, Arial, sans-serif", MONO = "JetBrains Mono, monospace";
+
+  // ==== core ====
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var r0 = a % b; a = b; b = r0; } return a; }
+  function lcm(a, b) { return a / gcd(a, b) * b; }
+  function Fr(n, d) {
+    if (d === undefined) d = 1;
+    if (d === 0) throw new Error("div0");
+    if (d < 0) { n = -n; d = -d; }
+    var g = gcd(n, d) || 1;
+    this.n = n / g; this.d = d / g;
+    if (!Number.isSafeInteger(this.n) || !Number.isSafeInteger(this.d)) throw new Error("overflow");
+  }
+  Fr.prototype = {
+    add: function (o) { return new Fr(this.n * o.d + o.n * this.d, this.d * o.d); },
+    sub: function (o) { return new Fr(this.n * o.d - o.n * this.d, this.d * o.d); },
+    mul: function (o) { return new Fr(this.n * o.n, this.d * o.d); },
+    div: function (o) { return new Fr(this.n * o.d, this.d * o.n); },
+    neg: function () { return new Fr(-this.n, this.d); },
+    sgn: function () { return this.n > 0 ? 1 : this.n < 0 ? -1 : 0; },
+    cmp: function (o) { return this.sub(o).sgn(); },
+    isInt: function () { return this.d === 1; },
+    floor: function () { return new Fr(Math.floor(this.n / this.d)); },
+    frac: function () { return this.sub(this.floor()); },
+    val: function () { return this.n / this.d; },
+    str: function () { var s = (this.n < 0 ? "−" : "") + Math.abs(this.n); return this.d === 1 ? s : s + "/" + this.d; }
+  };
+  function Z(n) { return new Fr(n, 1); }
+  var F0 = Z(0), F1 = Z(1);
+
+  // Tableau for max c.x s.t. A x <= b, x >= 0 (A, b integer, b >= 0). Columns: x1, x2, s1, s2, ...
+  // expr[j] writes column j as k + g.x, so any cut in slacks can be mapped back to (x1, x2).
+  function makeTab(P) {
+    var m = P.A.length, nc = 2 + m, rows = [], expr = [{ k: F0, g: [F1, F0] }, { k: F0, g: [F0, F1] }], za = [];
+    P.A.forEach(function (Ai, i) {
+      expr.push({ k: Z(P.b[i]), g: [Z(-Ai[0]), Z(-Ai[1])] });
+      var a = [];
+      for (var j = 0; j < nc; j++) a.push(j < 2 ? Z(Ai[j]) : j === 2 + i ? F1 : F0);
+      rows.push({ bv: 2 + i, a: a, rhs: Z(P.b[i]) });
+    });
+    for (var j = 0; j < nc; j++) za.push(j < 2 ? Z(-P.c[j]) : F0);
+    return { rows: rows, z: { a: za, rhs: F0 }, nc: nc, expr: expr };
+  }
+  function cloneTab(T) {
+    var cr = function (r) { return { bv: r.bv, a: r.a.slice(), rhs: r.rhs }; };
+    return { rows: T.rows.map(cr), z: cr(T.z), nc: T.nc, expr: T.expr.slice() };
+  }
+  function pivot(T, r, j) {
+    var R = T.rows[r], p = R.a[j];
+    R.a = R.a.map(function (v) { return v.div(p); }); R.rhs = R.rhs.div(p); R.bv = j;
+    T.rows.concat([T.z]).forEach(function (S) {
+      if (S === R || !S.a[j].sgn()) return;
+      var f = S.a[j];
+      S.a = S.a.map(function (v, k) { return v.sub(f.mul(R.a[k])); });
+      S.rhs = S.rhs.sub(f.mul(R.rhs));
+    });
+  }
+  // Primal simplex (Dantzig rule, ties to the lowest index)
+  function primal(T) {
+    for (var piv = 0; piv < 60; piv++) {
+      var j = -1, r = -1, best = null;
+      T.z.a.forEach(function (v, k) { if (v.sgn() < 0 && (j < 0 || v.cmp(T.z.a[j]) < 0)) j = k; });
+      if (j < 0) return piv;
+      T.rows.forEach(function (R, i) {
+        if (R.a[j].sgn() <= 0) return;
+        var q = R.rhs.div(R.a[j]);
+        if (r < 0 || q.cmp(best) < 0 || (!q.cmp(best) && R.bv < T.rows[r].bv)) { r = i; best = q; }
+      });
+      if (r < 0) throw new Error("unbounded");
+      pivot(T, r, j);
+    }
+    throw new Error("cycle");
+  }
+  // Dual simplex: leave the most negative right-hand side, enter by the smallest ratio
+  function dual(T) {
+    for (var piv = 0; piv < 60; piv++) {
+      var r = -1, j = -1, best = null;
+      T.rows.forEach(function (R, i) { if (R.rhs.sgn() < 0 && (r < 0 || R.rhs.cmp(T.rows[r].rhs) < 0)) r = i; });
+      if (r < 0) return piv;
+      T.rows[r].a.forEach(function (v, k) {
+        if (v.sgn() >= 0) return;
+        var q = T.z.a[k].div(v.neg());
+        if (j < 0 || q.cmp(best) < 0) { j = k; best = q; }
+      });
+      if (j < 0) throw new Error("infeasible");
+      pivot(T, r, j);
+    }
+    throw new Error("cycle");
+  }
+  function xval(T) {
+    var x = [F0, F0];
+    T.rows.forEach(function (R) { if (R.bv < 2) x[R.bv] = R.rhs; });
+    return x;
+  }
+  function isBasic(T, j) { return T.rows.some(function (R) { return R.bv === j; }); }
+  // Source row = most fractional right-hand side; Gomory cut sum f_j v_j >= f0 over nonbasic v_j
+  function gomory(T) {
+    var r = -1, bestD = -1;
+    T.rows.forEach(function (R, i) {
+      var f = R.rhs.frac().val();
+      if (!f) return;
+      var d = Math.min(f, 1 - f);
+      if (d > bestD + 1e-12 || (Math.abs(d - bestD) < 1e-12 && R.bv < T.rows[r].bv)) { r = i; bestD = d; }
+    });
+    if (r < 0) return null;
+    var R = T.rows[r], f0 = R.rhs.frac(), terms = [], al = [F0, F0], ga = f0.neg();
+    for (var j = 0; j < T.nc; j++) if (!isBasic(T, j)) terms.push({ j: j, a: R.a[j], f: R.a[j].frac() });
+    terms.forEach(function (tm) {
+      var e = T.expr[tm.j];
+      ga = ga.add(tm.f.mul(e.k));
+      al = [al[0].sub(tm.f.mul(e.g[0])), al[1].sub(tm.f.mul(e.g[1]))];
+    });
+    var L = [al[0], al[1], ga].reduce(function (s, v) { return lcm(s, v.d); }, 1);
+    var ints = [al[0], al[1], ga].map(function (v) { return v.n * (L / v.d); });
+    var G = ints.reduce(function (s, v) { return gcd(s, v); }, 0) || 1;
+    return { row: r, bv: R.bv, rowA: R.a.slice(), rhs: R.rhs, f0: f0, terms: terms, al: al, ga: ga,
+      lam: new Fr(L, G), A: [ints[0] / G, ints[1] / G], B: ints[2] / G };
+  }
+  // Append the cut as a new row with its own (integer) slack, scaled so that s = B - A.x
+  function addCut(T, cut) {
+    var J = T.nc, a = [];
+    T.rows.forEach(function (R) { R.a.push(F0); });
+    T.z.a.push(F0);
+    for (var j = 0; j <= J; j++) a.push(j === J ? F1 : F0);
+    cut.terms.forEach(function (tm) { a[tm.j] = tm.f.mul(cut.lam).neg(); });
+    T.rows.push({ bv: J, a: a, rhs: cut.f0.mul(cut.lam).neg() });
+    T.expr.push({ k: Z(cut.B), g: [Z(-cut.A[0]), Z(-cut.A[1])] });
+    T.nc = J + 1;
+  }
+  // Whole run: one record per round (LP solution, tableau, cut if fractional)
+  function runGomory(P, maxCuts) {
+    var T = makeTab(P), rounds = [], piv = primal(T);
+    for (var k = 0; k <= maxCuts; k++) {
+      var x = xval(T), rec = { T: cloneTab(T), x: x, z: T.z.rhs, piv: piv };
+      rounds.push(rec);
+      if (x[0].isInt() && x[1].isInt()) { rec.done = true; break; }
+      rec.cut = gomory(T);
+      addCut(T, rec.cut);
+      piv = dual(T);
+    }
+    return rounds;
+  }
+  function intPoints(P, box) {
+    var pts = [];
+    for (var i = 0; i <= box; i++) for (var j = 0; j <= box; j++)
+      if (P.A.every(function (Ai, r) { return Ai[0] * i + Ai[1] * j <= P.b[r]; })) pts.push([i, j]);
+    return pts;
+  }
+  // Monotone chain convex hull (counterclockwise)
+  function hull(pts) {
+    var p = pts.slice().sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+    if (p.length < 3) return p;
+    var cr = function (o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); };
+    var lo = [], up = [];
+    p.forEach(function (q) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); });
+    p.reverse().forEach(function (q) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); });
+    lo.pop(); up.pop();
+    return lo.concat(up);
+  }
+  // Clip a convex polygon [[x, y], ...] by a.x <= b (Sutherland-Hodgman, floats: drawing only)
+  function clip(poly, a0, a1, b) {
+    var out = [], n = poly.length;
+    for (var i = 0; i < n; i++) {
+      var p = poly[i], q = poly[(i + 1) % n];
+      var fp = a0 * p[0] + a1 * p[1] - b, fq = a0 * q[0] + a1 * q[1] - b;
+      if (fp <= 1e-12) out.push(p);
+      if ((fp < -1e-12 && fq > 1e-12) || (fp > 1e-12 && fq < -1e-12)) {
+        var s = fp / (fp - fq);
+        out.push([p[0] + s * (q[0] - p[0]), p[1] + s * (q[1] - p[1])]);
+      }
+    }
+    return out;
+  }
+  function area(poly) {
+    var s = 0;
+    for (var i = 0; i < poly.length; i++) { var p = poly[i], q = poly[(i + 1) % poly.length]; s += p[0] * q[1] - q[0] * p[1]; }
+    return Math.abs(s) / 2;
+  }
+  // ==== end core ====
+
+  // ---- instances (all data integer, so every slack is an integer too) ----
+  var INST = [
+    { id: "bakery", A: [[1, 1], [1, 5]], b: [7, 25], c: [2, 3], u0: [6, 6], lf: [0.5, 0.2] },
+    { id: "truck", A: [[6, 3], [2, 2]], b: [32, 14], c: [5, 3], u0: [1, 0] },
+    { id: "workshop", A: [[6, 6], [2, 4]], b: [34, 19], c: [4, 5], u0: [0, 3] }
+  ];
+  var U = [[0, 1], [1, 6], [1, 5], [1, 4], [1, 3], [2, 5], [1, 2], [3, 5], [2, 3], [3, 4], [4, 5], [5, 6], [1, 1]]
+    .map(function (p) { return new Fr(p[0], p[1]); });
+  var MINUS = "−", SUBS = "₀₁₂₃₄₅₆₇₈₉";
+  var XN = ["x₁", "x₂"];
+  function sub(n) { return String(n).replace(/\d/g, function (d) { return SUBS.charAt(+d); }); }
+  function vname(j) { return j < 2 ? XN[j] : "s" + sub(j - 1); }
+  function fr(v) { return v instanceof Fr ? v : Z(v); }
+  // "x₁ + 4x₂", "5/4 s₁ − 1/4 s₂"
+  function lin(co, names) {
+    var s = "";
+    co.forEach(function (c, i) {
+      c = fr(c);
+      if (!c.sgn()) return;
+      var ab = c.sgn() < 0 ? c.neg() : c;
+      var cs = ab.n === 1 && ab.d === 1 ? "" : ab.str() + (ab.isInt() ? "" : " ");
+      s += (s ? (c.sgn() < 0 ? " " + MINUS + " " : " + ") : (c.sgn() < 0 ? MINUS : "")) + cs + names[i];
+    });
+    return s || "0";
+  }
+  function aff(e) { // k + g.x
+    var l = lin(e.g, XN), k = e.k.str();
+    if (l === "0") return k;
+    return l.charAt(0) === MINUS ? k + " " + MINUS + " " + l.slice(1) : k + " + " + l;
+  }
+  function ineq(a, b, rel) { return lin(a, XN) + " " + (rel || "≤") + " " + fr(b).str(); }
+  function pt(x) { return "(" + x[0].str() + ", " + x[1].str() + ")"; }
+  function approx(v) { return v.isInt() ? "" : "≈ " + I18N.fmt(v.val(), 2); }
+  function nm(P, k) { return t("cut.i." + P.id + "." + k); }
+
+  function prep(P) {
+    if (P.R) return P;
+    P.R = runGomory(P, 12);
+    P.ncut = P.R.length - 1;
+    var poly = [[0, 0], [99, 0], [99, 99], [0, 99]];
+    P.A.forEach(function (a, i) { poly = clip(poly, a[0], a[1], P.b[i]); });
+    P.polys = [poly];
+    P.R.forEach(function (r) { if (r.cut) { poly = clip(poly, r.cut.A[0], r.cut.A[1], r.cut.B); P.polys.push(poly); } });
+    P.X = Math.ceil(Math.max.apply(null, P.polys[0].map(function (p) { return p[0]; })) + 0.35);
+    P.Y = Math.ceil(Math.max.apply(null, P.polys[0].map(function (p) { return p[1]; })) + 0.35);
+    P.pts = intPoints(P, Math.max(P.X, P.Y));
+    P.hull = hull(P.pts);
+    P.hullArea = area(P.hull);
+    P.zip = Math.max.apply(null, P.pts.map(function (p) { return P.c[0] * p[0] + P.c[1] * p[1]; }));
+    P.steps = [];
+    P.R.forEach(function (r, k) {
+      P.steps.push({ t: "lp", k: k });
+      if (r.cut) ["row", "cut", "x"].forEach(function (s) { P.steps.push({ t: s, k: k }); });
+    });
+    // Gomory's first cut as a Chvatal-Gomory cut: u = fractional parts of the slack coefficients
+    var c1 = P.R[0].cut, ug = [0, 0];
+    c1.terms.forEach(function (tm) {
+      if (tm.j < 2) return;
+      U.forEach(function (u, i) { if (!u.cmp(tm.f)) ug[tm.j - 2] = i; });
+    });
+    P.ug = ug;
+    return P;
+  }
+
+  // ---- state ----
+  var inst = 0, step = 0, prog = 1, playing = false, timer = null, raf = null, showHull = false;
+  var uIdx = INST[0].u0.slice();
+  var cur = function () { return prep(INST[inst]); };
+  var reduced = function () { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; };
+
+  // ---- plotting ----
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, at, tx) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in at) n.setAttribute(k, at[k]);
+    if (tx != null) n.textContent = tx;
+    return n;
+  }
+  function boxSeg(P, a, b, c) {
+    var q = [];
+    function add(x, y) {
+      if (x < -1e-9 || y < -1e-9 || x > P.X + 1e-9 || y > P.Y + 1e-9) return;
+      if (!q.some(function (p) { return Math.abs(p[0] - x) < 1e-9 && Math.abs(p[1] - y) < 1e-9; })) q.push([x, y]);
+    }
+    if (Math.abs(b) > 1e-12) { add(0, c / b); add(P.X, (c - a * P.X) / b); }
+    if (Math.abs(a) > 1e-12) { add(c / a, 0); add((c - b * P.Y) / a, P.Y); }
+    return q.length > 1 ? q : null;
+  }
+  // label anchor on the edge a.x = c of a polygon, at fraction f from its left (or lower) end
+  function chordMid(poly, a, b, c, f) {
+    var q = clip(poly, a, b, c).filter(function (p) { return Math.abs(a * p[0] + b * p[1] - c) < 1e-7; });
+    if (q.length < 2) return null;
+    var e = null, dm = -1;
+    q.forEach(function (p) { q.forEach(function (r) {
+      var d = Math.hypot(p[0] - r[0], p[1] - r[1]);
+      if (d > dm) { dm = d; e = p[0] < r[0] - 1e-9 || (Math.abs(p[0] - r[0]) < 1e-9 && p[1] < r[1]) ? [p, r] : [r, p]; }
+    }); });
+    f = f == null ? 0.4 : f;
+    return dm > 0.05 ? [e[0][0] + f * (e[1][0] - e[0][0]), e[0][1] + f * (e[1][1] - e[0][1])] : null;
+  }
+  function plot(svg, P, o) {
+    var u = 54, ml = 42, mr = 14, mt = 12, mb = 38;
+    var W = ml + P.X * u + mr, H = mt + P.Y * u + mb;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.textContent = "";
+    var sx = function (x) { return ml + x * u; }, sy = function (y) { return mt + (P.Y - y) * u; };
+    var add = function (tag, at, tx) { return svg.appendChild(el(tag, at, tx)); };
+    var pth = function (pl) { return pl.map(function (p, i) { return (i ? "L" : "M") + sx(p[0]).toFixed(1) + " " + sy(p[1]).toFixed(1); }).join("") + "Z"; };
+    var halo = { stroke: css("--halo"), "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" };
+    var txt = function (x, y, s, at) { return add("text", Object.assign({ x: x, y: y, "font-size": 11, fill: css("--muted"), "font-family": MONO }, at || {}), s); };
+    var i, j;
+    for (i = 0; i <= P.X; i++) {
+      add("line", { x1: sx(i), y1: sy(0), x2: sx(i), y2: sy(P.Y), stroke: css("--grid") });
+      txt(sx(i), sy(0) + 15, i, { "text-anchor": "middle" });
+    }
+    for (j = 0; j <= P.Y; j++) {
+      add("line", { x1: sx(0), y1: sy(j), x2: sx(P.X), y2: sy(j), stroke: css("--grid") });
+      txt(sx(0) - 7, sy(j) + 4, j, { "text-anchor": "end" });
+    }
+    add("line", { x1: sx(0), y1: sy(0), x2: sx(P.X), y2: sy(0), stroke: css("--axis"), "stroke-width": 1.3 });
+    add("line", { x1: sx(0), y1: sy(0), x2: sx(0), y2: sy(P.Y), stroke: css("--axis"), "stroke-width": 1.3 });
+    txt(sx(P.X), H - 5, XN[0] + " · " + nm(P, "x1"), { "text-anchor": "end", "font-size": 12, fill: css("--ink2"), "font-family": SANS });
+    txt(13, sy(P.Y), XN[1] + " · " + nm(P, "x2"), { "text-anchor": "end", "font-size": 12, fill: css("--ink2"), "font-family": SANS,
+      transform: "rotate(-90 13 " + sy(P.Y) + ")" });
+    if (o.poly.length > 2) add("path", { d: pth(o.poly), fill: css("--region") });
+    if (o.sliver && o.sliver.length > 2) add("path", { d: pth(o.sliver), fill: css("--c-violet"), "fill-opacity": 0.32 });
+    if (o.hull) add("path", { d: pth(P.hull), fill: "none", stroke: css("--good"), "stroke-width": 2, "stroke-dasharray": "6 4" });
+    o.lines.forEach(function (L) {
+      var s = boxSeg(P, L.a, L.b, L.c);
+      if (s) add("line", { x1: sx(s[0][0]), y1: sy(s[0][1]), x2: sx(s[1][0]), y2: sy(s[1][1]), stroke: L.col,
+        "stroke-width": L.w || 2, "stroke-dasharray": L.dash || "none", "stroke-linecap": "round" });
+    });
+    for (i = 0; i <= P.X; i++) for (j = 0; j <= P.Y; j++) {
+      var inS = P.A.every(function (a, r) { return a[0] * i + a[1] * j <= P.b[r]; });
+      add("circle", { cx: sx(i), cy: sy(j), r: inS ? 3.2 : 1.6, fill: css(inS ? "--ink" : "--axis") });
+    }
+    o.lines.forEach(function (L) {
+      if (!L.lab || !L.at) return;
+      var n = Math.hypot(L.a, L.b), nx = L.a / n, ny = -L.b / n;
+      txt(sx(L.at[0]) + nx * 12, sy(L.at[1]) + ny * 12 + 4, L.lab, Object.assign({ "font-size": 12, "font-weight": 600, fill: L.tcol || L.col,
+        "font-family": SANS, "text-anchor": nx > 0.35 ? "start" : nx < -0.35 ? "end" : "middle" }, halo));
+    });
+    if (o.opt) {
+      var cx = sx(o.opt.x), cy = sy(o.opt.y), m = o.opt.mode, col = css(m === "int" ? "--good" : "--accent");
+      add("circle", { cx: cx, cy: cy, r: m === "int" ? 10 : 9, fill: "none", stroke: col, "stroke-width": 2, "stroke-dasharray": m === "cut" ? "3 3" : "none" });
+      if (m !== "cut") add("circle", { cx: cx, cy: cy, r: m === "int" ? 5.5 : 4.5, fill: col });
+      var left = cx - 8 - o.opt.lab.length * 7 > ml + 4; // label sits below the point, inside the region
+      txt(left ? cx - 8 : cx + 8, cy + 23, o.opt.lab,
+        Object.assign({ "font-size": 12, "font-weight": 600, fill: css(m === "int" ? "--good-text" : "--accent-text"), "text-anchor": left ? "end" : "start" }, halo));
+    }
+  }
+  function origLines(P) {
+    return P.A.map(function (a, i) {
+      var col = css(i ? "--c-aqua" : "--c-blue");
+      return { a: a[0], b: a[1], c: P.b[i], col: col, tcol: css("--ink2"), w: 2, lab: nm(P, "r" + (i + 1)),
+        at: chordMid(P.polys[0], a[0], a[1], P.b[i], (P.lf || [0.5, 0.5])[i]) };
+    });
+  }
+
+  // ---- part A ----
+  function drawA() {
+    var P = cur(), st = P.steps[step], k = st.k, r = P.R[k];
+    var lines = origLines(P), poly = P.polys[k], sliver = null;
+    for (var j = 0; j < k; j++) {
+      var c = P.R[j].cut, lastOne = j === k - 1 && st.t === "lp";
+      lines.push({ a: c.A[0], b: c.A[1], c: c.B, col: css(lastOne ? "--c-violet" : "--accent"), w: lastOne ? 2.6 : 1.8,
+        lab: "C" + (j + 1), at: chordMid(P.polys[j], c.A[0], c.A[1], c.B, j % 2 ? 0.55 : 0.45) });
+    }
+    if (st.t === "x") {
+      var ct = r.cut, g0 = ct.A[0] * r.x[0].val() + ct.A[1] * r.x[1].val();
+      var e = 1 - Math.pow(1 - prog, 3), g = g0 + (ct.B - g0) * e;
+      sliver = clip(poly, -ct.A[0], -ct.A[1], -g);
+      poly = clip(poly, ct.A[0], ct.A[1], g);
+      lines.push({ a: ct.A[0], b: ct.A[1], c: g, col: css("--c-violet"), w: 2.8, lab: "C" + (k + 1), at: chordMid(P.polys[k], ct.A[0], ct.A[1], g, k % 2 ? 0.55 : 0.45) });
+    }
+    var fin = !!r.done;
+    plot($("plotA"), P, { poly: poly, sliver: sliver, lines: lines, hull: showHull,
+      opt: { x: r.x[0].val(), y: r.x[1].val(), mode: fin ? "int" : st.t === "x" && prog > 0 ? "cut" : "lp",
+        lab: pt(r.x) } });
+  }
+
+  function derivText(P, st) {
+    var k = st.k, r = P.R[k], T = r.T, L = [];
+    if (st.t === "lp") {
+      if (k > 0) {
+        var pc = P.R[k - 1].cut, J = T.nc - 1;
+        L.push(t("cut.dv.added", { k: k }), "  " + vname(J) + " = " + aff(T.expr[J]) + " ≥ 0",
+          t("cut.dv.dual", { p: r.piv }));
+      } else L.push(t("cut.dv.primal", { p: r.piv }));
+      L.push(t("cut.dv.opt"), "  x = " + pt(r.x) + "   z = " + r.z.str());
+      if (r.done) L.push(t("cut.dv.int"));
+      return L.join("\n");
+    }
+    var c = r.cut, row = T.rows[c.row], names = [];
+    for (var j = 0; j < T.nc; j++) names.push(vname(j));
+    L.push(t("cut.dv.src", { v: vname(c.bv) }), "  " + lin(row.a, names) + " = " + row.rhs.str());
+    if (st.t === "row") return L.join("\n");
+    var fl = c.terms.filter(function (tm) { return tm.a.sgn(); }).map(function (tm) { return "f(" + tm.a.str() + ") = " + tm.f.str(); });
+    fl.push("f₀ = f(" + c.rhs.str() + ") = " + c.f0.str());
+    var gco = [], gnm = [];
+    c.terms.forEach(function (tm) { if (tm.f.sgn()) { gco.push(tm.f); gnm.push(vname(tm.j)); } });
+    L.push(t("cut.dv.frac"), "  " + fl.join("   "), t("cut.dv.gom"), "  " + lin(gco, gnm) + " ≥ " + c.f0.str());
+    if (st.t === "cut") return L.join("\n");
+    var subs = [];
+    c.terms.forEach(function (tm) { if (tm.f.sgn() && tm.j > 1) subs.push("  " + vname(tm.j) + " = " + aff(T.expr[tm.j])); });
+    if (subs.length) L.push(t("cut.dv.sub")), L.push.apply(L, subs);
+    L.push(t("cut.dv.inx"), "  " + ineq(c.al, c.ga));
+    if (c.lam.cmp(Z(1))) L.push("  × " + c.lam.str() + ":  " + ineq(c.A, c.B));
+    return L.join("\n");
+  }
+
+  function narr(P, st) {
+    var k = st.k, r = P.R[k], v = { x1: r.x[0].str(), x2: r.x[1].str(), z: r.z.str(), piv: r.piv, k: k };
+    if (st.t === "lp") {
+      if (r.done) {
+        var same = Math.abs(area(P.polys[k]) - P.hullArea) < 1e-9;
+        return t("cut.n.done", v) + " " + t(same ? "cut.n.hullEq" : "cut.n.hullNe");
+      }
+      if (!k) return t("cut.n.lp0", v);
+      v.zold = P.R[k - 1].z.str();
+      return t("cut.n.lp", v) + " " + t("cut.n.again");
+    }
+    var c = r.cut;
+    v.v = vname(c.bv); v.val = c.rhs.str(); v.f0 = c.f0.str();
+    if (st.t === "row") return t("cut.n.row", v);
+    var gco = [], gnm = [];
+    c.terms.forEach(function (tm) { if (tm.f.sgn()) { gco.push(tm.f); gnm.push(vname(tm.j)); } });
+    v.cut = lin(gco, gnm) + " ≥ " + c.f0.str();
+    if (st.t === "cut") return t("cut.n.cut", v);
+    v.xcut = ineq(c.A, c.B);
+    v.a = I18N.fmt(area(P.polys[k]) - area(P.polys[k + 1]), 2);
+    return t("cut.n.x", v);
+  }
+
+  function renderTable(P, st) {
+    var r = P.R[st.k], T = r.T, src = st.t !== "lp" && r.cut ? r.cut.row : -1, h = "<thead><tr><th>" + t("cut.tab.basis") + "</th>";
+    for (var j = 0; j < T.nc; j++) h += "<th>" + vname(j) + "</th>";
+    h += '<th class="rhs">b̄</th></tr></thead><tbody>';
+    var rowH = function (lbl, R, cls, rc) {
+      var s = '<tr class="' + cls + '"><td>' + lbl + "</td>";
+      R.a.forEach(function (v) { s += "<td>" + v.str() + "</td>"; });
+      return s + '<td class="rhs ' + rc + '">' + R.rhs.str() + "</td></tr>";
+    };
+    h += rowH("z", T.z, "zrow", "");
+    T.rows.forEach(function (R, i) {
+      h += rowH(vname(R.bv), R, i === src ? "src" : "", R.rhs.isInt() ? (R.bv < 2 && r.done ? "ok" : "") : "fr");
+    });
+    $("tab").innerHTML = h + "</tbody>";
+    var d = [];
+    for (j = 2; j < T.nc; j++) d.push(vname(j) + " = " + aff(T.expr[j]) + "  (" + (j < 4 ? nm(P, "r" + (j - 1)) : t("cut.tab.cut", { k: j - 3 })) + ")");
+    $("defs").innerHTML = d.join("<br>");
+  }
+
+  function renderA() {
+    var P = cur(), st = P.steps[step], r = P.R[st.k], fin = st.t === "lp" && r.done;
+    drawA();
+    var ncut = st.t === "x" ? st.k + 1 : st.k;
+    $("tcuts").textContent = ncut;
+    $("tlp").textContent = r.z.str();
+    $("tlps").textContent = approx(r.z) || " ";
+    $("tip").textContent = P.zip;
+    $("tarea").textContent = I18N.fmt(area(P.polys[ncut]), 2);
+    $("tareas").textContent = t("cut.tile.hullA", { a: I18N.fmt(P.hullArea, 2) });
+    $("explain").className = "card explain" + (fin ? " final" : "");
+    $("exiter").textContent = t("cut.stepOf", { i: step + 1, n: P.steps.length }) + " · " +
+      (st.t === "lp" ? (st.k ? t("cut.afterCut", { k: st.k }) : t("cut.start")) : t("cut.cutN", { k: st.k + 1 }));
+    $("extitle").textContent = t("cut.h." + (fin ? "done" : st.t === "lp" ? (st.k ? "lp" : "lp0") : st.t));
+    $("exbody").innerHTML = narr(P, st);
+    $("deriv").textContent = derivText(P, st);
+    renderTable(P, st);
+    $("back").disabled = step === 0;
+    $("step").disabled = step >= P.steps.length - 1;
+    $("play").textContent = playing ? "❚❚ " + t("cut.btn.pause") : "▶ " + t("cut.btn.play");
+    persist();
+  }
+
+  function stopAnim() { if (raf) { cancelAnimationFrame(raf); raf = null; } prog = 1; }
+  function go(i, animate) {
+    var P = cur();
+    stopAnim();
+    step = Math.max(0, Math.min(P.steps.length - 1, i));
+    if (animate && P.steps[step].t === "x" && !reduced()) {
+      var t0 = performance.now(), dur = 1100 / +$("speed").value;
+      prog = 0;
+      var f = function (now) {
+        prog = Math.min(1, (now - t0) / dur);
+        drawA();
+        raf = prog < 1 ? requestAnimationFrame(f) : null;
+      };
+      raf = requestAnimationFrame(f);
+    }
+    renderA();
+  }
+  function setPlay(on) {
+    playing = on;
+    clearTimeout(timer);
+    if (on) tick(true); else renderA();
+  }
+  function tick(first) {
+    if (!playing) return;
+    var P = cur();
+    if (!first || step >= P.steps.length - 1) {
+      if (step >= P.steps.length - 1) { if (first) go(0, false); else { setPlay(false); return; } }
+      else go(step + 1, true);
+    } else go(step + 1, true);
+    timer = setTimeout(tick, (P.steps[step].t === "x" ? 2700 : 2000) / +$("speed").value);
+  }
+
+  // ---- part B ----
+  function cgNow(P) {
+    var u1 = U[uIdx[0]], u2 = U[uIdx[1]];
+    var comb = [0, 1].map(function (j) { return u1.mul(Z(P.A[0][j])).add(u2.mul(Z(P.A[1][j]))); });
+    var cb = u1.mul(Z(P.b[0])).add(u2.mul(Z(P.b[1])));
+    var a = comb.map(function (v) { return v.floor().val(); }), b = cb.floor().val();
+    return { u1: u1, u2: u2, comb: comb, cb: cb, a: a, b: b, triv: !a[0] && !a[1] };
+  }
+  function renderB() {
+    var P = cur(), g = cgNow(P), x0 = P.R[0].x, A0 = area(P.polys[0]);
+    $("u1").value = uIdx[0]; $("u2").value = uIdx[1];
+    $("u1o").textContent = g.u1.str(); $("u2o").textContent = g.u2.str();
+    $("u1l").textContent = "u₁ · " + nm(P, "r1");
+    $("u2l").textContent = "u₂ · " + nm(P, "r2");
+    $("cgsteps").textContent = [
+      "  " + g.u1.str() + " · (" + ineq(P.A[0], P.b[0]) + ")",
+      "+ " + g.u2.str() + " · (" + ineq(P.A[1], P.b[1]) + ")",
+      "= " + ineq(g.comb, g.cb) + "   (" + t("cut.b.comb") + ")",
+      "⌊⌋ " + ineq(g.a, g.b) + "   (" + t("cut.b.round") + ")"].join("\n");
+    var lines = origLines(P), rem = 0, cuts = false, poly = P.polys[0], sliver = null;
+    var li = function (ic, cls, html) { return '<li><span class="ic ' + cls + '" aria-hidden="true">' + ic + "</span><span>" + html + "</span></li>"; };
+    var h = li("✓", "y", t("cut.b.valid"));
+    if (g.triv) h += li("·", "i", t("cut.b.trivial"));
+    else {
+      if (g.comb[0].sgn() || g.comb[1].sgn())
+        lines.push({ a: g.comb[0].val(), b: g.comb[1].val(), c: g.cb.val(), col: css("--muted"), w: 1.6, dash: "5 4" });
+      lines.push({ a: g.a[0], b: g.a[1], c: g.b, col: css("--c-violet"), w: 2.6, lab: t("cut.b.lgCut"),
+        at: chordMid(P.polys[0], g.a[0], g.a[1], g.b) || (function () { var s = boxSeg(P, g.a[0], g.a[1], g.b); return s && [(s[0][0] + s[1][0]) / 2, (s[0][1] + s[1][1]) / 2]; })() });
+      poly = clip(P.polys[0], g.a[0], g.a[1], g.b);
+      rem = A0 - area(poly);
+      if (rem > 1e-9) sliver = clip(P.polys[0], -g.a[0], -g.a[1], -g.b);
+      var lhs = x0[0].mul(Z(g.a[0])).add(x0[1].mul(Z(g.a[1])));
+      cuts = lhs.cmp(Z(g.b)) > 0;
+      h += li(cuts ? "✓" : "✗", cuts ? "y" : "n", t(cuts ? "cut.b.cutsYes" : "cut.b.cutsNo", { p: pt(x0), lhs: lhs.str(), rhs: g.b }));
+      h += li("▪", "i", rem > 1e-9 ? t("cut.b.area", { a: I18N.fmt(rem, 2), p: I18N.fmt(100 * rem / (A0 - P.hullArea), 0) }) : t("cut.b.areaNone"));
+      var on = P.pts.filter(function (p) { return g.a[0] * p[0] + g.a[1] * p[1] === g.b; }).length;
+      h += li("▪", "i", on >= 2 ? t("cut.b.facet", { n: on }) : on === 1 ? t("cut.b.touch1") : t("cut.b.touch0"));
+      if (cuts) {
+        var T = makeTab({ A: P.A.concat([g.a]), b: P.b.concat([g.b]), c: P.c });
+        primal(T);
+        h += li("▪", "i", t("cut.b.bound", { z: T.z.rhs.str(), z0: P.R[0].z.str() }));
+      }
+    }
+    $("checks").innerHTML = h;
+    $("gnote").textContent = t("cut.b.gnote", { u1: U[P.ug[0]].str(), u2: U[P.ug[1]].str(), cut: ineq(P.R[0].cut.A, P.R[0].cut.B) });
+    plot($("plotB"), P, { poly: poly, sliver: sliver, lines: lines, hull: true,
+      opt: { x: x0[0].val(), y: x0[1].val(), mode: cuts ? "cut" : "lp", lab: pt(x0) } });
+    persist();
+  }
+
+  // ---- instance picker + brief ----
+  function renderInst() {
+    var P = cur(), box = $("insts");
+    box.textContent = "";
+    INST.forEach(function (Q, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "ibtn"; b.id = "inst-" + Q.id;
+      b.setAttribute("aria-pressed", i === inst ? "true" : "false");
+      b.textContent = t("cut.i." + Q.id + ".tab");
+      b.addEventListener("click", function () { if (i !== inst) pick(i); });
+      box.appendChild(b);
+    });
+    $("bname").textContent = nm(P, "tab");
+    $("btext").textContent = nm(P, "brief");
+    $("model").textContent = "max  z = " + lin(P.c, XN) + "\n" + t("ui.st") + " " +
+      P.A.map(function (a, i) { return ineq(a, P.b[i]) + "   (" + nm(P, "r" + (i + 1)) + ")"; }).join("\n     ") +
+      "\n     " + t("cut.model.int");
+  }
+  function pick(i) {
+    playing = false; clearTimeout(timer); stopAnim();
+    inst = i; step = 0; uIdx = INST[i].u0.slice();
+    renderAll();
+  }
+  function renderAll() { renderInst(); renderA(); renderB(); }
+
+  // ---- controls ----
+  $("step").addEventListener("click", function () { if (playing) setPlay(false); go(step + 1, true); });
+  $("back").addEventListener("click", function () { if (playing) setPlay(false); go(step - 1, false); });
+  $("restart").addEventListener("click", function () { playing = false; clearTimeout(timer); go(0, false); });
+  $("play").addEventListener("click", function () { setPlay(!playing); });
+  $("hull").addEventListener("change", function (e) { showHull = e.target.checked; drawA(); persist(); });
+  ["u1", "u2"].forEach(function (id, i) {
+    $(id).addEventListener("input", function (e) { uIdx[i] = +e.target.value; renderB(); });
+  });
+  $("gom").addEventListener("click", function () { uIdx = cur().ug.slice(); renderB(); });
+  $("ureset").addEventListener("click", function () { uIdx = cur().u0.slice(); renderB(); });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { drawA(); renderB(); });
+
+  // ---- hot state ----
+  function persist() {
+    if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+      try { window.claude.hot.snapshot({ inst: inst, step: step, u: uIdx, hull: showHull }); } catch (e) { /* ok */ }
+    }
+  }
+  function start(d) {
+    if (d && INST[d.inst]) {
+      inst = d.inst;
+      step = Math.max(0, Math.min(prep(INST[inst]).steps.length - 1, +d.step || 0));
+      if (Array.isArray(d.u) && d.u.length === 2 && d.u.every(function (x) { return U[x]; })) uIdx = d.u.slice();
+      else uIdx = INST[inst].u0.slice();
+      showHull = !!d.hull;
+    }
+    $("hull").checked = showHull;
+    I18N.onChange(renderAll);
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
+  else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+})();
+</script>
+</body>
+</html>
