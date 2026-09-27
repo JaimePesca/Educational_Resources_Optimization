@@ -24,6 +24,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Stamp asset links with this build
+        # Pages cache CSS and JS for 10 minutes; a new ?v= per deploy keeps pages and assets in sync
+        run: find site -name '*.html' -exec sed -i "s/__BUILD__/${GITHUB_SHA::8}/g" {} +
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

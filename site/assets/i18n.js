@@ -31,6 +31,8 @@
 
   var script = document.currentScript;
   var localesBase = new URL("../locales/", script ? script.src : location.href).href;
+  // Same build version as the page's own asset links, so a deploy never mixes old and new strings
+  var version = script ? new URL(script.src).searchParams.get("v") : null;
 
   var dicts = {};
   var registered = {}; // "<code>|<bundle>" -> true, so files are fetched once
@@ -64,7 +66,7 @@
   function loadFile(code, bundle, cb) {
     if (registered[code + "|" + bundle]) { cb(); return; }
     var s = document.createElement("script");
-    s.src = localesBase + (bundle ? bundle + "." + code : code) + ".js";
+    s.src = localesBase + (bundle ? bundle + "." + code : code) + ".js" + (version ? "?v=" + version : "");
     s.charset = "utf-8";
     s.onload = s.onerror = function () { cb(); }; // a missing file falls back to English
     document.head.appendChild(s);
