@@ -23,6 +23,11 @@ I18N.register("pt", {
   "nav.backToPath": "Otimização em Ação",
   "nav.backToResearch": "Casos de pesquisa",
   "nav.lab": "Laboratório",
+  "nav.menu": "Explorar",
+  "nav.menuLabel": "Explorar a trilha de aprendizagem",
+  "nav.byLevel": "Por nível",
+  "nav.byType": "Por tipo",
+  "nav.close": "Fechar",
   "lab.door": "Laboratório de propostas",
 
   /* ---- início ---- */

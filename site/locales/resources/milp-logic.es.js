@@ -36,6 +36,8 @@ I18N.register("es", {
   "mlogic.res.wrongExplore": "Esta opción es incorrecta",
   "mlogic.res.solved": "Resuelta",
   "mlogic.res.explore": "Todavía puedes hacer clic en cualquier opción para ver cómo la juzga el verificador. Tus estrellas no cambian.",
+  "mlogic.res.solvedIdle": "Ya resolviste esta tarjeta. Elige de nuevo para repasarla (tus estrellas no cambian) o muestra la respuesta.",
+  "mlogic.res.show": "Mostrar la respuesta",
   "mlogic.res.try": "Prueba otra opción. Las filas resaltadas del verificador muestran dónde falla esta. Intentos fallidos hasta ahora: {n}.",
   "mlogic.res.tighterHint": "Otra opción también es correcta y más ajustada. Encuéntrala para ganar una estrella extra.",
   "mlogic.res.bonus": "Estrella extra: elegiste la formulación más ajustada.",

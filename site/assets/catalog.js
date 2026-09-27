@@ -104,12 +104,12 @@ window.CATALOG = {
 
   // Hidden proposals lab (lab/index.html), in display order. Ideas only: no href, nothing is built.
   lab: [
-    { id: "lab-solver", type: "animation" },
-    { id: "lab-cvar", type: "animation" },
-    { id: "lab-linearization", type: "animation" },
-    { id: "lab-ml-methods", type: "animation" },
-    { id: "lab-svm", type: "animation" },
-    { id: "lab-ml-ai-cases", type: "simulation" }
+    { id: "lab-solver", type: "animation", href: "lab/inside-the-solver.html" },
+    { id: "lab-cvar", type: "animation", href: "lab/beyond-var.html" },
+    { id: "lab-linearization", type: "animation", href: "lab/linearizing-markets.html" },
+    { id: "lab-ml-methods", type: "animation", href: "lab/learning-is-optimizing.html" },
+    { id: "lab-svm", type: "animation", href: "lab/widest-street.html" },
+    { id: "lab-ml-ai-cases", type: "simulation", href: "lab/ml-ai-optimization.html" }
   ],
   // true adds a "Lab" link to the home page's top menu; false keeps the lab reachable only by its door
   labInNav: false

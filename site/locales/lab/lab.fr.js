@@ -1,21 +1,23 @@
 /* Strings for lab/index.html, the hidden proposals lab (French, "vous"). */
 I18N.register("fr", {
   "lab.title": "Laboratoire de propositions",
-  "lab.eyebrow": "Laboratoire · Idées pas encore construites",
-  "lab.lede": "Des idées de nouvelles ressources, rassemblées ici avant qu'aucune ne soit construite. Chaque carte indique ce que la ressource montrerait et le format qu'elle prendrait. Aucune n'est encore développée.",
+  "lab.eyebrow": "Laboratoire · Prototypes avant le parcours",
+  "lab.lede": "De nouvelles ressources, construites et testées ici avant de rejoindre le parcours d'apprentissage. Chaque carte indique ce que la page montre et le format qu'elle prend ; ouvrez-la pour essayer le prototype. Aucune n'est encore sur la page d'accueil.",
   "lab.idea": "Idée",
+  "lab.built": "Construit",
+  "lab.open": "Ouvrir",
   "lab.eqHead": "Les équations",
   "lab.stepsHead": "Pas à pas",
   "lab.listLabel": "Propositions",
 
   "lab.lab-solver.title": "Au cœur du solveur",
-  "lab.lab-solver.desc": "L'animation suivrait un solveur MILP depuis le prétraitement (presolve) et la relaxation linéaire jusqu'à l'arbre de séparation et évaluation, avec les coupes qui resserrent la borne et les heuristiques qui trouvent de meilleures solutions en chemin. Deux courbes, la meilleure solution connue et la meilleure borne, se rapprochent pendant que l'écart tombe à 0, comme dans un journal de Gurobi.",
+  "lab.lab-solver.desc": "Un petit MILP, une brûlerie de Manizales qui planifie des lots entiers, est résolu en direct : prétraitement (presolve), relaxation linéaire, une coupe de Gomory qui resserre la borne, une heuristique d'arrondi qui trouve de meilleures solutions et l'arbre de séparation et évaluation. La meilleure solution connue et la meilleure borne se rapprochent pendant que l'écart tombe à 0, dans un journal inspiré de ceux qu'impriment les solveurs commerciaux.",
 
   "lab.lab-cvar.title": "Au-delà de la VaR : la CVaR",
-  "lab.lab-cvar.desc": "À partir d'une distribution des pertes, l'animation placerait la VaR comme un quantile et la CVaR comme la moyenne de la queue au-delà. Elle montrerait ensuite comment la formulation de Rockafellar et Uryasev (2000) transforme la CVaR en un programme linéaire sur des scénarios, puis comparerait un portefeuille de variance minimale avec un portefeuille de CVaR minimale.",
+  "lab.lab-cvar.desc": "Sur 200 mois simulés d'actions colombiennes, d'obligations TES et de dollars, l'animation place la VaR comme un quantile et la CVaR comme la moyenne de la queue au-delà. Elle montre ensuite comment la formulation de Rockafellar et Uryasev (2000) transforme la CVaR en un programme linéaire sur des scénarios, puis compare le portefeuille de variance minimale avec celui de CVaR minimale.",
 
   "lab.lab-linearization.title": "Linéariser le modèle des marchés de plein air",
-  "lab.lab-linearization.desc": "La contrainte (14) est la seule partie non linéaire du modèle des marchés de plein air : la probabilité logit d'acheter dans un parc a les décisions d'ouverture au numérateur et au dénominateur. En adaptant la méthode de Haase et Müller (2014), l'article la remplace par les contraintes linéaires (24) à (26), fondées sur le rapport (23). L'animation suivrait une zone de demande pendant l'ouverture des parcs, montrerait les droites qui fixent le partage logit et se terminerait sur le calendrier hebdomadaire de l'article.",
+  "lab.lab-linearization.desc": "La contrainte (14) est la seule partie non linéaire du modèle des marchés de plein air : la probabilité logit d'acheter dans un parc a les décisions d'ouverture au numérateur et au dénominateur. En adaptant la méthode de Haase et Müller (2014), l'article la remplace par les contraintes linéaires (24) à (26), fondées sur le rapport (23). L'animation suit une zone de demande pendant l'ouverture des parcs, trace les droites qui fixent le partage logit et montre quand le modèle linéaire est exact et quand il n'est qu'une borne supérieure.",
   "lab.lab-linearization.step1": "Dans la contrainte (14), la probabilité qu'un client achète dans un parc est une fraction dont le numérateur et le dénominateur dépendent des parcs ouverts le même jour, c'est pourquoi le modèle n'est pas linéaire.",
   "lab.lab-linearization.step2": "Le logit garde une chose fixe : pour chaque parc ouvert, sa part divisée par celle des concurrents est un nombre φ que (23) calcule avant la résolution.",
   "lab.lab-linearization.step3": "L'article ajoute la part des concurrents ȳ comme nouvelle variable et remplace la fraction par des limites linéaires : les parts totalisent au plus 1 (24), un parc reçoit au plus φ fois ȳ (26), et un parc fermé ne reçoit rien tandis qu'un parc ouvert reçoit au plus la part qu'il aurait s'il était seul (25).",
@@ -30,11 +32,11 @@ I18N.register("fr", {
   "lab.lab-linearization.eqNote": "(14) est écrite comme sur la page de recherche, et (23) utilise les mêmes concurrents S∖I avec a_{sj}. Le manuscrit écrit a_{ij} dans les deux sommes du dénominateur de (14), J∖I sans a_{sj} dans (23) et un v minuscule dans ces sommes et dans (23) ; son texte, p. 16, appelle le paramètre φ_{jt}.",
 
   "lab.lab-ml-methods.title": "Apprendre, c'est optimiser",
-  "lab.lab-ml-methods.desc": "La régression linéaire, la régression logistique et les petits réseaux de neurones apprennent en minimisant une perte : chacun est donc un problème d'optimisation. L'animation déplacerait la droite ajustée ou la frontière de décision pas à pas pendant que la courbe de perte descend à côté.",
+  "lab.lab-ml-methods.desc": "La régression linéaire, la régression logistique et les petits réseaux de neurones apprennent en minimisant une perte : chacun est donc un problème d'optimisation. L'animation entraîne les trois en direct par descente de gradient, déplace la droite ajustée ou la frontière de décision pas à pas pendant que la courbe de perte descend à côté, et montre ce qui se passe quand le pas est trop petit ou trop grand.",
 
   "lab.lab-svm.title": "La rue la plus large",
-  "lab.lab-svm.desc": "Une machine à vecteurs de support cherche la rue la plus large qui sépare deux classes, ce qui est un problème quadratique de marge maximale. L'animation mettrait en évidence les vecteurs de support qui tiennent la rue en place, puis passerait à la marge souple, où le paramètre C échange des erreurs de classification contre une marge plus large.",
+  "lab.lab-svm.desc": "Une machine à vecteurs de support cherche la rue la plus large qui sépare deux classes, ce qui est un problème quadratique de marge maximale. Sur 24 lots de café classés par altitude et densité du grain, l'animation met en évidence les vecteurs de support qui tiennent la rue en place, montre comment un lot atypique casse la marge stricte, puis passe à la marge souple, où le paramètre C échange des erreurs de classification contre une marge plus large.",
 
   "lab.lab-ml-ai-cases.title": "ML + IA en optimisation",
-  "lab.lab-ml-ai-cases.desc": "Quatre cas où l'apprentissage aide l'optimisation : apprendre à brancher, prédire puis optimiser, apprentissage par renforcement pour les tournées de véhicules et agents de langage qui formulent des modèles d'optimisation à partir d'un texte. Chaque cas aurait un petit exemple interactif qui s'exécute dans le navigateur."
+  "lab.lab-ml-ai-cases.desc": "Quatre petits cas où l'apprentissage aide l'optimisation, chacun s'exécutant réellement dans le navigateur : un branch and bound qui apprend où brancher, une prévision de la demande ajustée pour la décision qu'elle alimente, une camionnette de livraison qui apprend son itinéraire par essais et erreurs et que l'on compare au plus court chemin, et un vérificateur automatique qui teste des formulations déjà écrites comme celles qu'un agent de langage pourrait produire."
 }, "lab/lab");

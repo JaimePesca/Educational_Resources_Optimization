@@ -1,0 +1,1433 @@
+<!doctype html>
+<html lang="en" data-title-key="solv.title" data-i18n-bundles="lab/lab-solver">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Inside the Solver</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- animation ---- */
+  #solv-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 30%)); max-width: none;
+  }
+  #solv-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #solv-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #solv-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #solv-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #solv-sec .anim-hud { grid-template-columns: repeat(4, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #solv-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 10.5px; }
+    #solv-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #solv-sec .anim-legend span[hidden] { display: none; }
+  #solv-sec .anim-legend i.lg-region { background: var(--region); border: 1.5px solid var(--ink); }
+  #solv-sec .anim-legend i.lg-int { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+  #solv-sec .anim-legend i.lg-lp { width: 11px; height: 11px; border-radius: 50%; border: 2.5px solid var(--accent); background: var(--surface); }
+  #solv-sec .anim-legend i.lg-star { width: auto; height: auto; font-style: normal; color: var(--accent); font-size: 15px; line-height: 1; }
+  #solv-sec .anim-legend i.lg-cut { width: 18px; height: 0; border-top: 2.5px solid var(--mit-bright); }
+  #solv-sec .anim-legend i.lg-open { width: 12px; height: 12px; border-radius: 50%; border: 1.5px dashed var(--mit-silver); }
+  #solv-sec .anim-legend i.lg-br { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ink); background: var(--surface); }
+  #solv-sec .anim-legend i.lg-intn { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
+  #solv-sec .anim-legend i.lg-pr { width: 12px; height: 12px; border-radius: 50%; background: var(--mit-silver); }
+  #solv-sec .anim-legend i.lg-inf { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--mit-silver); position: relative; }
+  #solv-sec .anim-legend i.lg-inf::before, #solv-sec .anim-legend i.lg-inf::after {
+    content: ""; position: absolute; left: 1px; right: 1px; top: 50%; height: 1.5px; margin-top: -0.75px; background: var(--mit-silver); transform: rotate(45deg);
+  }
+  #solv-sec .anim-legend i.lg-inf::after { transform: rotate(-45deg); }
+  #solv-sec .anim-legend i.lg-bd { width: 18px; height: 0; border-top: 2.5px solid var(--ink); }
+  #solv-sec .anim-legend i.lg-ic { width: 18px; height: 0; border-top: 2.5px solid var(--accent); }
+  #solv-sec .anim-legend i.lg-ghost { width: 18px; height: 0; border-top: 1.6px dashed var(--mit-silver); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #solv-sec .anim-legend i.lg-cut { border-top-color: var(--crit); }
+  }
+  :root[data-theme="dark"] #solv-sec .anim-legend i.lg-cut { border-top-color: var(--crit); }
+
+  /* ---- solver log (modeled on how commercial solver logs look) ---- */
+  .solv-log {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 8px 12px 6px;
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--ink2);
+  }
+  .solv-log .log-title { font: 700 11px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; }
+  .solv-log table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .solv-log th, .solv-log td { padding: 1px 4px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: 20px; font-variant-numeric: tabular-nums; }
+  .solv-log th { font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--axis); font-size: 11.5px; }
+  .solv-log th.mk, .solv-log td.mk { text-align: center; }
+  .solv-log td.mk { color: var(--accent-text); font-weight: 700; }
+  .solv-log td.msg { text-align: left; color: var(--ink); font-family: var(--font-sans); font-size: 13px; }
+  .solv-log tr.new td { background: var(--sel); }
+  .solv-log td.inc { color: var(--accent-text); font-weight: 600; }
+  .solv-log col.c-mk { width: 5%; }
+  .solv-log col.c-ex { width: 13%; }
+  .solv-log col.c-op { width: 12%; }
+  .solv-log col.c-in { width: 18%; }
+  .solv-log col.c-bd { width: 19%; }
+  .solv-log col.c-gp { width: 17%; }
+  .solv-log col.c-pv { width: 16%; }
+  .log-note { font-size: 12.5px; color: var(--muted); margin: 0; max-width: 78ch; }
+  @media (max-width: 620px) {
+    .solv-log { padding: 6px 6px 4px; font-size: 11px; }
+    .solv-log th { font-size: 10px; }
+    .solv-log th, .solv-log td { padding: 1px 2px; height: 18px; }
+    .solv-log td.msg { font-size: 11px; }
+    .solv-log th { font-size: 9.5px; letter-spacing: -0.02em; }
+    .solv-log col.c-mk { width: 4%; }
+    .solv-log col.c-ex { width: 11%; }
+    .solv-log col.c-op { width: 14%; }
+    .solv-log col.c-in { width: 19%; }
+    .solv-log col.c-bd { width: 19%; }
+    .solv-log col.c-gp { width: 18%; }
+    .solv-log col.c-pv { width: 15%; }
+  }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 12px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- run ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  .run-p { font-size: 14px; color: var(--ink2); margin: 14px 0 6px; max-width: 78ch; }
+  table.data { min-width: 560px; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num, table.data td.mono { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.res-int, table.data td.res-heur { color: var(--accent-text); font-weight: 600; }
+  table.data td.res-quiet { color: var(--muted); }
+  @media (max-width: 560px) {
+    table.data { min-width: 0; }
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 5px; }
+    table.data td.num, table.data td.mono { font-size: 11.5px; }
+    table.data td.mono { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="solv.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="solv.eyebrow"></p>
+    <h1 data-i18n="solv.title"></h1>
+    <p class="lede" data-i18n-html="solv.lede"></p>
+  </header>
+
+  <section class="block" id="solv-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="solv.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="solv-scen-lbl" data-i18n="solv.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="solv-scen-lbl" id="solv-seg">
+        <button type="button" data-sc="full" aria-pressed="true" data-i18n="solv.sc.full"></button>
+        <button type="button" data-sc="plain" aria-pressed="false" data-i18n="solv.sc.plain"></button>
+      </div>
+    </div>
+    <div class="anim" id="solv-anim">
+      <div class="anim-stage" role="img">
+        <div class="anim-hud" id="solv-hud">
+          <div class="chip-stat" id="solv-c0"><b></b><span></span></div>
+          <div class="chip-stat accent" id="solv-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="solv-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="solv-c3"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-region"></i><span data-i18n="solv.lg.region"></span></span>
+      <span><i class="lg-int"></i><span data-i18n="solv.lg.int"></span></span>
+      <span><i class="lg-lp"></i><span data-i18n="solv.lg.lp"></span></span>
+      <span id="solv-lg-cut"><i class="lg-cut"></i><span data-i18n="solv.lg.cut"></span></span>
+      <span><i class="lg-star" aria-hidden="true">★</i><i class="lg-ic"></i><span data-i18n="solv.lg.inc"></span></span>
+      <span><i class="lg-bd"></i><span data-i18n="solv.lg.bound"></span></span>
+      <span><i class="lg-ghost"></i><span id="solv-lg-ghost"></span></span>
+      <span><i class="lg-open"></i><span data-i18n="solv.lg.open"></span></span>
+      <span><i class="lg-br"></i><span data-i18n="solv.lg.br"></span></span>
+      <span><i class="lg-intn"></i><span data-i18n="solv.lg.intn"></span></span>
+      <span><i class="lg-pr"></i><span data-i18n="solv.lg.pr"></span></span>
+      <span><i class="lg-inf"></i><span data-i18n="solv.lg.inf"></span></span>
+    </div>
+    <div class="solv-log" id="solv-log" role="log" aria-live="off">
+      <p class="log-title" data-i18n="solv.log.title"></p>
+      <table>
+        <colgroup><col class="c-mk"><col class="c-ex"><col class="c-op"><col class="c-in"><col class="c-bd"><col class="c-gp"><col class="c-pv"></colgroup>
+        <thead><tr>
+          <th class="mk" scope="col" data-i18n-attr="aria-label:solv.log.mk"></th>
+          <th scope="col" data-i18n="solv.log.expl"></th>
+          <th scope="col" data-i18n="solv.log.open"></th>
+          <th scope="col" data-i18n="solv.log.inc"></th>
+          <th scope="col" data-i18n="solv.log.bound"></th>
+          <th scope="col" data-i18n="solv.log.gap"></th>
+          <th scope="col" data-i18n="solv.log.piv"></th>
+        </tr></thead>
+        <tbody id="solv-log-body"></tbody>
+      </table>
+    </div>
+    <p class="log-note" data-i18n="solv.log.note"></p>
+    <p class="scen-status" id="solv-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="solv.model.kicker"></span><span data-i18n="solv.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <div class="formula" id="solv-model"></div>
+        <p class="mtext" id="solv-data"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="solv.pre.head"></p>
+        <div class="formula" id="solv-pre"></div>
+        <p class="mtext" id="solv-pre-why"></p>
+        <p class="mhead" data-i18n="solv.cut.head"></p>
+        <div class="formula" id="solv-cut"></div>
+        <p class="mtext" id="solv-cut-why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="solv.run.kicker"></span><span id="solv-run-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="solv.run.opt"></div><div class="v" id="solv-s-z"></div><div class="l" id="solv-s-zl"></div></div>
+      <div class="stat"><div class="k" data-i18n="solv.run.nodes"></div><div class="v ink" id="solv-s-n"></div><div class="l" id="solv-s-nl"></div></div>
+      <div class="stat"><div class="k" data-i18n="solv.run.piv"></div><div class="v ink" id="solv-s-p"></div><div class="l" id="solv-s-pl"></div></div>
+      <div class="stat"><div class="k" data-i18n="solv.run.root"></div><div class="v ink" id="solv-s-r"></div><div class="l" id="solv-s-rl"></div></div>
+    </div>
+    <p class="run-p" id="solv-run-intro"></p>
+    <div class="tblwrap"><table class="data" id="solv-nodes"></table></div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="solv.n.title"></summary>
+      <div class="body">
+        <p id="solv-n1"></p>
+        <p id="solv-n2"></p>
+        <p id="solv-n3"></p>
+        <p id="solv-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.15" data-refs="solv.refs"></p>
+  <p class="note" data-i18n="solv.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-solver.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−", DASH = "-";
+  var fmt = function (v, d) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 2 : d); };
+  var num = function (v, d) { var m = fmt(Math.abs(v), d); return (v < 0 && m !== fmt(0, d) ? MINUS : "") + m; };
+  var pair = function (x, d) { return T("solv.pair", { x: num(x[0], d), y: num(x[1], d) }); };
+  var fix2 = function (v) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, 2, 2); };
+  var pct = function (v) { return T("solv.pct", { v: fmt(v, 2) }); };
+  var gapOf = function (inc, bound) { return inc === null || bound === null ? null : Math.max(0, (bound - inc) / Math.abs(inc) * 100); };
+  var SUB = ["₁", "₂"];
+  var xn = function (j) { return "x" + SUB[j]; };
+
+  /* =====================================================================================
+     The model (illustrative data): a small coffee roaster plans a week in whole batches.
+     x1 = batches of the traditional blend, x2 = batches of the specialty blend.
+     ===================================================================================== */
+  var DATA = {
+    c: [9, 10],
+    rows: [
+      { a: [7, 8], b: 55, k: "roast" },
+      { a: [4, 7], b: 42, k: "pack" },
+      { a: [3, 2], b: 33, k: "green" }
+    ]
+  };
+  var NV = DATA.c.length, TOL = 1e-6;
+  function isInt(v) { return Math.abs(v - Math.round(v)) < TOL; }
+  function fl(v) { return Math.floor(v + TOL); }
+  function dot(a, x) { var s = 0; for (var j = 0; j < a.length; j++) s += a[j] * x[j]; return s; }
+  function unit(j) { var e = []; for (var k = 0; k < NV; k++) e.push(k === j ? 1 : 0); return e; }
+
+  /* ---------- presolve: bounds from single rows (all data >= 0), then rows that can never bind ---------- */
+  function presolve() {
+    var raw = [], rawRow = [], ub = [], j;
+    for (j = 0; j < NV; j++) {
+      var best = Infinity, bi = -1;
+      DATA.rows.forEach(function (r, i) { if (r.a[j] > 0 && r.b / r.a[j] < best - 1e-12) { best = r.b / r.a[j]; bi = i; } });
+      raw.push(best); rawRow.push(bi); ub.push(fl(best));
+    }
+    var red = [], act = [];
+    DATA.rows.forEach(function (r, i) { var m = dot(r.a, ub); act.push(m); if (m <= r.b + 1e-9) red.push(i); });
+    var rows = [];
+    DATA.rows.forEach(function (r, i) { if (red.indexOf(i) < 0) rows.push({ a: r.a.slice(), op: "<=", b: r.b, k: r.k }); });
+    for (j = 0; j < NV; j++) rows.push({ a: unit(j), op: "<=", b: ub[j], k: "ub" + j });
+    return { raw: raw, rawRow: rawRow, ub: ub, red: red, act: act, rows: rows };
+  }
+
+  /* ---------- Chvatal-Gomory cut from the optimal tableau of the presolved LP ---------- */
+  function gomory(rows) {
+    var st = LP.steps({ c: DATA.c, rows: rows }), last = st[st.length - 1];
+    var Tb = last.tableau, basis = last.basis, m = rows.length, N = Tb[0].length - 1, best = null, i, j;
+    for (i = 0; i < m; i++) {
+      var v = Tb[i][N], f = v - Math.floor(v + TOL);
+      if (f < TOL || f > 1 - TOL) continue;
+      var sc = Math.abs(f - 0.5);
+      if (!best || sc < best.sc - 1e-9 || (Math.abs(sc - best.sc) <= 1e-9 && basis[i] < best.col)) best = { sc: sc, row: i, col: basis[i] };
+    }
+    if (!best) return null;
+    var R = Tb[best.row], alpha = [], beta = fl(R[N]), g = [];
+    for (j = 0; j < NV; j++) alpha.push(fl(R[j]));
+    for (i = 0; i < m; i++) {
+      var k = fl(R[NV + i]); g.push(k);
+      for (j = 0; j < NV; j++) alpha[j] -= k * rows[i].a[j];
+      beta -= k * rows[i].b;
+    }
+    return { a: alpha, b: beta, col: best.col, row: Array.prototype.slice.call(R), basis: basis.slice(), g: g, rows: rows.slice() };
+  }
+
+  function feasibleOrig(x) { return DATA.rows.every(function (r) { return dot(r.a, x) <= r.b + 1e-9; }); }
+  function nodeRows(base, lo, hi, ub) {
+    var rows = base.slice();
+    for (var j = 0; j < NV; j++) {
+      if (lo[j] > 0) rows.push({ a: unit(j), op: ">=", b: lo[j] });
+      if (hi[j] < ub[j]) rows.push({ a: unit(j), op: "<=", b: hi[j] });
+    }
+    return rows;
+  }
+
+  /* ---------- branch and bound: best bound first, most fractional variable, down branch first ---------- */
+  function run(full) {
+    var P = presolve(), base = P.rows.slice(), ev = [], piv = 0, j;
+    var root = LP.solve({ sense: "max", c: DATA.c, rows: base });
+    piv += root.iterations;
+    var out = { P: P, root: root, full: full, events: ev, nodes: [] };
+    var inc = null, incX = null, incNode = -1, rootLP = root;
+    ev.push({ type: "root", piv: piv, bound: root.z, inc: null, expl: 0, open: 1 });
+    if (full) {
+      var cut = gomory(base);
+      out.cut = cut;
+      base.push({ a: cut.a.slice(), op: "<=", b: cut.b, k: "cut" });
+      rootLP = LP.solve({ sense: "max", c: DATA.c, rows: base });
+      piv += rootLP.iterations;
+      out.rootCut = rootLP;
+      ev.push({ type: "cut", piv: piv, bound: rootLP.z, inc: null, expl: 0, open: 1 });
+      var xr = rootLP.x.map(fl);
+      if (feasibleOrig(xr)) {
+        inc = dot(DATA.c, xr); incX = xr; incNode = 0;
+        out.rootHeur = { x: xr, z: inc };
+        ev.push({ type: "heur", node: 0, piv: piv, bound: rootLP.z, inc: inc, incX: xr, expl: 0, open: 1 });
+      }
+    }
+    var nodes = out.nodes, open = [0], expl = 0;
+    nodes.push({ id: 0, parent: -1, depth: 0, lo: [0, 0], hi: P.ub.slice(), pb: Infinity, kids: [] });
+    function bestBound() {
+      var b = -Infinity;
+      open.forEach(function (k) { b = Math.max(b, nodes[k].pb); });
+      return inc === null ? b : Math.max(b, inc);
+    }
+    while (open.length) {
+      open.sort(function (a, b) { return nodes[b].pb - nodes[a].pb || a - b; });
+      var k = open[0], nd = nodes[k];
+      if (inc !== null && nd.pb <= inc + TOL) break;        // the best bound reached the incumbent
+      open.shift();
+      var lp = k === 0 ? rootLP : LP.solve({ sense: "max", c: DATA.c, rows: nodeRows(base, nd.lo, nd.hi, P.ub) });
+      if (k !== 0) piv += lp.iterations;
+      nd.lp = lp; nd.piv = k === 0 ? 0 : lp.iterations; expl++; nd.order = expl;
+      var e = { type: "node", node: k };
+      if (lp.status !== "optimal") nd.out = "inf";
+      else if (inc !== null && lp.z <= inc + TOL) nd.out = "bound";
+      else {
+        var fr = [];
+        for (j = 0; j < NV; j++) if (!isInt(lp.x[j])) fr.push(j);
+        if (!fr.length) {
+          nd.out = "int"; inc = lp.z; incX = lp.x.map(Math.round); incNode = k; e.newInc = "int";
+        } else {
+          if (full) {                                           // rounding heuristic at every node
+            var xh = lp.x.map(fl);
+            if (feasibleOrig(xh)) {
+              var zh = dot(DATA.c, xh);
+              if (inc === null || zh > inc + TOL) { inc = zh; incX = xh; incNode = k; e.newInc = "heur"; nd.heur = { x: xh, z: zh }; }
+            }
+          }
+          var bj = fr[0], bs = -1;
+          fr.forEach(function (jj) { var f = lp.x[jj] - Math.floor(lp.x[jj]), s = 0.5 - Math.abs(f - 0.5); if (s > bs + 1e-9) { bs = s; bj = jj; } });
+          var v = Math.floor(lp.x[bj]);
+          nd.out = "branch"; nd.sv = bj; nd.sval = v;
+          var h = nd.hi.slice(), l = nd.lo.slice(); h[bj] = v; l[bj] = v + 1;
+          var c1 = { id: nodes.length, parent: k, depth: nd.depth + 1, lo: nd.lo.slice(), hi: h, pb: lp.z, dir: "le", bvar: bj, bval: v, kids: [] };
+          nodes.push(c1);
+          var c2 = { id: nodes.length, parent: k, depth: nd.depth + 1, lo: l, hi: nd.hi.slice(), pb: lp.z, dir: "ge", bvar: bj, bval: v + 1, kids: [] };
+          nodes.push(c2);
+          open.push(c1.id, c2.id); nd.kids = [c1.id, c2.id];
+        }
+      }
+      e.out = nd.out; e.piv = piv; e.inc = inc; e.incX = incX ? incX.slice() : null; e.expl = expl; e.open = open.length;
+      e.bound = open.length ? bestBound() : inc;
+      ev.push(e);
+    }
+    var left = open.slice();
+    left.forEach(function (k) { nodes[k].out = "pruned"; });
+    ev.push({ type: "done", pruned: left, piv: piv, inc: inc, incX: incX, expl: expl, open: 0, bound: inc });
+    out.inc = inc; out.incX = incX; out.incNode = incNode; out.expl = expl; out.piv = piv; out.base = base;
+    out.rootLP = rootLP;
+    return out;
+  }
+
+  var PRE = presolve();
+  var NOPRE = LP.solve({ sense: "max", c: DATA.c, rows: DATA.rows.map(function (r) { return { a: r.a, op: "<=", b: r.b }; }) });
+  var RUN = { full: run(true), plain: run(false) };
+
+  /* ---------- plane geometry ---------- */
+  function clip(poly, a, b) {                     // keep a.x <= b
+    var out = [];
+    for (var i = 0; i < poly.length; i++) {
+      var P = poly[i], Q = poly[(i + 1) % poly.length], da = dot(a, P) - b, db = dot(a, Q) - b;
+      if (da <= 1e-9) out.push(P);
+      if ((da < -1e-9 && db > 1e-9) || (da > 1e-9 && db < -1e-9)) { var u = da / (da - db); out.push([P[0] + u * (Q[0] - P[0]), P[1] + u * (Q[1] - P[1])]); }
+    }
+    return out;
+  }
+  function region(rows) {
+    var poly = [[0, 0], [30, 0], [30, 30], [0, 30]];
+    rows.forEach(function (r) {
+      if (r.op === ">=") poly = clip(poly, r.a.map(function (v) { return -v; }), -r.b);
+      else poly = clip(poly, r.a, r.b);
+    });
+    return poly;
+  }
+  function boxRows(lo, hi) {
+    var rows = [];
+    for (var j = 0; j < NV; j++) { rows.push({ a: unit(j), op: ">=", b: lo[j] }); rows.push({ a: unit(j), op: "<=", b: hi[j] }); }
+    return rows;
+  }
+  function area(p) { var s = 0; for (var i = 0; i < p.length; i++) { var q = p[(i + 1) % p.length]; s += p[i][0] * q[1] - q[0] * p[i][1]; } return Math.abs(s) / 2; }
+  var ORIG = region(DATA.rows.map(function (r) { return { a: r.a, op: "<=", b: r.b }; }));
+  var PREP = region(PRE.rows);
+  var VIEW = { x0: -0.55, x1: Math.max(PRE.raw[0], PRE.ub[0] + 1) + 0.75, y0: -0.55, y1: Math.max(PRE.raw[1], PRE.ub[1] + 1) + 0.6 };
+
+  /* =====================================================================================
+     Scenario timelines: every event of the run gets a time; the tree, the plane, the curves,
+     the counters and the log are all read from it (render(t) is a pure function of t).
+     ===================================================================================== */
+  var DUR = 48, CH = [0, 9, 16, 25, 40];
+  var T_ROOT = 12.6, T_CUT = 19.4, T_HEUR = 22.8, T_RBR = 19.4, T_TREE0 = 27, T_TREE1 = 38.6, T_DONE = 40.6;
+  var BEAT_MAX = 3;                               // chapter 4: never more than 3 s between two tree events
+  var T_AB0 = 24.4, T_AB1 = 26.2;                  // the camera moves from the plane to the tree
+  var cache = {};
+  function scen(key) {
+    if (cache[key]) return cache[key];
+    var full = key === "full", R = RUN[key];
+    var ev = R.events.map(function (e) { return Object.assign({}, e); }), tree = [];
+    ev.forEach(function (e) {
+      if (e.type === "root") e.t = T_ROOT;
+      else if (e.type === "cut") e.t = T_CUT;
+      else if (e.type === "heur") e.t = T_HEUR;
+      else if (e.type === "done") e.t = T_DONE;
+      else if (e.node === 0 && !full) { e.t = T_RBR; e.d = 3; }
+      else tree.push(e);
+    });
+    // chapter 4 beats: every node LP, then every open node pruned without solving. A short run keeps an
+    // even pace of at most BEAT_MAX seconds; a long one starts calm and speeds up, as a real log does.
+    var done = ev.filter(function (e) { return e.type === "done"; })[0], pruned = done ? done.pruned : [];
+    var n = tree.length, nb = n + pruned.length, w = [], sw = 0, i;
+    for (i = 0; i < nb - 1; i++) { w.push(nb > 6 ? lerp(1.3, 0.8, i / Math.max(1, nb - 2)) : 1); sw += w[i]; }
+    var unit = nb > 1 ? Math.min((T_TREE1 - T_TREE0) / sw, BEAT_MAX / Math.max.apply(null, w)) : BEAT_MAX;
+    var beatT = [T_TREE0], beatD = [nb > 1 ? w[0] * unit : BEAT_MAX];
+    for (i = 1; i < nb; i++) { beatD.push(w[i - 1] * unit); beatT.push(beatT[i - 1] + beatD[i]); }
+    tree.forEach(function (e, i) { e.t = beatT[i]; e.d = beatD[i]; });
+    var nodes = R.nodes.map(function (nd) { return Object.assign({}, nd); });
+    nodes.forEach(function (nd) { nd.tC = Infinity; nd.tS = Infinity; nd.tP = Infinity; });
+    pruned.forEach(function (k, j) { nodes[k].tP = beatT[n + j]; nodes[k].d = beatD[n + j]; });
+    nodes[0].tC = T_ROOT;
+    ev.forEach(function (e) {
+      if (e.type === "node") {
+        var nd = nodes[e.node]; nd.tS = e.t; nd.d = e.d;
+        (nd.kids || []).forEach(function (k) { nodes[k].tC = e.t; });
+      }
+    });
+    // node polygons (in the relaxation the tree works on)
+    var baseRows = R.base;
+    var BASE = region(baseRows);
+    nodes.forEach(function (nd) {
+      nd.poly = region(baseRows.concat(boxRows(nd.lo, nd.hi)));
+      if (nd.out === "branch") {
+        var j = nd.sv, lo = nd.lo.slice(), hi = nd.hi.slice();
+        lo[j] = nd.sval; hi[j] = nd.sval + 1;
+        nd.strip = region(baseRows.concat(boxRows(nd.lo, nd.hi)).concat(boxRows(lo, hi)));
+      }
+    });
+    // tree layout: leaves in depth-first order, parents over the middle of their children
+    var slot = 0, maxD = 0;
+    (function place(k) {
+      var nd = nodes[k]; maxD = Math.max(maxD, nd.depth);
+      if (!nd.kids || !nd.kids.length) { nd.u = slot++; return; }
+      nd.kids.forEach(place);
+      nd.u = (nodes[nd.kids[0]].u + nodes[nd.kids[1]].u) / 2;
+    })(0);
+    // log lines
+    var log = [{ t: 7.4, msg: "pre" }, { t: T_ROOT + 0.25, msg: "root" }];
+    ev.forEach(function (e) {
+      var row = { mk: "", expl: e.expl, open: e.open, inc: e.inc, bound: e.bound, piv: e.piv };
+      if (e.type === "root") log.push({ t: e.t + 0.45, row: row });
+      if (e.type === "cut") { log.push({ t: e.t + 0.2, msg: "cut" }); log.push({ t: e.t + 0.35, row: row }); }
+      if (e.type === "heur") { row.mk = "H"; log.push({ t: e.t + 0.1, row: row }); }
+      if (e.type === "node") { row.mk = e.newInc === "heur" ? "H" : e.newInc === "int" ? "*" : ""; log.push({ t: e.t + 0.1, row: row }); }
+      if (e.type === "done") { log.push({ t: e.t + 0.3, msg: "done" }); log.push({ t: e.t + 0.8, msg: "opt" }); }
+    });
+    var S = { key: key, full: full, R: R, ev: ev, nodes: nodes, leaves: slot, maxD: maxD, BASE: BASE, log: log, treeN: n };
+    // the first incumbent and the list of improvements, for the notes
+    S.incs = ev.filter(function (e) { return e.type === "heur" || e.newInc; });
+    return (cache[key] = S);
+  }
+  function other(key) { return key === "full" ? "plain" : "full"; }
+  var state = { sc: "full" };
+
+  /* ---------- state of the run at time t ---------- */
+  function snap(S, t) {
+    var s = { expl: 0, open: 0, inc: null, incX: null, bound: null, piv: 0, idx: -1 };
+    for (var i = 0; i < S.ev.length; i++) {
+      var e = S.ev[i];
+      if (e.t > t) break;
+      s = { expl: e.expl, open: e.open, inc: e.inc, incX: e.incX || s.incX, bound: e.bound, piv: e.piv, idx: i };
+      if (e.type === "heur") s.incX = e.incX;
+    }
+    return s;
+  }
+
+  /* =====================================================================================
+     "See it in motion"
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("solv-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("solv-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var TAU = Math.PI * 2;
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11; L.ft = 13; L.lw = 1.8;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 12; L.ft = 15.5; L.lw = 2.2;
+    }
+    // room for the longest caption of both scenarios, so nothing jumps between chapters
+    var tl = 1, sl = 1;
+    ["full", "plain"].forEach(function (k) {
+      CH.forEach(function (c) {
+        var cap = captions(scen(k), c + 0.5);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    if (portrait) {
+      var top = L.capBottom + 8;
+      L.PA = { x0: 6, y0: top, x1: W - 6, y1: H - 6 };
+      var tb = top + (H - top) * 0.52;
+      L.TB = { x0: 10, y0: top + 4, x1: W - 10, y1: tb };
+      L.PB = { x0: 4, y0: tb + 8, x1: W * 0.46, y1: H - 4 };
+      L.CB = { x0: W * 0.46 + 30, y0: tb + 16, x1: W - 10, y1: H - 22 };
+    } else {
+      var left = hx + hw + 24;
+      L.PA = { x0: left, y0: 12, x1: W - 12, y1: H - 12 };
+      L.PB = { x0: 6, y0: L.capBottom + 14, x1: hx + hw + 6, y1: H - 8 };
+      var tb2 = H * 0.64;
+      L.TB = { x0: left + 8, y0: 18, x1: W - 16, y1: tb2 - 8 };
+      L.CB = { x0: left + 40, y0: tb2 + 18, x1: W - 26, y1: H - 32 };
+    }
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+
+  /* ---------- plane camera ---------- */
+  var cam = { K: 1, ox: 0, oy: 0 };
+  function setCam(box, va) {                      // va: 0 centres the plot in its box, 1 puts it at the top
+    var w = box.x1 - box.x0, h = box.y1 - box.y0, dw = VIEW.x1 - VIEW.x0, dh = VIEW.y1 - VIEW.y0;
+    cam.K = Math.min(w / dw, h / dh);
+    cam.ox = box.x0 + (w - dw * cam.K) / 2 - VIEW.x0 * cam.K;
+    cam.oy = box.y0 + (h - dh * cam.K) / 2 * (1 - (va || 0)) + VIEW.y1 * cam.K;
+  }
+  function SX(x) { return cam.ox + x * cam.K; }
+  function SY(y) { return cam.oy - y * cam.K; }
+  function mixBox(a, b, u) { return { x0: lerp(a.x0, b.x0, u), y0: lerp(a.y0, b.y0, u), x1: lerp(a.x1, b.x1, u), y1: lerp(a.y1, b.y1, u) }; }
+  function abU(t) { return E.inOut(seg(t, T_AB0, T_AB1)); }
+
+  function polyPath(poly) {
+    ctx.beginPath();
+    poly.forEach(function (P, i) { if (i) ctx.lineTo(SX(P[0]), SY(P[1])); else ctx.moveTo(SX(P[0]), SY(P[1])); });
+    ctx.closePath();
+  }
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  var hatchCache = { key: "", pat: null };
+  function hatch(poly, col, a) {
+    if (poly.length < 3 || a <= 0.01) return;
+    var dpr = window.devicePixelRatio || 1, step = 6, key = col + ":" + dpr;
+    if (hatchCache.key !== key) {
+      var n = Math.round(step * dpr), tile = document.createElement("canvas");
+      tile.width = n; tile.height = n;
+      var tc = tile.getContext("2d");
+      tc.strokeStyle = col; tc.lineWidth = 1.2 * dpr; tc.lineCap = "square";
+      tc.beginPath(); tc.moveTo(0, n); tc.lineTo(n, 0); tc.moveTo(-1, 1); tc.lineTo(1, -1); tc.moveTo(n - 1, n + 1); tc.lineTo(n + 1, n - 1); tc.stroke();
+      var pat = ctx.createPattern(tile, "repeat");
+      if (pat && pat.setTransform && window.DOMMatrix) pat.setTransform(new DOMMatrix().scale(1 / dpr));
+      hatchCache = { key: key, pat: pat };
+    }
+    polyPath(poly);
+    ctx.globalAlpha = a; ctx.fillStyle = hatchCache.pat || col; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function lineIn(a, b) {                         // the line a.x = b inside the view box
+    var pts = [], R = VIEW;
+    [[R.x0, null], [R.x1, null], [null, R.y0], [null, R.y1]].forEach(function (s) {
+      var x, y;
+      if (s[0] !== null) { if (Math.abs(a[1]) < 1e-12) return; x = s[0]; y = (b - a[0] * x) / a[1]; }
+      else { if (Math.abs(a[0]) < 1e-12) return; y = s[1]; x = (b - a[1] * y) / a[0]; }
+      if (x >= R.x0 - 1e-9 && x <= R.x1 + 1e-9 && y >= R.y0 - 1e-9 && y <= R.y1 + 1e-9) pts.push([x, y]);
+    });
+    if (pts.length < 2) return null;
+    pts.sort(function (p, q) { return p[0] - q[0] || q[1] - p[1]; });
+    return [pts[0], pts[pts.length - 1]];
+  }
+  function drawLine(a, b, col, lw, alpha, u, dash) {   // u: share of the line drawn so far (0..1)
+    var s = lineIn(a, b);
+    if (!s || alpha <= 0.01) return;
+    u = u == null ? 1 : u;
+    if (u <= 0) return;
+    var x1 = lerp(s[0][0], s[1][0], u), y1 = lerp(s[0][1], s[1][1], u);
+    ctx.save(); ctx.beginPath(); ctx.rect(clipR.x0, clipR.y0, clipR.x1 - clipR.x0, clipR.y1 - clipR.y0); ctx.clip();
+    ctx.globalAlpha = alpha; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineCap = "round";
+    if (dash) ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(SX(s[0][0]), SY(s[0][1])); ctx.lineTo(SX(x1), SY(y1)); ctx.stroke();
+    ctx.restore();
+  }
+  var clipR = { x0: 0, y0: 0, x1: 0, y1: 0 };
+  function star(X, Y, r, col, a) {
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a; ctx.beginPath();
+    for (var i = 0; i < 10; i++) {
+      var ang = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+      if (i) ctx.lineTo(X + rr * Math.cos(ang), Y + rr * Math.sin(ang)); else ctx.moveTo(X + rr * Math.cos(ang), Y + rr * Math.sin(ang));
+    }
+    ctx.closePath();
+    ctx.lineJoin = "round"; ctx.lineWidth = 3; ctx.strokeStyle = C.surface; ctx.stroke();
+    ctx.fillStyle = col; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function ring(X, Y, r, col, a, lw) {
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a; circle(X, Y, r + 1.5); ctx.fillStyle = C.surface; ctx.fill();
+    circle(X, Y, r); ctx.lineWidth = lw || 2.5; ctx.strokeStyle = col; ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  function pulse(X, Y, r, col, u) {               // expanding ring, u in 0..1
+    if (u <= 0 || u >= 1) return;
+    ctx.globalAlpha = 0.8 * (1 - u); circle(X, Y, r * (1 + 1.6 * u)); ctx.lineWidth = 2; ctx.strokeStyle = col; ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  function arrow(x0, y0, x1, y1, col, lw, head, a, dash) {
+    var dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy);
+    if (len < 1 || a <= 0.01) return;
+    var ux = dx / len, uy = dy / len, hl = Math.min(head, len * 0.6), hw = hl * 0.5, bx = x1 - ux * hl, by = y1 - uy * hl;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw; ctx.lineCap = "round";
+    if (dash) ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(bx, by); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(bx - uy * hw, by + ux * hw); ctx.lineTo(bx + uy * hw, by - ux * hw); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1; ctx.lineCap = "butt";
+  }
+
+  /* ---------- the plane: relaxation, presolve, cut, branching ---------- */
+  function drawPlane(S, t, box, s) {
+    setCam(box, abU(t));
+    var R = S.R, u = abU(t), small = u > 0.5, P = PRE, K = cam.K;
+    clipR = { x0: SX(VIEW.x0), y0: SY(VIEW.y1), x1: SX(VIEW.x1), y1: SY(VIEW.y0) };
+    var fs = Math.max(9.5, Math.min(12, K * 0.2)), dotR = Math.max(1.6, Math.min(3, K * 0.045));
+    var inA = 1 - seg(t, T_AB0 - 0.4, T_AB0 + 0.4);   // Phase A only details
+    // axes and ticks
+    var a0 = E.out(seg(t, 0.1, 1.2));
+    ctx.globalAlpha = a0; ctx.strokeStyle = C.axis; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(SX(VIEW.x0 + 0.2), SY(0)); ctx.lineTo(SX(VIEW.x1 - 0.1), SY(0)); ctx.moveTo(SX(0), SY(VIEW.y0 + 0.2)); ctx.lineTo(SX(0), SY(VIEW.y1 - 0.1)); ctx.stroke();
+    ctx.globalAlpha = 1;
+    if (K > 22) {
+      ctx.font = font(400, fs - 1, true); ctx.fillStyle = C.muted; ctx.globalAlpha = a0;
+      ctx.textAlign = "center"; ctx.textBaseline = "top";
+      for (var x = 1; x <= VIEW.x1 - 0.5; x++) ctx.fillText(String(x), SX(x), SY(0) + 4);
+      ctx.textAlign = "right"; ctx.textBaseline = "middle";
+      for (var y = 1; y <= VIEW.y1 - 0.4; y++) ctx.fillText(String(y), SX(0) - 5, SY(y));
+      ctx.globalAlpha = 1;
+    }
+    label(xn(0), SX(VIEW.x1 - 0.12), SY(0) - fs * 0.9, "right", C.ink2, font(600, fs, false), a0);
+    label(xn(1), SX(0) + 6, SY(VIEW.y1 - 0.2), "left", C.ink2, font(600, fs, false), a0);
+
+    // the region: original, then presolved (and cut, when the scenario has it)
+    var base = t < 5.3 ? ORIG : PREP;
+    var cutOn = S.full && t >= 18.1;
+    if (cutOn) base = S.BASE;
+    var ra = E.out(seg(t, 1.6, 3.4));
+    polyPath(base); ctx.globalAlpha = ra * (small ? 0.75 : 0.9); ctx.fillStyle = C.region; ctx.fill(); ctx.globalAlpha = 1;
+    // bound tightening sliver (x1 from its raw bound down to the rounded one), then the cut sliver
+    for (var j = 0; j < NV; j++) {
+      if (P.raw[j] - P.ub[j] < 1e-9) continue;
+      var sl = clip(ORIG, unit(j).map(function (v) { return -v; }), -P.ub[j]);
+      var fa = seg(t, 4.3, 4.9) * (1 - seg(t, 5.4, 6.4));
+      if (fa > 0 && sl.length > 2) { polyPath(sl); ctx.globalAlpha = 0.35 * fa; ctx.fillStyle = HOT; ctx.fill(); ctx.globalAlpha = 1; hatch(sl, HOT, 0.6 * fa); }
+    }
+    if (S.full && R.cut) {
+      var csl = clip(PREP, R.cut.a.map(function (v) { return -v; }), -R.cut.b);
+      var ca = seg(t, 17.6, 18.2) * (1 - 0.7 * seg(t, 19.4, 20.4)) * inA;
+      if (ca > 0 && csl.length > 2) { polyPath(csl); ctx.globalAlpha = 0.3 * ca * (1 - seg(t, 19, 20)); ctx.fillStyle = HOT; ctx.fill(); ctx.globalAlpha = 1; hatch(csl, HOT, 0.55 * ca); }
+    }
+    // branching strips (the part of a node that no child keeps) once the node has branched
+    S.nodes.forEach(function (nd) {
+      if (!nd.strip || nd.strip.length < 3 || t < nd.tS - 0.2) return;
+      var fl2 = seg(t, nd.tS - 0.2, nd.tS + 0.3);
+      var flash = (1 - seg(t, nd.tS + 0.5, nd.tS + 1.4));
+      polyPath(nd.strip); ctx.globalAlpha = 0.35 * fl2 * flash; ctx.fillStyle = HOT; ctx.fill(); ctx.globalAlpha = 1;
+      hatch(nd.strip, flash > 0.3 ? HOT : C["mit-silver"], fl2 * (0.25 + 0.4 * flash));
+    });
+    // outline of the relaxation
+    polyPath(base); ctx.globalAlpha = ra; ctx.strokeStyle = C.ink; ctx.lineWidth = small ? 1.4 : L.lw; ctx.lineJoin = "round"; ctx.stroke(); ctx.globalAlpha = 1;
+
+    // constraint lines (thin, across the view) drawn in one after the other
+    DATA.rows.forEach(function (r, i) {
+      var red = P.red.indexOf(i) >= 0, uu = E.inOut(seg(t, 0.6 + 0.55 * i, 1.9 + 0.55 * i));
+      var al = 0.55;
+      if (red) {
+        var hl = seg(t, 6.0, 6.5) * (1 - seg(t, 7.2, 7.8));
+        al = 0.55 * (1 - seg(t, 6.0, 6.4));
+        if (hl > 0.01) drawLine(r.a, r.b, HOT, 2.4, hl, uu);
+        drawLine(r.a, r.b, C["mit-silver"], 1.4, 0.8 * seg(t, 7.2, 7.8) * (1 - seg(t, 10.5, 11.5)), 1, [5, 4]);
+      }
+      drawLine(r.a, r.b, C.ink, 1.1, al * (small ? 0.6 : 1), uu);
+    });
+    // presolve bounds: the raw bound slides down to the rounded one
+    if (inA > 0.01) {
+      for (j = 0; j < NV; j++) {
+        var mv = E.inOut(seg(t, 3.9, 4.9)), bv = lerp(P.raw[j], P.ub[j], mv), ba = seg(t, 3.6, 4.0) * inA;
+        var ln = unit(j);
+        if (ba > 0.01) {
+          drawLine(ln, bv, P.raw[j] - P.ub[j] > 1e-9 ? HOT : C.ink, 1.8, ba * (1 - seg(t, 8.4, 9.8)), 1, mv < 1 ? [6, 4] : null);
+          var lt = T("solv.l.ub", { x: xn(j), u: num(P.ub[j], 0) });
+          var la = seg(t, 4.8, 5.4) * (1 - seg(t, 8.6, 9.4)) * inA;
+          if (j === 0) label(lt, SX(bv) + 7, SY(P.ub[1] / 2 + 0.5), "left", C.ink, font(600, fs, true), la);
+          else label(lt, SX(VIEW.x1 - 0.5), SY(bv) - fs * 0.9, "right", C.ink, font(600, fs, true), la);
+        }
+      }
+      // the redundant row, named while it goes
+      P.red.forEach(function (i) {
+        var r = DATA.rows[i], sgt = lineIn(r.a, r.b);
+        if (!sgt) return;
+        var la2 = seg(t, 6.2, 6.7) * (1 - seg(t, 8.4, 9.2));
+        var mx = lerp(sgt[0][0], sgt[1][0], 0.62), my = lerp(sgt[0][1], sgt[1][1], 0.62);
+        mx = Math.min(mx, VIEW.x1 - 1.2);
+        label(T("solv.l.red"), SX(mx) + 8, SY((r.b - r.a[0] * mx) / r.a[1]), "left", HOT, font(700, fs, false), la2);
+      });
+    }
+
+    // lattice of integer points
+    var la3 = E.out(seg(t, 0.3, 1.4));
+    for (x = 0; x <= VIEW.x1; x++) for (y = 0; y <= VIEW.y1; y++) {
+      var feas = feasibleOrig([x, y]);
+      ctx.globalAlpha = la3 * (feas ? 0.9 : 0.55); ctx.fillStyle = feas ? C.ink : C["mit-silver"];
+      circle(SX(x), SY(y), feas ? dotR : dotR * 0.7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // the cut line
+    if (S.full && R.cut) {
+      var cu = E.inOut(seg(t, 16.6, 17.8));
+      drawLine(R.cut.a, R.cut.b, HOT, small ? 1.8 : 2.6, 1, cu);
+      var cl = lineIn(R.cut.a, R.cut.b);
+      if (cl && inA > 0.01) {
+        var ct = T("solv.l.cut", { cut: lin(R.cut.a, false) + " ≤ " + num(R.cut.b, 0) });
+        var cx0 = 0.5, cy0 = (R.cut.b - R.cut.a[0] * cx0) / R.cut.a[1];
+        if (cy0 > VIEW.y1 - 0.3) { cy0 = VIEW.y1 - 0.4; cx0 = (R.cut.b - R.cut.a[1] * cy0) / R.cut.a[0]; }
+        label(ct, SX(cx0) + 10, SY(cy0) - 2, "left", HOT, font(700, fs, true), seg(t, 17.6, 18.2) * inA);
+      }
+    }
+
+    // objective line sweeping up to the bound (Phase A)
+    var zNow = null;
+    if (t >= 9.4) {
+      var z0 = R.root.z, zc = S.full ? R.rootLP.z : z0;
+      zNow = z0 * E.inOut(seg(t, 9.6, 12.4));
+      if (S.full) zNow = lerp(zNow, zc, E.inOut(seg(t, 18.8, 19.6)));
+      var oa = seg(t, 9.4, 9.8) * inA * (S.full ? 1 : 1 - seg(t, 17.6, 18.6));
+      drawLine(DATA.c, zNow, C.accent, 1.8, oa, 1, [7, 5]);
+      if (t < 12.6 && oa > 0.01) {                // the direction of better profit
+        var ln2 = lineIn(DATA.c, Math.max(zNow, 1e-3));
+        if (ln2) {
+          var mx2 = lerp(ln2[0][0], ln2[1][0], 0.5), my2 = lerp(ln2[0][1], ln2[1][1], 0.5), nn = Math.hypot(DATA.c[0], DATA.c[1]);
+          arrow(SX(mx2), SY(my2), SX(mx2 + DATA.c[0] / nn * 0.9), SY(my2 + DATA.c[1] / nn * 0.9), C.accent, 2, 9, oa);
+        }
+      }
+    }
+    // the LP optimum of the root (and after the cut)
+    var rx = R.root.x, rA = seg(t, 12.4, 12.8) * inA;
+    if (S.full) rA *= 1 - seg(t, 18.6, 19.2);
+    else rA *= 1 - seg(t, 18.6, 19.4);
+    var pr = Math.max(5, Math.min(8, K * 0.12));
+    if (rA > 0.01) {
+      ring(SX(rx[0]), SY(rx[1]), pr, C.accent, rA, 2.6);
+      pulse(SX(rx[0]), SY(rx[1]), pr, C.accent, seg(t, 12.6, 13.6));
+      sideLabel(pair(rx), SX(rx[0]), SY(rx[1]), pr, C["accent-text"], font(700, fs + 0.5, true), seg(t, 13.0, 13.6) * rA);
+    }
+    // ghost of the old optimum after the cut or the root branching
+    var gA = seg(t, 18.6, 19.2) * inA * (1 - seg(t, 22, 23));
+    if (gA > 0.01) { ctx.setLineDash([3, 3]); ring(SX(rx[0]), SY(rx[1]), pr, C["mit-silver"], gA, 1.5); ctx.setLineDash([]); }
+    if (S.full) {
+      var nx = R.rootLP.x, nA = seg(t, 19.2, 19.6) * inA;
+      if (nA > 0.01) {
+        arrow(SX(rx[0]), SY(rx[1]), SX(nx[0]) + 9, SY(nx[1]) + 4, C.muted, 1.4, 8, nA * (1 - seg(t, 21, 22)), [4, 3]);
+        ring(SX(nx[0]), SY(nx[1]), pr, C.accent, nA, 2.6);
+        pulse(SX(nx[0]), SY(nx[1]), pr, C.accent, seg(t, 19.4, 20.4));
+        sideLabel(pair(nx), SX(nx[0]), SY(nx[1]), pr, C["accent-text"], font(700, fs + 0.5, true), seg(t, 19.8, 20.3) * nA);
+      }
+      // rounding heuristic: from the LP point down to the integer point
+      if (R.rootHeur) {
+        var hx = R.rootHeur.x, hA = seg(t, 21.0, 21.4) * inA * (1 - seg(t, 23.6, 24.2));
+        var hu = E.inOut(seg(t, 21.2, 22.6));
+        if (hA > 0.01) arrow(SX(nx[0]), SY(nx[1]), SX(lerp(nx[0], hx[0], hu)) + 0.001, SY(lerp(nx[1], hx[1], hu)), HOT, 2, 9, hA, [5, 3]);
+      }
+    } else {
+      // plain branch and bound: the two children of the root (their outlines)
+      var n0 = S.nodes[0];
+      (n0.kids || []).forEach(function (k, ii) {
+        var nd = S.nodes[k], ka = seg(t, T_RBR + 0.2 + 1.2 * ii, T_RBR + 0.8 + 1.2 * ii) * inA;
+        if (ka <= 0.01 || nd.poly.length < 2) return;
+        polyPath(nd.poly); ctx.globalAlpha = ka; ctx.strokeStyle = C.accent; ctx.lineWidth = area(nd.poly) < 1e-6 ? 4 : 2; ctx.setLineDash([6, 4]); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+        var cxy = centroid(nd.poly), bt = branchText(nd);
+        var ly = area(nd.poly) < 1e-6 ? SY(cxy[1]) + fs + 6 : SY(cxy[1]);
+        label(bt, SX(cxy[0]) + (area(nd.poly) < 1e-6 ? -SX(cxy[0]) + SX(1.2) : 0), ly, area(nd.poly) < 1e-6 ? "left" : "center", C["accent-text"], font(700, fs, true), ka * (1 - seg(t, 23.6, 24.4)));
+      });
+    }
+
+    // Phase B: the node being solved, its LP point
+    if (u > 0.01 || t >= T_TREE0 - 3) {
+      var cur = currentNode(S, t);
+      if (cur) {
+        var nd2 = cur.nd, e = cur.e, sel = seg(t, e.t - cur.pre, e.t - cur.pre + 0.3) * (cur.fade);
+        if (nd2.poly.length >= 2 && sel > 0.01) {
+          polyPath(nd2.poly);
+          ctx.globalAlpha = 0.18 * sel; ctx.fillStyle = C.accent; if (nd2.poly.length > 2) ctx.fill();
+          ctx.globalAlpha = sel; ctx.strokeStyle = C.accent; ctx.lineWidth = area(nd2.poly) < 1e-6 ? 3.5 : 2; ctx.stroke(); ctx.globalAlpha = 1;
+        } else if (sel > 0.01) {                  // infeasible: its box is empty inside the relaxation
+          var bx0 = SX(Math.max(nd2.lo[0], VIEW.x0)), bx1 = SX(Math.min(nd2.hi[0], VIEW.x1)), by0 = SY(Math.min(nd2.hi[1], VIEW.y1)), by1 = SY(Math.max(nd2.lo[1], VIEW.y0));
+          ctx.globalAlpha = sel * 0.9; ctx.strokeStyle = HOT; ctx.lineWidth = 2; ctx.setLineDash([4, 3]);
+          ctx.strokeRect(bx0, by0, Math.max(2, bx1 - bx0), Math.max(2, by1 - by0)); ctx.setLineDash([]); ctx.globalAlpha = 1;
+        }
+        if (nd2.lp && nd2.lp.status === "optimal" && t >= e.t) {
+          var lpA = seg(t, e.t, e.t + 0.25) * cur.fade;
+          ring(SX(nd2.lp.x[0]), SY(nd2.lp.x[1]), small ? 4.2 : pr, C.accent, lpA, 2.2);
+          pulse(SX(nd2.lp.x[0]), SY(nd2.lp.x[1]), small ? 4.2 : pr, nd2.out === "int" ? C.accent : HOT, seg(t, e.t, e.t + 0.9));
+        }
+      }
+    }
+    // open nodes pruned without solving: their region flashes in silver as it is discarded
+    S.nodes.forEach(function (nd) {
+      if (!isFinite(nd.tP) || nd.poly.length < 3) return;
+      var pa = seg(t, nd.tP - 0.1, nd.tP + 0.3) * (1 - seg(t, nd.tP + 1.2, nd.tP + 2));
+      if (pa <= 0.01) return;
+      hatch(nd.poly, C["mit-silver"], 0.9 * pa);
+      polyPath(nd.poly); ctx.globalAlpha = pa; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.8; ctx.setLineDash([4, 3]); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    });
+    // incumbent star
+    if (s.incX) {
+      var sx = SX(s.incX[0]), sy = SY(s.incX[1]), iA = 1;
+      var lastInc = null;
+      for (var q = 0; q <= s.idx; q++) { var eq = S.ev[q]; if (eq.type === "heur" || eq.newInc) lastInc = eq; }
+      var grow = lastInc ? E.back(seg(t, lastInc.t, lastInc.t + 0.5)) : 1;
+      star(sx, sy, (small ? 7 : 10) * Math.max(0.2, grow), C.accent, iA);
+      if (lastInc) pulse(sx, sy, small ? 7 : 10, C.accent, seg(t, lastInc.t, lastInc.t + 1));
+      if (t >= T_DONE) {
+        var oa2 = seg(t, T_DONE + 0.4, T_DONE + 1);
+        pulse(sx, sy, small ? 7 : 10, C.accent, seg(t, T_DONE + 0.4, T_DONE + 1.8));
+        label(pair(s.incX, 0), sx + (small ? 9 : 13), sy - (small ? 9 : 12), "left", C["accent-text"], font(700, fs + 0.5, true), oa2);
+      }
+    }
+  }
+  function sideLabel(txt, X, Y, r, col, f, a) {  // right of a point when it fits in the plot, else left
+    ctx.font = f;
+    var w = ctx.measureText(txt).width;
+    if (X + r + 7 + w < clipR.x1 - 4) label(txt, X + r + 7, Y - r - 3, "left", col, f, a);
+    else label(txt, X - r - 7, Y - r - 3, "right", col, f, a);
+  }
+  function centroid(p) { var x = 0, y = 0; p.forEach(function (q) { x += q[0]; y += q[1]; }); return [x / p.length, y / p.length]; }
+  function branchText(nd) { return xn(nd.bvar) + " " + (nd.dir === "le" ? "≤" : "≥") + " " + nd.bval; }
+  function lin(a, tex) {                          // a1 x1 + a2 x2 as text
+    var s = "";
+    for (var j = 0; j < a.length; j++) {
+      var k = a[j];
+      if (Math.abs(k) < 1e-12) continue;
+      var mag = Math.abs(k), coef = Math.abs(mag - 1) < 1e-12 ? "" : fmt(mag, 3);
+      var v = tex ? "x_{" + (j + 1) + "}" : xn(j);
+      if (!s) s = (k < 0 ? (tex ? "-" : MINUS) : "") + coef + v;
+      else s += (k < 0 ? (tex ? " - " : " " + MINUS + " ") : (tex ? " + " : " + ")) + coef + v;
+    }
+    return s || "0";
+  }
+  function currentNode(S, t) {                    // the tree node in focus at time t (Phase B)
+    var best = null;
+    for (var i = 0; i < S.ev.length; i++) {
+      var e = S.ev[i];
+      if (e.type !== "node" || (e.node === 0 && !S.full)) continue;
+      var pre = Math.min(0.45 * e.d, 1.2);
+      if (t >= e.t - pre) best = { e: e, nd: S.nodes[e.node], pre: pre, i: i };
+    }
+    if (!best) return null;
+    best.fade = 1 - seg(t, T_DONE, T_DONE + 0.6);
+    return best;
+  }
+
+  /* ---------- the tree ---------- */
+  function treeGeo(S, box) {
+    var w = box.x1 - box.x0, h = box.y1 - box.y0;
+    var sw = Math.min(w / S.leaves, L.portrait ? 70 : 150), lh = Math.min(h / Math.max(1, S.maxD + 0.8), L.portrait ? 52 : 86);
+    var r = clamp(Math.min(sw * 0.26, lh * 0.3), 4.5, L.portrait ? 10 : 13);
+    var th = S.maxD * lh + 2 * r + 4, tw = sw * S.leaves, x0 = box.x0 + (w - tw) / 2 + sw / 2, y0 = box.y0 + r + 2 + Math.max(0, h - th) * 0.3;
+    return { sw: sw, lh: lh, r: r, X: function (nd) { return x0 + nd.u * sw; }, Y: function (nd) { return y0 + nd.depth * lh; } };
+  }
+  function drawTree(S, t, box, alpha) {
+    if (alpha <= 0.01) return;
+    var G = treeGeo(S, box), r = G.r, showLab = G.lh >= 30 && G.sw >= 44;
+    var fs = L.portrait ? 9.5 : 10.5;
+    ctx.save(); ctx.globalAlpha = 1;
+    // edges
+    S.nodes.forEach(function (nd) {
+      if (nd.parent < 0 || t < nd.tC) return;
+      var p = S.nodes[nd.parent], g = E.out(seg(t, nd.tC, nd.tC + 0.5));
+      var X0 = G.X(p), Y0 = G.Y(p), X1 = lerp(X0, G.X(nd), g), Y1 = lerp(Y0, G.Y(nd), g);
+      ctx.globalAlpha = alpha * (nd.out === "pruned" && t >= nd.tP ? 0.45 : 0.85);
+      ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(X0, Y0 + r); ctx.lineTo(X1, Y1 - r * g); ctx.stroke();
+      if (showLab && g > 0.6) {                   // beside the edge, on its outer side, clear of the line
+        var X2 = G.X(nd), Y2 = G.Y(nd), dx = X2 - X0, dy = Y2 - Y0, len = Math.hypot(dx, dy) || 1;
+        var nx = (dx < 0 ? -dy : dy) / len, ny = (dx < 0 ? dx : -dx) / len;
+        var txt = branchText(nd), lf = font(400, fs, true);
+        ctx.font = lf;
+        var tw = ctx.measureText(txt).width, dd = Math.abs(nx) * tw / 2 + Math.abs(ny) * fs / 2 + 4;
+        label(txt, (X0 + X2) / 2 + nx * dd, (Y0 + Y2) / 2 + ny * dd, "center", C.ink2, lf, alpha * seg(t, nd.tC + 0.3, nd.tC + 0.7));
+      }
+    });
+    // optimal path in the last chapter
+    var inc = S.R.incNode;
+    if (t >= T_DONE && inc >= 0) {
+      var pa = seg(t, T_DONE + 0.6, T_DONE + 1.4) * alpha, k = inc;
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 3.2; ctx.lineCap = "round"; ctx.globalAlpha = pa;
+      while (S.nodes[k].parent >= 0) {
+        var a = S.nodes[k], b = S.nodes[a.parent];
+        ctx.beginPath(); ctx.moveTo(G.X(b), G.Y(b)); ctx.lineTo(G.X(a), G.Y(a)); ctx.stroke();
+        k = a.parent;
+      }
+      ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+    }
+    // nodes
+    S.nodes.forEach(function (nd) {
+      if (t < nd.tC) return;
+      var X = G.X(nd), Y = G.Y(nd), g = E.back(seg(t, nd.tC + 0.1, nd.tC + 0.55)), rr = r * g;
+      if (rr <= 0.2) return;
+      var solved = t >= nd.tS, pruned = t >= nd.tP, a = alpha;
+      ctx.globalAlpha = a;
+      circle(X, Y, rr + 1.5); ctx.fillStyle = C.surface; ctx.fill();
+      if (!solved && !pruned) {
+        ctx.setLineDash([3, 2.5]); circle(X, Y, rr); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+        // selection glow just before it is solved
+        var pre = Math.min(0.45 * (nd.d || 2), 1.2), sg = seg(t, nd.tS - pre, nd.tS - pre + 0.25);
+        if (sg > 0) { circle(X, Y, rr + 3); ctx.globalAlpha = a * sg; ctx.strokeStyle = HOT; ctx.lineWidth = 2.5; ctx.stroke(); ctx.globalAlpha = a; }
+      } else if (pruned && !solved) {
+        var pa2 = seg(t, nd.tP, nd.tP + 0.4);
+        ctx.setLineDash([3, 2.5]); circle(X, Y, rr); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+        ctx.globalAlpha = a * pa2; circle(X, Y, rr * 0.8); ctx.fillStyle = C["mit-silver"]; ctx.fill(); ctx.globalAlpha = a;
+        pulse(X, Y, rr, C["mit-silver"], seg(t, nd.tP, nd.tP + 0.9));
+      } else {
+        var o = nd.out, fa = seg(t, nd.tS, nd.tS + 0.3);
+        if (o === "branch") { circle(X, Y, rr); ctx.fillStyle = C.surface; ctx.fill(); ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.stroke(); }
+        else if (o === "int") { circle(X, Y, rr); ctx.fillStyle = C.accent; ctx.fill(); }
+        else if (o === "bound") { circle(X, Y, rr); ctx.fillStyle = C["mit-silver"]; ctx.fill(); }
+        else if (o === "inf") {
+          circle(X, Y, rr); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.5; ctx.stroke();
+          var q = rr * 0.55; ctx.beginPath(); ctx.moveTo(X - q, Y - q); ctx.lineTo(X + q, Y + q); ctx.moveTo(X + q, Y - q); ctx.lineTo(X - q, Y + q); ctx.stroke();
+        }
+        if (fa < 1) { circle(X, Y, rr + 3); ctx.globalAlpha = a * (1 - fa); ctx.strokeStyle = HOT; ctx.lineWidth = 2.5; ctx.stroke(); ctx.globalAlpha = a; }
+        pulse(X, Y, rr, o === "int" ? C.accent : HOT, seg(t, nd.tS, nd.tS + 0.9));
+        if (nd.heur) {                            // the rounding heuristic found a new incumbent here
+          ctx.globalAlpha = 1;
+          star(X + rr * 0.95, Y - rr * 0.95, Math.max(4, rr * 0.62) * E.back(seg(t, nd.tS + 0.1, nd.tS + 0.5)), C.accent, a);
+        }
+      }
+      ctx.globalAlpha = 1;
+    });
+    // the root's own heuristic incumbent (before any branching)
+    if (S.R.rootHeur) {
+      var n0 = S.nodes[0], hs = seg(t, Math.max(n0.tC, T_HEUR), T_HEUR + 0.5);
+      if (hs > 0) star(G.X(n0) + r * 0.95, G.Y(n0) - r * 0.95, Math.max(4, r * 0.62) * E.back(hs), C.accent, alpha);
+    }
+    ctx.restore();
+  }
+
+  /* ---------- incumbent and best bound curves ---------- */
+  var YR = (function () {
+    var lo = Infinity, hi = -Infinity;
+    ["full", "plain"].forEach(function (k) {
+      RUN[k].events.forEach(function (e) { if (e.inc !== null && e.inc !== undefined) lo = Math.min(lo, e.inc); if (e.bound !== null && e.bound !== undefined) hi = Math.max(hi, e.bound); });
+    });
+    var step = hi - lo > 12 ? 5 : 2;
+    return { lo: Math.floor((lo - 1) / step) * step, hi: Math.ceil((hi + 0.5) / step) * step, step: step,
+      pmax: Math.max(RUN.full.piv, RUN.plain.piv) };
+  })();
+  function series(S) {                            // [{t, x (pivots), inc, bound}]
+    return S.ev.filter(function (e) { return e.bound !== null && e.bound !== undefined; }).map(function (e) { return { t: e.t, x: e.piv, inc: e.inc, b: e.bound }; });
+  }
+  function drawChart(S, t, box, alpha) {
+    if (alpha <= 0.01) return;
+    var pts = series(S), X = function (v) { return box.x0 + v / YR.pmax * (box.x1 - box.x0); };
+    var Y = function (v) { return box.y1 - (v - YR.lo) / (YR.hi - YR.lo) * (box.y1 - box.y0); };
+    var fs = L.portrait ? 9 : 10.5;
+    ctx.save(); ctx.globalAlpha = alpha;
+    // axes, grid and ticks
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (var v = YR.lo; v <= YR.hi + 1e-9; v += YR.step) {
+      ctx.beginPath(); ctx.moveTo(box.x0, Y(v)); ctx.lineTo(box.x1, Y(v)); ctx.stroke();
+      ctx.fillText(String(v), box.x0 - 5, Y(v));
+    }
+    ctx.strokeStyle = C.axis; ctx.beginPath(); ctx.moveTo(box.x0, box.y0 - 4); ctx.lineTo(box.x0, box.y1); ctx.lineTo(box.x1, box.y1); ctx.stroke();
+    ctx.textAlign = "right"; ctx.textBaseline = "top";
+    ctx.fillText(T("solv.l.piv"), box.x1, box.y1 + 4);
+    ctx.textAlign = "left"; ctx.fillText("0", box.x0, box.y1 + 4);
+    // the other setting, for comparison, in the last chapter
+    var ga = seg(t, T_DONE + 1.0, T_DONE + 1.8) * alpha;
+    if (ga > 0.01) {
+      var O = scen(other(S.key)), op = series(O);
+      ctx.setLineDash([4, 3]); ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.4; ctx.globalAlpha = ga;
+      stepPath(op, X, Y, "b", Infinity, op[op.length - 1].x); ctx.stroke();
+      stepPath(op, X, Y, "inc", Infinity, op[op.length - 1].x); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = alpha;
+    }
+    // how far the work has got: between two events the head moves on to the next event's pivot count
+    var k = -1;
+    for (var i = 0; i < pts.length; i++) if (pts[i].t <= t) k = i;
+    if (k < 0) { ctx.restore(); return; }
+    var head = pts[k].x;
+    if (k + 1 < pts.length) head = lerp(pts[k].x, pts[k + 1].x, seg(t, pts[k].t, pts[k + 1].t) * 0.999);
+    // the gap as a band
+    ctx.globalAlpha = alpha * 0.9; ctx.fillStyle = C.sel;
+    ctx.beginPath();
+    var started = false;
+    for (i = 0; i <= k; i++) {
+      if (pts[i].inc === null || pts[i].inc === undefined) continue;
+      var xa = pts[i].x, xb = i < k ? pts[i + 1].x : head;
+      ctx.rect(X(xa), Y(pts[i].b), X(xb) - X(xa), Y(pts[i].inc) - Y(pts[i].b));
+      started = true;
+    }
+    if (started) ctx.fill();
+    ctx.globalAlpha = alpha;
+    ctx.lineJoin = "round";
+    stepPath(pts, X, Y, "b", k, head); ctx.strokeStyle = C.ink; ctx.lineWidth = 2.2; ctx.stroke();
+    stepPath(pts, X, Y, "inc", k, head); ctx.strokeStyle = C.accent; ctx.lineWidth = 2.6; ctx.stroke();
+    // heads
+    var last = pts[k];
+    circle(X(head), Y(last.b), 3.2); ctx.fillStyle = C.ink; ctx.fill();
+    if (last.inc !== null && last.inc !== undefined) { circle(X(head), Y(last.inc), 3.4); ctx.fillStyle = C.accent; ctx.fill(); }
+    // they meet
+    var ma = seg(t, T_DONE + 0.3, T_DONE + 0.9);
+    if (ma > 0 && last.inc !== null) {
+      var MX = X(last.x), MY = Y(last.inc);
+      pulse(MX, MY, 5, C.accent, seg(t, T_DONE + 0.3, T_DONE + 1.5));
+      var gt = T("solv.l.gap0", { z: num(last.inc, 2) }), gf = font(700, fs + 1, false);
+      ctx.font = gf;
+      var gw = ctx.measureText(gt).width, right = MX + 8 + gw < L.W - 8;
+      label(gt, right ? MX + 8 : MX - 8, MY - 11, right ? "left" : "right", C["accent-text"], gf, ma * alpha);
+    }
+    ctx.restore();
+  }
+  function stepPath(pts, X, Y, key, k, head) {
+    ctx.beginPath();
+    var on = false, n = Math.min(k, pts.length - 1);
+    for (var i = 0; i <= n; i++) {
+      var v = pts[i][key];
+      if (v === null || v === undefined) { on = false; continue; }
+      var xa = X(pts[i].x), xb = X(i < n ? pts[i + 1].x : head);
+      if (!on) { ctx.moveTo(xa, Y(v)); on = true; } else ctx.lineTo(xa, Y(v));
+      ctx.lineTo(xb, Y(v));
+    }
+  }
+
+  /* ---------- captions ---------- */
+  function captions(S, t) {
+    var R = S.R, P = PRE, k = S.full ? "full" : "plain";
+    if (t < CH[1]) return [T("solv.cap1"), T("solv.cap1.sub", { b: P.ub.map(function (u, j) { return xn(j) + " ≤ " + u; }).join(", ") })];
+    if (t < CH[2]) return [T("solv.cap2"), T("solv.cap2.sub", { z: num(R.root.z), x: pair(R.root.x) })];
+    if (t < CH[3]) {
+      if (S.full) return [T("solv.cap3.full"), T("solv.cap3.full.sub", { z: num(R.rootLP.z), h: num(R.rootHeur ? R.rootHeur.z : 0, 0) })];
+      var n0 = R.nodes[0];
+      return [T("solv.cap3.plain"), T("solv.cap3.plain.sub", { b: xn(n0.sv) + " ≤ " + n0.sval, c: xn(n0.sv) + " ≥ " + (n0.sval + 1) })];
+    }
+    if (t < CH[4]) return [T("solv.cap4"), T("solv.cap4." + k + ".sub")];
+    var O = RUN[other(S.key)];
+    return [T("solv.cap5", { z: num(R.inc, 2) }), T("solv.cap5." + k + ".sub", { n: R.expl, m: O.expl })];
+  }
+  function drawCaption(S, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(S, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3].map(function (i) {
+    var el = document.getElementById("solv-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null };
+  });
+  function setChip(i, val, lab, op) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+  }
+  function hud(S, t, s) {
+    var op = seg(t, 0.3, 0.8);
+    setChip(0, String(s.expl), T("solv.k.nodes"), op);
+    setChip(1, s.inc === null ? DASH : num(s.inc, 2), T("solv.k.inc"), op);
+    setChip(2, s.bound === null ? DASH : num(s.bound, 2), T("solv.k.bound"), op);
+    var g = gapOf(s.inc, s.bound);
+    setChip(3, g === null ? DASH : pct(g), T("solv.k.gap"), op);
+  }
+
+  /* ---------- the log (DOM, under the stage) ---------- */
+  var logBody = document.getElementById("solv-log-body"), logKey = "", LOGN = 8;
+  function logMsg(S, m) {
+    var R = S.R, P = PRE;
+    if (m === "pre") return T("solv.log.pre", { r: P.red.length, b: P.ub.map(function (u, j) { return xn(j) + " ≤ " + u; }).join(", ") });
+    if (m === "root") return T("solv.log.root", { z: num(R.root.z), p: R.root.iterations });
+    if (m === "cut") return T("solv.log.cut", { cut: lin(R.cut.a, false) + " ≤ " + num(R.cut.b, 0), z: num(R.rootLP.z) });
+    if (m === "done") return T("solv.log.done", { n: R.expl, p: R.piv });
+    if (m === "opt") return T("solv.log.opt", { z: num(R.inc, 2), g: pct(0) });
+    return "";
+  }
+  function renderLog(S, t) {
+    var n = 0;
+    S.log.forEach(function (l) { if (l.t <= t) n++; });
+    var key = S.key + ":" + n + ":" + I18N.lang;
+    if (key === logKey) return;
+    logKey = key;
+    var vis = S.log.slice(Math.max(0, n - LOGN), n), h = "";
+    vis.forEach(function (l, i) {
+      var cls = i === vis.length - 1 && n > 0 ? " class='new'" : "";
+      if (l.msg) { h += "<tr" + cls + "><td class='msg' colspan='7'>" + logMsg(S, l.msg) + "</td></tr>"; return; }
+      var r = l.row, g = gapOf(r.inc, r.bound);
+      h += "<tr" + cls + "><td class='mk'>" + r.mk + "</td><td>" + r.expl + "</td><td>" + r.open + "</td><td class='inc'>" +
+        (r.inc === null ? DASH : fix2(r.inc)) + "</td><td>" + fix2(r.bound) + "</td><td>" + (g === null ? DASH : T("solv.pct", { v: fix2(g) })) + "</td><td>" + r.piv + "</td></tr>";
+    });
+    for (var k = vis.length; k < LOGN; k++) h += "<tr><td colspan='7'> </td></tr>";
+    logBody.innerHTML = h;
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var S = scen(state.sc), s = snap(S, t);
+    hud(S, t, s);
+    renderLog(S, t);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    var u = abU(t);
+    drawPlane(S, t, mixBox(L.PA, L.PB, u), s);
+    var ta = E.out(seg(t, T_AB1 - 0.5, T_AB1 + 0.5));
+    drawTree(S, t, L.TB, ta);
+    drawChart(S, t, L.CB, ta);
+    drawCaption(S, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "solv.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status, model, run table, notes
+     ===================================================================================== */
+  function renderScenText() {
+    var S = scen(state.sc), R = S.R, O = RUN[other(state.sc)];
+    stage.setAttribute("aria-label", T("solv.anim.aria") + " " + T("solv.anim.aria." + state.sc, {
+      z0: num(R.root.z), zc: num(RUN.full.rootLP.z), n: R.expl, m: O.expl, z: num(R.inc, 2), x: pair(R.incX, 0)
+    }));
+    document.getElementById("solv-lg-cut").hidden = !S.full;
+    document.getElementById("solv-lg-ghost").textContent = T("solv.lg.ghost." + state.sc);
+  }
+  function incList(S) {
+    return S.incs.map(function (e) { return num(e.inc, 0); }).join(", ");
+  }
+  function firstIncNode(S) {
+    var e = S.incs[0];
+    return e.type === "heur" ? 0 : S.nodes[e.node].order;
+  }
+  function renderStatus() {
+    var S = scen(state.sc), R = S.R;
+    var v = { z0: num(R.root.z), zc: R.full ? num(R.rootLP.z) : "", h: R.rootHeur ? num(R.rootHeur.z, 0) : "", incs: incList(S),
+      first: firstIncNode(S), n: R.expl, p: R.piv, z: num(R.inc, 2), x: pair(R.incX, 0), cut: R.cut ? lin(R.cut.a, false) + " ≤ " + num(R.cut.b, 0) : "" };
+    document.getElementById("solv-status").innerHTML = T("solv.st." + state.sc, v);
+  }
+  function fracTex(v) {                           // a tableau entry as a fraction (the data are integers)
+    var s = v < 0 ? "-" : "", a = Math.abs(v);
+    for (var d = 1; d <= 400; d++) {
+      var n = Math.round(a * d);
+      if (Math.abs(n / d - a) < 1e-7) return d === 1 ? s + n : s + "\\tfrac{" + n + "}{" + d + "}";
+    }
+    return s + fmt(a, 4);
+  }
+  function fracTxt(v) {
+    var s = v < 0 ? MINUS : "", a = Math.abs(v);
+    for (var d = 1; d <= 400; d++) {
+      var n = Math.round(a * d);
+      if (Math.abs(n / d - a) < 1e-7) return d === 1 ? s + n : s + n + "/" + d;
+    }
+    return s + fmt(a, 4);
+  }
+  function rowKey(r) { return r.k.indexOf("ub") === 0 ? "ub" : r.k; }
+  function renderModel() {
+    var P = PRE, i, j;
+    // the model
+    var tex = "\\begin{aligned}\\max\\;& " + lin(DATA.c, true) + " && \\text{(" + T("solv.m.profit") + ")}";
+    var txt = "max  " + lin(DATA.c, false) + "   (" + T("solv.m.profit") + ")";
+    DATA.rows.forEach(function (r, i) {
+      tex += "\\\\ " + (i ? "" : "\\text{ST}") + "\\;& " + lin(r.a, true) + " \\le " + r.b + " && \\text{(" + T("solv.m." + r.k) + ")}";
+      txt += "\n" + (i ? "     " : "s.t. ") + lin(r.a, false) + " ≤ " + r.b + "   (" + T("solv.m." + r.k) + ")";
+    });
+    tex += "\\\\ & x_1, x_2 \\in \\mathbb{Z}_{\\ge 0} && \\text{(" + T("solv.m.int") + ")}\\end{aligned}";
+    txt += "\n     x₁, x₂ ∈ ℤ, ≥ 0   (" + T("solv.m.int") + ")";
+    TeX.set(document.getElementById("solv-model"), tex, txt);
+    var D = DATA.rows;
+    document.getElementById("solv-data").textContent = T("solv.model.data", {
+      c1: DATA.c[0], c2: DATA.c[1], r1: D[0].a[0], r2: D[0].a[1], rb: D[0].b, p1: D[1].a[0], p2: D[1].a[1], pb: D[1].b, g1: D[2].a[0], g2: D[2].a[1], gb: D[2].b
+    });
+    // presolve
+    var pt = "\\begin{aligned}", pp = "";
+    for (j = 0; j < NV; j++) {
+      var r = DATA.rows[P.rawRow[j]];
+      pt += (j ? "\\\\ " : "") + "& x_{" + (j + 1) + "} \\le \\left\\lfloor \\frac{" + r.b + "}{" + r.a[j] + "} \\right\\rfloor = " + P.ub[j] + " && \\text{(" + T("solv.m." + r.k) + ")}";
+      pp += (j ? "\n" : "") + xn(j) + " ≤ ⌊" + r.b + "/" + r.a[j] + "⌋ = " + P.ub[j] + "   (" + T("solv.m." + r.k) + ")";
+    }
+    P.red.forEach(function (i) {
+      var r = DATA.rows[i], terms = r.a.map(function (a, j) { return a + "\\cdot " + P.ub[j]; }).join(" + ");
+      pt += "\\\\ & " + lin(r.a, true) + " \\le " + terms + " = " + P.act[i] + " \\le " + r.b + " && \\text{(" + T("solv.pre.always") + ")}";
+      pp += "\n" + lin(r.a, false) + " ≤ " + r.a.map(function (a, j) { return a + "·" + P.ub[j]; }).join(" + ") + " = " + P.act[i] + " ≤ " + r.b + "   (" + T("solv.pre.always") + ")";
+    });
+    pt += "\\end{aligned}";
+    TeX.set(document.getElementById("solv-pre"), pt, pp);
+    var rr = DATA.rows[P.rawRow[0]];
+    document.getElementById("solv-pre-why").textContent = T("solv.pre.why", {
+      raw: fmt(P.raw[0], 2), u: P.ub[0], row: T("solv.m." + DATA.rows[P.red[0]].k), z1: num(NOPRE.z), z0: num(RUN.full.root.z)
+    });
+    // the Gomory cut, from the optimal tableau of the presolved LP
+    var G = RUN.full.cut, m = G.rows.length, N = G.row.length - 1, basic = G.col;
+    var name = function (col, tex) {
+      if (col < NV) return tex ? "x_{" + (col + 1) + "}" : xn(col);
+      return tex ? "s_{" + (col - NV + 1) + "}" : "s" + String.fromCharCode(0x2080 + col - NV + 1);
+    };
+    var rowT = name(basic, true), rowP = name(basic, false), rT = "", rP = "", gT = "", gP = "";
+    for (j = 0; j < N; j++) {
+      if (j === basic || Math.abs(G.row[j]) < 1e-9) continue;
+      var v = G.row[j];
+      rT += (v < 0 ? " - " : " + ") + (Math.abs(Math.abs(v) - 1) < 1e-9 ? "" : fracTex(Math.abs(v))) + name(j, true);
+      rP += (v < 0 ? " " + MINUS + " " : " + ") + (Math.abs(Math.abs(v) - 1) < 1e-9 ? "" : fracTxt(Math.abs(v)) + "·") + name(j, false);
+      var fv = fl(v);
+      if (fv !== 0) {
+        gT += (fv < 0 ? " - " : " + ") + (Math.abs(fv) === 1 ? "" : Math.abs(fv)) + name(j, true);
+        gP += (fv < 0 ? " " + MINUS + " " : " + ") + (Math.abs(fv) === 1 ? "" : Math.abs(fv)) + name(j, false);
+      }
+    }
+    var subs = [], subsP = [];
+    for (i = 0; i < m; i++) {
+      if (G.g[i] === 0) continue;
+      var rw = G.rows[i];
+      subs.push("s_{" + (i + 1) + "} = " + rw.b + " - " + lin(rw.a, true).replace(/ \+ /g, " - "));
+      subsP.push("s" + String.fromCharCode(0x2081 + i) + " = " + rw.b + " " + MINUS + " " + lin(rw.a, false).replace(/ \+ /g, " " + MINUS + " "));
+    }
+    var ct = "\\begin{aligned}& " + rowT + rT + " = " + fracTex(G.row[N]) + " && \\text{(" + T("solv.cut.rowA") + " }" + rowT + "\\text{ " + T("solv.cut.rowB") + ")}" +
+      "\\\\ & " + rowT + gT + " \\le " + fl(G.row[N]) + " && \\text{(" + T("solv.cut.round") + ")}" +
+      "\\\\ & " + lin(G.a, true) + " \\le " + G.b + " && \\text{(" + T("solv.cut.with") + " }" + subs.join(",\\ ") + "\\text{)}\\end{aligned}";
+    var cp = rowP + rP + " = " + fracTxt(G.row[N]) + "   (" + T("solv.cut.rowA") + " " + rowP + " " + T("solv.cut.rowB") + ")\n" +
+      rowP + gP + " ≤ " + fl(G.row[N]) + "   (" + T("solv.cut.round") + ")\n" +
+      lin(G.a, false) + " ≤ " + G.b + "   (" + T("solv.cut.with") + " " + subsP.join(", ") + ")";
+    TeX.set(document.getElementById("solv-cut"), ct, cp);
+    var slackNames = G.rows.map(function (r, i) { return "s" + String.fromCharCode(0x2081 + i) + " " + T("solv.m.s." + rowKey(r), { x: r.k.indexOf("ub") === 0 ? xn(+r.k.slice(2)) : "" }); }).join(", ");
+    document.getElementById("solv-cut-why").textContent = T("solv.cut.why", {
+      s: slackNames, x: pair(RUN.full.root.x), z0: num(RUN.full.root.z), zc: num(RUN.full.rootLP.z)
+    });
+  }
+  function resultText(S, nd) {
+    if (nd.out === "pruned") return T("solv.res.pruned", { b: num(nd.pb, 2) });
+    if (nd.out === "inf") return T("solv.res.inf");
+    if (nd.out === "bound") return T("solv.res.bound");
+    if (nd.out === "int") return T("solv.res.int");
+    var s = T("solv.res.branch", { x: xn(nd.sv) });
+    var h = nd.heur || (nd.id === 0 ? S.R.rootHeur : null);   // the root's rounding runs right after the cut
+    if (h) s += "; " + T("solv.res.heur", { z: num(h.z, 0) });
+    return s;
+  }
+  function bText(nd) {
+    var p = [];
+    for (var j = 0; j < NV; j++) {
+      if (nd.lo[j] > 0 && nd.hi[j] === nd.lo[j]) { p.push(xn(j) + " = " + nd.lo[j]); continue; }
+      if (nd.lo[j] > 0) p.push(xn(j) + " ≥ " + nd.lo[j]);
+      if (nd.hi[j] < PRE.ub[j]) p.push(xn(j) + " ≤ " + nd.hi[j]);
+    }
+    return p.length ? p.join(", ") : T("solv.run.none");
+  }
+  function renderRun() {
+    var S = scen(state.sc), R = S.R, O = RUN[other(state.sc)];
+    document.getElementById("solv-run-title").textContent = T("solv.run.title", { s: T("solv.sc." + state.sc) });
+    document.getElementById("solv-s-z").textContent = num(R.inc, 2);
+    document.getElementById("solv-s-zl").textContent = T("solv.run.optl", { x: pair(R.incX, 0) });
+    document.getElementById("solv-s-n").textContent = String(R.expl);
+    document.getElementById("solv-s-nl").textContent = T("solv.run.nodesl." + state.sc, { m: O.expl });
+    document.getElementById("solv-s-p").textContent = String(R.piv);
+    document.getElementById("solv-s-pl").textContent = T("solv.run.pivl", { m: O.piv });
+    document.getElementById("solv-s-r").textContent = num(R.rootLP.z, 2);
+    document.getElementById("solv-s-rl").textContent = R.full ? T("solv.run.rootl.full", { z: num(R.root.z, 2) }) : T("solv.run.rootl.plain");
+    document.getElementById("solv-run-intro").textContent = T("solv.run.intro." + state.sc);
+    var h = "<thead><tr><th class='num'>" + T("solv.run.th.n") + "</th><th>" + T("solv.run.th.b") + "</th><th class='num'>" + T("solv.run.th.x") +
+      "</th><th class='num'>" + T("solv.run.th.z") + "</th><th>" + T("solv.run.th.r") + "</th><th class='num wide'>" + T("solv.run.th.p") + "</th></tr></thead><tbody>";
+    var list = S.nodes.filter(function (nd) { return nd.order; }).sort(function (a, b) { return a.order - b.order; })
+      .concat(S.nodes.filter(function (nd) { return nd.out === "pruned"; }));
+    list.forEach(function (nd) {
+      var ok = nd.lp && nd.lp.status === "optimal";
+      var cls = nd.out === "int" ? "res-int" : (nd.heur || (nd.id === 0 && R.rootHeur)) ? "res-heur" : (nd.out === "branch" ? "" : "res-quiet");
+      var piv = nd.order ? (nd.id === 0 ? R.root.iterations + (R.full ? R.rootLP.iterations : 0) : nd.piv) : DASH;
+      h += "<tr><td class='num'>" + (nd.order || DASH) + "</td><td class='mono'>" + bText(nd) + "</td><td class='num'>" + (ok ? pair(nd.lp.x) : DASH) +
+        "</td><td class='num'>" + (ok ? num(nd.lp.z, 2) : DASH) + "</td><td class='" + cls + "'>" + resultText(S, nd) + "</td><td class='num wide'>" + piv + "</td></tr>";
+    });
+    document.getElementById("solv-nodes").innerHTML = h + "</tbody>";
+  }
+  function renderNotes() {
+    var F = scen("full"), Pn = scen("plain"), P = PRE, rf = RUN.full, rp = RUN.plain;
+    var red = DATA.rows[P.red[0]];
+    document.getElementById("solv-n1").textContent = T("solv.n.p1", {
+      raw: fmt(P.raw[0], 2), u: P.ub[0], x: xn(0), row: T("solv.m." + red.k), lhs: lin(red.a, false), act: P.act[P.red[0]], b: red.b,
+      z1: num(NOPRE.z), z0: num(rf.root.z)
+    });
+    var gapCut = gapOf(rf.inc, rf.rootLP.z);
+    document.getElementById("solv-n2").textContent = T("solv.n.p2", {
+      cut: lin(rf.cut.a, false) + " ≤ " + num(rf.cut.b, 0), x: pair(rf.root.x), z0: num(rf.root.z), zc: num(rf.rootLP.z), z: num(rf.inc, 2), g: pct(gapCut)
+    });
+    document.getElementById("solv-n3").textContent = T("solv.n.p3", {
+      hx: pair(rf.rootHeur.x, 0), h: num(rf.rootHeur.z, 0), first: firstIncNode(Pn), incs: incList(Pn)
+    });
+    document.getElementById("solv-n4").textContent = T("solv.n.p4", {
+      z: num(rf.inc, 2), x: pair(rf.incX, 0), np: rp.expl, pp: rp.piv, nf: rf.expl, pf: rf.piv
+    });
+  }
+
+  var segBtns = document.querySelectorAll("#solv-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderStatus(); renderRun();
+      logKey = "";
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[2]) player.refresh();
+      else { player.seek(CH[2] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderScenText(); renderStatus(); renderModel(); renderRun(); renderNotes();
+    hudKey = ""; logKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

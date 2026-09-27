@@ -1,21 +1,23 @@
 /* Strings for lab/index.html, the hidden proposals lab (Spanish, Colombia, "tú"). */
 I18N.register("es", {
   "lab.title": "Laboratorio de propuestas",
-  "lab.eyebrow": "Laboratorio · Ideas aún sin construir",
-  "lab.lede": "Ideas para nuevos recursos, reunidas aquí antes de construir cualquiera de ellas. Cada tarjeta dice qué mostraría el recurso y qué formato tendría. Ninguna está desarrollada todavía.",
+  "lab.eyebrow": "Laboratorio · Prototipos antes de la ruta",
+  "lab.lede": "Nuevos recursos, construidos y probados aquí antes de entrar a la ruta de aprendizaje. Cada tarjeta dice qué muestra la página y qué formato tiene; ábrela para probar el prototipo. Ninguno está todavía en la página de inicio.",
   "lab.idea": "Idea",
+  "lab.built": "Construido",
+  "lab.open": "Abrir",
   "lab.eqHead": "Las ecuaciones",
   "lab.stepsHead": "Paso a paso",
   "lab.listLabel": "Propuestas",
 
   "lab.lab-solver.title": "Dentro del solver",
-  "lab.lab-solver.desc": "La animación seguiría a un solver de MILP desde el preprocesamiento (presolve) y la relajación lineal hasta el árbol de ramificación y acotamiento, con cortes que ajustan la cota y heurísticas que encuentran nuevas incumbentes en el camino. Dos curvas, la incumbente y la mejor cota, se acercan una a otra mientras la brecha cae a 0, como en el registro (log) de Gurobi.",
+  "lab.lab-solver.desc": "Un MILP pequeño, una tostadora de Manizales que planea lotes enteros, se resuelve en vivo: preprocesamiento (presolve), relajación lineal, un corte de Gomory que ajusta la cota, una heurística de redondeo que encuentra incumbentes y el árbol de ramificación y acotamiento. La incumbente y la mejor cota se acercan mientras la brecha cae a 0, en un registro (log) hecho a semejanza de los que imprimen los solvers comerciales.",
 
   "lab.lab-cvar.title": "Más allá del VaR: el CVaR",
-  "lab.lab-cvar.desc": "A partir de una distribución de pérdidas, la animación marcaría el VaR como un cuantil y el CVaR como el promedio de la cola que queda más allá. Luego mostraría cómo la formulación de Rockafellar y Uryasev (2000) convierte el CVaR en un programa lineal sobre escenarios, y compararía un portafolio de mínima varianza con uno de mínimo CVaR.",
+  "lab.lab-cvar.desc": "Con 200 meses simulados de acciones colombianas, TES y dólares, la animación marca el VaR como un cuantil y el CVaR como el promedio de la cola que queda más allá. Luego muestra cómo la formulación de Rockafellar y Uryasev (2000) convierte el CVaR en un programa lineal sobre escenarios, y compara el portafolio de mínima varianza con el de mínimo CVaR.",
 
   "lab.lab-linearization.title": "Linealizar el modelo de mercados campesinos",
-  "lab.lab-linearization.desc": "La restricción (14) es la única parte no lineal del modelo de mercados campesinos: la probabilidad logit de comprar en un parque tiene las decisiones de apertura en el numerador y en el denominador. Adaptando el método de Haase y Müller (2014), el artículo la reemplaza por las restricciones lineales (24) a (26), que se apoyan en la razón (23). La animación seguiría una celda de demanda mientras abren parques, mostraría las rectas que fijan el reparto logit y terminaría en el calendario semanal del artículo.",
+  "lab.lab-linearization.desc": "La restricción (14) es la única parte no lineal del modelo de mercados campesinos: la probabilidad logit de comprar en un parque tiene las decisiones de apertura en el numerador y en el denominador. Adaptando el método de Haase y Müller (2014), el artículo la reemplaza por las restricciones lineales (24) a (26), que se apoyan en la razón (23). La animación sigue una celda de demanda mientras abren parques, dibuja las rectas que fijan el reparto logit y muestra cuándo el modelo lineal es exacto y cuándo es solo una cota superior.",
   "lab.lab-linearization.step1": "En la restricción (14) la probabilidad de que un cliente compre en un parque es una fracción cuyo numerador y denominador dependen de qué parques abren ese día, por eso el modelo es no lineal.",
   "lab.lab-linearization.step2": "El logit mantiene algo fijo: para cada parque abierto, su participación dividida por la de los competidores es un número φ que (23) calcula antes de resolver.",
   "lab.lab-linearization.step3": "El artículo agrega la participación de los competidores ȳ como variable nueva y cambia la fracción por límites lineales: todas las participaciones suman como máximo 1 (24), un parque recibe como máximo φ veces ȳ (26) y un parque cerrado no recibe nada, mientras que uno abierto recibe como máximo lo que tendría si estuviera solo (25).",
@@ -30,11 +32,11 @@ I18N.register("es", {
   "lab.lab-linearization.eqNote": "(14) se escribe como en la página de investigación, y (23) usa los mismos competidores S∖I con a_{sj}. El manuscrito escribe a_{ij} en las dos sumas del denominador de (14), J∖I sin a_{sj} en (23) y una v minúscula en esas sumas y en (23); su texto en la p. 16 llama al parámetro φ_{jt}.",
 
   "lab.lab-ml-methods.title": "Aprender es optimizar",
-  "lab.lab-ml-methods.desc": "La regresión lineal, la regresión logística y las redes neuronales pequeñas aprenden minimizando una pérdida, así que cada una es un problema de optimización. La animación movería la recta ajustada o la frontera de decisión paso a paso mientras la curva de pérdida baja a su lado.",
+  "lab.lab-ml-methods.desc": "La regresión lineal, la regresión logística y las redes neuronales pequeñas aprenden minimizando una pérdida, así que cada una es un problema de optimización. La animación entrena los tres en vivo con descenso por gradiente, mueve la recta ajustada o la frontera de decisión paso a paso mientras la curva de pérdida baja a su lado, y muestra qué pasa cuando el paso es muy pequeño o demasiado grande.",
 
   "lab.lab-svm.title": "La calle más ancha",
-  "lab.lab-svm.desc": "Una máquina de vectores de soporte busca la calle más ancha que separa dos clases, y eso es un problema cuadrático de margen máximo. La animación resaltaría los vectores de soporte que sostienen la calle y luego pasaría al margen suave, donde el parámetro C cambia errores de clasificación por un margen más ancho.",
+  "lab.lab-svm.desc": "Una máquina de vectores de soporte busca la calle más ancha que separa dos clases, y eso es un problema cuadrático de margen máximo. Con 24 lotes de café clasificados por altitud y densidad del grano, la animación resalta los vectores de soporte que sostienen la calle, muestra cómo un lote atípico rompe el margen duro y pasa al margen suave, donde el parámetro C cambia errores de clasificación por un margen más ancho.",
 
   "lab.lab-ml-ai-cases.title": "ML + IA en optimización",
-  "lab.lab-ml-ai-cases.desc": "Cuatro casos en los que el aprendizaje ayuda a optimizar: aprender a ramificar, predecir y luego optimizar, aprendizaje por refuerzo para el ruteo de vehículos y agentes de lenguaje que formulan modelos de optimización a partir de un texto. Cada caso tendría un pequeño ejemplo interactivo que corre en el navegador."
+  "lab.lab-ml-ai-cases.desc": "Cuatro casos pequeños en los que el aprendizaje ayuda a optimizar, cada uno corriendo de verdad en el navegador: un método de ramificación y acotamiento que aprende dónde ramificar, un pronóstico de demanda ajustado para la decisión que alimenta, una furgoneta de reparto que aprende su ruta por ensayo y error y se compara con la ruta más corta, y un verificador automático que pone a prueba formulaciones ya escritas como las que podría producir un agente de lenguaje."
 }, "lab/lab");

@@ -23,6 +23,11 @@ I18N.register("fr", {
   "nav.backToPath": "L'optimisation en action",
   "nav.backToResearch": "Cas de recherche",
   "nav.lab": "Laboratoire",
+  "nav.menu": "Parcourir",
+  "nav.menuLabel": "Naviguer dans le parcours d'apprentissage",
+  "nav.byLevel": "Par niveau",
+  "nav.byType": "Par type",
+  "nav.close": "Fermer",
   "lab.door": "Laboratoire de propositions",
 
   /* ---- accueil ---- */

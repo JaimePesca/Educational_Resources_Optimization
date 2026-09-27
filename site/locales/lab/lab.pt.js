@@ -1,21 +1,23 @@
 /* Strings for lab/index.html, the hidden proposals lab (Portuguese, Brazil, "você"). */
 I18N.register("pt", {
   "lab.title": "Laboratório de propostas",
-  "lab.eyebrow": "Laboratório · Ideias ainda não construídas",
-  "lab.lede": "Ideias para novos recursos, reunidas aqui antes que qualquer uma delas seja construída. Cada cartão diz o que o recurso mostraria e qual formato teria. Nenhuma delas foi desenvolvida ainda.",
+  "lab.eyebrow": "Laboratório · Protótipos antes da trilha",
+  "lab.lede": "Novos recursos, construídos e testados aqui antes de entrarem na trilha de aprendizagem. Cada cartão diz o que a página mostra e qual formato tem; abra-o para experimentar o protótipo. Nenhum deles está ainda na página inicial.",
   "lab.idea": "Ideia",
+  "lab.built": "Construído",
+  "lab.open": "Abrir",
   "lab.eqHead": "As equações",
   "lab.stepsHead": "Passo a passo",
   "lab.listLabel": "Propostas",
 
   "lab.lab-solver.title": "Por dentro do solver",
-  "lab.lab-solver.desc": "A animação acompanharia um solver de MILP desde o pré-processamento (presolve) e a relaxação linear até a árvore de branch and bound, com cortes que apertam o limitante e heurísticas que encontram novas incumbentes pelo caminho. Duas curvas, a incumbente e o melhor limitante, se aproximam enquanto o gap cai para 0, como no registro (log) do Gurobi.",
+  "lab.lab-solver.desc": "Um MILP pequeno, uma torrefação de Manizales que planeja lotes inteiros, é resolvido ao vivo: pré-processamento (presolve), relaxação linear, um corte de Gomory que aperta o limitante, uma heurística de arredondamento que encontra incumbentes e a árvore de branch and bound. A incumbente e o melhor limitante se aproximam enquanto o gap cai para 0, num registro (log) feito à semelhança dos que os solvers comerciais imprimem.",
 
   "lab.lab-cvar.title": "Além do VaR: o CVaR",
-  "lab.lab-cvar.desc": "A partir de uma distribuição de perdas, a animação marcaria o VaR como um quantil e o CVaR como a média da cauda além dele. Depois mostraria como a formulação de Rockafellar e Uryasev (2000) transforma o CVaR em um programa linear sobre cenários e compararia uma carteira de variância mínima com uma de CVaR mínimo.",
+  "lab.lab-cvar.desc": "Com 200 meses simulados de ações colombianas, títulos TES e dólares, a animação marca o VaR como um quantil e o CVaR como a média da cauda além dele. Depois mostra como a formulação de Rockafellar e Uryasev (2000) transforma o CVaR em um programa linear sobre cenários e compara a carteira de variância mínima com a de CVaR mínimo.",
 
   "lab.lab-linearization.title": "Linearizar o modelo de feiras livres",
-  "lab.lab-linearization.desc": "A restrição (14) é a única parte não linear do modelo de feiras livres: a probabilidade logit de comprar em um parque tem as decisões de abertura no numerador e no denominador. Adaptando o método de Haase e Müller (2014), o artigo a substitui pelas restrições lineares (24) a (26), apoiadas na razão (23). A animação acompanharia uma célula de demanda enquanto os parques abrem, mostraria as retas que fixam a divisão logit e terminaria no calendário semanal do artigo.",
+  "lab.lab-linearization.desc": "A restrição (14) é a única parte não linear do modelo de feiras livres: a probabilidade logit de comprar em um parque tem as decisões de abertura no numerador e no denominador. Adaptando o método de Haase e Müller (2014), o artigo a substitui pelas restrições lineares (24) a (26), apoiadas na razão (23). A animação acompanha uma célula de demanda enquanto os parques abrem, desenha as retas que fixam a divisão logit e mostra quando o modelo linear é exato e quando é só um limite superior.",
   "lab.lab-linearization.step1": "Na restrição (14) a probabilidade de um cliente comprar em um parque é uma fração cujo numerador e denominador dependem de quais parques abrem naquele dia, por isso o modelo é não linear.",
   "lab.lab-linearization.step2": "O logit mantém algo fixo: para cada parque aberto, a sua participação dividida pela dos concorrentes é um número φ que (23) calcula antes de resolver.",
   "lab.lab-linearization.step3": "O artigo acrescenta a participação dos concorrentes ȳ como nova variável e troca a fração por limites lineares: todas as participações somam no máximo 1 (24), um parque recebe no máximo φ vezes ȳ (26) e um parque fechado não recebe nada, enquanto um aberto recebe no máximo o que teria se estivesse sozinho (25).",
@@ -30,11 +32,11 @@ I18N.register("pt", {
   "lab.lab-linearization.eqNote": "(14) está escrita como na página de pesquisa, e (23) usa os mesmos concorrentes S∖I com a_{sj}. O manuscrito escreve a_{ij} nas duas somas do denominador de (14), J∖I sem a_{sj} em (23) e um v minúsculo nessas somas e em (23); seu texto na p. 16 chama o parâmetro de φ_{jt}.",
 
   "lab.lab-ml-methods.title": "Aprender é otimizar",
-  "lab.lab-ml-methods.desc": "A regressão linear, a regressão logística e as pequenas redes neurais aprendem minimizando uma perda, então cada uma é um problema de otimização. A animação moveria a reta ajustada ou a fronteira de decisão passo a passo enquanto a curva de perda desce ao lado.",
+  "lab.lab-ml-methods.desc": "A regressão linear, a regressão logística e as pequenas redes neurais aprendem minimizando uma perda, então cada uma é um problema de otimização. A animação treina os três ao vivo com descida de gradiente, move a reta ajustada ou a fronteira de decisão passo a passo enquanto a curva de perda desce ao lado e mostra o que acontece quando o passo é pequeno demais ou grande demais.",
 
   "lab.lab-svm.title": "A rua mais larga",
-  "lab.lab-svm.desc": "Uma máquina de vetores de suporte procura a rua mais larga que separa duas classes, e isso é um problema quadrático de margem máxima. A animação destacaria os vetores de suporte que seguram a rua no lugar e depois passaria para a margem suave, em que o parâmetro C troca erros de classificação por uma margem mais larga.",
+  "lab.lab-svm.desc": "Uma máquina de vetores de suporte procura a rua mais larga que separa duas classes, e isso é um problema quadrático de margem máxima. Com 24 lotes de café classificados por altitude e densidade do grão, a animação destaca os vetores de suporte que seguram a rua no lugar, mostra como um lote atípico quebra a margem rígida e passa para a margem suave, em que o parâmetro C troca erros de classificação por uma margem mais larga.",
 
   "lab.lab-ml-ai-cases.title": "ML + IA em otimização",
-  "lab.lab-ml-ai-cases.desc": "Quatro casos em que o aprendizado ajuda a otimização: aprender a ramificar, prever e depois otimizar, aprendizado por reforço para roteamento de veículos e agentes de linguagem que formulam modelos de otimização a partir de um texto. Cada caso teria um pequeno exemplo interativo que roda no navegador."
+  "lab.lab-ml-ai-cases.desc": "Quatro casos pequenos em que o aprendizado ajuda a otimização, cada um rodando de verdade no navegador: um branch and bound que aprende onde ramificar, uma previsão de demanda ajustada para a decisão que ela alimenta, uma van de entregas que aprende sua rota por tentativa e erro e é comparada com o caminho mais curto, e um verificador automático que testa formulações já escritas como as que um agente de linguagem poderia produzir."
 }, "lab/lab");

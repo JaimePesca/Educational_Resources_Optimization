@@ -36,6 +36,8 @@ I18N.register("en", {
   "mlogic.res.wrongExplore": "This option is wrong",
   "mlogic.res.solved": "Solved",
   "mlogic.res.explore": "You can still click any option to see how the verifier judges it. Your stars do not change.",
+  "mlogic.res.solvedIdle": "You solved this card before. Choose again to review it (your stars do not change), or show the answer.",
+  "mlogic.res.show": "Show the answer",
   "mlogic.res.try": "Try another option. The highlighted rows of the verifier show where this one goes wrong. Wrong tries so far: {n}.",
   "mlogic.res.tighterHint": "Another option is also correct and tighter. Find it for a bonus star.",
   "mlogic.res.bonus": "Bonus star: you chose the tighter formulation.",
