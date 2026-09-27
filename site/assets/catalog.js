@@ -1,26 +1,19 @@
 /*
- * Site catalog: the single place that says which projects, levels and resources exist.
- * All visible text lives in the locale files under these keys:
- *   project.<id>.title / .summary / .place / .facts (facts separated by |)
+ * Site catalog: the single place that says what the two divisions contain.
+ * The divisions are independent: education resources never point to research cases, and the
+ * research pages show the real cases from the manuscripts, not teaching exercises.
+ *
+ * Visible text lives in the locale files:
  *   level.<id>.title / .summary / .topics (topics separated by |)
- *   resource.<id>.title / .summary       type.<type>       method.<id>
+ *   resource.<id>.title / .summary        type.<type>
+ *   project.<id>.title / .summary / .place / .facts (facts separated by |)     method.<id>
  *
- * The learning levels are independent of the research projects. A resource always has a level and a type;
- * `project` is optional and only set when the resource applies one of the research cases.
- * `author` is optional and credits whoever contributed the resource.
- * A resource without `href` is planned: it shows up as an open idea that anyone can build.
- *
- * Adding a resource: put the page in resources/ (start from resources/_template.html), add or complete
- * its entry below with `href`, and add its keys to locales/en.js. Other languages fall back to English
- * until someone translates them.
+ * Education: a resource has a level and a type; `author` (optional) credits whoever built it.
+ * An entry without `href` is planned: it shows up as an open idea that anyone can build.
+ * Research: each case links to its page in research/, whose own strings live in
+ * locales/research/<id>.<lang>.js.
  */
 window.CATALOG = {
-  projects: [
-    { id: "nanostores", methods: ["cfl", "logit", "minlp", "linearization"] },
-    { id: "markets", methods: ["cfl", "logit", "minlp", "fahp"] },
-    { id: "wildfire", methods: ["twostage", "cvar", "matheuristic"] },
-    { id: "pallets", methods: ["ilp", "packing", "drl"] }
-  ],
   levels: [
     { id: "lp", n: 1 },
     { id: "ip", n: 2 },
@@ -28,27 +21,30 @@ window.CATALOG = {
     { id: "nlp", n: 4 },
     { id: "other", n: 5 }
   ],
-  resources: [
+
+  education: [
     // Published
-    { id: "feasible-region", href: "resources/feasible-region.html", level: "lp", project: "wildfire", type: "simulation" },
-    { id: "critical-load", href: "resources/critical-load.html", level: "ip", project: "wildfire", type: "game" },
-    { id: "patrol-route", href: "resources/patrol-route.html", level: "other", project: "wildfire", type: "animation" },
+    { id: "feasible-region", href: "resources/feasible-region.html", level: "lp", type: "simulation" },
+    { id: "critical-load", href: "resources/critical-load.html", level: "ip", type: "game" },
+    { id: "patrol-route", href: "resources/patrol-route.html", level: "other", type: "animation" },
 
-    // Planned: built on the research cases, open to contributors
-    { id: "nano-assortment", level: "lp", project: "nanostores", type: "simulation" },
-    { id: "nano-open", level: "ip", project: "nanostores", type: "game" },
-    { id: "nano-logit", level: "nlp", project: "nanostores", type: "simulation" },
+    // Planned: open for contributors
+    { id: "edu-diet", level: "lp", type: "simulation" },
+    { id: "edu-simplex", level: "lp", type: "animation" },
+    { id: "edu-shifts", level: "ip", type: "game" },
+    { id: "edu-bnb", level: "ip", type: "animation" },
+    { id: "edu-warehouses", level: "milp", type: "simulation" },
+    { id: "edu-power", level: "milp", type: "game" },
+    { id: "edu-portfolio", level: "nlp", type: "simulation" },
+    { id: "edu-gradient", level: "nlp", type: "animation" },
+    { id: "edu-queue", level: "other", type: "simulation" },
+    { id: "edu-newsvendor", level: "other", type: "game" }
+  ],
 
-    { id: "market-week", level: "ip", project: "markets", type: "game" },
-    { id: "market-linearize", level: "milp", project: "markets", type: "animation" },
-    { id: "market-ahp", level: "other", project: "markets", type: "simulation" },
-
-    { id: "fire-budget", level: "milp", project: "wildfire", type: "game" },
-    { id: "fire-cycle", level: "nlp", project: "wildfire", type: "simulation" },
-    { id: "fire-risk", level: "other", project: "wildfire", type: "simulation" },
-
-    { id: "pallet-payload", level: "lp", project: "pallets", type: "simulation" },
-    { id: "pallet-charter", level: "ip", project: "pallets", type: "game" },
-    { id: "pallet-conveyor", level: "other", project: "pallets", type: "game" }
+  research: [
+    { id: "nanostores", href: "research/nanostores.html", methods: ["cfl", "logit", "minlp", "linearization"] },
+    { id: "markets", href: "research/markets.html", methods: ["cfl", "logit", "minlp", "fahp"] },
+    { id: "wildfire", href: "research/wildfire.html", methods: ["twostage", "cvar", "matheuristic"] },
+    { id: "pallets", href: "research/pallets.html", methods: ["ilp", "packing", "drl"] }
   ]
 };

@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en" data-title-key="r.nanostores.title" data-i18n-bundles="research/nanostores">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CFLP for nanostores</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/research.css">
+<style>
+.panel-title { font-family: var(--font-sans); font-weight: 600; font-size: 17px; margin: 0 0 12px; letter-spacing: 0.005em; }
+.panel { display: grid; gap: 14px; min-width: 0; }
+.chartbox { min-width: 0; }
+.ctlrow { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: flex-end; }
+.ctlgroup { display: grid; gap: 6px; justify-items: start; }
+.ctlgroup > span { font-size: 13.5px; color: var(--ink2); }
+.seg button:disabled {
+  color: var(--muted); background: var(--surface2); cursor: not-allowed;
+  text-decoration: line-through; opacity: 0.7;
+}
+.hint { font-size: 13px; color: var(--muted); margin: 0; max-width: 80ch; }
+.showing { margin: 0; font-size: 14.5px; color: var(--ink2); }
+.showing b { color: var(--ink); }
+.stats.tight { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.warn {
+  margin: 0; font-size: 13.5px; color: var(--ink2); background: var(--surface2);
+  border-left: 3px solid var(--accent); border-radius: 2px; padding: 9px 12px; max-width: 90ch;
+}
+.warn b { color: var(--ink); }
+.lg { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 18px; align-items: start; }
+@media (max-width: 820px) { .lg { grid-template-columns: 1fr; } }
+.lg .controls { align-content: start; }
+.chart text { font-family: var(--font-sans); }
+.chart .hit { cursor: pointer; }
+table.data caption { text-align: left; font-size: 13px; color: var(--muted); padding: 0 0 6px; }
+table.data td.num, table.data th.num { text-align: right; }
+table.data tr.clickable { cursor: pointer; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html#research" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToResearch"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow" data-i18n="r.nanostores.eyebrow"></p>
+    <h1 data-i18n="r.nanostores.h1"></h1>
+    <p class="lede" data-i18n="r.nanostores.lede"></p>
+    <p class="cite" data-i18n-html="r.nanostores.cite"></p>
+  </header>
+
+  <!-- 2. The real case -->
+  <section class="block">
+    <h2 class="section-title" data-i18n="r.nanostores.case.title"></h2>
+    <p class="section-intro" data-i18n="r.nanostores.case.intro"></p>
+    <div class="stats">
+      <div class="stat"><div class="v" id="stHouse"></div><div class="l" data-i18n="r.nanostores.stat.households"></div></div>
+      <div class="stat"><div class="v" id="stSplit"></div><div class="l" data-i18n="r.nanostores.stat.split"></div></div>
+      <div class="stat"><div class="v" id="stRet"></div><div class="l" data-i18n="r.nanostores.stat.retailers"></div></div>
+      <div class="stat"><div class="v" id="stCand"></div><div class="l" data-i18n="r.nanostores.stat.candidates"></div></div>
+      <div class="stat"><div class="v" id="stProd"></div><div class="l" data-i18n="r.nanostores.stat.products"></div></div>
+      <div class="stat"><div class="v" id="stScen"></div><div class="l" data-i18n="r.nanostores.stat.scenarios"></div></div>
+    </div>
+    <div class="panel">
+      <h3 class="panel-title" data-i18n="r.nanostores.comp.title"></h3>
+      <div class="chartbox" id="compBox"><svg class="chart" id="compChart" role="img"></svg></div>
+      <p class="hint" data-i18n="r.nanostores.comp.note"></p>
+    </div>
+    <p class="sources" data-i18n="r.nanostores.sources"></p>
+  </section>
+
+  <!-- 3. The model -->
+  <section class="block">
+    <h2 class="section-title" data-i18n="r.nanostores.model.title"></h2>
+    <p class="section-intro" data-i18n="r.nanostores.model.intro"></p>
+    <div class="model">
+      <div class="formula" data-i18n="r.nanostores.formula"></div>
+      <ul class="vars">
+        <li data-i18n-html="r.nanostores.v.x"></li>
+        <li data-i18n-html="r.nanostores.v.z"></li>
+        <li data-i18n-html="r.nanostores.v.y"></li>
+        <li data-i18n-html="r.nanostores.v.q"></li>
+        <li data-i18n-html="r.nanostores.v.d"></li>
+        <li data-i18n-html="r.nanostores.v.pc"></li>
+        <li data-i18n-html="r.nanostores.v.V"></li>
+        <li data-i18n-html="r.nanostores.v.a"></li>
+        <li data-i18n-html="r.nanostores.v.dmin"></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. Interactive exemplification -->
+  <section class="block">
+    <h2 class="section-title" data-i18n="r.nanostores.ex.title"></h2>
+    <p class="section-intro" data-i18n="r.nanostores.ex.intro"></p>
+
+    <div class="panel" id="scPanel">
+      <h3 class="panel-title" data-i18n="r.nanostores.sc.title"></h3>
+      <div class="ctlrow">
+        <div class="ctlgroup">
+          <span id="lblDist" data-i18n="r.nanostores.sc.dist"></span>
+          <div class="seg" role="group" aria-labelledby="lblDist" id="segDist">
+            <button type="button" data-d="500"></button><button type="button" data-d="750"></button><button type="button" data-d="1000"></button>
+          </div>
+        </div>
+        <div class="ctlgroup">
+          <span id="lblDem" data-i18n="r.nanostores.sc.dem"></span>
+          <div class="seg" role="group" aria-labelledby="lblDem" id="segDem">
+            <button type="button" data-dem="-25" data-i18n="r.nanostores.sc.dem.m25"></button><button type="button" data-dem="0" data-i18n="r.nanostores.sc.dem.base"></button><button type="button" data-dem="25" data-i18n="r.nanostores.sc.dem.p25"></button>
+          </div>
+        </div>
+      </div>
+      <p class="hint" data-i18n="r.nanostores.sc.unreported"></p>
+      <p class="showing" id="scShowing" aria-live="polite"></p>
+      <div class="stats tight">
+        <div class="stat"><div class="v" id="tStores"></div><div class="l" data-i18n="r.nanostores.tile.stores"></div></div>
+        <div class="stat"><div class="v" id="tProfit"></div><div class="l" data-i18n="r.nanostores.tile.profit"></div></div>
+        <div class="stat"><div class="v" id="tKg"></div><div class="l" data-i18n="r.nanostores.tile.kg"></div></div>
+        <div class="stat"><div class="v" id="tPct"></div><div class="l" data-i18n="r.nanostores.tile.pct"></div></div>
+        <div class="stat"><div class="v" id="tTime"></div><div class="l" data-i18n="r.nanostores.tile.time"></div></div>
+      </div>
+      <div class="ctlgroup">
+        <span id="lblMetric" data-i18n="r.nanostores.sc.metric"></span>
+        <div class="seg" role="group" aria-labelledby="lblMetric" id="segMetric">
+          <button type="button" data-m="profit" data-i18n="r.nanostores.metric.profit"></button><button type="button" data-m="kg" data-i18n="r.nanostores.metric.kg"></button><button type="button" data-m="stores" data-i18n="r.nanostores.metric.stores"></button><button type="button" data-m="time" data-i18n="r.nanostores.metric.time"></button>
+        </div>
+      </div>
+      <div class="chartbox" id="scBox"><svg class="chart" id="scChart" role="img"></svg></div>
+      <p class="hint" data-i18n="r.nanostores.sc.profitnote"></p>
+      <div class="tblwrap">
+        <table class="data" id="scTable">
+          <caption data-i18n="r.nanostores.tbl.caption"></caption>
+          <thead><tr>
+            <th data-i18n="r.nanostores.tbl.sc"></th>
+            <th class="num" data-i18n="r.nanostores.tbl.d"></th>
+            <th class="num" data-i18n="r.nanostores.tbl.dem"></th>
+            <th class="num" data-i18n="r.nanostores.tbl.obj"></th>
+            <th class="num" data-i18n="r.nanostores.tbl.time"></th>
+            <th class="num" data-i18n="r.nanostores.tbl.n"></th>
+            <th class="num" data-i18n="r.nanostores.tbl.kg"></th>
+            <th class="num" data-i18n="r.nanostores.tbl.pct"></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" id="lgPanel">
+      <h3 class="panel-title" data-i18n="r.nanostores.lg.title"></h3>
+      <p class="section-intro" style="margin:0" data-i18n-html="r.nanostores.lg.intro"></p>
+      <p class="warn" data-i18n="r.nanostores.lg.warn"></p>
+      <div class="lg">
+        <div class="controls">
+          <div class="ctl">
+            <label for="lgDist" data-i18n="r.nanostores.lg.dist"></label>
+            <output for="lgDist" id="lgDistOut"></output>
+            <input type="range" id="lgDist" min="0.1" max="2" step="0.05" value="0.4">
+          </div>
+          <div class="ctl">
+            <label for="lgPrice" data-i18n="r.nanostores.lg.price"></label>
+            <output for="lgPrice" id="lgPriceOut"></output>
+            <input type="range" id="lgPrice" min="0.5" max="1.5" step="0.05" value="1">
+          </div>
+          <div class="ctlgroup">
+            <span id="lblLoc" data-i18n="r.nanostores.lg.loc"></span>
+            <div class="seg" role="group" aria-labelledby="lblLoc" id="segLoc">
+              <button type="button" data-loc="center" data-i18n="r.nanostores.lg.loc.center"></button><button type="button" data-loc="edge" data-i18n="r.nanostores.lg.loc.edge"></button>
+            </div>
+          </div>
+          <p class="hint" data-i18n="r.nanostores.lg.locnote"></p>
+          <p class="readout" id="lgReadout" aria-live="polite" style="margin:0"></p>
+        </div>
+        <div class="chartbox" id="lgBox"><svg class="chart" id="lgChart" role="img"></svg></div>
+      </div>
+      <p class="hint" id="lgCoef"></p>
+      <div class="tblwrap">
+        <table class="data" id="lgTable">
+          <thead><tr>
+            <th data-i18n="r.nanostores.lg.th.ch"></th>
+            <th class="num" data-i18n="r.nanostores.lg.th.b0"></th>
+            <th class="num" data-i18n="r.nanostores.lg.th.d"></th>
+            <th class="num" data-i18n="r.nanostores.lg.th.p"></th>
+            <th class="num" data-i18n="r.nanostores.lg.th.v"></th>
+            <th class="num" data-i18n="r.nanostores.lg.th.pr"></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="hint" data-i18n="r.nanostores.lg.coverage"></p>
+    </div>
+  </section>
+
+  <!-- 5. Key findings -->
+  <section class="block">
+    <h2 class="section-title" data-i18n="r.nanostores.find.title"></h2>
+    <ol class="findings">
+      <li><span data-i18n-html="r.nanostores.find.1"></span></li>
+      <li><span data-i18n-html="r.nanostores.find.2"></span></li>
+      <li><span data-i18n-html="r.nanostores.find.3"></span></li>
+      <li><span data-i18n-html="r.nanostores.find.4"></span></li>
+      <li><span data-i18n-html="r.nanostores.find.5"></span></li>
+    </ol>
+  </section>
+
+  <p class="note" data-i18n="r.nanostores.note"></p>
+</div>
+<script src="../assets/i18n.js" charset="utf-8"></script>
+<script src="../locales/en.js" charset="utf-8"></script>
+<script src="../locales/research/nanostores.en.js" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var K = "r.nanostores.";
+  function tk(key, vars) { return t(K + key, vars); }
+  function $(id) { return document.getElementById(id); }
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  /* localized number with a true minus sign */
+  function fmt(v, max, min) { return I18N.fmt(v, max, min).replace(/^-/, "−"); }
+
+  /* ---- Data: Table 3 of the manuscript ---- */
+  var SC = [
+    { id: "base", n: 0, d: 1000, dem: 0,   obj: 26254, h: 0.35, st: 17, kg: 65954,  pct: 16 },
+    { id: "s1",   n: 1, d: 500,  dem: 0,   obj: 42643, h: 1.18, st: 32, kg: 108210, pct: 27 },
+    { id: "s2",   n: 2, d: 750,  dem: 0,   obj: 30886, h: 1.03, st: 21, kg: 77844,  pct: 19 },
+    { id: "s3",   n: 3, d: 1000, dem: -25, obj: 17867, h: 0.24, st: 15, kg: 45689,  pct: 15 },
+    { id: "s4",   n: 4, d: 1000, dem: 25,  obj: 34129, h: 0.09, st: 18, kg: 84776,  pct: 17 }
+  ];
+  /* Competing retailers identified and mapped (Section 2) */
+  var COMP = [
+    { k: "nano", v: 81 }, { k: "fruver", v: 60 }, { k: "butcher", v: 17 },
+    { k: "super", v: 13 }, { k: "hd", v: 9 }, { k: "conv", v: 8 }
+  ];
+  /* Logit panel: ILLUSTRATIVE values (the paper does not publish coefficients, prices or distances) */
+  var BD = -1.8, BP = -2.0;
+  var CH = [
+    { k: "newnano", b0: 0.0,  d: null, p: null },
+    { k: "nano",    b0: 0.0,  d: 0.6,  p: 1.00 },
+    { k: "fruver",  b0: 0.6,  d: 0.9,  p: 0.85 },
+    { k: "butcher", b0: -1.2, d: 1.0,  p: 1.10 },
+    { k: "conv",    b0: -0.6, d: 1.2,  p: 1.05 },
+    { k: "hd",      b0: 0.2,  d: 1.5,  p: 0.80 },
+    { k: "super",   b0: 0.4,  d: 1.8,  p: 0.95 }
+  ];
+
+  var state = { d: 1000, dem: 0, metric: "profit", loc: "center" };
+
+  function find(d, dem) { return SC.filter(function (s) { return s.d === d && s.dem === dem; })[0] || null; }
+  function scName(s) { return s.n === 0 ? tk("sc.name.base") : tk("sc.name.s", { n: s.n }); }
+  function scShort(s) { return s.n === 0 ? tk("sc.short.base") : tk("sc.short.s", { n: s.n }); }
+  function demLabel(dem) { return dem === 0 ? tk("sc.dem.base") : dem < 0 ? tk("sc.dem.m25") : tk("sc.dem.p25"); }
+  function condLabel(s) { return s.dem === 0 ? tk("sc.m", { v: fmt(s.d, 0) }) : demLabel(s.dem); }
+
+  function boxWidth(id) { var w = $(id).clientWidth; return Math.max(260, Math.round(w || 600)); }
+  function niceStep(raw) {
+    var p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+  }
+  /* bar path with 2px rounded data end */
+  function vbar(x, y, w, h) {
+    var r = Math.min(2, h, w / 2);
+    return "M" + x + "," + (y + h) + "V" + (y + r) + "Q" + x + "," + y + " " + (x + r) + "," + y +
+      "H" + (x + w - r) + "Q" + (x + w) + "," + y + " " + (x + w) + "," + (y + r) + "V" + (y + h) + "Z";
+  }
+  function hbar(x, y, w, h) {
+    var r = Math.min(2, w, h / 2);
+    if (w <= 0) return "";
+    return "M" + x + "," + y + "H" + (x + w - r) + "Q" + (x + w) + "," + y + " " + (x + w) + "," + (y + r) +
+      "V" + (y + h - r) + "Q" + (x + w) + "," + (y + h) + " " + (x + w - r) + "," + (y + h) + "H" + x + "Z";
+  }
+
+  /* ---- horizontal bar chart (competitors, logit shares) ---- */
+  function drawHBars(svgId, boxId, rows, maxV, tickStep, tickFmt, ariaLabel) {
+    var svg = $(svgId), W = boxWidth(boxId);
+    var C = { ink: css("--ink"), ink2: css("--ink2"), muted: css("--muted"), grid: css("--grid"), axis: css("--axis"), acc: css("--accent"), sil: css("--mit-silver") };
+    var rowH = 30, top = 6, bottom = 26;
+    var labW = Math.min(170, Math.round(W * 0.44)), right = 46;
+    var plotW = W - labW - right, H = top + rows.length * rowH + bottom;
+    var sx = function (v) { return labW + (v / maxV) * plotW; };
+    var o = [];
+    for (var tv = 0; tv <= maxV + 1e-9; tv += tickStep) {
+      var gx = sx(tv);
+      o.push('<line x1="' + gx + '" x2="' + gx + '" y1="' + top + '" y2="' + (H - bottom) + '" stroke="' + (tv === 0 ? C.axis : C.grid) + '" stroke-width="1"/>');
+      o.push('<text x="' + gx + '" y="' + (H - bottom + 16) + '" text-anchor="middle" font-size="11" fill="' + C.muted + '">' + esc(tickFmt(tv)) + "</text>");
+    }
+    rows.forEach(function (r, i) {
+      var y = top + i * rowH, bh = 18, by = y + (rowH - bh) / 2, w = Math.max(0, sx(r.v) - labW);
+      o.push("<g><title>" + esc(r.label + ": " + r.text) + "</title>");
+      o.push('<rect x="0" y="' + y + '" width="' + W + '" height="' + rowH + '" fill="transparent"/>');
+      o.push('<text x="' + (labW - 8) + '" y="' + (by + bh / 2 + 4) + '" text-anchor="end" font-size="12" fill="' + (r.hi ? C.ink : C.ink2) + '"' + (r.hi ? ' font-weight="600"' : "") + ">" + esc(r.label) + "</text>");
+      o.push('<path d="' + hbar(labW, by, w, bh) + '" fill="' + (r.hi ? C.acc : C.sil) + '"/>');
+      o.push('<text x="' + (labW + w + 6) + '" y="' + (by + bh / 2 + 4) + '" font-size="12" font-weight="600" fill="' + C.ink + '">' + esc(r.text) + "</text>");
+      o.push("</g>");
+    });
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("width", W);
+    svg.setAttribute("height", H);
+    svg.setAttribute("aria-label", ariaLabel);
+    svg.innerHTML = o.join("");
+  }
+
+  function drawComp() {
+    var rows = COMP.map(function (c) { return { label: tk("type." + c.k), v: c.v, text: fmt(c.v, 0), hi: c.k === "nano" }; });
+    drawHBars("compChart", "compBox", rows, 90, 20, function (v) { return fmt(v, 0); }, tk("comp.aria"));
+  }
+
+  /* ---- scenario explorer ---- */
+  var METRIC = {
+    profit: { get: function (s) { return s.obj; }, f: function (v) { return fmt(v, 0); } },
+    kg:     { get: function (s) { return s.kg; },  f: function (v) { return fmt(v, 0); } },
+    stores: { get: function (s) { return s.st; },  f: function (v) { return fmt(v, 0); } },
+    time:   { get: function (s) { return s.h; },   f: function (v) { return fmt(v, 2, 2); } }
+  };
+
+  function drawScenarioChart(cur) {
+    var svg = $("scChart"), W = boxWidth("scBox"), H = 270, M = METRIC[state.metric];
+    var C = { ink: css("--ink"), ink2: css("--ink2"), muted: css("--muted"), grid: css("--grid"), axis: css("--axis"), acc: css("--accent"), sil: css("--mit-silver") };
+    var ml = 56, mr = 8, mt = 34, mb = 44, pw = W - ml - mr, ph = H - mt - mb;
+    var vmax = Math.max.apply(null, SC.map(M.get));
+    var step = niceStep(vmax / 4), ymax = Math.ceil(vmax / step) * step;
+    if (ymax < vmax * 1.08) ymax += step;
+    var sy = function (v) { return mt + ph - (v / ymax) * ph; };
+    var o = [];
+    o.push('<text x="0" y="14" font-size="12" font-weight="600" fill="' + C.ink2 + '">' + esc(tk("metric." + state.metric + ".axis")) + "</text>");
+    for (var v = 0; v <= ymax + 1e-9; v += step) {
+      var y = sy(v);
+      o.push('<line x1="' + ml + '" x2="' + (W - mr) + '" y1="' + y + '" y2="' + y + '" stroke="' + (v === 0 ? C.axis : C.grid) + '"/>');
+      o.push('<text x="' + (ml - 6) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="' + C.muted + '">' + esc(state.metric === "time" ? fmt(v, 2) : fmt(v, 0)) + "</text>");
+    }
+    var slot = pw / SC.length, bw = Math.min(64, slot * 0.62);
+    SC.forEach(function (s, i) {
+      var val = M.get(s), cx = ml + slot * i + slot / 2, y = sy(val), on = s === cur;
+      o.push('<g class="hit" data-sc="' + s.id + '"><title>' + esc(scName(s) + " (" + condLabel(s) + "): " + M.f(val)) + "</title>");
+      o.push('<rect x="' + (cx - slot / 2) + '" y="' + mt + '" width="' + slot + '" height="' + (ph + mb) + '" fill="transparent"/>');
+      o.push('<path d="' + vbar(cx - bw / 2, y, bw, mt + ph - y) + '" fill="' + (on ? C.acc : C.sil) + '"/>');
+      o.push('<text x="' + cx + '" y="' + (y - 6) + '" text-anchor="middle" font-size="11.5" font-weight="600" fill="' + C.ink + '">' + esc(M.f(val)) + "</text>");
+      o.push('<text x="' + cx + '" y="' + (mt + ph + 17) + '" text-anchor="middle" font-size="12" font-weight="' + (on ? 700 : 400) + '" fill="' + (on ? C.ink : C.ink2) + '">' + esc(scShort(s)) + "</text>");
+      o.push('<text x="' + cx + '" y="' + (mt + ph + 33) + '" text-anchor="middle" font-size="11" fill="' + C.muted + '">' + esc(condLabel(s)) + "</text>");
+      o.push("</g>");
+    });
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("width", W);
+    svg.setAttribute("height", H);
+    svg.setAttribute("aria-label", tk("sc.aria", { metric: tk("metric." + state.metric), name: scName(cur) }));
+    svg.innerHTML = o.join("");
+  }
+
+  function renderScenario() {
+    var cur = find(state.d, state.dem);
+    document.querySelectorAll("#segDist button").forEach(function (b) {
+      var d = +b.getAttribute("data-d"), ok = !!find(d, state.dem);
+      b.textContent = tk("sc.m", { v: fmt(d, 0) });
+      b.disabled = !ok;
+      b.setAttribute("aria-pressed", String(d === state.d));
+    });
+    document.querySelectorAll("#segDem button").forEach(function (b) {
+      var dem = +b.getAttribute("data-dem"), ok = !!find(state.d, dem);
+      b.disabled = !ok;
+      b.setAttribute("aria-pressed", String(dem === state.dem));
+    });
+    document.querySelectorAll("#segMetric button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-m") === state.metric));
+    });
+    $("scShowing").innerHTML = tk("sc.showing", { name: esc(scName(cur)), d: fmt(cur.d, 0), dem: esc(demLabel(cur.dem)) });
+    $("tStores").textContent = fmt(cur.st, 0);
+    $("tProfit").textContent = fmt(cur.obj, 0);
+    $("tKg").textContent = fmt(cur.kg, 0);
+    $("tPct").textContent = fmt(cur.pct, 0) + "%";
+    $("tTime").textContent = fmt(cur.h, 2, 2);
+    var rows = SC.map(function (s) {
+      return '<tr class="clickable' + (s === cur ? " on" : "") + '" data-sc="' + s.id + '"><td>' + esc(scName(s)) + '</td><td class="num">' + fmt(s.d, 0) +
+        '</td><td class="num">' + esc(s.dem === 0 ? "0%" : demLabel(s.dem)) + '</td><td class="num">' + fmt(s.obj, 0) + '</td><td class="num">' + fmt(s.h, 2, 2) +
+        '</td><td class="num">' + fmt(s.st, 0) + '</td><td class="num">' + fmt(s.kg, 0) + '</td><td class="num">' + fmt(s.pct, 0) + "%</td></tr>";
+    });
+    document.querySelector("#scTable tbody").innerHTML = rows.join("");
+    drawScenarioChart(cur);
+  }
+
+  function selectScenario(id) {
+    var s = SC.filter(function (x) { return x.id === id; })[0];
+    if (!s) return;
+    state.d = s.d; state.dem = s.dem;
+    renderScenario();
+  }
+
+  /* ---- logit panel ---- */
+  function renderLogit() {
+    var d = +$("lgDist").value, p = +$("lgPrice").value, mult = state.loc === "edge" ? 2 : 1;
+    var rows = CH.map(function (c) {
+      var isNew = c.k === "newnano";
+      var dist = isNew ? d : c.d * mult, price = isNew ? p : c.p;
+      var V = c.b0 + BD * dist + BP * price;
+      return { k: c.k, b0: c.b0, dist: dist, price: price, V: V, e: Math.exp(V), isNew: isNew };
+    });
+    var sum = rows.reduce(function (a, r) { return a + r.e; }, 0);
+    rows.forEach(function (r) { r.P = r.e / sum; });
+    var nw = rows[0];
+
+    $("lgDistOut").textContent = tk("lg.km", { v: fmt(d, 2, 2) });
+    $("lgPriceOut").textContent = tk("lg.usd", { v: fmt(p, 2, 2) });
+    document.querySelectorAll("#segLoc button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-loc") === state.loc));
+    });
+    $("lgReadout").innerHTML = tk("lg.readout", {
+      b0: fmt(nw.b0, 1, 1), bd: fmt(BD, 1, 1), d: fmt(d, 2, 2), bp: fmt(BP, 1, 1), p: fmt(p, 2, 2),
+      v: fmt(nw.V, 2, 2), share: fmt(nw.P * 100, 1, 1)
+    });
+    $("lgCoef").innerHTML = tk("lg.coef", { bd: fmt(BD, 1, 1), bp: fmt(BP, 1, 1) });
+
+    var chartRows = rows.map(function (r) {
+      return { label: tk("type." + r.k), v: r.P * 100, text: fmt(r.P * 100, 1, 1) + "%", hi: r.isNew };
+    });
+    drawHBars("lgChart", "lgBox", chartRows, 100, 25, function (v) { return fmt(v, 0) + "%"; }, tk("lg.aria", { share: fmt(nw.P * 100, 1, 1) }));
+
+    document.querySelector("#lgTable tbody").innerHTML = rows.map(function (r) {
+      return "<tr" + (r.isNew ? ' class="on"' : "") + "><td>" + esc(tk("type." + r.k)) + '</td><td class="num">' + fmt(r.b0, 1, 1) +
+        '</td><td class="num">' + fmt(r.dist, 2, 2) + '</td><td class="num">' + fmt(r.price, 2, 2) + '</td><td class="num">' + fmt(r.V, 2, 2) +
+        '</td><td class="num">' + fmt(r.P * 100, 1, 1) + "%</td></tr>";
+    }).join("");
+  }
+
+  function renderStats() {
+    $("stHouse").textContent = fmt(537, 0);
+    $("stSplit").textContent = fmt(288, 0) + " / " + fmt(249, 0);
+    $("stRet").textContent = fmt(188, 0);
+    $("stCand").textContent = fmt(50, 0);
+    $("stProd").textContent = fmt(3, 0);
+    $("stScen").textContent = fmt(5, 0);
+  }
+
+  function drawCharts() { drawComp(); renderScenario(); renderLogit(); }
+  function render() { renderStats(); drawCharts(); }
+
+  /* ---- events ---- */
+  $("segDist").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b || b.disabled) return;
+    state.d = +b.getAttribute("data-d"); renderScenario();
+  });
+  $("segDem").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b || b.disabled) return;
+    state.dem = +b.getAttribute("data-dem"); renderScenario();
+  });
+  $("segMetric").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    state.metric = b.getAttribute("data-m"); renderScenario();
+  });
+  $("scChart").addEventListener("click", function (e) {
+    var g = e.target.closest("[data-sc]"); if (g) selectScenario(g.getAttribute("data-sc"));
+  });
+  document.querySelector("#scTable tbody").addEventListener("click", function (e) {
+    var tr = e.target.closest("tr[data-sc]"); if (tr) selectScenario(tr.getAttribute("data-sc"));
+  });
+  $("segLoc").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    state.loc = b.getAttribute("data-loc"); renderLogit();
+  });
+  $("lgDist").addEventListener("input", renderLogit);
+  $("lgPrice").addEventListener("input", renderLogit);
+
+  var raf = 0;
+  window.addEventListener("resize", function () {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(drawCharts);
+  });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawCharts);
+
+  I18N.onChange(render); // runs once the language is ready and on every language switch
+})();
+</script>
+</body>
+</html>

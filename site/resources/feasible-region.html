@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Feasible Region</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <style>
   .layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr); gap: 18px; align-items: start; }
@@ -20,7 +20,7 @@
   .swatch.area { width: 13px; height: 13px; border-radius: 3px; background: var(--region); border: 1px solid var(--pine); }
   #tip {
     position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 7px; padding: 7px 10px; font-family: "JetBrains Mono", monospace; font-size: 12px;
+    border-radius: 3px; padding: 7px 10px; font-family: "JetBrains Mono", monospace; font-size: 12px;
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.16); white-space: nowrap; z-index: 5; line-height: 1.5;
   }
   #tip .no { color: var(--crit); }
@@ -30,7 +30,7 @@
   .stack { display: flex; flex-direction: column; gap: 18px; }
   .obj-eq {
     font-family: "JetBrains Mono", monospace; font-size: 14.5px; background: var(--surface2);
-    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;
+    border: 1px solid var(--border); border-radius: 3px; padding: 10px 12px; margin-bottom: 12px;
   }
   .obj-eq b { color: var(--accent-text); font-weight: 600; }
   .ctl { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding-block: 7px; }
@@ -59,12 +59,12 @@
   .zrow { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-top: 8px; }
   .zrow .ctl { padding: 0; }
   button.btn {
-    font: 600 13.5px "Instrument Sans", system-ui, sans-serif; color: #fdfdfb;
-    background: var(--accent); border: none; border-radius: 8px; padding: 9px 14px; cursor: pointer;
+    font: 600 13.5px var(--font-sans); color: #fdfdfb;
+    background: var(--accent); border: none; border-radius: 3px; padding: 9px 14px; cursor: pointer;
   }
   button.btn:hover { filter: brightness(1.08); }
   .optbox {
-    margin-top: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    margin-top: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px;
     padding: 11px 13px; font-size: 14px;
   }
   .optbox .zval {
@@ -350,9 +350,9 @@
     g.appendChild(el("line", { x1: M.l, y1: sy(0), x2: W - M.r, y2: sy(0), stroke: css("--axis"), "stroke-width": 1.2 }));
     g.appendChild(el("line", { x1: M.l, y1: sy(0), x2: M.l, y2: M.t, stroke: css("--axis"), "stroke-width": 1.2 }));
     g.appendChild(el("text", { x: (M.l + W - M.r) / 2, y: H - 8, "text-anchor": "middle", fill: css("--ink2"),
-      "font-size": 12.5, "font-family": "Instrument Sans, sans-serif" }, t("feas.axis.x")));
+      "font-size": 12.5, "font-family": "Neue Haas Grotesk Text, Helvetica Neue, Helvetica, Arimo, Arial, sans-serif" }, t("feas.axis.x")));
     g.appendChild(el("text", { x: 14, y: (M.t + H - M.b) / 2, "text-anchor": "middle", fill: css("--ink2"),
-      "font-size": 12.5, "font-family": "Instrument Sans, sans-serif",
+      "font-size": 12.5, "font-family": "Neue Haas Grotesk Text, Helvetica Neue, Helvetica, Arimo, Arial, sans-serif",
       transform: "rotate(-90 14 " + (M.t + H - M.b) / 2 + ")" }, t("feas.axis.y")));
     svg.appendChild(g);
 
@@ -390,7 +390,7 @@
       var tt = 0.72;
       var lx = seg[0][0] + (seg[1][0] - seg[0][0]) * tt, ly = seg[0][1] + (seg[1][1] - seg[0][1]) * tt;
       var label = el("text", { x: sx(lx) + 6, y: sy(ly) - 7, fill: css("--ink2"), "font-size": 12,
-        "font-weight": 600, "font-family": "Instrument Sans, sans-serif",
+        "font-weight": 600, "font-family": "Neue Haas Grotesk Text, Helvetica Neue, Helvetica, Arimo, Arial, sans-serif",
         stroke: css("--halo"), "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, cname(r));
       if (sx(lx) > W - 120) { label.setAttribute("text-anchor", "end"); label.setAttribute("x", sx(lx) - 6); }
       svg.appendChild(label);
