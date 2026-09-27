@@ -702,7 +702,7 @@ R(f) &= c\, A_0\, e^{\rho_f\, t^{arr}(f)}
   var state = { bud: 150 };
 
   /* ---- stylized geography in km (x east, y north, Bogotá at the origin); not a GIS outline ---- */
-  var OUT = [[-60, 131], [-46, 118], [-30, 125], [-12, 120], [8, 106], [30, 96], [52, 84], [78, 72], [100, 56], [112, 34],
+  var OUT = [[-60, 131], [-45, 126], [-28, 127], [-12, 120], [8, 106], [30, 96], [52, 84], [78, 72], [100, 56], [112, 34],
     [104, 12], [88, -2], [74, -18], [80, -38], [66, -56], [44, -72], [22, -88], [4, -108], [-18, -116],
     [-34, -102], [-44, -82], [-58, -70], [-74, -62], [-86, -44], [-91, -14], [-89, 16], [-84, 46], [-75, 79], [-68, 108]];
   var RIV = [[-66, -104], [-80, -70], [-92, -46], [-97, -16], [-95, 16], [-90, 48], [-81, 78], [-72, 106], [-67, 134]];
@@ -846,7 +846,7 @@ R(f) &= c\, A_0\, e^{\rho_f\, t^{arr}(f)}
     plan = [];
     for (var k = 0; k < n && k < order.length; k++) {
       var f = order[k];
-      var park = { x: BASE.x + (k - (n - 1) / 2) * 6, y: BASE.y + 7 };
+      var park = { x: BASE.x + (k - (n - 1) / 2) * 9, y: BASE.y + 8 };
       var t0 = 25.2 + 0.5 * k, dur = 0.9 + hyp(park, f) / 48, Ta = t0 + dur, Tc = TC[k];
       var N = f.need, L = (Tc - Ta) / Math.max(1, N - 1);
       var p = { f: f, w: f.w, park: park, t0: t0, Ta: Ta, Tc: Tc, N: N, L: L, Tr: Tc + 0.5, Tb: Tc + 0.5 + dur };
@@ -1442,7 +1442,7 @@ R(f) &= c\, A_0\, e^{\rho_f\, t^{arr}(f)}
     }
 
     /* scene labels */
-    var la = ease.out(seg(t, 2.2, 3)), dim = 1 - 0.35 * seg(t, 18, 20);
+    var la = ease.out(seg(t, 2.2, 3)), dim = (1 - 0.35 * seg(t, 18, 20)) * (tallyK ? 1 - seg(t, 43.6, 44.6) : 1);
     label(tr(P + "l.bogota"), SX(9), SY(4), "left", c.ink, la, FONT);
     if (la > 0) {
       ctx.save();
@@ -1535,7 +1535,6 @@ R(f) &= c\, A_0\, e^{\rho_f\, t^{arr}(f)}
     onResize: function () { cv.fit(); layout(); },
     render: render
   });
-  window.wfAnimPlayer = player;
 
   /* scenario control: 150 / 225 / 300 G COP (1 / 2 / 3 Firehawks) */
   var segEl = document.getElementById("wf-anim-seg");
