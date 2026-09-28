@@ -6,11 +6,11 @@ I18N.register("pt", {
   "r.pallets.eyebrow": "Caso de pesquisa 4 · Bogotá (El Dorado) a Miami",
   "r.pallets.h1": "Otimização da configuração de paletes",
   "r.pallets.lede": "Um exportador de flores paga um preço fixo por um Airbus A330-200F inteiro, então cada quilograma que fica em terra encarece cada caixa que voa. Quais caixas devem ir em cada uma das 32 posições de palete, e os operadores conseguem de fato empilhá-las à medida que saem da esteira, em uma ordem que ninguém controla? O estudo planeja a alocação com programação inteira, simula o empilhamento com empacotamento 3D online (bin packing) e realimenta o plano com o que de fato pode ser empilhado.",
-  "r.pallets.cite": "<b>A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight: Integer Programming for Allocation and Online Bin Packing for Placement.</b> Jaime Pesca, Daynor Yamil Bautista Conde, Edgar Gutierrez-Franco e Christopher Mejia-Argueta. Artigo em elaboração (working paper).",
+  "r.pallets.cite": "<b>Artigo em preparação.</b> O título e os autores aparecerão aqui quando o artigo for publicado.",
 
   /* ---- the real case ---- */
   "r.pallets.case.h": "O caso real",
-  "r.pallets.case.intro": "Nos picos de demanda (Dia dos Namorados, Dia das Mães), um produtor verticalmente integrado com fazendas na Colômbia, no Equador e no Quênia freta um A330-200F inteiro do aeroporto El Dorado de Bogotá até Miami. No terminal, as caixas chegam à esteira de montagem na ordem em que os caminhões foram descarregados, a equipe da companhia aérea as empilha à mão, e uma caixa empilhada não é retirada de novo. A instância é um manifesto histórico de um voo fretado.",
+  "r.pallets.case.intro": "Nos picos de demanda (Dia dos Namorados, Dia das Mães), um exportador de flores freta um A330-200F inteiro do aeroporto El Dorado de Bogotá até Miami. No terminal, as caixas chegam à esteira de montagem na ordem em que os caminhões foram descarregados, a equipe da companhia aérea as empilha à mão, e uma caixa empilhada não é retirada de novo. A instância é um manifesto histórico de um voo fretado.",
   "r.pallets.stat.boxes.v": "8.500",
   "r.pallets.stat.boxes.l": "caixas no manifesto histórico do voo fretado",
   "r.pallets.stat.types.v": "35 / 45",
@@ -171,7 +171,7 @@ I18N.register("pt", {
   "r.pallets.find.4": "<b>O Estágio 1 garante a admissibilidade.</b> Empacotar o fluxo bruto sem ele dá em média 68.583 kg, acima da carga útil de 65.000 kg em todas as execuções auditadas, com 7,7 posições acima dos seus limites de peso.",
   "r.pallets.find.5": "<b>A composição vale mais que o sequenciamento.</b> Penalizar paletes mistos eleva a colocação de 92,1% para 97,2% ao custo de 6 caixas, enquanto controlar a ordem de chegada vale no máximo 1,4 ponto.",
 
-  "r.pallets.note": "Dados e resultados do manuscrito \"A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight\" (artigo em elaboração). As figuras reproduzem o estudo para fins ilustrativos; consulte o artigo para a análise completa.",
+  "r.pallets.note": "Dados e resultados de um artigo em preparação. As figuras reproduzem o estudo para fins ilustrativos.",
 
   /* ---- animação ---- */
   "r.pallets.anim.intro": "Todo o estudo em menos de um minuto: o manifesto, o plano, o pátio e o ciclo que fecha a lacuna.",

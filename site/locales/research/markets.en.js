@@ -6,7 +6,7 @@ I18N.register("en", {
   "r.markets.eyebrow": "Research case 2 · Bosa district, Bogotá, Colombia",
   "r.markets.h1": "Locating street markets",
   "r.markets.lede": "Bogotá's farmers' markets (<em>Mercados Campesinos</em>) are one-day street markets, run and subsidized by the city's Secretariat of Economic Development, where small producers from the surrounding region sell fresh food directly in public parks. In Bosa, a dense, low-income district with few fresh-food outlets, which parks should host them and on which days of the week? The study picks sites and days that capture the most fruit and vegetable demand from households that can also shop at produce stores and supermarkets, while favoring parks that urban planning criteria rate as suitable.",
-  "r.markets.cite": "<b>Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP.</b> Jaime Pesca, Gonzalo Mejía and Edgar Gutiérrez-Franco. Working paper.",
+  "r.markets.cite": "<b>Working paper under peer review.</b> The title and the authors will appear here once the article is published.",
   "r.markets.repo": "Public code and data repository",
 
   /* the real case */
@@ -120,7 +120,7 @@ I18N.register("en", {
   "r.markets.map.parkTip": "Candidate park {n}",
   "r.markets.map.openTip": "ST{n}: open on {days}",
   "r.markets.map.compTip": "Large competitor",
-  "r.markets.map.note": "Schematic: longitude and latitude projected to kilometres, no base map. Coordinates from the study's public repository; ST numbers match Figure 5.",
+  "r.markets.map.note": "Schematic: longitude and latitude projected to kilometres, no base map. Coordinates from the study's data; ST numbers match Figure 5.",
   "r.markets.rules.h": "Scheduling rules, checked against the schedule",
   "r.markets.rule.total": "Exactly M_d = 10 market days in the week (17): {v}",
   "r.markets.rule.weekday": "Exactly 40% of them on weekdays, 0.4 × 10 = 4 (20): {v}",
@@ -190,7 +190,7 @@ I18N.register("en", {
   "r.markets.find.4": "<b>Timing matters as much as place.</b> Shifting demand to 60% on weekends raises captured demand to 76,059 kg; spreading it equally over the week lowers it to 54,651 kg.",
   "r.markets.find.5": "<b>The schedule leans on weekends but uses weekdays.</b> Six of the ten base-case market days fall on Saturday and Sunday, matching the city's current practice, while Tuesday to Thursday host the other four. At about COP 4 million (USD 1,000) per event, ten markets cost COP 40 million a week.",
 
-  "r.markets.note": "Data and results from the manuscript \"Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP\" (Pesca, Mejía and Gutiérrez-Franco, working paper); park and competitor coordinates for the schematic map from the authors' public repository. Figures reproduce the study for illustration; see the paper for the full analysis.",
+  "r.markets.note": "Data and results from a working paper under peer review. Figures reproduce the study for illustration.",
 
   "r.markets.day.0": "Mon",
   "r.markets.day.1": "Tue",

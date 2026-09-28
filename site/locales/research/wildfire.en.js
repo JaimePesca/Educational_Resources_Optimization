@@ -6,7 +6,7 @@ I18N.register("en", {
   "r.wildfire.eyebrow": "Research case 3 · Cundinamarca, Colombia",
   "r.wildfire.h1": "Wildfire suppression",
   "r.wildfire.lede": "Colombia is buying Firehawk helicopters to fight wildfires. Where should their bases go, and which lakes and reservoirs should they refill from, all under one budget and without knowing which fire days will come? A helicopter flies from its base to the fire once, then shuttles between the fire and a water point on every drop, so water points matter as much as bases.",
-  "r.wildfire.cite": "<b>The Cycle-Constrained Aerial Suppression Base and Water Point Location Problem: Joint Siting under Uncertainty with an Application to Cundinamarca, Colombia.</b> Jaime Enrique Pesca Santos and Kiana Hikaru Ysa Morla. Working paper.",
+  "r.wildfire.cite": "<b>Working paper under peer review.</b> The title and the authors will appear here once the article is published.",
 
   /* ---- the real case ---- */
   "r.wildfire.case.h": "The real case",
@@ -185,5 +185,5 @@ I18N.register("en", {
   "r.wildfire.anim.lg.route": "Firehawk route",
   "r.wildfire.anim.lg.pop": "People nearby",
 
-  "r.wildfire.note": "Data and results from the manuscript \"The Cycle-Constrained Aerial Suppression Base and Water Point Location Problem\" (Pesca Santos and Ysa Morla, working paper). Figures reproduce the study for illustration; see the paper for the full analysis."
+  "r.wildfire.note": "Data and results from a working paper under peer review. Figures reproduce the study for illustration."
 }, "research/wildfire");

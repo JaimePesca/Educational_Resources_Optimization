@@ -6,7 +6,7 @@ I18N.register("fr", {
   "r.wildfire.eyebrow": "Cas de recherche 3 · Cundinamarca, Colombie",
   "r.wildfire.h1": "Lutte contre les feux de forêt",
   "r.wildfire.lede": "La Colombie achète des hélicoptères Firehawk pour lutter contre les feux de forêt. Où installer leurs bases, et dans quels lacs et réservoirs doivent-ils se ravitailler en eau, le tout avec un budget unique et sans savoir quelles journées d'incendie surviendront ? Un hélicoptère vole une seule fois de sa base jusqu'au feu, puis fait la navette entre le feu et un point d'eau à chaque largage : les points d'eau comptent donc autant que les bases.",
-  "r.wildfire.cite": "<b>The Cycle-Constrained Aerial Suppression Base and Water Point Location Problem: Joint Siting under Uncertainty with an Application to Cundinamarca, Colombia.</b> Jaime Enrique Pesca Santos et Kiana Hikaru Ysa Morla. Document de travail.",
+  "r.wildfire.cite": "<b>Document de travail en cours d'évaluation par les pairs.</b> Le titre et les auteurs apparaîtront ici après la publication de l'article.",
 
   /* ---- le cas réel ---- */
   "r.wildfire.case.h": "Le cas réel",
@@ -185,5 +185,5 @@ I18N.register("fr", {
   "r.wildfire.anim.lg.route": "Trajet du Firehawk",
   "r.wildfire.anim.lg.pop": "Population proche",
 
-  "r.wildfire.note": "Données et résultats issus du manuscrit « The Cycle-Constrained Aerial Suppression Base and Water Point Location Problem » (Pesca Santos et Ysa Morla, document de travail). Les figures reproduisent l'étude à titre d'illustration ; consultez l'article pour l'analyse complète."
+  "r.wildfire.note": "Données et résultats d'un document de travail en cours d'évaluation par les pairs. Les figures reproduisent l'étude à titre d'illustration."
 }, "research/wildfire");

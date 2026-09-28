@@ -6,7 +6,7 @@ I18N.register("fr", {
   "r.markets.eyebrow": "Cas de recherche 2 · Localité de Bosa, Bogotá, Colombie",
   "r.markets.h1": "Localisation des marchés de plein air",
   "r.markets.lede": "Les marchés paysans de Bogotá (<em>Mercados Campesinos</em>) sont des marchés de plein air d'une journée, organisés et subventionnés par le Secrétariat au développement économique de la ville, où de petits producteurs de la région environnante vendent des produits frais directement dans les parcs publics. À Bosa, localité dense et à faibles revenus qui compte peu de points de vente de produits frais, quels parcs doivent les accueillir, et quels jours de la semaine ? L'étude choisit les sites et les jours qui captent le plus de demande en fruits et légumes auprès de ménages qui peuvent aussi faire leurs achats chez les primeurs et dans les supermarchés, tout en privilégiant les parcs jugés adaptés selon des critères d'urbanisme.",
-  "r.markets.cite": "<b>Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP.</b> Jaime Pesca, Gonzalo Mejía et Edgar Gutiérrez-Franco. Document de travail.",
+  "r.markets.cite": "<b>Document de travail en cours d'évaluation par les pairs.</b> Le titre et les auteurs apparaîtront ici après la publication de l'article.",
   "r.markets.repo": "Dépôt public du code et des données",
 
   /* le cas réel */
@@ -120,7 +120,7 @@ I18N.register("fr", {
   "r.markets.map.parkTip": "Parc candidat {n}",
   "r.markets.map.openTip": "ST{n}, ouvert : {days}",
   "r.markets.map.compTip": "Grand concurrent",
-  "r.markets.map.note": "Schéma : longitude et latitude projetées en kilomètres, sans fond de carte. Coordonnées issues du dépôt public de l'étude ; les numéros ST correspondent à la figure 5.",
+  "r.markets.map.note": "Schéma : longitude et latitude projetées en kilomètres, sans fond de carte. Coordonnées issues des données de l'étude ; les numéros ST correspondent à la figure 5.",
   "r.markets.rules.h": "Règles de planification, vérifiées sur le calendrier",
   "r.markets.rule.total": "Exactement M_d = 10 jours de marché dans la semaine (17) : {v}",
   "r.markets.rule.weekday": "Exactement 40 % d'entre eux en semaine, 0,4 × 10 = 4 (20) : {v}",
@@ -190,7 +190,7 @@ I18N.register("fr", {
   "r.markets.find.4": "<b>Le moment compte autant que le lieu.</b> Reporter 60 % de la demande sur le week-end porte la demande captée à 76 059 kg ; la répartir uniformément sur la semaine la ramène à 54 651 kg.",
   "r.markets.find.5": "<b>Le calendrier privilégie le week-end mais utilise la semaine.</b> Six des dix jours de marché du cas de base tombent le samedi et le dimanche, conformément à la pratique actuelle de la ville, tandis que les quatre autres ont lieu du mardi au jeudi. À environ 4 millions de COP (1 000 USD) par événement, dix marchés coûtent 40 millions de COP par semaine.",
 
-  "r.markets.note": "Données et résultats issus du manuscrit « Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP » (Pesca, Mejía et Gutiérrez-Franco, document de travail) ; coordonnées des parcs et des concurrents de la carte schématique issues du dépôt public des auteurs. Les figures reproduisent l'étude à titre d'illustration ; consultez l'article pour l'analyse complète.",
+  "r.markets.note": "Données et résultats d'un document de travail en cours d'évaluation par les pairs. Les figures reproduisent l'étude à titre d'illustration.",
 
   "r.markets.day.0": "lun.",
   "r.markets.day.1": "mar.",

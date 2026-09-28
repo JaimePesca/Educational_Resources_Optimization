@@ -6,11 +6,11 @@ I18N.register("en", {
   "r.pallets.eyebrow": "Research case 4 · Bogotá (El Dorado) to Miami",
   "r.pallets.h1": "Optimizing pallet configuration",
   "r.pallets.lede": "A flower exporter pays a fixed price for a whole Airbus A330-200F, so every kilogram left on the ground raises the cost of every box that flies. Which boxes should go on which of the 32 pallet positions, and can workers actually stack them as they come off the conveyor, in an order nobody controls? The study plans the allocation with integer programming, simulates the stacking with online 3D bin packing, and feeds what can really be stacked back into the plan.",
-  "r.pallets.cite": "<b>A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight: Integer Programming for Allocation and Online Bin Packing for Placement.</b> Jaime Pesca, Daynor Yamil Bautista Conde, Edgar Gutierrez-Franco and Christopher Mejia-Argueta. Working paper.",
+  "r.pallets.cite": "<b>Working paper in preparation.</b> The title and the authors will appear here once the article is published.",
 
   /* ---- the real case ---- */
   "r.pallets.case.h": "The real case",
-  "r.pallets.case.intro": "During demand peaks (Valentine's Day, Mother's Day) a vertically integrated grower with farms in Colombia, Ecuador and Kenya charters a full A330-200F from Bogotá's El Dorado airport to Miami. At the terminal, boxes reach the build-up conveyor in the order trucks were unloaded, airline staff stack them by hand, and a stacked box is not taken down again. The instance is one historical charter manifest.",
+  "r.pallets.case.intro": "During demand peaks (Valentine's Day, Mother's Day) a flower exporter charters a full A330-200F from Bogotá's El Dorado airport to Miami. At the terminal, boxes reach the build-up conveyor in the order trucks were unloaded, airline staff stack them by hand, and a stacked box is not taken down again. The instance is one historical charter manifest.",
   "r.pallets.stat.boxes.v": "8,500",
   "r.pallets.stat.boxes.l": "boxes on the historical charter manifest",
   "r.pallets.stat.types.v": "35 / 45",
@@ -171,7 +171,7 @@ I18N.register("en", {
   "r.pallets.find.4": "<b>Stage 1 buys admissibility.</b> Packing the raw stream without it averages 68,583 kg, over the 65,000 kg payload in every audited run, with 7.7 positions over their weight limits.",
   "r.pallets.find.5": "<b>Composition beats sequencing.</b> Penalising mixed pallets raises placement from 92.1% to 97.2% at a cost of 6 boxes, while controlling the arrival order is worth at most 1.4 points.",
 
-  "r.pallets.note": "Data and results from the manuscript \"A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight\" (working paper). Figures reproduce the study for illustration; see the paper for the full analysis.",
+  "r.pallets.note": "Data and results from a working paper in preparation. Figures reproduce the study for illustration.",
 
   /* ---- animation ---- */
   "r.pallets.anim.intro": "The whole study in under a minute: the manifest, the plan, the ramp and the loop that closes the gap.",

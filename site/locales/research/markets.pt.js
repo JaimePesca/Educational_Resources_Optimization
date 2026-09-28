@@ -6,7 +6,7 @@ I18N.register("pt", {
   "r.markets.eyebrow": "Caso de pesquisa 2 · Localidade de Bosa, Bogotá, Colômbia",
   "r.markets.h1": "Localização de feiras livres",
   "r.markets.lede": "Os mercados de agricultores de Bogotá (<em>Mercados Campesinos</em>) são feiras livres de um dia, organizadas e subsidiadas pela Secretaria de Desenvolvimento Econômico da cidade, nas quais pequenos produtores da região vizinha vendem alimentos frescos diretamente em parques públicos. Em Bosa, uma localidade densa e de baixa renda com poucos pontos de venda de alimentos frescos, quais parques devem recebê-las e em quais dias da semana? O estudo escolhe locais e dias que captam a maior parte da demanda por frutas e verduras de domicílios que também podem comprar em hortifrútis e supermercados, favorecendo os parques que os critérios de planejamento urbano classificam como adequados.",
-  "r.markets.cite": "<b>Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP.</b> Jaime Pesca, Gonzalo Mejía e Edgar Gutiérrez-Franco. Artigo em elaboração (working paper).",
+  "r.markets.cite": "<b>Artigo em revisão por pares.</b> O título e os autores aparecerão aqui quando o artigo for publicado.",
   "r.markets.repo": "Repositório público de código e dados",
 
   /* the real case */
@@ -120,7 +120,7 @@ I18N.register("pt", {
   "r.markets.map.parkTip": "Parque candidato {n}",
   "r.markets.map.openTip": "ST{n}: aberto em {days}",
   "r.markets.map.compTip": "Grande concorrente",
-  "r.markets.map.note": "Esquemático: longitude e latitude projetadas em quilômetros, sem mapa de fundo. Coordenadas do repositório público do estudo; os números ST correspondem à Figura 5.",
+  "r.markets.map.note": "Esquemático: longitude e latitude projetadas em quilômetros, sem mapa de fundo. Coordenadas dos dados do estudo; os números ST correspondem à Figura 5.",
   "r.markets.rules.h": "Regras de programação, verificadas na programação",
   "r.markets.rule.total": "Exatamente M_d = 10 dias de feira na semana (17): {v}",
   "r.markets.rule.weekday": "Exatamente 40% deles em dias úteis, 0,4 × 10 = 4 (20): {v}",
@@ -190,7 +190,7 @@ I18N.register("pt", {
   "r.markets.find.4": "<b>O momento importa tanto quanto o lugar.</b> Deslocar a demanda para 60% nos fins de semana eleva a demanda captada para 76.059 kg; distribuí-la igualmente ao longo da semana a reduz para 54.651 kg.",
   "r.markets.find.5": "<b>A programação se apoia nos fins de semana, mas usa os dias úteis.</b> Seis dos dez dias de feira do caso base caem no sábado e no domingo, o que coincide com a prática atual da cidade, enquanto de terça a quinta ficam os outros quatro. A cerca de COP 4 milhões (USD 1.000) por evento, dez feiras custam COP 40 milhões por semana.",
 
-  "r.markets.note": "Dados e resultados do manuscrito \"Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP\" (Pesca, Mejía e Gutiérrez-Franco, artigo em elaboração); coordenadas dos parques e dos concorrentes para o mapa esquemático do repositório público dos autores. As figuras reproduzem o estudo para fins ilustrativos; consulte o artigo para a análise completa.",
+  "r.markets.note": "Dados e resultados de um artigo em revisão por pares. As figuras reproduzem o estudo para fins ilustrativos.",
 
   "r.markets.day.0": "Seg",
   "r.markets.day.1": "Ter",

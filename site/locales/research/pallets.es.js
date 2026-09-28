@@ -6,11 +6,11 @@ I18N.register("es", {
   "r.pallets.eyebrow": "Caso de investigación 4 · De Bogotá (El Dorado) a Miami",
   "r.pallets.h1": "Optimización de la configuración de estibas",
   "r.pallets.lede": "Un exportador de flores paga un precio fijo por un Airbus A330-200F completo, así que cada kilogramo que se queda en tierra encarece cada caja que vuela. ¿Qué cajas deben ir en cuál de las 32 posiciones de estiba, y pueden los operarios realmente apilarlas a medida que salen de la banda transportadora, en un orden que nadie controla? El estudio planea la asignación con programación entera, simula el apilado con empaque 3D en línea y retroalimenta el plan con lo que de verdad se puede apilar.",
-  "r.pallets.cite": "<b>A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight: Integer Programming for Allocation and Online Bin Packing for Placement.</b> Jaime Pesca, Daynor Yamil Bautista Conde, Edgar Gutierrez-Franco y Christopher Mejia-Argueta. Documento de trabajo.",
+  "r.pallets.cite": "<b>Documento de trabajo en preparación.</b> El título y los autores aparecerán aquí cuando el artículo se publique.",
 
   /* ---- el caso real ---- */
   "r.pallets.case.h": "El caso real",
-  "r.pallets.case.intro": "Durante los picos de demanda (San Valentín, Día de la Madre), un cultivador integrado verticalmente, con fincas en Colombia, Ecuador y Kenia, fleta un A330-200F completo desde el aeropuerto El Dorado de Bogotá hasta Miami. En la terminal, las cajas llegan a la banda de armado en el orden en que se descargaron los camiones, el personal de la aerolínea las apila a mano y una caja apilada no se vuelve a bajar. La instancia es un manifiesto histórico de un vuelo chárter.",
+  "r.pallets.case.intro": "Durante los picos de demanda (San Valentín, Día de la Madre), un exportador de flores fleta un A330-200F completo desde el aeropuerto El Dorado de Bogotá hasta Miami. En la terminal, las cajas llegan a la banda de armado en el orden en que se descargaron los camiones, el personal de la aerolínea las apila a mano y una caja apilada no se vuelve a bajar. La instancia es un manifiesto histórico de un vuelo chárter.",
   "r.pallets.stat.boxes.v": "8.500",
   "r.pallets.stat.boxes.l": "cajas en el manifiesto histórico del chárter",
   "r.pallets.stat.types.v": "35 / 45",
@@ -171,7 +171,7 @@ I18N.register("es", {
   "r.pallets.find.4": "<b>La Etapa 1 garantiza la admisibilidad.</b> Empacar el flujo sin ella promedia 68.583 kg, por encima de la carga útil de 65.000 kg en todas las corridas auditadas, con 7,7 posiciones por encima de su límite de peso.",
   "r.pallets.find.5": "<b>La composición le gana a la secuenciación.</b> Penalizar las estibas mixtas sube la colocación de 92,1% a 97,2% a un costo de 6 cajas, mientras que controlar el orden de llegada vale como máximo 1,4 puntos.",
 
-  "r.pallets.note": "Datos y resultados del manuscrito \"A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight\" (documento de trabajo). Las cifras reproducen el estudio con fines ilustrativos; consulta el artículo para ver el análisis completo.",
+  "r.pallets.note": "Datos y resultados de un documento de trabajo en preparación. Las figuras reproducen el estudio con fines ilustrativos.",
 
   /* ---- animación ---- */
   "r.pallets.anim.intro": "Todo el estudio en menos de un minuto: el manifiesto, el plan, la rampa y el ciclo que cierra la brecha.",
