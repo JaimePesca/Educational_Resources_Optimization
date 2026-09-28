@@ -815,7 +815,7 @@
     }
     if (state.tb !== state.ta) bar(cB, "var(--ink)", 7);
     bar(cA, "var(--accent)", 0);
-    var lab = el("text", { x: P.W - P.m.r, y: P.Y(al) - 6, "text-anchor": "end", "font-size": 11, fill: "var(--ink2)" }, P.top, "α = " + fmt(al, 2));
+    var lab = el("text", { x: P.W - P.m.r, y: P.Y(al) - 6, "text-anchor": "end", "font-size": 11, fill: "var(--ink2)", stroke: "var(--surface)", "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, P.top, "α = " + fmt(al, 2));
     var items = [{ x: P.X(A[1]), text: tname(state.ta), fill: "var(--accent-text)", bold: true }];
     if (state.tb !== state.ta) items.push({ x: P.X(B[1]), text: tname(state.tb), fill: "var(--ink)" });
     peakLabels(P, items);
@@ -929,16 +929,17 @@
     setHTML($("p3-agg"), h + "</tbody>");
     // kpis and verdict
     var top = f.top, sec = f.sec, V = f.V;
+    var sd = fmt(f.Sc[top], 3) === fmt(f.Sc[sec], 3) ? 4 : 3;           // near ties get one more decimal
     var level = V >= 1 - 1e-12 ? "flip" : (V >= 0.5 ? "tie" : (V > 1e-12 ? "tails" : "clear"));
     kpis($("p3-kpis"), [
-      { v: sname(top), l: T("fahp.p3.k.top", { s: fmt(f.Sc[top], 3) }), cls: "accent" },
-      { v: sname(sec), l: T("fahp.p3.k.sec", { s: fmt(f.Sc[sec], 3) }) },
+      { v: sname(top), l: T("fahp.p3.k.top", { s: fmt(f.Sc[top], sd) }), cls: "accent" },
+      { v: sname(sec), l: T("fahp.p3.k.sec", { s: fmt(f.Sc[sec], sd) }) },
       { v: fmt(V, 2), l: T("fahp.p3.k.v"), cls: V >= 0.5 ? "warn" : "" },
       { v: T("fahp.p3.lvl." + level), l: T("fahp.p3.k.lvl") }
     ]);
     var vd = $("p3-verdict");
     vd.className = "verdict " + (V >= 0.5 ? "bad" : "ok");
-    setHTML(vd, T("fahp.p3.v." + level, { a: sname(top), b: sname(sec), v: fmt(V, 2), sa: fmt(f.Sc[top], 3), sb: fmt(f.Sc[sec], 3), ma: fmt(f.S[top][1], 3), mb: fmt(f.S[sec][1], 3) }));
+    setHTML(vd, T("fahp.p3.v." + level, { a: sname(top), b: sname(sec), v: fmt(V, 2), sa: fmt(f.Sc[top], sd), sb: fmt(f.Sc[sec], sd), ma: fmt(f.S[top][1], sd), mb: fmt(f.S[sec][1], sd) }));
     setHTML($("p3-spreadwin"), ["narrow", "usual", "wide"].map(function (k) {
       var g = all[k], flip = g.top !== all.narrow.top;
       return "<div class='" + (k === state.spread ? "on" : "") + (flip ? " flip" : "") + "'>" + T("fahp.p3.winat", { s: T("fahp.spread." + k) }) +
@@ -1002,7 +1003,7 @@
       var xv = A2[0] + V * (A2[1] - A2[0]);
       el("line", { x1: Q.X(xv), x2: Q.X(xv), y1: Q.Y(V), y2: Q.Y(0), stroke: "var(--mit-bright)", "stroke-dasharray": "2 2" }, Q.top);
       el("circle", { cx: Q.X(xv), cy: Q.Y(V), r: 4.5, fill: "var(--surface)", stroke: "var(--mit-bright)", "stroke-width": 2 }, Q.top);
-      var vt = el("text", { x: Q.X(xv) - 8, y: Q.Y(V) + 4, "text-anchor": "end", "font-size": 11.5, "font-weight": 700, fill: "var(--accent-text)", stroke: "var(--surface)", "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, Q.top, "V = " + fmt(V, 2));
+      var vt = el("text", { x: Q.X(xv) - 8, y: Q.Y(V) + (V > 0.85 ? 18 : 4), "text-anchor": "end", "font-size": 11.5, "font-weight": 700, fill: "var(--accent-text)", stroke: "var(--surface)", "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, Q.top, "V = " + fmt(V, 2));
       var bb = vt.getBBox();
       if (bb.x < Q.m.l + 2) { vt.setAttribute("text-anchor", "start"); vt.setAttribute("x", Q.X(xv) + 8); }
     }
@@ -1025,7 +1026,7 @@
       "</th><th class='num wide'>" + T("fahp.p3.th.sm") + "</th><th class='num wide'>" + T("fahp.p3.th.ahps") + "</th></tr></thead><tbody>";
     var p1w = argmax(p1.S);
     f.o.forEach(function (k) {
-      h += "<tr><td>" + sname(k) + "</td><td class='num'>" + ftfn(f.S[k], 3) + "</td><td class='num" + (k === top ? " best" : "") + "'>" + fmt(f.Sc[k], 3) +
+      h += "<tr><td>" + sname(k) + "</td><td class='num'>" + ftfn(f.S[k], 3) + "</td><td class='num" + (k === top ? " best" : "") + "'>" + fmt(f.Sc[k], sd) +
         "</td><td class='num wide'>" + fmt(f.S[k][1], 3) + "</td><td class='num wide" + (k === p1w ? " best" : "") + "'>" + fmt(p1.S[k], 3) + "</td></tr>";
     });
     setHTML($("p3-st"), h + "</tbody>");
