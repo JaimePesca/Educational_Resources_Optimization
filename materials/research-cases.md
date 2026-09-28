@@ -13,7 +13,7 @@ Short briefs of the four applied cases. Each one has a page on the site (`site/r
 
 ## 2. Locating street markets
 
-**Manuscript:** *[street markets working paper, title withheld while under review].* File: `manuscripts/street-markets-location.pdf` (kept outside the repository). Code and data: [JaimePesca/Locating-street-markets-Using-a-discrete-choice-model-MINLP-and-fuzzy-AHP]([the markets code repository, name withheld]).
+**Manuscript:** *[street markets working paper, title withheld while under review].* File: `manuscripts/street-markets-location.pdf` (kept outside the repository). Code and data: the markets code repository (name withheld while under review).
 
 - **Question:** which parks should host Bogotá's subsidized farmers' markets (mercados campesinos), and on which days of the week, to capture the most fresh-food demand.
 - **Case:** Bosa district, Bogotá. 25 candidate parks, 271 demand zones of 300 × 300 m, 44 large competing retailers plus an aggregated "others" option, walking-distance buffer of 750 m in the base case.
