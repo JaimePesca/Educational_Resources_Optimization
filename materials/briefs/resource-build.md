@@ -1,6 +1,6 @@
 # Brief: build one Level 4 or Level 5 learning resource
 
-Site: static, no build, in the git worktree `/home/user/repo` (branch feat/lab-build-nav).
+Site: static, no build, in the git worktree `/home/user/repo` (the current feature branch; see materials/work-in-progress.md).
 - Work only in the files named for your task. Other agents may be editing other pages at the same time.
 - Do NOT commit, push, checkout, reset or stash. The lead commits.
 - Read `CLAUDE.md` in the worktree first and follow it to the letter: four languages (en reference; es Colombian "tú"; pt Brazil "você"; fr "vous"), no em dash or en dash characters anywhere visible (use hyphens in page ranges), never mention MIT (the paper's beer game sentence names it: do not copy it), tokens from `site/assets/site.css`, `?v=__BUILD__` on local CSS/JS, formulas with `site/assets/tex.js` (never monospace text), animations in the standard format with `site/assets/anim.js` + `site/assets/research.css`.

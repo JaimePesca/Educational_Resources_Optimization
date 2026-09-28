@@ -109,7 +109,10 @@ window.CATALOG = {
     { id: "lab-linearization", type: "animation", href: "lab/linearizing-markets.html" },
     { id: "lab-ml-methods", type: "animation", href: "lab/learning-is-optimizing.html" },
     { id: "lab-svm", type: "animation", href: "lab/widest-street.html" },
-    { id: "lab-ml-ai-cases", type: "simulation", href: "lab/ml-ai-optimization.html" }
+    { id: "lab-svm-dual", type: "animation" },
+    { id: "lab-svm-kernel", type: "animation" },
+    { id: "lab-ml-ai-cases", type: "simulation", href: "lab/ml-ai-optimization.html" },
+    { id: "lab-fahp", type: "simulation" }
   ],
   // true adds a "Lab" link to the home page's top menu; false keeps the lab reachable only by its door
   labInNav: false
