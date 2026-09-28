@@ -10,7 +10,7 @@ I18N.register("en", {
   "svmd.pairv": "{i} and {j}",
   "svmd.svv": "{s} ({b} at C)",
 
-  "svmd.anim.intro": "The same 24 coffee lots as level 1, placed by the altitude of the farm and the density of the beans: dots are specialty lots, squares are standard. Each lot now carries a multiplier α, drawn as a halo around the lot and as a bar in the strip below. Watch SMO move the multipliers two at a time, the street follow them, and the dual and primal values meet in the small chart.",
+  "svmd.anim.intro": "The same 24 coffee lots as level 1, without its odd lot, placed by the altitude of the farm and the density of the beans: dots are specialty lots, squares are standard. Each lot now carries a multiplier α, drawn as a halo around the lot and as a bar in the strip below. Watch SMO move the multipliers two at a time, the street follow them, and the dual and primal values meet in the small chart.",
   "svmd.anim.ctl": "Penalty C",
   "svmd.sc.small": "Small C = {c}",
   "svmd.sc.medium": "Medium C = {c}",
@@ -70,7 +70,7 @@ I18N.register("en", {
   "svmd.lg.dual": "Dual value D(α)",
   "svmd.lg.primal": "Best primal value P",
 
-  "svmd.st": "<b>C = {c}.</b> SMO needs {n} steps. {s} support vectors ({f} on an edge, {b} at the bound C), street width {w}, primal value = dual value = {o}.",
+  "svmd.st": "<b>C = {c}.</b> This SMO run takes {n} steps. {s} support vectors ({f} on an edge, {b} at the bound C), street width {w}, primal value = dual value = {o}.",
 
   "svmd.model.kicker": "The model",
   "svmd.model.title": "From the primal to the dual and back",
@@ -93,7 +93,7 @@ I18N.register("en", {
   "svmd.kkt.head": "Complementary slackness (KKT)",
   "svmd.kkt.tex": "\\begin{aligned}& \\alpha_i\\,\\bigl[y_i f(x_i) - 1 + \\xi_i\\bigr] = 0, \\quad (C - \\alpha_i)\\,\\xi_i = 0 && \\forall i\\\\ & \\alpha_i = 0 \\;\\Rightarrow\\; y_i f(x_i) \\ge 1 && \\text{(outside the street)}\\\\ & 0 < \\alpha_i < C \\;\\Rightarrow\\; y_i f(x_i) = 1 && \\text{(on an edge)}\\\\ & \\alpha_i = C \\;\\Rightarrow\\; y_i f(x_i) \\le 1 && \\text{(inside or beyond)}\\end{aligned}",
   "svmd.kkt.formula": "α_i [y_i f(x_i) − 1 + ξ_i] = 0,  (C − α_i) ξ_i = 0     ∀ i\nα_i = 0      ⇒  y_i f(x_i) ≥ 1   (outside the street)\n0 < α_i < C  ⇒  y_i f(x_i) = 1   (on an edge)\nα_i = C      ⇒  y_i f(x_i) ≤ 1   (inside or beyond)",
-  "svmd.kkt.why": "A multiplier can be positive only where its constraint is tight, and a slack can be positive only where the multiplier is at C. So α sorts the lots into three groups: outside the street they do not matter, on an edge they hold the street, inside the street or beyond they pay the full price C. The table of every lot below checks the three cases.",
+  "svmd.kkt.why": "A multiplier can be positive only where its constraint is tight, and a slack can be positive only where the multiplier is at C. So α sorts the lots into three groups: outside the street they do not matter, on an edge they hold the street, inside the street or beyond they pay the full price C. The implications go one way: a lot with α<sub>i</sub> = 0 or α<sub>i</sub> = C may also sit exactly on an edge. The table of every lot below checks the three cases.",
   "svmd.hinge.head": "The same problem with the hinge loss",
   "svmd.hinge.tex": "\\begin{aligned}\\min_{w,\\,b}\\;& \\tfrac{1}{2}\\lVert w\\rVert^2 + C\\sum_{i} \\max\\bigl\\{0,\\ 1 - y_i\\,(w^{\\top}x_i + b)\\bigr\\} && \\text{(hinge loss)}\\end{aligned}",
   "svmd.hinge.formula": "min over w, b   ½‖w‖² + C Σ_i max{0, 1 − y_i (wᵀx_i + b)}   (hinge loss)",
@@ -150,10 +150,10 @@ I18N.register("en", {
   "svmd.grp.bound": "α = C, inside or beyond",
 
   "svmd.n.title": "What to notice",
-  "svmd.n.p1": "The dual value only rises. Each SMO step solves a problem in two variables exactly, and the pair moves along the line that keeps Σ α<sub>i</sub> y<sub>i</sub> = 0. With C = {c0} SMO stops after {n0} steps, because {b0} multipliers soon sit on the bound and stop moving; with C = {c1} it needs {n1}, and most of them go to a few lots near the boundary that take turns.",
-  "svmd.n.p2": "Weak duality: every dual value is below every primal value, so the gap P − D bounds how far the current street can be from the best one. The primal constraints are linear, so strong duality holds and the gap closes to 0. At C = {c} the dual and the primal meet at {o}: this equality, not the number of steps, certifies the answer.",
-  "svmd.n.p3": "Complementary slackness sorts the lots. At C = {c}: α = 0 for {z} lots, 0 < α < C for {f} (on an edge) and α = C, the full price, for {b}. Only the {s} support vectors enter w = Σ α<sub>i</sub> y<sub>i</sub> x<sub>i</sub>: the other lots could move anywhere outside the street, or leave, and the street would not change.",
-  "svmd.n.p4": "The dual never looks at a lot on its own: it only uses the {m} dot products x<sub>i</sub>ᵀx<sub>j</sub>, and a new lot is classified with f(x) = Σ α<sub>i</sub> y<sub>i</sub> x<sub>i</sub>ᵀx + b, which needs its dot products with the {s} support vectors. Replace x<sub>i</sub>ᵀx<sub>j</sub> by another measure of similarity k(x<sub>i</sub>, x<sub>j</sub>) and the same dual, the same SMO and the same KKT conditions draw a curved boundary: that is the kernel trick, the subject of level 3. The hinge loss form, for its part, is how large linear SVMs are trained with gradient methods.",
+  "svmd.n.p1": "The dual value only rises. Each SMO step solves a problem in two variables exactly, and the pair moves along the line that keeps Σ α<sub>i</sub> y<sub>i</sub> = 0. With C = {c0} SMO stops after {n0} steps, because {b0} multipliers soon sit on the bound and stop moving; with C = {c1} it needs {n1}, and most of them go to a few lots near the boundary that take turns. The number of steps belongs to this run, not to the problem: another rule for picking the pair, another tolerance or even another rounding order gives another count, with the same street and the same value.",
+  "svmd.n.p2": "Weak duality: every dual value is below every primal value, so the gap P − D bounds how much the value of the best street found so far can exceed the optimum. The primal constraints are linear, so strong duality holds and the gap closes to 0. At C = {c} the dual and the primal meet at {o}: this equality, not the number of steps, certifies the answer.",
+  "svmd.n.p3": "Complementary slackness sorts the lots. At C = {c}: α = 0 for {z} lots, 0 < α < C for {f} (on an edge) and α = C, the full price, for {b}. Only the {s} support vectors enter w = Σ α<sub>i</sub> y<sub>i</sub> x<sub>i</sub>: the other lots could move anywhere on their own side outside the street, or leave, and the street would not change.",
+  "svmd.n.p4": "The dual never looks at a lot on its own: it only uses the {m} dot products x<sub>i</sub>ᵀx<sub>j</sub>, and a new lot is classified with f(x) = Σ α<sub>i</sub> y<sub>i</sub> x<sub>i</sub>ᵀx + b, which needs its dot products with the {s} support vectors. Replace x<sub>i</sub>ᵀx<sub>j</sub> by another measure of similarity k(x<sub>i</sub>, x<sub>j</sub>) and the same dual, the same SMO and the same KKT conditions draw a curved boundary: that is the kernel trick, the subject of level 3. The hinge loss form, for its part, is the one that subgradient methods use to train large linear SVMs.",
 
   "svmd.refs": "Cortes, C., and Vapnik, V. (1995). Support-vector networks. Machine Learning, 20(3), 273-297. Platt, J. C. (1998). Sequential minimal optimization: A fast algorithm for training support vector machines. Microsoft Research Technical Report MSR-TR-98-14. Boyd, S., and Vandenberghe, L. (2004). Convex Optimization. Cambridge University Press.",
   "svmd.footer": "Lab proposal · The 24 coffee lots and their two traits (two normal clouds drawn with seed 112) are the same illustrative data as level 1, without its odd lot; the scaling of the traits and the three values of C are illustrative too. Every number on this page is computed in your browser: the dual by SMO with the maximal violating pair, the primal value of every street it builds, the duality gap and the KKT checks. The threads of chapter 1, the order of the bars, the label positions and the timing of the animation are illustrative."

@@ -10,7 +10,7 @@ I18N.register("pt", {
   "svmd.pairv": "{i} e {j}",
   "svmd.svv": "{s} ({b} em C)",
 
-  "svmd.anim.intro": "Os mesmos 24 lotes de café do nível 1, posicionados pela altitude da fazenda e pela densidade dos grãos: os pontos são lotes especiais e os quadrados, lotes comuns. Agora cada lote carrega um multiplicador α, desenhado como um halo em volta do lote e como uma barra na faixa de baixo. Veja o SMO mover os multiplicadores dois de cada vez, a rua acompanhá-los e os valores dual e primal se encontrarem no pequeno gráfico.",
+  "svmd.anim.intro": "Os mesmos 24 lotes de café do nível 1, sem o seu lote atípico, posicionados pela altitude da fazenda e pela densidade dos grãos: os pontos são lotes especiais e os quadrados, lotes comuns. Agora cada lote carrega um multiplicador α, desenhado como um halo em volta do lote e como uma barra na faixa de baixo. Veja o SMO mover os multiplicadores dois de cada vez, a rua acompanhá-los e os valores dual e primal se encontrarem no pequeno gráfico.",
   "svmd.anim.ctl": "Penalidade C",
   "svmd.sc.small": "C pequeno = {c}",
   "svmd.sc.medium": "C médio = {c}",
@@ -27,7 +27,7 @@ I18N.register("pt", {
   "svmd.k.step": "Passo do SMO",
   "svmd.k.dual": "Dual D(α)",
   "svmd.k.primal": "Melhor primal P",
-  "svmd.k.gap": "Lacuna de dualidade",
+  "svmd.k.gap": "Lacuna P − D",
   "svmd.k.sv": "Vetores de suporte",
   "svmd.k.dots": "Produtos escalares",
   "svmd.k.pair": "Par de lotes",
@@ -70,7 +70,7 @@ I18N.register("pt", {
   "svmd.lg.dual": "Valor dual D(α)",
   "svmd.lg.primal": "Melhor valor primal P",
 
-  "svmd.st": "<b>C = {c}.</b> O SMO precisa de {n} passos. {s} vetores de suporte ({f} numa borda, {b} no limite C), largura da rua {w}, valor primal = valor dual = {o}.",
+  "svmd.st": "<b>C = {c}.</b> Esta execução do SMO leva {n} passos. {s} vetores de suporte ({f} numa borda, {b} no limite C), largura da rua {w}, valor primal = valor dual = {o}.",
 
   "svmd.model.kicker": "O modelo",
   "svmd.model.title": "Do primal ao dual e de volta",
@@ -93,7 +93,7 @@ I18N.register("pt", {
   "svmd.kkt.head": "Folga complementar (KKT)",
   "svmd.kkt.tex": "\\begin{aligned}& \\alpha_i\\,\\bigl[y_i f(x_i) - 1 + \\xi_i\\bigr] = 0, \\quad (C - \\alpha_i)\\,\\xi_i = 0 && \\forall i\\\\ & \\alpha_i = 0 \\;\\Rightarrow\\; y_i f(x_i) \\ge 1 && \\text{(fora da rua)}\\\\ & 0 < \\alpha_i < C \\;\\Rightarrow\\; y_i f(x_i) = 1 && \\text{(numa borda)}\\\\ & \\alpha_i = C \\;\\Rightarrow\\; y_i f(x_i) \\le 1 && \\text{(dentro ou além)}\\end{aligned}",
   "svmd.kkt.formula": "α_i [y_i f(x_i) − 1 + ξ_i] = 0,  (C − α_i) ξ_i = 0     ∀ i\nα_i = 0      ⇒  y_i f(x_i) ≥ 1   (fora da rua)\n0 < α_i < C  ⇒  y_i f(x_i) = 1   (numa borda)\nα_i = C      ⇒  y_i f(x_i) ≤ 1   (dentro ou além)",
-  "svmd.kkt.why": "Um multiplicador só pode ser positivo onde a sua restrição está ativa, e uma folga só pode ser positiva onde o multiplicador está em C. Assim α separa os lotes em três grupos: fora da rua eles não importam, numa borda eles sustentam a rua, e dentro da rua ou além eles pagam o preço cheio C. A tabela de cada lote, mais abaixo, verifica os três casos.",
+  "svmd.kkt.why": "Um multiplicador só pode ser positivo onde a sua restrição está ativa, e uma folga só pode ser positiva onde o multiplicador está em C. Assim α separa os lotes em três grupos: fora da rua eles não importam, numa borda eles sustentam a rua, e dentro da rua ou além eles pagam o preço cheio C. As implicações valem num só sentido: um lote com α<sub>i</sub> = 0 ou α<sub>i</sub> = C também pode ficar exatamente numa borda. A tabela de cada lote, mais abaixo, verifica os três casos.",
   "svmd.hinge.head": "O mesmo problema com a perda hinge",
   "svmd.hinge.tex": "\\begin{aligned}\\min_{w,\\,b}\\;& \\tfrac{1}{2}\\lVert w\\rVert^2 + C\\sum_{i} \\max\\bigl\\{0,\\ 1 - y_i\\,(w^{\\top}x_i + b)\\bigr\\} && \\text{(perda hinge)}\\end{aligned}",
   "svmd.hinge.formula": "mín em w, b   ½‖w‖² + C Σ_i máx{0, 1 − y_i (wᵀx_i + b)}   (perda hinge)",
@@ -150,10 +150,10 @@ I18N.register("pt", {
   "svmd.grp.bound": "α = C, dentro ou além",
 
   "svmd.n.title": "O que observar",
-  "svmd.n.p1": "O valor dual só sobe. Cada passo do SMO resolve exatamente um problema de duas variáveis, e o par se move sobre a reta que mantém Σ α<sub>i</sub> y<sub>i</sub> = 0. Com C = {c0} o SMO para depois de {n0} passos, porque {b0} multiplicadores logo ficam no limite e param de se mover; com C = {c1} ele precisa de {n1}, e a maioria vai para uns poucos lotes perto da fronteira que se revezam.",
-  "svmd.n.p2": "Dualidade fraca: cada valor dual fica abaixo de cada valor primal, então a lacuna P − D limita o quanto a rua atual pode estar longe da melhor. As restrições do primal são lineares, então vale a dualidade forte e a lacuna se fecha até 0. Com C = {c} o dual e o primal se encontram em {o}: é essa igualdade, e não o número de passos, que certifica a resposta.",
-  "svmd.n.p3": "A folga complementar separa os lotes. Com C = {c}: α = 0 para {z} lotes, 0 < α < C para {f} (numa borda) e α = C, o preço cheio, para {b}. Só os {s} vetores de suporte entram em w = Σ α<sub>i</sub> y<sub>i</sub> x<sub>i</sub>: os outros lotes poderiam ir para qualquer lugar fora da rua, ou sair, e a rua não mudaria.",
-  "svmd.n.p4": "O dual nunca olha um lote isolado: ele só usa os {m} produtos escalares x<sub>i</sub>ᵀx<sub>j</sub>, e um lote novo é classificado com f(x) = Σ α<sub>i</sub> y<sub>i</sub> x<sub>i</sub>ᵀx + b, que precisa dos seus produtos escalares com os {s} vetores de suporte. Troque x<sub>i</sub>ᵀx<sub>j</sub> por outra medida de semelhança k(x<sub>i</sub>, x<sub>j</sub>) e o mesmo dual, o mesmo SMO e as mesmas condições KKT desenham uma fronteira curva: esse é o truque do kernel, o tema do nível 3. A forma com perda hinge, por sua vez, é a usada para treinar SVMs lineares grandes com métodos de gradiente.",
+  "svmd.n.p1": "O valor dual só sobe. Cada passo do SMO resolve exatamente um problema de duas variáveis, e o par se move sobre a reta que mantém Σ α<sub>i</sub> y<sub>i</sub> = 0. Com C = {c0} o SMO para depois de {n0} passos, porque {b0} multiplicadores logo ficam no limite e param de se mover; com C = {c1} ele precisa de {n1}, e a maioria vai para uns poucos lotes perto da fronteira que se revezam. O número de passos é desta execução, não do problema: outra regra para escolher o par, outra tolerância ou até outra ordem de arredondamento dá outra contagem, com a mesma rua e o mesmo valor.",
+  "svmd.n.p2": "Dualidade fraca: cada valor dual fica abaixo de cada valor primal, então a lacuna P − D limita o quanto o valor da melhor rua encontrada até agora pode passar do ótimo. As restrições do primal são lineares, então vale a dualidade forte e a lacuna se fecha até 0. Com C = {c} o dual e o primal se encontram em {o}: é essa igualdade, e não o número de passos, que certifica a resposta.",
+  "svmd.n.p3": "A folga complementar separa os lotes. Com C = {c}: α = 0 para {z} lotes, 0 < α < C para {f} (numa borda) e α = C, o preço cheio, para {b}. Só os {s} vetores de suporte entram em w = Σ α<sub>i</sub> y<sub>i</sub> x<sub>i</sub>: os outros lotes poderiam ir para qualquer lugar do seu próprio lado fora da rua, ou sair, e a rua não mudaria.",
+  "svmd.n.p4": "O dual nunca olha um lote isolado: ele só usa os {m} produtos escalares x<sub>i</sub>ᵀx<sub>j</sub>, e um lote novo é classificado com f(x) = Σ α<sub>i</sub> y<sub>i</sub> x<sub>i</sub>ᵀx + b, que precisa dos seus produtos escalares com os {s} vetores de suporte. Troque x<sub>i</sub>ᵀx<sub>j</sub> por outra medida de semelhança k(x<sub>i</sub>, x<sub>j</sub>) e o mesmo dual, o mesmo SMO e as mesmas condições KKT desenham uma fronteira curva: esse é o truque do kernel, o tema do nível 3. A forma com perda hinge, por sua vez, é a que os métodos de subgradiente usam para treinar SVMs lineares grandes.",
 
   "svmd.refs": "Cortes, C., e Vapnik, V. (1995). Support-vector networks. Machine Learning, 20(3), 273-297. Platt, J. C. (1998). Sequential minimal optimization: A fast algorithm for training support vector machines. Microsoft Research Technical Report MSR-TR-98-14. Boyd, S., e Vandenberghe, L. (2004). Convex Optimization. Cambridge University Press.",
   "svmd.footer": "Proposta do laboratório · Os 24 lotes de café e as suas duas características (duas nuvens normais geradas com a semente 112) são os mesmos dados ilustrativos do nível 1, sem o seu lote atípico; a escala das características e os três valores de C também são ilustrativos. Cada número desta página é calculado no seu navegador: o dual pelo SMO com o par de violação máxima, o valor primal de cada rua que ele constrói, a lacuna de dualidade e as verificações de KKT. Os fios do capítulo 1, a ordem das barras, a posição dos rótulos e o tempo da animação são ilustrativos."

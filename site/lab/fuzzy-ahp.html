@@ -865,14 +865,36 @@
     setHTML($("p2-tab"), h + "</tbody>");
     // the approximation error of the product at this alpha
     var ex = [cut(A, al)[0] * cut(B, al)[0], cut(A, al)[1] * cut(B, al)[1]], ap = cut(Pd, al);
-    setHTML($("p2-note"), T("fahp.p2.note", { a: fmt(al, 2), ex: fint(ex, 2), ap: fint(ap, 2), d: tv(d) }));
+    setHTML($("p2-note"), T(fint(ex, 2) === fint(ap, 2) ? "fahp.p2.note.same" : "fahp.p2.note", { a: fmt(al, 2), ex: fint(ex, 2), ap: fint(ap, 2), d: tv(d) }));
   }
 
   /* ===================================================================================== part 3 */
-  function optText(k, t) {
-    var p = PAIRS[k];
+  // tier 0: full criterion names; 1: short names; 2: short names without "more important" (narrow selects)
+  function optText(k, t, tier) {
+    var p = PAIRS[k], c = t > 0 ? p[0] : p[1];
     if (t === 0) return T("fahp.p3.opt.eq");
-    return T("fahp.p3.opt", { c: cname(t > 0 ? p[0] : p[1]), t: T("fahp.tl." + TERMS[Math.abs(t)]) });
+    return T(tier === 2 ? "fahp.p3.opt.s" : "fahp.p3.opt", { c: tier ? cshort(c) : cname(c), t: T("fahp.tl." + TERMS[Math.abs(t)]) });
+  }
+  // pick, per pair, the longest option wording that fits the width of its selects
+  var measureCtx = null;
+  function fitExperts() {
+    measureCtx = measureCtx || document.createElement("canvas").getContext("2d");
+    PAIRS.forEach(function (_, k) {
+      var s0 = $("p3-x0-" + k);
+      if (!s0 || !s0.clientWidth) return;
+      var cs = getComputedStyle(s0);
+      measureCtx.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+      var avail = s0.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 22, tier;
+      for (tier = 0; tier < 2; tier++) {
+        var fits = true;
+        for (var t = 4; t >= -4 && fits; t--) if (measureCtx.measureText(optText(k, t, tier)).width > avail) fits = false;
+        if (fits) break;
+      }
+      EXPERTS.forEach(function (_, e) {
+        var s = $("p3-x" + e + "-" + k);
+        [].forEach.call(s.options, function (o) { var txt = optText(k, +o.value, tier); if (o.textContent !== txt) o.textContent = txt; });
+      });
+    });
   }
   function buildExperts() {
     $("p3-x").innerHTML = PAIRS.map(function (p, k) {
@@ -1089,12 +1111,14 @@
     renderFormulas(true);
     buildPairs(); buildTerms(); buildExperts(); renderAlt(); renderNotes();
     update();
+    fitExperts();
   }
   var rsz = 0, lastW = window.innerWidth;
   window.addEventListener("resize", function () {
     clearTimeout(rsz);
-    rsz = setTimeout(function () { if (window.innerWidth !== lastW) { lastW = window.innerWidth; renderFormulas(false); update(); } }, 120);
+    rsz = setTimeout(function () { if (window.innerWidth !== lastW) { lastW = window.innerWidth; renderFormulas(false); update(); fitExperts(); } }, 120);
   });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitExperts);
   I18N.onChange(renderPage);
 })();
 </script>

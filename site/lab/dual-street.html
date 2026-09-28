@@ -723,13 +723,14 @@
     ctx.restore();
     label(T("svmd.l.chart"), R.x0 + 8, R.y0 + (L.portrait ? 11 : 13), "left", C.ink, font(700, L.portrait ? 10.5 : 12), a);
     // x ticks: SMO steps on a compressed scale
-    var fs = L.portrait ? 9 : 10, ticks = [0, 1, 5, 20, 100].filter(function (k) { return k < S.it; }).concat([S.it]), lastX = -1e9;
+    var fs = L.portrait ? 9 : 10, ticks = [0, 1, 5, 20, 100].filter(function (k) { return k < S.it; }).concat([S.it]), lastR = -1e9;
     ctx.save(); ctx.globalAlpha = a; ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    // the last tick (the number of steps of this run) is always labelled; a middle tick is skipped when it would touch a neighbour
+    var wEnd = ctx.measureText(intFmt(S.it)).width, endL = clamp(PX(S.it), g.x0 + wEnd / 2, g.x1 - wEnd / 2) - wEnd / 2;
     ticks.forEach(function (k, q) {
-      var xk = PX(k), w = ctx.measureText(intFmt(k)).width;
-      if (q < ticks.length - 1 && PX(S.it) - xk < w + 8) return;
-      if (xk - lastX < w + 10) return;
-      ctx.fillText(intFmt(k), clamp(xk, g.x0 + w / 2, g.x1 - w / 2), g.y1 + 3); lastX = xk;
+      var xk = PX(k), w = ctx.measureText(intFmt(k)).width, xl = clamp(xk, g.x0 + w / 2, g.x1 - w / 2);
+      if (q < ticks.length - 1 && (xl - w / 2 < lastR + 6 || xl + w / 2 > endL - 6)) return;
+      ctx.fillText(intFmt(k), xl, g.y1 + 3); lastR = xl + w / 2;
       ctx.fillStyle = C.grid; ctx.fillRect(xk - 0.5, g.y0, 1, g.y1 - g.y0); ctx.fillStyle = C.muted;
     });
     ctx.restore();
