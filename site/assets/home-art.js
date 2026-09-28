@@ -185,7 +185,7 @@
     if (p >= 0.82) {
       var e = seg(p, 0.82, 0.92), C = POLY[3];
       arrow(ctx, f.X(C[0]), f.Y(C[1]), f.X(C[0] + CDIR[0] * 0.16 * e), f.Y(C[1] + CDIR[1] * 0.16 * e), col.accent, f.lw * 1.4);
-      star(ctx, f, C, p, true); label(ctx, f, "x*", C, -0.2, 0.1);
+      star(ctx, f, C, p, true); label(ctx, f, "x*", C, -0.2, -0.09);
     } else if (p > 0.26) disc(ctx, f, cur, f.lw * 3.4, col.accent);
   }
 
@@ -227,7 +227,7 @@
       ctx.strokeStyle = col.accent; ctx.lineWidth = f.lw * 2.2;
       ctx.beginPath(); ctx.moveTo(f.X(from[0]), f.Y(from[1])); ctx.lineTo(f.X(cur[0]), f.Y(cur[1])); ctx.stroke();
       if (mv < 1) disc(ctx, f, cur, f.lw * 3.4, col.accent);
-      else { star(ctx, f, BEST, p, true); label(ctx, f, "x*", BEST, -0.2, 0.07); }
+      else { star(ctx, f, BEST, p, true); label(ctx, f, "x*", BEST, -0.21, -0.07); }
     }
   }
 
@@ -307,7 +307,7 @@
         disc(ctx, f, cur, f.lw * 3.2, col.accent);
       }
     }
-    if (p >= 0.9) { star(ctx, f, NM, p, true); label(ctx, f, "x*", NM, 0.05, -0.07); }
+    if (p >= 0.9) { star(ctx, f, NM, p, true); label(ctx, f, "x*", NM, 0.06, -0.1); }
   }
 
   function sceneFlow(ctx, f, p) {
@@ -320,11 +320,11 @@
       ctx.globalAlpha = 1;
       // flow particles: count by flow, position by time (p), so the picture is a function of p
       if (p > 0.2) {
-        var n = A[3] * 2, L = Math.hypot(Q[0] - P[0], Q[1] - P[1]);
+        var n = A[3], L = Math.hypot(Q[0] - P[0], Q[1] - P[1]);
         for (var j = 0; j < n; j++) {
           var s = ((j / n) + (p - 0.2) * 2.2 / L * 0.35) % 1;
           ctx.save(); ctx.globalAlpha *= seg(p, 0.2, 0.3);
-          disc(ctx, f, [lerp(P[0], Q[0], s), lerp(P[1], Q[1], s)], f.lw * 1.5, col["mit-bright"]);
+          disc(ctx, f, [lerp(P[0], Q[0], s), lerp(P[1], Q[1], s)], f.lw * 1.9, col["mit-bright"]);
           ctx.restore();
         }
       }
