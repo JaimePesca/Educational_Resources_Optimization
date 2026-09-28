@@ -21,7 +21,7 @@ Apply these recommendations of SEO_REPORT.md section 6 (the others not yet):
 | 13 | Speed: preconnect hints, MathJax deferred until a formula is near or the page is idle | done | tex.js + research.js: MathJax after texts load, when a formula is within 300 px or at idle after load; load event 673->115 ms (big-m), 694->64 (lab), 829->157 (contours), 812->166 (wildfire); preconnect fonts, dns-prefetch CDNs on 65 pages via tools/seo_gen.py; 8 Level 1 pages keep their own inline MathJax loader |
 | 14 | 404.html (absolute asset paths, 4 languages, noindex, links to levels) | done | site/404.html + nf.* keys in 4 locales; absolute paths; noindex; tested at a deep address in 4 languages, 1200/400, light/dark |
 | 3 | about.html from materials/cv (no MIT, no phone or email), footer link, Person JSON-LD | review | site/about.html + locales/about (4 languages) from the CV; footer link "About the author" on every page (site.js); ProfilePage + richer Person JSON-LD; in sitemap. Waiting for the owner: current affiliation, ORCID, Scholar, ResearchGate, LinkedIn urls (PROFILES in about.html, sameAs in tools/seo_gen.py) |
-| 15 | CITATION.cff, README link, outreach kit (materials/outreach.md) | todo | |
+| 15 | CITATION.cff, README link, outreach kit (materials/outreach.md) | done | CITATION.cff, README link, materials/outreach (kit es/en, APA and BibTeX, 12 places, level link list, QR png/svg with utm) |
 | F | Update SEO_REPORT.md, verify 4 languages x 1200/400 x light/dark, commit, push, report | todo | |
 
 ## Decisions already taken

@@ -7,10 +7,12 @@ Todo lo que se agregó es invisible: etiquetas dentro de `<head>`, un atributo e
 
 ## 1. Google Analytics 4
 
-No había ninguna etiqueta de Google Analytics en el sitio. El sitio no tiene una plantilla o layout compartido (cada página es un HTML independiente), así que la etiqueta `gtag.js` con el ID `G-L1HT57WJW6` se pegó justo después de `<head>`, una sola vez, en cada una de las 65 páginas:
+No había ninguna etiqueta de Google Analytics en el sitio. El sitio no tiene una plantilla o layout compartido (cada página es un HTML independiente), así que la etiqueta `gtag.js` con el ID `G-L1HT57WJW6` se pegó justo después de `<head>`, una sola vez, en cada una de las 65 páginas (y después en las dos páginas nuevas de la segunda ronda, `about.html` y `404.html`: 67 en total):
 
 - `site/compacta/index.html`
 - `site/index.html`
+- `site/about.html` (segunda ronda)
+- `site/404.html` (segunda ronda)
 - `site/lab/beyond-var.html`
 - `site/lab/dual-street.html`
 - `site/lab/fuzzy-ahp.html`
@@ -200,7 +202,7 @@ Se agregaron solo donde faltaban: en las 53 páginas indexables que no tenían (
 | `resources/zigzag-or-leap.html` | Race steepest descent, Newton's method and BFGS down the Rosenbrock valley from the same start and count the steps each one needs. | `resource.nlp-newton.summary` | 130 |
 
 ## 5. Verificación
-- Las 65 páginas: `<body>` idéntico a `main`; GA4 presente una sola vez.
+- Las 65 páginas: `<body>` idéntico a `main`; GA4 presente una sola vez. (Segunda ronda: ver sección 7.)
 - En el navegador, inicio, recursos, un caso de investigación, Compacta y el laboratorio en los cuatro idiomas: sin errores de página; título, descripción, `og:locale`, `lang` y canónica correctos por idioma; JSON-LD válido.
 - `sitemap.xml` es XML válido con 216 URL.
 
@@ -209,7 +211,7 @@ Se agregaron solo donde faltaban: en las 53 páginas indexables que no tenían (
 **Contenido y títulos (cambiarían texto visible o contenido):**
 1. **Títulos de página más descriptivos.** Hoy el título de la pestaña es solo el nombre del recurso (por ejemplo "Shadow Prices"). Agregar el tema y la marca ayudaría mucho en búsquedas: "Shadow Prices: linear programming sensitivity analysis | Optimization in Action". Cambia el texto de la pestaña, por eso no lo hice.
 2. **Meta description del inicio por idioma.** La actual está en inglés para los cuatro idiomas. Podría usar el texto de presentación (`home.lede`) ya traducido, con el mismo mecanismo de `data-desc-key`.
-3. **Una página "Sobre el autor"** con biografía, afiliación, líneas de investigación, cursos que enseñas y enlaces a ORCID, Google Scholar, ResearchGate y LinkedIn. Es lo que más ayuda a que Google te reconozca como experto (E-E-A-T) y a que aparezcas cuando buscan "experto en optimización" o "investigación de operaciones Colombia". Con esos enlaces también completaría `sameAs` en el `Person`.
+3. **[Aplicada, ver sección 7]** **Una página "Sobre el autor"** con biografía, afiliación, líneas de investigación, cursos que enseñas y enlaces a ORCID, Google Scholar, ResearchGate y LinkedIn. Es lo que más ayuda a que Google te reconozca como experto (E-E-A-T) y a que aparezcas cuando buscan "experto en optimización" o "investigación de operaciones Colombia". Con esos enlaces también completaría `sameAs` en el `Person`.
 4. **Páginas por nivel y por tema** (por ejemplo, una página para "programación lineal" con sus recursos y una breve explicación). Hoy todo el temario vive en el inicio; páginas propias por tema capturan búsquedas generales ("ejercicios de programación lineal", "branch and bound ejemplo", "condiciones KKT interactivo").
 5. **Texto pensado para docentes:** una sección corta "Para profesores" (cómo usar los recursos en clase, duración, prerrequisitos) atrae búsquedas de material didáctico. Con eso también podría declararse en los datos estructurados el público (estudiantes y docentes), que no agregué para no afirmar algo que la página no dice.
 6. **Enlaces a los artículos completos** (DOI, preprint en SSRN, arXiv u Optimization Online) desde cada caso de investigación, para que Google Scholar y los buscadores académicos los asocien con el sitio.
@@ -222,9 +224,48 @@ Se agregaron solo donde faltaban: en las 53 páginas indexables que no tenían (
 11. **`og:url` no se incluyó a propósito:** Facebook y LinkedIn no ejecutan JavaScript, y un `og:url` fijo haría que un enlace compartido en español abriera la versión en inglés.
 
 **Accesibilidad y velocidad:**
-12. **Textos alternativos:** el sitio no usa `<img>`; los gráficos son canvas y SVG. Varias animaciones ya tienen etiquetas ARIA; conviene revisar que cada canvas tenga una descripción (`role="img"` y `aria-label` traducido), lo que ayuda a la accesibilidad y a los buscadores. Implica textos nuevos en cuatro idiomas.
-13. **Velocidad:** MathJax (cdnjs), Plotly (jsDelivr) y Google Fonts se cargan desde CDN. Se podrían agregar `preconnect` a esos dominios, cargar MathJax solo cuando una fórmula entra en pantalla y medir Core Web Vitals en PageSpeed Insights tras publicar.
-14. **Página 404 propia** con enlaces a la ruta de aprendizaje, para no perder visitas que llegan a URL viejas.
+12. **[Aplicada, ver sección 7]** **Textos alternativos:** el sitio no usa `<img>`; los gráficos son canvas y SVG. Varias animaciones ya tienen etiquetas ARIA; conviene revisar que cada canvas tenga una descripción (`role="img"` y `aria-label` traducido), lo que ayuda a la accesibilidad y a los buscadores. Implica textos nuevos en cuatro idiomas.
+13. **[Aplicada, ver sección 7]** **Velocidad:** MathJax (cdnjs), Plotly (jsDelivr) y Google Fonts se cargan desde CDN. Se podrían agregar `preconnect` a esos dominios, cargar MathJax solo cuando una fórmula entra en pantalla y medir Core Web Vitals en PageSpeed Insights tras publicar.
+14. **[Aplicada, ver sección 7]** **Página 404 propia** con enlaces a la ruta de aprendizaje, para no perder visitas que llegan a URL viejas.
 
 **Difusión (fuera del sitio):**
-15. Enlaces entrantes desde programas de curso, sitios de universidades, sociedades (INFORMS, ALIO, SOCIO), repositorios de material docente (MERLOT, OER Commons) y tus perfiles académicos. Es el factor que más pesa para posicionar temas generales de optimización.
+15. **[Aplicada, ver sección 7]** Enlaces entrantes desde programas de curso, sitios de universidades, sociedades (INFORMS, ALIO, SOCIO), repositorios de material docente (MERLOT, OER Commons) y tus perfiles académicos. Es el factor que más pesa para posicionar temas generales de optimización.
+
+## 7. Recomendaciones aplicadas en la segunda ronda (3, 12, 13, 14 y 15)
+
+Las demás (1, 2, 4 a 11) siguen pendientes de tu decisión.
+
+### 3. Página "Sobre el autor" (`site/about.html`, nueva)
+- Ruta nueva: https://learn-optimization.jaimepesca.com/about.html, en los cuatro idiomas (`site/locales/about/about.<lang>.js`).
+- Contenido tomado de tu hoja de vida (`materials/cv`): perfil, docencia (Universidad Externado de Colombia, Claro Colombia, Universidad de La Sabana), investigación (asistente de investigación en La Sabana y los cuatro casos del sitio con su estado: publicado, en revisión, en preparación), publicaciones (las mismas citas de cada página de investigación, con el DOI del artículo publicado), métodos y herramientas, experiencia en la industria (Coca-Cola FEMSA, Overlap, XAQ10), formación (La Sabana), membresías (The OR Society, ASOCIO), reconocimientos y enlaces (jaimepesca.com y GitHub).
+- Se dejó fuera, a propósito: todo lo relacionado con MIT (regla del sitio: dos certificados, el proyecto final y la presentación en la red SCALE), tu teléfono y tu correo.
+- Enlace "Sobre el autor" agregado en el pie de página de todas las páginas (`assets/site.js`), junto a tu nombre y dominio. Es el único cambio visible fuera de las páginas nuevas.
+- Datos estructurados: `ProfilePage` cuya entidad principal es el `Person`. El `Person` de todo el sitio ahora incluye cargo (profesor de métodos de optimización), Universidad Externado de Colombia, Universidad de La Sabana (egresado), The OR Society y ASOCIO, temas de experticia (`knowsAbout`), idiomas y un enlace a esta página.
+- Descripción nueva (clave `ab.desc`): "Jaime Pesca, industrial engineer and lecturer in optimization methods at Universidad Externado de Colombia: operations research, mixed-integer programming, facility location and Fuzzy AHP." (y su traducción en es, pt y fr).
+- **Pendiente de ti:** las URL de ORCID, Google Scholar, ResearchGate y LinkedIn (no están en la hoja de vida). Se agregan en `PROFILES` dentro de `site/about.html` (un botón por perfil) y en `sameAs` de `tools/seo_gen.py`. Confirma también que la afiliación actual sea la Universidad Externado de Colombia.
+
+### 12. Descripción accesible de gráficos (sin cambio visual)
+- `assets/site.js`: cada `<canvas>` y cada gráfico `<svg>` sin nombre accesible recibe `role="img"` y un `aria-label` hecho con textos que ya están en la página: el título de la página y el encabezado o pie de figura más cercano (por ejemplo "Por qué explotan las colas: Míralo en movimiento"). Cambia con el idioma, alcanza los gráficos que se dibujan después y respeta las etiquetas que una página ya tenga.
+- Antes: 40 de 47 lienzos sin descripción. Después: 0.
+- Sin cambio visual: capturas de 7 páginas antes y después son idénticas píxel a píxel.
+
+### 13. Velocidad
+- `assets/tex.js` y `assets/research.js`: MathJax (el archivo más pesado) ya no se descarga al abrir la página. Se descarga cuando la primera fórmula está a 300 px de la pantalla o cuando la página ya cargó y el navegador está libre, lo que ocurra primero. Las fórmulas se ven igual.
+- Resultado (evento de carga completa, medido localmente con un retardo de CDN de 400 ms): Big M 673 a 115 ms, el laboratorio 694 a 64 ms, Donde se tocan las curvas de nivel 829 a 157 ms, Incendios forestales 812 a 166 ms.
+- Todas las páginas abren antes la conexión con Google Fonts (`preconnect`) y resuelven antes los dominios de cdnjs y jsDelivr (`dns-prefetch`) cuando los usan. Lo escribe `tools/seo_gen.py`.
+- Las 8 páginas del nivel 1 que cargan MathJax con su propio script (por ejemplo Precios sombra) se dejaron como estaban para no arriesgar su funcionamiento; también reciben las pistas de conexión.
+- Tras publicar, mide Core Web Vitals en https://pagespeed.web.dev (no se puede desde este entorno).
+
+### 14. Página 404 (`site/404.html`, nueva)
+- GitHub Pages la muestra en cualquier dirección que no exista. Rutas absolutas (funciona a cualquier profundidad), cuatro idiomas (claves `nf.*` en `locales/<idioma>.js`), `noindex`, el menú Explorar, un botón al inicio, los cinco niveles con su número de recursos y un enlace a investigación. Probada en una dirección inexistente en 4 idiomas, 1200 y 400 px, claro y oscuro.
+
+### 15. Enlaces entrantes
+- `CITATION.cff` (raíz del repositorio): GitHub muestra "Cite this repository".
+- `README.md`: enlace al sitio, a "Sobre el autor" y a la cita.
+- `materials/outreach/README.md` (no se publica): textos listos para pegar en español e inglés, cita APA y BibTeX, 12 lugares donde publicarlo en orden de impacto (tus cursos, perfiles académicos, GitHub, ASOCIO, The OR Society, ALIO, INFORMS Transactions on Education, MERLOT, OER Commons, repositorios institucionales), qué evitar, cómo medirlo y la lista de enlaces por nivel y recurso para programas de curso.
+- `materials/outreach/qr-site.png` y `.svg`: código QR para diapositivas, medible en GA4.
+- Publicar en esos sitios lo tienes que hacer tú desde tus cuentas.
+
+### Otros archivos tocados en esta ronda
+- `tools/seo_gen.py`: pistas de conexión en todas las páginas, página "Sobre el autor", `Person` ampliado. El sitemap ahora tiene 220 URL (55 páginas × 4 idiomas).
+- `CLAUDE.md` y `materials/work-in-progress.md`: convenciones y seguimiento.

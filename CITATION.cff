@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use these resources in a course, a talk or a paper, please cite them as below."
+title: "Optimization in Action: interactive operations research resources"
+abstract: >-
+  An open library of interactive operations research examples in five levels (linear, integer,
+  mixed-integer and nonlinear programming, and other operations research methods) that run in the
+  browser, in English, Spanish, Portuguese and French, plus four applied research cases from Colombia.
+type: software
+authors:
+  - family-names: Pesca
+    given-names: Jaime
+    website: "https://jaimepesca.com"
+url: "https://learn-optimization.jaimepesca.com"
+repository-code: "https://github.com/JaimePesca/Educational_Resources_Optimization"
+keywords:
+  - operations research
+  - optimization
+  - linear programming
+  - integer programming
+  - mixed-integer programming
+  - nonlinear programming
+  - teaching resources
+  - interactive simulations
