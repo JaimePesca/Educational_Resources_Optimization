@@ -17,10 +17,10 @@ Read this first after any interruption (credits, context reset). It is the singl
 | # | Task | Status | Commit / notes |
 |---|---|---|---|
 | 1 | Lab cards and catalog entries for the three new pages | done | lab-svm-dual and lab-svm-kernel after lab-svm; lab-fahp last; card texts in 4 languages, present tense |
-| 2a | lab-svm-dual "SVM, Level 2: The Dual Street" (animation) | todo | site/lab/dual-street.html, prefix svmd., section 2.1 |
-| 2b | lab-svm-kernel "SVM, Level 3: The Kernel Trick" (animation) | todo | site/lab/kernel-trick.html, prefix kern., section 2.1 |
-| 2c | lab-fahp "AHP, Fuzzy Sets and Fuzzy AHP" (simulation) | todo | site/lab/fuzzy-ahp.html, prefix fahp., section 2.8 |
-| 3 | Home page visuals (hero art, level glyphs, research thumbnails) | todo | index.html + assets/home-art.js; no text changes |
+| 2a | lab-svm-dual "SVM, Level 2: The Dual Street" (animation) | building | site/lab/dual-street.html, prefix svmd., section 2.1 |
+| 2b | lab-svm-kernel "SVM, Level 3: The Kernel Trick" (animation) | building | site/lab/kernel-trick.html, prefix kern., section 2.1 |
+| 2c | lab-fahp "AHP, Fuzzy Sets and Fuzzy AHP" (simulation) | building | site/lab/fuzzy-ahp.html, prefix fahp., section 2.8 |
+| 3 | Home page visuals (hero art, level glyphs, research thumbnails) | building | index.html + assets/home-art.js; no text changes |
 | 4 | Final check, preview to the owner (screenshots + recording), ask for approval and merge | todo | |
 
 Status values: todo, building, review, done. For each lab page: build agent, then an independent review agent, then commit, then set `href` on its entry in `catalog.js` → `lab`.
