@@ -92,7 +92,7 @@ def main():
     person = {
         "@type": "Person", "@id": PERSON_ID, "name": "Jaime Pesca",
         "alternateName": ["Jaime Enrique Pesca Santos", "J. E. Pesca Santos"],
-        "url": "https://jaimepesca.com", "sameAs": ["https://github.com/JaimePesca"],
+        "url": "https://jaimepesca.com", "sameAs": ["https://orcid.org/0009-0003-8221-0924", "https://www.linkedin.com/in/jaime-pesca/", "https://github.com/JaimePesca"],
         "mainEntityOfPage": BASE + "about.html",
         "jobTitle": "Lecturer in optimization methods",
         "worksFor": {"@type": "CollegeOrUniversity", "name": "Universidad Externado de Colombia"},
