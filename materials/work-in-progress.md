@@ -22,7 +22,7 @@ Apply these recommendations of SEO_REPORT.md section 6 (the others not yet):
 | 14 | 404.html (absolute asset paths, 4 languages, noindex, links to levels) | done | site/404.html + nf.* keys in 4 locales; absolute paths; noindex; tested at a deep address in 4 languages, 1200/400, light/dark |
 | 3 | about.html from materials/cv (no MIT, no phone or email), footer link, Person JSON-LD | review | site/about.html + locales/about (4 languages) from the CV; footer link "About the author" on every page (site.js); ProfilePage + richer Person JSON-LD; in sitemap. Waiting for the owner: current affiliation, ORCID, Scholar, ResearchGate, LinkedIn urls (PROFILES in about.html, sameAs in tools/seo_gen.py) |
 | 15 | CITATION.cff, README link, outreach kit (materials/outreach.md) | done | CITATION.cff, README link, materials/outreach (kit es/en, APA and BibTeX, 12 places, level link list, QR png/svg with utm) |
-| F | Update SEO_REPORT.md, verify 4 languages x 1200/400 x light/dark, commit, push, report | todo | |
+| F | Update SEO_REPORT.md, verify 4 languages x 1200/400 x light/dark, commit, push, report | done | 396 page loads (66 pages x en, es, pt, fr at 1200 light + es, fr at 400 dark): 0 problems (errors, raw keys, dashes, MIT, scroll, formulas, lang, canonical, GA, unnamed canvas) |
 
 ## Decisions already taken
 - CV facts only; everything about MIT is left out (site rule); no phone or email on the site.
