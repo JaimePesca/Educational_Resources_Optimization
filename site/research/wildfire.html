@@ -1,10 +1,111 @@
 <!doctype html>
-<html lang="en" data-title-key="r.wildfire.title" data-i18n-bundles="research/wildfire">
+<html lang="en" data-title-key="r.wildfire.title" data-i18n-bundles="research/wildfire" data-desc-key="project.wildfire.summary">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
 <title>Wildfire suppression</title>
+<!-- SEO (invisible): description, hreflang, social cards and structured data. The canonical link is added per language by assets/i18n.js -->
+<meta name="description" content="Which aerial suppression bases to open, how many helicopters to station and which water points to enable, all under one budget and across uncertain fire days.">
+<meta name="author" content="Jaime Pesca">
+<link rel="alternate" hreflang="en" href="https://learn-optimization.jaimepesca.com/research/wildfire.html">
+<link rel="alternate" hreflang="es" href="https://learn-optimization.jaimepesca.com/research/wildfire.html?lang=es">
+<link rel="alternate" hreflang="pt" href="https://learn-optimization.jaimepesca.com/research/wildfire.html?lang=pt">
+<link rel="alternate" hreflang="fr" href="https://learn-optimization.jaimepesca.com/research/wildfire.html?lang=fr">
+<link rel="alternate" hreflang="x-default" href="https://learn-optimization.jaimepesca.com/research/wildfire.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Optimization in Action">
+<meta property="og:title" content="Wildfire suppression">
+<meta property="og:description" content="Which aerial suppression bases to open, how many helicopters to station and which water points to enable, all under one budget and across uncertain fire days.">
+<meta property="og:image" content="https://learn-optimization.jaimepesca.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Optimization in Action. Operations research · Interactive resources">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_CO">
+<meta property="og:locale:alternate" content="pt_BR">
+<meta property="og:locale:alternate" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wildfire suppression">
+<meta name="twitter:description" content="Which aerial suppression bases to open, how many helicopters to station and which water points to enable, all under one budget and across uncertain fire days.">
+<meta name="twitter:image" content="https://learn-optimization.jaimepesca.com/assets/og-image.png">
+<meta name="twitter:image:alt" content="Optimization in Action. Operations research · Interactive resources">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebPage",
+   "@id": "https://learn-optimization.jaimepesca.com/research/wildfire.html",
+   "url": "https://learn-optimization.jaimepesca.com/research/wildfire.html",
+   "name": "Wildfire suppression",
+   "description": "Which aerial suppression bases to open, how many helicopters to station and which water points to enable, all under one budget and across uncertain fire days.",
+   "inLanguage": [
+    "en",
+    "es",
+    "pt",
+    "fr"
+   ],
+   "author": {
+    "@id": "https://jaimepesca.com/#person"
+   },
+   "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://learn-optimization.jaimepesca.com/#website",
+    "name": "Optimization in Action",
+    "url": "https://learn-optimization.jaimepesca.com/"
+   },
+   "mainEntity": {
+    "@id": "https://learn-optimization.jaimepesca.com/research/wildfire.html#study"
+   },
+   "about": {
+    "@id": "https://learn-optimization.jaimepesca.com/research/wildfire.html#study"
+   }
+  },
+  {
+   "@type": "ScholarlyArticle",
+   "@id": "https://learn-optimization.jaimepesca.com/research/wildfire.html#study",
+   "headline": "The Cycle-Constrained Aerial Suppression Base and Water Point Location Problem: Joint Siting under Uncertainty with an Application to Cundinamarca, Colombia",
+   "author": [
+    {
+     "@id": "https://jaimepesca.com/#person"
+    },
+    {
+     "@type": "Person",
+     "name": "Kiana Hikaru Ysa Morla"
+    }
+   ],
+   "keywords": "Two-stage stochastic MILP, Mean-CVaR, Matheuristic",
+   "spatialCoverage": {
+    "@type": "Place",
+    "name": "Cundinamarca, Colombia"
+   },
+   "creativeWorkStatus": "Working paper"
+  },
+  {
+   "@type": "Person",
+   "@id": "https://jaimepesca.com/#person",
+   "name": "Jaime Pesca",
+   "alternateName": [
+    "Jaime Enrique Pesca Santos",
+    "J. E. Pesca Santos"
+   ],
+   "url": "https://jaimepesca.com",
+   "sameAs": [
+    "https://github.com/JaimePesca"
+   ]
+  }
+ ]
+}
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
 <link rel="stylesheet" href="../assets/research.css?v=__BUILD__">

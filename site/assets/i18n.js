@@ -125,7 +125,48 @@
     document.documentElement.lang = current;
     var titleKey = document.documentElement.getAttribute("data-title-key");
     if (titleKey) document.title = t(titleKey);
+    seo();
     document.querySelectorAll("select.lang-select").forEach(function (sel) { sel.value = current; });
+  }
+
+  // Search and sharing tags in the current language (nothing visible changes):
+  //   <html data-desc-key="key"> gives the meta description (and og:/twitter: description) from a locale key,
+  //   trimmed like the static English one; og:/twitter: titles follow document.title; og:locale follows the language;
+  //   the canonical URL is the hreflang alternate of the language in the URL (?lang=xx), English when there is none,
+  //   so every language version is its own canonical page. Pages without hreflang links get no canonical.
+  function metaDesc(text) {
+    text = String(text).replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    if (text.length <= 200) return text;
+    var cut = text.lastIndexOf(". ", 199);
+    return cut > 60 ? text.slice(0, cut + 1) : text;
+  }
+  function setMeta(sel, val) {
+    var m = document.head && document.head.querySelector(sel);
+    if (m && val) m.setAttribute("content", val);
+  }
+  function seo() {
+    var de = document.documentElement, key = de.getAttribute("data-desc-key");
+    if (key) {
+      var d = t(key);
+      if (d !== key) {
+        d = metaDesc(d);
+        setMeta('meta[name="description"]', d);
+        setMeta('meta[property="og:description"]', d);
+        setMeta('meta[name="twitter:description"]', d);
+      }
+    }
+    setMeta('meta[property="og:title"]', document.title);
+    setMeta('meta[name="twitter:title"]', document.title);
+    setMeta('meta[property="og:locale"]', meta(current).locale.replace("-", "_"));
+    if (!document.head || !document.head.querySelector('link[rel="alternate"][hreflang="x-default"]')) return;
+    var urlLang = null;
+    try { urlLang = new URLSearchParams(location.search).get("lang"); } catch (e) { /* old browser */ }
+    if (!known(urlLang)) urlLang = DEFAULT;
+    var alt = document.head.querySelector('link[rel="alternate"][hreflang="' + urlLang + '"]');
+    if (!alt) return;
+    var can = document.head.querySelector('link[rel="canonical"]');
+    if (!can) { can = document.createElement("link"); can.rel = "canonical"; document.head.appendChild(can); }
+    can.href = alt.href;
   }
 
   function emit() {

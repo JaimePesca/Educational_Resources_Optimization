@@ -1,11 +1,462 @@
 <!doctype html>
 <html lang="en" data-title-key="site.name">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Interactive operations research resources in five levels, and applied research cases from Colombia.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
 <title>Optimization in Action</title>
+<!-- SEO (invisible): description, hreflang, social cards and structured data. The canonical link is added per language by assets/i18n.js -->
+<meta name="author" content="Jaime Pesca">
+<link rel="alternate" hreflang="en" href="https://learn-optimization.jaimepesca.com/">
+<link rel="alternate" hreflang="es" href="https://learn-optimization.jaimepesca.com/?lang=es">
+<link rel="alternate" hreflang="pt" href="https://learn-optimization.jaimepesca.com/?lang=pt">
+<link rel="alternate" hreflang="fr" href="https://learn-optimization.jaimepesca.com/?lang=fr">
+<link rel="alternate" hreflang="x-default" href="https://learn-optimization.jaimepesca.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Optimization in Action">
+<meta property="og:title" content="Optimization in Action">
+<meta property="og:description" content="Interactive operations research resources in five levels, and applied research cases from Colombia.">
+<meta property="og:image" content="https://learn-optimization.jaimepesca.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Optimization in Action. Operations research · Interactive resources">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_CO">
+<meta property="og:locale:alternate" content="pt_BR">
+<meta property="og:locale:alternate" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Optimization in Action">
+<meta name="twitter:description" content="Interactive operations research resources in five levels, and applied research cases from Colombia.">
+<meta name="twitter:image" content="https://learn-optimization.jaimepesca.com/assets/og-image.png">
+<meta name="twitter:image:alt" content="Optimization in Action. Operations research · Interactive resources">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://learn-optimization.jaimepesca.com/#website",
+   "url": "https://learn-optimization.jaimepesca.com/",
+   "name": "Optimization in Action",
+   "description": "Interactive operations research resources in five levels, and applied research cases from Colombia.",
+   "inLanguage": [
+    "en",
+    "es",
+    "pt",
+    "fr"
+   ],
+   "author": {
+    "@id": "https://jaimepesca.com/#person"
+   },
+   "publisher": {
+    "@id": "https://jaimepesca.com/#person"
+   }
+  },
+  {
+   "@type": "Person",
+   "@id": "https://jaimepesca.com/#person",
+   "name": "Jaime Pesca",
+   "alternateName": [
+    "Jaime Enrique Pesca Santos",
+    "J. E. Pesca Santos"
+   ],
+   "url": "https://jaimepesca.com",
+   "sameAs": [
+    "https://github.com/JaimePesca"
+   ]
+  },
+  {
+   "@type": "Course",
+   "@id": "https://learn-optimization.jaimepesca.com/#course",
+   "name": "Optimization in Action: Learning path",
+   "url": "https://learn-optimization.jaimepesca.com/#learn",
+   "description": "Five categories of varied examples, from linear programming to methods beyond mathematical programming, independent of the research cases.",
+   "provider": {
+    "@id": "https://jaimepesca.com/#person"
+   },
+   "author": {
+    "@id": "https://jaimepesca.com/#person"
+   },
+   "inLanguage": [
+    "en",
+    "es",
+    "pt",
+    "fr"
+   ],
+   "isAccessibleForFree": true,
+   "teaches": [
+    "Linear programming",
+    "Integer programming",
+    "Mixed-integer programming",
+    "Nonlinear programming",
+    "Other operations research methods"
+   ],
+   "syllabusSections": [
+    {
+     "@type": "Syllabus",
+     "name": "Level 1: Linear programming",
+     "description": "Continuous decisions with a linear objective and linear constraints. Feasible regions, the graphical method, simplex, duality and sensitivity analysis."
+    },
+    {
+     "@type": "Syllabus",
+     "name": "Level 2: Integer programming",
+     "description": "Decisions that must be whole numbers or yes/no choices. Why rounding fails, and how exact methods search a combinatorial space."
+    },
+    {
+     "@type": "Syllabus",
+     "name": "Level 3: Mixed-integer programming",
+     "description": "Continuous and integer decisions in one model: fixed costs, facility location, logical conditions and big-M formulations."
+    },
+    {
+     "@type": "Syllabus",
+     "name": "Level 4: Nonlinear programming",
+     "description": "Curved objectives and constraints: convexity, optimality conditions, gradient methods and the gap between local and global optima."
+    },
+    {
+     "@type": "Syllabus",
+     "name": "Level 5: Other operations research methods",
+     "description": "Tools beyond mathematical programming for problems that are too large, too uncertain or too dynamic for an exact model."
+    }
+   ],
+   "hasPart": [
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/feasible-region.html",
+     "@type": "LearningResource",
+     "name": "Feasible Region",
+     "url": "https://learn-optimization.jaimepesca.com/resources/feasible-region.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/rounding-trap.html",
+     "@type": "LearningResource",
+     "name": "Rounding Is Not Enough",
+     "url": "https://learn-optimization.jaimepesca.com/resources/rounding-trap.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/critical-load.html",
+     "@type": "LearningResource",
+     "name": "Critical Load",
+     "url": "https://learn-optimization.jaimepesca.com/resources/critical-load.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/exact-change.html",
+     "@type": "LearningResource",
+     "name": "Exact Change",
+     "url": "https://learn-optimization.jaimepesca.com/resources/exact-change.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/search-tree.html",
+     "@type": "LearningResource",
+     "name": "Growing the Search Tree",
+     "url": "https://learn-optimization.jaimepesca.com/resources/search-tree.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/cutting-planes.html",
+     "@type": "LearningResource",
+     "name": "Cutting Planes",
+     "url": "https://learn-optimization.jaimepesca.com/resources/cutting-planes.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/signal-coverage.html",
+     "@type": "LearningResource",
+     "name": "Signal in Every Vereda",
+     "url": "https://learn-optimization.jaimepesca.com/resources/signal-coverage.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/hospital-shifts.html",
+     "@type": "LearningResource",
+     "name": "Hospital Shifts",
+     "url": "https://learn-optimization.jaimepesca.com/resources/hospital-shifts.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/perfect-assignment.html",
+     "@type": "LearningResource",
+     "name": "Perfect Assignment",
+     "url": "https://learn-optimization.jaimepesca.com/resources/perfect-assignment.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/patrol-route.html",
+     "@type": "LearningResource",
+     "name": "Patrol Route",
+     "url": "https://learn-optimization.jaimepesca.com/resources/patrol-route.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/mixed-feasible-set.html",
+     "@type": "LearningResource",
+     "name": "Points, Lines and Regions",
+     "url": "https://learn-optimization.jaimepesca.com/resources/mixed-feasible-set.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/logic-constraints.html",
+     "@type": "LearningResource",
+     "name": "Say It with Constraints",
+     "url": "https://learn-optimization.jaimepesca.com/resources/logic-constraints.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/big-m.html",
+     "@type": "LearningResource",
+     "name": "How Big Is M?",
+     "url": "https://learn-optimization.jaimepesca.com/resources/big-m.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/open-or-close.html",
+     "@type": "LearningResource",
+     "name": "Open or Close",
+     "url": "https://learn-optimization.jaimepesca.com/resources/open-or-close.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/bulk-discounts.html",
+     "@type": "LearningResource",
+     "name": "Bulk Discounts",
+     "url": "https://learn-optimization.jaimepesca.com/resources/bulk-discounts.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/keep-the-lights-on.html",
+     "@type": "LearningResource",
+     "name": "Keep the Lights On",
+     "url": "https://learn-optimization.jaimepesca.com/resources/keep-the-lights-on.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/produce-now-or-later.html",
+     "@type": "LearningResource",
+     "name": "Produce Now or Later",
+     "url": "https://learn-optimization.jaimepesca.com/resources/produce-now-or-later.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/cleared-to-land.html",
+     "@type": "LearningResource",
+     "name": "Cleared to Land",
+     "url": "https://learn-optimization.jaimepesca.com/resources/cleared-to-land.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/two-stories.html",
+     "@type": "LearningResource",
+     "name": "Two Stories, One Model",
+     "url": "https://learn-optimization.jaimepesca.com/resources/two-stories.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html",
+     "@type": "LearningResource",
+     "name": "Feasible Region in 3D",
+     "url": "https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/compacta/",
+     "@type": "LearningResource",
+     "name": "Compacta",
+     "url": "https://learn-optimization.jaimepesca.com/compacta/"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/dijkstra.html",
+     "@type": "LearningResource",
+     "name": "Dijkstra Step by Step",
+     "url": "https://learn-optimization.jaimepesca.com/resources/dijkstra.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/inventory-balance.html",
+     "@type": "LearningResource",
+     "name": "Inventory Balance",
+     "url": "https://learn-optimization.jaimepesca.com/resources/inventory-balance.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/cheapest-feed.html",
+     "@type": "LearningResource",
+     "name": "The Cheapest Feed",
+     "url": "https://learn-optimization.jaimepesca.com/resources/cheapest-feed.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/simplex-steps.html",
+     "@type": "LearningResource",
+     "name": "Simplex Step by Step",
+     "url": "https://learn-optimization.jaimepesca.com/resources/simplex-steps.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/shadow-prices.html",
+     "@type": "LearningResource",
+     "name": "Shadow Prices",
+     "url": "https://learn-optimization.jaimepesca.com/resources/shadow-prices.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/machine-scheduling.html",
+     "@type": "LearningResource",
+     "name": "Machine Scheduling",
+     "url": "https://learn-optimization.jaimepesca.com/resources/machine-scheduling.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/workforce-planning.html",
+     "@type": "LearningResource",
+     "name": "Workforce Planning",
+     "url": "https://learn-optimization.jaimepesca.com/resources/workforce-planning.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/chord-test.html",
+     "@type": "LearningResource",
+     "name": "The Chord Test",
+     "url": "https://learn-optimization.jaimepesca.com/resources/chord-test.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/flat-is-not-a-bottom.html",
+     "@type": "LearningResource",
+     "name": "Flat Is Not a Bottom",
+     "url": "https://learn-optimization.jaimepesca.com/resources/flat-is-not-a-bottom.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/where-contours-touch.html",
+     "@type": "LearningResource",
+     "name": "Where the Contours Touch",
+     "url": "https://learn-optimization.jaimepesca.com/resources/where-contours-touch.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/zigzag-or-leap.html",
+     "@type": "LearningResource",
+     "name": "Zigzag or Leap",
+     "url": "https://learn-optimization.jaimepesca.com/resources/zigzag-or-leap.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/walls-and-fences.html",
+     "@type": "LearningResource",
+     "name": "Walls and Fences",
+     "url": "https://learn-optimization.jaimepesca.com/resources/walls-and-fences.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/one-point-many-distances.html",
+     "@type": "LearningResource",
+     "name": "One Point, Many Distances",
+     "url": "https://learn-optimization.jaimepesca.com/resources/one-point-many-distances.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/slow-steaming.html",
+     "@type": "LearningResource",
+     "name": "Slow Steaming",
+     "url": "https://learn-optimization.jaimepesca.com/resources/slow-steaming.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/fair-shares.html",
+     "@type": "LearningResource",
+     "name": "Fair Shares",
+     "url": "https://learn-optimization.jaimepesca.com/resources/fair-shares.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/why-queues-explode.html",
+     "@type": "LearningResource",
+     "name": "Why Queues Explode",
+     "url": "https://learn-optimization.jaimepesca.com/resources/why-queues-explode.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/replace-or-repair.html",
+     "@type": "LearningResource",
+     "name": "Replace or Repair?",
+     "url": "https://learn-optimization.jaimepesca.com/resources/replace-or-repair.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/plan-for-the-average.html",
+     "@type": "LearningResource",
+     "name": "Plan for the Average?",
+     "url": "https://learn-optimization.jaimepesca.com/resources/plan-for-the-average.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/roll-back-the-tree.html",
+     "@type": "LearningResource",
+     "name": "Roll Back the Tree",
+     "url": "https://learn-optimization.jaimepesca.com/resources/roll-back-the-tree.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/critical-path.html",
+     "@type": "LearningResource",
+     "name": "Critical Path",
+     "url": "https://learn-optimization.jaimepesca.com/resources/critical-path.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/max-flow-min-cut.html",
+     "@type": "LearningResource",
+     "name": "Max Flow, Min Cut",
+     "url": "https://learn-optimization.jaimepesca.com/resources/max-flow-min-cut.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/price-wars.html",
+     "@type": "LearningResource",
+     "name": "Price Wars",
+     "url": "https://learn-optimization.jaimepesca.com/resources/price-wars.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/chasing-demand.html",
+     "@type": "LearningResource",
+     "name": "Chasing Demand",
+     "url": "https://learn-optimization.jaimepesca.com/resources/chasing-demand.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/efficient-or-not.html",
+     "@type": "LearningResource",
+     "name": "Efficient or Not?",
+     "url": "https://learn-optimization.jaimepesca.com/resources/efficient-or-not.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/easy-to-check.html",
+     "@type": "LearningResource",
+     "name": "Easy to Check, Hard to Find",
+     "url": "https://learn-optimization.jaimepesca.com/resources/easy-to-check.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/agents-and-outbreaks.html",
+     "@type": "LearningResource",
+     "name": "Agents and Outbreaks",
+     "url": "https://learn-optimization.jaimepesca.com/resources/agents-and-outbreaks.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/beer-game.html",
+     "@type": "LearningResource",
+     "name": "The Beer Game",
+     "url": "https://learn-optimization.jaimepesca.com/resources/beer-game.html"
+    },
+    {
+     "@id": "https://learn-optimization.jaimepesca.com/resources/weigh-the-criteria.html",
+     "@type": "LearningResource",
+     "name": "Weigh the Criteria",
+     "url": "https://learn-optimization.jaimepesca.com/resources/weigh-the-criteria.html"
+    }
+   ]
+  },
+  {
+   "@type": "ItemList",
+   "name": "Research",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "url": "https://learn-optimization.jaimepesca.com/research/nanostores.html",
+     "name": "CFLP for nanostores"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "url": "https://learn-optimization.jaimepesca.com/research/markets.html",
+     "name": "Locating street markets"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "url": "https://learn-optimization.jaimepesca.com/research/wildfire.html",
+     "name": "Wildfire suppression"
+    },
+    {
+     "@type": "ListItem",
+     "position": 4,
+     "url": "https://learn-optimization.jaimepesca.com/research/pallets.html",
+     "name": "Optimizing pallet configuration"
+    }
+   ]
+  }
+ ]
+}
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="assets/site.css?v=__BUILD__">
 <style>
