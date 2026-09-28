@@ -37,10 +37,10 @@ I18N.register("es", {
   "kern.k.plane": "Precisión del plano",
   "kern.k.dual": "Objetivo dual",
   "kern.k.cm": "Humedad del centro",
-  "kern.k.cT": "Temperatura del centro",
+  "kern.k.cT": "Temp. del centro",
   "kern.k.poly": "Precisión polinomial",
   "kern.k.k1": "(1 + xᵀz)²",
-  "kern.k.k2": "ψ(x)ᵀψ(z), 6 términos",
+  "kern.k.k2": "ψ(x)ᵀψ(z) en 6D",
   "kern.k.rbf": "Precisión RBF",
   "kern.k.gamma": "Ancho γ del RBF",
 
@@ -59,9 +59,9 @@ I18N.register("es", {
   "kern.cap3": "Un plano los separa",
   "kern.cap3.sub": "Una SVM lineal en tres dimensiones: {a} de los lotes del lado correcto, {s} vectores de soporte.",
   "kern.cap4": "El corte es un círculo",
-  "kern.cap4.sub": "Donde el plano toca el tazón hay un círculo. Al bajarlo, es la frontera, con centro en {m} % y {T} °C (el ideal: {im} % y {iT} °C).",
+  "kern.cap4.sub": "El plano corta el tazón en una curva que, vista desde arriba, es un círculo: la frontera, con centro en {m} % y {T} °C (el ideal: {im} % y {iT} °C).",
   "kern.cap5": "El dual solo necesita K(xᵢ, xⱼ)",
-  "kern.cap5.sub": "(1 + xᵀz)² es un producto punto en 6 dimensiones que nunca se construyen: {v} por ambos caminos.",
+  "kern.cap5.sub": "(1 + xᵀz)² es un producto punto en 6 dimensiones que el solucionador nunca construye: {v} por ambos caminos.",
   "kern.cap6": "Kernel gaussiano, γ = {g}",
   "kern.cap6.sub": "{a} de acierto en los lotes de entrenamiento, {b} en {n} lotes nuevos, {s} vectores de soporte. La línea recta: {l}.",
 
@@ -118,7 +118,7 @@ I18N.register("es", {
   "kern.chk.p": "Toma el lote {i} ({mi} % y {Ti} °C, bueno) y el lote {j} ({mj} % y {Tj} °C, malo), escalados como x y z. El kernel polinomial necesita un solo producto punto en 2 dimensiones; el mapa ψ construye 6 coordenadas para cada lote y las multiplica. Los resultados coinciden.",
   "kern.chk.tex": "\\begin{aligned}& x = {x},\\quad z = {z}\\\\ & (1 + x^{\\top}z)^2 = (1 {d})^2 = {k}\\\\ & \\psi(x) = {px}\\\\ & \\psi(z) = {pz}\\\\ & \\psi(x)^{\\top}\\psi(z) = {ip}\\end{aligned}",
   "kern.chk.formula": "x = {x},  z = {z}\n(1 + xᵀz)² = (1 {d})² = {k}\nψ(x) = {px}\nψ(z) = {pz}\nψ(x)ᵀψ(z) = {ip}",
-  "kern.chk.p2": "El dual necesita este número para cada pareja: {nn} valores distintos para {n} lotes. Para el kernel gaussiano el mapa ψ necesitaría infinitas coordenadas, así que el kernel es la única forma de calcularlo, y cuesta lo mismo que una distancia.",
+  "kern.chk.p2": "El dual necesita este número para cada pareja: {nn} valores distintos para {n} lotes. Para el kernel gaussiano el mapa ψ necesitaría infinitas coordenadas, así que el kernel es la forma práctica de calcularlo, y cuesta lo mismo que una distancia.",
 
   "kern.cmp.kicker": "Compara",
   "kern.cmp.title": "El mismo dual con seis kernels",
@@ -133,13 +133,13 @@ I18N.register("es", {
   "kern.cmp.dual": "Objetivo dual",
   "kern.cmp.it": "Pasos SMO",
   "kern.cmp.eig": "Mín. valor propio",
-  "kern.cmp.note": "El ancho γ cambia ajuste por generalidad. Con γ = {g0} la frontera es demasiado suave: {a0} en los lotes de entrenamiento y {t0} en los nuevos. Con γ = {g1}: {a1} y {t1}. Con γ = {g2} cada lote tiene su propia islita: {a2} en los lotes de entrenamiento pero solo {t2} en los nuevos, y {s2} de los {n} lotes se vuelven vectores de soporte. Todos los menores valores propios son cero o positivos (salvo redondeo): cada matriz de Gram pasa la prueba de Mercer.",
+  "kern.cmp.note": "El ancho γ cambia ajuste por generalidad. Con γ = {g0} la frontera es demasiado suave: {a0} en los lotes de entrenamiento y {t0} en los nuevos. Con γ = {g1}: {a1} y {t1}. Con γ = {g2} la influencia de cada lote casi no llega a sus vecinos, así que la frontera se pega a lotes sueltos y deja huecos entre ellos: {a2} en los lotes de entrenamiento pero solo {t2} en los nuevos, y {s2} de los {n} lotes se vuelven vectores de soporte. Todos los menores valores propios son cero o positivos (salvo redondeo): cada matriz de Gram pasa la prueba de Mercer.",
 
   "kern.n.title": "Qué observar",
   "kern.n.p1": "La mejor línea recta acierta solo {l} de los {n} lotes, con {e} del lado equivocado y {s} vectores de soporte: cuando los lotes buenos están en el medio, cualquier línea los parte. La culpa no es de la SVM sino de la clase de modelos.",
-  "kern.n.p2": "Agregar un rasgo, la distancia al centro al cuadrado, vuelve lineal el problema: un plano separa {p} de los lotes en 3D. Su corte con el tazón es un círculo con centro en {m} % y {T} °C, cerca del punto ideal usado para generar los datos ({im} % y {iT} °C). La SVM encontró el ideal sin que nadie le dijera que existía.",
+  "kern.n.p2": "Agregar un rasgo, la distancia al centro al cuadrado, vuelve lineal el problema: un plano separa {p} de los lotes en 3D. Su corte con el tazón, visto desde arriba, es un círculo con centro en {m} % y {T} °C, cerca del punto ideal usado para generar los datos ({im} % y {iT} °C). La SVM llegó cerca de él sin que nadie le dijera dónde está.",
   "kern.n.p3": "El dual nunca usa las coordenadas de los lotes, solo sus productos punto. Reemplazarlos por un kernel es el truco: (1 + xᵀz)² dio {k} para la pareja verificada, lo mismo que el producto en 6 dimensiones, y la SVM polinomial llega a {q}. Como la matriz de Gram es semidefinida positiva, el dual sigue siendo un QP convexo, resuelto aquí por SMO hasta un óptimo certificado.",
-  "kern.n.p4": "El kernel gaussiano es la opción usual por defecto. Con γ = {g} llega a {a} en los lotes de entrenamiento y {b} en los nuevos, con {s} de {n} lotes como vectores de soporte. Prueba los tres anchos: la precisión de entrenamiento sola siempre favorece el γ más grande, así que en la práctica γ y C se eligen por validación cruzada con lotes que el modelo no ha visto.",
+  "kern.n.p4": "El kernel gaussiano es la opción usual por defecto. Con γ = {g} llega a {a} en los lotes de entrenamiento y {b} en los nuevos, con {s} de {n} lotes como vectores de soporte. Prueba los tres anchos: la precisión de entrenamiento sola escogería aquí el γ más grande, así que en la práctica γ y C se eligen por validación cruzada con lotes que el modelo no ha visto.",
 
   "kern.refs": "Boser, B. E., Guyon, I. M., y Vapnik, V. N. (1992). A training algorithm for optimal margin classifiers. Proceedings of the 5th Annual Workshop on Computational Learning Theory (COLT), 144-152. Cortes, C., y Vapnik, V. (1995). Support-vector networks. Machine Learning, 20(3), 273-297. Schölkopf, B., y Smola, A. J. (2002). Learning with Kernels: Support Vector Machines, Regularization, Optimization, and Beyond. Platt, J. C. (1998). Sequential minimal optimization: A fast algorithm for training support vector machines. Microsoft Research Technical Report MSR-TR-98-14.",
   "kern.footer": "Propuesta de laboratorio · Los lotes de café, su humedad y su temperatura, el punto ideal (11 % y 40 °C), la forma de generar lotes buenos y malos (semillas 3 y 1003), los rótulos invertidos, C = 1 y los tres valores de γ son ilustrativos. Cada número de esta página se calcula en tu navegador: cada SVM por SMO sobre su dual, las precisiones, el círculo de la elevación, la verificación del kernel y los valores propios. El recorrido de la cámara, las partículas, la posición de las etiquetas y el ritmo de la animación son ilustrativos."

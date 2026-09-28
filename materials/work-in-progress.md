@@ -18,7 +18,7 @@ Read this first after any interruption (credits, context reset). It is the singl
 |---|---|---|---|
 | 1 | Lab cards and catalog entries for the three new pages | done | lab-svm-dual and lab-svm-kernel after lab-svm; lab-fahp last; card texts in 4 languages, present tense |
 | 2a | lab-svm-dual "SVM, Level 2: The Dual Street" (animation) | review | site/lab/dual-street.html, prefix svmd., section 2.1 |
-| 2b | lab-svm-kernel "SVM, Level 3: The Kernel Trick" (animation) | review | site/lab/kernel-trick.html, prefix kern., section 2.1 |
+| 2b | lab-svm-kernel "SVM, Level 3: The Kernel Trick" (animation) | done | site/lab/kernel-trick.html, prefix kern., section 2.1. Review: every number matches sklearn SVC + scipy QP on the ported data; 7 overstated sentences and 5 truncated phone chips fixed in the 4 bundles (html untouched); ready to commit. |
 | 2c | lab-fahp "AHP, Fuzzy Sets and Fuzzy AHP" (simulation) | review | site/lab/fuzzy-ahp.html, prefix fahp., section 2.8 |
 | 3 | Home page visuals (hero art, level glyphs, research thumbnails) | review | assets/home-art.js + index.html (CSS and 5 hook lines, no text changes): five-level band under the facts (spotlight per level, phones pan one at a time with 1 to 5 buttons, links to each level), a glyph per level row (replays on hover), type icons on resource cards, SVG banner on each research card, faint dot grid in the hero. Checked 4 languages x 1200/700/400 x light/dark x reduced motion: no errors, no horizontal scroll. Waiting for the owner's approval of the preview. |
 | 4 | Final check, preview to the owner (screenshots + recording), ask for approval and merge | todo | |

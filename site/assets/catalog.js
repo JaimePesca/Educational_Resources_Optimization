@@ -110,7 +110,7 @@ window.CATALOG = {
     { id: "lab-ml-methods", type: "animation", href: "lab/learning-is-optimizing.html" },
     { id: "lab-svm", type: "animation", href: "lab/widest-street.html" },
     { id: "lab-svm-dual", type: "animation" },
-    { id: "lab-svm-kernel", type: "animation" },
+    { id: "lab-svm-kernel", type: "animation", href: "lab/kernel-trick.html" },
     { id: "lab-ml-ai-cases", type: "simulation", href: "lab/ml-ai-optimization.html" },
     { id: "lab-fahp", type: "simulation" }
   ],

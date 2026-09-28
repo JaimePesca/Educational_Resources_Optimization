@@ -59,9 +59,9 @@ I18N.register("en", {
   "kern.cap3": "A flat plane separates them",
   "kern.cap3.sub": "A linear SVM in three dimensions: {a} of the lots on the right side, {s} support vectors.",
   "kern.cap4": "The cut is a circle",
-  "kern.cap4.sub": "Where the plane meets the bowl there is a circle. Brought down, it is the boundary, centered at {m}% and {T} °C (the ideal: {im}% and {iT} °C).",
+  "kern.cap4.sub": "The plane cuts the bowl along a curve that, seen from above, is a circle: the boundary, centered at {m}% and {T} °C (the ideal: {im}% and {iT} °C).",
   "kern.cap5": "The dual only needs K(xᵢ, xⱼ)",
-  "kern.cap5.sub": "(1 + xᵀz)² equals a dot product in 6 dimensions that are never built: {v} both ways.",
+  "kern.cap5.sub": "(1 + xᵀz)² equals a dot product in 6 dimensions that the solver never builds: {v} both ways.",
   "kern.cap6": "Gaussian kernel, γ = {g}",
   "kern.cap6.sub": "{a} right on the training lots, {b} on {n} new lots, {s} support vectors. The straight line: {l}.",
 
@@ -118,7 +118,7 @@ I18N.register("en", {
   "kern.chk.p": "Take lot {i} ({mi}% and {Ti} °C, good) and lot {j} ({mj}% and {Tj} °C, bad), scaled as x and z. The polynomial kernel needs one dot product in 2 dimensions; the map ψ builds 6 coordinates for each lot and multiplies them. The results agree.",
   "kern.chk.tex": "\\begin{aligned}& x = {x},\\quad z = {z}\\\\ & (1 + x^{\\top}z)^2 = (1 {d})^2 = {k}\\\\ & \\psi(x) = {px}\\\\ & \\psi(z) = {pz}\\\\ & \\psi(x)^{\\top}\\psi(z) = {ip}\\end{aligned}",
   "kern.chk.formula": "x = {x},  z = {z}\n(1 + xᵀz)² = (1 {d})² = {k}\nψ(x) = {px}\nψ(z) = {pz}\nψ(x)ᵀψ(z) = {ip}",
-  "kern.chk.p2": "The dual needs this number for every pair: {nn} distinct values for {n} lots. For the Gaussian kernel the map ψ would need infinitely many coordinates, so the kernel is the only way to compute it, and it costs no more than a distance.",
+  "kern.chk.p2": "The dual needs this number for every pair: {nn} distinct values for {n} lots. For the Gaussian kernel the map ψ would need infinitely many coordinates, so the kernel is the practical way to compute it, and it costs no more than a distance.",
 
   "kern.cmp.kicker": "Compare",
   "kern.cmp.title": "The same dual with six kernels",
@@ -133,13 +133,13 @@ I18N.register("en", {
   "kern.cmp.dual": "Dual objective",
   "kern.cmp.it": "SMO steps",
   "kern.cmp.eig": "Min. eigenvalue",
-  "kern.cmp.note": "The width γ trades fit for generality. With γ = {g0} the boundary is too smooth: {a0} on the training lots and {t0} on new ones. With γ = {g1}: {a1} and {t1}. With γ = {g2} each lot gets its own small island: {a2} on the training lots but only {t2} on new ones, and {s2} of the {n} lots become support vectors. Every smallest eigenvalue is zero or positive (up to rounding): each Gram matrix passes Mercer's test.",
+  "kern.cmp.note": "The width γ trades fit for generality. With γ = {g0} the boundary is too smooth: {a0} on the training lots and {t0} on new ones. With γ = {g1}: {a1} and {t1}. With γ = {g2} the influence of each lot barely reaches its neighbors, so the boundary hugs single lots and leaves holes between them: {a2} on the training lots but only {t2} on new ones, and {s2} of the {n} lots become support vectors. Every smallest eigenvalue is zero or positive (up to rounding): each Gram matrix passes Mercer's test.",
 
   "kern.n.title": "What to notice",
   "kern.n.p1": "The best straight line gets only {l} of the {n} lots right, with {e} on the wrong side and {s} support vectors: when the good lots sit in the middle, any line cuts through them. The SVM is not at fault; the model class is.",
-  "kern.n.p2": "Adding one feature, the squared distance to the center, makes the problem linear again: a plane separates {p} of the lots in 3D. Its cut with the bowl is a circle centered at {m}% and {T} °C, close to the ideal point used to draw the data ({im}% and {iT} °C). The SVM found the ideal without being told it exists.",
+  "kern.n.p2": "Adding one feature, the squared distance to the center, makes the problem linear again: a plane separates {p} of the lots in 3D. Its cut with the bowl, seen from above, is a circle centered at {m}% and {T} °C, close to the ideal point used to draw the data ({im}% and {iT} °C). The SVM got close to it without being told where it is.",
   "kern.n.p3": "The dual never uses the coordinates of the lots, only their dot products. Replacing them with a kernel is the trick: (1 + xᵀz)² gave {k} for the checked pair, the same as the 6 dimensional product, and the polynomial SVM reaches {q}. Because the Gram matrix is positive semidefinite, the dual is still a convex QP, solved here by SMO to a certified optimum.",
-  "kern.n.p4": "The Gaussian kernel is the usual default. With γ = {g} it reaches {a} on the training lots and {b} on new ones with {s} of {n} lots as support vectors. Try the three widths: training accuracy alone always favors the largest γ, so in practice γ and C are chosen by cross validation on lots the model has not seen.",
+  "kern.n.p4": "The Gaussian kernel is the usual default. With γ = {g} it reaches {a} on the training lots and {b} on new ones with {s} of {n} lots as support vectors. Try the three widths: training accuracy alone would pick the largest γ here, so in practice γ and C are chosen by cross validation on lots the model has not seen.",
 
   "kern.refs": "Boser, B. E., Guyon, I. M., and Vapnik, V. N. (1992). A training algorithm for optimal margin classifiers. Proceedings of the 5th Annual Workshop on Computational Learning Theory (COLT), 144-152. Cortes, C., and Vapnik, V. (1995). Support-vector networks. Machine Learning, 20(3), 273-297. Schölkopf, B., and Smola, A. J. (2002). Learning with Kernels: Support Vector Machines, Regularization, Optimization, and Beyond. Platt, J. C. (1998). Sequential minimal optimization: A fast algorithm for training support vector machines. Microsoft Research Technical Report MSR-TR-98-14.",
   "kern.footer": "Lab proposal · The coffee lots, their moisture and temperature, the ideal point (11% and 40 °C), the way good and bad lots are drawn (seeds 3 and 1003), the flipped labels, C = 1 and the three values of γ are illustrative. Every number on this page is computed in your browser: each SVM by SMO on its dual, the accuracies, the circle of the lift, the kernel check and the eigenvalues. The camera path, the particles, the label positions and the timing of the animation are illustrative."

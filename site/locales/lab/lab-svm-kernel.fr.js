@@ -37,8 +37,8 @@ I18N.register("fr", {
   "kern.k.plane": "Précision du plan",
   "kern.k.dual": "Objectif dual",
   "kern.k.cm": "Humidité du centre",
-  "kern.k.cT": "Température du centre",
-  "kern.k.poly": "Précision polynomiale",
+  "kern.k.cT": "Temp. du centre",
+  "kern.k.poly": "Précision polyn.",
   "kern.k.k1": "(1 + xᵀz)²",
   "kern.k.k2": "ψ(x)ᵀψ(z), 6 termes",
   "kern.k.rbf": "Précision RBF",
@@ -59,9 +59,9 @@ I18N.register("fr", {
   "kern.cap3": "Un plan les sépare",
   "kern.cap3.sub": "Une SVM linéaire en trois dimensions : {a} des lots du bon côté, {s} vecteurs de support.",
   "kern.cap4": "La coupe est un cercle",
-  "kern.cap4.sub": "Là où le plan rencontre la cuvette se trouve un cercle. Redescendu, c'est la frontière, centrée en {m} % et {T} °C (l'idéal : {im} % et {iT} °C).",
+  "kern.cap4.sub": "Le plan coupe la cuvette selon une courbe qui, vue d'en haut, est un cercle : la frontière, centrée en {m} % et {T} °C (l'idéal : {im} % et {iT} °C).",
   "kern.cap5": "Le dual n'a besoin que de K(xᵢ, xⱼ)",
-  "kern.cap5.sub": "(1 + xᵀz)² est un produit scalaire en 6 dimensions jamais construites : {v} par les deux chemins.",
+  "kern.cap5.sub": "(1 + xᵀz)² est un produit scalaire en 6 dimensions que le solveur ne construit jamais : {v} par les deux chemins.",
   "kern.cap6": "Noyau gaussien, γ = {g}",
   "kern.cap6.sub": "{a} de réussite sur les lots d'entraînement, {b} sur {n} nouveaux lots, {s} vecteurs de support. La droite : {l}.",
 
@@ -118,7 +118,7 @@ I18N.register("fr", {
   "kern.chk.p": "Prenez le lot {i} ({mi} % et {Ti} °C, bon) et le lot {j} ({mj} % et {Tj} °C, mauvais), mis à l'échelle en x et z. Le noyau polynomial n'a besoin que d'un produit scalaire en 2 dimensions ; l'application ψ construit 6 coordonnées pour chaque lot et les multiplie. Les résultats concordent.",
   "kern.chk.tex": "\\begin{aligned}& x = {x},\\quad z = {z}\\\\ & (1 + x^{\\top}z)^2 = (1 {d})^2 = {k}\\\\ & \\psi(x) = {px}\\\\ & \\psi(z) = {pz}\\\\ & \\psi(x)^{\\top}\\psi(z) = {ip}\\end{aligned}",
   "kern.chk.formula": "x = {x},  z = {z}\n(1 + xᵀz)² = (1 {d})² = {k}\nψ(x) = {px}\nψ(z) = {pz}\nψ(x)ᵀψ(z) = {ip}",
-  "kern.chk.p2": "Le dual a besoin de ce nombre pour chaque paire : {nn} valeurs distinctes pour {n} lots. Pour le noyau gaussien, l'application ψ demanderait une infinité de coordonnées : le noyau est la seule façon de le calculer, et il ne coûte pas plus qu'une distance.",
+  "kern.chk.p2": "Le dual a besoin de ce nombre pour chaque paire : {nn} valeurs distinctes pour {n} lots. Pour le noyau gaussien, l'application ψ demanderait une infinité de coordonnées : le noyau est la façon pratique de le calculer, et il ne coûte pas plus qu'une distance.",
 
   "kern.cmp.kicker": "Comparer",
   "kern.cmp.title": "Le même dual avec six noyaux",
@@ -133,13 +133,13 @@ I18N.register("fr", {
   "kern.cmp.dual": "Objectif dual",
   "kern.cmp.it": "Pas SMO",
   "kern.cmp.eig": "Plus petite valeur propre",
-  "kern.cmp.note": "La largeur γ échange ajustement contre généralité. Avec γ = {g0}, la frontière est trop lisse : {a0} sur les lots d'entraînement et {t0} sur les nouveaux. Avec γ = {g1} : {a1} et {t1}. Avec γ = {g2}, chaque lot a son propre îlot : {a2} sur les lots d'entraînement mais seulement {t2} sur les nouveaux, et {s2} des {n} lots deviennent vecteurs de support. Toutes les plus petites valeurs propres sont nulles ou positives (aux arrondis près) : chaque matrice de Gram passe le test de Mercer.",
+  "kern.cmp.note": "La largeur γ échange ajustement contre généralité. Avec γ = {g0}, la frontière est trop lisse : {a0} sur les lots d'entraînement et {t0} sur les nouveaux. Avec γ = {g1} : {a1} et {t1}. Avec γ = {g2}, l'influence de chaque lot atteint à peine ses voisins, donc la frontière colle aux lots isolés et laisse des trous entre eux : {a2} sur les lots d'entraînement mais seulement {t2} sur les nouveaux, et {s2} des {n} lots deviennent vecteurs de support. Toutes les plus petites valeurs propres sont nulles ou positives (aux arrondis près) : chaque matrice de Gram passe le test de Mercer.",
 
   "kern.n.title": "À remarquer",
   "kern.n.p1": "La meilleure droite ne classe bien que {l} des {n} lots, avec {e} du mauvais côté et {s} vecteurs de support : quand les bons lots sont au milieu, toute droite les coupe. La faute n'en revient pas à la SVM mais à la classe de modèles.",
-  "kern.n.p2": "Ajouter une variable, le carré de la distance au centre, rend le problème de nouveau linéaire : un plan sépare {p} des lots en 3D. Sa coupe avec la cuvette est un cercle centré en {m} % et {T} °C, près du point idéal utilisé pour tirer les données ({im} % et {iT} °C). La SVM a trouvé l'idéal sans qu'on lui dise qu'il existe.",
+  "kern.n.p2": "Ajouter une variable, le carré de la distance au centre, rend le problème de nouveau linéaire : un plan sépare {p} des lots en 3D. Sa coupe avec la cuvette, vue d'en haut, est un cercle centré en {m} % et {T} °C, près du point idéal utilisé pour tirer les données ({im} % et {iT} °C). La SVM s'en est approchée sans qu'on lui dise où il se trouve.",
   "kern.n.p3": "Le dual n'utilise jamais les coordonnées des lots, seulement leurs produits scalaires. Les remplacer par un noyau, voilà l'astuce : (1 + xᵀz)² a donné {k} pour la paire vérifiée, comme le produit en 6 dimensions, et la SVM polynomiale atteint {q}. Comme la matrice de Gram est semi-définie positive, le dual reste un QP convexe, résolu ici par SMO jusqu'à un optimum certifié.",
-  "kern.n.p4": "Le noyau gaussien est le choix habituel par défaut. Avec γ = {g}, il atteint {a} sur les lots d'entraînement et {b} sur les nouveaux, avec {s} lots sur {n} comme vecteurs de support. Essayez les trois largeurs : la précision d'entraînement seule favorise toujours le plus grand γ, donc en pratique γ et C se choisissent par validation croisée sur des lots que le modèle n'a pas vus.",
+  "kern.n.p4": "Le noyau gaussien est le choix habituel par défaut. Avec γ = {g}, il atteint {a} sur les lots d'entraînement et {b} sur les nouveaux, avec {s} lots sur {n} comme vecteurs de support. Essayez les trois largeurs : la précision d'entraînement seule choisirait ici le plus grand γ, donc en pratique γ et C se choisissent par validation croisée sur des lots que le modèle n'a pas vus.",
 
   "kern.refs": "Boser, B. E., Guyon, I. M., et Vapnik, V. N. (1992). A training algorithm for optimal margin classifiers. Proceedings of the 5th Annual Workshop on Computational Learning Theory (COLT), 144-152. Cortes, C., et Vapnik, V. (1995). Support-vector networks. Machine Learning, 20(3), 273-297. Schölkopf, B., et Smola, A. J. (2002). Learning with Kernels: Support Vector Machines, Regularization, Optimization, and Beyond. Platt, J. C. (1998). Sequential minimal optimization: A fast algorithm for training support vector machines. Microsoft Research Technical Report MSR-TR-98-14.",
   "kern.footer": "Proposition de laboratoire · Les lots de café, leur humidité et leur température, le point idéal (11 % et 40 °C), la façon de tirer les bons et les mauvais lots (graines 3 et 1003), les étiquettes inversées, C = 1 et les trois valeurs de γ sont illustratifs. Chaque nombre de cette page est calculé dans votre navigateur : chaque SVM par SMO sur son dual, les précisions, le cercle de l'élévation, la vérification du noyau et les valeurs propres. Le trajet de la caméra, les particules, la position des étiquettes et le rythme de l'animation sont illustratifs."
