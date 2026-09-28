@@ -417,4 +417,10 @@ I18N.register("en", {
   "tsp.d3.title": "Why not solve it exactly?",
   "tsp.d3.p1": "With n towers there are (n−1)!/2 possible routes: for 24 towers that is about 10²². Modern exact methods (branch and cut) solve large instances, but they cost computing time and development effort. Metaheuristics such as annealing deliver very good solutions in milliseconds, which matters when dispatching resources against a wildfire cannot wait.",
   "tsp.footer": "Educational resource · Coordinates in km over a synthetic 100 × 75 km territory. Annealing runs in your browser; every run is different because the proposals are random.",
+  "nf.eyebrow": "Error 404",
+  "nf.title": "Page not found",
+  "nf.lede": "The address may be old or mistyped. The resources are still here: pick a level of the learning path or go back to the home page.",
+  "nf.home": "Go to the home page",
+  "nf.count": "{n} resources",
+  "nf.research": "Four applied cases from Colombia."
 });
