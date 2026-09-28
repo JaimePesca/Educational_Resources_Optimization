@@ -269,3 +269,22 @@ Las demás (1, 2, 4 a 11) siguen pendientes de tu decisión.
 ### Otros archivos tocados en esta ronda
 - `tools/seo_gen.py`: pistas de conexión en todas las páginas, página "Sobre el autor", `Person` ampliado. El sitemap ahora tiene 220 URL (55 páginas × 4 idiomas).
 - `CLAUDE.md` y `materials/work-in-progress.md`: convenciones y seguimiento.
+
+## 8. Eventos de Google Analytics 4
+
+Un solo listener de clics en `document` (`site/assets/site.js`, que cargan todas las páginas) lee los atributos del enlace, nunca su texto, y llama a `gtag('event', ...)`. No usa `preventDefault` y envía con `transport_type: 'beacon'`, así que la navegación nunca se bloquea y el evento sale aunque la página cambie. Todos los eventos llevan `page_language`.
+
+| Evento | Cuándo | Parámetros | Dónde está marcado |
+|---|---|---|---|
+| `jaimepesca_click` | clic en un enlace a jaimepesca.com | `link_location`, `page_language` | pie de página de todas las páginas (`footer`, nombre y dominio), botón en "Sobre el autor" (`about_profile`) |
+| `github_click` | clic en un enlace a github.com | `link_location`, `page_language` | botón en "Sobre el autor" (`about_profile`), repositorio del caso de mercados (`research_page`) |
+| `resource_open` | clic que abre un recurso | `resource_id` (id del catálogo), `level` (`lp`, `ip`, `milp`, `nlp`, `other`; `lab` en el laboratorio), `link_location`, `page_language` | tarjetas de la ruta de aprendizaje en el inicio (`learning_path`), menú Explorar (`browse_menu`), botón Abrir del laboratorio (`lab`) |
+| `language_change` | cambio en el selector de idioma | `language` (el nuevo), `page_language` (el anterior) | `site/assets/i18n.js` |
+
+Atributos en el HTML: `data-ga-event`, `data-ga-location`, y para recursos `data-ga-resource-id` y `data-ga-level`. Un enlace a jaimepesca.com o github.com sin `data-ga-event` también se cuenta, por su dominio (no por su texto), con la ubicación del contenedor más cercano que tenga `data-ga-location` o `content`. El subdominio del sitio (learn-optimization.jaimepesca.com) no cuenta como jaimepesca.com.
+
+Probado en el navegador leyendo `window.dataLayer`: los cuatro eventos con sus parámetros en inglés, español, portugués y francés, y un clic normal en un recurso navega sin retraso.
+
+Para verlos en los informes: en GA4, Administrar, Definiciones personalizadas, crea dimensiones personalizadas con alcance de evento para `link_location`, `page_language`, `resource_id`, `level` y `language` (sin eso los eventos se cuentan, pero sus parámetros solo se ven en DebugView y en Exploraciones). Para probar en vivo: Administrar, DebugView, con la extensión Google Analytics Debugger activada en tu navegador. Si quieres, marca `resource_open` como evento clave (conversión).
+
+Nota: `resource_open` cuenta las aperturas desde el propio sitio. Quien llega a un recurso desde Google u otro sitio queda registrado como `page_view` de esa página, que GA4 ya mide solo.
