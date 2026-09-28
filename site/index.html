@@ -158,6 +158,67 @@
     border-radius: 50%; background: var(--mit-silver); opacity: 0; transition: opacity 0.25s;
   }
   .lab-door:hover::after, .lab-door:focus-visible::after { opacity: 0.35; }
+  /* ---- decoration (assets/home-art.js): drawn in code with the tokens, no text changes ---- */
+  .hero { position: relative; }
+  .hero > * { position: relative; }
+  .hero::before {
+    content: ""; position: absolute; top: 0; right: -16px; width: 52%; height: 78%; pointer-events: none;
+    background-image: radial-gradient(circle, var(--axis) 1px, transparent 1.4px); background-size: 16px 16px;
+    -webkit-mask-image: radial-gradient(ellipse at 82% 28%, #000 0, transparent 68%);
+    mask-image: radial-gradient(ellipse at 82% 28%, #000 0, transparent 68%); opacity: 0.6;
+  }
+  .levels-band {
+    margin-top: 12px; height: 270px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+    overflow: hidden; background-image: radial-gradient(circle, var(--grid) 1px, transparent 1.3px); background-size: 14px 14px;
+  }
+  .levels-band canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .band-links { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .band-link {
+    display: flex; flex-direction: column; gap: 3px; align-self: start; padding: 12px 14px 8px; text-decoration: none;
+    border-top: 3px solid transparent; height: 100%;
+  }
+  .band-link.on { border-top-color: var(--accent); }
+  .band-n { font: 600 11px/1.2 var(--font-mono); letter-spacing: 0.12em; color: var(--accent-text); }
+  .band-t { font-size: 12.5px; line-height: 1.25; font-weight: 600; color: var(--ink); opacity: 0.55; transition: opacity 0.2s; }
+  .band-link.on .band-t, .band-link:hover .band-t { opacity: 1; }
+  .band-link:focus-visible { outline-offset: -3px; }
+  .band-picks { display: none; }
+  .levels-band.phone { height: 300px; }
+  .levels-band.phone .band-links { grid-template-columns: 1fr; }
+  .levels-band.phone .band-link { display: none; padding-right: 150px; }
+  .levels-band.phone .band-link.on { display: flex; }
+  .levels-band.phone .band-picks { display: flex; gap: 4px; position: absolute; top: 12px; right: 10px; }
+  .band-pick {
+    width: 26px; height: 26px; padding: 0; cursor: pointer; border-radius: 2px;
+    font: 600 11.5px var(--font-mono); color: var(--ink2); background: var(--surface); border: 1px solid var(--border);
+  }
+  .band-pick[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-solid); }
+  .lglyph { display: block; width: 92px; height: 72px; margin-top: 10px; }
+  @media (max-width: 620px) { .lglyph { width: 64px; height: 48px; margin: 0 0 0 auto; align-self: center; } }
+  .ticon { width: 13px; height: 13px; vertical-align: -2px; margin-right: 6px; fill: none; stroke: currentColor; stroke-width: 1.4; }
+  .ticon .f { fill: currentColor; stroke: none; }
+  .p-banner {
+    margin: -18px -18px 2px; height: 112px; overflow: hidden; border-bottom: 1px solid var(--border);
+    background: var(--surface2); border-radius: 4px 4px 0 0;
+  }
+  .p-banner svg { display: block; width: 100%; height: 100%; transition: transform 0.6s ease; }
+  .project:hover .p-banner svg { transform: scale(1.04); }
+  .project.soon .p-banner { opacity: 0.8; }
+  .ha-pulse, .ha-fire { transform-box: fill-box; transform-origin: center; }
+  .ha-pulse { animation: ha-pulse 3.4s ease-in-out infinite; }
+  .ha-pulse.d1 { animation-delay: -1.1s; } .ha-pulse.d2 { animation-delay: -2.2s; }
+  @keyframes ha-pulse { 0%, 100% { transform: scale(0.82); } 50% { transform: scale(1.12); } }
+  .ha-flow { animation: ha-flow 1.4s linear infinite; }
+  @keyframes ha-flow { to { stroke-dashoffset: -12; } }
+  .ha-fire { animation: ha-fire 2.6s ease-in-out infinite; }
+  @keyframes ha-fire { 0%, 100% { transform: scale(0.96); } 50% { transform: scale(1.05); } }
+  .ha-drop { animation: ha-drop 4.5s ease-in-out infinite; }
+  @keyframes ha-drop {
+    0% { transform: translateY(-46px); opacity: 0; } 12% { opacity: 1; }
+    40%, 90% { transform: none; opacity: 1; } 100% { transform: none; opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ha-pulse, .ha-flow, .ha-fire, .ha-drop { animation: none; } .p-banner svg { transition: none; } }
+
 </style>
 </head>
 <body>
@@ -178,6 +239,7 @@
     <h1 data-i18n-html="home.title"></h1>
     <p class="lede" data-i18n="home.lede"></p>
     <ul class="facts" id="facts"></ul>
+    <div class="levels-band" id="levels-band"><canvas aria-hidden="true"></canvas><nav class="band-links" data-i18n-attr="aria-label:nav.learn"></nav><div class="band-picks"></div></div>
   </section>
 
   <section class="division" id="learn" aria-labelledby="learn-h">
@@ -213,6 +275,7 @@
 <script src="assets/site.js?v=__BUILD__" charset="utf-8"></script>
 <script src="locales/en.js?v=__BUILD__" charset="utf-8"></script>
 <script src="assets/catalog.js?v=__BUILD__" charset="utf-8"></script>
+<script src="assets/home-art.js?v=__BUILD__" charset="utf-8"></script>
 <script>
 (function () {
   "use strict";
@@ -244,6 +307,7 @@
     var host = document.getElementById("projects"); host.textContent = "";
     C.research.forEach(function (p, i) {
       var card = h("article", "project"); card.id = "project-" + p.id;
+      card.appendChild(HomeArt.banner(p.id));
       if (!p.href) { // placeholder for a coming project: same card, dimmed, title only, no link
         card.classList.add("soon");
         card.appendChild(h("h3", null, t("project." + p.id + ".title")));
@@ -288,6 +352,8 @@
 
       var num = h("div", "lnum");
       num.append(h("small", null, t("home.level")), document.createTextNode(l.n));
+      var art = HomeArt.glyph(l.n - 1); num.appendChild(art);
+      row.addEventListener("mouseenter", function () { art.play(); });
 
       var body = h("div", "lbody");
       body.appendChild(h("h3", null, t("level." + l.id + ".title")));
@@ -300,7 +366,8 @@
         var grid = h("div", "rgrid");
         live.forEach(function (r) {
           var a = h("a", "rcard"); a.href = I18N.href(r.href);
-          a.append(h("span", "rtype", t("type." + r.type)), h("span", "rtitle", t("resource." + r.id + ".title")),
+          var rt = h("span", "rtype", t("type." + r.type)); rt.prepend(HomeArt.typeIcon(r.type));
+          a.append(rt, h("span", "rtitle", t("resource." + r.id + ".title")),
             h("span", "rsum", t("resource." + r.id + ".summary")));
           var c = creditLine(r); if (c) a.appendChild(c);
           grid.appendChild(a);
@@ -354,7 +421,12 @@
     a.textContent = t("nav.lab");
   }
 
-  I18N.onChange(function () { renderFacts(); renderProjects(); renderLadder(); renderLangNote(); renderLabNav(); });
+  var band = null;
+  function renderBand() {
+    if (band) band.relabel(); else band = HomeArt.band(document.getElementById("levels-band"), C.levels);
+  }
+
+  I18N.onChange(function () { renderFacts(); renderProjects(); renderLadder(); renderLangNote(); renderLabNav(); renderBand(); });
 })();
 </script>
 </body>

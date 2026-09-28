@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang="en" data-title-key="svmd.title" data-i18n-bundles="lab/lab-svm-dual">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>The Dual Street</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  /* ---- series link ---- */
+  .lede-prev { margin: 12px 0 0; font-size: 14.5px; font-weight: 600; }
+  .lede-prev a { color: var(--accent-text); }
+
+  /* ---- animation ---- */
+  #svmd-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(300px, max(220px, 32%)); max-width: none;
+  }
+  #svmd-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #svmd-sec .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #svmd-sec .anim-hud .chip-stat b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #svmd-sec .anim-hud .chip-stat.hot b { color: var(--crit); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #svmd-sec .anim-hud { width: 252px; }
+    #svmd-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #svmd-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #svmd-sec .anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #svmd-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 11px; }
+    #svmd-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #svmd-sec .anim-legend i.lg-spec { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
+  #svmd-sec .anim-legend i.lg-std { width: 9px; height: 9px; border: 1.8px solid var(--ink); background: var(--surface); }
+  #svmd-sec .anim-legend i.lg-bd { width: 20px; height: 0; border-top: 2.5px solid var(--accent); }
+  #svmd-sec .anim-legend i.lg-mg { width: 20px; height: 10px; border-top: 1.5px dashed var(--accent); border-bottom: 1.5px dashed var(--accent); background: var(--sel); }
+  #svmd-sec .anim-legend i.lg-al { width: 16px; height: 16px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 22%, transparent); border: 1px solid var(--accent); }
+  #svmd-sec .anim-legend i.lg-pair { width: 20px; height: 0; border-top: 2px dashed var(--mit-bright); }
+  #svmd-sec .anim-legend i.lg-sv { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--accent); }
+  #svmd-sec .anim-legend i.lg-bsv { width: 14px; height: 14px; border-radius: 50%; border: 2px dashed var(--mit-bright); }
+  #svmd-sec .anim-legend i.lg-dual { width: 20px; height: 0; border-top: 2.5px solid var(--accent); }
+  #svmd-sec .anim-legend i.lg-primal { width: 20px; height: 0; border-top: 2px solid var(--ink); }
+  /* dark theme: accent and bright red are the same colour there, so the bound and pair cues use the crit shade */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #svmd-sec .anim-legend i.lg-bsv, :root:not([data-theme="light"]) #svmd-sec .anim-legend i.lg-pair { border-color: var(--crit); }
+  }
+  :root[data-theme="dark"] #svmd-sec .anim-legend i.lg-bsv, :root[data-theme="dark"] #svmd-sec .anim-legend i.lg-pair { border-color: var(--crit); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 14px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+
+  /* ---- solution ---- */
+  .stats { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 20px; }
+    .stat .l { font-size: 12px; }
+  }
+  .sol-p { font-size: 14px; color: var(--ink2); margin: 12px 0 0; max-width: 80ch; }
+  .sol-p b { color: var(--ink); }
+
+  /* ---- tables ---- */
+  table.data { min-width: 0; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.acc { color: var(--accent-text); font-weight: 600; }
+  table.data td.hot { color: var(--crit); font-weight: 600; }
+  table.data td.dim { color: var(--muted); }
+  table.data th.rowh, table.data td.rowh { text-align: left; }
+  @media (max-width: 560px) {
+    table.data th, table.data td { padding-inline: 5px; font-size: 12px; }
+    table.data td.num { font-size: 11.5px; }
+    table.data .wide { display: none; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="svmd.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="svmd.eyebrow"></p>
+    <h1 data-i18n="svmd.title"></h1>
+    <p class="lede" data-i18n-html="svmd.lede"></p>
+    <p class="lede-prev"><a href="widest-street.html" data-keep-lang data-i18n="svmd.prev"></a></p>
+  </header>
+
+  <section class="block" id="svmd-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" data-i18n="svmd.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="svmd-scen-lbl" data-i18n="svmd.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="svmd-scen-lbl" id="svmd-seg">
+        <button type="button" data-sc="small" aria-pressed="false"></button>
+        <button type="button" data-sc="medium" aria-pressed="true"></button>
+        <button type="button" data-sc="large" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="anim" id="svmd-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:svmd.anim.aria">
+        <div class="anim-hud" id="svmd-hud">
+          <div class="chip-stat" id="svmd-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="svmd-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="svmd-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="svmd-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="svmd-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="svmd-c5"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-spec"></i><span data-i18n="svmd.lg.spec"></span></span>
+      <span><i class="lg-std"></i><span data-i18n="svmd.lg.std"></span></span>
+      <span><i class="lg-al"></i><span data-i18n-html="svmd.lg.al"></span></span>
+      <span><i class="lg-pair"></i><span data-i18n="svmd.lg.pair"></span></span>
+      <span><i class="lg-bd"></i><span data-i18n="svmd.lg.bd"></span></span>
+      <span><i class="lg-mg"></i><span data-i18n="svmd.lg.mg"></span></span>
+      <span><i class="lg-sv"></i><span data-i18n-html="svmd.lg.sv"></span></span>
+      <span><i class="lg-bsv"></i><span data-i18n-html="svmd.lg.bsv"></span></span>
+      <span><i class="lg-dual"></i><span data-i18n="svmd.lg.dual"></span></span>
+      <span><i class="lg-primal"></i><span data-i18n="svmd.lg.primal"></span></span>
+    </div>
+    <p class="scen-status" id="svmd-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="svmd.model.kicker"></span><span data-i18n="svmd.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="svmd.primal.head"></p>
+        <div class="formula" data-tex="svmd.primal.tex" data-i18n="svmd.primal.formula"></div>
+        <p class="mtext" data-i18n-html="svmd.primal.why"></p>
+        <p class="mhead" data-i18n="svmd.lag.head"></p>
+        <div class="formula" data-tex="svmd.lag.tex" data-i18n="svmd.lag.formula"></div>
+        <p class="mtext" data-i18n-html="svmd.lag.why"></p>
+        <p class="mhead" data-i18n="svmd.dual.head"></p>
+        <div class="formula" data-tex="svmd.dual.tex" data-i18n="svmd.dual.formula"></div>
+        <p class="mtext" data-i18n-html="svmd.dual.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="svmd.rec.head"></p>
+        <div class="formula" data-tex="svmd.rec.tex" data-i18n="svmd.rec.formula"></div>
+        <p class="mtext" data-i18n-html="svmd.rec.why"></p>
+        <p class="mhead" data-i18n="svmd.kkt.head"></p>
+        <div class="formula" data-tex="svmd.kkt.tex" data-i18n="svmd.kkt.formula"></div>
+        <p class="mtext" data-i18n-html="svmd.kkt.why"></p>
+        <p class="mhead" data-i18n="svmd.hinge.head"></p>
+        <div class="formula" data-tex="svmd.hinge.tex" data-i18n="svmd.hinge.formula"></div>
+        <p class="mtext" data-i18n-html="svmd.hinge.why"></p>
+        <p class="mhead" data-i18n="svmd.smo.head"></p>
+        <div class="formula" data-tex="svmd.smo.tex" data-i18n="svmd.smo.formula"></div>
+        <p class="mtext" data-i18n-html="svmd.smo.why"></p>
+      </div>
+    </div>
+    <p class="mhead" data-i18n="svmd.data.head"></p>
+    <p class="mtext" id="svmd-data"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="svmd.sol.kicker"></span><span id="svmd-sol-title"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="k" data-i18n="svmd.sol.steps"></div><div class="v ink" id="svmd-sn"></div><div class="l" id="svmd-snl"></div></div>
+      <div class="stat"><div class="k" data-i18n="svmd.sol.val"></div><div class="v" id="svmd-sval"></div><div class="l" id="svmd-svall"></div></div>
+      <div class="stat"><div class="k" data-i18n="svmd.sol.sv"></div><div class="v ink" id="svmd-ssv"></div><div class="l" id="svmd-ssvl"></div></div>
+      <div class="stat"><div class="k" data-i18n="svmd.sol.width"></div><div class="v" id="svmd-swd"></div><div class="l" id="svmd-swdl"></div></div>
+    </div>
+    <p class="sol-p" id="svmd-sol-p"></p>
+    <div class="formula" id="svmd-inst"></div>
+    <p class="sol-p" id="svmd-sol-q"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="svmd.cmp.kicker"></span><span data-i18n="svmd.cmp.title"></span></h2>
+    <div class="tblwrap"><table class="data" id="svmd-cmp"></table></div>
+    <p class="sol-p" id="svmd-cmp-note"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="svmd.lots.kicker"></span><span id="svmd-lots-title"></span></h2>
+    <p class="sol-p" id="svmd-lots-p" style="margin-top:0"></p>
+    <div class="tblwrap"><table class="data" id="svmd-lots"></table></div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="svmd.n.title"></summary>
+      <div class="body">
+        <p id="svmd-n1"></p>
+        <p id="svmd-n2"></p>
+        <p id="svmd-n3"></p>
+        <p id="svmd-n4"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.1" data-refs="svmd.refs"></p>
+  <p class="note" data-i18n="svmd.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-svm-dual.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d) { d = d == null ? 2 : d; if (Math.abs(v) < 0.5 * Math.pow(10, -d)) v = 0; return I18N.fmt(v, d, d); };
+  var num = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? MINUS : "") + m; };
+  var texNum = function (v, d) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? "-" : "") + m; };
+  var cFmt = function (c) { return isFinite(c) ? I18N.fmt(Number(c.toPrecision(2)), 2, 0) : "∞"; };   // C with two significant digits
+  var intFmt = function (v) { return I18N.fmt(v, 0, 0); };
+  function sup(k) { return String(k).split("").map(function (ch) { return "⁰¹²³⁴⁵⁶⁷⁸⁹"[+ch] || (ch === "-" ? "⁻" : ch); }).join(""); }
+  function gapFmt(g) {                             // the duality gap: 3 decimals, then a power of ten, then 0 below 10^-9
+    if (g < 1e-9) return fmt(0, 0);
+    if (g >= 0.001) return fmt(g, 3);
+    var e = Math.floor(Math.log10(g)), m = g / Math.pow(10, e);
+    if (m >= 9.95) { m = 1; e++; }
+    return I18N.fmt(m, 1, 1) + " × 10" + sup(e);
+  }
+
+  /* =====================================================================================
+     The data: the same 24 coffee lots as level 1 (The Widest Street), without its odd lot:
+     12 specialty and 12 standard lots from two normal clouds drawn with Anim.rng(112). Illustrative.
+     Model units: x1 = altitude in hundreds of meters, x2 = bean density in tens of g/L.
+     ===================================================================================== */
+  var SEED = 112, NPER = 12;
+  var CLOUD = { spec: { m: [18.0, 71.5] }, std: { m: [14.6, 67.8] }, sd: [1.1, 1.4] };
+  var DATA = (function () {
+    var r = Anim.rng(SEED), X = [], Y = [];
+    var z = function () { var u1 = r(), u2 = r(); return Math.sqrt(-2 * Math.log(1 - u1)) * Math.cos(2 * Math.PI * u2); };
+    for (var i = 0; i < 2 * NPER; i++) {
+      var y = i % 2 === 0 ? 1 : -1, m = y > 0 ? CLOUD.spec.m : CLOUD.std.m;
+      var a = Math.round((m[0] + CLOUD.sd[0] * z()) * 10) / 10, d = Math.round((m[1] + CLOUD.sd[1] * z()) * 10) / 10;
+      X.push([a, d]); Y.push(y);
+    }
+    return { X: X, Y: Y };
+  })();
+  var X = DATA.X, Y = DATA.Y, N = Y.length;
+  var MX = 0, MY = 0;
+  X.forEach(function (p) { MX += p[0] / N; MY += p[1] / N; });
+  var Z = X.map(function (p) { return [p[0] - MX, p[1] - MY]; });   // centred traits: w and the dual value do not change
+  var KG = [], KMAX = 0;                                              // the Gram matrix x_i'x_j of the centred traits
+  for (var i0 = 0; i0 < N; i0++) {
+    KG.push(new Float64Array(N));
+    for (var j0 = 0; j0 < N; j0++) { KG[i0][j0] = Z[i0][0] * Z[j0][0] + Z[i0][1] * Z[j0][1]; KMAX = Math.max(KMAX, Math.abs(KG[i0][j0])); }
+  }
+
+  /* ---------- the primal value of the street built from a vector of multipliers:
+     w = sum a_i y_i x_i, the best intercept for that w, and the hinge loss (a feasible primal point) ---------- */
+  function primalAt(al, C) {
+    var w0 = 0, w1 = 0, t, q, s = new Float64Array(N);
+    for (t = 0; t < N; t++) { w0 += al[t] * Y[t] * Z[t][0]; w1 += al[t] * Y[t] * Z[t][1]; }
+    for (t = 0; t < N; t++) s[t] = w0 * Z[t][0] + w1 * Z[t][1];
+    var best = Infinity, bb = 0;
+    for (q = 0; q < N; q++) {                        // the hinge sum is convex and piecewise linear in b: its minimum is at a kink
+      var cand = Y[q] - s[q], h = 0;
+      for (t = 0; t < N; t++) h += Math.max(0, 1 - Y[t] * (s[t] + cand));
+      if (h < best - 1e-14) { best = h; bb = cand; }
+    }
+    var half = 0.5 * (w0 * w0 + w1 * w1);
+    return { w: [w0, w1], bc: bb, P: half + C * best, half: half };
+  }
+
+  /* ---------- SMO (Platt 1998) on the dual, linear kernel, with the maximal violating pair:
+     i = argmax over I_up of -y_t G_t, j = argmin over I_low; stop when the violation is below 1e-12.
+     Every iterate is recorded: multipliers, dual value, primal value of its street, the pair. ---------- */
+  var EPS = 1e-12;
+  function smo(C, record) {
+    var n = N, i, j, t, al = new Float64Array(n), G = new Float64Array(n).fill(-1), it = 0, gmax = 0, gmin = 0;
+    var Q = function (a, b) { return Y[a] * Y[b] * KG[a][b]; };
+    var up = function (t) { return (Y[t] > 0 && al[t] < C) || (Y[t] < 0 && al[t] > 0); };
+    var low = function (t) { return (Y[t] < 0 && al[t] < C) || (Y[t] > 0 && al[t] > 0); };
+    var tr = { A: [], D: [], P: [], PB: [], W: [], B: [], NSV: [], NB: [], pair: [] }, tol = 1e-9 * (isFinite(C) ? Math.max(1, C) : 1);
+    function rec() {
+      if (!record) return;
+      var p = primalAt(al, C), sal = 0, nsv = 0, nb = 0;
+      for (var q = 0; q < n; q++) { sal += al[q]; if (al[q] > tol) nsv++; if (al[q] >= C - tol) nb++; }
+      var k = tr.A.length;
+      tr.A.push(Float64Array.from(al)); tr.D.push(sal - p.half); tr.P.push(p.P);
+      tr.PB.push(k ? Math.min(tr.PB[k - 1], p.P) : p.P);
+      tr.W.push(p.w); tr.B.push(p.bc - (p.w[0] * MX + p.w[1] * MY)); tr.NSV.push(nsv); tr.NB.push(nb);
+    }
+    rec();
+    for (; it < 200000; it++) {
+      var ii = -1, jj = -1;
+      gmax = -Infinity; gmin = Infinity;
+      for (t = 0; t < n; t++) if (up(t) && -Y[t] * G[t] > gmax) { gmax = -Y[t] * G[t]; ii = t; }
+      for (t = 0; t < n; t++) if (low(t) && -Y[t] * G[t] < gmin) { gmin = -Y[t] * G[t]; jj = t; }
+      if (gmax - gmin < EPS || ii < 0 || jj < 0) break;
+      i = ii; j = jj;
+      var oi = al[i], oj = al[j], quad, delta, diff, sum;
+      if (Y[i] !== Y[j]) {
+        quad = Q(i, i) + Q(j, j) + 2 * Q(i, j); if (quad <= 0) quad = 1e-12;
+        delta = (-G[i] - G[j]) / quad; diff = al[i] - al[j];
+        al[i] += delta; al[j] += delta;
+        if (diff > 0) { if (al[j] < 0) { al[j] = 0; al[i] = diff; } } else if (al[i] < 0) { al[i] = 0; al[j] = -diff; }
+        if (diff > 0) { if (al[i] > C) { al[i] = C; al[j] = C - diff; } } else if (al[j] > C) { al[j] = C; al[i] = C + diff; }
+      } else {
+        quad = Q(i, i) + Q(j, j) - 2 * Q(i, j); if (quad <= 0) quad = 1e-12;
+        delta = (G[i] - G[j]) / quad; sum = al[i] + al[j];
+        al[i] -= delta; al[j] += delta;
+        if (sum > C) { if (al[i] > C) { al[i] = C; al[j] = sum - C; } } else if (al[j] < 0) { al[j] = 0; al[i] = sum; }
+        if (sum > C) { if (al[j] > C) { al[j] = C; al[i] = sum - C; } } else if (al[i] < 0) { al[i] = 0; al[j] = sum; }
+      }
+      var di = al[i] - oi, dj = al[j] - oj;
+      for (t = 0; t < n; t++) G[t] += Q(t, i) * di + Q(t, j) * dj;
+      tr.pair.push([i, j]);
+      rec();
+    }
+    // the solution: w from the multipliers, b from the free support vectors (0 < a < C)
+    var w = [0, 0];
+    for (t = 0; t < n; t++) { w[0] += al[t] * Y[t] * Z[t][0]; w[1] += al[t] * Y[t] * Z[t][1]; }
+    var nf = 0, sf = 0, ub = Infinity, lb = -Infinity, s0 = -1;
+    for (t = 0; t < n; t++) {
+      var yg = Y[t] * G[t];
+      if (al[t] > tol && al[t] < C - tol) { nf++; sf += Y[t] - (w[0] * Z[t][0] + w[1] * Z[t][1]); if (s0 < 0) s0 = t; }
+      else if ((al[t] >= C - tol && Y[t] < 0) || (al[t] <= tol && Y[t] > 0)) ub = Math.min(ub, yg);
+      else lb = Math.max(lb, yg);
+    }
+    var bc = nf ? sf / nf : -(ub + lb) / 2, b = bc - (w[0] * MX + w[1] * MY);
+    var bs = s0 >= 0 ? Y[s0] - (w[0] * X[s0][0] + w[1] * X[s0][1]) : b;      // b from the first free support vector alone
+    var nw2 = w[0] * w[0] + w[1] * w[1], nw = Math.sqrt(nw2), m = [], xi = [], grp = [], ok = [], sxi = 0, sal = 0;
+    var nsv = 0, nfree = 0, nbound = 0, viol = 0, err = 0, allOk = true;
+    for (t = 0; t < n; t++) {
+      m[t] = Y[t] * (w[0] * X[t][0] + w[1] * X[t][1] + b);
+      xi[t] = Math.max(0, 1 - m[t]); if (xi[t] < 1e-9) xi[t] = 0;
+      sxi += xi[t]; sal += al[t];
+      grp[t] = al[t] <= tol ? 0 : (al[t] >= C - tol ? 2 : 1);      // 0: a = 0, 1: 0 < a < C, 2: a = C
+      ok[t] = grp[t] === 0 ? m[t] >= 1 - 1e-6 : grp[t] === 1 ? Math.abs(m[t] - 1) <= 1e-6 : m[t] <= 1 + 1e-6;
+      if (!ok[t]) allOk = false;
+      if (grp[t] > 0) nsv++;
+      if (grp[t] === 1) nfree++;
+      if (grp[t] === 2) nbound++;
+      if (xi[t] > 0) viol++;
+      if (m[t] < 0) err++;
+    }
+    var half = 0.5 * nw2, P = half + (isFinite(C) ? C * sxi : 0), D = sal - half;
+    return { C: C, tr: tr, it: it, kkt: gmax - gmin, alpha: Array.from(al), w: w, b: b, bs: bs, s0: s0, nw: nw, width: 2 / nw, half: half,
+      sxi: sxi, sal: sal, P: P, D: D, m: m, xi: xi, grp: grp, ok: ok, allOk: allOk, nsv: nsv, nfree: nfree, nbound: nbound, viol: viol, err: err };
+  }
+
+  /* ---------- the three scenarios, and the hard margin of level 1 for reference ---------- */
+  var CS = { small: 0.1, medium: 1, large: 10 }, KEYS = ["small", "medium", "large"];
+  var SC = {};
+  KEYS.forEach(function (key) {
+    var S = smo(CS[key], true), tr = S.tr, amax = 0;
+    tr.A.forEach(function (a) { for (var q = 0; q < N; q++) amax = Math.max(amax, a[q]); });
+    S.aref = amax;                                  // the full height of a bar in the strip
+    S.boxOn = S.C <= amax * 1.02;                  // is the bound C inside the strip?
+    S.order = X.map(function (p, i) { return i; }).sort(function (p, q) {   // strip order: along the final w
+      return (S.w[0] * X[p][0] + S.w[1] * X[p][1]) - (S.w[0] * X[q][0] + S.w[1] * X[q][1]) || p - q;
+    });
+    S.col = []; S.order.forEach(function (i, c) { S.col[i] = c; });
+    S.K3 = Math.min(S.it, 6);                       // steps shown one by one in chapter 3
+    S.PMAX = tr.P.reduce(function (a, v) { return Math.max(a, v); }, 0);
+    // the zoom window of chapter 4 around the optimum
+    // (a camera zoom onto the meeting point: the window is set by the gap a little after chapter 3)
+    var km = Math.min(S.it, S.K3 + Math.round((S.it - S.K3) * 0.12)), gm = tr.PB[km] - tr.D[km], opt = S.D;
+    var half = Math.max(1.5 * gm, 0.012 * opt);
+    S.zoom = S.it > S.K3;
+    S.zlo = opt - half; S.zhi = opt + 1.6 * half;
+    SC[key] = S;
+  });
+  var HARD = smo(Infinity, false);
+  var state = { sc: "medium" };
+
+  /* =====================================================================================
+     "See it in motion". Every number is computed above; the timing, the order of the bars,
+     the threads of chapter 1 and the label positions are illustrative.
+     ===================================================================================== */
+  var A_ = window.Anim, E = A_.ease, seg = A_.seg, lerp = A_.lerp, clamp = A_.clamp;
+  var root = document.getElementById("svmd-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("svmd-hud");
+  var cv = A_.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);
+  var DUR = 57, CH = [0, 8, 17, 29, 40, 49];
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var TAU = Math.PI * 2;
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [128, 128, 128];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  function isDark() { var s = rgbOf(C.surface); return s[0] + s[1] + s[2] < 300; }
+
+  /* ---------- time model ---------- */
+  var T_DROP = [0.3, 3.0], T_STRIP = [2.8, 3.5], T_THR = [3.4, 6.2], T_CHART = [6.4, 7.4];
+  var T_HM = [8.5, 9.4, 11.4], T_BOX = 12.4, T_HMOUT = [15.4, 16.6];
+  var T_S3 = [17.5, 28.3], T_ZOOM = [28.9, 30.4], T_S4 = [30.2, 38.2], T_MEET = 38.4;
+  var T_GRP = [40.3, 41.5], T_ALAB = [42.0, 42.8], T_GHOST = [49.3, 50.3], T_REB = [50.6, 52.6];
+  function kap(t) {                               // where SMO is at time t: step k going to k + 1, eased progress s
+    var S = SC[state.sc], n = S.it, K3 = S.K3, x;
+    if (t < T_S3[0]) x = 0;
+    else if (t < T_S3[1]) x = (t - T_S3[0]) / (T_S3[1] - T_S3[0]) * K3;
+    else if (t < T_S4[0]) x = K3;
+    else x = K3 + (n - K3) * E.inOut(seg(t, T_S4[0], T_S4[1]));
+    x = Math.min(x, n);
+    var k = Math.min(Math.floor(x), n), u = x - k;
+    if (k >= n) { k = n; u = 0; }
+    var s = u > 0 ? E.inOut(seg(u, 0.3, 0.8)) : 0;
+    var hl = u > 0 ? seg(u, 0, 0.12) * (1 - seg(u, 0.88, 1)) : 0;
+    var fast = t >= T_S4[0];
+    return { k: k, u: u, s: s, hl: hl, kh: Math.min(n, k + (u >= 0.8 ? 1 : 0)), fast: fast };
+  }
+  function alphaAt(S, K, i) { var a = S.tr.A[K.k][i]; return K.s > 0 ? lerp(a, S.tr.A[K.k + 1][i], K.s) : a; }
+  function streetAt(S, K) {                      // the street of the current multipliers (w linear in a; b interpolated)
+    var tr = S.tr, w = tr.W[K.k], b = tr.B[K.k];
+    if (K.s > 0) { var w2 = tr.W[K.k + 1]; w = [lerp(w[0], w2[0], K.s), lerp(w[1], w2[1], K.s)]; b = lerp(b, tr.B[K.k + 1], K.s); }
+    if (K.k >= S.it) { w = S.w; b = S.b; }
+    return streetOf(w, b);
+  }
+  var GX = MX, GY = MY;
+  function streetOf(w, b) {
+    var nw = Math.hypot(w[0], w[1]);
+    if (nw < 1e-9) return null;
+    var nx = w[0] / nw, ny = w[1] / nw, d = -b / nw, s = nx * GX + ny * GY - d;
+    return { th: Math.atan2(ny, nx), px: GX - s * nx, py: GY - s * ny, h: 1 / nw };
+  }
+
+  /* ---------- layout ---------- */
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  var WB = { x0: 12.4, x1: 20.0, y0: 65.4, y1: 75.4 };   // the data box of level 1 (model units)
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) {
+      L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx;
+      L.fs = 11; L.ft = 13.5; L.lw = 2; L.r = 3.8; L.tick = 9.5;
+    } else {
+      L.capX = hx; L.capY = hy + hh + 26; L.capW = hw;
+      L.fs = 11.5; L.ft = 16; L.lw = 2.5; L.r = Math.max(4.2, Math.min(6, H / 98)); L.tick = 10.5;
+    }
+    var tl = 1, sl = 1, keep = state.sc;
+    KEYS.forEach(function (key) {
+      state.sc = key;
+      CH.forEach(function (c) {
+        var cap = captions(c + 0.1);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    state.sc = keep;
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    var padL = portrait ? 28 : 40, padB = portrait ? 28 : 36, padT = portrait ? 18 : 22, padR = 8;
+    var bw = WB.x1 - WB.x0, bh = WB.y1 - WB.y0, hs, area;
+    if (portrait) {
+      hs = clamp(H * 0.12, 44, 62);
+      L.S = { x0: 8, x1: W - 8, y0: H - 8 - hs, y1: H - 8 };
+      area = { x0: 8, x1: W - 8, y0: L.capBottom + 6, y1: L.S.y0 - 8 };
+    } else {
+      hs = clamp(H * 0.15, 56, 92);
+      L.S = { x0: hx + hw + 24, x1: W - 12, y0: H - 12 - hs, y1: H - 12 };
+      area = { x0: hx + hw + 24, x1: W - 12, y0: 12, y1: L.S.y0 - 10 };
+    }
+    L.HMR = area;                                  // the region of the heatmap in chapter 2
+    // the chart: in the left column when it has room, else to the right of the plot
+    var leftH = H - 12 - (L.capBottom + 14);
+    L.chartRight = portrait || leftH < 150;
+    L.K = (area.y1 - area.y0 - padB - padT) / bh;
+    if (L.chartRight) {
+      var minChart = portrait ? 118 : 150;
+      L.K = Math.min(L.K, (area.x1 - area.x0 - minChart - 10 - padL - padR) / bw);
+      var pw = padL + padR + bw * L.K;
+      L.x0 = area.x0; L.x1 = area.x0 + pw; L.y0 = area.y0; L.y1 = area.y1;
+      L.G = { x0: L.x1 + 10, x1: area.x1, y0: area.y0, y1: area.y1 };
+    } else {
+      L.K = Math.min(L.K, (area.x1 - area.x0 - padL - padR) / bw);
+      L.x0 = area.x0; L.x1 = area.x1; L.y0 = area.y0; L.y1 = area.y1;
+      L.G = { x0: hx, x1: hx + hw, y0: L.capBottom + 14, y1: H - 12 };
+    }
+    var cx = (L.x0 + padL + L.x1 - padR) / 2, cy = (L.y0 + padT + L.y1 - padB) / 2;
+    L.ox = cx - (WB.x0 + WB.x1) / 2 * L.K; L.oy = cy + (WB.y0 + WB.y1) / 2 * L.K;
+    hudKey = W + "x" + H + ":" + hh + ":" + hw;
+  }
+  function SX(x) { return L.ox + x * L.K; }
+  function SY(y) { return L.oy - y * L.K; }
+  function WX(Xp) { return (Xp - L.ox) / L.K; }
+  function WY(Yp) { return (L.oy - Yp) / L.K; }
+
+  /* ---------- geometry (as in level 1) ---------- */
+  function rectPoly() {
+    return [[WX(L.x0), WY(L.y1)], [WX(L.x1), WY(L.y1)], [WX(L.x1), WY(L.y0)], [WX(L.x0), WY(L.y0)]];
+  }
+  function clipHalf(poly, nx, ny, d, sign) {
+    var out = [];
+    for (var i = 0; i < poly.length; i++) {
+      var P = poly[i], Q = poly[(i + 1) % poly.length];
+      var da = sign * (nx * P[0] + ny * P[1] - d), db = sign * (nx * Q[0] + ny * Q[1] - d);
+      if (da <= 0) out.push(P);
+      if ((da < 0 && db > 0) || (da > 0 && db < 0)) { var u = da / (da - db); out.push([P[0] + u * (Q[0] - P[0]), P[1] + u * (Q[1] - P[1])]); }
+    }
+    return out;
+  }
+  function lineSeg(nx, ny, d) {
+    var R = { x0: WX(L.x0), x1: WX(L.x1), y0: WY(L.y1), y1: WY(L.y0) };
+    var fx = nx * d, fy = ny * d, dx = -ny, dy = nx, t0 = -1e4, t1 = 1e4;
+    function edge(pp, qq) {
+      if (Math.abs(pp) < 1e-12) return qq >= 0;
+      var r = qq / pp;
+      if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      return true;
+    }
+    if (!edge(-dx, fx - R.x0) || !edge(dx, R.x1 - fx) || !edge(-dy, fy - R.y0) || !edge(dy, R.y1 - fy)) return null;
+    return [fx + t0 * dx, fy + t0 * dy, fx + t1 * dx, fy + t1 * dy];
+  }
+  function stN(st) { var nx = Math.cos(st.th), ny = Math.sin(st.th); return { nx: nx, ny: ny, d: nx * st.px + ny * st.py, h: st.h }; }
+  function polyPath(poly) {
+    ctx.beginPath();
+    poly.forEach(function (P, i) { if (i) ctx.lineTo(SX(P[0]), SY(P[1])); else ctx.moveTo(SX(P[0]), SY(P[1])); });
+    ctx.closePath();
+  }
+  function circle(Xp, Yp, r) { ctx.beginPath(); ctx.arc(Xp, Yp, Math.max(0, r), 0, TAU); }
+  function label(txt, Xp, Yp, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, Xp, Yp);
+    ctx.fillStyle = col; ctx.fillText(txt, Xp, Yp);
+    ctx.globalAlpha = 1;
+  }
+  function tw(txt, f) { ctx.font = f; return ctx.measureText(txt).width; }
+  function drawLine(nx, ny, d, col, lw, a, dash, u) {
+    if (a <= 0.01) return;
+    var s = lineSeg(nx, ny, d);
+    if (!s) return;
+    if (s[1] > s[3]) s = [s[2], s[3], s[0], s[1]];
+    var e = u == null ? 1 : u;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+    ctx.beginPath(); ctx.moveTo(SX(s[0]), SY(s[1])); ctx.lineTo(SX(lerp(s[0], s[2], e)), SY(lerp(s[1], s[3], e))); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  function drawStreet(st, a, u) {
+    if (!st || a <= 0.01) return;
+    var S = stN(st), band = clipHalf(clipHalf(rectPoly(), S.nx, S.ny, S.d + S.h, 1), S.nx, S.ny, S.d - S.h, -1);
+    var e = u == null ? 1 : u;
+    if (band.length > 2) { polyPath(band); ctx.globalAlpha = a * e * (isDark() ? 0.13 : 0.08); ctx.fillStyle = C.accent; ctx.fill(); ctx.globalAlpha = 1; }
+    drawLine(S.nx, S.ny, S.d + S.h, C.accent, 1.5, a * 0.95, [6, 5], e);
+    drawLine(S.nx, S.ny, S.d - S.h, C.accent, 1.5, a * 0.95, [6, 5], e);
+    drawLine(S.nx, S.ny, S.d, C.accent, L.lw + 0.5, a, null, e);
+  }
+
+  /* ---------- axes of the scatter ---------- */
+  function drawAxes(t, a0) {
+    var a = E.out(seg(t, 0.05, 1.2)) * a0;
+    if (a <= 0.01) return;
+    var x, y, fs = L.tick;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0); ctx.clip();
+    ctx.globalAlpha = a; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    for (x = Math.ceil(WX(L.x0)); x <= WX(L.x1); x++) { ctx.beginPath(); ctx.moveTo(SX(x), L.y0); ctx.lineTo(SX(x), L.y1); ctx.stroke(); }
+    for (y = Math.ceil(WY(L.y1)); y <= WY(L.y0); y++) { ctx.beginPath(); ctx.moveTo(L.x0, SY(y)); ctx.lineTo(L.x1, SY(y)); ctx.stroke(); }
+    ctx.restore();
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.strokeStyle = C.surface; ctx.lineWidth = 3; ctx.lineJoin = "round";
+    var step = L.K < 34 ? 2 : 1, yb = L.y1 - 6, xl = L.x0 + 5;
+    ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+    var xstep = L.K < 24 ? 4 : 2;                  // x labels every 200 m, or 400 m on small plots
+    for (x = Math.ceil(WX(L.x0 + 30)); x <= WX(L.x1 - 16); x++) {
+      if (x % xstep) continue;
+      var s = intFmt(x * 100); ctx.strokeText(s, SX(x), yb); ctx.fillText(s, SX(x), yb);
+    }
+    ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    for (y = Math.ceil(WY(L.y1 - 28)); y <= WY(L.y0 + 24); y++) {
+      if (y % step) continue;
+      var s2 = intFmt(y * 10); ctx.strokeText(s2, xl, SY(y)); ctx.fillText(s2, xl, SY(y));
+    }
+    ctx.restore();
+    label(T("svmd.l.xaxis"), L.x1 - 6, L.y1 - 8 - fs - 8, "right", C.ink2, font(600, fs + 0.5), a);
+    label(T("svmd.l.yaxis"), L.x0 + 5, L.y0 + 10, "left", C.ink2, font(600, fs + 0.5), a);
+  }
+
+  /* ---------- lots ---------- */
+  function dropU(i, t) { var t0 = T_DROP[0] + i / N * (T_DROP[1] - T_DROP[0] - 0.7); return seg(t, t0, t0 + 0.7); }
+  function lotPos(i, t) {
+    var p = X[i], u = dropU(i, t), Xp = SX(p[0]), Yp = SY(p[1]);
+    if (u < 1) Yp -= 26 * (1 - E.out(u));
+    return [Xp, Yp, u];
+  }
+  function drawLot(i, Xp, Yp, a, col, r) {
+    r = r || L.r;
+    ctx.globalAlpha = a;
+    if (Y[i] > 0) { ctx.fillStyle = col; circle(Xp, Yp, r); ctx.fill(); }
+    else {
+      var s = r * 0.92;
+      ctx.fillStyle = C.surface; ctx.fillRect(Xp - s, Yp - s, 2 * s, 2 * s);
+      ctx.strokeStyle = col; ctx.lineWidth = r < 3 ? 1.3 : 1.8; ctx.strokeRect(Xp - s, Yp - s, 2 * s, 2 * s);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function pulse(Xp, Yp, t, t0, col, r0) {
+    var u = seg(t, t0, t0 + 0.9);
+    if (u <= 0 || u >= 1) return;
+    ctx.globalAlpha = 0.8 * (1 - u); ctx.strokeStyle = col; ctx.lineWidth = 2;
+    circle(Xp, Yp, r0 + 16 * E.out(u)); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  function haloR(S, a) { return L.r + 2.5 + L.r * (L.portrait ? 2.0 : 2.4) * Math.sqrt(Math.max(0, a) / S.aref); }
+  function slackSeg(i, st, a) {                   // from a lot to the edge of its own side of the street
+    if (!st || a <= 0.01) return;
+    var S = stN(st), p = X[i], y = Y[i], m = y * (S.nx * p[0] + S.ny * p[1] - S.d) / S.h;
+    if (m >= 1 - 1e-9) return;
+    var len = (1 - m) * S.h, qx = p[0] + y * S.nx * len, qy = p[1] + y * S.ny * len;
+    var X0 = SX(p[0]), Y0 = SY(p[1]), X1 = SX(qx), Y1 = SY(qy), L2 = Math.hypot(X1 - X0, Y1 - Y0);
+    if (L2 < 1) return;
+    var ux = (X1 - X0) / L2, uy = (Y1 - Y0) / L2;
+    ctx.globalAlpha = a; ctx.strokeStyle = HOT; ctx.lineWidth = 2.2; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(X0 + ux * (L.r + 1), Y0 + uy * (L.r + 1)); ctx.lineTo(X1, Y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X1 - uy * 5, Y1 + ux * 5); ctx.lineTo(X1 + uy * 5, Y1 - ux * 5); ctx.stroke();
+    ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+  }
+
+  /* ---------- the strip of multipliers ---------- */
+  function stripGeo() {
+    var R = L.S, cw = (R.x1 - R.x0 - 22) / N, gy = R.y1 - 7, base = gy - (L.portrait ? 8 : 10), top = R.y0 + (L.portrait ? 12 : 16);
+    return { R: R, cw: cw, x0: R.x0 + 22, gy: gy, base: base, top: top, hmax: base - top };
+  }
+  function colX(g, c) { return g.x0 + (c + 0.5) * g.cw; }
+  function drawStrip(t, S, K, grpA, pairIJ, pairA) {
+    var a = seg(t, T_STRIP[0], T_STRIP[1]);
+    if (a <= 0.01) return;
+    var g = stripGeo(), R = g.R, i, c;
+    ctx.save(); ctx.globalAlpha = a;
+    // frame: baseline, the top line (C when it is inside the scale), the symbol
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(g.x0 - 2, g.base + 0.5); ctx.lineTo(R.x1, g.base + 0.5); ctx.stroke();
+    ctx.restore();
+    label("α", R.x0 + 4, (g.base + g.top) / 2, "left", C.ink2, font(700, L.portrait ? 13 : 15), a);
+    var boxA = a * seg(t, T_BOX, T_BOX + 0.8);
+    if (boxA > 0.01) {
+      ctx.globalAlpha = boxA; ctx.strokeStyle = S.boxOn ? HOT : C["mit-silver"]; ctx.lineWidth = 1.3; ctx.setLineDash([5, 4]);
+      ctx.beginPath(); ctx.moveTo(g.x0 - 2, g.top + 0.5); ctx.lineTo(R.x1, g.top + 0.5); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+      var lt = S.boxOn ? T("svmd.l.boxC", { c: cFmt(S.C) }) : T("svmd.l.amax", { v: fmt(S.aref, 2) });
+      label(lt, R.x1 - 2, g.top - (L.portrait ? 6 : 7), "right", S.boxOn ? HOT : C.muted, font(700, L.portrait ? 10 : 11), boxA);
+    }
+    var bw = Math.max(2, Math.min(g.cw * 0.62, 18));
+    for (c = 0; c < N; c++) {
+      i = S.order[c];
+      var xc = colX(g, c), al = alphaAt(S, K, i), h = g.hmax * al / S.aref;
+      var col = C.ink, ga = 1;
+      if (grpA > 0) {
+        var gr = S.grp[i], gc = gr === 0 ? C["mit-silver"] : gr === 1 ? C.accent : HOT;
+        col = gr === 0 ? C.ink : gc; ga = gr === 0 ? 1 - 0.55 * grpA : 1;
+        if (grpA < 1 && gr > 0) col = gc;
+      }
+      var inPair = pairIJ && (pairIJ[0] === i || pairIJ[1] === i);
+      // the slot: a faint tick, so a zero multiplier still has a place
+      ctx.globalAlpha = a * 0.5 * ga; ctx.fillStyle = C.grid; ctx.fillRect(xc - bw / 2, g.top, bw, g.hmax); ctx.globalAlpha = 1;
+      if (h > 0.4) {
+        ctx.globalAlpha = a * ga; ctx.fillStyle = inPair && pairA > 0 ? HOT : col;
+        ctx.fillRect(xc - bw / 2, g.base - h, bw, h); ctx.globalAlpha = 1;
+      }
+      if (inPair && pairA > 0.01) {
+        ctx.globalAlpha = a * pairA; ctx.strokeStyle = HOT; ctx.lineWidth = 1.6;
+        ctx.strokeRect(xc - bw / 2 - 2.5, g.top - 2.5, bw + 5, g.hmax + 5); ctx.globalAlpha = 1;
+      }
+      drawLot(i, xc, g.gy, a * ga, C.ink, L.portrait ? 2.4 : 3);
+    }
+  }
+
+  /* ---------- the chart: dual value and best primal value, step by step ---------- */
+  function chartGeo() {
+    var R = L.G, padL = L.portrait ? 6 : 8, padT = L.portrait ? 22 : 26, padB = L.portrait ? 16 : 18, padR = L.portrait ? 8 : 10;
+    return { R: R, x0: R.x0 + padL, x1: R.x1 - padR, y0: R.y0 + padT, y1: R.y1 - padB };
+  }
+  function xsc(S, k) { return Math.log(1 + k / 2) / Math.log(1 + Math.max(1, S.it) / 2); }
+  function ysc(S, v, z) {
+    var yl = Math.log10(1 + Math.max(0, v)) / Math.log10(1 + S.PMAX);
+    var yz = (v - S.zlo) / (S.zhi - S.zlo);
+    return lerp(yl, yz, z);
+  }
+  function drawChart(t, S, K, a) {
+    if (a <= 0.01) return;
+    var g = chartGeo(), R = g.R, z = S.zoom ? E.inOut(seg(t, T_ZOOM[0], T_ZOOM[1])) : 0;
+    var PX = function (k) { return g.x0 + (g.x1 - g.x0) * xsc(S, k); };
+    var PY = function (v) { return g.y1 - (g.y1 - g.y0) * ysc(S, v, z); };
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.surface; ctx.fillRect(R.x0, R.y0, R.x1 - R.x0, R.y1 - R.y0);
+    ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.strokeRect(R.x0 + 0.5, R.y0 + 0.5, R.x1 - R.x0 - 1, R.y1 - R.y0 - 1);
+    ctx.restore();
+    label(T("svmd.l.chart"), R.x0 + 8, R.y0 + (L.portrait ? 11 : 13), "left", C.ink, font(700, L.portrait ? 10.5 : 12), a);
+    // x ticks: SMO steps on a compressed scale
+    var fs = L.portrait ? 9 : 10, ticks = [0, 1, 5, 20, 100].filter(function (k) { return k < S.it; }).concat([S.it]), lastR = -1e9;
+    ctx.save(); ctx.globalAlpha = a; ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    // the last tick (the number of steps of this run) is always labelled; a middle tick is skipped when it would touch a neighbour
+    var wEnd = ctx.measureText(intFmt(S.it)).width, endL = clamp(PX(S.it), g.x0 + wEnd / 2, g.x1 - wEnd / 2) - wEnd / 2;
+    ticks.forEach(function (k, q) {
+      var xk = PX(k), w = ctx.measureText(intFmt(k)).width, xl = clamp(xk, g.x0 + w / 2, g.x1 - w / 2);
+      if (q < ticks.length - 1 && (xl - w / 2 < lastR + 6 || xl + w / 2 > endL - 6)) return;
+      ctx.fillText(intFmt(k), xl, g.y1 + 3); lastR = xl + w / 2;
+      ctx.fillStyle = C.grid; ctx.fillRect(xk - 0.5, g.y0, 1, g.y1 - g.y0); ctx.fillStyle = C.muted;
+    });
+    ctx.restore();
+    // y reference lines: 1, 10, 100 on the first scale; the optimum after the zoom
+    ctx.save(); ctx.beginPath(); ctx.rect(g.x0, g.y0 - 2, g.x1 - g.x0, g.y1 - g.y0 + 4); ctx.clip();
+    [1, 10, 100].forEach(function (v) {
+      if (v > S.PMAX) return;
+      var yv = PY(v), la = a * (1 - z);
+      if (la <= 0.01 || yv < g.y0 || yv > g.y1) return;
+      ctx.globalAlpha = la; ctx.fillStyle = C.grid; ctx.fillRect(g.x0, yv - 0.5, g.x1 - g.x0, 1); ctx.globalAlpha = 1;
+      label(intFmt(v), g.x0 + 3, yv - 6, "left", C.muted, font(400, fs, true), la);
+    });
+    var kd = K.k + K.s, kmax = Math.min(S.it, Math.ceil(kd));
+    function curve(arr, col, lw, al, step) {
+      ctx.globalAlpha = al; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineJoin = "round";
+      ctx.beginPath(); ctx.moveTo(PX(0), PY(arr[0]));
+      for (var k = 1; k <= kmax; k++) {
+        var kk = Math.min(k, kd), v = k <= kd ? arr[k] : lerp(arr[k - 1], arr[k], kd - (k - 1));
+        if (step) ctx.lineTo(PX(kk), PY(arr[k - 1]));
+        ctx.lineTo(PX(kk), PY(v));
+      }
+      ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    var tr = S.tr;
+    // the gap between the best primal and the dual, shaded
+    ctx.globalAlpha = a * (isDark() ? 0.16 : 0.1); ctx.fillStyle = C.accent; ctx.beginPath();
+    ctx.moveTo(PX(0), PY(tr.PB[0]));
+    for (var k1 = 1; k1 <= kmax; k1++) { var kk1 = Math.min(k1, kd); ctx.lineTo(PX(kk1), PY(tr.PB[k1 - 1])); ctx.lineTo(PX(kk1), PY(k1 <= kd ? tr.PB[k1] : tr.PB[k1 - 1])); }
+    for (var k2 = kmax; k2 >= 0; k2--) { var kk2 = Math.min(k2, kd); ctx.lineTo(PX(kk2), PY(k2 <= kd ? tr.D[k2] : lerp(tr.D[k2 - 1], tr.D[k2], kd - (k2 - 1)))); }
+    ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+    curve(tr.P, C["mit-silver"], 1, a * 0.9, false);
+    curve(tr.PB, C.ink, 2, a, true);
+    curve(tr.D, C.accent, 2.6, a, false);
+    ctx.restore();
+    // pens and labels at the current step
+    var kh = K.kh, xe = PX(kd), yP = PY(tr.PB[kh]), yD = PY(K.s > 0 ? lerp(tr.D[K.k], tr.D[Math.min(S.it, K.k + 1)], K.s) : tr.D[K.k]);
+    yP = clamp(yP, g.y0, g.y1); yD = clamp(yD, g.y0, g.y1);
+    ctx.globalAlpha = a; ctx.fillStyle = C.ink; circle(xe, yP, 3); ctx.fill(); ctx.fillStyle = C.accent; circle(xe, yD, 3.4); ctx.fill(); ctx.globalAlpha = 1;
+    var met = t >= T_MEET && kh >= S.it, lf = font(700, L.portrait ? 10 : 11);
+    if (met) {
+      var ma = a * seg(t, T_MEET, T_MEET + 0.6);
+      pulse(xe, yD, t, T_MEET, C.accent, 4);
+      var ml = T("svmd.l.meet", { v: fmt(S.D, 3) }), mw = tw(ml, lf), mx = Math.max(g.x0 + 2, xe - 8 - mw), my = Math.max(g.y0 + 8, yD - 15), mh = L.portrait ? 10 : 11;
+      ctx.globalAlpha = ma; ctx.fillStyle = C.surface; ctx.fillRect(mx - 3, my - mh / 2 - 3, mw + 6, mh + 6); ctx.globalAlpha = 1;
+      label(ml, mx, my, "left", C["accent-text"], lf, ma);
+      label(T("svmd.l.primal"), xe - 6, yP - 9, "right", C.ink, lf, a * (1 - seg(t, T_MEET, T_MEET + 0.4)));
+    } else {
+      var lp = T("svmd.l.primal"), ld = T("svmd.l.dual"), sep = Math.abs(yP - yD) < 16;
+      var lx = xe + 7, al = "left";
+      if (lx + Math.max(tw(lp, lf), tw(ld, lf)) > g.x1 + 8) { lx = xe - 7; al = "right"; }
+      label(lp, lx, sep ? Math.min(yP, yD) - 8 : yP, al, C.ink, lf, a);
+      label(ld, lx, sep ? Math.max(yP, yD) + 8 : yD, al, C["accent-text"], lf, a);
+    }
+  }
+
+  /* ---------- the Gram matrix of chapter 2 ---------- */
+  function drawHeat(t, S, hA) {
+    if (hA <= 0.01) return;
+    var R = L.HMR, top = L.portrait ? 18 : 26, side = Math.min(R.x1 - R.x0 - 16, R.y1 - R.y0 - top - 18);
+    var cs = Math.floor(side / N), sz = cs * N, x0 = Math.round((R.x0 + R.x1 - sz) / 2), y0 = Math.round(R.y0 + top + (R.y1 - R.y0 - top - sz) / 2);
+    var out = seg(t, T_HMOUT[0], T_HMOUT[1]), sc = 1 - 0.35 * E.inOut(out), cxm = x0 + sz / 2, cym = y0 + sz / 2;
+    ctx.save();
+    ctx.globalAlpha = hA; ctx.fillStyle = C.surface; ctx.fillRect(R.x0, R.y0, R.x1 - R.x0, R.y1 - R.y0); ctx.globalAlpha = 1;
+    ctx.translate(cxm, cym); ctx.scale(sc, sc); ctx.translate(-cxm, -cym);
+    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) {
+      var i = S.order[r], j = S.order[c], v = KG[i][j] / KMAX;
+      var t0 = T_HM[1] + (r + c) / (2 * N - 2) * (T_HM[2] - T_HM[1]), u = E.out(seg(t, t0, t0 + 0.35));
+      if (u <= 0) continue;
+      var s = (cs - 1) * u, xc = x0 + c * cs + cs / 2, yc = y0 + r * cs + cs / 2;
+      ctx.globalAlpha = hA * (0.12 + 0.88 * Math.min(1, Math.abs(v) * 1.15));
+      ctx.fillStyle = v >= 0 ? C.accent : C.ink;
+      ctx.fillRect(xc - s / 2, yc - s / 2, s, s);
+    }
+    ctx.globalAlpha = hA; ctx.strokeStyle = C.axis; ctx.lineWidth = 1; ctx.strokeRect(x0 - 0.5, y0 - 0.5, sz + 1, sz + 1);
+    ctx.restore();
+    var la = hA * seg(t, T_HM[1] + 0.4, T_HM[1] + 1.1) * (1 - out);
+    var f = font(700, L.portrait ? 12 : 14), ttl = T("svmd.l.gram");
+    label(ttl, x0, y0 - (L.portrait ? 9 : 12), "left", C.ink, f, la);
+    // the sign key: + in red, - in ink
+    var kx = x0 + tw(ttl, f) + 14, ky = y0 - (L.portrait ? 9 : 12), q = L.portrait ? 8 : 10, kf = font(600, L.portrait ? 10 : 11);
+    ctx.globalAlpha = la; ctx.fillStyle = C.accent; ctx.fillRect(kx, ky - q / 2, q, q); ctx.globalAlpha = 1;
+    label(T("svmd.l.pos"), kx + q + 4, ky, "left", C.ink2, kf, la);
+    kx += q + 10 + tw(T("svmd.l.pos"), kf) + 10;
+    ctx.globalAlpha = la; ctx.fillStyle = C.ink; ctx.fillRect(kx, ky - q / 2, q, q); ctx.globalAlpha = 1;
+    label(T("svmd.l.neg"), kx + q + 4, ky, "left", C.ink2, kf, la);
+  }
+
+  /* ---------- labels of the multipliers beside the support vectors ---------- */
+  function drawAlphaLabels(t, S, a) {
+    if (a <= 0.01) return;
+    var f = font(700, L.portrait ? 10 : 11.5), fh = L.portrait ? 10 : 11.5, placed = [], i, q;
+    var pts = X.map(function (p) { return [SX(p[0]), SY(p[1])]; });
+    var ids = []; for (i = 0; i < N; i++) if (S.grp[i] > 0) ids.push(i);
+    ids.forEach(function (i) {
+      // a multiplier at the bound is labelled C, the others with their value
+      var txt = S.grp[i] === 2 ? "C" : fmt(S.alpha[i], 3), w = tw(txt, f), P = pts[i], rr = haloR(S, S.alpha[i]) + 3, cands = [];
+      [1, 1.8, 2.8].forEach(function (k) {
+        var r = rr * k;
+        cands.push([r, -fh / 2 - 1], [r, fh / 2 + 1], [-r - w, -fh / 2 - 1], [-r - w, fh / 2 + 1], [-w / 2, -r - fh / 2], [-w / 2, r + fh / 2], [r, 0], [-r - w, 0]);
+      });
+      var pick = null;
+      for (q = 0; q < cands.length && !pick; q++) {
+        var lx = P[0] + cands[q][0], ly = P[1] + cands[q][1], hit = lx < L.x0 + 2 || lx + w > L.x1 - 2 || ly - fh / 2 < L.y0 || ly + fh / 2 > L.y1;
+        for (var j = 0; j < N && !hit; j++) {
+          if (j === i) continue;
+          var Q = pts[j], r2 = (S.grp[j] > 0 ? haloR(S, S.alpha[j]) : L.r) + 1;
+          if (Q[0] > lx - r2 && Q[0] < lx + w + r2 && Q[1] > ly - fh / 2 - r2 && Q[1] < ly + fh / 2 + r2) hit = true;
+        }
+        for (var k = 0; k < placed.length && !hit; k++) {
+          var o = placed[k];
+          if (lx < o[0] + o[2] + 3 && lx + w + 3 > o[0] && Math.abs(ly - o[1]) < fh + 1) hit = true;
+        }
+        if (!hit) pick = [lx, ly, w];
+      }
+      if (!pick) pick = [P[0] + rr, P[1] - fh / 2 - 1, w];
+      placed.push(pick);
+      label(txt, pick[0], pick[1], "left", S.grp[i] === 2 ? HOT : C["accent-text"], f, a);
+    });
+  }
+
+  /* ---------- caption ---------- */
+  function captions(t) {
+    var S = SC[state.sc];
+    if (t < CH[1]) return [T("svmd.cap1", { n: N }), T("svmd.cap1.sub")];
+    if (t < CH[2]) return [T("svmd.cap2"), T("svmd.cap2.sub", { m: intFmt(N * N) })];
+    if (t < CH[3]) return [T("svmd.cap3"), T("svmd.cap3.sub")];
+    if (t < CH[4]) return [T("svmd.cap4", { n: S.it }), T("svmd.cap4.sub", { d: fmt(S.D, 3) })];
+    if (t < CH[5]) return [T("svmd.cap5", { s: S.nsv, n: N }), T("svmd.cap5.sub", { z: N - S.nsv, f: S.nfree, b: S.nbound })];
+    return [T("svmd.cap6", { s: S.nsv }), T("svmd.cap6.sub", { w: fmt(S.width), o: fmt(S.D, 3) })];
+  }
+  function drawCaption(t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) {
+    var el = document.getElementById("svmd-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("hot", kind === "hot"); c.k = kind; }
+  }
+  function svVal(nsv, nb) { return T("svmd.svv", { s: nsv, b: nb }); }
+  function hud(t, S, K) {
+    var tr = S.tr, kh = K.kh, a0 = seg(t, 1.0, 1.6), a1 = seg(t, 1.3, 1.9), a2 = seg(t, T_CHART[0], T_CHART[1]);
+    var gap = Math.max(0, tr.PB[kh] - tr.D[kh]), done = kh >= S.it;
+    setChip(0, T("svmd.of", { a: kh, b: S.it }), T("svmd.k.step"), a0, "");
+    setChip(1, fmt(tr.D[kh], 3), T("svmd.k.dual"), a1, "acc");
+    setChip(2, fmt(tr.PB[kh], 3), T("svmd.k.primal"), a1, "");
+    setChip(3, gapFmt(gap), T("svmd.k.gap"), a2, done && t >= T_MEET ? "acc" : "");
+    setChip(4, svVal(tr.NSV[kh], tr.NB[kh]), T("svmd.k.sv"), a2, "");
+    if (t < CH[2]) setChip(5, intFmt(N * N), T("svmd.k.dots"), seg(t, T_HM[1], T_HM[1] + 0.5), "");
+    else if (t < CH[4]) {
+      var p = K.k < S.it ? S.tr.pair[K.k] : null;
+      setChip(5, p ? T("svmd.pairv", { i: p[0] + 1, j: p[1] + 1 }) : T("svmd.k.none"), T("svmd.k.pair"), 1, p ? "hot" : "");
+    } else setChip(5, fmt(S.width), T("svmd.k.width"), 1, "acc");
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A_.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var S = SC[state.sc], K = kap(t);
+    hud(t, S, K);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    var hA = seg(t, T_HM[0], T_HM[1]) * (1 - seg(t, T_HMOUT[0] + 0.5, T_HMOUT[1]));
+    var scat = 1 - 0.9 * hA;
+    drawAxes(t, scat);
+
+    var grpA = seg(t, T_GRP[0], T_GRP[1]), ghost = seg(t, T_GHOST[0], T_GHOST[1]);
+    var smoOn = t >= T_S3[0], i, P;
+    var pair = smoOn && K.k < S.it ? S.tr.pair[K.k] : null;
+    var pairA = pair ? K.hl * (K.fast ? 0.55 : 1) : 0;
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0); ctx.clip();
+    /* the street of the current multipliers; in chapter 6 it is drawn again from the support vectors */
+    var st = smoOn ? streetAt(S, K) : null;
+    if (st) {
+      var reb = seg(t, T_GHOST[1] - 0.3, T_REB[0]), uu = t >= T_REB[0] ? E.inOut(seg(t, T_REB[0], T_REB[1])) : 1;
+      var sa = scat * (t < T_REB[0] ? 1 - reb : 1);
+      drawStreet(st, sa, t >= T_REB[0] ? uu : null);
+    }
+    /* the pair of this step: a dashed link */
+    if (pair && pairA > 0.01) {
+      var p1 = lotPos(pair[0], t), p2 = lotPos(pair[1], t);
+      ctx.globalAlpha = pairA * scat; ctx.strokeStyle = HOT; ctx.lineWidth = 1.8; ctx.setLineDash([5, 4]);
+      ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+    /* halos: the size of each multiplier */
+    if (smoOn) for (i = 0; i < N; i++) {
+      var al = alphaAt(S, K, i);
+      if (al <= 1e-12) continue;
+      P = lotPos(i, t);
+      var gr = S.grp[i], hc = grpA > 0 && gr === 2 ? HOT : C.accent, ha = scat * (1 - 0.35 * ghost * (gr === 0 ? 1 : 0));
+      ctx.globalAlpha = ha * (isDark() ? 0.26 : 0.18); ctx.fillStyle = hc; circle(P[0], P[1], haloR(S, al)); ctx.fill();
+      ctx.globalAlpha = ha * 0.55; ctx.strokeStyle = hc; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    /* the lots */
+    for (i = 0; i < N; i++) {
+      P = lotPos(i, t);
+      if (P[2] <= 0) continue;
+      var a = seg(P[2], 0, 0.35) * scat;
+      if (S.grp[i] === 0) a *= 1 - 0.55 * grpA - 0.27 * ghost;
+      drawLot(i, P[0], P[1], a, C.ink);
+    }
+    /* chapter 5: the KKT groups: rings on the edges (0 < a < C), dashed rings and slack at the bound (a = C) */
+    if (grpA > 0) {
+      for (i = 0; i < N; i++) if (S.grp[i] === 2) slackSeg(i, st, grpA * scat);
+      for (i = 0; i < N; i++) {
+        if (S.grp[i] === 0) continue;
+        P = lotPos(i, t);
+        var rr = haloR(S, S.alpha[i]) + 1;
+        ctx.globalAlpha = grpA; ctx.strokeStyle = S.grp[i] === 1 ? C.accent : HOT; ctx.lineWidth = 2; ctx.setLineDash(S.grp[i] === 2 ? [3, 2.5] : []);
+        circle(P[0], P[1], rr); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+        pulse(P[0], P[1], t, T_GRP[0] + 0.12 * i / N * 4, S.grp[i] === 1 ? C.accent : HOT, rr);
+        if (t >= T_REB[0]) pulse(P[0], P[1], t, T_REB[0] + 0.25 * (i % 4), C.accent, rr);
+      }
+    }
+    /* the pair: rings and lot numbers */
+    if (pair && pairA > 0.01) pair.forEach(function (j) {
+      var Q = lotPos(j, t), rq = haloR(S, alphaAt(S, K, j)) + 2;
+      ctx.globalAlpha = pairA; ctx.strokeStyle = HOT; ctx.lineWidth = 2.2; circle(Q[0], Q[1], rq); ctx.stroke(); ctx.globalAlpha = 1;
+      if (!K.fast) label("#" + (j + 1), Q[0] + rq + 3, Q[1] - rq, "left", HOT, font(700, L.portrait ? 10 : 11.5), pairA);
+    });
+    drawAlphaLabels(t, S, seg(t, T_ALAB[0], T_ALAB[1]));
+    ctx.restore();
+
+    /* chapter 1: threads from each lot to its slot in the strip */
+    if (t >= T_THR[0] && t < T_THR[1] + 1.2) {
+      var g = stripGeo(), fa = 1 - seg(t, T_THR[1] + 0.4, T_THR[1] + 1.2);
+      for (i = 0; i < N; i++) {
+        var c = S.col[i], t0 = T_THR[0] + c / N * (T_THR[1] - T_THR[0] - 0.8), u = seg(t, t0, t0 + 0.8);
+        if (u <= 0) continue;
+        P = lotPos(i, t);
+        var ex = colX(g, c), ey = g.base, mx = (P[0] + ex) / 2 + (ex - P[0]) * 0.15, my = Math.max(P[1], ey) - 0.35 * Math.abs(ey - P[1]);
+        var e = E.inOut(u), bz = function (s) { var q = 1 - s; return [q * q * P[0] + 2 * q * s * mx + s * s * ex, q * q * P[1] + 2 * q * s * my + s * s * ey]; };
+        ctx.lineWidth = 1.2; ctx.strokeStyle = C.accent;
+        for (var sgm = 0; sgm < 12; sgm++) {
+          var s0 = e * sgm / 12, s1 = e * (sgm + 1) / 12, A0 = bz(s0), A1 = bz(s1);
+          ctx.globalAlpha = fa * 0.55 * (0.2 + 0.8 * (sgm + 1) / 12);
+          ctx.beginPath(); ctx.moveTo(A0[0], A0[1]); ctx.lineTo(A1[0], A1[1]); ctx.stroke();
+        }
+        var hd = bz(e);
+        ctx.globalAlpha = fa * (u < 1 ? 1 : 0.6); ctx.fillStyle = C.accent; circle(hd[0], hd[1], 2.6); ctx.fill(); ctx.globalAlpha = 1;
+        if (u >= 1) pulse(ex, ey, t, t0 + 0.8, C.accent, 3);
+      }
+    }
+    /* the strip and the chart */
+    drawStrip(t, S, K, grpA, pair, pairA);
+    var chA = seg(t, T_CHART[0], T_CHART[1]) * (L.chartRight ? 1 - hA : 1);
+    drawChart(t, S, K, chA);
+    drawHeat(t, S, hA);
+    drawCaption(t);
+  }
+
+  layout();
+  var player = A_.create({
+    root: root,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "svmd.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text: status line, data, solution, comparison, lots, notes
+     ===================================================================================== */
+  function grpName(g) { return T(["svmd.grp.zero", "svmd.grp.free", "svmd.grp.bound"][g]); }
+  function renderSeg() {
+    document.querySelectorAll("#svmd-seg button").forEach(function (b) {
+      var key = b.getAttribute("data-sc");
+      b.textContent = T("svmd.sc." + key, { c: cFmt(CS[key]) });
+    });
+  }
+  function renderScenText() {
+    var S = SC[state.sc];
+    var v = { c: cFmt(S.C), n: S.it, s: S.nsv, f: S.nfree, b: S.nbound, w: fmt(S.width), o: fmt(S.D, 3) };
+    stage.setAttribute("aria-label", T("svmd.anim.aria") + " " + T("svmd.anim.aria.nums", v));
+    document.getElementById("svmd-status").innerHTML = T("svmd.st", v);
+  }
+  function renderData() {
+    document.getElementById("svmd-data").innerHTML = T("svmd.data.p", {
+      n: N, k: NPER, seed: SEED, ma: intFmt(CLOUD.spec.m[0] * 100), md: intFmt(CLOUD.spec.m[1] * 10), sa: intFmt(CLOUD.std.m[0] * 100), sd: intFmt(CLOUD.std.m[1] * 10),
+      ea: intFmt(CLOUD.sd[0] * 100), ed: intFmt(CLOUD.sd[1] * 10), mx: intFmt(MX * 100), my: fmt(MY * 10, 1)
+    });
+  }
+  function fx(S, tex) {                             // f(x) = w1 x1 + w2 x2 + b as text
+    var sp = " ", m = tex ? "-" : MINUS, x1 = tex ? "\\,x_1" : " x₁", x2 = tex ? "\\,x_2" : " x₂";
+    return (tex ? texNum : num)(S.w[0], 3) + x1 + sp + (S.w[1] < 0 ? m : "+") + sp + fmt(Math.abs(S.w[1]), 3) + x2 + sp + (S.b < 0 ? m : "+") + sp + fmt(Math.abs(S.b), 3);
+  }
+  function renderSolution() {
+    var S = SC[state.sc];
+    document.getElementById("svmd-sol-title").textContent = T("svmd.sol.title", { c: cFmt(S.C) });
+    document.getElementById("svmd-sn").textContent = String(S.it);
+    document.getElementById("svmd-snl").textContent = T("svmd.sol.stepsl", { g: "10" + sup(Math.round(Math.log10(EPS))) });
+    document.getElementById("svmd-sval").textContent = fmt(S.D, 3);
+    document.getElementById("svmd-svall").textContent = T("svmd.sol.vall", { g: gapFmt(Math.max(0, S.P - S.D)) });
+    document.getElementById("svmd-ssv").textContent = String(S.nsv);
+    document.getElementById("svmd-ssvl").textContent = T("svmd.sol.svl", { f: S.nfree, b: S.nbound, z: N - S.nsv });
+    document.getElementById("svmd-swd").textContent = fmt(S.width, 3);
+    document.getElementById("svmd-swdl").textContent = T("svmd.sol.widthl", { w1: num(S.w[0], 3), w2: num(S.w[1], 3), b: num(S.b, 3) });
+    document.getElementById("svmd-sol-p").innerHTML = T("svmd.sol.p", { n: N, it: S.it, s: S.nsv });
+    var v = { f: fx(S, true), w1: texNum(S.w[0], 3), w2: texNum(S.w[1], 3), s: S.s0 + 1, bs: texNum(S.bs, 3), a: texNum(S.sal, 3), h: texNum(S.half, 3), d: texNum(S.D, 3),
+      c: cFmt(S.C), x: texNum(S.sxi, 3), o: texNum(S.P, 3), k: S.nsv };
+    var vp = { f: fx(S, false), w1: num(S.w[0], 3), w2: num(S.w[1], 3), s: S.s0 + 1, bs: num(S.bs, 3), a: num(S.sal, 3), h: num(S.half, 3), d: num(S.D, 3),
+      c: cFmt(S.C), x: num(S.sxi, 3), o: num(S.P, 3), k: S.nsv };
+    TeX.set(document.getElementById("svmd-inst"), T("svmd.inst.tex", v), T("svmd.inst.formula", vp));
+    document.getElementById("svmd-sol-q").innerHTML = T("svmd.sol.q", {
+      g: gapFmt(Math.max(0, S.P - S.D)), ok: T(S.allOk ? "svmd.sol.allok" : "svmd.sol.notok"), e: S.err, v: S.viol
+    });
+  }
+  function renderCompare() {
+    var h = "<thead><tr><th class='rowh'>C</th><th class='num'>" + T("svmd.cmp.steps") + "</th><th class='num'>" + T("svmd.cmp.sv") + "</th><th class='num wide'>" +
+      T("svmd.cmp.free") + "</th><th class='num wide'>" + T("svmd.cmp.bound") + "</th><th class='num'>" + T("svmd.cmp.width") + "</th><th class='num wide'>Σα</th><th class='num'>" +
+      T("svmd.cmp.val") + "</th><th class='num'>" + T("svmd.cmp.err") + "</th></tr></thead><tbody>";
+    KEYS.forEach(function (key) {
+      var s = SC[key];
+      h += "<tr" + (key === state.sc ? " class='on'" : "") + "><td class='rowh'>" + cFmt(s.C) + "</td><td class='num'>" + s.it + "</td><td class='num'>" + s.nsv +
+        "</td><td class='num wide'>" + s.nfree + "</td><td class='num wide" + (s.nbound ? " hot" : "") + "'>" + s.nbound + "</td><td class='num acc'>" + fmt(s.width, 3) +
+        "</td><td class='num wide'>" + fmt(s.sal, 3) + "</td><td class='num'>" + fmt(s.D, 3) + "</td><td class='num" + (s.err ? " hot" : "") + "'>" + s.err + "</td></tr>";
+    });
+    document.getElementById("svmd-cmp").innerHTML = h + "</tbody>";
+    var a = SC.small, c = SC.large;
+    document.getElementById("svmd-cmp-note").textContent = T("svmd.cmp.note", {
+      c0: cFmt(a.C), c1: cFmt(c.C), n0: a.it, n1: c.it, b0: a.nbound, s0: a.nsv, s1: c.nsv, b1: c.nbound, w1: fmt(c.width, 3), hw: fmt(HARD.width, 3), hs: HARD.nsv
+    });
+  }
+  function renderLots() {
+    var S = SC[state.sc];
+    document.getElementById("svmd-lots-title").textContent = T("svmd.lots.title", { n: N, c: cFmt(S.C) });
+    document.getElementById("svmd-lots-p").textContent = T("svmd.lots.p", { c: cFmt(S.C) });
+    var h = "<thead><tr><th class='num'>#</th><th class='num wide'>" + T("svmd.lots.alt") + "</th><th class='num wide'>" + T("svmd.lots.den") + "</th><th class='rowh'>" +
+      T("svmd.lots.cls") + "</th><th class='num'>α</th><th class='num'>y f(x)</th><th class='num wide'>ξ</th><th class='rowh'>" + T("svmd.lots.grp") + "</th><th class='rowh'>" +
+      T("svmd.lots.kkt") + "</th></tr></thead><tbody>";
+    var order = X.map(function (p, i) { return i; }).sort(function (p, q) { return S.m[p] - S.m[q] || p - q; });
+    order.forEach(function (i) {
+      var g = S.grp[i], cls = g === 1 ? " acc" : g === 2 ? " hot" : " dim";
+      h += "<tr><td class='num'>" + (i + 1) + "</td><td class='num wide'>" + intFmt(X[i][0] * 100) + "</td><td class='num wide'>" + intFmt(X[i][1] * 10) +
+        "</td><td class='rowh'>" + T(Y[i] > 0 ? "svmd.cls.spec" : "svmd.cls.std") + "</td><td class='num" + (g ? cls : "") + "'>" + fmt(S.alpha[i], 3) + "</td><td class='num'>" +
+        num(S.m[i], 3) + "</td><td class='num wide'>" + fmt(S.xi[i], 3) + "</td><td class='rowh" + cls + "'>" + grpName(g) + "</td><td class='rowh'>" +
+        T(S.ok[i] ? "svmd.lots.yes" : "svmd.lots.no") + "</td></tr>";
+    });
+    document.getElementById("svmd-lots").innerHTML = h + "</tbody>";
+  }
+  function renderNotes() {
+    var S = SC[state.sc], a = SC.small, c = SC.large;
+    document.getElementById("svmd-n1").innerHTML = T("svmd.n.p1", { c0: cFmt(a.C), n0: a.it, b0: a.nbound, c1: cFmt(c.C), n1: c.it });
+    document.getElementById("svmd-n2").innerHTML = T("svmd.n.p2", { c: cFmt(S.C), o: fmt(S.D, 3) });
+    document.getElementById("svmd-n3").innerHTML = T("svmd.n.p3", {
+      c: cFmt(S.C), z: N - S.nsv, f: S.nfree, b: S.nbound, s: S.nsv, c1: cFmt(c.C), b1: c.nbound, w1: fmt(c.width, 3), hw: fmt(HARD.width, 3)
+    });
+    document.getElementById("svmd-n4").innerHTML = T("svmd.n.p4", { m: intFmt(N * N), s: S.nsv });
+  }
+
+  var segBtns = document.querySelectorAll("#svmd-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (state.sc === b.getAttribute("data-sc")) return;
+      state.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderScenText(); renderSolution(); renderCompare(); renderLots(); renderNotes();
+      hudKey = "";
+      if (A_.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[2]) player.refresh();
+      else { player.seek(CH[2] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderSeg(); renderScenText(); renderData(); renderSolution(); renderCompare(); renderLots(); renderNotes();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

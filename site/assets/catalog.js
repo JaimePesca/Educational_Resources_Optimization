@@ -102,14 +102,17 @@ window.CATALOG = {
     { id: "ml-opt" }
   ],
 
-  // Hidden proposals lab (lab/index.html), in display order. Ideas only: no href, nothing is built.
+  // Hidden proposals lab (lab/index.html), in display order. An entry with href is built and its card opens the page.
   lab: [
     { id: "lab-solver", type: "animation", href: "lab/inside-the-solver.html" },
     { id: "lab-cvar", type: "animation", href: "lab/beyond-var.html" },
     { id: "lab-linearization", type: "animation", href: "lab/linearizing-markets.html" },
     { id: "lab-ml-methods", type: "animation", href: "lab/learning-is-optimizing.html" },
     { id: "lab-svm", type: "animation", href: "lab/widest-street.html" },
-    { id: "lab-ml-ai-cases", type: "simulation", href: "lab/ml-ai-optimization.html" }
+    { id: "lab-svm-dual", type: "animation", href: "lab/dual-street.html" },
+    { id: "lab-svm-kernel", type: "animation", href: "lab/kernel-trick.html" },
+    { id: "lab-ml-ai-cases", type: "simulation", href: "lab/ml-ai-optimization.html" },
+    { id: "lab-fahp", type: "simulation", href: "lab/fuzzy-ahp.html" }
   ],
   // true adds a "Lab" link to the home page's top menu; false keeps the lab reachable only by its door
   labInNav: false
