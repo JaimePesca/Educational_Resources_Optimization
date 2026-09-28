@@ -6,6 +6,8 @@
   "use strict";
   var AUTHOR = "Jaime Pesca";
   var SITE = "https://jaimepesca.com";
+  var me = document.currentScript;
+  var ABOUT = new URL("../about.html", me ? me.src : location.href).href; // about.html at the site root
 
   var footer = document.createElement("footer");
   footer.className = "site-footer";
@@ -14,7 +16,9 @@
     '<p class="site-author"><span class="sf-by"></span> ' +
     '<a href="' + SITE + '" target="_blank" rel="noopener author">' + AUTHOR + '</a>' +
     '<span class="sf-sep" aria-hidden="true"> · </span>' +
-    '<a class="sf-domain" href="' + SITE + '" target="_blank" rel="noopener">jaimepesca.com ↗</a></p>' +
+    '<a class="sf-domain" href="' + SITE + '" target="_blank" rel="noopener">jaimepesca.com ↗</a>' +
+    '<span class="sf-sep" aria-hidden="true"> · </span>' +
+    '<a class="sf-about" href="' + ABOUT + '" data-keep-lang></a></p>' +
     '<p class="site-copy">© <span class="sf-year"></span> ' + AUTHOR + '. <span class="sf-rights"></span></p>' +
     "</div>";
 
@@ -34,6 +38,10 @@
   function render() {
     footer.querySelector(".sf-by").textContent = I18N.t("footer.by");
     footer.querySelector(".sf-rights").textContent = I18N.t("footer.rights");
+    var about = footer.querySelector(".sf-about");
+    about.textContent = I18N.t("footer.about");
+    if (!about.dataset.baseHref) about.dataset.baseHref = ABOUT;
+    about.setAttribute("href", I18N.href(about.dataset.baseHref));
     footer.querySelector(".sf-year").textContent = String(new Date().getFullYear());
     renderFurther();
   }

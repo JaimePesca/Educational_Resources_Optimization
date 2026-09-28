@@ -87,10 +87,22 @@ def main():
     type_label = {k[len("type."):]: v for k, v in D.items() if k.startswith("type.")}
 
     files = subprocess.run(["git", "ls-files", "*.html"], cwd=ROOT, capture_output=True, text=True).stdout.split()
+    # facts from the author's CV (materials/cv) and the citations of the research pages; profile urls the owner adds
+    # to PROFILES in site/about.html go to sameAs here too
     person = {
         "@type": "Person", "@id": PERSON_ID, "name": "Jaime Pesca",
         "alternateName": ["Jaime Enrique Pesca Santos", "J. E. Pesca Santos"],
-        "url": "https://jaimepesca.com", "sameAs": ["https://github.com/JaimePesca"]
+        "url": "https://jaimepesca.com", "sameAs": ["https://github.com/JaimePesca"],
+        "mainEntityOfPage": BASE + "about.html",
+        "jobTitle": "Lecturer in optimization methods",
+        "worksFor": {"@type": "CollegeOrUniversity", "name": "Universidad Externado de Colombia"},
+        "alumniOf": {"@type": "CollegeOrUniversity", "name": "Universidad de La Sabana"},
+        "memberOf": [{"@type": "Organization", "name": "The OR Society"},
+                     {"@type": "Organization", "name": "Colombian Association of Operations Research (ASOCIO)"}],
+        "knowsAbout": ["Operations research", "Mathematical optimization", "Mixed-integer linear programming", "Mixed-integer nonlinear programming",
+                       "Combinatorial optimization", "Heuristics and metaheuristics", "Facility location", "Discrete choice models",
+                       "Fuzzy AHP", "Multi-criteria decision analysis", "Stochastic programming", "Logistics and supply chain", "Machine learning"],
+        "knowsLanguage": ["en", "es"]
     }
     course_id = BASE + "#course"
     website_id = BASE + "#website"
@@ -152,6 +164,8 @@ def main():
         elif rel in edu_by_href:
             kind, entity = "resource", edu_by_href[rel]
             desc_key = "resource." + entity["id"] + ".summary"
+        elif rel == "about.html":
+            kind, desc_key = "about", "ab.desc"
         elif rel in res_by_href:
             kind, entity = "research", res_by_href[rel]
             desc_key = "project." + entity["id"] + ".summary"
@@ -179,7 +193,7 @@ def main():
         changes.append("hreflang alternates en, es, pt, fr (?lang=xx) and x-default (English); canonical per language added by assets/i18n.js")
         # Open Graph + Twitter
         og = [
-            ('property', 'og:type', "article" if kind == "research" else "website"),
+            ('property', 'og:type', {"research": "article", "about": "profile"}.get(kind, "website")),
             ('property', 'og:site_name', SITE_NAME),
             ('property', 'og:title', title),
             ('property', 'og:description', desc),
@@ -239,6 +253,14 @@ def main():
                     {"@type": "ListItem", "position": 2, "name": D["resource.%s.title" % r["id"]], "item": url}]}
             ]
             changes.append("JSON-LD: LearningResource (type, level, topics, languages, free, author, part of the Course), Person, BreadcrumbList")
+        elif kind == "about":
+            graph = [
+                {"@type": "ProfilePage", "@id": url, "url": url, "name": title, "description": desc, "inLanguage": in_lang,
+                 "mainEntity": {"@id": PERSON_ID}, "about": {"@id": PERSON_ID},
+                 "isPartOf": {"@type": "WebSite", "@id": website_id, "name": SITE_NAME, "url": BASE}},
+                person
+            ]
+            changes.append("JSON-LD: ProfilePage whose main entity is the Person (job, university, education, memberships, topics, profiles)")
         else:
             p = entity
             cite = D["r.%s.cite" % p["id"]]

@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://learn-optimization.jaimepesca.com/about.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://learn-optimization.jaimepesca.com/about.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://learn-optimization.jaimepesca.com/about.html?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://learn-optimization.jaimepesca.com/about.html?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://learn-optimization.jaimepesca.com/about.html?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://learn-optimization.jaimepesca.com/about.html"/>
+  </url>
+  <url>
+    <loc>https://learn-optimization.jaimepesca.com/about.html?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://learn-optimization.jaimepesca.com/about.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://learn-optimization.jaimepesca.com/about.html?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://learn-optimization.jaimepesca.com/about.html?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://learn-optimization.jaimepesca.com/about.html?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://learn-optimization.jaimepesca.com/about.html"/>
+  </url>
+  <url>
+    <loc>https://learn-optimization.jaimepesca.com/about.html?lang=pt</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://learn-optimization.jaimepesca.com/about.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://learn-optimization.jaimepesca.com/about.html?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://learn-optimization.jaimepesca.com/about.html?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://learn-optimization.jaimepesca.com/about.html?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://learn-optimization.jaimepesca.com/about.html"/>
+  </url>
+  <url>
+    <loc>https://learn-optimization.jaimepesca.com/about.html?lang=fr</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://learn-optimization.jaimepesca.com/about.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://learn-optimization.jaimepesca.com/about.html?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://learn-optimization.jaimepesca.com/about.html?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://learn-optimization.jaimepesca.com/about.html?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://learn-optimization.jaimepesca.com/about.html"/>
+  </url>
+  <url>
     <loc>https://learn-optimization.jaimepesca.com/compacta/</loc>
     <lastmod>2026-09-28</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://learn-optimization.jaimepesca.com/compacta/"/>

@@ -14,6 +14,7 @@ I18N.register("fr", {
   "nav.animation": "Voir en mouvement",
   "footer.by": "Créé par",
   "footer.rights": "Tous droits réservés.",
+  "footer.about": "À propos de l'auteur",
   "ref.further": "Pour aller plus loin",
   "ref.section": "section {n}",
   "ref.orma": "Petropoulos, F., Laporte, G., et al. (2024). Operational Research: methods and applications. <i>Journal of the Operational Research Society</i>, 75(3), 423-617, {sec}. <a href=\"https://doi.org/10.1080/01605682.2023.2253852\" target=\"_blank\" rel=\"noopener\">doi:10.1080/01605682.2023.2253852</a>.",
