@@ -288,3 +288,14 @@ Probado en el navegador leyendo `window.dataLayer`: los cuatro eventos con sus p
 Para verlos en los informes: en GA4, Administrar, Definiciones personalizadas, crea dimensiones personalizadas con alcance de evento para `link_location`, `page_language`, `resource_id`, `level` y `language` (sin eso los eventos se cuentan, pero sus parámetros solo se ven en DebugView y en Exploraciones). Para probar en vivo: Administrar, DebugView, con la extensión Google Analytics Debugger activada en tu navegador. Si quieres, marca `resource_open` como evento clave (conversión).
 
 Nota: `resource_open` cuenta las aperturas desde el propio sitio. Quien llega a un recurso desde Google u otro sitio queda registrado como `page_view` de esa página, que GA4 ya mide solo.
+
+## 9. Investigación en revisión e ícono del sitio (2026-09-28)
+
+**Páginas de investigación en revisión o en preparación** (mercados campesinos, incendios forestales, estibas; nanotiendas ya está publicado y no cambia):
+- Sin título exacto ni autores: la cita dice "Documento de trabajo en revisión por pares / en preparación; el título y los autores aparecerán aquí cuando el artículo se publique", en los cuatro idiomas. La nota al pie ya no repite el título ni los apellidos. "Sobre el autor" usa las mismas citas, así que también quedó anónimo.
+- Mercados: se quitó el enlace al repositorio de código (su nombre es el título del artículo) y la mención al "repositorio público del estudio".
+- Estibas: "un cultivador integrado verticalmente, con fincas en Colombia, Ecuador y Kenia" pasó a "un exportador de flores".
+- Ocultas de los buscadores (`noindex`): sin descripción, hreflang, tarjetas sociales ni datos ScholarlyArticle, fuera de `sitemap.xml` (ahora 208 URL) y de la lista de investigación en los datos estructurados del inicio. Siguen visibles y enlazadas en el sitio para quien navega.
+- Cómo deshacerlo cuando cada artículo sea aceptado: `materials/under-review.md`.
+
+**Ícono del sitio como imagen** (antes era un SVG incrustado en cada página): `favicon.ico` (16, 32 y 48 px), `favicon.svg` (la "x*" convertida en trazos, sin depender de fuentes), `apple-touch-icon.png` (180 px, acceso directo en iPhone y iPad), `icon-192.png` y `icon-512.png` con `site.webmanifest` (acceso directo en Android, también como ícono adaptable). Todo en la raíz del sitio y enlazado desde las 67 páginas y la plantilla.

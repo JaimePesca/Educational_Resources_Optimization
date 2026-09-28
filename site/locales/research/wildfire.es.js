@@ -6,7 +6,7 @@ I18N.register("es", {
   "r.wildfire.eyebrow": "Caso de investigación 3 · Cundinamarca, Colombia",
   "r.wildfire.h1": "Extinción de incendios forestales",
   "r.wildfire.lede": "Colombia está comprando helicópteros Firehawk para combatir incendios forestales. ¿Dónde deberían quedar sus bases y en qué lagos y embalses deberían recargar agua, todo con un único presupuesto y sin saber qué días de incendio vendrán? Un helicóptero vuela una sola vez desde su base hasta el incendio y luego va y viene entre el incendio y un punto de agua en cada descarga, así que los puntos de agua importan tanto como las bases.",
-  "r.wildfire.cite": "<b>The Cycle-Constrained Aerial Suppression Base and Water Point Location Problem: Joint Siting under Uncertainty with an Application to Cundinamarca, Colombia.</b> Jaime Enrique Pesca Santos y Kiana Hikaru Ysa Morla. Documento de trabajo.",
+  "r.wildfire.cite": "<b>Documento de trabajo en revisión por pares.</b> El título y los autores aparecerán aquí cuando el artículo se publique.",
 
   /* ---- el caso real ---- */
   "r.wildfire.case.h": "El caso real",
@@ -185,5 +185,5 @@ I18N.register("es", {
   "r.wildfire.anim.lg.route": "Ruta del Firehawk",
   "r.wildfire.anim.lg.pop": "Población cercana",
 
-  "r.wildfire.note": "Datos y resultados del manuscrito \"The Cycle-Constrained Aerial Suppression Base and Water Point Location Problem\" (Pesca Santos y Ysa Morla, documento de trabajo). Las cifras reproducen el estudio con fines ilustrativos; consulta el artículo para ver el análisis completo."
+  "r.wildfire.note": "Datos y resultados de un documento de trabajo en revisión por pares. Las figuras reproducen el estudio con fines ilustrativos."
 }, "research/wildfire");

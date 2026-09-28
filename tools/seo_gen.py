@@ -78,6 +78,14 @@ def esc(s):
     return s.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def hidden(rel):
+    # a page with a robots noindex meta (hidden lab, research under review) stays out of lists and the sitemap
+    try:
+        return re.search(r'<meta name="robots" content="[^"]*noindex', open(os.path.join(ROOT, rel), encoding="utf-8").read()) is not None
+    except OSError:
+        return False
+
+
 def main():
     data = load_en()
     D, C = data["dict"], data["catalog"]
@@ -234,7 +242,7 @@ def main():
                  "syllabusSections": lv, "hasPart": parts},
                 {"@type": "ItemList", "name": D["nav.research"], "itemListElement": [
                     {"@type": "ListItem", "position": i + 1, "url": page_url(r["href"]), "name": D["project.%s.title" % r["id"]]}
-                    for i, r in enumerate([r for r in C["research"] if r.get("href")])]}
+                    for i, r in enumerate([r for r in C["research"] if r.get("href") and not hidden(r["href"])])]}
             ]
             changes.append("JSON-LD: WebSite, Person (author), Course (the five-level learning path with its levels and resources), ItemList of research cases")
         elif kind == "resource":

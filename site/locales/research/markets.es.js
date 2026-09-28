@@ -6,7 +6,7 @@ I18N.register("es", {
   "r.markets.eyebrow": "Caso de investigación 2 · Localidad de Bosa, Bogotá, Colombia",
   "r.markets.h1": "Localización de mercados campesinos",
   "r.markets.lede": "Los <em>Mercados Campesinos</em> de Bogotá son mercados de un día al aire libre, organizados y subsidiados por la Secretaría de Desarrollo Económico de la ciudad, donde pequeños productores de la región venden alimentos frescos directamente en parques públicos. En Bosa, una localidad densa, de bajos ingresos y con pocos puntos de venta de alimentos frescos, ¿qué parques deberían recibirlos y en qué días de la semana? El estudio elige sitios y días que captan la mayor demanda de frutas y verduras de hogares que también pueden comprar en fruvers y supermercados, y a la vez favorece los parques que los criterios de planeación urbana califican como idóneos.",
-  "r.markets.cite": "<b>Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP.</b> Jaime Pesca, Gonzalo Mejía y Edgar Gutiérrez-Franco. Documento de trabajo.",
+  "r.markets.cite": "<b>Documento de trabajo en revisión por pares.</b> El título y los autores aparecerán aquí cuando el artículo se publique.",
   "r.markets.repo": "Repositorio público de código y datos",
 
   /* el caso real */
@@ -120,7 +120,7 @@ I18N.register("es", {
   "r.markets.map.parkTip": "Parque candidato {n}",
   "r.markets.map.openTip": "ST{n}: abierto los días {days}",
   "r.markets.map.compTip": "Gran competidor",
-  "r.markets.map.note": "Esquemático: longitud y latitud proyectadas a kilómetros, sin mapa de fondo. Coordenadas del repositorio público del estudio; los números ST coinciden con la Figura 5.",
+  "r.markets.map.note": "Esquemático: longitud y latitud proyectadas a kilómetros, sin mapa de fondo. Coordenadas de los datos del estudio; los números ST coinciden con la Figura 5.",
   "r.markets.rules.h": "Reglas de programación, verificadas contra el cronograma",
   "r.markets.rule.total": "Exactamente M_d = 10 días de mercado en la semana (17): {v}",
   "r.markets.rule.weekday": "Exactamente el 40% de ellos entre semana, 0,4 × 10 = 4 (20): {v}",
@@ -190,7 +190,7 @@ I18N.register("es", {
   "r.markets.find.4": "<b>El momento importa tanto como el lugar.</b> Llevar la demanda al 60% en fines de semana sube la demanda captada a 76.059 kg; repartirla por igual en la semana la baja a 54.651 kg.",
   "r.markets.find.5": "<b>El cronograma se apoya en los fines de semana, pero usa días entre semana.</b> Seis de los diez días de mercado del caso base caen en sábado y domingo, como en la práctica actual de la ciudad, mientras que de martes a jueves se hacen los otros cuatro. A cerca de COP 4 millones (USD 1.000) por evento, diez mercados cuestan COP 40 millones a la semana.",
 
-  "r.markets.note": "Datos y resultados del manuscrito \"Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP\" (Pesca, Mejía y Gutiérrez-Franco, documento de trabajo); coordenadas de parques y competidores del mapa esquemático tomadas del repositorio público de los autores. Las cifras reproducen el estudio con fines ilustrativos; consulta el artículo para ver el análisis completo.",
+  "r.markets.note": "Datos y resultados de un documento de trabajo en revisión por pares. Las figuras reproducen el estudio con fines ilustrativos.",
 
   "r.markets.day.0": "Lun",
   "r.markets.day.1": "Mar",

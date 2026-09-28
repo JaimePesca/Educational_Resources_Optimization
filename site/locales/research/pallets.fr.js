@@ -6,11 +6,11 @@ I18N.register("fr", {
   "r.pallets.eyebrow": "Cas de recherche 4 · De Bogotá (El Dorado) à Miami",
   "r.pallets.h1": "Optimisation de la configuration des palettes",
   "r.pallets.lede": "Un exportateur de fleurs paie un prix fixe pour un Airbus A330-200F entier : chaque kilogramme laissé au sol augmente le coût de chaque carton qui vole. Quels cartons placer sur chacune des 32 positions de palettes, et les opérateurs peuvent-ils réellement les empiler à mesure qu'ils sortent du convoyeur, dans un ordre que personne ne contrôle ? L'étude planifie l'affectation par programmation en nombres entiers, simule l'empilement par bin packing 3D en ligne, et réinjecte dans le plan ce qui peut réellement être empilé.",
-  "r.pallets.cite": "<b>A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight: Integer Programming for Allocation and Online Bin Packing for Placement.</b> Jaime Pesca, Daynor Yamil Bautista Conde, Edgar Gutierrez-Franco et Christopher Mejia-Argueta. Document de travail.",
+  "r.pallets.cite": "<b>Document de travail en préparation.</b> Le titre et les auteurs apparaîtront ici après la publication de l'article.",
 
   /* ---- le cas réel ---- */
   "r.pallets.case.h": "Le cas réel",
-  "r.pallets.case.intro": "Lors des pics de demande (Saint-Valentin, fête des Mères), un producteur verticalement intégré, avec des exploitations en Colombie, en Équateur et au Kenya, affrète un A330-200F complet de l'aéroport El Dorado de Bogotá à Miami. Au terminal, les cartons arrivent sur le convoyeur de palettisation dans l'ordre de déchargement des camions, le personnel de la compagnie aérienne les empile à la main, et un carton empilé n'est plus retiré. L'instance est un manifeste historique d'affrètement.",
+  "r.pallets.case.intro": "Lors des pics de demande (Saint-Valentin, fête des Mères), un exportateur de fleurs affrète un A330-200F complet de l'aéroport El Dorado de Bogotá à Miami. Au terminal, les cartons arrivent sur le convoyeur de palettisation dans l'ordre de déchargement des camions, le personnel de la compagnie aérienne les empile à la main, et un carton empilé n'est plus retiré. L'instance est un manifeste historique d'affrètement.",
   "r.pallets.stat.boxes.v": "8 500",
   "r.pallets.stat.boxes.l": "cartons sur le manifeste historique d'affrètement",
   "r.pallets.stat.types.v": "35 / 45",
@@ -171,7 +171,7 @@ I18N.register("fr", {
   "r.pallets.find.4": "<b>L'étape 1 garantit l'admissibilité.</b> Charger le flux brut sans elle donne en moyenne 68 583 kg, au-delà de la charge utile de 65 000 kg dans chaque exécution auditée, avec 7,7 positions au-dessus de leur limite de poids.",
   "r.pallets.find.5": "<b>La composition l'emporte sur le séquencement.</b> Pénaliser les palettes mixtes porte le placement de 92,1 % à 97,2 % au prix de 6 cartons, tandis que contrôler l'ordre d'arrivée rapporte au plus 1,4 point.",
 
-  "r.pallets.note": "Données et résultats issus du manuscrit « A Two-Stage Decision Support Model for Cut Flower Palletisation in Full Charter Air Freight » (document de travail). Les figures reproduisent l'étude à titre d'illustration ; consultez l'article pour l'analyse complète.",
+  "r.pallets.note": "Données et résultats d'un document de travail en préparation. Les figures reproduisent l'étude à titre d'illustration.",
 
   /* ---- animation ---- */
   "r.pallets.anim.intro": "Toute l'étude en moins d'une minute : le manifeste, le plan, l'aire de chargement et la boucle qui comble l'écart.",
