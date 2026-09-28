@@ -353,9 +353,9 @@
         for (k = 0; k < n; k++) { var apk = rp[k], aqk = rq[k]; rp[k] = c * apk - s * aqk; rq[k] = s * apk + c * aqk; }
       }
     }
-    var m = Infinity;
-    for (p = 0; p < n; p++) m = Math.min(m, A[p][p]);
-    return m;
+    var m = Infinity, M = -Infinity;
+    for (p = 0; p < n; p++) { m = Math.min(m, A[p][p]); M = Math.max(M, A[p][p]); }
+    return { min: m, max: M };
   }
 
   /* ---------- one trained model: SMO on the Gram matrix, then every figure the page shows ---------- */
@@ -1135,7 +1135,14 @@
      Page text: status line, data, solution, the check, comparison, notes
      ===================================================================================== */
   function sup(k) { return String(k).split("").map(function (ch) { return "⁰¹²³⁴⁵⁶⁷⁸⁹"[+ch] || (ch === "-" ? "⁻" : ch); }).join(""); }
-  function eigOf(M) { if (M.eig === null) M.eig = minEig(M.K); return M.eig; }
+  function eigOf(M) {                             // the smallest eigenvalue, as text: 0 below rounding level
+    if (M.eig === null) M.eig = minEig(M.K);
+    var v = M.eig.min;
+    if (Math.abs(v) < 1e-12 * M.eig.max) return fmt(0, 0);
+    if (Math.abs(v) >= 1e-3) return num(v, 4);
+    var e = Math.floor(Math.log10(Math.abs(v))), m = v / Math.pow(10, e);
+    return (v < 0 ? MINUS : "") + I18N.fmt(Math.abs(m), 1, 1) + " × 10" + sup(e);
+  }
   function renderSeg() {
     document.querySelectorAll("#kern-seg button").forEach(function (b) {
       var key = b.getAttribute("data-sc");
@@ -1168,7 +1175,7 @@
     document.getElementById("kern-sobj").textContent = fmt(M.dual, 3);
     document.getElementById("kern-sobjl").textContent = T("kern.sol.objl", { p: fmt(M.primal, 3) });
     document.getElementById("kern-sol-p").innerHTML = T("kern.sol.p", {
-      it: M.it, g: "10" + sup(Math.round(Math.log10(EPS))), n: N, nn: intFmt(N * N), e: num(eigOf(M), 4), gm: gFmt(GAM[state.sc])
+      it: M.it, g: "10" + sup(Math.round(Math.log10(EPS))), n: N, nn: intFmt(N * N), e: eigOf(M), gm: gFmt(GAM[state.sc])
     });
     var v = { a: texNum(M.sal, 3), h: texNum(M.half, 3), d: texNum(M.dual, 3), c: intFmt(CPEN), x: texNum(M.sxi, 3), p: texNum(M.primal, 3) };
     var vp = { a: num(M.sal, 3), h: num(M.half, 3), d: num(M.dual, 3), c: intFmt(CPEN), x: num(M.sxi, 3), p: num(M.primal, 3) };
@@ -1179,9 +1186,10 @@
     document.getElementById("kern-chk-p").innerHTML = T("kern.chk.p", {
       i: PI_ + 1, j: PJ + 1, mi: fmt(X0[0], 1), Ti: fmt(X0[1], 1), mj: fmt(X1[0], 1), Tj: fmt(X1[1], 1)
     });
-    var vec = function (a, tex) { return "(" + a.map(function (q) { return (tex ? texNum : num)(q, 3); }).join(tex ? ",\\ " : "; ") + ")"; };
-    var v = { x: vec(PAIR.x, true), z: vec(PAIR.z, true), d: texNum(PAIR.dot, 3), k: texNum(PAIR.k, 3), px: vec(PAIR.px, true), pz: vec(PAIR.pz, true), ip: texNum(PAIR.ip, 3) };
-    var vp = { x: vec(PAIR.x), z: vec(PAIR.z), d: num(PAIR.dot, 3), k: num(PAIR.k, 3), px: vec(PAIR.px), pz: vec(PAIR.pz), ip: num(PAIR.ip, 3) };
+    var vec = function (a, tex) { return "(" + a.map(function (q) { var s = (tex ? texNum : num)(q, 3); return tex && s[0] === "-" ? "{" + s + "}" : s; }).join(tex ? ",\\ " : "; ") + ")"; };
+    var sgn = function (q, tex) { return (q < 0 ? (tex ? "-" : MINUS) : "+") + " " + fmt(Math.abs(q), 3); };
+    var v = { x: vec(PAIR.x, true), z: vec(PAIR.z, true), d: sgn(PAIR.dot, true), k: texNum(PAIR.k, 3), px: vec(PAIR.px, true), pz: vec(PAIR.pz, true), ip: texNum(PAIR.ip, 3) };
+    var vp = { x: vec(PAIR.x), z: vec(PAIR.z), d: sgn(PAIR.dot), k: num(PAIR.k, 3), px: vec(PAIR.px), pz: vec(PAIR.pz), ip: num(PAIR.ip, 3) };
     TeX.set(document.getElementById("kern-chk"), T("kern.chk.tex", v), T("kern.chk.formula", vp));
     document.getElementById("kern-chk-p2").innerHTML = T("kern.chk.p2", { n: N, nn: intFmt(N * N / 2 + N / 2) });
   }
@@ -1196,7 +1204,7 @@
       var M = r.M;
       h += "<tr" + (r.key === state.sc ? " class='on'" : "") + "><td class='rowh'>" + r.lab + "</td><td class='num" + (M === LIN ? " hot" : " acc") + "'>" + pct(M.acc) +
         "</td><td class='num'>" + pct(M.accT) + "</td><td class='num'>" + M.nsv + "</td><td class='num wide'>" + fmt(M.dual, 3) + "</td><td class='num wide'>" + intFmt(M.it) +
-        "</td><td class='num'>" + num(eigOf(M), 4) + "</td></tr>";
+        "</td><td class='num'>" + eigOf(M) + "</td></tr>";
     });
     document.getElementById("kern-cmp").innerHTML = h + "</tbody>";
     var a = RBF.smooth, b = RBF.good, c = RBF.overfit;

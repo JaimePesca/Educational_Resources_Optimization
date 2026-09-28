@@ -105,6 +105,7 @@
   table.data td.best { color: var(--accent-text); font-weight: 700; }
   table.data td.flag { outline: 2px solid var(--mit-bright); outline-offset: -2px; color: var(--accent-text); font-weight: 700; }
   table.data td.diag { color: var(--muted); }
+  table.data td.nw { white-space: nowrap; }
   table.data th small { display: block; font-weight: 400; color: var(--muted); letter-spacing: 0; }
   table.data td.tfn { font-family: var(--font-mono); font-size: 11.5px; line-height: 1.35; white-space: nowrap; text-align: right; }
   table.data td.tfn i { font-style: normal; color: var(--muted); }
@@ -118,6 +119,7 @@
     table.data td.num { font-size: 11.5px; }
     table.data td.tfn { font-size: 10.5px; }
   }
+  @media (max-width: 860px) { table.data .wide2 { display: none; } }
   .tabnote { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
 
   /* ---- criteria swatches (as in the weights bar) ---- */
@@ -258,10 +260,10 @@
       </details>
 
       <p class="mhead" data-i18n="fahp.p1.model.head"></p>
-      <div class="formula" data-tex="fahp.p1.model.tex" data-i18n="fahp.p1.model.formula"></div>
+      <div class="formula" data-fx="fahp.p1.model" data-i18n="fahp.p1.model.formula"></div>
       <p class="mhead" data-i18n="fahp.p1.lls.head"></p>
       <p class="mtext" data-i18n-html="fahp.p1.lls.p"></p>
-      <div class="formula" data-tex="fahp.p1.lls.tex" data-i18n="fahp.p1.lls.formula"></div>
+      <div class="formula" data-fx="fahp.p1.lls" data-i18n="fahp.p1.lls.formula"></div>
     </div>
   </section>
 
@@ -321,9 +323,9 @@
       <p class="tabnote" id="p2-note"></p>
 
       <p class="mhead" data-i18n-html="fahp.p2.model.head"></p>
-      <div class="formula" data-tex="fahp.p2.model.tex" data-i18n="fahp.p2.model.formula"></div>
+      <div class="formula" data-fx="fahp.p2.model" data-i18n="fahp.p2.model.formula"></div>
       <p class="mhead" data-i18n="fahp.p2.ops.head"></p>
-      <div class="formula" data-tex="fahp.p2.ops.tex" data-i18n="fahp.p2.ops.formula"></div>
+      <div class="formula" data-fx="fahp.p2.ops" data-i18n="fahp.p2.ops.formula"></div>
     </div>
   </section>
 
@@ -383,9 +385,9 @@
       <div class="tblwrap"><table class="data" id="p3-st"></table></div>
 
       <p class="mhead" data-i18n="fahp.p3.model.head"></p>
-      <div class="formula" data-tex="fahp.p3.model.tex" data-i18n="fahp.p3.model.formula"></div>
+      <div class="formula" data-fx="fahp.p3.model" data-i18n="fahp.p3.model.formula"></div>
       <p class="mhead" data-i18n="fahp.p3.v.head"></p>
-      <div class="formula" data-tex="fahp.p3.v.tex" data-i18n="fahp.p3.v.formula"></div>
+      <div class="formula" data-fx="fahp.p3.v" data-i18n="fahp.p3.v.formula"></div>
     </div>
     <p class="limits" data-i18n-html="fahp.p3.limits"></p>
   </section>
@@ -853,11 +855,11 @@
       [T("fahp.p2.r.a", { t: tname(state.ta) }), A, 1], [T("fahp.p2.r.b", { t: tname(state.tb) }), B, 1],
       [T("fahp.p2.r.sum"), S, 1], [T("fahp.p2.r.prod"), Pd, 1], [T("fahp.p2.r.rec"), R, 3]
     ];
-    var h = "<thead><tr><th></th><th class='num'>" + T("fahp.p2.th.tfn") + "</th><th class='num'>" + T("fahp.p2.th.cut", { a: fmt(al, 2) }) +
+    var h = "<thead><tr><th></th><th class='num'>" + T("fahp.p2.th.tfn") + "</th><th class='num wide'>" + T("fahp.p2.th.cut", { a: fmt(al, 2) }) +
       "</th><th class='num'>" + T("fahp.p2.th.c") + "</th><th class='num wide'>" + T("fahp.p2.th.g") + "</th></tr></thead><tbody>";
     rows.forEach(function (r) {
       var dd = r[2] === 3 ? 3 : 2;
-      h += "<tr><td>" + r[0] + "</td><td class='num'>" + ftfn(r[1], dd === 3 ? 3 : 2) + "</td><td class='num'>" + fint(cut(r[1], al), dd) +
+      h += "<tr><td>" + r[0] + "</td><td class='num'>" + ftfn(r[1], dd === 3 ? 3 : 2) + "</td><td class='num wide'>" + fint(cut(r[1], al), dd) +
         "</td><td class='num'>" + fmt(centroid(r[1]), 3) + "</td><td class='num wide'>" + fmt(graded(r[1]), 3) + "</td></tr>";
     });
     setHTML($("p2-tab"), h + "</tbody>");
@@ -958,15 +960,15 @@
     }).join("") + "<span><i class='t-c'></i><span data-i18n='fahp.p3.lg.c'>" + T("fahp.p3.lg.c") + "</span></span>");
     // weights table: fuzzy weight, centroid, crisp, part 1 AHP
     var bw = argmax(f.W), ba = argmax(p1.e.w);
-    h = "<thead><tr><th>" + T("fahp.p1.th.c") + "</th><th class='num wide'>" + T("fahp.p3.th.r") + "</th><th class='num'>" + T("fahp.p3.th.w") +
+    h = "<thead><tr><th>" + T("fahp.p1.th.c") + "</th><th class='num wide2'>" + T("fahp.p3.th.r") + "</th><th class='num'>" + T("fahp.p3.th.w") +
       "</th><th class='num wide'>" + T("fahp.p3.th.c") + "</th><th class='num'>" + T("fahp.p3.th.W") + "</th><th class='num'>" + T("fahp.p3.th.ahp") + "</th></tr></thead><tbody>";
     CRIT.forEach(function (_, j) {
-      h += "<tr><td><i class='sw4 k" + j + "'></i> " + cshort(j) + "</td><td class='num wide'>" + ftfn(f.r[j], 3) + "</td><td class='num'>" + ftfn(f.w[j], 3) +
+      h += "<tr><td class='nw'><i class='sw4 k" + j + "'></i> " + cshort(j) + "</td><td class='num wide2'>" + ftfn(f.r[j], 3) + "</td><td class='num'>" + ftfn(f.w[j], 3) +
         "</td><td class='num wide'>" + fmt(f.c[j], 3) + "</td><td class='num" + (j === bw ? " best" : "") + "'>" + fmt(f.W[j], 3) +
         "<span class='cell-bar'><i style='width:" + (100 * f.W[j]).toFixed(1) + "%'></i></span></td><td class='num" + (j === ba ? " best" : "") + "'>" + fmt(p1.e.w[j], 3) +
         "<span class='cell-bar'><i style='width:" + (100 * p1.e.w[j]).toFixed(1) + "%'></i></span></td></tr>";
     });
-    h += "<tr><td>" + T("fahp.p3.sumrow") + "</td><td class='num wide'>" + ftfn(f.rs, 3) + "</td><td class='num'></td><td class='num wide'>" + fmt(sum(f.c), 3) +
+    h += "<tr><td>" + T("fahp.p3.sumrow") + "</td><td class='num wide2'>" + ftfn(f.rs, 3) + "</td><td class='num'></td><td class='num wide'>" + fmt(sum(f.c), 3) +
       "</td><td class='num'>" + fmt(sum(f.W), 3) + "</td><td class='num'>" + fmt(sum(p1.e.w), 3) + "</td></tr>";
     setHTML($("p3-wt"), h + "</tbody>");
     var gap = 0; CRIT.forEach(function (_, j) { gap = Math.max(gap, Math.abs(f.W[j] - p1.e.w[j])); });
@@ -1020,11 +1022,11 @@
     setHTML($("p3-cuts"), h + "</tbody>");
     // scores table
     h = "<thead><tr><th>" + T("fahp.p3.th.s") + "</th><th class='num'>" + T("fahp.p3.th.fs") + "</th><th class='num'>" + T("fahp.p3.th.sc") +
-      "</th><th class='num wide'>" + T("fahp.p3.th.sm") + "</th><th class='num'>" + T("fahp.p3.th.ahps") + "</th></tr></thead><tbody>";
+      "</th><th class='num wide'>" + T("fahp.p3.th.sm") + "</th><th class='num wide'>" + T("fahp.p3.th.ahps") + "</th></tr></thead><tbody>";
     var p1w = argmax(p1.S);
     f.o.forEach(function (k) {
       h += "<tr><td>" + sname(k) + "</td><td class='num'>" + ftfn(f.S[k], 3) + "</td><td class='num" + (k === top ? " best" : "") + "'>" + fmt(f.Sc[k], 3) +
-        "</td><td class='num wide'>" + fmt(f.S[k][1], 3) + "</td><td class='num" + (k === p1w ? " best" : "") + "'>" + fmt(p1.S[k], 3) + "</td></tr>";
+        "</td><td class='num wide'>" + fmt(f.S[k][1], 3) + "</td><td class='num wide" + (k === p1w ? " best" : "") + "'>" + fmt(p1.S[k], 3) + "</td></tr>";
     });
     setHTML($("p3-st"), h + "</tbody>");
     return { f: f, all: all };
@@ -1068,14 +1070,29 @@
   segPick($("p2-b"), function (v) { state.tb = +v; update(); });
   $("p2-alpha").addEventListener("input", function () { state.alpha = +$("p2-alpha").value; schedule(); });
   segPick($("p3-pre"), function (v) { state.ex = P3PRE[v].map(function (r) { return r.slice(); }); update(); });
+  /* formulas: on narrow boxes each comment moves to its own row, so the formula keeps a readable size */
+  var fxNarrow = null;
+  function narrowTeX(tex) {
+    return tex.replace(/\s*&&\s*(.*?)(?=\\\\|\\end\{aligned\})/g, function (m, c) { return " \\\\[-3pt] & \\quad {\\small " + c + "}"; });
+  }
+  function renderFormulas(force) {
+    var nar = document.querySelector(".wrap").clientWidth < 600;
+    if (!force && nar === fxNarrow) return;
+    fxNarrow = nar;
+    document.querySelectorAll("[data-fx]").forEach(function (e) {
+      var k = e.getAttribute("data-fx"), tex = T(k + ".tex");
+      TeX.set(e, nar ? narrowTeX(tex) : tex, T(k + ".formula"));
+    });
+  }
   function renderPage() {
+    renderFormulas(true);
     buildPairs(); buildTerms(); buildExperts(); renderAlt(); renderNotes();
     update();
   }
   var rsz = 0, lastW = window.innerWidth;
   window.addEventListener("resize", function () {
     clearTimeout(rsz);
-    rsz = setTimeout(function () { if (window.innerWidth !== lastW) { lastW = window.innerWidth; update(); } }, 120);
+    rsz = setTimeout(function () { if (window.innerWidth !== lastW) { lastW = window.innerWidth; renderFormulas(false); update(); } }, 120);
   });
   I18N.onChange(renderPage);
 })();

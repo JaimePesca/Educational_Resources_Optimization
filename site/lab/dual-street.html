@@ -381,11 +381,11 @@
     S.K3 = Math.min(S.it, 6);                       // steps shown one by one in chapter 3
     S.PMAX = tr.P.reduce(function (a, v) { return Math.max(a, v); }, 0);
     // the zoom window of chapter 4 around the optimum
-    var lo = tr.D[S.K3], hi = tr.PB[S.K3], opt = S.D;
-    for (var k = S.K3; k < tr.P.length; k++) hi = Math.max(hi, Math.min(tr.P[k], tr.PB[S.K3] * 1.25));
-    if (hi - lo < 0.04 * opt) { lo = opt * 0.97; hi = opt * 1.03; }
-    var pad = 0.14 * (hi - lo);
-    S.zlo = lo - pad; S.zhi = hi + pad;
+    // (a camera zoom onto the meeting point: the window is set by the gap a little after chapter 3)
+    var km = Math.min(S.it, S.K3 + Math.round((S.it - S.K3) * 0.12)), gm = tr.PB[km] - tr.D[km], opt = S.D;
+    var half = Math.max(1.5 * gm, 0.012 * opt);
+    S.zoom = S.it > S.K3;
+    S.zlo = opt - half; S.zhi = opt + 1.6 * half;
     SC[key] = S;
   });
   var HARD = smo(Infinity, false);
@@ -599,12 +599,13 @@
     ctx.font = font(400, fs, true); ctx.fillStyle = C.muted; ctx.strokeStyle = C.surface; ctx.lineWidth = 3; ctx.lineJoin = "round";
     var step = L.K < 34 ? 2 : 1, yb = L.y1 - 6, xl = L.x0 + 5;
     ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+    var xstep = L.K < 24 ? 4 : 2;                  // x labels every 200 m, or 400 m on small plots
     for (x = Math.ceil(WX(L.x0 + 30)); x <= WX(L.x1 - 16); x++) {
-      if (x % 2) continue;
+      if (x % xstep) continue;
       var s = intFmt(x * 100); ctx.strokeText(s, SX(x), yb); ctx.fillText(s, SX(x), yb);
     }
     ctx.textAlign = "left"; ctx.textBaseline = "middle";
-    for (y = Math.ceil(WY(L.y1 - 28)); y <= WY(L.y0 + 12); y++) {
+    for (y = Math.ceil(WY(L.y1 - 28)); y <= WY(L.y0 + 24); y++) {
       if (y % step) continue;
       var s2 = intFmt(y * 10); ctx.strokeText(s2, xl, SY(y)); ctx.fillText(s2, xl, SY(y));
     }
@@ -672,7 +673,7 @@
     if (boxA > 0.01) {
       ctx.globalAlpha = boxA; ctx.strokeStyle = S.boxOn ? HOT : C["mit-silver"]; ctx.lineWidth = 1.3; ctx.setLineDash([5, 4]);
       ctx.beginPath(); ctx.moveTo(g.x0 - 2, g.top + 0.5); ctx.lineTo(R.x1, g.top + 0.5); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
-      var lt = S.boxOn ? T("svmd.l.boxC", { c: cFmt(S.C) }) : fmt(S.aref, 2);
+      var lt = S.boxOn ? T("svmd.l.boxC", { c: cFmt(S.C) }) : T("svmd.l.amax", { v: fmt(S.aref, 2) });
       label(lt, R.x1 - 2, g.top - (L.portrait ? 6 : 7), "right", S.boxOn ? HOT : C.muted, font(700, L.portrait ? 10 : 11), boxA);
     }
     var bw = Math.max(2, Math.min(g.cw * 0.62, 18));
@@ -713,7 +714,7 @@
   }
   function drawChart(t, S, K, a) {
     if (a <= 0.01) return;
-    var g = chartGeo(), R = g.R, z = E.inOut(seg(t, T_ZOOM[0], T_ZOOM[1]));
+    var g = chartGeo(), R = g.R, z = S.zoom ? E.inOut(seg(t, T_ZOOM[0], T_ZOOM[1])) : 0;
     var PX = function (k) { return g.x0 + (g.x1 - g.x0) * xsc(S, k); };
     var PY = function (v) { return g.y1 - (g.y1 - g.y0) * ysc(S, v, z); };
     ctx.save(); ctx.globalAlpha = a;
@@ -727,7 +728,7 @@
     ticks.forEach(function (k, q) {
       var xk = PX(k), w = ctx.measureText(intFmt(k)).width;
       if (q < ticks.length - 1 && PX(S.it) - xk < w + 8) return;
-      if (xk - lastX < w + 6) return;
+      if (xk - lastX < w + 10) return;
       ctx.fillText(intFmt(k), clamp(xk, g.x0 + w / 2, g.x1 - w / 2), g.y1 + 3); lastX = xk;
       ctx.fillStyle = C.grid; ctx.fillRect(xk - 0.5, g.y0, 1, g.y1 - g.y0); ctx.fillStyle = C.muted;
     });
@@ -771,8 +772,9 @@
     if (met) {
       var ma = a * seg(t, T_MEET, T_MEET + 0.6);
       pulse(xe, yD, t, T_MEET, C.accent, 4);
-      var ml = T("svmd.l.meet", { v: fmt(S.D, 3) }), mw = tw(ml, lf);
-      label(ml, Math.max(g.x0 + 2, xe - 8 - mw), Math.max(g.y0 + 8, yD - 14), "left", C["accent-text"], lf, ma);
+      var ml = T("svmd.l.meet", { v: fmt(S.D, 3) }), mw = tw(ml, lf), mx = Math.max(g.x0 + 2, xe - 8 - mw), my = Math.max(g.y0 + 8, yD - 15), mh = L.portrait ? 10 : 11;
+      ctx.globalAlpha = ma; ctx.fillStyle = C.surface; ctx.fillRect(mx - 3, my - mh / 2 - 3, mw + 6, mh + 6); ctx.globalAlpha = 1;
+      label(ml, mx, my, "left", C["accent-text"], lf, ma);
       label(T("svmd.l.primal"), xe - 6, yP - 9, "right", C.ink, lf, a * (1 - seg(t, T_MEET, T_MEET + 0.4)));
     } else {
       var lp = T("svmd.l.primal"), ld = T("svmd.l.dual"), sep = Math.abs(yP - yD) < 16;
@@ -822,14 +824,18 @@
     var pts = X.map(function (p) { return [SX(p[0]), SY(p[1])]; });
     var ids = []; for (i = 0; i < N; i++) if (S.grp[i] > 0) ids.push(i);
     ids.forEach(function (i) {
-      var txt = fmt(S.alpha[i], 3), w = tw(txt, f), P = pts[i], rr = haloR(S, S.alpha[i]) + 3;
-      var cands = [[rr, -fh / 2 - 1], [rr, fh / 2 + 1], [-rr - w, -fh / 2 - 1], [-rr - w, fh / 2 + 1], [-w / 2, -rr - fh / 2], [-w / 2, rr + fh / 2], [rr, 0], [-rr - w, 0]];
+      // a multiplier at the bound is labelled C, the others with their value
+      var txt = S.grp[i] === 2 ? "C" : fmt(S.alpha[i], 3), w = tw(txt, f), P = pts[i], rr = haloR(S, S.alpha[i]) + 3, cands = [];
+      [1, 1.8, 2.8].forEach(function (k) {
+        var r = rr * k;
+        cands.push([r, -fh / 2 - 1], [r, fh / 2 + 1], [-r - w, -fh / 2 - 1], [-r - w, fh / 2 + 1], [-w / 2, -r - fh / 2], [-w / 2, r + fh / 2], [r, 0], [-r - w, 0]);
+      });
       var pick = null;
       for (q = 0; q < cands.length && !pick; q++) {
         var lx = P[0] + cands[q][0], ly = P[1] + cands[q][1], hit = lx < L.x0 + 2 || lx + w > L.x1 - 2 || ly - fh / 2 < L.y0 || ly + fh / 2 > L.y1;
         for (var j = 0; j < N && !hit; j++) {
           if (j === i) continue;
-          var Q = pts[j], r2 = L.r + 2;
+          var Q = pts[j], r2 = (S.grp[j] > 0 ? haloR(S, S.alpha[j]) : L.r) + 1;
           if (Q[0] > lx - r2 && Q[0] < lx + w + r2 && Q[1] > ly - fh / 2 - r2 && Q[1] < ly + fh / 2 + r2) hit = true;
         }
         for (var k = 0; k < placed.length && !hit; k++) {
