@@ -259,8 +259,8 @@
   // Public profiles. An empty url is not shown: fill in ORCID, Google Scholar, ResearchGate or LinkedIn when available
   // (and add the same urls to "sameAs" in tools/seo_gen.py).
   var PROFILES = [
-    { key: "ab.link.web", url: "https://jaimepesca.com" },
-    { key: "ab.link.github", url: "https://github.com/JaimePesca" },
+    { key: "ab.link.web", url: "https://jaimepesca.com", ga: "jaimepesca_click" },
+    { key: "ab.link.github", url: "https://github.com/JaimePesca", ga: "github_click" },
     { key: "ab.link.orcid", url: "https://orcid.org/0009-0003-8221-0924" },
     { key: "ab.link.scholar", url: "" },
     { key: "ab.link.researchgate", url: "" },
@@ -355,6 +355,7 @@
     var links = document.getElementById("ab-links"); links.textContent = "";
     PROFILES.filter(function (p) { return p.url; }).forEach(function (p) {
       var a = h("a", null, t(p.key) + " ↗"); a.href = p.url; a.target = "_blank"; a.rel = "noopener me";
+      if (p.ga) { a.setAttribute("data-ga-event", p.ga); a.setAttribute("data-ga-location", "about_profile"); }
       links.appendChild(a);
     });
     var lp = h("a", null, t("nav.learn") + " →"); lp.href = I18N.href("index.html#learn"); links.appendChild(lp);

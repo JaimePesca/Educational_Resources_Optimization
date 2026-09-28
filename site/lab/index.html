@@ -183,6 +183,8 @@
       if (p.href) {
         var go = h("a", "lab-open", t("lab.open") + " \u2192");
         go.href = I18N.href(p.href.replace(/^lab\//, ""));
+        go.setAttribute("data-ga-event", "resource_open"); go.setAttribute("data-ga-location", "lab");
+        go.setAttribute("data-ga-resource-id", p.id); go.setAttribute("data-ga-level", "lab");
         main.appendChild(go);
       }
       card.appendChild(main);

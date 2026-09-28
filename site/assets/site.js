@@ -14,9 +14,9 @@
   footer.innerHTML =
     '<div class="site-footer-in">' +
     '<p class="site-author"><span class="sf-by"></span> ' +
-    '<a href="' + SITE + '" target="_blank" rel="noopener author">' + AUTHOR + '</a>' +
+    '<a href="' + SITE + '" target="_blank" rel="noopener author" data-ga-event="jaimepesca_click" data-ga-location="footer">' + AUTHOR + '</a>' +
     '<span class="sf-sep" aria-hidden="true"> · </span>' +
-    '<a class="sf-domain" href="' + SITE + '" target="_blank" rel="noopener">jaimepesca.com ↗</a>' +
+    '<a class="sf-domain" href="' + SITE + '" target="_blank" rel="noopener" data-ga-event="jaimepesca_click" data-ga-location="footer">jaimepesca.com ↗</a>' +
     '<span class="sf-sep" aria-hidden="true"> · </span>' +
     '<a class="sf-about" href="' + ABOUT + '" data-keep-lang></a></p>' +
     '<p class="site-copy">© <span class="sf-year"></span> ' + AUTHOR + '. <span class="sf-rights"></span></p>' +
@@ -158,6 +158,10 @@
     var u = new URL(r.href, ROOT);
     a.href = I18N.href(u.href);
     if (norm(u.pathname) === here) a.setAttribute("aria-current", "page");
+    a.setAttribute("data-ga-event", "resource_open");
+    a.setAttribute("data-ga-location", "browse_menu");
+    a.setAttribute("data-ga-resource-id", r.id);
+    a.setAttribute("data-ga-level", r.level);
     a.append(el("span", "navmenu-title", t("resource." + r.id + ".title")), el("span", "navmenu-tag", g.tag(r)));
     return a;
   }
@@ -393,4 +397,45 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
   I18N.onChange(later); // headings change language, so do the labels
+})();
+
+/*
+ * Google Analytics 4 events (the gtag G-L1HT57WJW6 is in every page's <head>). One click listener on document
+ * reads the link's data attributes, never its text (the site is translated):
+ *   data-ga-event        jaimepesca_click | github_click | resource_open
+ *   data-ga-location     where the link is: footer, about_profile, research_page, learning_path, browse_menu, lab...
+ *   data-ga-resource-id  and data-ga-level, for resource_open (catalog id and level id)
+ * A link to jaimepesca.com or github.com without data-ga-event is still counted, by its host.
+ * Every event carries page_language. Navigation is never blocked: no preventDefault, and the hit goes out
+ * with the beacon transport, so it survives the page change. language_change is sent by assets/i18n.js.
+ */
+(function () {
+  "use strict";
+  function lang() { return (window.I18N && I18N.lang) || document.documentElement.lang || ""; }
+  function send(name, params) {
+    if (typeof window.gtag !== "function") return;
+    params.page_language = params.page_language || lang();
+    params.transport_type = "beacon";
+    try { window.gtag("event", name, params); } catch (e) { /* analytics must never break the page */ }
+  }
+  function byHost(a) {
+    var host = "";
+    try { host = new URL(a.href, location.href).hostname.replace(/^www\./, ""); } catch (e) { return null; }
+    if (host === "jaimepesca.com") return "jaimepesca_click";   // not learn-optimization.jaimepesca.com (this site)
+    if (host === "github.com") return "github_click";
+    return null;
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var name = a.getAttribute("data-ga-event") || byHost(a);
+    if (!name) return;
+    var at = a.closest("[data-ga-location]");
+    var params = { link_location: at ? at.getAttribute("data-ga-location") : "content" };
+    if (name === "resource_open") {
+      params.resource_id = a.getAttribute("data-ga-resource-id") || "";
+      params.level = a.getAttribute("data-ga-level") || "";
+    }
+    send(name, params);
+  }, true); // capture: counted even if a page script stops the click from bubbling
 })();

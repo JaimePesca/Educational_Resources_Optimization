@@ -862,6 +862,8 @@
         var grid = h("div", "rgrid");
         live.forEach(function (r) {
           var a = h("a", "rcard"); a.href = I18N.href(r.href);
+          a.setAttribute("data-ga-event", "resource_open"); a.setAttribute("data-ga-location", "learning_path");
+          a.setAttribute("data-ga-resource-id", r.id); a.setAttribute("data-ga-level", r.level);
           var rt = h("span", "rtype", t("type." + r.type)); rt.prepend(HomeArt.typeIcon(r.type));
           a.append(rt, h("span", "rtitle", t("resource." + r.id + ".title")),
             h("span", "rsum", t("resource." + r.id + ".summary")));

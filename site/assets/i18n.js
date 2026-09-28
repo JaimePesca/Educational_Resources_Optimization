@@ -210,7 +210,13 @@
       sel.appendChild(o);
     });
     sel.value = current;
-    sel.addEventListener("change", function () { set(sel.value); });
+    sel.addEventListener("change", function () {
+      // GA4: language is the new one, page_language the one the page was in (the gtag is in every page's <head>)
+      if (sel.value !== current && typeof window.gtag === "function") {
+        try { window.gtag("event", "language_change", { language: sel.value, page_language: current, transport_type: "beacon" }); } catch (e) { /* never break the switch */ }
+      }
+      set(sel.value);
+    });
     host.append(label, sel);
   }
 
