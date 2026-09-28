@@ -18,7 +18,7 @@ Apply these recommendations of SEO_REPORT.md section 6 (the others not yet):
 | # | Task | Status | Notes |
 |---|---|---|---|
 | 12 | Accessible names for canvas and SVG charts (site.js, from existing headings, no visual change) | done | site.js: role="img" + aria-label from page title and nearest heading; 0 unnamed canvases after (was 40 of 47); pixel-identical screenshots on 7 pages; follows language; page labels win |
-| 13 | Speed: preconnect hints, MathJax deferred until a formula is near or the page is idle | todo | |
+| 13 | Speed: preconnect hints, MathJax deferred until a formula is near or the page is idle | done | tex.js + research.js: MathJax after texts load, when a formula is within 300 px or at idle after load; load event 673->115 ms (big-m), 694->64 (lab), 829->157 (contours), 812->166 (wildfire); preconnect fonts, dns-prefetch CDNs on 65 pages via tools/seo_gen.py; 8 Level 1 pages keep their own inline MathJax loader |
 | 14 | 404.html (absolute asset paths, 4 languages, noindex, links to levels) | todo | |
 | 3 | about.html from materials/cv (no MIT, no phone or email), footer link, Person JSON-LD | todo | ORCID, Scholar, ResearchGate, LinkedIn URLs are not in the CV: ask the owner |
 | 15 | CITATION.cff, README link, outreach kit (materials/outreach.md) | todo | |

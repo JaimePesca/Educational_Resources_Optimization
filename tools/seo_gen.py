@@ -97,7 +97,7 @@ def main():
     og_image = BASE + "assets/og-image.png"
     og_alt = SITE_NAME + ": " + D["home.eyebrow"].replace("·", "-") if False else SITE_NAME + ". " + D["home.eyebrow"]
 
-    report = {"ga": [], "pages": {}, "descriptions": {}}
+    report = {"ga": [], "pages": {}, "descriptions": {}, "speed": []}
     sitemap = []
     edu_by_href = {r["href"]: r for r in C["education"] if r.get("href")}
     res_by_href = {r["href"]: r for r in C["research"] if r.get("href")}
@@ -116,6 +116,22 @@ def main():
             s = s.replace("<head>\n", "<head>\n" + GA, 1)
             report["ga"].append(rel)
             changes.append("Google Analytics 4 tag (gtag.js, G-L1HT57WJW6) right after <head>")
+
+        # ---- 2. connection hints (all pages): fonts are needed at once; the CDNs only later, so a DNS lookup is enough ----
+        if "<!-- Speed (invisible)" in s:
+            a = s.index("<!-- Speed (invisible)")
+            s = s[:a] + s[s.index("<!-- /Speed -->\n", a) + len("<!-- /Speed -->\n"):]
+        hints = ['<link rel="preconnect" href="https://fonts.googleapis.com">',
+                 '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>']
+        if re.search(r"tex\.js|research\.js|cdnjs\.cloudflare\.com", s):
+            hints.append('<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">')
+        if "cdn.jsdelivr.net" in s:
+            hints.append('<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">')
+        m = re.search(r'<link rel="stylesheet" href="https://fonts\.googleapis\.com', s)
+        if m:
+            s = s[:m.start()] + "<!-- Speed (invisible): open the connections the page needs early -->\n" + "\n".join(hints) + "\n<!-- /Speed -->\n" + s[m.start():]
+            if rel not in report["speed"]:
+                report["speed"].append(rel)
 
         noindex = re.search(r'<meta name="robots" content="[^"]*noindex', s) is not None
         if rel == "resources/_template.html":
@@ -287,7 +303,7 @@ def main():
         "# Every page may be crawled. The hidden lab pages carry <meta name=\"robots\" content=\"noindex, nofollow\">,\n"
         "# which crawlers can only read if the pages are not blocked here.\n"
         "User-agent: *\nAllow: /\nDisallow: /resources/_template.html\n\nSitemap: " + BASE + "sitemap.xml\n")
-    print("GA:", len(report["ga"]), "indexable:", len(sitemap), "new descriptions:", len(report["descriptions"]))
+    print("speed hints:", len(report["speed"]), "GA:", len(report["ga"]), "indexable:", len(sitemap), "new descriptions:", len(report["descriptions"]))
 
 
 main()

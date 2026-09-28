@@ -11,7 +11,7 @@
  * TeX conventions: display math without delimiters, usually \begin{aligned} ... \end{aligned};
  * \text{ST} becomes the localized "s.t." (ui.st); a comma between two digits is a decimal comma
  * (so write sets as \{0, 1\} with a space). Wide formulas shrink to fit their box on phones, down to
- * 10 px; wider ones scroll inside their box.
+ * 10 px; wider ones scroll inside their box. MathJax itself loads lazily (see schedule() at the end).
  */
 (function () {
   "use strict";
@@ -93,7 +93,28 @@
     timer = setTimeout(function () { document.querySelectorAll(".tex-on").forEach(fit); }, 150);
   });
   if (window.I18N) I18N.onChange(renderStatic);
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", load); else load();
+
+  // MathJax is the heaviest file of a page, so it stays off the critical path: it loads when the first formula
+  // comes within 300 px of the screen, or once the page has loaded and the browser is idle, whichever is first.
+  // Formulas set before that wait in the queue and are typeset as soon as it is ready.
+  var asked = false;
+  function go() { if (!asked) { asked = true; load(); } }
+  var scheduled = false;
+  function schedule() {
+    if (scheduled) return;
+    scheduled = true;
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (es) {
+        if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); go(); }
+      }, { rootMargin: "300px 0px" });
+      document.querySelectorAll(".formula, [data-tex]").forEach(function (el) { io.observe(el); });
+    }
+    var idle = function () { (window.requestIdleCallback || function (f) { setTimeout(f, 200); })(go, { timeout: 2500 }); };
+    if (document.readyState === "complete") idle(); else window.addEventListener("load", idle);
+  }
+  // watch positions only once the page has its texts: before that it is nearly empty and every formula looks near
+  if (window.I18N) I18N.onChange(function () { requestAnimationFrame(schedule); });
+  else if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", schedule); else schedule();
 
   window.TeX = { set: set, render: renderStatic, fit: fit };
 })();
