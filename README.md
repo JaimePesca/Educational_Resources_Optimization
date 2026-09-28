@@ -17,8 +17,8 @@ site/                  el sitio web (HTML, CSS y JS sin build)
   locales/             textos por idioma (en, es, pt, fr)
   assets/              estilos, motor de idiomas y catálogo
 materials/             material de trabajo que no se publica en el sitio
-  manuscripts/         manuscritos de los cuatro casos
-  cv/                  hoja de vida
+  manuscripts/         manuscritos de los cuatro casos (solo en tu equipo: .gitignore los excluye; no se suben al repositorio)
+  cv/                  hoja de vida (igual: nunca se sube)
   research-cases.md    resumen de cada caso
 .github/
   CONTRIBUTING.md      cómo aportar un recurso

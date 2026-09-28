@@ -16,9 +16,7 @@ What changed, and how to undo it when a paper is accepted (per page):
 3. **Markets only: code repository link.** Removed from `site/research/markets.html` (the repository name is the paper
    title). Restore this paragraph right after `<p class="cite" data-i18n-html="r.markets.cite"></p>`:
 
-```html
-    <p class="repo"><a href="https://github.com/JaimePesca/Locating-street-markets-Using-a-discrete-choice-model-MINLP-and-fuzzy-AHP" rel="noopener" data-ga-event="github_click" data-ga-location="research_page" data-i18n="r.markets.repo"></a></p>
-```
+(the original paragraph, with the repository link, is in the git history of `site/research/markets.html` before the commit "Research under review: hide titles, authors...")
 
    Also restore "from the study's public repository" in `r.markets.map.note` (4 languages) and in the note.
 4. **Pallets only: company hint.** In `r.pallets.case.intro` (4 languages) "a vertically integrated grower with farms in

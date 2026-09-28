@@ -2,13 +2,13 @@
 
 ## Street markets: linearizing the logit choice constraint
 
-**Source.** `materials/manuscripts/street-markets-location.pdf`, "Locating street markets: analysis from qualitative and quantitative factors using a discrete choice model, mixed integer nonlinear programming and fuzzy AHP" (Pesca, Mejía, Gutiérrez-Franco). Page numbers below are PDF page numbers (28 pages; the manuscript prints none). The model is Section 5, pages 15 to 17.
+**Source.** `materials/manuscripts/ (kept outside the repository) street-markets-location.pdf`, "[street markets working paper, title withheld while under review]" (Pesca, Mejía, Gutiérrez-Franco). Page numbers below are PDF page numbers (28 pages; the manuscript prints none). The model is Section 5, pages 15 to 17.
 
 **Compared with.** `site/research/markets.html` (formulation block, equations (13) to (21)) and `site/locales/research/markets.en.js` (keys `r.markets.model.*`, `r.markets.var.*`). The site already writes $a_{sj}$ in the denominator of (14), omits (22) and says, correctly, that the logit constraint is rewritten linearly "with the method of Haase and Müller (2014) and solved with Gurobi".
 
 **Tags used below.**
 - **[paper]** stated in the manuscript.
-- **[repo]** read in the authors' public repository cited in the Data Availability Statement (p. 22): `github.com/JaimePesca/Locating-street-markets-Using-a-discrete-choice-model-MINLP-and-fuzzy-AHP` (GAMS files `0.3WD_Bosa_*.gms`, notebook `Street_Markets_Gurobi_Bosa.ipynb`, data `Datos_Bosa.xlsx`). Cloned to the scratchpad only; nothing from it is in this repo.
+- **[repo]** read in the authors' public repository cited in the Data Availability Statement (p. 22): `[the markets code repository, name withheld]` (GAMS files `0.3WD_Bosa_*.gms`, notebook `Street_Markets_Gurobi_Bosa.ipynb`, data `Datos_Bosa.xlsx`). Cloned to the scratchpad only; nothing from it is in this repo.
 - **[own]** my derivation or my computation. Not in the paper.
 
 ---

@@ -13,7 +13,7 @@ Static website (no build) in `site/`, published to https://learn-optimization.ja
 - **Icons:** every page links `/favicon.ico`, `/favicon.svg`, `/apple-touch-icon.png` and `/site.webmanifest` (files at the site root); new pages copy these lines from `resources/_template.html`.
 - **Asset links:** local CSS/JS links carry `?v=__BUILD__` (the deploy stamps the commit id). Every page loads `assets/i18n.js`, then `assets/site.js` (author and copyright footer), then its locale files.
 - **Do not remove or change existing content** when adding something new unless the owner asks; prefer additive changes.
-- **Education vs research are independent:** learning resources (`site/resources/`, `assets/catalog.js` → `education`) never link to research cases; research pages (`site/research/`) show the real studies from `materials/manuscripts/`.
+- **Education vs research are independent:** learning resources (`site/resources/`, `assets/catalog.js` → `education`) never link to research cases; research pages (`site/research/`) show the real studies from `materials/manuscripts/`. The repository is public: manuscripts, the CV and any PDF stay on the owner's machine only (`.gitignore`), never in git; ask the owner for them when a task needs them.
 - **Git flow:** work on a feature branch, push it, and merge to `main` only when the owner says so (then wait for the "Deploy website" run to succeed).
 
 ## Animations: the standard format (use it for every future animation)

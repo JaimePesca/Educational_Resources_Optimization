@@ -1,0 +1,4 @@
+# Private material: never commit it (the repository is public)
+materials/manuscripts/
+materials/cv/
+*.pdf
