@@ -17,7 +17,7 @@ Apply these recommendations of SEO_REPORT.md section 6 (the others not yet):
 ## Status
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 12 | Accessible names for canvas and SVG charts (site.js, from existing headings, no visual change) | todo | survey: 40 of 47 canvases and ~10 SVG charts unnamed |
+| 12 | Accessible names for canvas and SVG charts (site.js, from existing headings, no visual change) | done | site.js: role="img" + aria-label from page title and nearest heading; 0 unnamed canvases after (was 40 of 47); pixel-identical screenshots on 7 pages; follows language; page labels win |
 | 13 | Speed: preconnect hints, MathJax deferred until a formula is near or the page is idle | todo | |
 | 14 | 404.html (absolute asset paths, 4 languages, noindex, links to levels) | todo | |
 | 3 | about.html from materials/cv (no MIT, no phone or email), footer link, Person JSON-LD | todo | ORCID, Scholar, ResearchGate, LinkedIn URLs are not in the CV: ask the owner |

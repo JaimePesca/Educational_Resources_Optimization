@@ -304,3 +304,85 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build);
   else build();
 })();
+
+/*
+ * Accessible names for charts and animations (nothing visible changes): every <canvas> and every
+ * top-level chart <svg> that has no accessible name gets role="img" and an aria-label made from texts
+ * already on the page, the page title plus the nearest heading or caption above the graphic, so screen
+ * readers and search engines know what each graphic is. Graphics that already have aria-label,
+ * aria-labelledby or aria-hidden are left alone. Labels follow the language and graphics added later.
+ */
+(function () {
+  "use strict";
+  var HEAD = "h1,h2,h3,h4,figcaption,caption,legend,.anim-title,.chart-title,.panel-title";
+
+  function named(el) {
+    // a label is ours only while it is still the one we wrote (data-auto-label keeps a copy); a page's own wins
+    var own = el.hasAttribute("aria-label") && el.getAttribute("aria-label") !== el.getAttribute("data-auto-label");
+    return own || el.hasAttribute("aria-labelledby") ||
+      el.closest("[aria-hidden='true']") || /^(presentation|none)$/.test(el.getAttribute("role") || "");
+  }
+  function isChartSvg(el) {
+    if (el.id && /^MJX/.test(el.id)) return false;                     // MathJax internals
+    if (el.closest("mjx-container, button, a, .js-plotly-plot")) return false;
+    if (el.parentElement && el.parentElement.closest("svg")) return false;
+    var r = el.getBoundingClientRect();
+    return !(r.width && r.width < 40 && r.height < 40);               // small icons
+  }
+  function clean(s) { return (s || "").replace(/\s+/g, " ").trim(); }
+
+  // nearest heading or caption that comes before the graphic, searching outward from its container
+  function context(el) {
+    for (var a = el.parentElement; a && a !== document.documentElement; a = a.parentElement) {
+      var list = a.querySelectorAll(HEAD), best = null;
+      for (var i = 0; i < list.length; i++) {
+        var h = list[i];
+        if (h.contains(el)) continue;
+        if (h.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) best = h; else break;
+      }
+      if (best) {
+        // a heading made of blocks (kicker + title) reads "Kicker: Title", as written in the locale files
+        var parts = best.children.length ? Array.prototype.map.call(best.childNodes, function (n) { return clean(n.textContent); }) : [clean(best.textContent)];
+        var txt = parts.filter(Boolean).join(": ");
+        if (txt) return txt;
+      }
+    }
+    return "";
+  }
+  function label(el) {
+    var title = clean(document.title), ctx = context(el);
+    var s = ctx && ctx !== title ? (title ? title + ": " + ctx : ctx) : title;
+    return s.length > 160 ? s.slice(0, 157) + "..." : s;
+  }
+  function scan() {
+    var els = Array.prototype.slice.call(document.querySelectorAll("canvas"))
+      .concat(Array.prototype.filter.call(document.querySelectorAll("svg"), isChartSvg));
+    els.forEach(function (el) {
+      if (named(el)) return;
+      var s = label(el);
+      if (!s) return;
+      if (el.getAttribute("role") !== "img") el.setAttribute("role", "img");
+      if (el.getAttribute("aria-label") !== s) el.setAttribute("aria-label", s);
+      el.setAttribute("data-auto-label", s);
+    });
+  }
+
+  var timer = 0;
+  function later() { clearTimeout(timer); timer = setTimeout(scan, 60); }
+  function hasGraphic(n) {
+    return n.nodeType === 1 && (/^(canvas|svg)$/i.test(n.nodeName) || (n.querySelector && n.querySelector("canvas,svg")));
+  }
+  function start() {
+    later();
+    if ("MutationObserver" in window) {
+      new MutationObserver(function (records) {
+        for (var i = 0; i < records.length; i++) {
+          var add = records[i].addedNodes;
+          for (var j = 0; j < add.length; j++) if (hasGraphic(add[j])) { later(); return; }
+        }
+      }).observe(document.body, { childList: true, subtree: true });
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+  I18N.onChange(later); // headings change language, so do the labels
+})();
