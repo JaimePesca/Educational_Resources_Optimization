@@ -14,6 +14,7 @@ I18N.register("en", {
   "nav.animation": "See it in motion",
   "footer.by": "Created by",
   "footer.rights": "All rights reserved.",
+  "footer.about": "About the author",
   "ref.further": "Further reading",
   "ref.section": "section {n}",
   "ref.orma": "Petropoulos, F., Laporte, G., et al. (2024). Operational Research: methods and applications. <i>Journal of the Operational Research Society</i>, 75(3), 423-617, {sec}. <a href=\"https://doi.org/10.1080/01605682.2023.2253852\" target=\"_blank\" rel=\"noopener\">doi:10.1080/01605682.2023.2253852</a>.",
@@ -417,4 +418,10 @@ I18N.register("en", {
   "tsp.d3.title": "Why not solve it exactly?",
   "tsp.d3.p1": "With n towers there are (n−1)!/2 possible routes: for 24 towers that is about 10²². Modern exact methods (branch and cut) solve large instances, but they cost computing time and development effort. Metaheuristics such as annealing deliver very good solutions in milliseconds, which matters when dispatching resources against a wildfire cannot wait.",
   "tsp.footer": "Educational resource · Coordinates in km over a synthetic 100 × 75 km territory. Annealing runs in your browser; every run is different because the proposals are random.",
+  "nf.eyebrow": "Error 404",
+  "nf.title": "Page not found",
+  "nf.lede": "The address may be old or mistyped. The resources are still here: pick a level of the learning path or go back to the home page.",
+  "nf.home": "Go to the home page",
+  "nf.count": "{n} resources",
+  "nf.research": "Four applied cases from Colombia."
 });

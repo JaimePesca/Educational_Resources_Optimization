@@ -14,6 +14,7 @@ I18N.register("es", {
   "nav.animation": "Míralo en movimiento",
   "footer.by": "Creado por",
   "footer.rights": "Todos los derechos reservados.",
+  "footer.about": "Sobre el autor",
   "ref.further": "Para leer más",
   "ref.section": "sección {n}",
   "ref.orma": "Petropoulos, F., Laporte, G., et al. (2024). Operational Research: methods and applications. <i>Journal of the Operational Research Society</i>, 75(3), 423-617, {sec}. <a href=\"https://doi.org/10.1080/01605682.2023.2253852\" target=\"_blank\" rel=\"noopener\">doi:10.1080/01605682.2023.2253852</a>.",
@@ -416,5 +417,11 @@ I18N.register("es", {
   "tsp.d2.p4": "Repite con enfriamiento <em>rápido</em> y <em>lento</em>: enfriar demasiado rápido congela el algoritmo antes de que escape de los óptimos locales; enfriar lento explora más pero tarda más. Ese equilibrio es el corazón de las metaheurísticas.",
   "tsp.d3.title": "¿Por qué no resolverlo de forma exacta?",
   "tsp.d3.p1": "Con n torres hay (n−1)!/2 rutas posibles: para 24 torres eso es cerca de 10²². Los métodos exactos modernos (ramificación y corte) resuelven instancias grandes, pero cuestan tiempo de cómputo y esfuerzo de desarrollo. Las metaheurísticas como el recocido entregan soluciones muy buenas en milisegundos, lo que importa cuando despachar recursos contra un incendio forestal no puede esperar.",
-  "tsp.footer": "Recurso didáctico · Coordenadas en km sobre un territorio sintético de 100 × 75 km. El recocido se ejecuta en tu navegador; cada ejecución es distinta porque las propuestas son aleatorias."
+  "tsp.footer": "Recurso didáctico · Coordenadas en km sobre un territorio sintético de 100 × 75 km. El recocido se ejecuta en tu navegador; cada ejecución es distinta porque las propuestas son aleatorias.",
+  "nf.eyebrow": "Error 404",
+  "nf.title": "Página no encontrada",
+  "nf.lede": "Puede que la dirección sea antigua o tenga un error. Los recursos siguen aquí: elige un nivel de la ruta de aprendizaje o vuelve al inicio.",
+  "nf.home": "Ir al inicio",
+  "nf.count": "{n} recursos",
+  "nf.research": "Cuatro casos aplicados en Colombia."
 });

@@ -1,10 +1,176 @@
 <!doctype html>
-<html lang="en" data-title-key="fr3.title" data-i18n-bundles="resources/feasible-region-3d">
+<html lang="en" data-title-key="fr3.title" data-i18n-bundles="resources/feasible-region-3d" data-desc-key="resource.feasible-region-3d.summary">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
 <title>Feasible Region in 3D</title>
+<!-- SEO (invisible): description, hreflang, social cards and structured data. The canonical link is added per language by assets/i18n.js -->
+<meta name="description" content="Explore a three-variable military procurement LP in 3D, find its vertices and see why a whole edge of optimal solutions appears.">
+<meta name="author" content="Jaime Pesca">
+<link rel="alternate" hreflang="en" href="https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html">
+<link rel="alternate" hreflang="es" href="https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html?lang=es">
+<link rel="alternate" hreflang="pt" href="https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html?lang=pt">
+<link rel="alternate" hreflang="fr" href="https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html?lang=fr">
+<link rel="alternate" hreflang="x-default" href="https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Optimization in Action">
+<meta property="og:title" content="Feasible Region in 3D">
+<meta property="og:description" content="Explore a three-variable military procurement LP in 3D, find its vertices and see why a whole edge of optimal solutions appears.">
+<meta property="og:image" content="https://learn-optimization.jaimepesca.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Optimization in Action. Operations research · Interactive resources">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_CO">
+<meta property="og:locale:alternate" content="pt_BR">
+<meta property="og:locale:alternate" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Feasible Region in 3D">
+<meta name="twitter:description" content="Explore a three-variable military procurement LP in 3D, find its vertices and see why a whole edge of optimal solutions appears.">
+<meta name="twitter:image" content="https://learn-optimization.jaimepesca.com/assets/og-image.png">
+<meta name="twitter:image:alt" content="Optimization in Action. Operations research · Interactive resources">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "LearningResource",
+   "@id": "https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html",
+   "url": "https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html",
+   "name": "Feasible Region in 3D",
+   "description": "Explore a three-variable military procurement LP in 3D, find its vertices and see why a whole edge of optimal solutions appears.",
+   "learningResourceType": "Simulation",
+   "interactivityType": "active",
+   "educationalLevel": "Level 1: Linear programming",
+   "teaches": "Linear programming",
+   "about": [
+    {
+     "@type": "DefinedTerm",
+     "name": "Graphical method"
+    },
+    {
+     "@type": "DefinedTerm",
+     "name": "Simplex"
+    },
+    {
+     "@type": "DefinedTerm",
+     "name": "Duality"
+    },
+    {
+     "@type": "DefinedTerm",
+     "name": "Sensitivity analysis"
+    }
+   ],
+   "keywords": "Linear programming, Graphical method, Simplex, Duality, Sensitivity analysis",
+   "inLanguage": [
+    "en",
+    "es",
+    "pt",
+    "fr"
+   ],
+   "isAccessibleForFree": true,
+   "author": {
+    "@id": "https://jaimepesca.com/#person"
+   },
+   "creator": {
+    "@id": "https://jaimepesca.com/#person"
+   },
+   "isPartOf": {
+    "@type": "Course",
+    "@id": "https://learn-optimization.jaimepesca.com/#course",
+    "name": "Optimization in Action: Learning path",
+    "url": "https://learn-optimization.jaimepesca.com/#learn"
+   }
+  },
+  {
+   "@type": "Person",
+   "@id": "https://jaimepesca.com/#person",
+   "name": "Jaime Pesca",
+   "alternateName": [
+    "Jaime Enrique Pesca Santos",
+    "J. E. Pesca Santos"
+   ],
+   "url": "https://jaimepesca.com",
+   "sameAs": [
+    "https://orcid.org/0009-0003-8221-0924",
+    "https://www.linkedin.com/in/jaime-pesca/",
+    "https://github.com/JaimePesca"
+   ],
+   "mainEntityOfPage": "https://learn-optimization.jaimepesca.com/about.html",
+   "jobTitle": "Lecturer in optimization methods",
+   "worksFor": {
+    "@type": "CollegeOrUniversity",
+    "name": "Universidad Externado de Colombia"
+   },
+   "alumniOf": {
+    "@type": "CollegeOrUniversity",
+    "name": "Universidad de La Sabana"
+   },
+   "memberOf": [
+    {
+     "@type": "Organization",
+     "name": "The OR Society"
+    },
+    {
+     "@type": "Organization",
+     "name": "Colombian Association of Operations Research (ASOCIO)"
+    }
+   ],
+   "knowsAbout": [
+    "Operations research",
+    "Mathematical optimization",
+    "Mixed-integer linear programming",
+    "Mixed-integer nonlinear programming",
+    "Combinatorial optimization",
+    "Heuristics and metaheuristics",
+    "Facility location",
+    "Discrete choice models",
+    "Fuzzy AHP",
+    "Multi-criteria decision analysis",
+    "Stochastic programming",
+    "Logistics and supply chain",
+    "Machine learning"
+   ],
+   "knowsLanguage": [
+    "en",
+    "es"
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Optimization in Action",
+     "item": "https://learn-optimization.jaimepesca.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Feasible Region in 3D",
+     "item": "https://learn-optimization.jaimepesca.com/resources/feasible-region-3d.html"
+    }
+   ]
+  }
+ ]
+}
+</script>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+<!-- /Speed -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
 <style>

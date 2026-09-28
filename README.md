@@ -1,5 +1,7 @@
 # Optimization in Action
 
+**Sitio web:** https://learn-optimization.jaimepesca.com · **Autor:** [Jaime Pesca](https://learn-optimization.jaimepesca.com/about.html) ([jaimepesca.com](https://jaimepesca.com)) · Cómo citarlo: ver `CITATION.cff` (botón "Cite this repository" en GitHub).
+
 Sitio web de recursos interactivos de investigación de operaciones, en inglés (versión principal), español, portugués y francés.
 
 1. **Learning path:** cinco niveles abiertos a cualquier colaborador: programación lineal, entera, entera mixta, no lineal y otros métodos de IO.

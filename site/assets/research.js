@@ -115,10 +115,29 @@
         }
       }
     };
-    var s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js";
-    s.async = true;
-    document.head.appendChild(s);
+    // loaded off the critical path: when the first model block comes within 300 px of the screen, or once the
+    // page has loaded and the browser is idle, whichever is first (MathJax is the heaviest file of the page)
+    var asked = false;
+    var go = function () {
+      if (asked) return;
+      asked = true;
+      var s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js";
+      s.async = true;
+      document.head.appendChild(s);
+    };
+    var watching = false;
+    var watch = function () { // only once the page has its texts: before that it is nearly empty and every block looks near
+      if (watching || !("IntersectionObserver" in window)) return;
+      watching = true;
+      var io = new IntersectionObserver(function (es) {
+        if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); go(); }
+      }, { rootMargin: "300px 0px" });
+      blocks.forEach(function (el) { io.observe(el.closest(".math") || el.parentElement); }); // the <script> itself has no box
+    };
+    I18N.onChange(function () { requestAnimationFrame(watch); });
+    var idle = function () { (window.requestIdleCallback || function (f) { setTimeout(f, 200); })(go, { timeout: 2500 }); };
+    if (document.readyState === "complete") idle(); else window.addEventListener("load", idle);
   }
 
   I18N.onChange(function () { renderPaper(); renderMath(); });

@@ -1,0 +1,116 @@
+<!doctype html>
+<!--
+  Page shown by GitHub Pages for any address that does not exist, at any depth, so every link and asset
+  path here is absolute (/assets/...). Not indexed. Strings: nf.* in locales/<lang>.js plus the catalog keys.
+-->
+<html lang="en" data-title-key="nf.title">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23750014%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-family=%27Helvetica,Arial,sans-serif%27 font-size=%2716%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27%3Ex*%3C/text%3E%3C/svg%3E">
+<title>Page not found</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="/assets/site.css?v=__BUILD__">
+<style>
+  .nf-head { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 12px 28px; align-items: center; }
+  .nf-art { width: 200px; height: 160px; }
+  @media (max-width: 620px) { .nf-head { grid-template-columns: 1fr; } .nf-art { width: 150px; height: 120px; } }
+  .nf-home {
+    align-self: flex-start; display: inline-flex; gap: 8px; align-items: center; font-weight: 700; font-size: 15px;
+    text-decoration: none; color: var(--on-solid); background: var(--accent); padding: 10px 16px; border-radius: 2px;
+  }
+  .nf-home:hover { filter: brightness(1.12); }
+  .nf-levels { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .nf-levels a {
+    display: grid; gap: 4px; padding: 14px 15px; height: 100%; text-decoration: none; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 4px; transition: border-color 0.15s;
+  }
+  .nf-levels a:hover { border-color: var(--accent); }
+  .nf-n { font: 600 10.5px var(--font-mono); letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent-text); }
+  .nf-t { font-weight: 600; font-size: 17px; line-height: 1.2; }
+  .nf-c { font-size: 13px; color: var(--muted); }
+  .nf-head-2 { margin: 18px 0 0; font: 600 10.5px var(--font-mono); letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="/index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.backToPath"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead nf-head">
+    <div>
+      <p class="eyebrow" data-i18n="nf.eyebrow"></p>
+      <h1 data-i18n="nf.title"></h1>
+      <p class="lede" data-i18n="nf.lede"></p>
+    </div>
+    <canvas class="nf-art" id="nf-art" aria-hidden="true"></canvas>
+  </header>
+
+  <a class="nf-home" href="/index.html" data-keep-lang><span data-i18n="nf.home"></span> <span aria-hidden="true">→</span></a>
+
+  <p class="nf-head-2" data-i18n="nav.learn"></p>
+  <ul class="nf-levels" id="nf-levels"></ul>
+  <p class="nf-head-2" data-i18n="nav.research"></p>
+  <ul class="nf-levels"><li><a href="/index.html#research" data-keep-lang><span class="nf-t" data-i18n="nav.research"></span><span class="nf-c" data-i18n="nf.research"></span></a></li></ul>
+</div>
+
+<script src="/assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="/assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="/locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="/assets/catalog.js?v=__BUILD__" charset="utf-8"></script>
+<script src="/assets/home-art.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t, C = window.CATALOG;
+
+  function h(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  // the five levels of the learning path, each with its number of published resources
+  function renderLevels() {
+    var ul = document.getElementById("nf-levels"); ul.textContent = "";
+    C.levels.forEach(function (l) {
+      var n = C.education.filter(function (r) { return r.level === l.id && r.href; }).length;
+      var a = h("a"); a.href = I18N.href("/index.html#level-" + l.id);
+      a.append(h("span", "nf-n", t("home.level") + " " + l.n), h("span", "nf-t", t("level." + l.id + ".title")),
+        h("span", "nf-c", t("nf.count", { n: n })));
+      var li = h("li"); li.appendChild(a); ul.appendChild(li);
+    });
+  }
+
+  // a small drawing: the simplex path reaching x*, the same as level 1 on the home page
+  function drawArt() {
+    var cv = document.getElementById("nf-art"), r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+    var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (window.HomeArt) HomeArt.paint(ctx, 0, 1, { x: 0, y: 0, w: r.width, h: r.height }, 1);
+  }
+
+  I18N.onChange(function () { renderLevels(); drawArt(); });
+  window.addEventListener("resize", drawArt);
+})();
+</script>
+</body>
+</html>

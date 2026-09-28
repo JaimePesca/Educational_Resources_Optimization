@@ -14,6 +14,7 @@ I18N.register("fr", {
   "nav.animation": "Voir en mouvement",
   "footer.by": "Créé par",
   "footer.rights": "Tous droits réservés.",
+  "footer.about": "À propos de l'auteur",
   "ref.further": "Pour aller plus loin",
   "ref.section": "section {n}",
   "ref.orma": "Petropoulos, F., Laporte, G., et al. (2024). Operational Research: methods and applications. <i>Journal of the Operational Research Society</i>, 75(3), 423-617, {sec}. <a href=\"https://doi.org/10.1080/01605682.2023.2253852\" target=\"_blank\" rel=\"noopener\">doi:10.1080/01605682.2023.2253852</a>.",
@@ -416,5 +417,11 @@ I18N.register("fr", {
   "tsp.d2.p4": "Recommencez avec un refroidissement <em>rapide</em> puis <em>lent</em> : refroidir trop vite fige l'algorithme avant qu'il n'échappe aux optima locaux ; refroidir lentement explore davantage mais prend plus de temps. Cet équilibre est au cœur des métaheuristiques.",
   "tsp.d3.title": "Pourquoi ne pas le résoudre de manière exacte ?",
   "tsp.d3.p1": "Avec n tours, il existe (n−1)!/2 itinéraires possibles : pour 24 tours, cela représente environ 10²². Les méthodes exactes modernes (séparation et coupe, ou branch and cut) résolvent de grandes instances, mais elles coûtent du temps de calcul et des efforts de développement. Les métaheuristiques comme le recuit simulé fournissent de très bonnes solutions en quelques millisecondes, ce qui compte lorsque l'envoi de moyens contre un feu de forêt ne peut pas attendre.",
-  "tsp.footer": "Ressource pédagogique ·Coordonnées en km sur un territoire synthétique de 100 × 75 km. Le recuit simulé s'exécute dans votre navigateur ; chaque exécution est différente car les propositions sont aléatoires."
+  "tsp.footer": "Ressource pédagogique ·Coordonnées en km sur un territoire synthétique de 100 × 75 km. Le recuit simulé s'exécute dans votre navigateur ; chaque exécution est différente car les propositions sont aléatoires.",
+  "nf.eyebrow": "Erreur 404",
+  "nf.title": "Page introuvable",
+  "nf.lede": "L'adresse est peut-être ancienne ou mal saisie. Les ressources sont toujours là : choisissez un niveau du parcours d'apprentissage ou revenez à l'accueil.",
+  "nf.home": "Aller à l'accueil",
+  "nf.count": "{n} ressources",
+  "nf.research": "Quatre cas appliqués en Colombie."
 });

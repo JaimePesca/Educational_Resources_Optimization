@@ -14,6 +14,7 @@ I18N.register("pt", {
   "nav.animation": "Veja em movimento",
   "footer.by": "Criado por",
   "footer.rights": "Todos os direitos reservados.",
+  "footer.about": "Sobre o autor",
   "ref.further": "Leitura complementar",
   "ref.section": "seção {n}",
   "ref.orma": "Petropoulos, F., Laporte, G., et al. (2024). Operational Research: methods and applications. <i>Journal of the Operational Research Society</i>, 75(3), 423-617, {sec}. <a href=\"https://doi.org/10.1080/01605682.2023.2253852\" target=\"_blank\" rel=\"noopener\">doi:10.1080/01605682.2023.2253852</a>.",
@@ -416,5 +417,11 @@ I18N.register("pt", {
   "tsp.d2.p4": "Repita com resfriamento <em>rápido</em> e <em>lento</em>: resfriar rápido demais congela o algoritmo antes que ele escape dos ótimos locais; resfriar devagar explora mais, porém demora mais. Esse equilíbrio é o coração das meta-heurísticas.",
   "tsp.d3.title": "Por que não resolver de forma exata?",
   "tsp.d3.p1": "Com n torres há (n−1)!/2 rotas possíveis: para 24 torres são cerca de 10²². Métodos exatos modernos (branch and cut) resolvem instâncias grandes, mas custam tempo de computação e esforço de desenvolvimento. Meta-heurísticas como o recozimento entregam soluções muito boas em milissegundos, o que importa quando o despacho de recursos contra um incêndio florestal não pode esperar.",
-  "tsp.footer": "Recurso didático · Coordenadas em km sobre um território sintético de 100 × 75 km. O recozimento roda no seu navegador; cada execução é diferente porque as propostas são aleatórias."
+  "tsp.footer": "Recurso didático · Coordenadas em km sobre um território sintético de 100 × 75 km. O recozimento roda no seu navegador; cada execução é diferente porque as propostas são aleatórias.",
+  "nf.eyebrow": "Erro 404",
+  "nf.title": "Página não encontrada",
+  "nf.lede": "O endereço pode ser antigo ou ter um erro de digitação. Os recursos continuam aqui: escolha um nível da trilha de aprendizagem ou volte à página inicial.",
+  "nf.home": "Ir para a página inicial",
+  "nf.count": "{n} recursos",
+  "nf.research": "Quatro casos aplicados na Colômbia."
 });

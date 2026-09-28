@@ -1,0 +1,8 @@
+# Optimization in Action
+# Every page may be crawled. The hidden lab pages carry <meta name="robots" content="noindex, nofollow">,
+# which crawlers can only read if the pages are not blocked here.
+User-agent: *
+Allow: /
+Disallow: /resources/_template.html
+
+Sitemap: https://learn-optimization.jaimepesca.com/sitemap.xml
