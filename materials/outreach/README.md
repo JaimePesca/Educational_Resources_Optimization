@@ -44,7 +44,7 @@ BibTeX:
 Tus propios canales (rápidos y bajo tu control):
 1. **Tus cursos:** en el programa y en el aula virtual de Métodos de Optimización II (Universidad Externado) enlaza el recurso de cada tema. Los enlaces desde dominios universitarios son de los más valiosos. Usa la lista por nivel del apartado 4.
 2. **Perfiles académicos:** agrega el sitio en ORCID (Websites and social links), Google Scholar (Página principal), ResearchGate y LinkedIn (sección Destacados o Proyectos). Cuando tengas esas URL, envíamelas: van en la página "Sobre el autor" y en los datos estructurados (`sameAs`).
-3. **GitHub:** en el repositorio, Settings, About, campo Website: pon https://learn-optimization.jaimepesca.com. Si tienes un README de perfil, enlázalo ahí también. En el repositorio del caso de mercados  agrega una línea con el enlace a su página: https://learn-optimization.jaimepesca.com/research/markets.html
+3. **GitHub:** en el repositorio, Settings, About, campo Website: pon https://learn-optimization.jaimepesca.com. Si tienes un README de perfil, enlázalo ahí también. Cuando el artículo de mercados esté publicado (no antes: hoy está en revisión doble ciego), agrega en su repositorio de código una línea con el enlace a su página: https://learn-optimization.jaimepesca.com/research/markets.html
 4. **Tus artículos y presentaciones:** en la sección de material complementario o en el agradecimiento de los documentos de trabajo, y en la última diapositiva de cada charla (con el QR de esta carpeta).
 5. **Firma de correo** y perfil de la universidad (si la Externado tiene página de profesores).
 
