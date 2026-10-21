@@ -112,7 +112,14 @@ window.CATALOG = {
     { id: "lab-svm-dual", type: "animation", href: "lab/dual-street.html" },
     { id: "lab-svm-kernel", type: "animation", href: "lab/kernel-trick.html" },
     { id: "lab-ml-ai-cases", type: "simulation", href: "lab/ml-ai-optimization.html" },
-    { id: "lab-fahp", type: "simulation", href: "lab/fuzzy-ahp.html" }
+    { id: "lab-fahp", type: "simulation", href: "lab/fuzzy-ahp.html" },
+    { id: "lab-gtb-table", type: "simulation" },
+    { id: "lab-gtb-mix", type: "game" },
+    { id: "lab-gtb-moves", type: "animation" },
+    { id: "lab-gtb-share", type: "simulation" },
+    { id: "lab-braess", type: "animation" },
+    { id: "lab-patrols", type: "game" },
+    { id: "lab-tolls", type: "game" }
   ],
   // true adds a "Lab" link to the home page's top menu; false keeps the lab reachable only by its door
   labInNav: false
