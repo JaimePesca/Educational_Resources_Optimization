@@ -2450,11 +2450,11 @@
     h += " " + T(Math.abs(f - fs) < 0.26 ? "gtt.lk.atfee" : "gtt.lk.fee.hint", { fs: fmt(fs, 2), Xo: fmt(O.X, 1), gs: fmt(O.gs.x, 4), it: O.gs.it });
     $("gtt-lk-res").innerHTML = h;
     // n = 2: the cement market of the animation divided by 5
-    var e2 = lake(2, 0), Pn = price(2 * 40), Pc = price(2 * 30);
-    var mk = marketGame([30, 40]);
+    var e2 = lake(2, 0), mk0 = scen("m2"), Pn = price(mk0.qs[mk0.ne.i] + mk0.qs[mk0.ne.j]), Pc = price(mk0.qs[mk0.best.i] + mk0.qs[mk0.best.j]);
+    var mk = mk0.G;
     $("gtt-lk-pw").innerHTML = T("gtt.lk.pw", {
       W2: fmt(e2.W, 0), Wo: fmt(O.W, 0), b2: fmt(5 * e2.W / 1000, 0), bo: fmt(5 * O.W / 1000, 0),
-      ne: pv(mk.A[1][1] + mk.B[1][1]), co: pv(mk.A[0][0] + mk.B[0][0]), Pn: fmt(Pn), Pc: fmt(Pc)
+      ne: pv(mk0.ne.a + mk0.ne.b), co: pv(mk0.best.a + mk0.best.b), Pn: fmt(Pn), Pc: fmt(Pc), xe: profile(mk, mk0.ne.i, mk0.ne.j), xc: profile(mk, mk0.best.i, mk0.best.j)
     });
   }
   function drawLake(E0, O) {
@@ -2542,7 +2542,7 @@
   function renderStrip1() {
     var S = scen(ast.menu), G = S.G, ne = S.ne, set = "\\{" + S.qs.map(function (q) { return texNum(q, 0); }).join(", ") + "\\}";
     var c1 = S.qs.map(function (q, k) { return tv(G.A[k][ne.j]); }).join(T("gtt.texsep")), c2 = S.qs.map(function (q, k) { return tv(G.B[ne.i][k]); }).join(T("gtt.texsep"));
-    var v = { set: set, q1: texNum(S.qs[ne.i], 0), q2: texNum(S.qs[ne.j], 0), c1: c1, c2: c2, v1: tv(ne.a), v2: tv(ne.b), a: texNum(A_, 0), b: texNum(B_, 0), c: texNum(C_, 0) };
+    var v = { vset: set, vq1: texNum(S.qs[ne.i], 0), vq2: texNum(S.qs[ne.j], 0), vc1: c1, vc2: c2, vv1: tv(ne.a), vv2: tv(ne.b), va: texNum(A_, 0), vb: texNum(B_, 0), vc: texNum(C_, 0) };
     var plain = { set: "{" + S.qs.map(function (q) { return fmt(q); }).join(", ") + "}", q1: fmt(S.qs[ne.i]), q2: fmt(S.qs[ne.j]),
       c1: S.qs.map(function (q, k) { return pv(G.A[k][ne.j]); }).join(T("gtt.sep")), c2: S.qs.map(function (q, k) { return pv(G.B[ne.i][k]); }).join(T("gtt.sep")),
       v1: pv(ne.a), v2: pv(ne.b), a: fmt(A_), b: fmt(B_), c: fmt(C_) };
@@ -2557,7 +2557,7 @@
   function renderStrip2() {
     var G = WB.G, md = lastMd, ta = $("gtt-s2a");
     if (md) {
-      var p = md.p, nm = md.others.map(function (k) { return "s_{" + texText(lab(G, p, k)) + "}"; });
+      var p = md.p, nm = md.others.map(function (k) { return "\\sigma_{" + texText(lab(G, p, k)) + "}"; });
       var lines = ["\\max\\;& e && " + texText(T("gtt.s2.margin"))];
       var plain = [T("gtt.s2.pmax")];
       md.O.forEach(function (o, q) {
@@ -2565,9 +2565,9 @@
         lines.push((q === 0 ? "\\text{ST}\\;& " : "& ") + terms + " - e \\ge " + tv(u(G, p, md.s, o)) + " && " + texText(T("gtt.s2.against", { c: lab(G, 3 - p, o) })));
         plain.push(md.others.map(function (k) { return pv(u(G, p, k, o)) + "·s(" + lab(G, p, k) + ")"; }).join(" + ") + " " + MINUS + " e ≥ " + pv(u(G, p, md.s, o)));
       });
-      lines.push("& " + nm.join(" + ") + " = 1, \\quad s \\ge 0 &&");
+      lines.push("& " + nm.join(" + ") + " = 1, \\quad \\sigma \\ge 0 &&");
       var sol = "(" + md.w.map(function (w) { return texNum(w, 3); }).join(T("gtt.texsep")) + ")";
-      lines.push("& e^* = " + tv(md.e) + ", \\quad s^* = " + sol + " && " + texText(T(md.dom ? "gtt.s2.dom" : "gtt.s2.notdom", { s: lab(G, p, md.s) })));
+      lines.push("& e^* = " + tv(md.e) + ", \\quad \\sigma^* = " + sol + " && " + texText(T(md.dom ? "gtt.s2.dom" : "gtt.s2.notdom", { s: lab(G, p, md.s) })));
       plain.push("e* = " + pv(md.e));
       TeX.set(ta, "\\begin{aligned}" + lines.join(" \\\\ ") + "\\end{aligned}", plain.join("\n"));
       ta.hidden = false;
@@ -2577,11 +2577,11 @@
     var cells = cellsOf(G), mn = Infinity, at = [];
     cells.forEach(function (c) { var r = regret(G, c.i, c.j), g = Math.max(r.g1, r.g2); if (g < mn - EPS) { mn = g; at = [c]; } else if (Math.abs(g - mn) <= EPS) at.push(c); });
     var atT = at.slice(0, 3).map(function (c) { return "(" + texText(labR(G, c.i)) + ", " + texText(labC(G, c.j)) + ")"; }).join(T("gtt.texsep"));
-    var L2 = [T("gtt.s2.reg.tex", { v: tv(mn), at: atT })];
+    var L2 = [T("gtt.s2.reg.tex", { vv: tv(mn), vat: atT })];
     if (G.kind === "market") {
       var bk = null, bv = -Infinity;
       cells.forEach(function (c) { var f = potential(G.qs[c.i], G.qs[c.j]); if (f > bv + EPS) { bv = f; bk = c; } });
-      L2.push(T("gtt.s2.pot.tex", { q1: texNum(G.qs[bk.i], 0), q2: texNum(G.qs[bk.j], 0), F: tv(bv) }));
+      L2.push(T("gtt.s2.pot.tex", { vq1: texNum(G.qs[bk.i], 0), vq2: texNum(G.qs[bk.j], 0), vF: tv(bv) }));
     }
     TeX.set($("gtt-s2b"), "\\begin{aligned}" + L2.join(" \\\\ ") + "\\end{aligned}", T("gtt.s2.reg.formula", { v: pv(mn) }));
     $("gtt-s2b-note").innerHTML = T(mn <= EPS ? "gtt.s2.regnote" : "gtt.s2.regnote0", { v: pv(mn) }) + (G.kind === "market" ? " " + T("gtt.s2.potnote") : "");
@@ -2590,13 +2590,13 @@
     var el = $("gtt-s3");
     if (AL.sc === "lake") {
       var n = AL.n, f = AL.fee, E0 = lake(n, f), O = lakeOpt();
-      var v = { a: texNum(LAKE_A, 0), n: texNum(n, 0), n1: texNum(n + 1, 0), f: texNum(f, 2), x: texNum(E0.x, 2), X: texNum(E0.X, 2), W: texNum(E0.W, 1),
-        Xo: texNum(O.X, 1), Wo: texNum(O.W, 1), r: texNum(O.W / E0.W, 3), fs: texNum(feeStar(n), 2) };
+      var v = { va: texNum(LAKE_A, 0), vn: texNum(n, 0), vn1: texNum(n + 1, 0), vf: texNum(f, 2), vx: texNum(E0.x, 2), vX: texNum(E0.X, 2), vW: texNum(E0.W, 1),
+        vXo: texNum(O.X, 1), vWo: texNum(O.W, 1), vr: texNum(O.W / E0.W, 3), vfs: texNum(feeStar(n), 2) };
       TeX.set(el, T("gtt.s3.lake.tex", v), T("gtt.s3.lake.formula", { x: fmt(E0.x, 2), Xo: fmt(O.X, 1), r: fmt(O.W / E0.W, 3) }));
       $("gtt-s3-note").innerHTML = T("gtt.s3.lake.note");
     } else {
       var d = AL.d, Pg = pigou(d);
-      var w = { d: texNum(d, 0), d1: texNum(d + 1, 0), xs: texNum(Pg.xs, 3), c: texNum(Pg.Copt, 3), poa: texNum(Pg.poa, 3) };
+      var w = { vd: texNum(d, 0), vd1: texNum(d + 1, 0), vxs: texNum(Pg.xs, 3), vc: texNum(Pg.Copt, 3), vpoa: texNum(Pg.poa, 3) };
       TeX.set(el, T("gtt.s3.roads.tex", w), T("gtt.s3.roads.formula", { xs: fmt(Pg.xs, 3), c: fmt(Pg.Copt, 3), poa: fmt(Pg.poa, 3) }));
       $("gtt-s3-note").innerHTML = T("gtt.s3.roads.note");
     }
@@ -2632,11 +2632,12 @@
     });
     var d = S2.pd, br30 = brInfo(G3, allR(G3), allC(G3)).b1[0][0];
     $("gtt-n2").innerHTML = T("gtt.n.p2", {
-      b: profile(G3, S3.best.i, S3.best.j), vb: pv(S3.best.a), ve: pv(S3.ne.a), br: fmt(S3.qs[br30]), vbr: pv(G3.A[br30][0]),
+      b: profile(G3, S3.best.i, S3.best.j), vb: pv(S3.best.a), ve: pv(S3.ne.a), br: fmt(S3.qs[br30]), vbr: pv(G3.A[br30][0]), c0: fmt(S3.qs[0]),
+      pa: fmt(S2.qs[0]), pb: fmt(S2.qs[1]),
       T: pv(d.T), R: pv(d.R), P: pv(d.P), S: pv(d.S), r2: pv(2 * d.R), ts: pv(d.T + d.S)
     });
     var t4 = S4.rounds[0].ties[0];
-    $("gtt-n3").innerHTML = T("gtt.n.p3", { n: S4.rounds.length, s: fmt(S4.qs[t4.s]), k: fmt(S4.qs[t4.k]), j: fmt(S4.qs[t4.j]), v: pv(t4.v),
+    $("gtt-n3").innerHTML = T("gtt.n.p3", { n: S4.rounds.length, menu: menuName("m4"), s: fmt(S4.qs[t4.s]), k: fmt(S4.qs[t4.k]), j: fmt(S4.qs[t4.j]), v: pv(t4.v),
       first: fmt(S4.qs[S4.rounds[0].rows[0].s]) });
     var W0 = classicGame("weak"), a = iewds(W0, "top"), b = iewds(W0, "bottom"), Gi = classicGame("gib"), gi = iesds(Gi);
     var pays = function (G, R, C) { var o = []; R.forEach(function (i) { C.forEach(function (j) { var s = pp(G.A[i][j], G.B[i][j]); if (o.indexOf(s) < 0) o.push(s); }); }); return joinL(o); };
