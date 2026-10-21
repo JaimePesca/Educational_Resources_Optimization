@@ -13,8 +13,8 @@ New elements for the hidden lab about game theory. First help the owner decide w
 | # | Task | Status | Notes |
 |---|---|---|---|
 | 1 | Design workflow: 5 proposal angles, merge, 3 judges, critic, synthesis | done | result in materials/game-theory-design.json: 14 candidates; recommended penalty minimax, Braess/Wardrop, core LP, security patrols (critic corrections included) |
-| 1b | Owner added: a basics track (principles, notions, classic examples) and a second hidden door in the lab to a study section on Loe Schlicher's published research (cooperative games, spare parts pooling) | building | workflow run wf_6078bbfc-39e: basics track design, verified bibliography, paper reads with adversarial checks, public defence context, section design |
-| 2 | Owner chooses which pages to build | todo | |
+| 1b | Owner added: a basics track (principles, notions, classic examples) and a second hidden door in the lab to a study section on Loe Schlicher's published research (cooperative games, spare parts pooling) | done | basics track (4 pages) in materials/game-theory-basics.json. Study section design and bibliography kept OUT of the public repo (scratchpad gt-dossier.json): no primary source could be opened (arXiv and publishers blocked), so paper content needs the PDFs from the owner, kept local only (.gitignore) |
+| 2 | Owner chooses which pages to build (basics, advanced, study section scope, languages, PDFs) | todo | asked 2026-10-21 |
 | 3 | Build the chosen pages (builder + independent reviewer each) | todo | |
 | 4 | Final check, report, ask for merge | todo | |
 
