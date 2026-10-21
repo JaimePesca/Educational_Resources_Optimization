@@ -1,0 +1,321 @@
+{
+ "notes": {
+  "slug": "2026-parcel-lockers",
+  "bibliography": {
+   "title": "Collaboration in parcel locker networks—A cooperative game for the joint placement of lockers",
+   "authors": [
+    "Fabio Mercurio",
+    "Loe Schlicher",
+    "Sonja U.K. Rohmer",
+    "Tom Van Woensel"
+   ],
+   "affiliations_as_printed": "a Department of Industrial Engineering & Innovation Sciences, School of Industrial Engineering, Eindhoven University of Technology, P.O. Box 513, Atlas, 5600MB Eindhoven, The Netherlands (Mercurio, Schlicher, Van Woensel). b Department of Logistics and Operations Management, HEC Montréal, 3000 Chemin de la Côte-Ste-Catherine, QC H3T 2A7, Montréal, Canada (Rohmer). Corresponding author: Fabio Mercurio (f.mercurio@tue.nl). Footnote 1: Sonja U.K. Rohmer and Loe Schlicher contributed equally to the development of the paper.",
+   "journal": "International Journal of Production Economics",
+   "volume_issue_pages_or_article": "Volume 300 (2026), article 110096, 17 pages (ISSN 0925-5273)",
+   "year": "2026",
+   "received": "17 February 2025 (received in revised form 21 May 2026)",
+   "accepted": "1 June 2026",
+   "available_online": "4 June 2026",
+   "doi": "10.1016/j.ijpe.2026.110096",
+   "open_access_or_license": "Open access under the CC BY license (http://creativecommons.org/licenses/by/4.0/). © 2026 The Authors. Published by Elsevier B.V. Funding: EAISI Eindhoven Artificial Intelligence Systems Institute [CRT STA Collaborative Mobility project]. Data availability: data will be made available on request.",
+   "keywords": [
+    "Location",
+    "Game theory",
+    "Last-mile logistics",
+    "Parcel lockers",
+    "Stable allocation"
+   ]
+  },
+  "chronology_date": "2026-06-04",
+  "one_line": "Carriers that jointly place parcel lockers play a cooperative profit game whose core is non-empty whenever the grand coalition's locker location integer program has no integrality gap (in particular on tree networks); on 23,520 random instances the core is non-empty in the vast majority of cases (2 empty out of 3360 under random assignment, at worst about 8% empty in one clustered setting), a small external subsidy fixes the unstable cases, and the Shapley value and a scaled dual rule beat the intuitive proportional rule.",
+  "question": "In the authors' terms: a group of carriers makes a collective long-term decision on how many parcel lockers to open and where (opening a locker has a location-dependent cost; serving a customer through a close-by locker yields a customer-specific profit). Can the joint profit be allocated in a stable way, i.e., is the core of the associated cooperative \"locker location (LL) game\" non-empty? Under which conditions is this guaranteed (they prove sufficiency of opt(LLP_N) = opt(RLLP_N), which holds on trees and, more generally, when the connection matrix is totally unimodular), how often is the core non-empty in a wide range of practical settings, how large an external subsidy is needed when it is empty, and how often do three allocation rules (proportional, Shapley value, scaled dual) give core allocations, and by how much do they violate stability otherwise?",
+  "motivation_application": "Last-mile parcel delivery in cities. Urbanization (68% of world population urban by 2050, Ritchie and Roser 2018) and e-commerce growth (Dutch parcel industry revenue from nearly 2000 million euros in 2016 to 3600 million euros in 2020, Statista 2021) bring more delivery vehicles, congestion, and harm to environment, public health and safety; last-mile delivery is cited as more than 50% of shipping costs and more than 2/3 of delivery CO2 emissions (Nabot and Omar, 2016) (p. 1). Automated parcel lockers consolidate deliveries, reduce failed deliveries, and are liked by customers (24-hour availability, faster shipping) (p. 1). Investment is growing (DHL PackStations in Germany from 4500 in 2019 to 15,000 in 2024, over 2000 new lockers per year; InPost across Europe from around 8300 in 2019 to 47,000 in 2024; lockers per 1000 persons: Poland 1.08, Sweden 0.96, UK 0.23, Germany 0.18) (pp. 1-2). A main barrier is cost: about 5,000 to 30,000 euros per locker installation, and a carrier needs many lockers for coverage (p. 2). In practice carriers form alliances to share or jointly buy and operate lockers: the shared PostNL, GLS and FedEx network in the Netherlands, \"Locker Italia\" of DHL and Poste Italiane, and SwipBox with PostNord (p. 2). The paper studies this horizontal collaboration: will carriers be able to split the joint profit so that no group wants to leave? The opening cost is interpreted as acquisition plus set-up and land-use costs; the profit as aggregated expected savings over time (shorter travel distance, fewer failed deliveries) (p. 2). Policy angle: a public body promoting lockers could pay the small subsidy needed for stability (pp. 9, 11, 14).",
+  "model": "Players: a finite non-empty set of carriers $N \\subset \\mathbb{N}$. Each carrier $i$ has a customer set $C_i$; the $C_i$ are pairwise disjoint and $C = \\bigcup_{i \\in N} C_i$ (an individual who uses several carriers is represented by several customers at the same location, p. 6). A customer may also stand for a cluster of customers (district, region) (p. 4). Candidate locker locations $L$ (same for all carriers; already restricted to locations meeting legal and practical requirements such as land availability, security and accessibility, p. 4), opening cost $c_j \\in \\mathbb{R}_+$, distance $d_{kj} \\in \\mathbb{R}_+$, maximal distance $D_k \\in \\mathbb{R}_+$ that customer $k$ is willing to travel. Customer $k$ accepts $L_k = \\{ j \\in L : d_{kj} \\le D_k \\}$; locker $j$ can serve $\\hat C_j = \\{ k \\in C : d_{kj} \\le D_k \\}$ (defined on p. 8). Profit $p_k \\in \\mathbb{R}_+$ is a rough linear estimate of the savings a carrier gets from customer $k$ when at least one open locker lies within $D_k$ (justified via the Daganzo 1984 route-length approximation: the reduction in routing distance is asymptotically linear in the number of customers when that number is large, p. 4). No capacities (footnote 2, p. 4: capacity can be reflected in the cost of a locker). An LL situation is $\\theta = (N, L, (C_i)_{i \\in N}, p, c, d, D)$; $\\Theta$ is the set of all LL situations (p. 6).\n\nSingle-decision-maker problems (Section 3, pp. 4-5):\nSLLP (1a)-(1d) (\"strict locker location problem\"): $\\max \\sum_{k \\in C} p_k x_k - \\sum_{j \\in L} c_j y_j$ s.t. $x_k \\le \\sum_{j \\in L_k} y_j\\ \\forall k$, $x_k \\in \\{0,1\\}$, $y_j \\in \\{0,1\\}$. Bounded above by $\\sum_k p_k$; $x = 0, y = 0$ feasible.\nLLP (2a)-(2e): same objective and covering constraint (2b), plus $x_k \\le 1$, $x_k \\in \\mathbb{R}_+$, $y_j \\in \\mathbb{N}$ (relaxation of SLLP with the same optimal value, Lemma 1).\nRLLP (3a)-(3e): LLP with $y_j \\in \\mathbb{R}_+$ (LP relaxation).\nMatrix form $Az \\le b$, $z \\ge 0$ (eqs. 4-5): $A^{LLP} = \\begin{bmatrix} I_{|C|} & M^{LLP} \\\\ I_{|C|} & O \\end{bmatrix}$, $b^{LLP} = ((0)_{k \\in C}, (1)_{k \\in C})$, where the \"connection matrix\" $M^{LLP}$ is $|C| \\times |L|$ with $m^{LLP}_{kj} = -1$ if $j \\in L_k$ and 0 otherwise.\nLLP-induced graph $G^{LLP} = (V, E)$ with $V = C \\cup L$ and an edge $(k, j)$ for each $k \\in C$, $j \\in L_k$ (bipartite; tree = connected and acyclic).\n\nCoalition problem (Section 5, eq. 6a-6e, p. 7): for $S \\subseteq N$, $C_S = \\bigcup_{i \\in S} C_i$ and $LLP^\\theta_S := \\max \\sum_{k \\in C_S} p_k x_k - \\sum_{j \\in L} c_j y_j$ s.t. $x_k \\le \\sum_{j \\in L_k} y_j$, $x_k \\le 1$, $x_k \\in \\mathbb{R}_+$ ($k \\in C_S$), $y_j \\in \\mathbb{N}$ ($j \\in L$). Every coalition may open any location of $L$ at the same cost. $RLLP^\\theta_S$ ($S \\ne \\emptyset$) replaces (6e) by $y_j \\in \\mathbb{R}_+$.\nDefinition 1 (eq. 7, p. 7): the LL game is the TU (profit) game $(N, v^\\theta)$ with $v^\\theta(S) = \\mathrm{opt}(LLP^\\theta_S)$ for $S \\subseteq N$ (non-empty) and $v^\\theta(\\emptyset) = 0$.\nCore (p. 7): $\\mathcal{C}(N, v^\\theta) = \\{ u \\in \\mathbb{R}^N : \\sum_{i \\in N} u_i = v^\\theta(N),\\ \\sum_{i \\in S} u_i \\ge v^\\theta(S)\\ \\forall S \\subseteq N, S \\ne \\emptyset \\}$.\nDual of the coalition relaxation (8a)-(8d), p. 8: $DRLLP_S := \\min \\sum_{k \\in C_S} \\beta_k$ s.t. $\\alpha_k + \\beta_k \\ge p_k$ ($k \\in C_S$), $\\sum_{k \\in \\hat C_j \\cap C_S} \\alpha_k \\le c_j$ ($j \\in L$), $\\alpha_k, \\beta_k \\ge 0$. Interpretation (p. 8): $\\alpha_k$ is the allocation of the locker cost to the carrier of customer $k$, $\\beta_k$ the profit the customer generates for its carrier; the paper states (p. 9) that $\\beta_k = 0$ if $k$ is not served and $\\beta_k = p_k - \\alpha_k$ if served (complementary slackness with an optimal primal solution).\n\nAssumptions as stated: strategic, collective decision maximizing total joint profit; carriers share locations and costs; each customer is served by exactly one carrier; profit per customer counted once if at least one locker is in range; pre-existing lockers can be included with $c_j$ as acquisition cost (e.g. residual value), outsiders assumed able to buy at the same cost (Remark 1); \"cooperation\" costs and other costs discussed in Remark 2 but not in the base model.",
+  "results": [
+   {
+    "label": "Lemma 1",
+    "page": "5 (proof in Appendix, p. 15)",
+    "statement": "The optimal values of SLLP and LLP coincide, i.e., opt(SLLP) = opt(LLP). (SLLP has binary x and y; LLP allows continuous $x_k \\in [0,1]$ and integer $y_j \\in \\mathbb{N}$.)",
+    "meaning": "Allowing several lockers at one location and fractional service does not change the optimum, so the more convenient LLP (whose LP relaxation RLLP is used later) is a faithful model of the binary locker location problem.",
+    "proof_idea": "The SLLP feasible set lies inside the LLP feasible set and the objectives are equal. Any LLP-feasible point that is not SLLP-feasible is mapped to a point feasible for both with at least the same value: set every fractional $x_k$ to 1 (an integer $y_j \\ge 1$ in $L_k$ must exist because $0 < x_k \\le \\sum_{j \\in L_k} y_j$) and $\\bar y_j = \\min\\{1, y_j\\}$; since $p, c \\ge 0$, raising x and lowering y cannot decrease the objective (eq. 13). Two cases: some $x_k \\in (0,1)$; or all x binary but some $y_j \\ge 2$. (Minor slips in the printed proof: Case 1 says $\\bar x_k = 0$ for all $k \\in C \\setminus S$, whereas $\\bar x_k = x_k$ may equal 1 there, and the covering argument of Case 2 handles those customers; Case 2 writes $\\bar y_k$, $y_k$ for $\\bar y_j$, $y_j$. The sentence before Lemma 1 on p. 5 also reverses the roles, saying the proof shows \"every feasible solution of SLLP that is not in LLP is suboptimal\".)"
+   },
+   {
+    "label": "Lemma 2",
+    "page": "5",
+    "statement": "Let A be a totally unimodular $w \\times z$ matrix and let $b \\in \\mathbb{Z}^w$ and $c \\in \\mathbb{R}^z$. Then, the linear programming problem $\\max\\{cx \\mid x \\ge 0, Ax \\le b\\}$ has integer optimal solutions whenever it has a finite optimum.",
+    "meaning": "Classical integrality result: TU constraint matrix plus integer right-hand side means the LP relaxation already solves the integer program.",
+    "proof_idea": "Not proved in the paper; cited to Wolsey (1998, p. 40)."
+   },
+   {
+    "label": "Lemma 3",
+    "page": "5",
+    "statement": "Given a totally unimodular matrix, if we add a row or a column with a unique non-zero element, that is -1 or 1, then the matrix is still totally unimodular.",
+    "meaning": "Tool to grow TU matrices one row or column at a time; used in Lemma 4 and Proposition 1.",
+    "proof_idea": "Not proved in the paper; cited to Schrijver (1998, p. 280). (Own note: expanding any square submatrix along the added row or column gives 0 or plus or minus a determinant of a square submatrix of the original matrix.)"
+   },
+   {
+    "label": "Lemma 4",
+    "page": "5 (proof in Appendix, p. 15)",
+    "statement": "If the connection matrix $M^{LLP}$ of $A^{LLP}$ is totally unimodular, then RLLP finds an optimal solution of LLP.",
+    "meaning": "Total unimodularity of the customer-location incidence (connection) matrix is enough for the LP relaxation to have no integrality gap, so the locker location problem is solvable as an LP.",
+    "proof_idea": "Build $[I_{|C|} \\mid M^{LLP}]$ from $M^{LLP}$ by adding identity columns one by one, then build $A^{LLP}$ by adding the rows $[I_{|C|} \\mid O]$ one by one; each added row or column has a single non-zero entry 1, so TU is preserved by Lemma 3. RLLP is feasible (zero solution) and bounded by $\\sum_k p_k$, and $b^{LLP}$ is integral (0 or 1), so Lemma 2 gives an integral optimal solution, which is optimal for LLP."
+   },
+   {
+    "label": "Proposition 1",
+    "page": "6 (proof in Appendix, p. 15)",
+    "statement": "Every LLP for which the induced LLP graph $G^{LLP}$ is a tree can be solved by RLLP.",
+    "meaning": "On tree-shaped customer-location networks the locker location problem can be solved efficiently by linear programming (in line with location problems being easier on trees, e.g. Aráoz et al., 2019, p. 5).",
+    "proof_idea": "A tree with p customers and q locations has p+q nodes and p+q-1 edges and, having at least two nodes, at least two leaves (Deo, 2017). Removing a leaf deletes a row (customer leaf) or a column (location leaf) of the connection matrix that contains exactly one -1, and leaves a tree. Repeat until two nodes and one edge remain, i.e. the $1 \\times 1$ matrix $M_{1,1}$, which is TU. Rebuild $M_{p,q}$ in reverse, each step adding a row or column with a single -1, so TU is preserved (Lemma 3). Conclude with Lemma 4."
+   },
+   {
+    "label": "Proposition 2",
+    "page": "7 (proof in Appendix, pp. 15-16)",
+    "statement": "LL games are superadditive.",
+    "meaning": "For disjoint non-empty coalitions S and T, $v(S \\cup T) \\ge v(S) + v(T)$: merging never hurts. The paper notes superadditivity is a sufficient condition for core non-emptiness of 2-player games (p. 7), used in Example 6.",
+    "proof_idea": "Take optimal solutions $(x^S, y^S)$ of $LLP_S$ and $(x^T, y^T)$ of $LLP_T$; for $S \\cup T$ use x from each coalition on its own customers and $y_j = \\max\\{y^S_j, y^T_j\\}$. This is feasible for $LLP_{S \\cup T}$, and since $\\max\\{y^S_j, y^T_j\\} \\le y^S_j + y^T_j$ and $c \\ge 0$ its value is at least $v(S) + v(T)$; hence $v(S \\cup T) \\ge v(S) + v(T)$."
+   },
+   {
+    "label": "Theorem 1",
+    "page": "7 (proof pp. 7-8)",
+    "statement": "LL games have a non-empty core if $\\mathrm{opt}(LLP_N) = \\mathrm{opt}(RLLP_N)$. In the proof, a core element is $u_i = \\sum_{k \\in C_i} \\beta_k$ for all $i \\in N$, with $(\\alpha, \\beta)$ an optimal solution of $DRLLP_N$.",
+    "meaning": "A zero integrality gap for the grand coalition's problem guarantees a stable allocation, and the grand coalition's LP dual provides one. Practically, instead of solving $2^{|N|}-1$ location problems (one per coalition), one only needs the grand coalition's problem to conclude core non-emptiness when the gap is zero (p. 8). The condition is sufficient but not necessary (Example 6). The paper notes similarities with combinatorial optimization games (Deng et al., 2000; Goemans and Skutella, 2004), where primal/dual LPs and zero integrality gaps are commonly used to identify if-and-only-if conditions.",
+    "proof_idea": "LP duality. $DRLLP_S$ is feasible ($\\alpha = 0, \\beta = p$) and bounded below by 0, so $RLLP_S$ and $DRLLP_S$ are both feasible and bounded and strong duality holds (Schrijver 1998, p. 90). Restricting an optimal dual $(\\alpha, \\beta)$ of $DRLLP_N$ to $C_S$ is feasible for $DRLLP_S$ (constraint (8c) only loses non-negative terms). Stability, eq. (9): $\\sum_{i \\in S} u_i = \\sum_{k \\in C_S} \\beta_k \\ge \\mathrm{opt}(DRLLP_S) = \\mathrm{opt}(RLLP_S) \\ge \\mathrm{opt}(LLP_S) = v(S)$. Efficiency, eq. (10): $\\sum_{i \\in N} u_i = \\mathrm{opt}(DRLLP_N) = \\mathrm{opt}(RLLP_N) = \\mathrm{opt}(LLP_N) = v(N)$, where only this last step uses the hypothesis."
+   },
+   {
+    "label": "Corollary 1",
+    "page": "8",
+    "statement": "LL games for which the connection matrix of $LLP_N$ is totally unimodular have a non-empty core.",
+    "meaning": "TU connection matrix gives zero gap (Lemma 4), hence a non-empty core (Theorem 1).",
+    "proof_idea": "Combine Lemma 4 and Theorem 1."
+   },
+   {
+    "label": "Corollary 2",
+    "page": "8",
+    "statement": "LL games for which the induced graph $G^{LLP}$ is a tree have a non-empty core.",
+    "meaning": "Stable collaboration is guaranteed when the customer-location network is a tree. The authors suggest this may be relevant for regions with relatively limited infrastructure: sparse population, landscape structures (e.g. mountain valleys) or governmental policies such as neighbourhoods designed with many cul-de-sacs (pp. 8, 14).",
+    "proof_idea": "Combine Proposition 1 and Theorem 1."
+   },
+   {
+    "label": "Example 5",
+    "page": "7 (Fig. 4, Table 5)",
+    "statement": "There exist LL games with an empty core: three carriers with one customer each (p = (1,1,1)), three locations with c = (1,1,1), each customer within reach of two locations and each location within reach of two customers (a 6-cycle). Values: v = 0 for singletons, 1 for every pair, v(N) = 1; the core is empty.",
+    "meaning": "Stability can fail: every pair can share one locker and earn 1, but the grand coalition can only earn 1 as well (three customers need two lockers).",
+    "proof_idea": "If u is in the core, stability and efficiency give $u_i \\le v(N) - v(N \\setminus \\{i\\}) = 0$ for all i, so $u_1 + u_2 + u_3 \\le 0 < 1 = v(N)$, a contradiction."
+   },
+   {
+    "label": "Example 6",
+    "page": "8",
+    "statement": "Merging carriers 1 and 2 of Example 5 into one carrier (with two customers) gives a two-person LL game whose core is non-empty (by superadditivity), although $\\mathrm{opt}(RLLP^\\theta_N) = 1.5$ (with $x_4 = x_5 = x_6 = 1$, $y_7 = y_8 = y_9 = 1/2$) is strictly larger than $\\mathrm{opt}(LLP^\\theta_N) = 1$. Hence the sufficient condition of Theorem 1 is not a necessary condition.",
+    "meaning": "The zero-gap condition is only sufficient here, whereas in combinatorial optimization games such as Goemans and Skutella (2004) primal/dual arguments typically give if-and-only-if conditions (p. 8). Own reading (not stated in the paper): the difference comes from players owning groups of customers; in Example 5 itself, where each carrier has one customer, the gap and the empty core occur together.",
+    "proof_idea": "Two-player superadditive games always have a non-empty core; the LP value is computed directly."
+   },
+   {
+    "label": "Remark 1",
+    "page": "7",
+    "statement": "Pre-existing lockers of some carriers can be included with $c_j$ representing the cost of acquiring them (e.g. residual value), assuming coalitions without these lockers can buy them at the same cost. If they could not acquire them that way, they would have to buy at market value rather than residual value, giving a lower coalitional value; the modified game has some less stringent coalitional constraints, so its core is weakly larger than the core of the original LL game, and every core allocation of the original game also belongs to the core of the modified one.",
+    "meaning": "The base model with equal access is the conservative case for stability.",
+    "proof_idea": "Argued in words: lower values for coalitions that do not own the lockers (the grand coalition's value is unchanged) only relax core constraints."
+   },
+   {
+    "label": "Remark 2",
+    "page": "9",
+    "statement": "If a coalition's value is reduced by 'cooperation' costs that equal a constant $K < v^\\theta(N) - \\sum_{i \\in N} v^\\theta(\\{i\\})$ for all $S$ with $|S| \\ge 2$, core non-emptiness is preserved whenever the original LL game has a non-empty core (similar to Westerink-Duijzer et al., 2020). Other costs that can be formulated as a concave cooperative game ('i.e., these costs are non-increasing in the size of the coalition', in the paper's words) do not affect core non-emptiness when added to the LL game.",
+    "meaning": "Moderate fixed costs of organizing a collaboration, or costs with economies of scale, do not destroy stability.",
+    "proof_idea": "Stated without proof in this paper; the first claim is attributed to an argument similar to Westerink-Duijzer et al. (2020). Own sketch: take u in the core of v and lower each $u_i$ by $\\delta_i \\in [0, u_i - v(\\{i\\})]$ with $\\sum_i \\delta_i = K$, possible because $\\sum_i (u_i - v(\\{i\\})) = v(N) - \\sum_i v(\\{i\\}) > K$; every coalition with at least two players loses at most K. For a concave cost game c, subtracting a core element of c from a core element of v works."
+   },
+   {
+    "label": "Example 7",
+    "page": "11-12 (Fig. 9 on p. 13)",
+    "statement": "Three carriers, locations L = {4,5,6} with c = 1 each, nine customers with p = 1, $\\hat C_4 = \\{7,...,12\\}$, $\\hat C_5 = \\{10,...,15\\}$, $\\hat C_6 = \\{7,8,9,13,14,15\\}$. Unclustered $\\theta_1$ ($C_1 = \\{7,11,15\\}$, $C_2 = \\{8,10,13\\}$, $C_3 = \\{9,12,14\\}$): core constraints $u_i \\ge 1$, $u_i + u_j \\ge 4$, $u_1+u_2+u_3 = 7$, non-empty core. Clustered $\\theta_2$ ($C_1 = \\{7,8,9\\}$, $C_2 = \\{10,11,12\\}$, $C_3 = \\{13,14,15\\}$): $u_i \\ge 2$, $u_i + u_j \\ge 5$, sum 7, empty core.",
+    "meaning": "Geographic clustering of each carrier's customers makes sub-coalitions more efficient on their own and can empty the core, giving intuition for the numerical results of Section 6.2.2.",
+    "proof_idea": "Direct computation of coalition values; for $\\theta_2$, adding the three pair constraints gives $2 \\cdot 7 \\ge 15$, impossible (this last step is implicit in the paper)."
+   }
+  ],
+  "methods_and_tools": [
+   "Integer linear programming formulation of a profit-maximizing facility (locker) location problem with partial coverage and a free number of facilities (SLLP, LLP)",
+   "LP relaxation and integrality gap (opt(LLP_N) vs opt(RLLP_N))",
+   "Total unimodularity (Lemmas 2-4; Wolsey 1998, Schrijver 1998) and leaf-removal induction on trees (Proposition 1)",
+   "LP duality and strong duality: grand-coalition dual solution restricted to coalitions as a core allocation (Theorem 1), related by the authors to combinatorial optimization games (Deng et al. 2000; Goemans and Skutella 2004)",
+   "Transferable-utility cooperative games: characteristic function, superadditivity, core",
+   "Shapley value",
+   "Proportional allocation rule",
+   "Scaled dual allocation rule",
+   "Core violation measure epsilon (an LP, following Osicka et al. 2020)",
+   "Cost of stability / minimal external subsidy gamma (Bachrach et al. 2009)",
+   "Random instance generation: uniform and triangular customer locations, K-means clustering (scikit-learn defaults) with a cluster density parameter, Manhattan distances, normal profits and costs",
+   "Gurobi solver on the Snellius supercomputer"
+  ],
+  "allocation_rules": "Section 5.1 (p. 9) proposes three rules for dividing $v^\\theta(N)$; Section 6.3 (pp. 13-14) tests them.\n\n1. Proportional rule. Given an optimal solution $(x^*, y^*)$ of Problem (2) for the grand coalition: $\\pi_i = \\sum_{k \\in C_i} \\Big( p_k x^*_k - \\sum_{j \\in L_k} y^*_j c_j \\frac{p_k x^*_k}{\\sum_{m \\in \\hat C_j} p_m x^*_m} \\Big)$. Each carrier keeps the profits of its served customers and pays, for each open locker, a share of its cost proportional to the profit its customers within that locker's reach generate. Stated properties: easy to interpret and calculate, frequently used in practice (Guajardo and Rönnqvist, 2016); \"methodologically integrated\" with the LL situation (uses its parameters), so it cannot be applied to other cooperative games. Own observations (not stated in the paper): the shares sum to $v^\\theta(N)$ whenever every open locker has at least one served customer in range (true at an optimum when $c_j > 0$), so the rule is efficient; it depends on which optimal solution is chosen when the optimum is not unique (see worked example), and the paper does not say which optimum was used in the experiments.\n\n2. Shapley value (Shapley, 1952): $\\phi_i(N, v^\\theta) = \\sum_{S \\subseteq N \\setminus \\{i\\}} \\frac{|S|!(|N|-|S|-1)!}{|N|!} \\big(v^\\theta(S \\cup \\{i\\}) - v^\\theta(S)\\big)$, the weighted average of marginal contributions. Defined for any cooperative game using coalitional values only; the paper calls its interpretation \"less intuitive\" than the other rules. Requires all $2^{|N|}-1$ coalition values (own remark).\n\n3. Scaled dual rule (from Theorem 1): $\\sigma_i = \\frac{\\mathrm{opt}(LLP_N)}{\\mathrm{opt}(RLLP_N)} \\sum_{k \\in C_i} \\beta_k$ with $\\beta$ from an optimal solution of Problem (8) for $S = N$. The unscaled dual allocation sums to $\\mathrm{opt}(RLLP_N)$, so it is not in the core when there is a gap; scaling restores efficiency. With a zero gap it coincides with the dual allocation of Theorem 1 and is therefore in the core (Table 7, column \"=\" is 100% in all experiments). Like the proportional rule it is tied to the LL situation; with zero gap both allocate the customers' profits to the corresponding carriers and differ only in how they allocate the opened lockers' costs (via $\\alpha_k$) (p. 9). Which optimal dual is used when it is not unique is not stated; in Example 4 the optimal duals span the whole core, and the HiGHS solver returns the vertex u = (0, 4, 3), so the choice matters a lot for individual carriers.\n\nEvaluation measures. Violation (eq. 11, p. 9): $\\min \\varepsilon$ s.t. $\\sum_{i \\in S} \\pi_i \\ge v^\\theta(S) - \\varepsilon\\ \\forall S \\subseteq N$, $\\varepsilon \\in \\mathbb{R}$; reported as relative violation $\\varepsilon / v^\\theta(N)$; in line with Osicka et al. (2020); the paper notes it allows comparing proximity to the core even when the core is empty. Instability indicator (Bachrach et al., 2009): $\\gamma \\in \\mathbb{R}_+$, optimal value of $\\min \\gamma$ s.t. $\\sum_{i \\in N} u_i = v^\\theta(N) + \\gamma$, $\\sum_{i \\in S} u_i \\ge v^\\theta(S)\\ \\forall S \\ne \\emptyset$; the minimum external subsidy (e.g. from an administrative entity promoting lockers) that makes collaboration stable; reported as relative external subsidy $\\gamma / v^\\theta(N)$.\n\nFindings (Tables 7-8, p. 14; text p. 13): the proportional rule is dominated by both the Shapley value and the scaled dual on all dimensions; the Shapley value has the highest in-core frequency overall in Exp. 1 and in the \"≠\" cases of all three experiments; the scaled dual is always in the core when the gap is zero and has the highest overall frequency in Exp. 2 and 3; in relative violations the scaled dual beats Shapley in Exp. 2 and 3, Shapley beats it in Exp. 1, so \"no single allocation rule can be identified as best in terms of relative violations, only that the proportional rule should not be used.\"",
+  "numerical_study": "Instance design (Section 6.1, pp. 10-11; Table 6, p. 11; Fig. 5 p. 10, Fig. 6 p. 11). 100 x 100 square. Customer coordinates i.i.d. Uniform(0,100) (grid \"Manhattan-style\" cities such as New York, Chicago, Toronto) or Triangular(0,100) with mode 50 (dense centre, e.g. Paris, Amsterdam). Number of customers 150, 300, 450 (a customer may be a group). Number of carriers 3, 4, 5, 6 (Amsterdam has three main carriers: DHL, DPD, PostNL). Customer-to-carrier assignment: uniform random, or clustered: K-means (scikit-learn default parameters) splits the square into one sub-area per carrier; each customer draws a random integer between 0 and 100 and is assigned to its sub-area's carrier if the draw is at most the cluster density, otherwise to one of the other carriers with equal probability. Cluster density values: 0 (described as a carrier excluded from its own area; taken literally, a draw of 0 still assigns the own carrier, a 1 in 101 chance), Random, 60%, 80%, 100% (one carrier per area). Locker locations: closest integer to proportion x number of customers, proportion 2.5%, 5%, 7.5%, 10%, placed uniformly. Manhattan distances. $D_k \\sim U[0.75A, 1.25A]$ with average maximal distance A in {30, 60, 90, 120, 150} (e.g. A = 30 gives [22.5, 37.5]). Profits $p_k \\sim N(10, 1)$; locker costs $c_j \\sim N(10 r_{c/p}, r_{c/p})$ (mean, standard deviation) with cost-to-profit ratio $r_{c/p}$ in {0.1, 0.5, 1, 5, 10, 25, 50} (average number of customers a locker must serve to recover its cost). Total 23,520 instances: Exp. 1 (Section 6.2.1, random assignment) 2·3·4·4·7·5·1 = 3360; Exp. 2 (Section 6.2.2, five assignment settings) 2·3·4·4·7·5·5 = 16,800; Exp. 3 (Section 6.2.3, 100% cluster density only) 3360. Implemented in Gurobi, run on the Dutch supercomputer Snellius (16 CPUs AMD Genoa 9654 (2x), 96 cores/socket, 2.4 GHz, 360 W); all instances solved to optimality, the largest taking on average 15 s (p. 11). The authors state results are robust: differences \"rarely exceed 1%\". How core emptiness was tested computationally (e.g. enumeration of all coalitions) is not described.\n\nExp. 1, random assignment (Fig. 7, p. 12; text p. 11). Only 2 of 3360 instances have an empty core, with cost-to-profit ratio 0.5 or 1; their relative external subsidies are 0.06% and 0.12%. Bar values read from Fig. 7 (non-empty core / opt(LLP) = opt(RLLP), labelled \"LP = ILP\" in the legend; subsidy where labelled): (a) triangular 99.9% / 89.4% (0.09%), uniform 100% / 82.7%; (b) 150, 300, 450 customers: 99.9/92.4 (0.12%), 99.9/85.4 (0.06%), 100/80.4; (c) 3, 4, 5, 6 carriers: 100/83.8, 100/88.1, 99.9/86.8 (0.06%), 99.9/85.5 (0.12%); (d) locker proportion 2.5, 5, 7.5, 10%: 99.9/92.1 (0.06%), 99.9/87.5 (0.12%), 100/83.6, 100/80.9; (e) A = 30, 60, 90, 120, 150: 100/86.6, 100/79.8, 100/80.4, 99.7/84.7 (0.09%), 100/98.8; (f) ratio 0.1, 0.5, 1, 5, 10, 25, 50: 100/83.8, 99.8/81.9 (0.06%), 99.8/82.3 (0.12%), 100/85.8, 100/83.5, 100/91, 100/94. So the zero-gap condition of Theorem 1 holds in roughly 80% to 99% of instances depending on the factor level (about 86% overall), while the core is non-empty in essentially all of them. The labelled subsidies are averages over the unstable instances only (0.09% for \"triangular\" and A = 120 is the mean of 0.06% and 0.12%; the text speaks of \"the relative external subsidy needed for unstable collaborations\"). Own reading of Fig. 7: both empty cores are triangular with A = 120; one has 300 customers, 5 carriers, 2.5% lockers, ratio 0.5 (subsidy 0.06%), the other 150 customers, 6 carriers, 5% lockers, ratio 1 (subsidy 0.12%).\n\nExp. 2, cluster density (Fig. 8, p. 12; text p. 11). For 0%, Uniform (random), 60%, 80%, 100%: non-empty core 99.97, 99.91, 99.85, 99.11, 95.95%; zero gap 86.55, 86.67, 86.88, 86.99, 86.67%; relative subsidy 0.07, 0.08, 0.02, 0.12, 0.27%. With 3360 instances per setting these correspond to about 1, 3, 5, 30 and 136 empty cores. Text: almost 100% non-empty up to 80% density, a small drop to 95.95% at 100%; average subsidy rises from 0.02% (60%) to 0.27% (100%). Interpretation: clustered carriers operate largely independently, so their incentive to collaborate diminishes (Example 7).\n\nExp. 3, 100% cluster density (Fig. 10, p. 14; text pp. 12-13). By cost-to-profit ratio 0.1, 0.5, 1, 5, 10, 25, 50: non-empty core 95.4, 93.8, 95.2, 97.1, 97.5, 97.9, 98.1%; zero gap 84.4, 83.3, 83.1, 86.5, 85, 90.4, 93.3%; subsidy 0.01, 0.06, 0.12, 0.23, 0.28, 0.69, 1.76%. By A = 30, 60, 90, 120, 150: non-empty 100, 97.5, 93.8, 91.8, 99.1%; zero gap 90.5, 78.6, 78.1, 86.6, 99.1%; subsidy (unlabelled, zero since the core is always non-empty), 0.76, 0.28, 0.16, 0.03%. Text: with high maximal distance the players open the least expensive locker for everyone and the core is non-empty; slightly limited willingness to walk raises empty cores to about 8% (worst case, A = 120: 91.8% non-empty); willingness restricted to the own cluster or zero gives almost always non-empty cores; more expensive lockers and less mobile customers lead to higher subsidies. Own consistency check: both panels of Fig. 10 imply about 120 empty cores out of 3360 (96.4% non-empty, 86.6% zero gap), not the 95.95% (about 136 empty) of Fig. 8 at 100% density; likewise Fig. 8's random column (99.91%, 86.67%) differs from Exp. 1 (2 empty, about 86.05% zero gap). So each experiment appears to use its own random draw, consistent with the 23,520 total counting them separately.\n\nAllocation rules (Section 6.3, Tables 7-8, p. 14), on non-empty-core instances only. Table 7, share of instances where the rule is in the core (All / zero gap \"=\" / gap \"≠\"): Proportional Exp. 1 92.44 / 95.23 / 75.16%, Exp. 2 83.27 / 86.67 / 59.04%, Exp. 3 59.1 / 64.01 / 16.01%; Shapley Exp. 1 98.57 / 99.38 / 93.58%, Exp. 2 94.62 / 96.31 / 82.59%, Exp. 3 82.04 / 85.8 / 48.94%; Scaled dual Exp. 1 97.05 / 100 / 78.8%, Exp. 2 95.81 / 100 / 66.02%, Exp. 3 92.5 / 100 / 26.59%. (Own check: the All columns imply that zero-gap instances make up about 86.1%, 87.7% and 89.8% of the non-empty-core instances in Exp. 1, 2, 3, which matches the figures.) Table 8, average relative violation: Proportional 0.07, 0.63, 0.91%; Shapley 0.04, 0.25, 0.31%; Scaled dual 0.05, 0.12, 0.17% (Exp. 1, 2, 3). The text (p. 13) calls 0.91%, 0.31%, 0.17% \"the worst-case outcomes across all experiments\"; these are the Exp. 3 averages of Table 8, not per-instance maxima.",
+  "worked_example": "Example 1 / 3 / 4 (pp. 5-7, Figs. 1 and 3, Table 4). Customers C = {4,5,6,7} with profits p = (5,4,3,4); locations L = {8,9,10} with costs c = (5,9,5); distance rows for customers 4,5,6,7 over locations 8,9,10: (1,2,4), (1,1,2), (2,1,1), (4,2,1); maximal distances D = (2,1,2,2). Hence L_4 = {8,9}, L_5 = {8,9}, L_6 = {8,9,10}, L_7 = {9,10}; equivalently Ĉ_8 = {4,5,6}, Ĉ_9 = {4,5,6,7}, Ĉ_10 = {6,7}. Joint optimum (Example 1): open 9 and serve all four, profit (5+4+3+4) - 9 = 7. [Own check, not in the paper: opening only 8 and serving 4,5,6 also gives 12 - 5 = 7, so the optimum is not unique (these are the only two optimal plans); the LP relaxation also equals 7, so the gap is zero.]\n\nCarriers (Example 3, p. 6): N = {1,2,3}, C_1 = {4}, C_2 = {5}, C_3 = {6,7}. Stand-alone: carrier 1 earns 0 (open 8 gives 5-5 = 0, open 9 gives 5-9 = -4, or open nothing), carrier 2 earns 0, carrier 3 opens 10 and earns 7-5 = 2. Sum of individual profits 2 versus 7 together: collaboration adds 5. Table 4 (p. 7): v({1}) = 0, v({2}) = 0, v({3}) = (3+4)-5 = 2, v({1,2}) = (5+4)-5 = 4, v({1,3}) = (5+3+4)-9 = 3, v({2,3}) = (4+3+4)-9 = 2, v(N) = 7. Example 4: u = (1, 3.5, 2.5) is a core allocation.\n\nOwn computations for a widget (not printed in the paper; recomputed by brute force and LP):\n- Core of Example 4 = quadrilateral with vertices (1,4,2), (5,0,2), (0,4,3), (4,0,3) (equivalently 2 ≤ u_3 ≤ 3, 0 ≤ u_1 ≤ 5, 0 ≤ u_2 ≤ 4, u_1+u_2+u_3 = 7).\n- Dual DRLLP_N: value 7. The optimal duals are exactly α_7 = 4, β_7 = 0, α_4+α_5+α_6 = 5 with α_4 ≥ 0, 0 ≤ α_5 ≤ 4, 0 ≤ α_6 ≤ 1, and β_k = p_k - α_k for k = 4, 5, 6, giving u = (5-α_4, 4-α_5, 3-α_6). The paper's u = (1, 3.5, 2.5) is the dual allocation with α = (4, 0.5, 0.5, 4), β = (1, 3.5, 2.5, 0). Here the set of dual allocations coincides with the core, and the scaled dual rule (factor 7/7 = 1) returns one of them; which one depends on the solver (HiGHS returns α = (5, 0, 0, 4), u = (0, 4, 3), a core vertex).\n- Shapley value: φ = (2.5, 2, 2.5), inside the core.\n- Proportional rule with the \"open 9\" optimum: cost 9 split 5:4:3:4 over 16, π = (5 - 45/16, 4 - 36/16, 7 - 63/16) = (2.1875, 1.75, 3.0625). Coalition {1,2} gets 3.9375 < 4, so ε = 0.0625, relative violation 0.89%.\n- Proportional rule with the \"open 8\" optimum: cost 5 split 5:4:3 over 12, π = (2.9167, 2.3333, 1.75). Carrier 3 gets 1.75 < 2, so ε = 0.25, relative violation 3.57%. The proportional allocation depends on which optimal solution is used.\n- Minimal subsidy γ = 0 (non-empty core).\n\nExample 5 (p. 7, Fig. 4, Table 5): N = {1,2,3}, C_1 = {4}, C_2 = {5}, C_3 = {6}, p = (1,1,1), L = {7,8,9}, c = (1,1,1), distance rows (1,1,2), (1,2,1), (2,1,1), D = (1,1,1), so L_4 = {7,8}, L_5 = {7,9}, L_6 = {8,9} (a 6-cycle; Fig. 4 labels the edges with locations 8 and 9 swapped relative to the matrix, which does not change the game). v(singleton) = 0, v(pair) = 1, v(N) = 1. Core empty because u_i ≤ v(N) - v(N\\{i}) = 0. Example 6 (p. 8): opt(RLLP_N) = 1.5 at x = (1,1,1), y = (1/2,1/2,1/2); after merging carriers 1 and 2 into one player with customers {4,5}: v(merged) = 1, v({3}) = 0, v(N) = 1, so the core is the single point (1, 0), non-empty though the gap remains. Own computations: minimal subsidy γ = 0.5 (u = (0.5,0.5,0.5)), relative subsidy 50%; the optimal dual is unique (α = β = (0.5,0.5,0.5)), so Shapley value = scaled dual = (1/3,1/3,1/3), violation ε = 1/3 (each pair gets 2/3 < 1). The connection matrix (up to sign) [[1,1,0],[1,0,1],[0,1,1]] has determinant -2, so it is not TU.\n\nExample 7 (pp. 11-12, Fig. 9 on p. 13): 3 locations of cost 1, 9 customers of profit 1, each customer reachable from 2 of the 3 locations, in three groups {7,8,9} (lockers 4, 6), {10,11,12} (lockers 4, 5), {13,14,15} (lockers 5, 6). Unclustered θ_1: v(i) = 1, v(pair) = 4, v(N) = 7, core non-empty (e.g. 7/3 each). Clustered θ_2: v(i) = 2, v(pair) = 5, v(N) = 7, core empty. Own computation: opt(RLLP_N) = 7.5 in both (y = 1/2 everywhere), so θ_1 is another non-empty core with a positive gap; minimal subsidy for θ_2 is 0.5.\n\nExample 2 (p. 6, Fig. 2), tree case: 6 customers with p = 10, locations 10,11,12,13 with c = (11,20,25,12), D = 2; L_4 = {10}, L_5 = {10,11}, L_6 = {11}, L_7 = {11,12}, L_8 = {12}, L_9 = {12,13} (10 nodes, 9 edges, connected). The RLLP returns the integral optimum: open 10 and 12, serve all customers except 6, value 50 - 36 = 14 (unique optimal plan).",
+  "insights": [
+   "Collaboration pays: in Example 3 the carriers earn 2 separately and 7 together; the question is only how to split the extra 5 stably.",
+   "The LL game is always superadditive (Proposition 2), yet its core can be empty (Example 5): a cyclic overlap of three single-customer carriers and three locations (a 6-cycle) lets every pair do as well as the grand coalition.",
+   "Theorem 1 transfers the classic LP-duality argument to this game: if the grand coalition's locker problem has no integrality gap, the optimal dual (customer-level profits beta_k summed per carrier) is a core allocation. Checking stability then needs one problem instead of 2^|N| - 1.",
+   "Trees, and more generally totally unimodular connection matrices, guarantee zero gap and hence a non-empty core (Corollaries 1 and 2); the authors link this to sparse or constrained regions (valleys, cul-de-sac neighbourhoods).",
+   "Zero gap is sufficient but not necessary (Example 6), whereas in combinatorial optimization games such as Goemans and Skutella (2004) primal/dual arguments typically give if-and-only-if conditions; the notes' reading is that the difference comes from players owning groups of customers.",
+   "Numerically the core is non-empty far more often than the theorem guarantees: zero gap holds in roughly 80% to 99% of instances per factor level (about 86% overall), non-empty core in about 99.9% under random assignment (2 empty out of 3360).",
+   "Stability is mainly threatened by geographic separation of carriers (100% cluster density: 95.95% non-empty in Exp. 2) and by cheap lockers relative to profits; in the worst setting (100% clustering, intermediate walking distance A = 120) about 8% of cores are empty.",
+   "Empty cores need only a small external subsidy: 0.06% and 0.12% of the grand-coalition profit in Exp. 1, averages up to 0.27% in Exp. 2 and up to 1.76% (cost-to-profit ratio 50) in Exp. 3, suggesting a policy instrument.",
+   "Cheap lockers make empty cores more frequent but subsidies smaller; expensive lockers make empty cores rarer but subsidies larger (Fig. 10a).",
+   "The intuitive proportional rule is dominated by the Shapley value and the scaled dual rule (Table 7); the scaled dual is always in the core when the gap is zero and has the smallest average violations in Exp. 2 and 3, while Shapley is best in Exp. 1. The authors see a tension: the better rules are harder to explain, which may hinder collaboration in practice.",
+   "Own observation (not stated in the paper): the stability chain (9) in the proof of Theorem 1 does not use the zero-gap hypothesis, so the dual allocation always satisfies all coalition constraints with total opt(RLLP_N); hence the minimal subsidy gamma is at most opt(RLLP_N) - opt(LLP_N). Examples 5 and 7 (theta_2) attain this bound (0.5).",
+   "Own observation (not stated in the paper): the proportional allocation depends on which optimal locker plan is chosen; in Example 4 the two optimal plans give violations 0.0625 and 0.25. The scaled dual also depends on the optimal dual chosen; in Example 4 it can be any core point, e.g. the solver vertex (0, 4, 3)."
+  ],
+  "limitations_future_work": "Stated by the authors: the model is stylized and meant as \"a starting point aimed at providing interesting initial insights rather than being directly applicable\"; future research should develop more realistic, case-oriented models and investigate the practical feasibility of joint locker networks as more detailed data become available (p. 14). The theoretical guarantees cover special structures (zero gap, trees, TU) that \"may be less common in practice\", hence the numerical study (p. 14). The profit p_k is a rough linear estimate and costs are estimates (p. 4); capacities are not modelled explicitly (footnote 2); the core may not capture all drivers of willingness to cooperate, e.g. organizational costs (Remark 2); the better allocation rules are less intuitive, which may discourage practical implementation (pp. 13-14).\n\nNot stated as limitations but visible to a careful reader: (i) instances are synthetic (random locations on a 100 x 100 square), data available only on request; (ii) the procedure used to decide core emptiness and to compute the Shapley value (all 2^|N| - 1 coalitions for up to 6 carriers) is not described; (iii) which optimal primal solution (proportional rule) and which optimal dual solution (scaled dual) were used when they are not unique is not specified, and both rules can change with that choice; (iv) the relation between instance sets is not stated: the figures imply that Exp. 3 (about 120 empty cores, 96.4% non-empty) is a separate draw from Exp. 2's 100% column (95.95%), and Exp. 2's random column (99.91%) a separate draw from Exp. 1 (2 empty); (v) the claim for high maximal distance that \"every customer is willing and able to reach any locker\" is an idealization (with A = 150, D_k is at most 187.5 while Manhattan distances in the square reach 200, and Fig. 10b shows 99.1%, not 100%); (vi) Remark 2 is given without proof; (vii) only one-shot, full-information, transferable-utility cooperation is considered: no competition between carriers, no demand response to locker placement, no dynamics; (viii) the \"robust, differences rarely exceed 1%\" statement (p. 11) sits uneasily with zero-gap frequencies ranging from 79.8% to 98.8% across factor levels in Fig. 7.\n\nEditorial issues in the text: two broken cross-references (\"We formalize this result in .\" on p. 5 and \"superadditive (see )\" on p. 8); the sentence before Lemma 1 (p. 5) reverses SLLP and LLP; \"c = (c_j)_{j∈N}\" on p. 6 should index j ∈ L; Fig. 4 swaps the labels of locations 8 and 9 relative to the distance matrix of Example 5 (immaterial); \"payoff factors\" for payoff vectors (p. 13); Fig. 7(d) caption \"Proportion oflocations\"; Example 1 calls the 'open 9' plan \"the optimal solution\" although opening 8 alone is also optimal; small slips in Cases 1 and 2 of the proof of Lemma 1 (see Lemma 1). The introduction says the zero-gap condition holds for all tree games, the conclusion says it \"generally holds\"; Proposition 1 proves it for every tree.",
+  "connections": "Position (Section 2, Tables 1-2, pp. 2-4): at the intersection of (a) OR models of parcel lockers (reviews Rohmer and Gendron, 2020; Janinhoff et al., 2024: facility location, vehicle routing, location-routing) and (b) cooperative games on location problems. Table 1 (p. 3): the other game-theoretic locker papers are tactical and non-cooperative (Zhou et al., 2026, delivery selection and pricing with queueing; Li et al., 2024, outsourcing with access pricing); Pan et al. (2021), Ghaderi et al. (2022) and Korkmaz et al. (2025, horizontal collaboration with mobile lockers, but no cost sharing or stability analysis) use MILP/ILP models without game theory. The paper calls the authors' own working paper Mercurio, Carvalho, Rohmer, Schlicher and Van Woensel (2025) \"an exception\": a strategic, non-cooperative study of two competing companies' locker placement (decentralized placement is suboptimal, but the difference is small). This paper is the strategic, horizontal-collaboration, cooperative-game entry.\n\nLocation games (Table 2, p. 4): full coverage with a free number of facilities, Curiel (1997, Section 7.4: facility location game with customers as players, core non-empty on trees) and Goemans and Skutella (2004: core non-empty iff no integrality gap, general graphs, also with capacities); full coverage with a fixed number, Puerto et al. (2011, 1-center); partial coverage with a fixed number, Schlicher, Slikker and van Houtum (2017, maximal covering location games with customers as players: core can be empty, sufficient conditions via a relaxation and duality), Curiel (2017, type-dependent facilities) and Schlicher (2018, coast guard, non-empty core on a line segment). This paper fills the empty cell: partial coverage with a free number of facilities; its players are carriers (owners of customer sets) rather than customers. The relaxation-plus-duality technique follows Goemans and Skutella (2004) and Schlicher et al. (2017) (p. 4); the authors relate Theorem 1 to combinatorial optimization games (Deng et al., 2000).\n\nAllocation-rule evaluation applies the quantitative methods of Osicka, Guajardo and van Oost (2020) (violation measure); Verdonck et al. (2016) and Habibi et al. (2018) are cited as other allocation studies for collaborative location problems; the subsidy indicator is the cost of stability of Bachrach et al. (2009); reviews of cooperative games in collaborative transport: Nagarajan and Sošić (2008), Guajardo and Rönnqvist (2016), Osicka et al. (2020). Remark 2 reuses an argument from Westerink-Duijzer, Schlicher and Musegaas (2020, vaccination, Production and Operations Management). Schlicher's own papers cited: Schlicher et al. (2017), Schlicher (2018), Westerink-Duijzer et al. (2020), Mercurio et al. (2025). Van Woensel's cited works: Savelsbergh and Van Woensel (2016), Galiullina et al. (2024), Mercurio et al. (2025); Rohmer's: Rohmer and Gendron (2020), Mercurio et al. (2025). Within Schlicher's research line this paper continues the \"location game\" thread (maximal covering location games) and the \"core via LP duality and zero integrality gap\" methodology, applied to last-mile logistics (notes' reading).",
+  "prerequisites": [
+   "Linear programming, duality and the strong duality theorem",
+   "Integer programming, LP relaxations and integrality gaps",
+   "Total unimodularity and its integrality consequence (Hoffman-Kruskal style results, as in Wolsey 1998 and Schrijver 1998)",
+   "Bipartite graphs, trees and leaves",
+   "Transferable-utility cooperative games: characteristic function, superadditivity, core, Bondareva-Shapley intuition",
+   "Shapley value and marginal contributions",
+   "Least-core style violation measures and the cost of stability",
+   "Facility location and covering location problems (uncapacitated facility location, maximal covering)",
+   "Linear production / combinatorial optimization games where LP duals give core allocations",
+   "Basic experimental design and random instance generation (uniform, triangular, normal distributions; K-means clustering; Manhattan distance)"
+  ],
+  "glossary": [
+   {
+    "term": "Carrier",
+    "definition": "A parcel delivery company; the players of the LL game. Carrier i owns a disjoint set C_i of customers."
+   },
+   {
+    "term": "SLLP (strict locker location problem)",
+    "definition": "Binary program (1a)-(1d): open lockers (y_j in {0,1}) and serve customers (x_k in {0,1}) within reach of an open locker to maximize total customer profit minus opening costs."
+   },
+   {
+    "term": "LLP (locker location problem)",
+    "definition": "Relaxed version (2a)-(2e) with x_k in [0,1] continuous and y_j a nonnegative integer; same optimal value as SLLP (Lemma 1)."
+   },
+   {
+    "term": "RLLP",
+    "definition": "Linear programming relaxation of LLP with y_j >= 0 continuous (3a)-(3e); RLLP_S is the version for coalition S."
+   },
+   {
+    "term": "DRLLP_S",
+    "definition": "Dual of RLLP_S (8a)-(8d): minimize the sum of beta_k subject to alpha_k + beta_k >= p_k and, for every location, the alphas of the coalition's customers it can serve summing to at most c_j."
+   },
+   {
+    "term": "Connection matrix M^LLP",
+    "definition": "|C| x |L| matrix with entry -1 if customer k is willing to use location j and 0 otherwise; block of the LLP constraint matrix A^LLP."
+   },
+   {
+    "term": "LLP-induced graph G^LLP",
+    "definition": "Bipartite graph on customers and locations with an edge (k, j) when j is in L_k."
+   },
+   {
+    "term": "Totally unimodular (TU) matrix",
+    "definition": "Every square submatrix has determinant 1, -1 or 0; with integer right-hand sides the LP has integral optimal solutions whenever it has a finite optimum."
+   },
+   {
+    "term": "Integrality gap (zero)",
+    "definition": "opt(LLP_N) = opt(RLLP_N): the LP relaxation of the grand coalition's problem attains the integer optimum; the sufficient condition of Theorem 1."
+   },
+   {
+    "term": "LL situation",
+    "definition": "The tuple theta = (N, L, (C_i), p, c, d, D) describing carriers, locations, customers, profits, costs, distances and maximal distances."
+   },
+   {
+    "term": "LL game",
+    "definition": "TU game (N, v^theta) where v^theta(S) is the optimal LLP profit of coalition S using only its customers C_S (Definition 1)."
+   },
+   {
+    "term": "Grand coalition",
+    "definition": "The coalition N of all carriers."
+   },
+   {
+    "term": "Core",
+    "definition": "Efficient allocations u (sum equals v(N)) such that every non-empty coalition S receives at least v(S); no group has an incentive to leave."
+   },
+   {
+    "term": "Superadditivity",
+    "definition": "v(S union T) >= v(S) + v(T) for disjoint coalitions; holds for LL games (Proposition 2)."
+   },
+   {
+    "term": "Proportional rule",
+    "definition": "Each carrier keeps its served customers' profits and pays each open locker's cost in proportion to the profits of its served customers within that locker's reach."
+   },
+   {
+    "term": "Shapley value",
+    "definition": "Allocation giving each player the weighted average of its marginal contributions over all coalitions."
+   },
+   {
+    "term": "Scaled dual rule",
+    "definition": "Sum of the dual values beta_k of a carrier's customers, multiplied by opt(LLP_N)/opt(RLLP_N) to make the total equal the grand-coalition profit."
+   },
+   {
+    "term": "Relative violation",
+    "definition": "epsilon / v(N), where epsilon is the smallest amount by which every coalition's demand v(S) must be lowered for a given allocation to satisfy all coalition constraints (eq. 11)."
+   },
+   {
+    "term": "Relative external subsidy",
+    "definition": "gamma / v(N), where gamma is the minimal amount added to v(N) so that a stable allocation exists (cost of stability, Bachrach et al. 2009)."
+   },
+   {
+    "term": "Cost-to-profit ratio r_c/p",
+    "definition": "Locker cost mean divided by customer profit mean (costs ~ N(10r, r), profits ~ N(10, 1)): the average number of customers a locker must serve to recover its cost."
+   },
+   {
+    "term": "Cluster density",
+    "definition": "Threshold d: each customer draws an integer between 0 and 100 and is assigned to the carrier owning its K-means sub-area if the draw is at most d (roughly d% of the time), otherwise to one of the other carriers at random; 100% means one carrier per area, 0% is described as the area's carrier being excluded."
+   },
+   {
+    "term": "Average maximal distance A",
+    "definition": "Mean of the customers' maximal walking distances, drawn uniformly from [0.75A, 1.25A] on the 100 x 100 square."
+   },
+   {
+    "term": "Partial coverage, free number of facilities",
+    "definition": "Location game class (Table 2) where not every customer must be served and the number of facilities is a decision; the cell this paper fills."
+   }
+  ],
+  "study_questions": [
+   "Write SLLP, LLP and RLLP for Example 1 and explain why Lemma 1 lets you use integer y_j and continuous x_k without changing the optimum.",
+   "Derive DRLLP_S from RLLP_S. Which primal constraint does each of alpha_k and beta_k correspond to, and why is beta_k = p_k - alpha_k for served customers and 0 for unserved ones at an optimum?",
+   "Reproduce Table 4 for Example 3 and check that u = (1, 3.5, 2.5) is in the core. Find dual variables (alpha, beta) of DRLLP_N that generate this u.",
+   "Why is the restriction of the grand-coalition dual to C_S feasible for DRLLP_S? Where exactly does the proof of Theorem 1 use the zero-gap hypothesis?",
+   "Using the proof of Theorem 1, show that the minimal subsidy gamma never exceeds opt(RLLP_N) - opt(LLP_N) (an extension not stated in the paper), and check it on Examples 5 and 7.",
+   "In Example 5, prove the core is empty using u_i <= v(N) - v(N minus i). Show that the 3 x 3 connection matrix is not totally unimodular.",
+   "Example 6 merges carriers 1 and 2. Why does the core become non-empty while the integrality gap stays at 0.5? What does this say about if-and-only-if results such as Goemans and Skutella (2004) when players own several customers?",
+   "Walk through the leaf-removal proof of Proposition 1 on the tree of Example 2. What would break if the induced graph contained a cycle?",
+   "Prove Proposition 2 and explain why superadditivity is enough for a non-empty core when |N| = 2 but not when |N| = 3.",
+   "Compute the proportional rule in Example 4 for both optimal locker plans (open 9, or open 8) and the resulting violations epsilon. What does this imply for using the rule in practice?",
+   "Compute the Shapley value of Example 4 and decide whether it is in the core. Why can the Shapley value lie outside a non-empty core (Table 7 shows 99.38% in the zero-gap cases of Exp. 1)?",
+   "Why does the scaled dual rule reach 100% in the '=' column of Table 7 in all three experiments, but much lower values in the '≠' column?",
+   "Explain with Example 7 why geographic clustering of carriers can empty the core. Link this to the drop to 95.95% at 100% cluster density in Fig. 8.",
+   "Fig. 10a: low cost-to-profit ratios give more empty cores but smaller subsidies, high ratios the opposite. Give an economic explanation for both trends.",
+   "Fig. 10b: why is the core almost always non-empty for both very small and very large walking distances, but less often for intermediate values?",
+   "Remark 2: show that subtracting a constant K < v(N) - sum of v({i}) from every coalition with at least two players preserves a non-empty core.",
+   "Remark 1: why does charging coalitions that do not own existing lockers the market value instead of the residual value only enlarge the core?",
+   "Which parts of the model would change for a cost-sharing version where lockers have capacities, and which results (Lemma 4, Theorem 1) would you expect to survive?"
+  ]
+ },
+ "verification": {
+  "changes": [
+   "Worked example (Example 4 dual): the characterization of optimal duals omitted the bound alpha_5 <= 4. Corrected: optimal duals are exactly alpha_7 = 4, beta_7 = 0, alpha_4 + alpha_5 + alpha_6 = 5 with alpha_4 >= 0, 0 <= alpha_5 <= 4, 0 <= alpha_6 <= 1, beta_k = p_k - alpha_k (LP check over the optimal dual face: alpha_4 in [0,5], alpha_5 in [0,4], alpha_6 in [0,1], alpha_7 = 4). Without alpha_5 <= 4 the formula would allow u_2 < 0, which is not optimal. Added that HiGHS returns the vertex alpha = (5,0,0,4), u = (0,4,3).",
+   "Example 7 page: Fig. 9 is on p. 13, not pp. 11-12 (the example text is on pp. 11-12).",
+   "Section 5.1 page: 'pp. 9' corrected to p. 9; eq. (11) and gamma are also on p. 9.",
+   "Exp. 2 text page: the discussion of Fig. 8 is on p. 11 (figure on p. 12). Exp. 3 text is on pp. 12-13, not only p. 13. Allocation-rule discussion is on p. 13, Tables 7-8 on p. 14.",
+   "Allocation rules: 'Efficient by construction' was presented as a property stated in the paper; it is not stated. Marked as own derivation, valid when every open locker has a served customer in range (true at an optimum with c_j > 0).",
+   "Example 6 meaning and insight 5: the explanation 'players own groups of customers, unlike Goemans and Skutella's customer players' is not in the paper. The paper only says that combinatorial optimization games commonly use primal/dual LPs and zero gaps for if-and-only-if conditions and that its condition is not necessary (p. 8). Marked as the notes' reading.",
+   "Connections: Mercurio et al. (2025) is called 'an exception' by the paper (the only strategic locker-placement game study in Table 1), not 'the closest'. Verdonck et al. (2016) and Habibi et al. (2018) are cited as related allocation studies in collaborative location, not as methods the paper follows; only the methods of Osicka et al. (2020) are applied (p. 4). Added Mercurio et al. (2025) to the Van Woensel and Rohmer lists.",
+   "Remark 1 statement rephrased to match p. 7: market-value purchase applies when coalitions cannot acquire the existing locker at residual value; the grand coalition's value is unchanged.",
+   "Remark 2: added an own (marked) proof sketch; the paper gives none.",
+   "Lemma 1: added the second slip (index typo y_k in Case 2) and the reversed sentence before Lemma 1 on p. 5 ('every feasible solution of SLLP that is not in LLP is suboptimal').",
+   "Theorem 1 proof idea: the paper shows boundedness through DRLLP_S being bounded below by 0 and cites Schrijver (1998, p. 90) for strong duality; wording adjusted.",
+   "Model: Daganzo justification reworded to the paper's claim (reduction in routing distance asymptotically linear in the number of customers when that number is large, p. 4); dual interpretation p. 8 wording aligned with the paper ('allocation of the locker cost to the carrier').",
+   "Motivation: InPost growth is 'across Europe'; DHL installs over 2000 lockers per year (p. 1).",
+   "Numerical study: added own reading of Fig. 7 locating the two empty-core instances (both triangular, A = 120; one with 300 customers, 5 carriers, 2.5% lockers, ratio 0.5, subsidy 0.06%; the other with 150 customers, 6 carriers, 5% lockers, ratio 1, subsidy 0.12%).",
+   "Numerical study and limitation (iv): replaced 'whether Exp. 3 reuses Exp. 2 instances is not stated' with the checked finding that Fig. 10 implies about 120 empty cores of 3360 (96.4% non-empty) versus 95.95% (about 136) in Fig. 8 at 100% density, and Fig. 8's random column (99.91%) differs from Exp. 1 (2 empty); the experiments appear to be separate draws. Table 7's All columns imply zero-gap shares among non-empty cores of 86.1%, 87.7%, 89.8%, consistent with the figures.",
+   "Numerical study: noted Fig. 7 legend reads 'LP = ILP'; Fig. 10b A = 30 subsidy is zero (core always non-empty); worst case 8% is A = 120 (91.8%).",
+   "Cluster density: the literal rule (integer 0..100 at most d) gives the own carrier probability (d+1)/101, so 0% is 'excluded' only up to a 1 in 101 chance; glossary entry rewritten accordingly.",
+   "Insight 2: 'odd cyclic overlap' replaced by the precise description (6-cycle of three single-customer carriers and three locations). Insight 6: '80% to 99%' qualified as per factor level (about 86% overall).",
+   "Limitations: added (viii) tension between the 'differences rarely exceed 1%' robustness claim and the 79.8% to 98.8% spread of zero-gap frequencies; added Fig. 7(d) caption typo 'Proportion oflocations'.",
+   "Worked example: Example 6 merged game made explicit (core is the single point (1, 0)); Example 5 dual shown to be unique; Example 2 noted as the unique optimal plan with 10 nodes and 9 edges.",
+   "Bibliography: added ISSN 0925-5273; all other fields (authors, order, affiliations, dates, DOI, license, funding, data availability, keywords) confirmed on pp. 1, 14-15."
+  ],
+  "example_recomputed": true,
+  "example_check": "Script /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2026-parcel-lockers/recompute.py (run with python3 -I) builds L_k and C-hat_j from the printed distance matrices. It computes every v(S) by brute force over binary locker sets (binary y is enough by Lemma 1), RLLP and DRLLP_N with scipy linprog (HiGHS), core vertices, Shapley value (exact fractions), the proportional rule for every optimal plan, epsilon (eq. 11) and gamma (cost of stability LP). Results: Example 1/3/4: L_k as stated; opt(LLP) = 7 with exactly two optimal plans ({9} serving all, {8} serving 4,5,6); opt(RLLP) = 7; v = (0,0,2,4,3,2,7) matches Table 4; u = (1,3.5,2.5) is in the core; core vertices (0,4,3), (1,4,2), (4,0,3), (5,0,2); DRLLP_N = 7; alpha = (4,.5,.5,4), beta = (1,3.5,2.5,0) is dual-optimal; over the optimal dual face alpha_4 in [0,5], alpha_5 in [0,4], alpha_6 in [0,1], alpha_7 = 4, and u_1 in [0,5], u_2 in [0,4], u_3 in [2,3], so the dual allocations equal the core (this exposed the missing alpha_5 <= 4 in the notes, now fixed; HiGHS returns u = (0,4,3)); Shapley (5/2, 2, 5/2) in core; proportional 'open 9' (35/16, 7/4, 49/16), eps = 1/16 (0.89%); 'open 8' (35/12, 7/3, 7/4), eps = 1/4 (3.57%); gamma = 0. Example 2: L_k as stated, unique optimum open {10,12} serving all but 6, value 14, RLLP = 14 integral, 10 nodes and 9 edges. Example 5: v = 0/1/1 as in Table 5; RLLP_N = 1.5 at y = 1/2; gamma = 0.5 (u = 0.5 each, 50%); Shapley = 1/3 each, eps = 1/3; unique dual alpha = beta = 0.5, scaled dual 1/3 each; det = -2. Example 6 merged game: v(merged) = 1, v({3}) = 0, v(N) = 1, gamma = 0. Example 7: theta_1 v = 1/4/7, RLLP = 7.5, gamma = 0, 7/3 each in core; theta_2 v = 2/5/7, RLLP = 7.5, gamma = 0.5. A second script, /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2026-parcel-lockers/consistency.py, checked the figure numbers against each other: Fig. 10 implies 120 empty of 3360 in both panels, Fig. 8 implies 1, 3, 5, 30, 136 empty per density, and Table 7 implies zero-gap shares of 0.861, 0.877, 0.898, consistent with Figs. 7, 8, 10. Figure values were read from 200 dpi renders of PDF pages 12 and 14."
+ }
+}
