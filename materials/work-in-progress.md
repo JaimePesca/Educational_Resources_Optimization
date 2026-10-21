@@ -12,11 +12,14 @@ New elements for the hidden lab about game theory. First help the owner decide w
 ## Status
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 1 | Design workflow: 5 proposal angles, merge, 3 judges, critic, synthesis | building | workflow run wf_3040f393-c80 |
+| 1 | Design workflow: 5 proposal angles, merge, 3 judges, critic, synthesis | done | result in materials/game-theory-design.json: 14 candidates; recommended penalty minimax, Braess/Wardrop, core LP, security patrols (critic corrections included) |
+| 1b | Owner added: a basics track (principles, notions, classic examples) and a second hidden door in the lab to a study section on Loe Schlicher's published research (cooperative games, spare parts pooling) | building | workflow run wf_6078bbfc-39e: basics track design, verified bibliography, paper reads with adversarial checks, public defence context, section design |
 | 2 | Owner chooses which pages to build | todo | |
 | 3 | Build the chosen pages (builder + independent reviewer each) | todo | |
 | 4 | Final check, report, ask for merge | todo | |
 
 ## Decisions already taken
+- The study section is public (public repo, reachable by URL): only published, verified sources; no personal statements of any kind.
+- The second door goes on site/lab/index.html, same invisible style and position as the home page door.
 - Existing game theory on the site: Price Wars (level 5: Cournot best responses, Stackelberg leader). Do not duplicate it.
 - Lab pages follow materials/briefs/lab-page.md; every number computed live; four languages; GA4 tag and icon links as in resources/_template.html; noindex (hidden lab).
