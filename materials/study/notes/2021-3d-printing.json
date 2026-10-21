@@ -1,0 +1,315 @@
+{
+ "notes": {
+  "slug": "2021-3d-printing",
+  "bibliography": {
+   "title": "Using 3D-printing in disaster response: The two-stage stochastic 3D-printing knapsack problem",
+   "authors": [
+    "Denise D. Tönissen",
+    "Loe Schlicher"
+   ],
+   "affiliations_as_printed": "a Department of Operations Analytics, School of Business and Economics, Vrije Universiteit Amsterdam, De Boelelaan 1105, 1081 HV, Amsterdam, The Netherlands (D.D. Tönissen, d.d.tonissen@vu.nl); b School of Industrial Engineering, Eindhoven University of Technology, P.O. Box 513, 5600 MB, Eindhoven, The Netherlands (L. Schlicher, l.p.j.schlicher@tue.nl, marked as corresponding author).",
+   "journal": "Computers & Operations Research (running header: Computers and Operations Research), Elsevier, ISSN 0305-0548",
+   "volume_issue_pages_or_article": "Volume 133 (2021), article 105356; 11 pages (pp. 1-9 text, ending with the CRediT authorship statement on p. 9; pp. 9-11 references). No appendix.",
+   "year": "2021",
+   "received": "9 August 2020 (received in revised form 16 February 2021)",
+   "accepted": "27 April 2021",
+   "available_online": "30 April 2021",
+   "doi": "10.1016/j.cor.2021.105356",
+   "open_access_or_license": "Open access under the CC BY license (http://creativecommons.org/licenses/by/4.0/); © 2021 The Author(s), published by Elsevier Ltd.",
+   "keywords": [
+    "Disaster response operations",
+    "3D-printing",
+    "Two-stage stochastic programming",
+    "Knapsack problems"
+   ]
+  },
+  "chronology_date": "2021-04-30",
+  "one_line": "A relief team loading a cargo plane must decide, before demand is known, how many physical items, 3D-printers and units of printing material to pack; the paper models this as a new two-stage stochastic integer program (TSS-3DKP), solves it via a deterministic equivalent built on a smart upper bound on the number of printers, and shows numerically that packing a 3D-printer pays off except in extreme cases.",
+  "question": "In the authors' words (abstract, p. 1, and Section 1, p. 1): \"shed light on when to pack and use 3D-printers in disaster response operations\", i.e. \"when to bring 3D-printers or not, which amount of printing material to take and which items to bring physically, to a disaster area\". Concretely (contributions, p. 2): (1) formulate this decision as a new two-stage stochastic knapsack problem and solve it \"within reasonable computation time (e.g., within hours)\" via a deterministic equivalent, and (2) via experiments, identify \"under which circumstances it is beneficial to bring 3D-printers, and by how much, to a disaster area\". In Section 5 (p. 7) each experiment answers two questions: \"1. Should we bring 3D-printers, and if so, how many? 2. What is the added value of using 3D-printers?\" This is NOT a cooperative game theory paper: there are no players, coalitions or cost sharing; it is a single decision maker stochastic optimization paper.",
+  "motivation_application": "Natural disasters cause tens of thousands of deaths, hundreds of thousands of injuries and billions of dollars in economic losses each year; a significant part arises in the aftermath, so basic survival resources (clean water, food, medicines, cooking utensils, shelter) and supportive resources (spare parts, repair tools) must be allocated fast (p. 1). The impact, hence demand, is hard to predict. 3D-printing (additive manufacturing) lets a team create objects locally after demand is seen: examples cited are Nepal 2015 (medical supplies, restoring water supply) and Haiti 2010 (screwdrivers, pipe clamps, bottles) (p. 1). Table 1 (p. 2) lists the trade-off. Positive effects: possibility to deal with demand uncertainty; efficient packing of printing material (material in liquid or powder form can be packed much more efficiently than physical items, p. 1). Negative effects: 3D-printing time (still hours per item); weight and volume of 3D-printers; reduced quality of printed items. Application: a cargo aeroplane loaded at a home location (first stage) and the disaster area where demand is revealed (second stage). The authors note possible future uses in military missions at remote locations and aerospace (e.g. a long-term mission to Mars) (p. 2).",
+  "model": "Single decision maker, two stages, discrete scenarios (Section 3, pp. 3-4).\n\nData. Set of physical item types $N$; printable items $N^p \\subseteq N$. Knapsack weight capacity $W$ and volume capacity $V$ (the paper calls it a multidimensional knapsack; here two dimensions). Item $i$: weight $w_i$, volume $v_i$, reward $r_i$ if a physically brought item meets demand; printed reward $\\alpha r_i$ with quality factor $\\alpha\\in[0,1]$ for $i\\in N^p$. One unit of printing material: weight $w_b$, volume $v_b$. One 3D-printer: weight $w_p$, volume $v_p$. Printing item $i$ uses $m_i$ units of material and time $t_i$; each printer can print at most $T$ time units (models urgency, e.g. 24 or 48 h, p. 2). Scenarios $s\\in S$ with probability $q_s\\in[0,1]$, $\\sum_s q_s=1$, and demand $d_i^s$. Printers are indexed by $P(x)=\\{i\\in\\mathbb{N}^+ : i\\le x\\}$ for $x\\in\\mathbb{N}_0$.\n\nFirst stage (decision vector $\\mathbf a=((a_i)_{i\\in N},a_p,a_b)$): $a_i$ copies of item $i$, $a_p$ printers, $a_b$ units of printing material.\nTSS-3DKP: $\\max \\sum_{s\\in S} q_s\\,\\mathcal{Q}(\\mathbf a,s)$ s.t.\n(1) $\\sum_{i\\in N} a_i w_i + a_p w_p + a_b w_b \\le W$;\n(2) $\\sum_{i\\in N} a_i v_i + a_p v_p + a_b v_b \\le V$;\n(3) $a_b \\le a_p\\,\\mathcal{M}$ (big-$\\mathcal M$: material only if at least one printer; the pdftotext layer drops the $\\mathcal M$, the PDF shows it);\n(4) $a_p,a_b,a_i\\in\\mathbb{N}_0$.\n\nSecond stage (scenario $s$, after demand is revealed): physically brought items that match demand are allocated, $a_i^s=\\min\\{a_i,d_i^s\\}$, then the $a_b$ units of material are allocated to the $a_p$ printers; $p_{ij}^s$ = number of times item $i$ is printed on printer $j$.\n$\\mathcal{Q}(\\mathbf a,s):=\\max \\sum_{i\\in N} a_i^s r_i + \\sum_{i\\in N^p}\\sum_{j\\in P(a_p)} \\alpha p_{ij}^s r_i$ s.t.\n(5) $a_i^s\\le d_i^s\\ \\forall i\\in N\\setminus N^p$;\n(6) $a_i^s+\\sum_{j\\in P(a_p)} p_{ij}^s\\le d_i^s\\ \\forall i\\in N^p$;\n(7) $a_i^s\\le a_i\\ \\forall i\\in N$;\n(8) $\\sum_{i\\in N^p}\\sum_{j\\in P(a_p)} p_{ij}^s m_i\\le a_b$;\n(9) $\\sum_{i\\in N^p} p_{ij}^s t_i\\le T\\ \\forall j\\in P(a_p)$;\n(10) $a_i^s\\in\\mathbb{N}_0\\ \\forall i\\in N$; (11) $p_{ij}^s\\in\\mathbb{N}_0\\ \\forall i\\in N^p, j\\in P(a_p)$.\n$a_i^s$ is a decision variable that, \"due to our formulation\", takes the value $\\min\\{a_i,d_i^s\\}$ (p. 4). Key non-standard feature: the number of constraints (9) and variables (11) depends on the first-stage decision $a_p$ (pp. 4-5). Footnote 1 (p. 4): with $r_i=1$ for all $i$ the objective is the expected amount of satisfied demand.\n\nDeterministic equivalent ILP-3DKP(Z) (Section 4.1, p. 5). Upper bound $Z=\\min\\{\\lfloor W/w_p\\rfloor,\\lfloor V/v_p\\rfloor,U\\}$, where $U$ is the maximum over scenarios of the number of printers used when all demand $d^s$ is assigned to printers one by one in index order (all of item 1 first, then 2, ..., $|N^p|$, moving to the next printer when adding another item would exceed $T$). Binary $y_j=1$ if printer $j\\in P(Z)$ is packed.\n$\\max \\sum_{s} q_s\\big[\\sum_{i\\in N} a_i^s r_i+\\sum_{i\\in N^p}\\sum_{j\\in P(Z)}\\alpha p_{ij}^s r_i\\big]$ s.t.\n(12) $\\sum_i a_i w_i + a_b w_b+\\sum_{j\\in P(Z)} y_j w_p\\le W$; (13) same for volume;\n(14) $a_b\\le \\sum_{j\\in P(Z)} y_j M$;\n(15) $a_i^s\\le d_i^s\\ \\forall i\\in N\\setminus N^p,\\forall s$; (16) $a_i^s+\\sum_{j\\in P(Z)}p_{ij}^s\\le d_i^s\\ \\forall i\\in N^p,\\forall s$; (17) $a_i^s\\le a_i\\ \\forall i,s$;\n(18) $\\sum_{i\\in N^p}\\sum_{j\\in P(Z)} p_{ij}^s m_i\\le a_b\\ \\forall s$;\n(19) $\\sum_{i\\in N^p} p_{ij}^s t_i\\le T y_j\\ \\forall j\\in P(Z),\\forall s$ (printing time becomes zero if printer not taken);\n(20) $y_j\\le y_{j-1}\\ \\forall j\\in P(Z)\\setminus\\{1\\}$ (symmetry breaking);\n(21) $y_j\\in\\{0,1\\}$; (22)-(25) integrality of $a_b,a_i,a_i^s,p_{ij}^s$.\nThe paper does not write $a_p$ explicitly in ILP-3DKP(Z); reading it as $a_p=\\sum_j y_j$ is the natural (reader's) interpretation.\n\nAssumptions: discrete scenarios (justified by the uniqueness of disasters, citing Grass and Fischer 2016, p. 3); one \"ideal\" printer type that can print all items with the same type of printing material and is easy to set up and use (stated as a limitation in Section 6); implicit in the model: one common quality factor $\\alpha$, deterministic printing time and material use, printed items always reward $\\alpha r_i$, and no time dimension beyond the per-printer budget $T$. The value of the big-M constant ($\\mathcal M$ in (3), $M$ in (14)) is not given in the paper.",
+  "results": [
+   {
+    "label": "Unnumbered claim, Section 3.3 (NP-hardness of both stages)",
+    "page": "4",
+    "statement": "Both the first-stage and the second-stage problem of the TSS-3DKP are NP-hard integer programming problems, because they are generalizations of the unbounded knapsack problem (Martello and Toth, 1990). The paper contains no numbered theorems, propositions or lemmas (only Examples 1 and 2); this is the only formal-type claim, and it is supported by special cases rather than a numbered proof.",
+    "meaning": "The paper stresses (p. 2) that, \"in contrast to standard two-stage stochastic programming problems (Birge and Louveaux, 2011)\", its problem is NP-hard in both stages, which makes solving it within reasonable time challenging; and (p. 4) that no standard commercial solver directly solves two-stage stochastic programs, hence the reformulation of Section 4. (Reader's gloss, not in the paper: in textbook two-stage programs the recourse problem is typically a continuous LP, whereas here it is itself a hard integer problem.)",
+    "proof_idea": "First stage: take no printers, no printing material, exactly one scenario with infinite demand for every item, V = 0 and v_i = 0 for all i; the first-stage problem becomes an unbounded knapsack with capacity W, weights w_i and rewards r_i. Second stage: take no physical items, exactly one printer, infinite demand and m_i = 0 for all printable i; the second-stage problem becomes an unbounded knapsack with capacity T, weights t_i and rewards alpha r_i. (The 'infinite demand' device is used as stated; with finite integer demand one would take demand large enough.)"
+   },
+   {
+    "label": "Example 1",
+    "page": "4",
+    "statement": "W = V = 4; N = N^p = {1, 2}; w_1 = v_1 = w_2 = v_2 = 4; r_1 = 1, r_2 = 2; m_1 = m_2 = 2; w_b = v_b = 1; w_p = v_p = 2; S = {s1, s2}, q_{s1} = 0.7, q_{s2} = 0.3; d_1^{s1} = 1, d_2^{s1} = 0, d_1^{s2} = 0, d_2^{s2} = 1; T = 1, t_1 = t_2 = 1; alpha = 0.8. Three candidate solutions: (i) one physical item 1, expected reward 0.7 x 1 = 0.7; (ii) one physical item 2, 0.3 x 2 = 0.6; (iii) one 3D-printer with 2 units of material, printing item 1 in s1 (0.7 x 0.8 x 1 = 0.56) and item 2 in s2 (0.3 x 0.8 x 2 = 0.48), total 1.04. Bringing a 3D-printer and allocating the printing material according to demand is optimal.",
+    "meaning": "The printer is a hedge: it postpones the choice of which item to provide until demand is known, and this flexibility (1.04) beats committing to either physical item (0.7 or 0.6) even though printed items are worth only 80%.",
+    "proof_idea": "Enumeration: each physical item fills the whole knapsack; the only other useful load is 1 printer (weight 2) + 2 material units (weight 2), enough for exactly one print (m = 2, T = 1, t = 1). Recourse per scenario is trivial. (Recomputed by brute force over all 7 feasible first-stage loads: optimum 1.04.)"
+   },
+   {
+    "label": "Upper bound Z on the number of printers (Section 4.1)",
+    "page": "5",
+    "statement": "For each scenario s, count the printers needed to print all demand d^s when items are allocated one by one in order of their indices (all demand of item 1 first, then item 2, ..., |N^p|), moving to the next printer when adding another item would exceed T. The maximum over scenarios is U. Since U may exceed what fits in the knapsack, the bound is Z = min{floor(W/w_p), floor(V/v_p), U}. The paper calls this 'a smart upper bound' (pp. 2 and 5) and uses it to build the deterministic equivalent as if the knapsack were filled with Z printers.",
+    "meaning": "Bounds the size of the second-stage index set P(a_p), which removes the dependence of the second-stage dimensions on the first-stage decision.",
+    "proof_idea": "Not proved formally in the paper. Implicit reasoning (reader's reconstruction): the sequential assignment packs all demand of scenario s into at most U printers; any set of items actually printed in s is a subset of that demand, so it can be printed on the same U printers by deleting items, and the material constraint (8) is a scenario total, not per printer. Hence printers beyond U add no reward while consuming weight and volume, and no more than floor(W/w_p) or floor(V/v_p) printers fit. The paper does not discuss items with t_i > T, for which the sequential rule is undefined (this happens e.g. for m = 0 in Section 5.4, where T = 0)."
+   },
+   {
+    "label": "Example 2",
+    "page": "5",
+    "statement": "N = N^p = {1, 2} (printed as 'N = N_p = {1, 2, }'); S = {s1, s2}; demands d_1^{s1} = 3, d_2^{s1} = 1, d_1^{s2} = 1, d_2^{s2} = 2 (the last superscript is misprinted as '2_2' in the PDF, value 2); W = 10, V = 12; w_p = 5, v_p = 3, T = 5; t_1 = 2, t_2 = 3. For s1: two items of type 1 on printer 1, then one of type 1 and one of type 2 on printer 2. For s2 the text allocates one item of type 1 and one of type 2 to printer 1, one item of type 2 to printer 2 and one item of type 2 to printer 3, so U = 3. With floor(W/w_p) = 2 and floor(V/v_p) = 4, Z = 2.",
+    "meaning": "Illustrates that the knapsack capacity, not demand, can be the binding part of the bound.",
+    "proof_idea": "Direct computation. Caution: the text's allocation for s2 uses three items of type 2, but the stated demand is d_2^{s2} = 2 (checked on the rendered PDF). With the stated demands the sequential rule needs 2 printers in s2 (printer 1: items 1 and 2, time 5; printer 2: one item 2), so U would be 2; U = 3 would require d_2^{s2} = 3. The final bound Z = 2 is the same either way (recomputed in Python)."
+   },
+   {
+    "label": "Deterministic equivalent ILP-3DKP(Z) (Section 4.1)",
+    "page": "5",
+    "statement": "The paper presents ILP-3DKP(Z), objective plus constraints (12)-(25), as an equivalent formulation of the TSS-3DKP (p. 4: 'another, but equivalent, formulation that is suitable for standard solvers (e.g., CPLEX)'). 'The objective coincides with the original objective of the TSS-3DKP'. Binary y_j indicates whether printer j in P(Z) is packed; (19) makes the printing time of an untaken printer zero; (14) is the big-M link between material and printers (indirectly, printing only with a printer); (20) orders the printers.",
+    "meaning": "The standard deterministic equivalent cannot be written directly because the number of second-stage constraints (9) and variables (11) depends on a_p; padding to Z potential printers with activation binaries ('several dummy variables', p. 2) fixes the dimensions so all scenarios can be stacked in one ILP.",
+    "proof_idea": "No formal proof of equivalence is given. Intuition (reader's): any TSS-3DKP solution with a_p <= Z maps to y_1 = ... = y_{a_p} = 1 and the rest 0 with identical reward; conversely y defines a_p = sum_j y_j; by the bound Z, restricting a_p <= Z loses no optimal value. Footnote 2 (p. 5): although the number of constraints and variables grows, Section 4.2 shows the model still solves in reasonable time."
+   },
+   {
+    "label": "Footnote 3 (symmetry-breaking constraints (20))",
+    "page": "5",
+    "statement": "Constraints (20) exclude many symmetric solutions; computational results show that they decrease the solution time of the CPLEX solver by approximately a factor 1.5. (The main text says (20) guarantee that printer j is taken 'if and only if' printer j-1 is taken; strictly, y_j <= y_{j-1} only says j is taken only if j-1 is taken.)",
+    "meaning": "Identical printers create permutation symmetry; ordering them is a cheap speed-up.",
+    "proof_idea": "Any feasible solution can be relabelled so the packed printers are the first ones, so no optimal value is lost."
+   },
+   {
+    "label": "Table 2 (performance of 5 instance sets, Section 4.2.2)",
+    "page": "6",
+    "statement": "100 instances per set, time limit 3600 s, CPLEX standard settings (default relative gap 0.01%). Columns: average cuts, average nodes, fails, average time of solved instances, max time. N100D100S50: 1297, 38 822, 1, 12.5 s, > 3600 s. N200D100S50: 2870, 0, 0, 3.1 s, 9.6 s. N100D200S50: 1488, 1, 0, 1.3 s, 3.0 s. N100D100S100: 2638, 19 921, 1, 49.5 s, > 3600 s. N200D200S100: 5616, 5, 0, 15.7 s, 38.6 s. For failed instances the cuts and nodes used so far are reported.",
+    "meaning": "Average solution time is under a minute; most instances need no branching and are solved by cuts alone (from individual results not reported). The two failed instances (one from N100D100S50, one from N100D100S100) are hard: 3 017 763 and 1 158 576 nodes, still not solved to optimality with a 86 400 s (24 h) limit.",
+    "proof_idea": "Computational experiment (Java + CPLEX 12.8.0, laptop with Intel Core i7-4710MQ quad core 2.5 GHz, 32 GB RAM); times include reading the instance, computing Z, building and solving the model."
+   },
+   {
+    "label": "Table 3 (effect of the relative gap, Section 4.2.2)",
+    "page": "6",
+    "statement": "All 500 instances of the five sets combined. Gap 0.01%: cuts 2782, nodes 11 750, fails 2, avg 16.4 s, max > 3600 s. Gap 0.1%: 2832, 1, 0, 4.5 s, 37.2 s. Gap 1%: 2942, 0, 0, 3.7 s, 37.1 s. Gap 10%: 2777, 0, 0, 3.5 s, 19.2 s. The 0.1% gap is adopted for the rest of the paper.",
+    "meaning": "Much time is spent on improving the solution slightly or proving optimality; from 0.01% to 0.1% nodes drop from 11 750 to 1, so branching is no longer needed for most instances, and every instance solves within 37.2 s (average 4.5 s), which the authors consider what practice needs: sufficiently good solutions quickly. Going further to 10% has a limited effect (average 4.5 to 3.5 s, max 37.2 to 19.2 s).",
+    "proof_idea": "Computational experiment."
+   },
+   {
+    "label": "EVPI and VSS (Section 4.2.3)",
+    "page": "6-7",
+    "statement": "On the N100D100S50 instances, for two cases (printers not allowed, printers allowed): EVPI = WS minus TSS-3DKP value, reported as % of the TSS-3DKP value; WS = sum_s q_s max Q(a^s, s) with an independent packing a^s per scenario satisfying (1)-(4). VSS = TSS-3DKP value minus EEVS, as % of the EEVS; the expected value solution a^EVS solves the TSS-3DKP with a single 'scenario' equal to expected demand, and the paper writes EEVS = max sum_s q_s Q(a^EVS, s). Results: EVPI without 3D-printers 19.01%, with 3D-printers 10.37%; VSS without 3D-printers 12.47%, with 3D-printers 6.27%. (The paper does not state whether these are averages over the 100 instances; presumably they are.)",
+    "meaning": "Allowing printers roughly halves both the cost of uncertainty and the gain from modelling it stochastically ('decreases by almost a factor two'): 'packing 3D-printers reduces the need for perfect information', and the results illustrate 'the need for 3D-printers to hedge against uncertainty'; the two-stage approach is worth using (it increases profit by 12.47% over the EEVS without printers).",
+    "proof_idea": "Standard stochastic programming measures (Birge and Louveaux, 2011) computed numerically."
+   },
+   {
+    "label": "Table 4 (quality of printed items alpha, Section 5.1)",
+    "page": "7",
+    "statement": "N100D100S50, alpha in {0.1, ..., 1.0}. Printers: median / min-max (avg); reward increase %: median / min-max (avg). 0.1: 0, 0-0 (0.0); 0.0, 0-0 (0.0). 0.2: 0, 0-1 (0.0); 0.0, 0-0 (0.0). 0.3: 1, 0-1 (0.5); 0.1, 0-3 (0.5). 0.4: 1, 0-1 (0.9); 2.2, 0-8 (2.5). 0.5: 1, 1-2 (1.0); 6.0, 0-13 (5.7). 0.6: 1, 1-2 (1.1); 9.6, 2-21 (9.7). 0.7: 1, 1-3 (1.2); 14.0, 4-32 (14.3). 0.8: 1, 1-3 (1.3); 19.2, 7-45 (19.5). 0.9: 1, 1-3 (1.4); 25.0, 9-58 (25.5). 1.0: 1, 1-4 (1.6); 31.8, 13-73 (32.5).",
+    "meaning": "Higher quality raises both the number of printers and the gain. For alpha >= 0.3 it is beneficial to bring printers: printing items, even with a fairly low quality, 'payoffs rapidly'.",
+    "proof_idea": "Reward increase per instance = (ILP-3DKP(Z) - ILP-3DKP(0)) / ILP-3DKP(0) x 100%; median, min, max and average over the instances of the set."
+   },
+   {
+    "label": "Table 5 (printer weight and volume, factor k, Section 5.2)",
+    "page": "7",
+    "statement": "k = number of times a printer fits (in weight and volume) in the knapsack, k in {2, 3, 5, 10, 20, 30, 40, 50, infinity}; w_p = round(W/k), v_p = round(V/k), and w_p = v_p = 0 for k = infinity. 2: 0, 0-0 (0.0); 0, 0-0 (0.0). 3: 1, 0-1 (0.7); 5.1, 0-21 (5.7). 5: 1, 0-1 (1.0); 11.4, 0-32 (12.2). 10: 1, 1-2 (1.1); 16.1, 3-39 (16.9). 20: 1, 1-2 (1.2); 18.8, 4-43 (19.4). 30: 1, 1-3 (1.4); 19.8, 5-44 (20.3). 40: 1, 1-3 (1.4); 20.3, 5-45 (20.7). 50: 1, 1-3 (1.5); 20.8, 5-45 (21.0). infinity: 3, 2-7 (3.1); 22.7, 6-47 (22.2).",
+    "meaning": "Printers and gains increase in k; even for fairly low k a printer is worth packing. The printer's weight and volume must exceed 33% (k < 3) of the knapsack before packing only physical items is better (only k = 2 and k = 3 are tested around this threshold).",
+    "proof_idea": "Computational sensitivity analysis."
+   },
+   {
+    "label": "Table 6 (storage efficiency of printing material, factor l, Section 5.3)",
+    "page": "7-8",
+    "statement": "l = fraction of printing material needed in comparison to physical items, in weight and volume, l in {0, 0.1, ..., 1}; w_i = v_i, m_i = round(l w_i), w_b = v_b = 1. 0: 1, 1-3 (1.3); 17.9, 6-51 (19.5). 0.1: 1, 1-3 (1.3); 16.1, 6-45 (17.4). 0.2: 1, 1-2 (1.2); 14.3, 5-39 (15.3). 0.3: 1, 1-2 (1.2); 12.4, 5-32 (13.1). 0.4: 1, 1-2 (1.1); 10.6, 4-25 (10.9). 0.5: 1, 1-2 (1.1); 8.6, 3-18 (8.7). 0.6: 1, 1-1 (1.0); 6.7, 3-12 (6.8). 0.7: 1, 1-1 (1.0); 5.0, 2-9 (4.9). 0.8: 1, 0-1 (1.0); 3.3, 0-7 (3.3). 0.9: 1, 0-1 (0.9); 2.1, 0-5 (2.0). 1: 1, 0-1 (0.8); 1.3, 0-3 (1.2).",
+    "meaning": "Printers and gains decrease as material takes more space, but even with no storage benefit (l = 1) a printer is still often packed: the uncertainty in demand alone can be enough to bring printers.",
+    "proof_idea": "Computational sensitivity analysis."
+   },
+   {
+    "label": "Table 7 (printing time, factor m, Section 5.4)",
+    "page": "8",
+    "statement": "m = fraction of items that can be printed on one printer, on average, m in {0, 0.1, ..., 1.0, infinity}; T = round(m sum_s q_s sum_{i in N^p} t_i d_i^s). 0: 0, 0-0 (0.0); 0, 0-0 (0.0). 0.1: 3, 1-5 (2.8); 10.3, 1-21 (10.3). 0.2: 2, 1-3 (2.2); 14.7, 4-28 (15.1). 0.3: 2, 1-2 (1.8); 16.8, 5-33 (16.9). 0.4: 1, 1-2 (1.4); 17.4, 5-35 (17.7). 0.5: 1, 1-2 (1.1); 18.2, 5-35 (18.5). 0.6: 1, 1-1 (1.0); 18.7, 5-37 (19.1). 0.7: 1, 1-1 (1.0); 19.0, 5-38 (19.4). 0.8, 0.9, 1 and infinity (identical rows): 1, 1-1 (1.0); 19.2, 5-39 (19.5).",
+    "meaning": "Except m = 0 (no printers), the number of printers decreases in m and converges to exactly one (with T infinite one printer can print everything). For 0.6 <= m <= 1 at most one printer is packed although not all items can be printed on one printer: on average more than half of the printing time of demand is used on the first printer, so a second one would on average not be fully utilized and is likely not packed. The gain grows until m = 0.8 and then stabilizes: for large m some items are preferred physically (e.g. for a better reward) even though they could be printed without packing extra printers.",
+    "proof_idea": "Computational sensitivity analysis."
+   },
+   {
+    "label": "Table 8 (demand uncertainty, upper limit D, Section 5.5)",
+    "page": "8",
+    "statement": "D in {2^0, ..., 2^17}, with W = V = 100 000 and T = 4000 fixed (because in the generator these depend on total average demand). 1, 2, 4, 8: 0, 0-0 (0.0); 0.0, 0-0 (0.0). 16: 1, 0-1 (0.6); 0.1, 0-2 (0.3). 32: 1, 1-1 (1.0); 5.9, 2-15 (6.4). 64: 1, 1-1 (1.0); 14.7, 6-31 (15.6). 128: 1, 1-2 (1.5); 23.6, 12-47 (24.3). 256: 2, 1-3 (2.1); 25.1, 15-51 (26.5). 512: 3, 2-4 (2.6); 22.5, 8-43 (23.1). 1024: 3, 2-5 (3.1); 18.0, 5-60 (20.5). 2048: 3, 1-7 (3.3); 14.5, 3-37 (15.4). 4096: 3, 0-7 (3.2); 10.5, 0-51 (12.9). 8192: 3, 0-8 (3.1); 6.7, 0-51 (9.4). 16 384: 2, 0-8 (2.4); 3.0, 0-67 (7.3). 32 768: 0, 0-12 (1.5); 0.0, 0-55 (4.8). 65 536: 0, 0-11 (1.0); 0.0, 0-31 (2.2). 131 072: 0, 0-11 (1.1); 0.0, 0-59 (3.5).",
+    "meaning": "Both printers and gain rise with uncertainty up to a point (D = 2048 for printers, D = 256 for reward) and then fall. The fall is called counterintuitive and attributed to the way uncertainty is modelled: for sufficiently large D demand exceeds the knapsack weight and volume capacity in a majority of scenarios, so the problem behaves as a deterministic one, and the only remaining reason for printers is the better packing efficiency of material. For small D (1 to 8) no printer is packed; the paper gives no separate explanation of this regime beyond the conclusion's 'when demand for items is low'.",
+    "proof_idea": "Computational sensitivity analysis; D identifies the domain of the uniform distributions used to sample demand, so larger D means more uncertainty."
+   },
+   {
+    "label": "Table 9 (knapsack classes of Pisinger 2005, Section 5.6)",
+    "page": "8-9",
+    "statement": "N100D100S50 under the ten weight-reward correlation classes of Pisinger (2005). Uncorrelated: 1, 1-3 (1.3); 19.2, 7-45 (19.5). Weakly correlated: 1, 1-3 (1.3); 23.8, 10-24 (23.6) [as printed, confirmed on the rendered PDF; a maximum of 24 with median 23.8 and average 23.6 looks unusual and may be a typo]. Almost strongly correlated: 1, 1-3 (1.4); 24.4, 13-45 (25.3). Strongly correlated: 1, 1-3 (1.4); 25.6, 11-41 (25.3). Circle: 1, 1-3 (1.5); 24.4, 6-37 (23.8). Subsetsum: 1, 1-3 (1.4); 25.6, 10-44 (25.9). Uncorrelated spanner: 1, 1-3 (1.3); 20.1, 2-42 (19.9). Multiple strongly correlated: 1, 1-3 (1.5); 24.8, 11-39 (24.1). Inverse strongly correlated: 1, 1-3 (1.4); 25.2, 11-45 (25.7). Profit ceiling: 1, 1-3 (1.4); 25.2, 13-43 (25.3). Not in the table: all instances solve within seconds, spanner fastest (avg 1.2 s), inverse strongly correlated slowest (avg 4.2 s).",
+    "meaning": "Results are not class specific. The gain is lowest for the uncorrelated class (the one most related to disaster response), so the base results are likely an underestimate of the benefit. With correlated weights and rewards items have similar reward-to-weight ratios, so it is harder to decide which items to pack up front and delaying the decision (printing) is slightly more valuable. The solution method also handles the computationally hardest classes.",
+    "proof_idea": "Computational experiment."
+   },
+   {
+    "label": "Main conclusion (abstract and Section 6)",
+    "page": "1, 9",
+    "statement": "Abstract (p. 1): 'for most situations using a 3D-printer is beneficial. Only in extreme circumstances, where the quality of printed items is extremely low, the size of the 3D-printer is extremely large compared to the knapsack size, when there is no time to print the items, or when demand for items is low, packing no 3D-printers is the best option.' Section 6 (p. 9) repeats this with 'packing a 3D-printer is beneficial' and 'taking no 3D-printers is the best option'.",
+    "meaning": "Summary of Tables 4, 5, 7 and 8 (alpha <= 0.2, k = 2, m = 0, D <= 8). Note: Table 8 also shows a median of 0 printers for very large D (>= 32 768), a regime the summary sentence does not list.",
+    "proof_idea": "Synthesis of the numerical study."
+   }
+  ],
+  "methods_and_tools": [
+   "Two-stage stochastic integer programming with discrete demand scenarios (recourse = matching physical items and printing)",
+   "Deterministic equivalent (extensive form) of a two-stage stochastic program",
+   "Handling first-stage-dependent second-stage dimensions via an a priori upper bound Z and activation binaries y_j ('dummy variables')",
+   "Sequential (index-order, next-fit style) assignment rule to compute the bound U",
+   "Big-M linking constraints ((3), (14))",
+   "Symmetry-breaking ordering constraints y_j <= y_{j-1}",
+   "NP-hardness via special cases that are unbounded knapsack problems",
+   "Multidimensional (weight and volume) knapsack modelling",
+   "CPLEX 12.8.0 branch-and-cut through Java; relative MIP gap as stopping criterion",
+   "Expected value of perfect information (EVPI), wait-and-see (WS) value, value of the stochastic solution (VSS), expectation of the expected value solution (EEVS)",
+   "Pisinger (2005) knapsack instance classes for instance generation",
+   "One-factor-at-a-time sensitivity analysis (alpha, k, l, m, D, knapsack class)"
+  ],
+  "allocation_rules": "None in the cooperative game sense. The paper has a single decision maker and no players, coalitions, characteristic function or cost/benefit sharing rule, so there are no allocation rules or core/Shapley-type properties to report. The word \"allocate\" refers only to operational assignments: (a) physically brought items are allocated to matching demand, a_i^s = min{a_i, d_i^s} (p. 3); (b) the a_b units of printing material are allocated to the a_p printers and to printed items p_ij^s subject to material (8) and time (9) limits; (c) for the bound U, all demand is assigned to printers in index order, opening a new printer when the next item would exceed T (Section 4.1, p. 5).",
+  "numerical_study": "Setup (Section 4.2.1, pp. 5-6). Instance parameters: |N|, demand upper limit D, |S|, alpha, w_p, v_p. Weights w_i and rewards r_i from the uncorrelated class of Pisinger (2005) (range not stated); v_i ~ round(U[0.2, 5] w_i); t_i ~ round(U[0, 10]); m_i ~ round(U[0.5, 0.9] min(w_i, v_i)); w_b = v_b = 1, so printed items can always be packed more efficiently than physical ones. Max demand U_i ~ round(U[1, D]); d_i^s ~ round(U[0, U_i]); q_s = 1/|S|. T ~ round(U[0.2, 1] sum_s q_s sum_{i in N^p} t_i d_i^s) (fraction of the average total time to print all items); W ~ round(U[0.5, 1] sum_s q_s sum_i w_i d_i^s); V ~ round(U[0.5, 2] W). Base alpha = 0.8, w_p = v_p = 5000. Sets named NxDySz. The paper does not state N^p for the generated instances; since 'every item has ... a required printing material m_i, and printing time t_i' (pp. 5-6), N^p = N is the likely reading. Implementation: Java, CPLEX 12.8.0 standard settings, laptop Intel Core i7-4710MQ quad core 2.5 GHz, 32 GB RAM, limit 3600 s; times include reading, computing Z, building, solving.\nSolvability (Table 2, p. 6): five sets of 100 instances (N100D100S50 base, N200D100S50, N100D200S50, N100D100S100, N200D200S100); average times 12.5, 3.1, 1.3, 49.5, 15.7 s; two failures (nodes 3 017 763 and 1 158 576), not solved to optimality even in 24 h. Table 3 (p. 6): gaps 0.01/0.1/1/10% give avg 16.4/4.5/3.7/3.5 s, max >3600/37.2/37.1/19.2 s, avg nodes 11 750/1/0/0; 0.1% adopted for the rest of the paper.\nValue of stochastic modelling (Section 4.2.3, pp. 6-7, N100D100S50): EVPI 19.01% without printers vs 10.37% with; VSS 12.47% without vs 6.27% with.\nTo print or not (Section 5, pp. 7-9; metric = % increase of ILP-3DKP(Z) over ILP-3DKP(0), plus number of printers; median, min-max and average over the N100D100S50 instances of each setting): Table 4 alpha (no printers for alpha <= 0.2; median gain 19.2% at alpha = 0.8, 31.8% at alpha = 1); Table 5 k (no printers at k = 2; 22.7% median and 3 printers when printers weigh nothing); Table 6 l (median gain falls from 17.9% at l = 0 to 1.3% at l = 1, printer still usually packed); Table 7 m (no printers at m = 0; median 3 printers at m = 0.1; one printer and 19.2% from m = 0.8 on); Table 8 D with W = V = 100 000, T = 4000 (inverted U: printers peak at D = 2048 with avg 3.3, reward peaks at D = 256 with median 25.1%, avg 26.5%); Table 9 ten Pisinger classes (always median 1 printer; median gain 19.2% to 25.6%, lowest for uncorrelated; avg solve time 1.2 s to 4.2 s). Base-case reference row (alpha = 0.8, uncorrelated): median 1 printer, range 1-3, avg 1.3; median gain 19.2%, range 7-45%, avg 19.5%.",
+  "worked_example": "Example 1 (p. 4), fully recomputable. Data: W = V = 4; items 1 and 2 both printable, w = v = 4 each, r_1 = 1, r_2 = 2, m_1 = m_2 = 2; one material unit w_b = v_b = 1; one printer w_p = v_p = 2; T = 1, t_1 = t_2 = 1; alpha = 0.8; scenario s1 (prob 0.7): demand (1, 0); scenario s2 (prob 0.3): demand (0, 1).\nFeasible first-stage loads (a_1, a_2, a_p, a_b) and expected reward (brute-force enumeration, matches the paper's three candidates): (0,0,1,2) -> 0.7*0.8*1 + 0.3*0.8*2 = 0.56 + 0.48 = 1.04 (optimal); (1,0,0,0) -> 0.7; (0,1,0,0) -> 0.6; (0,0,1,1), (0,0,1,0), (0,0,2,0), (0,0,0,0) -> 0 (one material unit cannot print anything since m = 2). Printer bound for this example (my computation): U = 1 (one print per scenario), Z = min{2, 2, 1} = 1.\nWidget extension (my derivation from the paper's data, not in the paper): with a general alpha the printer load is worth 0.7 alpha + 0.6 alpha = 1.3 alpha, so it beats the best physical load (0.7) iff alpha > 7/13 = 0.538, with a tie at exactly 7/13 (checked: alpha = 0.53 -> physical item 1, 0.7; alpha = 0.54 -> printer, 0.702). Wait-and-see value: 0.7*1 + 0.3*2 = 1.3, so EVPI = 1.3 - 1.04 = 0.26 at alpha = 0.8, i.e. 25% of the TSS-3DKP value in the paper's percentage convention (also my computation). The EVS is not well defined here because expected demand (0.7, 0.3) is fractional while a_i^s and p_ij^s are integer.\nExample 2 (p. 5) for the printer bound: demands s1 = (3, 1), s2 = (1, 2); T = 5, t_1 = 2, t_2 = 3; W = 10, V = 12, w_p = 5, v_p = 3. floor(W/w_p) = 2, floor(V/v_p) = 4. The paper states U = 3 and Z = 2. Recomputing the sequential rule with the stated demands gives 2 printers in each scenario (s1: [1,1] then [1,2]; s2: [1,2] then [2]), so U = 2; the paper's text allocates three type-2 items in s2, which would need d_2^{s2} = 3. Z = min{2, 4, U} = 2 in both readings.",
+  "insights": [
+   "A 3D-printer plus printing material is a flexible, postponed resource: the commitment to a specific item is delayed until demand is observed, which is why it hedges demand uncertainty (EVPI drops from 19.01% to 10.37% and VSS from 12.47% to 6.27% when printers are allowed).",
+   "In the base case the typical optimal plan packs exactly one printer and raises expected reward by about 19% (median 19.2%, average 19.5%).",
+   "Printed items do not need to be good to be useful: printers are packed (median) from alpha = 0.3 on.",
+   "Printer size is rarely the deal breaker: only when one printer takes more than 33% of the knapsack weight and volume (k < 3) is it better to pack only physical items; at k = 3 the median is still one printer.",
+   "Packing efficiency of material is not essential: even with l = 1 (no space advantage) a printer is still usually packed, so demand uncertainty alone can justify it.",
+   "Scarce printing time calls for more printers (median 3 at m = 0.1); abundant time converges to a single printer, and some items are still brought physically for their higher reward.",
+   "Benefit is non-monotone in the demand range D: it rises with uncertainty and falls when demand so exceeds capacity that the problem becomes effectively deterministic; the authors say this decreasing part results from their way of modelling uncertainty.",
+   "Modelling trick worth reusing: when the recourse problem's dimensions depend on a first-stage integer, pad to a valid upper bound with ordered activation binaries; this gives a solvable deterministic equivalent, and symmetry breaking cut CPLEX time by about a factor 1.5.",
+   "A 0.1% optimality gap is a good practical compromise: all 500 instances solved within 37.2 s (average 4.5 s) versus 2 failures at the default 0.01%.",
+   "The uncorrelated knapsack class (most related to relief) gives the smallest gain, so the reported benefits are likely conservative.",
+   "For the cooperative-game research line (reader's note, not a claim of the paper): this is a single-actor stochastic optimization paper; it shows Schlicher working outside cooperative games on flexibility under uncertainty, but no sharing or collaboration between actors is modelled."
+  ],
+  "limitations_future_work": "Stated by the authors (Section 6, p. 9), four directions: (1) the model assumes an 'ideal' printer that prints all items with the same type of printing material and is easy to set up and use; extensions with several printer types, printing materials (polymer filament, liquid resin, metal powder) and printer-specific print quality would increase the model size tremendously and likely be beyond the current solution procedure; candidate methods are the integer L-shaped algorithm (Laporte and Louveaux 1993; Angulo et al. 2016; applied to disaster response by Sanci and Daskin 2021) and logic-based Benders decomposition (Hooker and Ottosson 2003), a generalization of Benders (1962). (2) Decision-dependent uncertainty (Goel and Grossmann 2006): investing time to get more accurate demand information versus arriving later. (3) On-the-road printing while travelling, possibly with information revealed en route: a multi-stage model whose scenario tree may be intractable at real-world size, needing reduced formulations or alternative methods. (4) Other application domains such as military or aerospace settings.\nFurther points a careful reader should note (not stated as limitations by the authors): the equivalence of ILP-3DKP(Z) and the validity of the bound U are argued informally, without a formal proof; Example 2 is internally inconsistent (U = 3 from an allocation using three type-2 items while d_2^{s2} = 2), though Z = 2 is unaffected; the big-M value is not given; N^p for the generated instances is not stated explicitly; the bound U is undefined if some t_i > T, which occurs in Table 7 for m = 0 (T = 0), and the paper does not say how Z is computed there; the reported EVPI/VSS percentages are not explicitly said to be averages; scenario probabilities are equal and demand is uniform; two instances remain unsolved even in 24 h at a 0.01% gap; all data are synthetic (no real disaster case); printing time is a per-printer budget with no scheduling or delivery-time dimension; notation is overloaded (U for the uniform distribution, U_i for max demand and U for the printer bound; m_i for material and m for the time factor). The Table 9 'Weakly correlated' reward range 10-24 with average 23.6 is printed that way and may be a typo.",
+  "connections": "Builds on the two-stage stochastic knapsack literature, which it describes as relatively young and consisting of a few papers only: Kosuch and Lisser (2011) (normally distributed item weights, chance constraint, recovery by adding or removing items), Kosuch (2014) (discretely distributed weights), van den Akker, Bouman, Hoogeveen and Tönissen (2016) (knapsack size uncertainty with discrete scenarios, removal recovery; co-authored by Tönissen), Tönissen, van den Akker and Hoogeveen (2017) (extension to multiple knapsacks; title mentions column generation and decomposition; also Tönissen's own work), Lisser et al. (2010) and Song et al. (2018) (quadratic variants with weight, and weight and reward, uncertainty). Its claimed novelty: the first two-stage stochastic knapsack with uncertainty in item demand and a recovery option that 'creates' new items out of another item (printing material). In disaster operations management it follows the two-stage stochastic programming tradition (Altay et al. 2006; reviews by Galindo and Batta 2013 and Leiras et al. 2014; overview of two-stage programs by Grass and Fischer 2016) and the practice of meeting expected demand rather than minimizing cost (Barbarosoglu and Arda 2004; Rawls and Turnquist 2010; Balcik and Beamon 2008 maximize expected satisfied demand); it claims to be the first to use two-stage stochastic programming to decide whether bringing 3D-printers to a disaster area is useful, beyond qualitative work (Savonen et al. 2018; Rodríguez-Espíndola and Beltagui 2018; Rodríguez-Espíndola et al. 2020b). In 3D-printing OM/OR it contrasts with Westerweel, Basten and van Houtum (2018), Song and Zhang (2020), Khajavi et al. (2014), Liu et al. (2014) and Dong et al. (2016), all of which assume a printer with a possibly unlimited amount of material is present, whereas here bringing the printer and material is itself the decision. The reference list contains no paper by Schlicher, so any link to his other research is not made by this paper; the closest cited works are the spare-parts 3D-printing papers (Westerweel et al. 2018; Song and Zhang 2020; Khajavi et al. 2014; Liu et al. 2014). Methodologically it sits apart from the cooperative game theory papers in this collection: it is a single-decision-maker stochastic optimization collaboration with Denise Tönissen (VU Amsterdam).",
+  "prerequisites": [
+   "Integer linear programming and knapsack variants: 0-1, unbounded and multidimensional knapsack",
+   "NP-hardness arguments by special cases",
+   "Two-stage stochastic programming with recourse, scenarios and the deterministic equivalent (Birge and Louveaux)",
+   "EVPI, wait-and-see, expected value solution, EEVS and VSS",
+   "Big-M modelling and symmetry-breaking constraints",
+   "Branch-and-cut, MIP relative gap and how solvers report cuts and nodes",
+   "Pisinger's (2005) knapsack instance classes",
+   "Basic humanitarian logistics: pre-positioning, demand uncertainty, response-time urgency"
+  ],
+  "glossary": [
+   {
+    "term": "TSS-3DKP",
+    "definition": "Two-stage stochastic 3D-printing knapsack problem: pack physical items, printers and printing material under weight and volume limits before demand is known, then match items and print after demand is revealed, maximizing expected reward."
+   },
+   {
+    "term": "ILP-3DKP(Z)",
+    "definition": "The paper's deterministic equivalent integer program, written as if Z printers were available, with binaries y_j saying whether printer j is packed; ILP-3DKP(0) is the same problem with no printers allowed."
+   },
+   {
+    "term": "First stage / second stage",
+    "definition": "First stage: loading decision a = (a_i, a_p, a_b) at the home location. Second stage (recourse): per scenario, matching physical items to demand (a_i^s) and printing items (p_ij^s) after demand is revealed."
+   },
+   {
+    "term": "Quality factor alpha",
+    "definition": "Fraction of the physical reward r_i obtained when item i is printed instead (alpha in [0, 1]); base value 0.8."
+   },
+   {
+    "term": "N^p",
+    "definition": "Subset of item types that can be 3D-printed."
+   },
+   {
+    "term": "P(x)",
+    "definition": "Index set of printers {1, ..., x}."
+   },
+   {
+    "term": "T",
+    "definition": "Maximum printing time per printer, modelling the urgency of delivering items (e.g. within 24 or 48 h)."
+   },
+   {
+    "term": "Upper bound U and Z",
+    "definition": "U: maximum over scenarios of printers needed to print all demand when items are assigned in index order; Z = min{floor(W/w_p), floor(V/v_p), U}."
+   },
+   {
+    "term": "Deterministic equivalent",
+    "definition": "A single large integer program with a copy of the second-stage variables and constraints for every scenario, equivalent to the two-stage stochastic program."
+   },
+   {
+    "term": "Unbounded knapsack problem",
+    "definition": "Knapsack in which each item type can be packed any number of times; a classical NP-hard problem; used as the special case showing both stages NP-hard."
+   },
+   {
+    "term": "Big-M constraint",
+    "definition": "A constraint with a large constant that switches a restriction on or off, here allowing printing material only if at least one printer is packed."
+   },
+   {
+    "term": "Symmetry breaking",
+    "definition": "Constraints y_j <= y_{j-1} that remove equivalent relabellings of identical printers, about a factor 1.5 faster in CPLEX."
+   },
+   {
+    "term": "WS (wait and see)",
+    "definition": "Expected value if the packing could be chosen after seeing each scenario: sum_s q_s max Q(a^s, s)."
+   },
+   {
+    "term": "EVPI",
+    "definition": "Expected value of perfect information: WS minus the TSS-3DKP value; here reported as % of the TSS-3DKP value."
+   },
+   {
+    "term": "EVS and EEVS",
+    "definition": "Expected value solution a^EVS solves the problem with one scenario equal to expected demand; EEVS (expectation of the expected value solution) is its expected reward evaluated over all scenarios."
+   },
+   {
+    "term": "VSS",
+    "definition": "Value of the stochastic solution: TSS-3DKP value minus EEVS; here reported as % of the EEVS."
+   },
+   {
+    "term": "Relative gap",
+    "definition": "CPLEX stopping criterion: relative difference between the best bound and the best solution; default 0.01%, the paper uses 0.1%."
+   },
+   {
+    "term": "Knapsack classes (Pisinger 2005)",
+    "definition": "Standard ways to generate weights and rewards with different correlations: uncorrelated, weakly correlated, almost strongly correlated, strongly correlated, circle, subset sum, uncorrelated spanner, multiple strongly correlated, inverse strongly correlated, profit ceiling."
+   },
+   {
+    "term": "Factors k, l, m, D",
+    "definition": "Sensitivity parameters: k = number of times a printer fits in the knapsack; l = fraction of printing material needed compared to the physical item; m = fraction of items that one printer can print on average (sets T); D = upper limit of the demand ranges (degree of uncertainty)."
+   },
+   {
+    "term": "NxDySz",
+    "definition": "Instance set naming: x item types, demand upper limit y, z scenarios (e.g. N100D100S50, the base case)."
+   },
+   {
+    "term": "Rounding to nearest integer",
+    "definition": "The paper writes a value between a left floor bracket and a right ceiling bracket to mean rounding it to the nearest integer in the instance generator."
+   }
+  ],
+  "study_questions": [
+   "Why does the number of second-stage variables and constraints of the TSS-3DKP depend on the first-stage decision a_p, and why does that prevent writing the usual deterministic equivalent directly?",
+   "Explain how ILP-3DKP(Z) removes this dependence. What role do constraints (14), (19) and (20) play, and how is a_p recovered from the y_j?",
+   "Argue why Z = min{floor(W/w_p), floor(V/v_p), U} is a valid upper bound on the number of printers in some optimal solution. What happens to the sequential rule for U if some printable item has t_i > T (for example m = 0 in Table 7)?",
+   "Recompute Example 2 with the stated demands. Do you get U = 3 or U = 2? Does it change Z?",
+   "Reproduce Example 1. For which values of alpha is packing the printer optimal (answer: alpha > 7/13)? What are U and Z, the wait-and-see value and the EVPI at alpha = 0.8?",
+   "Give the two special cases that show the first and second stage are NP-hard, and say which knapsack problem each one becomes.",
+   "Why does the optimization make a_i^s equal to min{a_i, d_i^s} even though it is a free variable? Which assumption on rewards is needed?",
+   "Define WS, EVPI, EEVS and VSS. Interpret the drop of EVPI from 19.01% to 10.37% and of VSS from 12.47% to 6.27% when printers are allowed.",
+   "Why does the paper adopt a 0.1% relative gap instead of the CPLEX default? Use Tables 2 and 3.",
+   "From Tables 4 to 7, state the extreme settings in which no printer is packed, and explain each mechanism (quality, printer size, packing efficiency, printing time).",
+   "Why can a printer still be worth packing when l = 1, that is when printing material has no space advantage?",
+   "Explain the inverted-U pattern in Table 8 and why the authors consider the decreasing part a result of how uncertainty is modelled.",
+   "Why is the percentage gain smallest for the uncorrelated knapsack class, and why does that make the base results conservative?",
+   "Which future directions do the authors list, and which decomposition methods do they suggest for larger models?",
+   "Exercise beyond the paper: how could several relief organizations share one cargo plane and a pool of printers as a cooperative game, and what would a coalition's value function be?"
+  ]
+ },
+ "verification": {
+  "changes": [
+   "Main conclusion (p. 1 and p. 9): the notes merged the two wordings; the abstract says 'using a 3D-printer is beneficial ... packing no 3D-printers is the best option', Section 6 says 'packing a 3D-printer is beneficial ... taking no 3D-printers is the best option'. Both now quoted separately.",
+   "NP-hardness meaning (p. 2, p. 4): 'where the recourse problem is usually an LP' and 'off-the-shelf machinery does not apply' are not in the paper. Replaced with what the paper says (in contrast to standard two-stage programs, NP-hard in both stages, so reasonable solve time is a challenge, p. 2; no commercial solver solves two-stage programs directly, p. 4). The LP remark is kept but marked as the reader's gloss.",
+   "Table 8 meaning (p. 8): 'for small D everything can be brought physically' is not in the paper. Now says the paper gives no separate explanation for D <= 8 beyond the conclusion's 'when demand for items is low'.",
+   "Printer-size insight (p. 7): 'about a third or more' changed to the paper's 'exceed 33% (k < 3)'. Added that at k = 3 the median is still 1 printer (Table 5).",
+   "EVPI/VSS (p. 6): the paper writes EEVS as 'max sum_s q_s Q(a^EVS, s)'. Added this, the two-case setup and the 12.47% profit-increase reading. 'reduce the need' is now quoted exactly ('reduces the need for perfect information').",
+   "Table 2 (p. 6): the Cuts and Nodes columns are averages, and for failed instances the counts so far are reported. Added. Also added which sets the two failed instances come from (N100D100S50 and N100D100S100).",
+   "Example 2 (p. 5): added two misprints seen in the rendered PDF: 'N = N_p = {1, 2, }' and the superscript of d_2^{s2} printed as '2_2' (value 2). Recomputation confirms U = 2 with the stated data, U = 3 only if d_2^{s2} = 3, and Z = 2 either way.",
+   "Upper bound Z: the reader's justification now uses a subset argument (any printed set is a subset of the demand that next-fit packs into U printers; material (8) is a scenario total). Added that t_i > T actually happens for m = 0 (T = 0) in Table 7, and the paper does not say how Z is computed there.",
+   "Deterministic equivalent: a_p = sum_j y_j is not written in the paper. It is now marked as the reader's interpretation. Added the p. 4 quote ('another, but equivalent, formulation') and the 'several dummy variables' wording (p. 2).",
+   "Connections: 'its only link to his spare parts work is thematic' relied on outside knowledge. It now says the reference list has no Schlicher paper and names the cited spare-parts 3D-printing works. Tönissen et al. (2017) is now described from its title and the p. 2 text (extension to multiple knapsacks). Altay et al. (2006) is cited for the definition, and Galindo and Batta and Leiras et al. for the reviews.",
+   "Numerical study (pp. 5-6): N^p is not stated for generated instances. Added that 'every item has ... m_i and t_i' suggests N^p = N, though the paper does not say so explicitly.",
+   "Table 9: page changed from '9' to '8-9' (Section 5.6 starts on p. 8, table on p. 9). The 'Weakly correlated 10-24 (23.6)' row is confirmed on the rendered PDF. Added the paper's remark that the method also handles the hardest classes.",
+   "Table 7 / glossary (p. 8): m is now defined in the paper's words ('fraction of items that can be printed on one 3D-printer, on average'). Rows 0.8, 0.9, 1 and infinity are now listed explicitly as identical. Wording of the 0.6 <= m <= 1 explanation aligned with the paper.",
+   "Glossary: the rounding notation is now described as a left floor bracket with a right ceiling bracket (not 'half-open bracket pair').",
+   "Motivation (p. 1): added 'hundreds of thousands of injuries' and the liquid/powder packing argument. Question: added page 2 for the contributions list and the 'within hours' quote.",
+   "Bibliography: added the authors' printed e-mail addresses, the exact license wording 'CC BY license (http://creativecommons.org/licenses/by/4.0/)' and the CRediT statement on p. 9. All other fields (title, authors, journal, volume 133, article 105356, dates 9 Aug 2020 / 16 Feb 2021 / 27 Apr 2021 / 30 Apr 2021, DOI, keywords) confirmed on p. 1.",
+   "Worked example: verified unchanged (optimum 1.04). Added Example 1's own bound (U = 1, Z = 1), the tie at alpha = 7/13, EVPI = 25% of the TSS value in the paper's convention, and a note that the EVS is not well defined for this example because expected demand is fractional.",
+   "All numbers in Tables 2-9, the EVPI/VSS values, footnotes 1-3, constraints (1)-(25) (checked against the rendered PDF, including the script M in (3) and the plain M in (14)) and the limitations list were checked line by line and confirmed. No other corrections were needed."
+  ],
+  "example_recomputed": true,
+  "example_check": "The script is /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2021-3d-printing/recompute.py (run with python3 -I). It lists every first-stage load that satisfies (1)-(4), with the big-M rule a_b > 0 only if a_p >= 1. For each scenario it solves the recourse problem exactly: physical matching min{a_i, d_i^s}, then all integer print totals within the remaining demand and the material limit (8), each checked for exact bin-packing feasibility on a_p printers of capacity T (9). It also computes the Section 4.1 sequential bound U and Z.\n\nResults for Example 1 at alpha = 0.8. There are 7 feasible loads: (0,0,1,2) gives 1.04, (1,0,0,0) gives 0.70, (0,1,0,0) gives 0.60, and the other four give 0. The optimum is 1.04, as the paper says. U = 1 and Z = 1. On a 0.001 grid the printer load is strictly optimal from alpha = 0.539; at 7/13 = 0.5385 it ties with physical item 1 (0.7 each). At alpha = 0.53 the best load is physical item 1 (0.70); at alpha = 0.54 it is the printer (0.702). WS = 1.3, EVPI = 0.26, which is 25% of 1.04.\n\nExample 2 with the stated demands: s1 gives [[1,1],[1,2]] (2 printers) and s2 gives [[1,2],[2]] (2 printers). So U = 2 and Z = min{2,4,2} = 2. U = 3, as in the paper's text, only happens with d_2^{s2} = 3.\n\nThe worked example in the notes was consistent with the model. Only additions were made: Example 1's own Z, the tie case, EVPI as a percentage, and the EVS caveat."
+ }
+}

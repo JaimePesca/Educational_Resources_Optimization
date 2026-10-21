@@ -129,7 +129,7 @@
   .cell .u1, .cell .u2 { font-size: 15px; line-height: 1.15; white-space: nowrap; color: var(--ink); background: none; border: 0; padding: 0 1px; font-family: inherit; }
   .cell .u1 { grid-area: 2 / 1; justify-self: start; align-self: end; font-weight: 700; }
   .cell .u2 { grid-area: 1 / 2; justify-self: end; align-self: start; color: var(--ink2); }
-  .cell .ar { font-size: 13px; line-height: 1; color: var(--accent-text); font-weight: 700; }
+  .cell .ar { font-size: 16px; line-height: 1; color: var(--accent-text); font-weight: 700; }
   .cell .ar-v { grid-area: 1 / 1; justify-self: start; align-self: start; }
   .cell .ar-h { grid-area: 2 / 2; justify-self: end; align-self: end; }
   .cell .br { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2.5px; text-underline-offset: 3px; }
@@ -159,7 +159,7 @@
   @media (max-width: 560px) {
     .cell { width: 64px; height: 50px; padding: 3px 5px; }
     .cell .u1, .cell .u2 { font-size: 13px; }
-    .cell .ar { font-size: 11.5px; }
+    .cell .ar { font-size: 14px; }
     table.bim th { font-size: 12px; padding: 3px 5px; }
     table.bim th.corner { max-width: 70px; font-size: 10.5px; }
     .cell.edit input { font-size: 12.5px; padding: 2px 3px; }
@@ -716,8 +716,9 @@
   function pv(v) { return num(v, 3); }                      // a payoff
   function tv(v) { return texNum(v, 3); }
   function and2(a, b) { return T("gtt.and", { a: a, b: b }); }
-  function pp(a, b) { return T("gtt.pp", { a: pv(a), b: pv(b) }); }
-  function prof2(a, b) { return T("gtt.prof", { a: a, b: b }); }
+  // pairs never break across lines
+  function pp(a, b) { return T("gtt.pp", { a: pv(a), b: pv(b) }).replace(/([,;]) /, "$1\u00a0"); }
+  function prof2(a, b) { return T("gtt.prof", { a: a, b: b }).replace(/([,;]) /, "$1\u00a0"); }
   function joinL(arr) { return arr.join(T("gtt.sep")); }
   function range(n) { var a = []; for (var i = 0; i < n; i++) a.push(i); return a; }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
@@ -1072,28 +1073,29 @@
   }
   function roundAt(S, t) { var n = S.rounds.length; return clamp(Math.floor((t - T2A) / ((T2B - T2A) / n)), 0, n - 1); }
   // ch1: each cell receives a dot from the price line, then shows its two profits
-  function f1s(S, c) { return 5.0 + c.k * (1.9 / S.cells.length); }
+  function f1s(S, c) { return 5.2 + c.k * (1.7 / S.cells.length); }
   function f4s(S, c) { return 35.0 + c.k * (3.0 / S.cells.length); }
   function cmpCount(S, ri, p) { return S.rounds[ri][p === 1 ? "rows" : "cols"]; }
 
   /* ---------- geometry ---------- */
-  function gridGeom(r, m) {
+  // compact: no player titles, only the outputs (the small table of chapters 4 and 5 on phones)
+  function gridGeom(r, m, compact) {
     var fsH = clamp(Math.min(r.w, r.h) / (m + 1) * 0.2, 10, 14);
-    var hw = fsH * 2.6 + 16 + fsH + 8, hh = fsH * 2 + 18;
-    var cw = Math.min((r.w - hw) / m, 128), ch = Math.min((r.h - hh) / m, 92);
+    var hw = compact ? fsH * 1.6 + 8 : fsH * 2.6 + 16 + fsH + 8, hh = compact ? fsH + 10 : fsH * 2 + 18;
+    var cw = Math.min((r.w - hw) / m, 150), ch = Math.min((r.h - hh) / m, 104);
     cw = Math.min(cw, ch * 1.65); ch = Math.min(ch, cw * 0.95);
     var gw = hw + m * cw, gh = hh + m * ch;
     return { x: r.x + (r.w - gw) / 2 + hw, y: r.y + (r.h - gh) / 2 + hh, cw: cw, ch: ch, hw: hw, hh: hh, m: m,
-      fsN: clamp(ch * 0.24, 10.5, 19), fsH: fsH };
+      fsN: clamp(ch * 0.23, 10.5, 21), fsH: fsH, ti: compact ? 0 : 1 };
   }
   function mixGeom(a, b, u) {
     var o = {};
-    ["x", "y", "cw", "ch", "hw", "hh", "fsN", "fsH"].forEach(function (k) { o[k] = lerp(a[k], b[k], u); });
+    ["x", "y", "cw", "ch", "hw", "hh", "fsN", "fsH", "ti"].forEach(function (k) { o[k] = lerp(a[k], b[k], u); });
     o.m = a.m;
     return o;
   }
-  function planeGeom(r, vmax) {
-    var top = 12, right = 14, left = 30, bottom = 26;
+  function planeGeom(r, vmax, small) {
+    var top = 12, right = small ? 6 : 14, left = small ? 24 : 30, bottom = small ? 22 : 26;
     var side = Math.max(40, Math.min(r.w - left - right, r.h - top - bottom));
     var ox = r.x + left + (r.w - left - right - side) / 2, oy = r.y + top + side + (r.h - top - bottom - side) / 2;
     var vm = Math.ceil((vmax + 0.01) / 2) * 2;
@@ -1136,10 +1138,11 @@
     L.full = gridGeom(R, S.m);
     L.chart = chartGeom(R, S);
     var A1, A2;
-    if (portrait) { A1 = { x: R.x, y: R.y, w: R.w, h: R.h * 0.5 - 4 }; A2 = { x: R.x, y: R.y + R.h * 0.5 + 4, w: R.w, h: R.h * 0.5 - 4 }; }
-    else { A1 = { x: R.x, y: R.y, w: R.w * 0.5 - 8, h: R.h }; A2 = { x: R.x + R.w * 0.5 + 8, y: R.y, w: R.w * 0.5 - 8, h: R.h }; }
-    L.half = gridGeom(A1, S.m);
-    L.plane = planeGeom(A2, S.vmax);
+    // chapters 4 and 5: the table on the left, the plane of profits on the right (phones: a smaller table)
+    var f = portrait ? 0.42 : 0.48;
+    A1 = { x: R.x, y: R.y, w: R.w * f - 6, h: R.h }; A2 = { x: R.x + R.w * f + 6, y: R.y, w: R.w * (1 - f) - 6, h: R.h };
+    L.half = gridGeom(A1, S.m, portrait);
+    L.plane = planeGeom(A2, S.vmax, portrait);
     hudKey = key();
   }
   function key() { return cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth + ":" + ast.menu + ":" + I18N.lang; }
@@ -1224,7 +1227,7 @@
 
   // chapter 1: the price line and one dot per total output
   function drawChart(S, t) {
-    var a = E.out(seg(t, 0.2, 1.0)) * (1 - E.inOut(seg(t, 6.2, 7.4)));
+    var a = E.out(seg(t, 0.2, 1.0)) * (1 - 0.8 * E.inOut(seg(t, 4.4, 5.3))) * (1 - E.inOut(seg(t, 6.8, 7.8)));
     if (a <= 0) return;
     var g = L.chart, fs = L.portrait ? 10.5 : 12;
     ctx.save(); ctx.globalAlpha = a;
@@ -1242,7 +1245,7 @@
     var ca = E.out(seg(t, 2.0, 2.8));
     ctx.globalAlpha = a * ca; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.6; ctx.setLineDash([6, 5]);
     line(g.x0, g.py(C_), g.x1, g.py(C_)); ctx.setLineDash([]);
-    haloText(T("gtt.l.cost", { c: fmt(C_) }), g.x1, g.py(C_) + 5, C.muted, font(600, fs), "right", "top");
+    haloText(T("gtt.l.cost", { c: fmt(C_) }), g.x0 + 8, g.py(C_) - 5, C.muted, font(600, fs), "left", "bottom");
     // price line, drawn from left to right
     var pa = E.inOut(seg(t, 0.8, 2.4)), Qe = g.Qm * pa;
     ctx.globalAlpha = a; ctx.strokeStyle = C.ink; ctx.lineWidth = 2.4;
@@ -1278,7 +1281,7 @@
     ctx.restore();
   }
   function drawTable(S, t, g) {
-    var ga = E.out(seg(t, 4.6, 5.8));
+    var ga = E.out(seg(t, 4.9, 6.0));
     if (ga <= 0) return;
     var m = S.m, G = S.G, x1 = g.x + m * g.cw, y1 = g.y + m * g.ch;
     var fade5 = 1 - 0.55 * E.inOut(seg(t, 42.2, 43.4));
@@ -1295,7 +1298,7 @@
       ctx.globalAlpha = ga * hdrAlpha(S, t, i) * fade5;
       ctx.fillStyle = C.ink2; ctx.fillText(fmt(S.qs[i]), g.x - 8, g.y + (i + 0.5) * g.ch);
     }
-    ctx.globalAlpha = ga * fade5;
+    ctx.globalAlpha = ga * fade5 * g.ti;
     ctx.font = font(700, g.fsH); ctx.fillStyle = C.ink; ctx.textAlign = "center"; ctx.textBaseline = "bottom";
     ctx.fillText(T("gtt.l.p2"), g.x + m * g.cw / 2, g.y - 8 - g.fsH - 4);
     ctx.save(); ctx.translate(g.x - g.hw + g.fsH * 0.6 + 2, g.y + m * g.ch / 2); ctx.rotate(-Math.PI / 2);
@@ -1422,10 +1425,10 @@
       ctx.globalAlpha = a0;
       var x0, y0, x1, y1;
       if (ar.p === 1) {
-        var X = g.x + ar.j * g.cw + g.cw * 0.22, Y = g.y + (ar.i + 1) * g.ch, h = Math.min(g.ch * 0.56, 46);
+        var X = g.x + ar.j * g.cw + g.cw * 0.5, Y = g.y + (ar.i + 1) * g.ch, h = Math.min(g.ch * 0.5, 46);
         y0 = Y - ar.dir * h / 2; y1 = Y + ar.dir * h / 2; x0 = x1 = X;
       } else {
-        var Yh = g.y + ar.i * g.ch + g.ch * 0.3, Xh = g.x + (ar.j + 1) * g.cw, wv = Math.min(g.cw * 0.5, 50);
+        var Yh = g.y + ar.i * g.ch + g.ch * 0.5, Xh = g.x + (ar.j + 1) * g.cw, wv = Math.min(g.cw * 0.42, 50);
         x0 = Xh - ar.dir * wv / 2; x1 = Xh + ar.dir * wv / 2; y0 = y1 = Yh;
       }
       var ex = lerp(x0, x1, u), ey = lerp(y0, y1, u);
@@ -1482,6 +1485,7 @@
       ctx.globalAlpha = a * na; ctx.strokeStyle = C.accent; ctx.lineWidth = 2.8;
       ctx.beginPath(); ctx.arc(P.px(S.ne.a), P.py(S.ne.b), r, 0, 6.2832); ctx.stroke();
       ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(P.px(S.ne.a), P.py(S.ne.b), 4.8, 0, 6.2832); ctx.fill();
+      haloText(profile(S.G, S.ne.i, S.ne.j), P.px(S.ne.a) - 14, P.py(S.ne.b) + 4, C["accent-text"], font(700, fs + 0.5), "right", "middle");
     }
     // chapter 5: the better cell for both, and the step neither plant takes alone
     var ba = E.out(seg(t, 43.6, 44.4));
@@ -1490,6 +1494,7 @@
       ctx.globalAlpha = a * ba; ctx.strokeStyle = HOT; ctx.lineWidth = 2.8;
       ctx.beginPath(); ctx.arc(P.px(S.best.a), P.py(S.best.b), rb, 0, 6.2832); ctx.stroke();
       ctx.fillStyle = HOT; ctx.beginPath(); ctx.arc(P.px(S.best.a), P.py(S.best.b), 4.8, 0, 6.2832); ctx.fill();
+      haloText(profile(S.G, S.best.i, S.best.j), P.px(S.best.a) + 12, P.py(S.best.b) - 14, HOT, font(700, fs + 0.5), "left", "bottom");
       var u = E.inOut(seg(t, 44.8, 46.0));
       if (u > 0 && S.best !== S.ne) {
         var xa = P.px(S.ne.a), ya = P.py(S.ne.b), xb = P.px(S.best.a), yb = P.py(S.best.b), dl = Math.hypot(xb - xa, yb - ya) || 1;
@@ -1599,7 +1604,7 @@
     setChip(1, fmt(done), T("gtt.k.rounds"), seg(t, 9.6, 10.1), "");
     setChip(2, profile(G, S.ne.i, S.ne.j), T(S.m === 2 ? "gtt.k.dse" : "gtt.k.ne"), seg(t, 21.0, 21.5), "acc");
     setChip(3, and2(pv(S.ne.a), pv(S.ne.b)), T("gtt.k.prof"), seg(t, 21.2, 21.7), "");
-    setChip(4, profile(G, S.best.i, S.best.j), T("gtt.k.best", { v: and2(pv(S.best.a), pv(S.best.b)) }), seg(t, 39.6, 40.1), "hot");
+    setChip(4, profile(G, S.best.i, S.best.j), T("gtt.k.best", { v: and2(pv(S.best.a), pv(S.best.b)) }), seg(t, 43.5, 44.0), "hot");
     if (S.pd) {
       var d = S.pd;
       setChip(5, T("gtt.k.pdv", { T: pv(d.T), R: pv(d.R), P: pv(d.P), S: pv(d.S) }), T("gtt.k.pdl", { r2: pv(2 * d.R), ts: pv(d.T + d.S) }), seg(t, 46.0, 46.5), "acc long");
@@ -1620,7 +1625,7 @@
     ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
     ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
     var g = gridAt(t);
-    if (t < 7.6) drawChart(S, t);
+    if (t < 7.8) drawChart(S, t);
     drawTable(S, t, g);
     if (t >= 23.4) drawArrows(S, t, g);
     if (t >= 33.6) drawPlane(S, t);
@@ -1759,7 +1764,7 @@
     if (!keepElim) WB.mix = null;
   }
   function refreshAll(rebuild) {
-    if (rebuild || tbl.dataset.mode !== tableMode()) buildTable(tbl, WB.G, tableMode());
+    if (rebuild || tbl.dataset.mode !== tableMode()) { buildTable(tbl, WB.G, tableMode()); $("gtt-info").textContent = ""; }
     renderStory(); renderBench();
   }
 
@@ -1950,11 +1955,11 @@
     return "<b>" + T("gtt.el.stepk", { k: k + 1 }) + "</b> " + T(x.kind === "strict" ? "gtt.el.ws" : "gtt.el.ww",
       { who: esc(who(G, x.p)), s: esc(lab(G, x.p, x.s)), by: esc(lab(G, x.p, x.by)), cmp: cmpHtml(G, x.p, x.by, x.s, x.O) });
   }
-  function endText(G, R, C) {
+  function endText(G, R, C, short) {
     var pays = [];
     R.forEach(function (i) { C.forEach(function (j) { var s = pp(G.A[i][j], G.B[i][j]); if (pays.indexOf(s) < 0) pays.push(s); }); });
     if (R.length === 1 && C.length === 1) return T("gtt.el.cell", { x: esc(profile(G, R[0], C[0])), pay: pays[0] });
-    return T("gtt.el.cells", { rs: esc(setOf(G, 1, R)), cs: esc(setOf(G, 2, C)), pay: joinL(pays) });
+    return T(short ? "gtt.el.wcells" : "gtt.el.cells", { rs: esc(setOf(G, 1, R)), cs: esc(setOf(G, 2, C)), pay: joinL(pays) });
   }
   function elimSummary() {
     var G = WB.G, n = WB.seq.length;
@@ -1965,15 +1970,15 @@
       var r = iesds(G);
       return T("gtt.el.endS", { n: n, end: endText(G, r.R, r.C) });
     }
+    if (!n) return T("gtt.el.wnone");
     var a = iewds(G, "top"), b = iewds(G, "bottom");
     var same = a.R.join() === b.R.join() && a.C.join() === b.C.join();
-    var s = T(same ? "gtt.el.wsame" : "gtt.el.wdiff", { a: endText(G, a.R, a.C), b: endText(G, b.R, b.C) });
-    if (!n) return T("gtt.el.wnone") + " " + s;
+    var s = T(same ? "gtt.el.wsame" : "gtt.el.wdiff", { a: endText(G, a.R, a.C, true), b: endText(G, b.R, b.C, true) });
     return s + " " + (WB.pos < n ? T("gtt.el.wmore", { k: WB.pos, n: n }) : T("gtt.el.wdone"));
   }
   function mixName(G, md) {
     var parts = [];
-    md.others.forEach(function (k, q) { if (md.w[q] > 1e-9) parts.push(fmt(md.w[q], 3) + "·" + lab(G, md.p, k)); });
+    md.others.forEach(function (k, q) { if (md.w[q] > 1e-9) parts.push(md.w[q] > 1 - 1e-9 ? lab(G, md.p, k) : fmt(md.w[q], 3) + "·" + lab(G, md.p, k)); });
     return parts.join(" + ");
   }
   function mixCandidates(G, al) {
@@ -2089,7 +2094,12 @@
     renderBelief();
     renderMC();
   }
-  function lin(c0, c1) { return pv(c0) + NB + (c1 < 0 ? MINUS : "+") + NB + pv(Math.abs(c1)) + "t"; }
+  function lin(c0, c1) {
+    var a = Math.abs(c1), tt = (Math.abs(a - 1) < EPS ? "" : pv(a)) + "t";
+    if (Math.abs(c1) < EPS) return pv(c0);
+    if (Math.abs(c0) < EPS) return (c1 < 0 ? MINUS : "") + tt;
+    return pv(c0) + NB + (c1 < 0 ? MINUS : "+") + NB + tt;
+  }
   function renderBelief() {
     var G = WB.G, a = WB.belA, b = WB.belB, t = WB.belT;
     $("gtt-bel-intro").innerHTML = T("gtt.bel.intro", { w1: esc(who(G, 1)), w2: esc(who(G, 2)), a: esc(labC(G, a)), b: esc(labC(G, b)) });
@@ -2105,7 +2115,7 @@
     if (B.sw.length) h += " " + T("gtt.bel.sw", { list: joinL(B.sw.map(function (x) { return T("gtt.bel.sw1", { t: fmt(x.t, 3), from: esc(labR(G, x.from)), to: esc(labR(G, x.to)) }); })) });
     else h += " " + T("gtt.bel.nosw", { s: esc(labR(G, B.segs[0].i)) });
     var never = allR(G).filter(function (i) { return !B.some[i]; });
-    if (never.length) h += " " + T("gtt.bel.never", { list: esc(setOf(G, 1, never)), a: esc(labC(G, a)), b: esc(labC(G, b)) });
+    if (never.length) h += " " + T(never.length === 1 ? "gtt.bel.never" : "gtt.bel.never2", { list: esc(joinL(never.map(function (i) { return labR(G, i); }))), a: esc(labC(G, a)), b: esc(labC(G, b)) });
     $("gtt-belres").innerHTML = h;
   }
   function renderMC() {
@@ -2471,8 +2481,8 @@
     sv("text", { x: X(O.X), y: Y(O.W) - 14, "text-anchor": "middle", "class": "acc sv-halo" }, svg, T("gtt.lk.optl"));
     sv("line", { x1: X(E0.X), x2: X(E0.X), y1: Y(E0.W), y2: F.y1, "class": "sv-hot sv-dash" }, svg);
     sv("circle", { cx: X(E0.X), cy: Y(E0.W), r: 6, "class": "sv-fhot" }, svg);
-    var right = E0.X > LAKE_A * 0.75;
-    sv("text", { x: X(E0.X) + (right ? -10 : 10), y: Y(E0.W) + (E0.X >= O.X ? -10 : 18), "text-anchor": right ? "end" : "start", "class": "hot sv-halo" }, svg, T("gtt.lk.eql", { n: fmt(AL.n) }));
+    var right = E0.X > LAKE_A * 0.75, near = Math.abs(E0.X - O.X) < LAKE_A * 0.2;
+    sv("text", { x: X(E0.X) + (right ? -10 : 10), y: Y(E0.W) + (near || E0.X < O.X ? 22 : -10), "text-anchor": right ? "end" : "start", "class": "hot sv-halo" }, svg, T("gtt.lk.eql", { n: fmt(AL.n) }));
   }
   function renderRoads() {
     var d = AL.d, Pg = pigou(d), xe = AL.toll ? Pg.xs : 1, Ce = AL.toll ? Pg.Copt : 1;
@@ -2567,11 +2577,11 @@
       });
       lines.push("& " + nm.join(" + ") + " = 1, \\quad \\sigma \\ge 0 &&");
       var sol = "(" + md.w.map(function (w) { return texNum(w, 3); }).join(T("gtt.texsep")) + ")";
-      lines.push("& e^* = " + tv(md.e) + ", \\quad \\sigma^* = " + sol + " && " + texText(T(md.dom ? "gtt.s2.dom" : "gtt.s2.notdom", { s: lab(G, p, md.s) })));
+      lines.push("& e^* = " + tv(md.e) + ", \\quad \\sigma^* = " + sol + " &&");
       plain.push("e* = " + pv(md.e));
       TeX.set(ta, "\\begin{aligned}" + lines.join(" \\\\ ") + "\\end{aligned}", plain.join("\n"));
       ta.hidden = false;
-      $("gtt-s2a-note").innerHTML = T("gtt.s2.mixnote", { s: esc(lab(G, p, md.s)), who: esc(who(G, p)), M: pv(md.M) });
+      $("gtt-s2a-note").innerHTML = T(md.dom ? "gtt.s2.dom" : "gtt.s2.notdom", { s: esc(lab(G, p, md.s)), e: pv(md.e) }) + " " + T("gtt.s2.mixnote", { s: esc(lab(G, p, md.s)), who: esc(who(G, p)), M: pv(md.M) });
     } else { ta.hidden = true; $("gtt-s2a-note").innerHTML = ""; }
     // equilibrium as the cells with zero gain from moving alone, and the potential of the market
     var cells = cellsOf(G), mn = Infinity, at = [];

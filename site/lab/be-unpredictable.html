@@ -249,11 +249,15 @@
   table.zs td.mm.bestc { color: var(--ink); font-weight: 700; }
   table.zs td.sad { box-shadow: inset 0 0 0 2px var(--accent); }
   table.zs input {
-    width: 3.8em; font: 600 13px var(--font-mono); padding: 5px 3px; border: 1px solid var(--border); border-radius: 2px;
+    width: 4.8em; font: 600 13px var(--font-mono); padding: 5px 3px; border: 1px solid var(--border); border-radius: 2px;
     background: var(--surface2); color: var(--ink); text-align: right;
   }
   table.zs input.bad { border-color: var(--hot); }
-  @media (max-width: 460px) { table.zs input { width: 3.3em; font-size: 12px; padding: 4px 2px; } table.zs th, table.zs td { padding: 3px; } table.zs td.mm { padding: 3px 4px; font-size: 11.5px; } }
+  /* no spin buttons: they would hide digits in these narrow cells */
+  table.zs input, table.bim input { -moz-appearance: textfield; appearance: textfield; }
+  table.zs input::-webkit-inner-spin-button, table.zs input::-webkit-outer-spin-button,
+  table.bim input::-webkit-inner-spin-button, table.bim input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  @media (max-width: 460px) { table.zs input { width: 4.4em; font-size: 12px; padding: 4px 3px; } table.zs th, table.zs td { padding: 3px; } table.zs td.mm { padding: 3px 4px; font-size: 11.5px; } }
   .lp2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px 18px; }
   @media (max-width: 860px) { .lp2 { grid-template-columns: minmax(0, 1fr); } }
   .lp2 > div { min-width: 0; }
@@ -595,7 +599,8 @@
     return v < 0 && a !== z ? MINUS + a : a;
   }
   function texNum(v, d) { return num(v, d).replace(MINUS, "-"); }
-  function pct(v, d) { return T("gtm.pct", { v: num(100 * v, d == null ? 1 : d) }); }
+  function pct(v, d, m) { return T("gtm.pct", { v: num(100 * v, d == null ? 1 : d, m) }); }
+  function approx(v) { return isFrac(v) ? nice(v) + " ≈ " + num(v, 2) : num(v, 2); }
   function ratio(v) {
     if (!isFinite(v)) return null;
     for (var q = 1; q <= 12; q++) { var p = Math.round(v * q); if (Math.abs(p / q - v) < 1e-7) return [p, q]; }
@@ -680,7 +685,7 @@
     var maximin = Math.max.apply(null, rowMin), minimax = Math.min.apply(null, colMax);
     var amin = Infinity;
     A.forEach(function (r) { r.forEach(function (v) { amin = Math.min(amin, v); }); });
-    var k = 1 - amin;                                     // shift: every payoff becomes at least 1, so v >= 0
+    var k = Math.max(0, 1 - amin);                        // shift: every payoff becomes at least 1, so v >= 0 (none when they already are)
     // the row player's LP: max v  s.t.  sum_i x_i (a_ij + k) - v >= 0 for every column j, sum_i x_i = 1
     var rows = [], a, c;
     for (j = 0; j < n; j++) { a = []; for (i = 0; i < m; i++) a.push(A[i][j] + k); a.push(-1); rows.push({ a: a, op: ">=", b: 0 }); }
@@ -1505,6 +1510,7 @@
     buildBim();
   }
   function players() { return XS.st === "pk" ? [T("gtm.pl.kicker"), T("gtm.pl.keeper")] : [T("gtm.pl.row"), T("gtm.pl.col")]; }
+  function low(s) { return String(s).toLocaleLowerCase(I18N.locale); }   // a player's name inside a sentence
   function buildBim() {
     var pl = players(), st = XS.st, h = '<tr><th class="corner"><span class="r">' + esc(pl[0]) + "</span>" + esc(pl[1]) + "</th>";
     [0, 1].forEach(function (j) { h += '<th class="ch">' + esc(stName(st, j)) + "</th>"; });
@@ -1512,8 +1518,8 @@
     [0, 1].forEach(function (i) {
       h += '<tr><th class="rh">' + esc(stName(st, i)) + "</th>";
       [0, 1].forEach(function (j) {
-        h += '<td id="x-cell' + i + j + '"><input class="ra" type="number" step="any" id="x-a' + i + j + '" aria-label="' + esc(T("gtm.x.inA", { p: pl[0], r: stName(st, i), c: stName(st, j) })) + '"> ' +
-          '<input class="cb" type="number" step="any" id="x-b' + i + j + '" aria-label="' + esc(T("gtm.x.inA", { p: pl[1], r: stName(st, i), c: stName(st, j) })) + '"></td>';
+        h += '<td id="x-cell' + i + j + '"><input class="ra" type="number" step="any" id="x-a' + i + j + '" aria-label="' + esc(T("gtm.x.inA", { p: low(pl[0]), r: stName(st, i), c: stName(st, j) })) + '"> ' +
+          '<input class="cb" type="number" step="any" id="x-b' + i + j + '" aria-label="' + esc(T("gtm.x.inA", { p: low(pl[1]), r: stName(st, i), c: stName(st, j) })) + '"></td>';
       });
       h += "</tr>";
     });
@@ -1564,13 +1570,13 @@
     // the column player's strategies along the left side, rotated: the second at the bottom, the first at the top
     b += txt(m - 14, Yq(0), stName(st, 1), "m", "start", ' transform="rotate(-90 ' + (m - 14) + " " + Yq(0).toFixed(1) + ')"');
     b += txt(m - 14, Yq(1), stName(st, 0), "m", "end", ' transform="rotate(-90 ' + (m - 14) + " " + Yq(1).toFixed(1) + ')"');
-    return svg(W, H, b, T("gtm.x.sq.aria", { n: S.eqs.length, row: pl[0], col: pl[1] }));
+    return svg(W, H, b, T("gtm.x.sq.aria", { n: S.eqs.length, row: low(pl[0]), col: low(pl[1]) }));
   }
   function renderX() {
     var S = solve2(XS.a, XS.b), st = XS.st, pl = players(), k = XS.key;
     var nm = function (i) { return stName(st, i); };
     $("x-desc").innerHTML = T("gtm.x.d." + k, { K: num(XS.K, 1), V: num(XS.V, 1), C: num(XS.C, 1) });
-    $("x-s-lbl").textContent = T("gtm.x.slider", { p: pl[0], r: nm(0), c: nm(0) });
+    $("x-s-lbl").textContent = T("gtm.x.slider", { p: low(pl[0]), r: nm(0), c: nm(0) });
     $("x-sv").textContent = num(XS.a[0][0], 2);
     $("x-v-box").hidden = $("x-c-box").hidden = k !== "hawk";
     $("x-k-box").hidden = k !== "chicken";
@@ -1597,10 +1603,11 @@
     // indifference formulas with the current numbers
     var A2 = XS.a, B2 = XS.b, pn = function (v) { return v < 0 ? "(" + texNum(v) + ")" : texNum(v); };
     var dq = A2[0][0] - A2[0][1] - A2[1][0] + A2[1][1], dp = B2[0][0] - B2[1][0] - B2[0][1] + B2[1][1];
-    var resQ = Math.abs(dq) < EPS ? "\\text{" + T("gtm.x.never") + "}" : "q^* = " + texNice(S.qs, 3) + (S.qs > EPS && S.qs < 1 - EPS ? "" : "\\;\\text{" + T("gtm.x.outside") + "}");
-    var resP = Math.abs(dp) < EPS ? "\\text{" + T("gtm.x.never") + "}" : "p^* = " + texNice(S.ps, 3) + (S.ps > EPS && S.ps < 1 - EPS ? "" : "\\;\\text{" + T("gtm.x.outside") + "}");
-    var texQ = "\\begin{aligned} " + pn(A2[0][0]) + "\\,q + " + pn(A2[0][1]) + "\\,(1-q) &= " + pn(A2[1][0]) + "\\,q + " + pn(A2[1][1]) + "\\,(1-q) && \\text{" + T("gtm.x.indR", { p: pl[0] }) + "} \\\\ \\Rightarrow\\; " + resQ + " & \\end{aligned}";
-    var texP = "\\begin{aligned} " + pn(B2[0][0]) + "\\,p + " + pn(B2[1][0]) + "\\,(1-p) &= " + pn(B2[0][1]) + "\\,p + " + pn(B2[1][1]) + "\\,(1-p) && \\text{" + T("gtm.x.indC", { p: pl[1] }) + "} \\\\ \\Rightarrow\\; " + resP + " & \\end{aligned}";
+    var resQ = Math.abs(dq) < EPS ? "& \\text{" + T("gtm.x.never") + "}" : "\\Rightarrow\\; q^* &= " + texNice(S.qs, 3) + (S.qs > EPS && S.qs < 1 - EPS ? "" : "\\;\\text{" + T("gtm.x.outside") + "}");
+    var resP = Math.abs(dp) < EPS ? "& \\text{" + T("gtm.x.never") + "}" : "\\Rightarrow\\; p^* &= " + texNice(S.ps, 3) + (S.ps > EPS && S.ps < 1 - EPS ? "" : "\\;\\text{" + T("gtm.x.outside") + "}");
+    // the comment sits on the result line, so the formula stays narrow on phones
+    var texQ = "\\begin{aligned} & \\text{" + T("gtm.x.indR", { p: pl[0] }) + "} \\\\ " + pn(A2[0][0]) + "\\,q + " + pn(A2[0][1]) + "\\,(1-q) &= " + pn(A2[1][0]) + "\\,q + " + pn(A2[1][1]) + "\\,(1-q) \\\\ " + resQ + " \\end{aligned}";
+    var texP = "\\begin{aligned} & \\text{" + T("gtm.x.indC", { p: pl[1] }) + "} \\\\ " + pn(B2[0][0]) + "\\,p + " + pn(B2[1][0]) + "\\,(1-p) &= " + pn(B2[0][1]) + "\\,p + " + pn(B2[1][1]) + "\\,(1-p) \\\\ " + resP + " \\end{aligned}";
     TeX.set($("x-indq"), texQ, T("gtm.x.indQ.plain", { q: S.qs == null ? "·" : nice(S.qs, 3) }));
     TeX.set($("x-indp"), texP, T("gtm.x.indP.plain", { p: S.ps == null ? "·" : nice(S.ps, 3) }));
     // your mix is set by your rival
@@ -1611,7 +1618,7 @@
     if (k === "pk" && S.mix) {
       // a keeper who always dives to one side concedes the kicker's best reply against that side
       var alwaysN = Math.max(A2[0][0], A2[1][0]), alwaysO = Math.max(A2[0][1], A2[1][1]);
-      pk.innerHTML = T("gtm.x.pk", { k: pct(S.mix.p, 1), g: pct(S.mix.q, 1), s: T("gtm.pct", { v: num(S.mix.u, 1) }), n: T("gtm.pct", { v: num(alwaysN, 2) }), o: T("gtm.pct", { v: num(alwaysO, 2) }) });
+      pk.innerHTML = T("gtm.x.pk", { k: pct(S.mix.p, 1, 1), g: pct(S.mix.q, 1, 1), s: T("gtm.pct", { v: num(S.mix.u, 1, 1) }), n: T("gtm.pct", { v: num(alwaysN, 2) }), o: T("gtm.pct", { v: num(alwaysO, 2) }) });
     }
     if (k === "hawk") {
       sp.innerHTML = XS.V >= XS.C - EPS ? T("gtm.x.hawk.dom", { V: num(XS.V, 1), C: num(XS.C, 1) }) : T("gtm.x.hawk", { V: num(XS.V, 1), C: num(XS.C, 1), s: nice(XS.V / XS.C, 3) });
@@ -1648,8 +1655,8 @@
     [0, 0.25, 0.5, 0.75, 1].forEach(function (v) { b += line(ml, YX(v), W - mr, YX(v), "gr") + txt(ml - 40, YX(v) + 4, pct(v, 0), "m", "end"); });
     b += line(ml - 22, YX(0), ml - 22, YX(1), "ax");
     for (var y = 0.05; y < 1; y += 0.1) {
-      var d = f(y), len = Math.min(10, Math.abs(d) / (scale * 0.25) * 10);
-      if (len < 1.5) continue;
+      var d = f(y), len = 9;                                  // the direction of the flow matters, not its speed
+      if (Math.abs(d) < 1e-6 * scale) continue;
       var y0 = YX(y), y1 = YX(y) - Math.sign(d) * len;
       b += line(ml - 22, y0, ml - 22, y1, "lnI thin") + '<polygon class="fI" points="' + (ml - 26) + "," + (y1 + Math.sign(d) * 3).toFixed(1) + " " + (ml - 18) + "," + (y1 + Math.sign(d) * 3).toFixed(1) + " " + (ml - 22) + "," + (y1 - Math.sign(d) * 3).toFixed(1) + '"/>';
     }
@@ -1738,7 +1745,8 @@
     var texC = "\\begin{aligned} \\min\\;& w && \\text{" + T("gtm.tex.conc") + "} \\\\ " + colsT.join(" \\\\ ") + " \\\\ & " + linTex(new Array(n).fill(1), "y") + " = 1,\\; y \\ge 0 && \\text{" + T("gtm.tex.mix") + "} \\end{aligned}";
     TeX.set($("z-lp-row"), texR, T("gtm.z.lp.row.plain", { v: nice(Z.v, 3) }));
     TeX.set($("z-lp-col"), texC, T("gtm.z.lp.col.plain", { w: nice(Z.w, 3) }));
-    $("z-lp-note").innerHTML = T("gtm.z.lp.note", { v: nice(Z.v, 3), w: nice(Z.w, 3), k: num(Z.k, 2), vk: nice(Z.v + Z.k, 3), y: mix(Z.y), d: Math.abs(Z.v - Z.w) < 1e-6 ? T("gtm.z.lp.ok") : T("gtm.z.lp.bad") });
+    $("z-lp-note").innerHTML = T("gtm.z.lp.note", { v: nice(Z.v, 3), w: nice(Z.w, 3), d: Math.abs(Z.v - Z.w) < 1e-6 ? T("gtm.z.lp.ok") : T("gtm.z.lp.bad") }) + " " +
+      (Z.k > 0 ? T("gtm.z.lp.shift", { k: num(Z.k, 2), vk: nice(Z.v + Z.k, 3) }) : T("gtm.z.lp.noshift")) + " " + T("gtm.z.lp.dual", { y: mix(Z.y) });
     // complementary slackness: a strategy in the mix earns exactly v; one outside earns at most v (row) or concedes at least v (column)
     var h = "<thead><tr><th>" + esc(T("gtm.z.cs.s")) + "</th><th class='num'>" + esc(T("gtm.z.cs.p")) + "</th><th class='num'>" + esc(T("gtm.z.cs.pay")) +
       "</th><th>" + esc(T("gtm.z.cs.st")) + "</th></tr></thead><tbody>";
@@ -1855,8 +1863,12 @@
     b += poly(sm.pts.map(function (p) { return [SX(p[0]), SY(p[1])]; }), "lnA thin");
     b += txt(W - mr, SY(sm.v) - 6, "v = " + nice(sm.v, 3), "i", "end");
     box.innerHTML = svg(W, H, b, T("gtm.z.sim.aria", { n: I18N.fmt(sm.N, 0), a: num(sm.avg, 3) }));
-    var vis = Math.abs(sm.v) > 1e-9 ? T(hN < Math.abs(sm.v) ? "gtm.z.sim.vis" : "gtm.z.sim.hid", { h: num(hN, 3), v: nice(sm.v, 3) }) : "";
-    $("z-sim-note").textContent = T("gtm.z.sim.res", { n: I18N.fmt(sm.N, 0), a: num(sm.avg, 3), v: nice(sm.v, 3), h: num(hN, 3), seed: sm.seed }) + (vis ? " " + vis : "");
+    // "an edge over a fair game" only makes sense when the payoffs can favour either player
+    var mn = Infinity, mx = -Infinity;
+    Z.A.forEach(function (r) { r.forEach(function (q) { mn = Math.min(mn, q); mx = Math.max(mx, q); }); });
+    var vis = Math.abs(sm.v) > 1e-9 && mn < 0 && mx > 0 ? T(hN < Math.abs(sm.v) ? "gtm.z.sim.vis" : "gtm.z.sim.hid", { h: num(hN, 3), v: nice(sm.v, 3) }) : "";
+    var inside = Math.abs(sm.avg - sm.v) <= hN + 1e-12 ? T("gtm.z.sim.in") : T("gtm.z.sim.out");
+    $("z-sim-note").textContent = T("gtm.z.sim.res", { n: I18N.fmt(sm.N, 0), a: num(sm.avg, 3), v: nice(sm.v, 3), h: num(hN, 3), seed: sm.seed }) + " " + inside + (vis ? " " + vis : "");
   }
 
   /* ===================================================================================== part 5: correlated equilibrium by LP */
@@ -1870,8 +1882,8 @@
     [0, 1].forEach(function (i) {
       h += '<tr><th class="rh">' + esc(stName(st, i)) + "</th>";
       [0, 1].forEach(function (j) {
-        h += '<td><input class="ra" type="number" step="any" id="ce-a' + i + j + '" value="' + CES.a[i][j] + '" aria-label="' + esc(T("gtm.x.inA", { p: T("gtm.pl.row"), r: stName(st, i), c: stName(st, j) })) + '"> ' +
-          '<input class="cb" type="number" step="any" id="ce-b' + i + j + '" value="' + CES.b[i][j] + '" aria-label="' + esc(T("gtm.x.inA", { p: T("gtm.pl.col"), r: stName(st, i), c: stName(st, j) })) + '"></td>';
+        h += '<td><input class="ra" type="number" step="any" id="ce-a' + i + j + '" value="' + CES.a[i][j] + '" aria-label="' + esc(T("gtm.x.inA", { p: low(T("gtm.pl.row")), r: stName(st, i), c: stName(st, j) })) + '"> ' +
+          '<input class="cb" type="number" step="any" id="ce-b' + i + j + '" value="' + CES.b[i][j] + '" aria-label="' + esc(T("gtm.x.inA", { p: low(T("gtm.pl.col")), r: stName(st, i), c: stName(st, j) })) + '"></td>';
       });
       h += "</tr>";
     });
@@ -1913,9 +1925,10 @@
     var dev = [0, 1, 2, 3].map(function (q) { return q === worst ? 0 : 1 / 3; }), d1 = 0, d2 = 0;
     for (k = 0; k < 4; k++) { d1 += dev[k] * a[k >> 1][k & 1]; d2 += dev[k] * b[k >> 1][k & 1]; }
     var devOk = CE.rows.slice(0, 4).every(function (r) { return r.a.reduce(function (s, v, q) { return s + v * dev[q]; }, 0) >= -1e-9; });
-    var kp = [[T("gtm.ce.k.ce"), pair(u1, u2, 3), "accent"]];
-    if (S.mix) kp.push([T("gtm.ce.k.mix"), pair(S.mix.u, S.mix.v, 3), ""]);
-    kp.push([T(devOk ? "gtm.ce.k.dev" : "gtm.ce.k.devno"), pair(d1, d2, 3), ""]);
+    var p2 = function (u, v) { return tuple([num(u, 2), num(v, 2)]); };
+    var kp = [[T("gtm.ce.k.ce"), p2(u1, u2), "accent"]];
+    if (S.mix) kp.push([T("gtm.ce.k.mix"), p2(S.mix.u, S.mix.v), ""]);
+    kp.push([T(devOk ? "gtm.ce.k.dev" : "gtm.ce.k.devno"), p2(d1, d2), ""]);
     $("ce-kpis").innerHTML = kp.map(function (q) { return '<div class="kpi ' + q[2] + '"><b>' + esc(q[1]) + "</b><span>" + esc(q[0]) + "</span></div>"; }).join("");
     // incentive rows with slack and the value of relaxing them (minus the dual)
     var names = [T("gtm.ce.r1", { p: T("gtm.pl.row"), s: nm(0), d: nm(1) }), T("gtm.ce.r1", { p: T("gtm.pl.row"), s: nm(1), d: nm(0) }),
@@ -1926,7 +1939,7 @@
       h += "<tr><td>" + esc(names[k]) + "</td><td class='num" + (Math.abs(lhs) < 1e-7 ? " acc" : "") + "'>" + esc(nice(lhs, 3)) + "</td><td class='num'>" + esc(nice(Math.max(0, -R.duals[k]), 3)) + "</td></tr>";
     }
     $("ce-inc").innerHTML = h + "</tbody>";
-    $("ce-note").textContent = T("gtm.ce.note", { ce: pair(u1, u2, 3), t: nice(u1 + u2, 3), mx: S.mix ? pair(S.mix.u, S.mix.v, 3) : "·", dv: pair(d1, d2, 3) });
+    $("ce-note").textContent = T("gtm.ce.note", { ce: p2(u1, u2), t: num(u1 + u2, 2), mx: S.mix ? p2(S.mix.u, S.mix.v) + (isFrac(S.mix.u) ? " (" + nice(S.mix.u) + ")" : "") : "·", dv: p2(d1, d2) });
     var vars = ["\\pi_{11}", "\\pi_{12}", "\\pi_{21}", "\\pi_{22}"];
     var lin = function (co) {
       var s = "", first = true;
@@ -1941,7 +1954,7 @@
     var tex = "\\begin{aligned} \\max\\;& " + lin(CE.c) + " && \\text{" + T("gtm.tex.total") + "} \\\\ ";
     for (k = 0; k < 4; k++) tex += (k ? "& " : "\\text{ST}\\;& ") + lin(CE.rows[k].a) + " \\ge 0 && \\text{" + T("gtm.tex.inc", { k: k + 1 }) + "} \\\\ ";
     tex += "& " + lin([1, 1, 1, 1]) + " = 1,\\; \\pi \\ge 0 && \\text{" + T("gtm.tex.dev") + "} \\end{aligned}";
-    TeX.set($("ce-lp"), tex, T("gtm.ce.lp.plain", { ce: pair(u1, u2, 3) }));
+    TeX.set($("ce-lp"), tex, T("gtm.ce.lp.plain", { ce: p2(u1, u2) }));
   }
 
   /* ===================================================================================== notes */
@@ -1951,10 +1964,10 @@
     for (var k = 0; k < 4; k++) u1 += ce.R.x[k] * CE0.a[k >> 1][k & 1];
     $("gtm-n1").innerHTML = T("gtm.n.p1");
     $("gtm-n2").innerHTML = T("gtm.n.p2", { p: nice(bos.mix.p), q: nice(bos.mix.q) });
-    $("gtm-n3").innerHTML = T("gtm.n.p3", { k: pct(Spk.mix.p, 1), g: pct(Spk.mix.q, 1), s: T("gtm.pct", { v: num(Spk.mix.u, 1) }) });
+    $("gtm-n3").innerHTML = T("gtm.n.p3", { k: pct(Spk.mix.p, 1, 1), g: pct(Spk.mix.q, 1, 1), s: T("gtm.pct", { v: num(Spk.mix.u, 1, 1) }) });
     $("gtm-n4").innerHTML = T("gtm.n.p4", { v: nice(oe.v), x: tuple(oe.x.map(function (v) { return nice(v); })), s: num(oe.sigma, 2),
       h1: num(1.96 * oe.sigma / Math.sqrt(1000), 2), h3: num(1.96 * oe.sigma / Math.sqrt(100000), 3) });
-    $("gtm-n5").innerHTML = T("gtm.n.p5", { ce: nice(u1, 3), mx: nice(ceS.mix.u, 3) });
+    $("gtm-n5").innerHTML = T("gtm.n.p5", { ce: num(u1, 2), mx: approx(ceS.mix.u) });
   }
 
   /* ===================================================================================== wiring */
