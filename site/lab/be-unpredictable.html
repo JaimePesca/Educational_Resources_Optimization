@@ -1,0 +1,2018 @@
+<!doctype html>
+<html lang="en" data-title-key="gtm.title" data-i18n-bundles="lab/lab-gtb-mix">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Game Theory 2: Be Unpredictable</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  [hidden] { display: none !important; }
+  /* new or urgent cues: bright red, or the crit shade where dark mode makes the accent that same red */
+  :root { --hot: var(--mit-bright); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hot: var(--crit); } }
+  :root[data-theme="dark"] { --hot: var(--crit); }
+
+  /* ---- masthead extras and part index ---- */
+  .series { margin: 12px 0 0; font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .series a { font-weight: 600; }
+  .case-nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 900px) { .case-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 480px) { .case-nav { grid-template-columns: minmax(0, 1fr); } }
+  .case-nav a {
+    display: flex; gap: 9px; align-items: baseline; padding: 10px 12px; min-width: 0;
+    background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 3px;
+    color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14px; line-height: 1.3;
+  }
+  .case-nav a:hover { background: var(--surface2); }
+  .case-nav .n, .case-num { font-family: var(--font-mono); color: var(--accent-text); font-weight: 600; }
+  .case-num { display: block; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+  section.block { scroll-margin-top: 70px; grid-template-columns: minmax(0, 1fr); }
+  section.block > * { min-width: 0; }
+
+  /* ---- controls ---- */
+  .ctl-row { display: flex; flex-wrap: wrap; gap: 12px 26px; align-items: flex-end; }
+  .ctl-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ctl-group .lbl { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  button.btn {
+    font: 600 13px var(--font-sans); color: var(--on-solid); background: var(--accent); border: 1px solid var(--accent); border-radius: 2px;
+    padding: 8px 12px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.1); }
+  button.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
+  button.btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--border); }
+  .btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .rng { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; min-width: 200px; flex: 1 1 240px; max-width: 380px; }
+  .rng label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .rng output { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .rng input[type="range"] { flex: 1 1 100%; width: 100%; accent-color: var(--accent); margin: 4px 0 0; }
+  .seg.wrapseg { display: flex; }
+  @media (max-width: 560px) {
+    .seg.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .seg.grid2 button { border-left: none; border-top: 1px solid var(--border); padding: 8px 6px; }
+    .seg.grid2 button:nth-child(-n+2) { border-top: none; }
+    .seg.grid2 button:nth-child(2n) { border-left: 1px solid var(--border); }
+    .ctl-row > .ctl-group { flex: 1 1 100%; }
+  }
+  @media (min-width: 561px) and (max-width: 900px) {
+    .seg.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .seg.grid4 button { border-left: none; border-top: 1px solid var(--border); }
+    .seg.grid4 button:nth-child(-n+4) { border-top: none; }
+    .seg.grid4 button:not(:nth-child(4n+1)) { border-left: 1px solid var(--border); }
+  }
+
+  /* ---- live numbers ---- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 8px; margin-top: 14px; }
+  @media (max-width: 460px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .kpi { border: 1px solid var(--border); border-radius: 3px; padding: 8px 11px; background: var(--surface); min-width: 0; }
+  .kpi b { display: block; font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: -0.01em; line-height: 1.2; overflow-wrap: anywhere; }
+  .kpi span { display: block; font-size: 12.5px; color: var(--ink2); line-height: 1.3; margin-top: 2px; }
+  .kpi.accent { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .kpi.accent b { color: var(--accent-text); }
+  @media (max-width: 460px) { .kpi b { font-size: 16px; } .kpi span { font-size: 12px; } }
+  .verdict { margin: 14px 0 0; padding: 10px 14px; border-radius: 3px; font-size: 14.5px; border: 1px solid var(--border); border-left: 3px solid var(--ink2); background: var(--surface2); color: var(--ink2); }
+  .verdict b { color: var(--ink); }
+  .verdict.ok { border-left-color: var(--accent); }
+  .verdict.bad { border-color: var(--hot); border-left-color: var(--hot); background: var(--sel); }
+  .verdict:empty { display: none; }
+
+  /* ---- layout helpers ---- */
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 24px; align-items: start; margin-top: 6px; }
+  @media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+  .two > div { min-width: 0; }
+  .two.wide-l { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+  @media (max-width: 860px) { .two.wide-l { grid-template-columns: minmax(0, 1fr); } }
+  .subhead { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+  .mhead { margin: 16px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 80ch; }
+  .mtext b { color: var(--ink); }
+  .chartbox { margin-top: 8px; min-width: 0; }
+  .chartbox svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart-title { margin: 14px 0 0; font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .tabnote { font-size: 13px; color: var(--muted); margin: 6px 0 0; max-width: 80ch; }
+  .readline { font-size: 13.5px; color: var(--ink2); margin: 10px 0 0; min-height: 2.6em; }
+  .readline b { color: var(--ink); }
+
+  /* ---- SVG charts (colours from the tokens) ---- */
+  .chartbox svg text { font-family: var(--font-sans); font-size: 12px; fill: var(--ink2); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+  .chartbox svg text.m { fill: var(--muted); font-size: 11px; }
+  .chartbox svg text.a { fill: var(--accent-text); font-weight: 700; }
+  .chartbox svg text.i { fill: var(--ink); font-weight: 700; }
+  .chartbox svg text.h { fill: var(--hot); font-weight: 700; }
+  .chartbox svg text.mono { font-family: var(--font-mono); }
+  .chartbox svg .ax { stroke: var(--axis); stroke-width: 1; fill: none; }
+  .chartbox svg .gr { stroke: var(--grid); stroke-width: 1; fill: none; }
+  .chartbox svg .frame { stroke: var(--ink2); stroke-width: 1.2; fill: none; }
+  .chartbox svg .reg { fill: var(--region); stroke: none; }
+  .chartbox svg .band { fill: var(--region); stroke: var(--mit-silver); stroke-width: 1; }
+  .chartbox svg .lnA { stroke: var(--accent); fill: none; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .chartbox svg .lnI { stroke: var(--ink); fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chartbox svg .lnS { stroke: var(--mit-silver); fill: none; stroke-width: 1.2; }
+  .chartbox svg .lnH { stroke: var(--hot); fill: none; stroke-width: 2; }
+  .chartbox svg .thin { stroke-width: 1.4; }
+  .chartbox svg .dash { stroke-dasharray: 5 4; }
+  .chartbox svg .dotA { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+  .chartbox svg .dotI { fill: var(--ink); stroke: var(--surface); stroke-width: 2; }
+  .chartbox svg .dotO { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+  .chartbox svg .fA { fill: var(--accent); }
+  .chartbox svg .fI { fill: var(--ink); }
+  .chartbox svg .fS { fill: var(--mit-silver); }
+  .chartbox svg .grab { cursor: ew-resize; touch-action: none; }
+
+  /* ---- part 1: the game ---- */
+  .moves { display: grid; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); gap: 10px; margin-top: 14px; max-width: 520px; }
+  .moves button {
+    font: 700 18px var(--font-sans); padding: 16px 10px; border-radius: 3px; cursor: pointer;
+    background: var(--surface); color: var(--ink); border: 2px solid var(--ink);
+  }
+  .moves button:hover { background: var(--surface2); }
+  .moves button:active { transform: translateY(1px); }
+  .moves button:disabled { opacity: 0.4; cursor: default; }
+  .moves button small { display: block; font: 400 11px var(--font-mono); color: var(--muted); margin-top: 3px; }
+  .strip { display: grid; grid-template-columns: repeat(30, minmax(0, 1fr)); gap: 3px; margin-top: 14px; }
+  @media (max-width: 620px) { .strip { grid-template-columns: repeat(15, minmax(0, 1fr)); } }
+  .strip span {
+    height: 26px; border: 1px solid var(--border); border-radius: 2px; display: grid; place-items: center;
+    font: 600 10.5px var(--font-mono); color: var(--muted); background: var(--surface2); min-width: 0; overflow: hidden;
+  }
+  .strip span.w { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .strip span.l { background: var(--accent); color: var(--on-solid); border-color: var(--accent); }
+  .strip span.d { background: var(--mit-silver); color: #000; border-color: var(--mit-silver); }
+  .strip span.next { border: 2px dashed var(--accent); background: var(--surface); }
+  .anim-legend i.s-w { background: var(--ink); }
+  .anim-legend i.s-l { background: var(--accent); }
+  .anim-legend i.s-d { background: var(--mit-silver); }
+  .anim-legend i.s-band { background: var(--region); border: 1px solid var(--mit-silver); }
+  .anim-legend i.s-line { width: 18px; height: 3px; background: var(--accent); }
+
+  /* ---- optimization strips ---- */
+  .optstrip {
+    border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 3px; background: var(--surface);
+    padding: 10px 14px; display: grid; gap: 4px;
+  }
+  .optstrip .kicker { margin: 0; color: var(--accent-text); }
+  .optstrip p { margin: 0; font-size: 14px; color: var(--ink2); max-width: 86ch; }
+  .optstrip p b { color: var(--ink); }
+  .optstrip .formula { margin: 4px 0 0; }
+
+  /* ---- part 2: animation ---- */
+  #gtm-p2 .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(290px, max(214px, 34%)); max-width: none;
+  }
+  #gtm-p2 .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #gtm-p2 .anim-hud .chip-stat span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #gtm-p2 .anim-hud .chip-stat.hot b { color: var(--hot); }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #gtm-p2 .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #gtm-p2 .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #gtm-p2 .anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #gtm-p2 .anim-hud .chip-stat { padding: 3px 6px; font-size: 11px; }
+    #gtm-p2 .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #gtm-p2 .anim-legend i.lg-row { width: 18px; height: 4px; background: var(--accent); }
+  #gtm-p2 .anim-legend i.lg-col { width: 18px; height: 2.5px; background: var(--ink); }
+  #gtm-p2 .anim-legend i.lg-guide { width: 18px; height: 0; border-top: 1.6px dashed var(--ink2); }
+  #gtm-p2 .anim-legend i.lg-dash { width: 18px; height: 0; border-top: 2px dashed var(--ink2); }
+  #gtm-p2 .anim-legend i.lg-eq { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent); }
+  #gtm-p2 .anim-legend i.lg-hot { background: var(--hot); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- part 3: 2 x 2 explorer ---- */
+  table.bim { border-collapse: collapse; margin-top: 12px; }
+  table.bim th { font-size: 12.5px; font-weight: 700; padding: 6px 8px; color: var(--ink); text-align: center; }
+  table.bim th.rh { text-align: right; color: var(--accent-text); }
+  table.bim th.ch { color: var(--ink); }
+  table.bim th.corner { font-weight: 600; font-size: 11.5px; color: var(--muted); text-align: left; line-height: 1.25; }
+  table.bim th.corner .r { color: var(--accent-text); display: block; }
+  table.bim td { border: 1px solid var(--axis); padding: 6px; text-align: center; white-space: nowrap; }
+  table.bim td.eq { box-shadow: inset 0 0 0 2px var(--accent); }
+  table.bim input {
+    width: 4.6em; font: 600 13px var(--font-mono); padding: 5px 4px; border: 1px solid var(--border); border-radius: 2px;
+    background: var(--surface2); text-align: right;
+  }
+  table.bim input.ra { color: var(--accent-text); }
+  table.bim input.cb { color: var(--ink); }
+  table.bim input:invalid, table.bim input.bad { border-color: var(--hot); }
+  @media (max-width: 460px) { table.bim input { width: 3.9em; font-size: 12px; } table.bim th { padding: 4px; } table.bim td { padding: 4px; } }
+  .eqlist { margin-top: 10px; }
+  table.data { min-width: 0; margin-top: 8px; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.acc { color: var(--accent-text); font-weight: 700; }
+  table.data td.mut { color: var(--muted); }
+  @media (max-width: 560px) {
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 5px; font-size: 12px; }
+    table.data td.num { font-size: 11.5px; }
+  }
+  .readout-box { border: 1px solid var(--border); border-left: 3px solid var(--ink2); background: var(--surface2); border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 12px 0 0; }
+  .readout-box b { color: var(--ink); }
+  .readout-box.pk { border-left-color: var(--accent); }
+
+  /* ---- part 4: zero-sum ---- */
+  table.zs { border-collapse: collapse; margin-top: 12px; }
+  table.zs th { font-size: 12px; font-weight: 700; padding: 5px 6px; color: var(--ink2); text-align: center; white-space: nowrap; }
+  table.zs th.rh { text-align: right; color: var(--accent-text); }
+  table.zs td { border: 1px solid var(--axis); padding: 4px; text-align: center; }
+  table.zs td.mm, table.zs th.mm { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); border: none; padding: 4px 8px; white-space: nowrap; }
+  table.zs td.mm.best { color: var(--accent-text); font-weight: 700; }
+  table.zs td.mm.bestc { color: var(--ink); font-weight: 700; }
+  table.zs td.sad { box-shadow: inset 0 0 0 2px var(--accent); }
+  table.zs input {
+    width: 3.8em; font: 600 13px var(--font-mono); padding: 5px 3px; border: 1px solid var(--border); border-radius: 2px;
+    background: var(--surface2); color: var(--ink); text-align: right;
+  }
+  table.zs input.bad { border-color: var(--hot); }
+  @media (max-width: 460px) { table.zs input { width: 3.3em; font-size: 12px; padding: 4px 2px; } table.zs th, table.zs td { padding: 3px; } table.zs td.mm { padding: 3px 4px; font-size: 11.5px; } }
+  .lp2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px 18px; }
+  @media (max-width: 860px) { .lp2 { grid-template-columns: minmax(0, 1fr); } }
+  .lp2 > div { min-width: 0; }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  details.box { margin: 0; }
+  details.box .body { max-width: none; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="gtm.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="gtm.eyebrow"></p>
+    <h1 data-i18n="gtm.title"></h1>
+    <p class="lede" data-i18n-html="gtm.lede"></p>
+    <p class="series"><a href="read-the-table.html" data-keep-lang data-i18n="gtm.prev"></a><a href="move-by-move.html" data-keep-lang data-i18n="gtm.next"></a></p>
+  </header>
+
+  <nav class="case-nav" data-i18n-attr="aria-label:gtm.nav.aria">
+    <a href="#gtm-p1"><span class="n">1</span><span data-i18n="gtm.p1.title"></span></a>
+    <a href="#gtm-p2"><span class="n">2</span><span data-i18n="nav.animation"></span></a>
+    <a href="#gtm-p3"><span class="n">3</span><span data-i18n="gtm.p3.title"></span></a>
+    <a href="#gtm-p4"><span class="n">4</span><span data-i18n="gtm.p4.title"></span></a>
+    <a href="#gtm-p5"><span class="n">5</span><span data-i18n="gtm.p5.title"></span></a>
+  </nav>
+
+  <!-- =================================================================== part 1: beat the machine -->
+  <section class="block" id="gtm-p1" aria-labelledby="gtm-p1-h">
+    <h2 class="section-title" id="gtm-p1-h"><span class="case-num" data-i18n="gtm.part1"></span><span data-i18n="gtm.p1.title"></span></h2>
+    <p class="section-intro" data-i18n-html="gtm.p1.intro"></p>
+    <div class="card" id="g-card">
+      <div class="ctl-row">
+        <div class="ctl-group">
+          <span class="lbl" id="g-mode-lbl" data-i18n="gtm.g.mode"></span>
+          <div class="seg" role="group" aria-labelledby="g-mode-lbl" id="g-mode">
+            <button type="button" data-v="ht" aria-pressed="true" data-i18n="gtm.g.ht"></button>
+            <button type="button" data-v="rps" aria-pressed="false" data-i18n="gtm.g.rps"></button>
+          </div>
+        </div>
+      </div>
+      <div class="moves" id="g-moves"></div>
+      <div class="btnrow">
+        <button type="button" class="btn ghost" id="g-auto"></button>
+        <button type="button" class="btn ghost" id="g-new" data-i18n="gtm.g.new"></button>
+      </div>
+      <div class="strip" id="g-strip" aria-hidden="true"></div>
+      <div class="anim-legend" style="margin-top:8px">
+        <span><i class="s-w"></i><span data-i18n="gtm.g.lg.w"></span></span>
+        <span><i class="s-l"></i><span data-i18n="gtm.g.lg.l"></span></span>
+        <span id="g-lg-d"><i class="s-d"></i><span data-i18n="gtm.g.lg.d"></span></span>
+      </div>
+      <div class="kpis" id="g-kpis"></div>
+      <p class="readline" id="g-read" aria-live="polite"></p>
+      <p class="chart-title" id="g-chart-title"></p>
+      <div class="chartbox" id="g-chart" role="img"></div>
+      <div class="anim-legend" style="margin-top:6px">
+        <span><i class="s-line"></i><span id="g-lg-line"></span></span>
+        <span><i class="s-band"></i><span id="g-lg-band"></span></span>
+      </div>
+      <div class="verdict" id="g-verdict" aria-live="polite"></div>
+    </div>
+    <div class="optstrip">
+      <span class="kicker" data-i18n="gtm.opt.kicker"></span>
+      <p id="g-opt-text"></p>
+      <div class="formula" id="g-opt-f"></div>
+    </div>
+    <div class="card">
+      <h3 class="subhead" data-i18n="gtm.fp.title"></h3>
+      <p class="mtext" style="margin-top:0" data-i18n-html="gtm.fp.intro"></p>
+      <div class="ctl-row" style="margin-top:12px">
+        <div class="rng"><label for="fp-t" data-i18n="gtm.fp.t"></label><output id="fp-tv" for="fp-t"></output><input type="range" id="fp-t" min="0" max="1000" step="1" value="700"></div>
+      </div>
+      <div class="kpis" id="fp-kpis"></div>
+      <div class="two">
+        <div><p class="chart-title" data-i18n="gtm.fp.sq"></p><div class="chartbox" id="fp-sq" role="img"></div></div>
+        <div><p class="chart-title" data-i18n="gtm.fp.band"></p><div class="chartbox" id="fp-band" role="img"></div></div>
+      </div>
+      <p class="tabnote" id="fp-note"></p>
+    </div>
+  </section>
+
+  <!-- =================================================================== part 2: animation -->
+  <section class="block" id="gtm-p2" aria-labelledby="gtm-p2-h">
+    <h2 class="section-title" id="gtm-p2-h"><span class="case-num" data-i18n="gtm.part2"></span><span data-i18n="nav.animation"></span></h2>
+    <p class="section-intro" data-i18n-html="gtm.anim.intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="gtm-scen-lbl" data-i18n="gtm.anim.ctl"></span>
+      <div class="seg grid2" role="group" aria-labelledby="gtm-scen-lbl" id="gtm-seg">
+        <button type="button" data-sc="bos" aria-pressed="true" data-i18n="gtm.gm.bos"></button>
+        <button type="button" data-sc="stag" aria-pressed="false" data-i18n="gtm.gm.stag"></button>
+        <button type="button" data-sc="chicken" aria-pressed="false" data-i18n="gtm.gm.chicken"></button>
+        <button type="button" data-sc="pennies" aria-pressed="false" data-i18n="gtm.gm.pennies"></button>
+      </div>
+    </div>
+    <div class="anim" id="gtm-anim">
+      <div class="anim-stage" role="img" data-i18n-attr="aria-label:gtm.anim.aria">
+        <div class="anim-hud" id="gtm-hud">
+          <div class="chip-stat" id="gtm-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="gtm-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="gtm-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="gtm-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="gtm-c4"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-row"></i><span data-i18n="gtm.lg.row"></span></span>
+      <span><i class="lg-col"></i><span data-i18n="gtm.lg.col"></span></span>
+      <span><i class="lg-dash"></i><span data-i18n="gtm.lg.lines"></span></span>
+      <span><i class="lg-guide"></i><span data-i18n="gtm.lg.guide"></span></span>
+      <span><i class="lg-eq"></i><span data-i18n="gtm.lg.eq"></span></span>
+      <span><i class="lg-hot"></i><span id="gtm-lg-hot"></span></span>
+    </div>
+    <p class="scen-status" id="gtm-status" aria-live="polite"></p>
+  </section>
+
+  <!-- =================================================================== part 3: any 2 x 2 -->
+  <section class="block" id="gtm-p3" aria-labelledby="gtm-p3-h">
+    <h2 class="section-title" id="gtm-p3-h"><span class="case-num" data-i18n="gtm.part3"></span><span data-i18n="gtm.p3.title"></span></h2>
+    <p class="section-intro" data-i18n-html="gtm.p3.intro"></p>
+    <div class="card">
+      <div class="ctl-row">
+        <div class="ctl-group">
+          <span class="lbl" id="x-pre-lbl" data-i18n="gtm.x.pre"></span>
+          <div class="seg grid2 grid4" role="group" aria-labelledby="x-pre-lbl" id="x-pre">
+            <button type="button" data-v="bos" aria-pressed="true" data-i18n="gtm.gm.bos"></button>
+            <button type="button" data-v="stag" aria-pressed="false" data-i18n="gtm.gm.stag"></button>
+            <button type="button" data-v="chicken" aria-pressed="false" data-i18n="gtm.gm.chicken"></button>
+            <button type="button" data-v="pennies" aria-pressed="false" data-i18n="gtm.gm.pennies"></button>
+            <button type="button" data-v="hilo" aria-pressed="false" data-i18n="gtm.gm.hilo"></button>
+            <button type="button" data-v="drive" aria-pressed="false" data-i18n="gtm.gm.drive"></button>
+            <button type="button" data-v="hawk" aria-pressed="false" data-i18n="gtm.gm.hawk"></button>
+            <button type="button" data-v="pk" aria-pressed="false" data-i18n="gtm.gm.pk"></button>
+          </div>
+        </div>
+      </div>
+      <p class="mtext" id="x-desc"></p>
+      <div class="two wide-l">
+        <div>
+          <div class="tblwrap"><table class="bim" id="x-tab"></table></div>
+          <p class="tabnote" data-i18n="gtm.x.tabnote"></p>
+          <div class="ctl-row" style="margin-top:12px">
+            <div class="rng"><label for="x-s" id="x-s-lbl"></label><output id="x-sv" for="x-s"></output><input type="range" id="x-s" min="-3" max="7" step="0.1" value="2"></div>
+            <div class="rng" id="x-v-box"><label for="x-v" data-i18n="gtm.x.V"></label><output id="x-vv" for="x-v"></output><input type="range" id="x-v" min="0.5" max="10" step="0.5" value="2"></div>
+            <div class="rng" id="x-c-box"><label for="x-c" data-i18n="gtm.x.C"></label><output id="x-cv" for="x-c"></output><input type="range" id="x-c" min="0.5" max="12" step="0.5" value="4"></div>
+            <div class="rng" id="x-k-box"><label for="x-k" data-i18n="gtm.x.K"></label><output id="x-kv" for="x-k"></output><input type="range" id="x-k" min="1.5" max="30" step="0.5" value="10"></div>
+          </div>
+          <div class="readout-box" id="x-rival" aria-live="polite"></div>
+        </div>
+        <div>
+          <div class="chartbox" id="x-sq" role="img"></div>
+        </div>
+      </div>
+      <div class="kpis" id="x-kpis"></div>
+      <div class="tblwrap eqlist"><table class="data" id="x-eqs"></table></div>
+      <p class="tabnote" id="x-count"></p>
+      <p class="mhead" data-i18n="gtm.x.ind.head"></p>
+      <div class="formula" id="x-indq"></div>
+      <div class="formula" id="x-indp"></div>
+      <div class="readout-box pk" id="x-pk" hidden></div>
+      <div class="readout-box" id="x-special" hidden></div>
+      <div id="x-pop-box">
+        <p class="mhead" data-i18n="gtm.x.pop.head"></p>
+        <p class="mtext" id="x-pop-intro"></p>
+        <div class="ctl-row" style="margin-top:10px">
+          <div class="rng"><label for="x-x0" id="x-x0-lbl"></label><output id="x-x0v" for="x-x0"></output><input type="range" id="x-x0" min="0.01" max="0.99" step="0.01" value="0.6"></div>
+        </div>
+        <div class="chartbox" id="x-pop" role="img"></div>
+        <p class="tabnote" id="x-pop-note" aria-live="polite"></p>
+      </div>
+      <p class="tabnote" id="x-nopop" hidden></p>
+    </div>
+    <div class="optstrip">
+      <span class="kicker" data-i18n="gtm.opt.kicker"></span>
+      <p data-i18n-html="gtm.x.opt"></p>
+    </div>
+  </section>
+
+  <!-- =================================================================== part 4: zero sum -->
+  <section class="block" id="gtm-p4" aria-labelledby="gtm-p4-h">
+    <h2 class="section-title" id="gtm-p4-h"><span class="case-num" data-i18n="gtm.part4"></span><span data-i18n="gtm.p4.title"></span></h2>
+    <p class="section-intro" data-i18n-html="gtm.p4.intro"></p>
+    <div class="card">
+      <div class="ctl-row">
+        <div class="ctl-group">
+          <span class="lbl" id="z-pre-lbl" data-i18n="gtm.z.pre"></span>
+          <div class="seg grid2" role="group" aria-labelledby="z-pre-lbl" id="z-pre">
+            <button type="button" data-v="saddle" aria-pressed="false" data-i18n="gtm.z.p.saddle"></button>
+            <button type="button" data-v="nosaddle" aria-pressed="false" data-i18n="gtm.z.p.nosaddle"></button>
+            <button type="button" data-v="oe" aria-pressed="true" data-i18n="gtm.z.p.oe"></button>
+            <button type="button" data-v="rps" aria-pressed="false" data-i18n="gtm.z.p.rps"></button>
+            <button type="button" data-v="pk" aria-pressed="false" data-i18n="gtm.z.p.pk"></button>
+          </div>
+        </div>
+      </div>
+      <p class="mtext" id="z-desc"></p>
+      <div class="tblwrap"><table class="zs" id="z-tab"></table></div>
+      <div class="btnrow">
+        <button type="button" class="btn ghost" id="z-addr" data-i18n="gtm.z.addr"></button>
+        <button type="button" class="btn ghost" id="z-delr" data-i18n="gtm.z.delr"></button>
+        <button type="button" class="btn ghost" id="z-addc" data-i18n="gtm.z.addc"></button>
+        <button type="button" class="btn ghost" id="z-delc" data-i18n="gtm.z.delc"></button>
+      </div>
+      <p class="tabnote" data-i18n="gtm.z.tabnote"></p>
+      <div class="kpis" id="z-kpis"></div>
+      <div class="verdict ok" id="z-sec"></div>
+
+      <p class="mhead" data-i18n="gtm.z.g.head"></p>
+      <p class="mtext" id="z-g-intro"></p>
+      <div class="chartbox" id="z-graph" role="img"></div>
+      <div class="ctl-row" id="z-g-ctl" style="margin-top:8px">
+        <div class="rng"><label for="z-p" id="z-p-lbl"></label><output id="z-pv" for="z-p"></output><input type="range" id="z-p" min="0" max="1" step="0.01" value="0.3"></div>
+      </div>
+      <p class="tabnote" id="z-g-note" aria-live="polite"></p>
+
+      <p class="mhead" data-i18n="gtm.z.lp.head"></p>
+      <div class="lp2">
+        <div><p class="mtext" data-i18n="gtm.z.lp.row"></p><div class="formula" id="z-lp-row"></div></div>
+        <div><p class="mtext" data-i18n="gtm.z.lp.col"></p><div class="formula" id="z-lp-col"></div></div>
+      </div>
+      <p class="mtext" id="z-lp-note"></p>
+
+      <p class="mhead" data-i18n="gtm.z.cs.head"></p>
+      <div class="tblwrap"><table class="data" id="z-cs"></table></div>
+      <p class="tabnote" id="z-cs-note"></p>
+
+      <p class="mhead" data-i18n="gtm.z.sim.head"></p>
+      <p class="mtext" id="z-sim-intro"></p>
+      <div class="btnrow" id="z-sim-btns">
+        <button type="button" class="btn" data-n="1000"></button>
+        <button type="button" class="btn" data-n="10000"></button>
+        <button type="button" class="btn" data-n="100000"></button>
+      </div>
+      <div class="chartbox" id="z-sim" role="img"></div>
+      <div class="anim-legend" id="z-sim-lg" style="margin-top:6px" hidden>
+        <span><i class="s-line"></i><span data-i18n="gtm.z.sim.lg.avg"></span></span>
+        <span><i class="s-band"></i><span data-i18n="gtm.z.sim.lg.band"></span></span>
+      </div>
+      <p class="tabnote" id="z-sim-note" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- =================================================================== part 5: correlated equilibrium -->
+  <section class="block" id="gtm-p5" aria-labelledby="gtm-p5-h">
+    <h2 class="section-title" id="gtm-p5-h"><span class="case-num" data-i18n="gtm.part5"></span><span data-i18n="gtm.p5.title"></span></h2>
+    <details class="box" id="ce-box">
+      <summary data-i18n="gtm.ce.sum"></summary>
+      <div class="body">
+        <p data-i18n-html="gtm.ce.intro"></p>
+        <div class="two">
+          <div>
+            <div class="tblwrap"><table class="bim" id="ce-tab"></table></div>
+            <div class="btnrow"><button type="button" class="btn ghost" id="ce-reset" data-i18n="gtm.ce.reset"></button></div>
+          </div>
+          <div>
+            <p class="chart-title" style="margin-top:0" data-i18n="gtm.ce.dev"></p>
+            <div class="tblwrap"><table class="data" id="ce-pi"></table></div>
+          </div>
+        </div>
+        <div class="kpis" id="ce-kpis"></div>
+        <div class="tblwrap"><table class="data" id="ce-inc"></table></div>
+        <p class="tabnote" id="ce-note"></p>
+        <div class="formula" id="ce-lp"></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- =================================================================== model -->
+  <div class="card">
+    <h2><span class="kicker" data-i18n="gtm.m.kicker"></span><span data-i18n="gtm.m.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="gtm.m.mix.head"></p>
+        <div class="formula" data-tex="gtm.m.mix.tex" data-i18n="gtm.m.mix.formula"></div>
+        <p class="mtext" data-i18n="gtm.m.mix.why"></p>
+        <p class="mhead" data-i18n="gtm.m.ind.head"></p>
+        <div class="formula" data-tex="gtm.m.ind.tex" data-i18n="gtm.m.ind.formula"></div>
+        <p class="mtext" data-i18n="gtm.m.ind.why"></p>
+        <p class="mhead" data-i18n="gtm.m.ce.head"></p>
+        <div class="formula" data-tex="gtm.m.ce.tex" data-i18n="gtm.m.ce.formula"></div>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="gtm.m.row.head"></p>
+        <div class="formula" data-tex="gtm.m.row.tex" data-i18n="gtm.m.row.formula"></div>
+        <p class="mhead" data-i18n="gtm.m.col.head"></p>
+        <div class="formula" data-tex="gtm.m.col.tex" data-i18n="gtm.m.col.formula"></div>
+        <p class="mtext" data-i18n="gtm.m.dual.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="gtm.n.title"></summary>
+      <div class="body">
+        <p id="gtm-n1"></p>
+        <p id="gtm-n2"></p>
+        <p id="gtm-n3"></p>
+        <p id="gtm-n4"></p>
+        <p id="gtm-n5"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.11" data-refs="gtm.refs"></p>
+  <p class="note" data-i18n="gtm.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-gtb-mix.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var MINUS = "−";
+  var AN = window.Anim, E = AN.ease, seg = AN.seg, lerp = AN.lerp, clamp = AN.clamp;
+  var EPS = 1e-9;
+
+  /* ===================================================================================== formatting */
+  function num(v, d, m) {
+    d = d == null ? 2 : d;
+    var a = I18N.fmt(Math.abs(v), d, m), z = I18N.fmt(0, d, m);
+    return v < 0 && a !== z ? MINUS + a : a;
+  }
+  function texNum(v, d) { return num(v, d).replace(MINUS, "-"); }
+  function pct(v, d) { return T("gtm.pct", { v: num(100 * v, d == null ? 1 : d) }); }
+  function ratio(v) {
+    if (!isFinite(v)) return null;
+    for (var q = 1; q <= 12; q++) { var p = Math.round(v * q); if (Math.abs(p / q - v) < 1e-7) return [p, q]; }
+    return null;
+  }
+  function isFrac(v) { var f = ratio(v); return !!(f && f[1] > 1 && Math.abs(v * 100 - Math.round(v * 100)) > 1e-6); }
+  // an exact fraction when the value needs more than two decimals and has a small denominator, else a decimal
+  function nice(v, d) {
+    if (isFrac(v)) { var f = ratio(v); return (f[0] < 0 ? MINUS : "") + Math.abs(f[0]) + "/" + f[1]; }
+    return num(v, d == null ? 2 : d);
+  }
+  function texNice(v, d) {
+    if (isFrac(v)) { var f = ratio(v); return (f[0] < 0 ? "-" : "") + "\\tfrac{" + Math.abs(f[0]) + "}{" + f[1] + "}"; }
+    return texNum(v, d == null ? 2 : d);
+  }
+  function tuple(arr) { return "(" + arr.join(T("gtm.sep")) + ")"; }
+  function pair(u, v, d) { return tuple([nice(u, d), nice(v, d)]); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function svg(w, h, body, aria) { return '<svg viewBox="0 0 ' + w + " " + h + '" role="img"' + (aria ? ' aria-label="' + esc(aria) + '"' : "") + ">" + body + "</svg>"; }
+  function txt(x, y, s, cls, anchor, extra) {
+    return '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '"' + (cls ? ' class="' + cls + '"' : "") +
+      (anchor ? ' text-anchor="' + anchor + '"' : "") + (extra || "") + ">" + esc(s) + "</text>";
+  }
+  function poly(pts, cls) { return '<polyline class="' + cls + '" points="' + pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '"/>'; }
+  function line(x0, y0, x1, y1, cls) { return '<line class="' + cls + '" x1="' + x0.toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + x1.toFixed(1) + '" y2="' + y1.toFixed(1) + '"/>'; }
+  function dot(x, y, r, cls) { return '<circle class="' + cls + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r + '"/>'; }
+  function stName(st, k) { return T("gtm.st." + st + "." + (k + 1)); }
+
+  /* ===================================================================================== 2 x 2 bimatrix games
+     a[i][j]: row player's payoff, b[i][j]: column player's payoff, when the row player plays i and the column player j.
+     p = probability that the row player plays her first strategy, q = the same for the column player. */
+  function solve2(a, b) {
+    var d0 = a[0][1] - a[1][1], d1 = a[0][0] - a[1][0];   // row: payoff of strategy 1 minus strategy 2, at q = 0 and q = 1
+    var e0 = b[1][0] - b[1][1], e1 = b[0][0] - b[0][1];   // column: the same at p = 0 and p = 1
+    var qs = Math.abs(d0 - d1) > EPS ? d0 / (d0 - d1) : null;   // the row player is indifferent at q*
+    var ps = Math.abs(e0 - e1) > EPS ? e0 / (e0 - e1) : null;   // the column player is indifferent at p*
+    var eqs = [];
+    [[0, 0], [1, 1], [0, 1], [1, 0]].forEach(function (c) {
+      var i = c[0], j = c[1];
+      if (a[i][j] >= a[1 - i][j] - EPS && b[i][j] >= b[i][1 - j] - EPS) eqs.push({ pure: true, i: i, j: j, p: 1 - i, q: 1 - j, u: a[i][j], v: b[i][j] });
+    });
+    var mix = null;
+    if (ps !== null && qs !== null && ps > EPS && ps < 1 - EPS && qs > EPS && qs < 1 - EPS) {
+      mix = { pure: false, p: ps, q: qs, u: qs * a[0][0] + (1 - qs) * a[0][1], v: ps * b[0][0] + (1 - ps) * b[1][0] };
+      eqs.push(mix);
+    }
+    var deg = [d0, d1, e0, e1].some(function (x) { return Math.abs(x) < EPS; });
+    var probs = mix ? [mix.p * mix.q, mix.p * (1 - mix.q), (1 - mix.p) * mix.q, (1 - mix.p) * (1 - mix.q)] : null;
+    return { a: a, b: b, d0: d0, d1: d1, e0: e0, e1: e1, ps: ps, qs: qs, eqs: eqs, mix: mix, deg: deg, probs: probs,
+      rowAll: Math.abs(d0) < EPS && Math.abs(d1) < EPS, colAll: Math.abs(e0) < EPS && Math.abs(e1) < EPS };
+  }
+  function side(d) { return d > EPS ? 1 : d < -EPS ? 0 : 0.5; }
+  // best response correspondences as polylines of [p, q] points (null when the player is indifferent everywhere)
+  function pathRow(S) {
+    if (S.rowAll) return null;
+    var r = S.qs;
+    if (r !== null && r > EPS && r < 1 - EPS) { var lo = side(S.d0), hi = side(S.d1); return [[lo, 0], [lo, r], [hi, r], [hi, 1]]; }
+    var mid = side((S.d0 + S.d1) / 2), pts = [[mid, 0], [mid, 1]];
+    if (Math.abs(S.d0) < EPS) pts.unshift([1 - mid, 0]);
+    if (Math.abs(S.d1) < EPS) pts.push([1 - mid, 1]);
+    return pts;
+  }
+  function pathCol(S) {
+    if (S.colAll) return null;
+    var r = S.ps;
+    if (r !== null && r > EPS && r < 1 - EPS) { var lo = side(S.e0), hi = side(S.e1); return [[0, lo], [r, lo], [r, hi], [1, hi]]; }
+    var mid = side((S.e0 + S.e1) / 2), pts = [[0, mid], [1, mid]];
+    if (Math.abs(S.e0) < EPS) pts.unshift([0, 1 - mid]);
+    if (Math.abs(S.e1) < EPS) pts.push([1, 1 - mid]);
+    return pts;
+  }
+  function symmetric(a, b) { return Math.abs(b[0][0] - a[0][0]) < EPS && Math.abs(b[1][1] - a[1][1]) < EPS && Math.abs(b[0][1] - a[1][0]) < EPS && Math.abs(b[1][0] - a[0][1]) < EPS; }
+
+  /* ===================================================================================== zero-sum games by linear programming */
+  function solveZS(A) {
+    var m = A.length, n = A[0].length, i, j;
+    var rowMin = A.map(function (r) { return Math.min.apply(null, r); });
+    var colMax = [];
+    for (j = 0; j < n; j++) { var mx = -Infinity; for (i = 0; i < m; i++) mx = Math.max(mx, A[i][j]); colMax.push(mx); }
+    var maximin = Math.max.apply(null, rowMin), minimax = Math.min.apply(null, colMax);
+    var amin = Infinity;
+    A.forEach(function (r) { r.forEach(function (v) { amin = Math.min(amin, v); }); });
+    var k = 1 - amin;                                     // shift: every payoff becomes at least 1, so v >= 0
+    // the row player's LP: max v  s.t.  sum_i x_i (a_ij + k) - v >= 0 for every column j, sum_i x_i = 1
+    var rows = [], a, c;
+    for (j = 0; j < n; j++) { a = []; for (i = 0; i < m; i++) a.push(A[i][j] + k); a.push(-1); rows.push({ a: a, op: ">=", b: 0 }); }
+    a = []; for (i = 0; i < m; i++) a.push(1); a.push(0); rows.push({ a: a, op: "=", b: 1 });
+    c = new Array(m).fill(0); c.push(1);
+    var R = LP.solve({ sense: "max", c: c, rows: rows });
+    // the column player's LP: min w  s.t.  sum_j (a_ij + k) y_j - w <= 0 for every row i, sum_j y_j = 1
+    var rows2 = [];
+    for (i = 0; i < m; i++) { a = A[i].map(function (v) { return v + k; }); a.push(-1); rows2.push({ a: a, op: "<=", b: 0 }); }
+    a = []; for (j = 0; j < n; j++) a.push(1); a.push(0); rows2.push({ a: a, op: "=", b: 1 });
+    c = new Array(n).fill(0); c.push(1);
+    var R2 = LP.solve({ sense: "min", c: c, rows: rows2 });
+    var x = R.x.slice(0, m), v = R.z - k;
+    var y = R.duals.slice(0, n).map(function (d) { return Math.max(0, -d); });   // the column mix: duals of the column rows
+    var w = R2.z - k, yc = R2.x.slice(0, n);
+    var Ay = A.map(function (r) { return r.reduce(function (s, aij, jj) { return s + aij * y[jj]; }, 0); });
+    var xA = [];
+    for (j = 0; j < n; j++) { var s = 0; for (i = 0; i < m; i++) s += x[i] * A[i][j]; xA.push(s); }
+    var mean = 0, sq = 0;
+    for (i = 0; i < m; i++) for (j = 0; j < n; j++) { mean += x[i] * y[j] * A[i][j]; sq += x[i] * y[j] * A[i][j] * A[i][j]; }
+    var sigma = Math.sqrt(Math.max(0, sq - mean * mean));
+    var saddles = [];
+    if (Math.abs(maximin - minimax) < 1e-9)
+      for (i = 0; i < m; i++) for (j = 0; j < n; j++) if (Math.abs(A[i][j] - rowMin[i]) < 1e-9 && Math.abs(A[i][j] - colMax[j]) < 1e-9) saddles.push([i, j]);
+    return { m: m, n: n, A: A, rowMin: rowMin, colMax: colMax, maximin: maximin, minimax: minimax, k: k, R: R, R2: R2,
+      x: x, y: y, v: v, w: w, yc: yc, Ay: Ay, xA: xA, sigma: sigma, mean: mean, saddles: saddles, ok: R.status === "optimal" && R2.status === "optimal" };
+  }
+
+  /* ===================================================================================== part 1: beat the machine */
+  var GM = { mode: "ht", N: 30, games: 0, hist: [], mach: [], res: [], preds: [], rng: null, timer: 0 };
+  var MOVES = { ht: ["gtm.mv.h", "gtm.mv.t"], rps: ["gtm.mv.r", "gtm.mv.p", "gtm.mv.s"] };
+  function kOpts() { return GM.mode === "ht" ? 2 : 3; }
+  function mvName(i) { return T(MOVES[GM.mode][i]); }
+  function mvShort(i) { return T(MOVES[GM.mode][i] + ".s"); }
+  // the pattern hunter: order 2, then order 1 transition counts of the visitor's picks, then overall frequencies;
+  // a tie at a level falls to the next level, and a tie in the overall frequencies is broken with the seeded generator
+  function predict(hist, k, rng) {
+    var n = hist.length, L, i, j;
+    function argmax(cnt) { var mx = Math.max.apply(null, cnt), ix = []; cnt.forEach(function (v, q) { if (v === mx) ix.push(q); }); return ix; }
+    for (L = 2; L >= 1; L--) {
+      if (n < L + 1) continue;
+      var cnt = new Array(k).fill(0), tot = 0;
+      for (i = L; i < n; i++) {
+        var same = true;
+        for (j = 1; j <= L; j++) if (hist[i - j] !== hist[n - j]) { same = false; break; }
+        if (same) { cnt[hist[i]]++; tot++; }
+      }
+      if (tot > 0) { var ix = argmax(cnt); if (ix.length === 1) return { move: ix[0], level: L, cnt: cnt, ctx: hist.slice(n - L) }; }
+    }
+    var c0 = new Array(k).fill(0);
+    hist.forEach(function (h) { c0[h]++; });
+    var ix0 = argmax(c0);
+    return { move: ix0.length === 1 ? ix0[0] : ix0[Math.floor(rng() * ix0.length)], level: 0, cnt: c0, tie: ix0.length > 1 };
+  }
+  function gameSeed() { return (GM.mode === "ht" ? 1000 : 2000) + GM.games; }
+  function newGame() {
+    clearTimeout(GM.timer); GM.timer = 0;
+    GM.games++;
+    GM.hist = []; GM.mach = []; GM.res = []; GM.preds = [];
+    GM.rng = AN.rng(gameSeed());
+    $("g-card").setAttribute("data-seed", String(gameSeed()));
+    buildMoves(); renderGame();
+  }
+  function play(mv) {
+    if (GM.hist.length >= GM.N) return;
+    var k = kOpts(), pr = predict(GM.hist, k, GM.rng);
+    var mach = GM.mode === "ht" ? pr.move : (pr.move + 1) % 3;    // heads or tails: match the guess; rps: beat it
+    var r = GM.mode === "ht" ? (mv === mach ? -1 : 1) : (mv === mach ? 0 : (mv === (mach + 1) % 3 ? 1 : -1));
+    GM.preds.push(pr); GM.hist.push(mv); GM.mach.push(mach); GM.res.push(r);
+    renderGame();
+  }
+  function autoPlay() {
+    if (GM.timer || GM.hist.length >= GM.N) return;
+    var coin = AN.rng((Date.now() ^ 0x5bd1e995) >>> 0);
+    var step = function () {
+      if (GM.hist.length >= GM.N) { GM.timer = 0; renderGame(); return; }
+      play(Math.floor(coin() * kOpts()));
+      GM.timer = setTimeout(step, AN.reducedMotion ? 0 : 45);
+    };
+    step();
+  }
+  function buildMoves() {
+    var box = $("g-moves"), k = kOpts(), h = "";
+    box.style.setProperty("--n", k);
+    for (var i = 0; i < k; i++) h += '<button type="button" data-m="' + i + '"></button>';
+    box.innerHTML = h;
+    box.querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { if (!GM.timer) play(+b.getAttribute("data-m")); }); });
+  }
+  function bandHalf(n) { return GM.mode === "ht" ? 1.96 * Math.sqrt(0.25 / n) : 1.96 * Math.sqrt((2 / 3) / n); }
+  function scoreOf(res) {   // heads or tails: share of rounds won; rps: (wins - losses) / rounds
+    var w = 0, l = 0;
+    res.forEach(function (r) { if (r > 0) w++; else if (r < 0) l++; });
+    return GM.mode === "ht" ? w / res.length : (w - l) / res.length;
+  }
+  function center() { return GM.mode === "ht" ? 0.5 : 0; }
+  function band(n) { var c = center(), h = bandHalf(n), lo = GM.mode === "ht" ? 0 : -1; return [Math.max(lo, c - h), Math.min(1, c + h)]; }
+  function scoreFmt(v) { return GM.mode === "ht" ? pct(v, 0) : num(v, 2); }
+  function renderGame() {
+    var n = GM.hist.length, k = kOpts(), ht = GM.mode === "ht", i;
+    // move buttons
+    $("g-moves").querySelectorAll("button").forEach(function (b) {
+      var m = +b.getAttribute("data-m");
+      b.innerHTML = esc(mvName(m)) + "<small>" + esc(T("gtm.g.key", { k: m + 1 })) + "</small>";
+      b.disabled = n >= GM.N || !!GM.timer;
+    });
+    $("g-auto").textContent = T(ht ? "gtm.g.auto.ht" : "gtm.g.auto.rps");
+    $("g-auto").disabled = n >= GM.N || !!GM.timer;
+    $("g-lg-d").hidden = ht;
+    // strip
+    var sh = "";
+    for (i = 0; i < GM.N; i++) {
+      if (i < n) sh += '<span class="' + (GM.res[i] > 0 ? "w" : GM.res[i] < 0 ? "l" : "d") + '">' + esc(mvShort(GM.hist[i])) + "</span>";
+      else sh += '<span' + (i === n ? ' class="next"' : "") + ">" + (i + 1) + "</span>";
+    }
+    $("g-strip").innerHTML = sh;
+    // numbers
+    var w = 0, l = 0, d = 0;
+    GM.res.forEach(function (r) { if (r > 0) w++; else if (r < 0) l++; else d++; });
+    var sc = n ? scoreOf(GM.res) : null, bd = n ? band(n) : null;
+    var kp = [
+      [T("gtm.g.k.round"), T("gtm.g.round", { n: n, N: GM.N }), ""],
+      [T("gtm.g.k.you"), String(w), ""],
+      [T("gtm.g.k.mach"), String(l), ""]
+    ];
+    if (!ht) kp.push([T("gtm.g.k.draw"), String(d), ""]);
+    kp.push([T(ht ? "gtm.g.k.rate" : "gtm.g.k.score"), n ? scoreFmt(sc) : "·", "accent"]);
+    kp.push([T(ht ? "gtm.g.k.band" : "gtm.g.k.bandr"), n ? T("gtm.range", { a: scoreFmt(bd[0]), b: scoreFmt(bd[1]) }) : "·", ""]);
+    $("g-kpis").innerHTML = kp.map(function (q) { return '<div class="kpi ' + q[2] + '"><b>' + esc(q[1]) + "</b><span>" + esc(q[0]) + "</span></div>"; }).join("");
+    // what the machine read in the last round
+    var rd = "";
+    if (!n) rd = T("gtm.g.read.start");
+    else {
+      var pr = GM.preds[n - 1], cnts = pr.cnt.map(function (c, q) { return mvName(q) + " " + c; }).join(", ");
+      var vals = { r: n, ctx: pr.ctx ? pr.ctx.map(mvName).join(", ") : "", counts: cnts, e: mvName(pr.move), m: mvName(GM.mach[n - 1]), y: mvName(GM.hist[n - 1]) };
+      var res = GM.res[n - 1] > 0 ? "gtm.g.res.w" : GM.res[n - 1] < 0 ? "gtm.g.res.l" : "gtm.g.res.d";
+      rd = T(pr.level === 2 ? "gtm.g.read2" : pr.level === 1 ? "gtm.g.read1" : pr.tie ? "gtm.g.read0tie" : "gtm.g.read0", vals) + " " + T(res, vals);
+    }
+    $("g-read").innerHTML = rd;
+    $("g-chart-title").textContent = T(ht ? "gtm.g.chart.ht" : "gtm.g.chart.rps");
+    $("g-lg-line").textContent = T(ht ? "gtm.g.lg.rate" : "gtm.g.lg.score");
+    $("g-lg-band").textContent = T(ht ? "gtm.g.lg.band" : "gtm.g.lg.bandr");
+    drawGameChart();
+    // verdict
+    var vd = $("g-verdict");
+    if (n < GM.N) { vd.innerHTML = ""; vd.className = "verdict"; }
+    else {
+      var vals2 = { w: w, n: n, r: scoreFmt(sc), lo: scoreFmt(bd[0]), hi: scoreFmt(bd[1]) };
+      var kind = sc < bd[0] - 1e-12 ? "lo" : sc > bd[1] + 1e-12 ? "hi" : "in";
+      vd.innerHTML = T("gtm.g.v." + GM.mode + "." + kind, vals2);
+      vd.className = "verdict " + (kind === "lo" ? "bad" : "ok");
+    }
+    renderOpt();
+  }
+  function drawGameChart() {
+    var W = 640, H = 210, ml = 42, mr = 14, mt = 12, mb = 30, ht = GM.mode === "ht";
+    var y0 = ht ? 0 : -1, y1 = 1, N = GM.N;
+    var X = function (r) { return ml + (r - 1) / (N - 1) * (W - ml - mr); };
+    var Y = function (v) { return mt + (y1 - v) / (y1 - y0) * (H - mt - mb); };
+    var b = "", r, ticks = ht ? [0, 0.25, 0.5, 0.75, 1] : [-1, -0.5, 0, 0.5, 1];
+    ticks.forEach(function (v) { b += line(ml, Y(v), W - mr, Y(v), "gr") + txt(ml - 6, Y(v) + 4, ht ? pct(v, 0) : num(v, 1), "m", "end"); });
+    var up = [], dn = [];
+    for (r = 1; r <= N; r++) { var bd = band(r); up.push([X(r), Y(bd[1])]); dn.push([X(r), Y(bd[0])]); }
+    b += '<polygon class="band" points="' + up.concat(dn.reverse()).map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '"/>';
+    b += line(ml, Y(center()), W - mr, Y(center()), "lnS dash");
+    [1, 10, 20, 30].forEach(function (q) { b += txt(X(q), H - 10, String(q), "m", "middle"); });
+    var pts = [];
+    for (r = 1; r <= GM.res.length; r++) pts.push([X(r), Y(scoreOf(GM.res.slice(0, r)))]);
+    if (pts.length > 1) b += poly(pts, "lnA thin");
+    pts.forEach(function (p, q) { b += dot(p[0], p[1], q === pts.length - 1 ? 4.5 : 2.6, "dotA"); });
+    $("g-chart").innerHTML = svg(W, H, b, T("gtm.g.chart.aria"));
+  }
+  function renderOpt() {
+    var A = GM.mode === "ht" ? [[-1, 1], [1, -1]] : [[0, -1, 1], [1, 0, -1], [-1, 1, 0]];
+    // the visitor is the row player: heads or tails pays +1 on a mismatch; rps pays +1 for a win
+    var Z = solveZS(A), k = A.length;
+    var names = []; for (var i = 0; i < k; i++) names.push(mvName(i));
+    $("g-opt-text").innerHTML = T("gtm.g.opt", { x: tuple(Z.x.map(function (v) { return nice(v); })), v: nice(Z.v), names: names.join(", ") });
+    var cols = [], lhs;
+    for (var j = 0; j < k; j++) {
+      lhs = linTex(A.map(function (r) { return r[j]; }), "x");
+      cols.push((j ? "& " : "\\text{ST}\\;& ") + lhs + " \\ge v && \\text{" + T("gtm.tex.vs", { s: mvName(j) }) + "}");
+    }
+    var tex = "\\begin{aligned} \\max\\;& v && \\text{" + T("gtm.tex.guar") + "} \\\\ " + cols.join(" \\\\ ") +
+      " \\\\ & " + linTex(new Array(k).fill(1), "x") + " = 1,\\; x \\ge 0 && \\text{" + T("gtm.tex.mix") + "} \\end{aligned}";
+    TeX.set($("g-opt-f"), tex, T("gtm.g.opt.plain", { x: tuple(Z.x.map(function (v) { return nice(v); })), v: nice(Z.v) }));
+  }
+  // linear expression with coefficients c and variables v_1..v_n, in TeX (a leading minus is wrapped)
+  function linTex(c, v) {
+    var s = "", first = true;
+    c.forEach(function (cf, i) {
+      if (Math.abs(cf) < 1e-12) return;
+      var mag = Math.abs(cf), co = Math.abs(mag - 1) < 1e-12 ? "" : texNum(mag) + "\\,";
+      var term = co + v + "_{" + (i + 1) + "}";
+      if (first) s += cf < 0 ? "{-" + term + "}" : term;
+      else s += (cf < 0 ? " - " : " + ") + term;
+      first = false;
+    });
+    return s || "0";
+  }
+
+  /* ---------- fictitious play on matching pennies (row matches, column mismatches) ---------- */
+  var FP = (function () {
+    var A = [[1, -1], [-1, 1]], TT = 3000, cx = [0, 0], cy = [0, 0], out = [];
+    for (var t = 1; t <= TT; t++) {
+      var i = 0, j = 0;
+      if (t > 1) {
+        var ay0 = A[0][0] * cy[0] + A[0][1] * cy[1], ay1 = A[1][0] * cy[0] + A[1][1] * cy[1];
+        i = ay1 > ay0 ? 1 : 0;                                   // ties go to the first strategy
+        var xa0 = cx[0] * A[0][0] + cx[1] * A[1][0], xa1 = cx[0] * A[0][1] + cx[1] * A[1][1];
+        j = xa1 < xa0 ? 1 : 0;
+      }
+      cx[i]++; cy[j]++;
+      var xb = [cx[0] / t, cx[1] / t], yb = [cy[0] / t, cy[1] / t];
+      var lo = Math.min(xb[0] * A[0][0] + xb[1] * A[1][0], xb[0] * A[0][1] + xb[1] * A[1][1]);
+      var hi = Math.max(A[0][0] * yb[0] + A[0][1] * yb[1], A[1][0] * yb[0] + A[1][1] * yb[1]);
+      out.push({ x: xb[0], y: yb[0], lo: lo, hi: hi });
+    }
+    return out;
+  })();
+  function fpT() { return Math.max(1, Math.round(Math.exp(+$("fp-t").value / 1000 * Math.log(FP.length)))); }
+  function renderFP() {
+    var t = fpT(), s = FP[t - 1];
+    $("fp-tv").textContent = I18N.fmt(t, 0);
+    var kp = [[T("gtm.fp.k.x"), pct(s.x, 1), ""], [T("gtm.fp.k.y"), pct(s.y, 1), ""],
+      [T("gtm.fp.k.band"), T("gtm.range", { a: num(s.lo, 3), b: num(s.hi, 3) }), "accent"], [T("gtm.fp.k.w"), num(s.hi - s.lo, 3), ""]];
+    $("fp-kpis").innerHTML = kp.map(function (q) { return '<div class="kpi ' + q[2] + '"><b>' + esc(q[1]) + "</b><span>" + esc(q[0]) + "</span></div>"; }).join("");
+    // the path of the averages on the square
+    var S = 220, m = 30, b = "", k;
+    var X = function (v) { return m + v * S; }, Y = function (v) { return 8 + (1 - v) * S; };
+    b += '<rect class="reg" x="' + X(0) + '" y="' + Y(1) + '" width="' + S + '" height="' + S + '"/>';
+    b += '<rect class="frame" x="' + X(0) + '" y="' + Y(1) + '" width="' + S + '" height="' + S + '"/>';
+    b += line(X(0.5), Y(0), X(0.5), Y(1), "gr") + line(X(0), Y(0.5), X(1), Y(0.5), "gr");
+    var pts = [], step = Math.max(1, Math.floor(t / 600));
+    for (k = 0; k < t; k += step) pts.push([X(FP[k].x), Y(FP[k].y)]);
+    pts.push([X(s.x), Y(s.y)]);
+    b += poly(pts, "lnS");
+    b += dot(X(0.5), Y(0.5), 5, "dotO") + dot(X(s.x), Y(s.y), 5, "dotA");
+    b += txt(X(0), Y(0) + 16, "0", "m", "middle") + txt(X(1), Y(0) + 16, "1", "m", "middle") + txt(X(0.5), Y(0) + 16, T("gtm.fp.ax.x"), "m", "middle");
+    b += txt(X(0) - 6, Y(0) + 4, "0", "m", "end") + txt(X(0) - 6, Y(1) + 4, "1", "m", "end");
+    b += txt(X(0) - 10, Y(0.5), T("gtm.fp.ax.y"), "m", "middle", ' transform="rotate(-90 ' + (X(0) - 10).toFixed(1) + " " + Y(0.5).toFixed(1) + ')"');
+    $("fp-sq").innerHTML = svg(S + m + 10, S + 34, b, T("gtm.fp.sq.aria", { x: pct(s.x, 1), y: pct(s.y, 1) }));
+    // the band on a log round axis
+    var W = 420, H = 254, ml = 40, mr = 10, mt = 10, mb = 30, LT = Math.log(FP.length);
+    var BX = function (r) { return ml + Math.log(r) / LT * (W - ml - mr); }, BY = function (v) { return mt + (1 - v) / 2 * (H - mt - mb); };
+    var g = "";
+    [-1, -0.5, 0, 0.5, 1].forEach(function (v) { g += line(ml, BY(v), W - mr, BY(v), "gr") + txt(ml - 6, BY(v) + 4, num(v, 1), "m", "end"); });
+    [1, 10, 100, 1000].forEach(function (r) { g += txt(BX(r), H - 10, I18N.fmt(r, 0), "m", "middle"); });
+    var up = [], dn = [];
+    for (k = 1; k <= t; k = k < 50 ? k + 1 : Math.ceil(k * 1.02)) { up.push([BX(k), BY(FP[k - 1].hi)]); dn.push([BX(k), BY(FP[k - 1].lo)]); }
+    up.push([BX(t), BY(s.hi)]); dn.push([BX(t), BY(s.lo)]);
+    g += '<polygon class="band" points="' + up.concat(dn.slice().reverse()).map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '"/>';
+    g += line(ml, BY(0), W - mr, BY(0), "lnI thin dash");
+    g += poly(up, "lnA thin") + poly(dn, "lnA thin");
+    g += txt(W - mr, BY(0) - 6, T("gtm.fp.v0"), "i", "end");
+    $("fp-band").innerHTML = svg(W, H, g, T("gtm.fp.band.aria", { lo: num(s.lo, 3), hi: num(s.hi, 3) }));
+    $("fp-note").textContent = T("gtm.fp.note", { t: I18N.fmt(t, 0), lo: num(s.lo, 3), hi: num(s.hi, 3) });
+  }
+
+  /* ===================================================================================== part 2: the animation */
+  var GAMES = {
+    bos: { a: [[2, 0], [0, 1]], b: [[1, 0], [0, 2]], st: "bos", hl: [1, 2], hk: "mis" },
+    stag: { a: [[4, 0], [3, 3]], b: [[4, 3], [0, 3]], st: "stag", hl: [1, 2], hk: "mis" },
+    chicken: { a: [[0, -1], [1, -10]], b: [[0, 1], [-1, -10]], st: "chk", hl: [3], hk: "crash" },
+    pennies: { a: [[1, -1], [-1, 1]], b: [[-1, 1], [1, -1]], st: "coin", hl: [1, 2], hk: "mis" }
+  };
+  var anim = (function () {
+    var root = $("gtm-anim"), stage = root.querySelector(".anim-stage"), hudEl = $("gtm-hud");
+    var cv = AN.canvas(stage), ctx = cv.ctx;
+    stage.appendChild(hudEl);
+    var DUR = 52, CH = [0, 9, 20, 31, 42];
+    var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif", MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+    var C = null, HOT = "", L = {}, hudKey = "", TAU = Math.PI * 2;
+    var state = { sc: "bos" }, cache = {};
+    var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+    function rgbOf(c) {
+      if (c && c[0] === "#") {
+        var h = c.slice(1);
+        if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+        var n = parseInt(h, 16);
+        return [n >> 16 & 255, n >> 8 & 255, n & 255];
+      }
+      var m = (c || "").match(/[\d.]+/g);
+      return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+    }
+    function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+
+    function scen(k) {
+      if (cache[k]) return cache[k];
+      var g = GAMES[k], S = solve2(g.a, g.b);
+      var pure = S.eqs.filter(function (e) { return e.pure; });
+      var ord = pure.concat(S.mix ? [S.mix] : []);
+      var risk = null;
+      if (k === "stag") risk = [(g.a[0][0] - g.a[1][0]) * (g.b[0][0] - g.b[0][1]), (g.a[1][1] - g.a[0][1]) * (g.b[1][1] - g.b[1][0])];
+      var hot = g.hl.reduce(function (s, i) { return s + S.probs[i]; }, 0);
+      var loPure = pure.length ? Math.min.apply(null, pure.map(function (e) { return Math.min(e.u, e.v); })) : null;
+      return (cache[k] = { k: k, g: g, S: S, ord: ord, pure: pure, risk: risk, hot: hot, loPure: loPure,
+        pr: pathRow(S), pc: pathCol(S) });
+    }
+    function sname(Sc, i) { return stName(Sc.g.st, i); }
+
+    /* ---------- layout ---------- */
+    function chapterAt(t) { var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; }); return ci; }
+    function captions(Sc, t) {
+      var S = Sc.S, ci = chapterAt(t), k = Sc.k;
+      if (ci === 0) return [T("gtm.cap1"), T("gtm.cap1.sub")];
+      if (ci === 1) return [T("gtm.cap2"), T("gtm.cap2.sub", { q: nice(S.qs), p: nice(S.ps) })];
+      if (ci === 2) return [T("gtm.cap3"), T("gtm.cap3.sub")];
+      if (ci === 3) {
+        var n = S.eqs.length, kp = Sc.pure.length;
+        return [n === 1 ? T("gtm.cap4.one") : T("gtm.cap4.n", { n: n }), kp ? T("gtm.cap4.sub", { k: kp }) : T("gtm.cap4.subOnly")];
+      }
+      var m = S.mix, vals = { u: nice(m.u), lo: Sc.loPure != null ? nice(Sc.loPure) : "", m: pct(Sc.hot, 1), q: pct(m.q, 0), c: pct(Sc.hot, 0),
+        ss: nice(Sc.g.a[0][0]), rs: Sc.risk ? num(Sc.risk[0], 2) : "", rh: Sc.risk ? num(Sc.risk[1], 2) : "", s1: sname(Sc, 0), s2: sname(Sc, 1) };
+      return [T("gtm.cap5." + k), T("gtm.cap5." + k + ".sub", vals)];
+    }
+    function wrap(s, maxW) {
+      var words = String(s).split(" "), lines = [], cur = "";
+      words.forEach(function (w) {
+        var tr = cur ? cur + " " + w : w;
+        if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+      });
+      if (cur) lines.push(cur);
+      return lines;
+    }
+    function layout() {
+      var W = cv.w, H = cv.h, portrait = W / H < 1.2;
+      var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+      L = { W: W, H: H, portrait: portrait };
+      if (portrait) { L.capX = hx; L.capY = hy + hh + 17; L.capW = W - 2 * hx; L.fs = 11; L.ft = 13.5; }
+      else { L.capX = hx; L.capY = hy + hh + 26; L.capW = hw; L.fs = 12; L.ft = 15.5; }
+      var tl = 1, sl = 1;
+      Object.keys(GAMES).forEach(function (k) {
+        CH.forEach(function (c) {
+          var cap = captions(scen(k), c + 0.1);
+          ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+          ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+        });
+      });
+      L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+      var x0, x1, y0, y1;
+      if (portrait) { x0 = 6; x1 = W - 6; y0 = L.capBottom + 8; y1 = H - 6; }
+      else { x0 = hx + hw + 22; x1 = W - 12; y0 = 12; y1 = H - 12; }
+      L.x0 = x0; L.x1 = x1; L.y0 = y0; L.y1 = y1;
+      var lf = portrait ? 10.5 : 11.5;
+      L.lf = lf;
+      // widest strategy name, for the labels of the bottom panel lines on its right
+      ctx.font = font(600, lf);
+      var nw = 0;
+      Object.keys(GAMES).forEach(function (k) { [0, 1].forEach(function (i) { nw = Math.max(nw, ctx.measureText(stName(GAMES[k].st, i)).width); }); });
+      var kk = portrait ? 0.28 : 0.36, g = lf * 2.6, padR = nw + 12, padT = 2 * lf + 10, padB = 4, padL = 2;
+      var s = Math.min((x1 - x0 - padL - padR - g) / (1 + kk), (y1 - y0 - padT - padB - g) / (1 + kk));
+      s = Math.max(60, s);
+      var cw = padL + kk * s + g + s + padR, chh = padT + s + g + kk * s + padB;
+      var ox = x0 + (x1 - x0 - cw) / 2, oy = y0 + (y1 - y0 - chh) / 2;
+      L.s = s; L.g = g; L.kk = kk;
+      L.lp = { x0: ox + padL, x1: ox + padL + kk * s };
+      L.sx = L.lp.x1 + g; L.sy = oy + padT;
+      L.lp.y0 = L.sy; L.lp.y1 = L.sy + s;
+      L.bp = { x0: L.sx, x1: L.sx + s, y0: L.sy + s + g, y1: L.sy + s + g + kk * s };
+      hudKey = W + "x" + H + ":" + hh + ":" + hw;
+    }
+    function X(p) { return L.sx + p * L.s; }
+    function Y(q) { return L.sy + (1 - q) * L.s; }
+
+    /* ---------- drawing helpers ---------- */
+    function label(s, x, y, align, col, f, a, base) {
+      if (a <= 0.01 || !s) return;
+      ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+      ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(s, x, y);
+      ctx.fillStyle = col; ctx.fillText(s, x, y);
+      ctx.globalAlpha = 1;
+    }
+    // "(u, v)" with the row payoff in red and the column payoff in ink
+    function pairParts(u, v) { return [["(", C.ink2], [nice(u), C["accent-text"]], [T("gtm.sep"), C.ink2], [nice(v), C.ink], [")", C.ink2]]; }
+    function pairW(parts, f) { ctx.font = f; return parts.reduce(function (s, p) { return s + ctx.measureText(p[0]).width; }, 0); }
+    function drawParts(parts, x, y, f, a, align) {
+      if (a <= 0.01) return;
+      var w = pairW(parts, f), cx = align === "center" ? x - w / 2 : align === "right" ? x - w : x;
+      ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
+      ctx.lineWidth = 4; ctx.strokeStyle = C.surface;
+      var xx = cx;
+      parts.forEach(function (p) { ctx.strokeText(p[0], xx, y); xx += ctx.measureText(p[0]).width; });
+      xx = cx;
+      parts.forEach(function (p) { ctx.fillStyle = p[1]; ctx.fillText(p[0], xx, y); xx += ctx.measureText(p[0]).width; });
+      ctx.globalAlpha = 1;
+    }
+    function arrow(x0, y0, x1, y1, col, lw, head, a) {
+      var dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy);
+      if (len < 0.8 || a <= 0.01) return;
+      var ux = dx / len, uy = dy / len, hl = Math.min(head, len * 0.7), hw = hl * 0.5;
+      var bx = x1 - ux * hl, by = y1 - uy * hl;
+      ctx.globalAlpha = a; ctx.lineCap = "round";
+      ctx.strokeStyle = C.surface; ctx.lineWidth = lw + 4;
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(bx, by); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(bx - uy * hw, by + ux * hw); ctx.lineTo(bx + uy * hw, by - ux * hw); ctx.closePath();
+      ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.stroke();
+      ctx.fillStyle = col; ctx.fill();
+      ctx.strokeStyle = col; ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(bx + ux * 0.5, by + uy * 0.5); ctx.stroke();
+      ctx.lineCap = "butt"; ctx.globalAlpha = 1;
+    }
+    function circle(x, y, r) { ctx.beginPath(); ctx.arc(x, y, Math.max(0, r), 0, TAU); }
+    function polyLen(P) { var s = 0; for (var i = 1; i < P.length; i++) s += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); return s; }
+    // draws the first u (0..1) of a screen polyline and returns the head point
+    function partial(P, u) {
+      var tot = polyLen(P), want = tot * u, acc = 0, head = P[0];
+      ctx.beginPath(); ctx.moveTo(P[0][0], P[0][1]);
+      for (var i = 1; i < P.length; i++) {
+        var sl = Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]);
+        if (acc + sl >= want) { var f = sl ? (want - acc) / sl : 0; head = [lerp(P[i - 1][0], P[i][0], f), lerp(P[i - 1][1], P[i][1], f)]; ctx.lineTo(head[0], head[1]); break; }
+        ctx.lineTo(P[i][0], P[i][1]); acc += sl; head = P[i];
+      }
+      ctx.stroke();
+      return head;
+    }
+
+    /* ---------- chapter 1: the table folds into the square ---------- */
+    function drawTable(Sc, t) {
+      var a0 = E.out(seg(t, 0.2, 1.3));
+      if (a0 <= 0) return;
+      var th = (Math.PI / 2) * E.inOut(seg(t, 2.8, 5.4));           // clockwise quarter turn on screen
+      var uc = E.inOut(seg(t, 4.9, 6.6));                            // the payoff pairs move out to the corners
+      var cx = X(0.5), cy = Y(0.5), h = L.s / 2, cs = Math.cos(th), sn = Math.sin(th);
+      var rot = function (x, y) { return [cx + x * cs - y * sn, cy + x * sn + y * cs]; };
+      // table frame and the cross that splits the cells (the frame becomes the square)
+      ctx.globalAlpha = a0; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.4;
+      var c4 = [[-h, -h], [h, -h], [h, h], [-h, h]].map(function (p) { return rot(p[0], p[1]); });
+      ctx.beginPath(); c4.forEach(function (p, i) { if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.closePath(); ctx.stroke();
+      var xa = a0 * (1 - uc);
+      if (xa > 0.01) {
+        ctx.globalAlpha = xa; ctx.strokeStyle = C.axis; ctx.lineWidth = 1.2;
+        var p1 = rot(0, -h), p2 = rot(0, h), p3 = rot(-h, 0), p4 = rot(h, 0);
+        ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.moveTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      // headers: strategy names of the row player (left, red) and of the column player (top, ink)
+      var ha = a0 * (1 - seg(t, 2.5, 3.1)), f = font(700, L.lf + 1);
+      [0, 1].forEach(function (i) {
+        label(sname(Sc, i), cx - h - 8, cy + (i ? h / 2 : -h / 2), "right", C["accent-text"], f, ha);
+        label(sname(Sc, i), cx + (i ? h / 2 : -h / 2), cy - h - 10, "center", C.ink, f, ha);
+      });
+      // the payoff pairs, upright, from the cell centres to just inside the corners
+      var fp = font(700, L.lf + (L.portrait ? 0.5 : 1.5));
+      [0, 1].forEach(function (i) {
+        [0, 1].forEach(function (j) {
+          var parts = pairParts(Sc.g.a[i][j], Sc.g.b[i][j]), pw = pairW(parts, fp);
+          var c0 = rot(j ? h / 2 : -h / 2, i ? h / 2 : -h / 2);
+          var cp = cornerPos(1 - i, 1 - j, pw, Sc);
+          var x = lerp(c0[0], cp[0], uc), y = lerp(c0[1], cp[1], uc);
+          drawParts(parts, x, y, fp, a0 * E.out(seg(t, 0.5 + 0.2 * (2 * i + j), 1.4 + 0.2 * (2 * i + j))), "center");
+        });
+      });
+    }
+    // where the payoff pair of the corner (p, q) sits: inside the square, clear of both edges; when the mixed
+    // equilibrium sits close to that corner (chicken on a phone), the pair moves just outside the square instead
+    function cornerPos(p, q, w, Sc) {
+      var ix = (w / 2 + 9) * (p ? -1 : 1), iy = (L.lf + 7) * (q ? 1 : -1), x = X(p) + ix, y = Y(q) + iy;
+      var m = Sc && Sc.S.mix;
+      if (m) {
+        var mx = X(m.p), my = Y(m.q), hw = w / 2 + 14, hh = L.lf / 2 + 14;
+        var onDot = Math.abs(mx - x) < hw && Math.abs(my - y) < hh;
+        var onLine = Math.abs(mx - x) < w / 2 + 4 || Math.abs(my - y) < L.lf / 2 + 4;   // the p* or q* path crosses the label
+        if (onDot || onLine) {
+          if (q) { y = Y(1) - L.lf * 0.85; x = X(p) + (w / 2 + 2) * (p ? -1 : 1); }
+          else { x = X(p) + (w / 2 + 8) * (p ? 1 : -1); y = Y(0) - L.lf * 0.6; }
+        }
+      }
+      return [x, y];
+    }
+    function drawCornerPairs(Sc, t, aMul) {
+      var fp = font(700, L.lf + (L.portrait ? 0.5 : 1.5));
+      [0, 1].forEach(function (i) {
+        [0, 1].forEach(function (j) {
+          var parts = pairParts(Sc.g.a[i][j], Sc.g.b[i][j]), pw = pairW(parts, fp), cp = cornerPos(1 - i, 1 - j, pw, Sc);
+          var isEq = Sc.pure.some(function (e) { return e.i === i && e.j === j; });
+          var a = aMul * (isEq ? 1 : (t >= CH[3] ? 0.55 : 1));
+          drawParts(parts, cp[0], cp[1], fp, a, "center");
+        });
+      });
+    }
+    function drawSquare(Sc, t) {
+      var a = E.out(seg(t, 5.4, 6.4));
+      if (a <= 0) return;
+      ctx.globalAlpha = 0.5 * a; ctx.fillStyle = C.region; ctx.fillRect(X(0), Y(1), L.s, L.s);
+      ctx.globalAlpha = a; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.4; ctx.strokeRect(X(0), Y(1), L.s, L.s);
+      ctx.globalAlpha = 1;
+      // axes: strategy names at both ends, p below the square, q on its left (rotated)
+      // names start 12 px from the corners, so an equilibrium dot on a corner never covers them
+      var an = E.out(seg(t, 5.6, 6.8)), f = font(600, L.lf), yb = Y(0) + L.g * 0.42;
+      label(sname(Sc, 1), X(0) + 12, yb, "left", C["accent-text"], f, an);
+      label(sname(Sc, 0), X(1) - 12, yb, "right", C["accent-text"], f, an);
+      label("p", X(0.5), yb, "center", C.ink2, font(700, L.lf, true), an);
+      var xl = X(0) - L.g * 0.42;
+      ctx.save(); ctx.translate(xl, Y(0) - 12); ctx.rotate(-Math.PI / 2); label(sname(Sc, 1), 0, 0, "left", C.ink, f, an); ctx.restore();
+      ctx.save(); ctx.translate(xl, Y(1) + 12); ctx.rotate(-Math.PI / 2); label(sname(Sc, 0), 0, 0, "right", C.ink, f, an); ctx.restore();
+      label("q", xl, Y(0.5), "center", C.ink2, font(700, L.lf, true), an);
+    }
+    function drawDeviations(Sc, t) {
+      var a = E.out(seg(t, 6.4, 7.2)) * (1 - E.inOut(seg(t, 9.2, 10.4)));
+      if (a <= 0.01) return;
+      var A2 = Sc.g.a, B2 = Sc.g.b, lw = L.portrait ? 2.2 : 2.6, hd = L.portrait ? 9 : 11, k;
+      // row player along the top (q = 1) and bottom (q = 0) edges
+      [[0, 1], [1, 0]].forEach(function (e, n) {
+        var j = e[0], q = e[1], dd = A2[0][j] - A2[1][j];
+        if (Math.abs(dd) < EPS) return;
+        k = E.out(seg(t, 6.5 + 0.35 * n, 7.3 + 0.35 * n));
+        var from = dd > 0 ? 0.32 : 0.68, to = dd > 0 ? 0.68 : 0.32;
+        arrow(X(from), Y(q), X(lerp(from, to, k)), Y(q), C.accent, lw, hd, a * k);
+      });
+      // column player along the left (p = 0) and right (p = 1) edges
+      [[1, 0], [0, 1]].forEach(function (e, n) {
+        var i = e[0], p = e[1], dd = B2[i][0] - B2[i][1];
+        if (Math.abs(dd) < EPS) return;
+        k = E.out(seg(t, 7.2 + 0.35 * n, 8.0 + 0.35 * n));
+        var from = dd > 0 ? 0.32 : 0.68, to = dd > 0 ? 0.68 : 0.32;
+        arrow(X(p), Y(from), X(p), Y(lerp(from, to, k)), C.ink, lw, hd, a * k);
+      });
+      // corners where both arrows point in
+      var ra = E.out(seg(t, 8.1, 8.7)) * a;
+      Sc.pure.forEach(function (e) {
+        ctx.globalAlpha = ra; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 2;
+        circle(X(e.p), Y(e.q), 9 + 3 * Math.sin(Math.min(1, seg(t, 8.1, 8.9)) * Math.PI)); ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    /* ---------- chapter 2: payoff lines and the indifference points ---------- */
+    function range(vals) {
+      var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+      if (hi - lo < EPS) { lo -= 1; hi += 1; }
+      var pad = 0.08 * (hi - lo);
+      return [lo - pad, hi + pad];
+    }
+    function panels(Sc, t) {
+      var S = Sc.S, A2 = Sc.g.a, B2 = Sc.g.b;
+      var aP = E.out(seg(t, 9.2, 10.4)), aB = aP * (1 - E.inOut(seg(t, 42.2, 43.2)));
+      if (aP <= 0.01) return;
+      var dimL = t >= CH[4] ? 1 - 0.45 * E.inOut(seg(t, 42.2, 43.2)) : 1;
+      var P = L.lp, B = L.bp, f = font(600, L.lf);
+      // left panel: the row player's payoff of each strategy against q (payoff grows to the right)
+      var ru = range([A2[0][0], A2[0][1], A2[1][0], A2[1][1]]);
+      var UX = function (u) { return P.x0 + (u - ru[0]) / (ru[1] - ru[0]) * (P.x1 - P.x0); };
+      var cu = range([B2[0][0], B2[0][1], B2[1][0], B2[1][1]]);
+      var VY = function (v) { return B.y1 - (v - cu[0]) / (cu[1] - cu[0]) * (B.y1 - B.y0); };
+      ctx.globalAlpha = aP * dimL; ctx.strokeStyle = C.grid; ctx.lineWidth = 1; ctx.strokeRect(P.x0, P.y0, P.x1 - P.x0, P.y1 - P.y0);
+      if (ru[0] < 0 && ru[1] > 0) { ctx.strokeStyle = C.axis; ctx.beginPath(); ctx.moveTo(UX(0), P.y0); ctx.lineTo(UX(0), P.y1); ctx.stroke(); }
+      ctx.globalAlpha = aB; ctx.strokeStyle = C.grid; ctx.strokeRect(B.x0, B.y0, B.x1 - B.x0, B.y1 - B.y0);
+      if (cu[0] < 0 && cu[1] > 0) { ctx.strokeStyle = C.axis; ctx.beginPath(); ctx.moveTo(B.x0, VY(0)); ctx.lineTo(B.x1, VY(0)); ctx.stroke(); }
+      ctx.globalAlpha = 1;
+      label("0", UX(0), P.y1 + L.lf * 0.9, "center", C.muted, font(400, L.lf - 1, true), aP * dimL * (ru[0] < 0 && ru[1] > 0 ? 1 : 0));
+      label("0", B.x0 - 4, VY(0), "right", C.muted, font(400, L.lf - 1, true), aB * (cu[0] < 0 && cu[1] > 0 ? 1 : 0));
+      // the lines draw in from q = 0 (bottom) and p = 0 (left)
+      var uR = E.inOut(seg(t, 10.2, 12.4)), uC = E.inOut(seg(t, 10.8, 13.0));
+      var lw = L.portrait ? 2 : 2.4;
+      [0, 1].forEach(function (i) {
+        ctx.save(); ctx.globalAlpha = aP * dimL; ctx.strokeStyle = C.accent; ctx.lineWidth = lw; ctx.setLineDash(i ? [6, 4] : []);
+        partial([[UX(A2[i][1]), Y(0)], [UX(A2[i][0]), Y(1)]], uR); ctx.restore();
+        ctx.save(); ctx.globalAlpha = aB; ctx.strokeStyle = C.ink; ctx.lineWidth = lw; ctx.setLineDash(i ? [6, 4] : []);
+        partial([[X(0), VY(B2[1][i])], [X(1), VY(B2[0][i])]], uC); ctx.restore();
+      });
+      // line names: the row player's above the panel (q = 1 end), the column player's right of the panel (p = 1 end)
+      var la = E.out(seg(t, 12.0, 12.8)), w0, w1, x0r = UX(A2[0][0]), x1r = UX(A2[1][0]);
+      ctx.font = f; w0 = ctx.measureText(sname(Sc, 0)).width; w1 = ctx.measureText(sname(Sc, 1)).width;
+      var yA = P.y0 - L.lf * 0.85, yB = yA;
+      var lx0 = clamp(x0r, P.x0 + w0 / 2, P.x1 + L.g * 0.5 - w0 / 2), lx1 = clamp(x1r, P.x0 + w1 / 2, P.x1 + L.g * 0.5 - w1 / 2);
+      if (Math.abs(lx0 - lx1) < (w0 + w1) / 2 + 6) { if (x0r >= x1r) yB = yA - L.lf - 3; else yA = yB - L.lf - 3; }
+      label(sname(Sc, 0), lx0, yA, "center", C["accent-text"], f, la * aP * dimL);
+      label(sname(Sc, 1), lx1, yB, "center", C["accent-text"], f, la * aP * dimL);
+      var y0c = VY(B2[0][0]), y1c = VY(B2[0][1]), xL = B.x1 + 6, xL1 = xL;
+      if (Math.abs(y0c - y1c) < L.lf + 3) { if (y0c <= y1c) { y0c -= (L.lf + 3 - Math.abs(y0c - y1c)) / 2; y1c = y0c + L.lf + 3; } else { y1c -= (L.lf + 3 - Math.abs(y0c - y1c)) / 2; y0c = y1c + L.lf + 3; } }
+      label(sname(Sc, 0), xL, y0c, "left", C.ink, f, la * aB);
+      label(sname(Sc, 1), xL1, y1c, "left", C.ink, f, la * aB);
+      // the crossings: q* (row indifferent) and p* (column indifferent), then the guides into the square
+      if (!S.mix) return;
+      var m = S.mix, cA = E.out(seg(t, 13.2, 13.9)), cB = E.out(seg(t, 13.8, 14.5));
+      var gq = E.inOut(seg(t, 14.0, 15.6)), gp = E.inOut(seg(t, 14.6, 16.2));
+      var qx = UX(m.u), qy = Y(m.q), px = X(m.p), py = VY(m.v);
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+      if (gq > 0) { ctx.globalAlpha = 0.9 * dimL; ctx.strokeStyle = C.accent; ctx.beginPath(); ctx.moveTo(qx, qy); ctx.lineTo(lerp(qx, X(1), gq), qy); ctx.stroke(); }
+      if (gp > 0) { ctx.globalAlpha = 0.9 * (t >= CH[4] ? 1 : aB); ctx.strokeStyle = C.ink; ctx.beginPath(); ctx.moveTo(px, t >= CH[4] ? lerp(py, Y(0), E.inOut(seg(t, 42.2, 43.2))) : py); ctx.lineTo(px, lerp(py, Y(1), gp)); ctx.stroke(); }
+      ctx.restore();
+      [[qx, qy, cA * dimL, C.accent], [px, py, cB * aB, C.ink]].forEach(function (d) {
+        if (d[2] <= 0.01) return;
+        ctx.globalAlpha = d[2]; ctx.fillStyle = d[3]; circle(d[0], d[1], 4.5); ctx.fill();
+        ctx.strokeStyle = C.surface; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.globalAlpha = 1;
+      });
+      // value labels on the side of each panel away from the crossing, and never above the top of the left panel
+      var la2 = E.out(seg(t, 15.0, 15.8)), fv = font(700, L.lf, true);
+      var qRight = qx - P.x0 < (P.x1 - P.x0) / 2, qAbove = qy - 1.5 * L.lf > P.y0 + 2;
+      ctx.font = fv;
+      var qTxt = "q* = " + nice(m.q);
+      if (ctx.measureText(qTxt).width > (P.x1 - P.x0) / 2 + 4) qTxt = "q*";          // narrow panel (phones): the HUD carries the value
+      label(qTxt, qRight ? P.x1 - 2 : P.x0 + 3, qAbove ? qy - L.lf * 0.95 : qy + L.lf * 0.95, qRight ? "right" : "left", C["accent-text"], fv, la2 * dimL);
+      var pLeft = m.p > 0.55, pTop = py - B.y0 > (B.y1 - B.y0) / 2;
+      label("p* = " + nice(m.p), pLeft ? px - 6 : px + 6, pTop ? B.y0 + L.lf * 0.9 : B.y1 - L.lf * 0.9, pLeft ? "right" : "left", C.ink, fv, la2 * aB);
+    }
+
+    /* ---------- chapter 3: best response paths ---------- */
+    function brPaths(Sc, t) {
+      var uR = E.inOut(seg(t, 20.4, 24.8)), uC = E.inOut(seg(t, 25.2, 29.6));
+      var lwR = L.portrait ? 3.4 : 4.2, lwC = L.portrait ? 2.2 : 2.6;
+      [[Sc.pr, uR, C.accent, lwR], [Sc.pc, uC, C.ink, lwC]].forEach(function (d) {
+        if (!d[0] || d[1] <= 0) return;
+        var P = d[0].map(function (p) { return [X(p[0]), Y(p[1])]; });
+        ctx.save(); ctx.strokeStyle = d[2]; ctx.lineWidth = d[3]; ctx.lineJoin = "round"; ctx.lineCap = "round";
+        var head = partial(P, d[1]);
+        if (d[1] < 1) {                                        // a soft glow at the moving head
+          var gr = ctx.createRadialGradient(head[0], head[1], 0, head[0], head[1], 16);
+          gr.addColorStop(0, rgba(d[2], 0.45)); gr.addColorStop(1, rgba(d[2], 0));
+          ctx.fillStyle = gr; circle(head[0], head[1], 16); ctx.fill();
+          ctx.fillStyle = d[2]; circle(head[0], head[1], d[3] * 0.9); ctx.fill();
+        }
+        ctx.restore();
+      });
+    }
+
+    /* ---------- chapter 4: equilibria ---------- */
+    function eqTime(k) { return 31.6 + 1.4 * k; }
+    function equilibria(Sc, t) {
+      var n = 0;
+      Sc.ord.forEach(function (e, k) {
+        var t0 = eqTime(k);
+        if (t < t0) return;
+        n++;
+        var u = E.back(seg(t, t0, t0 + 0.5)), x = X(e.p), y = Y(e.q);
+        var pu = seg(t, t0, t0 + 1.3);
+        if (pu > 0 && pu < 1) { ctx.globalAlpha = 0.6 * (1 - pu); ctx.strokeStyle = C.accent; ctx.lineWidth = 2; circle(x, y, 8 + 24 * pu); ctx.stroke(); }
+        ctx.globalAlpha = 1; ctx.fillStyle = C.surface; circle(x, y, 9 * u); ctx.fill();
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 2; circle(x, y, 8 * u); ctx.stroke();
+        ctx.fillStyle = C.accent; circle(x, y, 5 * u); ctx.fill();
+        if (!e.pure) {
+          var fp = font(700, L.lf + (L.portrait ? 0.5 : 1.5)), parts = pairParts(e.u, e.v);
+          var hot = t >= 44.2 && (Sc.k === "bos" || Sc.k === "chicken");
+          if (hot) parts = parts.map(function (p) { return [p[0], HOT]; });
+          var pw = pairW(parts, fp), lx = x + 12, ly = y - L.lf - 4;
+          if (lx + pw > X(1) - 4) lx = x - 12 - pw;
+          if (ly < Y(1) + L.lf) ly = y + L.lf + 6;
+          drawParts(parts, lx, ly, fp, E.out(seg(t, t0 + 0.3, t0 + 0.9)), "left");
+        }
+      });
+      return n;
+    }
+
+    /* ---------- chapter 5: what mixing costs ---------- */
+    function outcomeBar(Sc, t) {
+      var a = E.out(seg(t, 43.0, 43.8));
+      if (a <= 0.01 || !Sc.S.probs) return;
+      var B = L.bp, pr = Sc.S.probs, hl = Sc.g.hl;
+      var bh = clamp((B.y1 - B.y0) * 0.3, 12, 24), by = B.y0 + (B.y1 - B.y0) * 0.38;
+      var f = font(600, L.lf - 0.5), x = B.x0, w = B.x1 - B.x0;
+      label(T("gtm.anim.bar"), B.x0, by - L.lf * 0.95, "left", C.ink2, font(700, L.lf), a);
+      var grow = E.inOut(seg(t, 43.2, 44.6));
+      var segs = [];
+      pr.forEach(function (p, i) {
+        var sw = w * p * grow, isH = hl.indexOf(i) >= 0;
+        segs.push({ x: x, w: sw, i: i, h: isH });
+        ctx.globalAlpha = a; ctx.fillStyle = isH ? HOT : (i === 0 || i === 3 ? C["mit-silver"] : C.region);
+        if (Sc.k === "chicken") ctx.fillStyle = isH ? HOT : C["mit-silver"];
+        ctx.fillRect(x, by, sw, bh);
+        ctx.strokeStyle = C.surface; ctx.lineWidth = 1.5; ctx.strokeRect(x, by, sw, bh);
+        x += sw;
+      });
+      ctx.globalAlpha = a; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1; ctx.strokeRect(B.x0, by, w, bh); ctx.globalAlpha = 1;
+      // the percent of each cell when it fits, and the strategy pair under the bar
+      var la = E.out(seg(t, 44.4, 45.2));
+      segs.forEach(function (s) {
+        var pc = pct(pr[s.i], 0); ctx.font = f;
+        if (ctx.measureText(pc).width + 6 < s.w) label(pc, s.x + s.w / 2, by + bh / 2, "center", C.ink, f, la);
+      });
+      // bracket and total under the highlighted cells
+      var hs = segs.filter(function (s) { return s.h; });
+      if (!hs.length) return;
+      var hx0 = hs[0].x, hx1 = hs[hs.length - 1].x + hs[hs.length - 1].w, yb = by + bh + 5, ba = E.out(seg(t, 45.0, 45.8));
+      ctx.globalAlpha = ba; ctx.strokeStyle = HOT; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(hx0, yb); ctx.lineTo(hx0, yb + 4); ctx.lineTo(hx1, yb + 4); ctx.lineTo(hx1, yb); ctx.stroke();
+      ctx.globalAlpha = 1;
+      var txt0 = T("gtm.k." + Sc.g.hk) + " " + pct(Sc.hot, 1), fb = font(700, L.lf);
+      ctx.font = fb;
+      var tw = ctx.measureText(txt0).width, cx = clamp((hx0 + hx1) / 2, B.x0 + tw / 2, L.x1 - tw / 2 - 2);
+      label(txt0, cx, yb + 6 + L.lf * 0.9, "center", HOT, fb, ba);
+    }
+    function extras(Sc, t) {
+      if (Sc.k !== "stag" || !Sc.risk) return;
+      var a = E.out(seg(t, 46.0, 46.8)), f = font(700, L.lf);
+      // deviation-loss products: at (Stag, Stag) top right, at (Hare, Hare) bottom left
+      var g = Sc.g;
+      label(num(g.a[0][0] - g.a[1][0], 2) + " × " + num(g.b[0][0] - g.b[0][1], 2) + " = " + num(Sc.risk[0], 2), X(1) - 10, Y(1) + 2.6 * L.lf + 8, "right", C.ink2, f, a);
+      label(num(g.a[1][1] - g.a[0][1], 2) + " × " + num(g.b[1][1] - g.b[1][0], 2) + " = " + num(Sc.risk[1], 2), X(0) + 10, Y(0) - 2.6 * L.lf - 8, "left", HOT, f, a);
+    }
+
+    /* ---------- camera: a short zoom on the mixed equilibrium ---------- */
+    function camera(Sc, t) {
+      var m = Sc.S.mix;
+      if (!m) return { z: 1, fx: 0, fy: 0 };
+      var u = E.inOut(seg(t, 36.0, 37.8)) * (1 - E.inOut(seg(t, 39.6, 41.4)));
+      return { z: 1 + 0.3 * u, fx: X(m.p), fy: Y(m.q) };
+    }
+
+    /* ---------- HUD ---------- */
+    var chips = [0, 1, 2, 3, 4].map(function (i) {
+      var el = $("gtm-c" + i);
+      return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+    });
+    function setChip(i, val, lab, op, kind) {
+      var c = chips[i];
+      op = Math.round(clamp(op, 0, 1) * 20) / 20;
+      if (c.v !== val) { c.b.textContent = val; c.v = val; }
+      if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+      if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+      if (c.k !== kind) { c.el.classList.toggle("accent", kind === "acc"); c.el.classList.toggle("hot", kind === "hot"); c.k = kind; }
+    }
+    function hud(Sc, t, nEq) {
+      var m = Sc.S.mix;
+      setChip(0, nice(m.p), T("gtm.k.p"), seg(t, 15.0, 15.6), "");
+      setChip(1, nice(m.q), T("gtm.k.q"), seg(t, 15.0, 15.6), "");
+      setChip(2, String(nEq), T("gtm.k.eq"), seg(t, 31.4, 31.9), "acc");
+      setChip(3, pair(m.u, m.v), T("gtm.k.pay"), seg(t, 44.2, 44.8), "");
+      setChip(4, pct(Sc.hot, 1), T("gtm.k." + Sc.g.hk), seg(t, 45.0, 45.6), "hot");
+    }
+
+    /* ---------- caption ---------- */
+    function drawCaption(Sc, t) {
+      var ci = chapterAt(t);
+      var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+      if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+      if (t >= DUR - 1e-6) a = 1;
+      if (a <= 0) return;
+      var lines = captions(Sc, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+      ctx.save(); ctx.globalAlpha = a;
+      ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+      ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+      var tl = wrap(lines[0], maxW);
+      tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+      y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+      ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+      wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+      ctx.restore();
+    }
+
+    /* ---------- the frame ---------- */
+    function render(t) {
+      C = AN.colors();
+      HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+      var Sc = scen(state.sc);
+      if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth) layout();
+      ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+      ctx.clearRect(0, 0, L.W, L.H);
+      ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+      ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+      var cam = camera(Sc, t);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(L.x0 - 4, L.y0 - 4, L.x1 - L.x0 + 8, L.y1 - L.y0 + 8); ctx.clip();
+      if (cam.z !== 1) { ctx.translate(cam.fx, cam.fy); ctx.scale(cam.z, cam.z); ctx.translate(-cam.fx, -cam.fy); }
+      if (t < 6.6) drawTable(Sc, t);
+      drawSquare(Sc, t);
+      if (t >= 6.6) drawCornerPairs(Sc, t, 1);
+      drawDeviations(Sc, t);
+      panels(Sc, t);
+      brPaths(Sc, t);
+      var nEq = equilibria(Sc, t);
+      outcomeBar(Sc, t);
+      extras(Sc, t);
+      ctx.restore();
+      hud(Sc, t, nEq);
+      drawCaption(Sc, t);
+    }
+
+    layout();
+    var player = AN.create({
+      root: root, duration: DUR,
+      chapters: CH.map(function (c, k) { return { t: c, key: "gtm.ch" + (k + 1) }; }),
+      onResize: function () { cv.fit(); layout(); },
+      render: render
+    });
+    function renderScenText() {
+      var Sc = scen(state.sc), S = Sc.S, m = S.mix;
+      $("gtm-lg-hot").textContent = T("gtm.lg." + Sc.g.hk);
+      var pures = Sc.pure.map(function (e) { return "(" + sname(Sc, e.i) + ", " + sname(Sc, e.j) + ")"; });
+      var vals = { game: T("gtm.gm." + state.sc), n: S.eqs.length, pures: pures.join(T("gtm.and")), p: nice(m.p), q: nice(m.q), pay: pair(m.u, m.v), hk: T("gtm.k." + Sc.g.hk).toLowerCase(), m: pct(Sc.hot, 1) };
+      $("gtm-status").innerHTML = T(pures.length ? "gtm.status" : "gtm.status.none", vals);
+      stage.setAttribute("aria-label", T("gtm.anim.aria") + " " + T("gtm.anim.aria.nums", vals));
+    }
+    var segBtns = document.querySelectorAll("#gtm-seg button");
+    segBtns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (state.sc === b.getAttribute("data-sc")) return;
+        state.sc = b.getAttribute("data-sc");
+        segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+        renderScenText();
+        if (AN.reducedMotion) { player.seek(DUR); return; }
+        if (player.time < CH[1]) player.refresh();
+        else { player.seek(CH[1] + 0.001); player.play(); }
+      });
+    });
+    return {
+      refresh: function () { renderScenText(); hudKey = ""; player.refresh(); },
+      scen: scen
+    };
+  })();
+
+  /* ===================================================================================== part 3: any 2 x 2 */
+  var PRE = {
+    bos: function () { return { a: [[2, 0], [0, 1]], b: [[1, 0], [0, 2]], st: "bos" }; },
+    stag: function () { return { a: [[4, 0], [3, 3]], b: [[4, 3], [0, 3]], st: "stag" }; },
+    chicken: function (X) { return { a: [[0, -1], [1, -X.K]], b: [[0, 1], [-1, -X.K]], st: "chk" }; },
+    pennies: function () { return { a: [[1, -1], [-1, 1]], b: [[-1, 1], [1, -1]], st: "coin" }; },
+    hilo: function () { return { a: [[2, 0], [0, 1]], b: [[2, 0], [0, 1]], st: "hilo" }; },
+    drive: function () { return { a: [[1, 0], [0, 1]], b: [[1, 0], [0, 1]], st: "drive" }; },
+    hawk: function (X) { var V = X.V, Cc = X.C; return { a: [[(V - Cc) / 2, V], [0, V / 2]], b: [[(V - Cc) / 2, 0], [V, V / 2]], st: "hawk" }; },
+    // Palacios-Huerta (2003): scoring rates (%) by the kicker's side (rows) and the keeper's side (columns), natural side first
+    pk: function () { var A2 = [[58.30, 94.97], [92.91, 69.92]]; return { a: A2, b: A2.map(function (r) { return r.map(function (v) { return Math.round((100 - v) * 100) / 100; }); }), st: "pk" }; }
+  };
+  var XS = { key: "bos", V: 2, C: 4, K: 10, a: null, b: null, st: "bos", x0: 0.6 };
+  function loadPreset(k) {
+    XS.key = k;
+    var g = PRE[k](XS);
+    XS.a = g.a.map(function (r) { return r.slice(); }); XS.b = g.b.map(function (r) { return r.slice(); }); XS.st = g.st;
+    var s = $("x-s"), v = XS.a[0][0], span = k === "pk" ? 20 : 5;
+    s.min = String(Math.floor(v - span)); s.max = String(Math.ceil(v + span)); s.step = k === "pk" ? "0.01" : "0.1"; s.value = String(v);
+    buildBim();
+  }
+  function players() { return XS.st === "pk" ? [T("gtm.pl.kicker"), T("gtm.pl.keeper")] : [T("gtm.pl.row"), T("gtm.pl.col")]; }
+  function buildBim() {
+    var pl = players(), st = XS.st, h = '<tr><th class="corner"><span class="r">' + esc(pl[0]) + "</span>" + esc(pl[1]) + "</th>";
+    [0, 1].forEach(function (j) { h += '<th class="ch">' + esc(stName(st, j)) + "</th>"; });
+    h += "</tr>";
+    [0, 1].forEach(function (i) {
+      h += '<tr><th class="rh">' + esc(stName(st, i)) + "</th>";
+      [0, 1].forEach(function (j) {
+        h += '<td id="x-cell' + i + j + '"><input class="ra" type="number" step="any" id="x-a' + i + j + '" aria-label="' + esc(T("gtm.x.inA", { p: pl[0], r: stName(st, i), c: stName(st, j) })) + '"> ' +
+          '<input class="cb" type="number" step="any" id="x-b' + i + j + '" aria-label="' + esc(T("gtm.x.inA", { p: pl[1], r: stName(st, i), c: stName(st, j) })) + '"></td>';
+      });
+      h += "</tr>";
+    });
+    $("x-tab").innerHTML = h;
+    [0, 1].forEach(function (i) {
+      [0, 1].forEach(function (j) {
+        ["a", "b"].forEach(function (w) {
+          var el = $("x-" + w + i + j);
+          el.value = String(XS[w][i][j]);
+          el.addEventListener("input", function () {
+            var v = parseFloat(el.value);
+            if (!isFinite(v) || Math.abs(v) > 1e6) { el.classList.add("bad"); return; }
+            el.classList.remove("bad");
+            XS[w][i][j] = v;
+            if (w === "a" && i === 0 && j === 0) { var s = $("x-s"); if (v < +s.min || v > +s.max) { s.min = String(Math.floor(v - 5)); s.max = String(Math.ceil(v + 5)); } s.value = String(v); }
+            renderX();
+          });
+        });
+      });
+    });
+  }
+  function squareSVG(S, st, pl) {
+    var s = 250, m = 44, top = 14, W = s + m + 16, H = s + top + 40, b = "";
+    var Xp = function (p) { return m + p * s; }, Yq = function (q) { return top + (1 - q) * s; };
+    b += '<rect class="reg" x="' + Xp(0) + '" y="' + Yq(1) + '" width="' + s + '" height="' + s + '"/>';
+    b += '<rect class="frame" x="' + Xp(0) + '" y="' + Yq(1) + '" width="' + s + '" height="' + s + '"/>';
+    if (S.mix) {
+      b += line(m - 6, Yq(S.mix.q), Xp(1), Yq(S.mix.q), "lnA thin dash") + line(Xp(S.mix.p), Yq(0), Xp(S.mix.p), Yq(1), "lnI thin dash");
+    }
+    var pr = pathRow(S), pc = pathCol(S);
+    if (!pr) b += '<rect class="reg" x="' + Xp(0) + '" y="' + Yq(1) + '" width="' + s + '" height="' + s + '"/>';
+    else b += poly(pr.map(function (p) { return [Xp(p[0]), Yq(p[1])]; }), "lnA");
+    if (pc) b += poly(pc.map(function (p) { return [Xp(p[0]), Yq(p[1])]; }), "lnI");
+    // corner payoff pairs, inside the square
+    [0, 1].forEach(function (i) {
+      [0, 1].forEach(function (j) {
+        var p = 1 - i, q = 1 - j, x = Xp(p) + (p ? -8 : 8), y = Yq(q) + (q ? 16 : -8);
+        b += '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="' + (p ? "end" : "start") + '">(<tspan class="a">' + esc(nice(S.a[i][j])) +
+          "</tspan>" + esc(T("gtm.sep")) + '<tspan class="i">' + esc(nice(S.b[i][j])) + "</tspan>)</text>";
+      });
+    });
+    S.eqs.forEach(function (e) { b += dot(Xp(e.p), Yq(e.q), e.pure ? 6 : 7, "dotA"); });
+    if (S.mix) {
+      b += txt(m - 8, Yq(S.mix.q) + 4, "q*", "a", "end");
+      b += txt(Xp(S.mix.p), Yq(0) + 30, "p* = " + nice(S.mix.p), "i", "middle");
+    }
+    b += txt(Xp(0), Yq(0) + 15, stName(st, 1), "m", "start") + txt(Xp(1), Yq(0) + 15, stName(st, 0), "m", "end");
+    // the column player's strategies along the left side, rotated: the second at the bottom, the first at the top
+    b += txt(m - 14, Yq(0), stName(st, 1), "m", "start", ' transform="rotate(-90 ' + (m - 14) + " " + Yq(0).toFixed(1) + ')"');
+    b += txt(m - 14, Yq(1), stName(st, 0), "m", "end", ' transform="rotate(-90 ' + (m - 14) + " " + Yq(1).toFixed(1) + ')"');
+    return svg(W, H, b, T("gtm.x.sq.aria", { n: S.eqs.length, row: pl[0], col: pl[1] }));
+  }
+  function renderX() {
+    var S = solve2(XS.a, XS.b), st = XS.st, pl = players(), k = XS.key;
+    var nm = function (i) { return stName(st, i); };
+    $("x-desc").innerHTML = T("gtm.x.d." + k, { K: num(XS.K, 1), V: num(XS.V, 1), C: num(XS.C, 1) });
+    $("x-s-lbl").textContent = T("gtm.x.slider", { p: pl[0], r: nm(0), c: nm(0) });
+    $("x-sv").textContent = num(XS.a[0][0], 2);
+    $("x-v-box").hidden = $("x-c-box").hidden = k !== "hawk";
+    $("x-k-box").hidden = k !== "chicken";
+    $("x-vv").textContent = num(XS.V, 1); $("x-cv").textContent = num(XS.C, 1); $("x-kv").textContent = num(XS.K, 1);
+    [0, 1].forEach(function (i) { [0, 1].forEach(function (j) {
+      $("x-cell" + i + j).classList.toggle("eq", S.eqs.some(function (e) { return e.pure && e.i === i && e.j === j; }));
+      ["a", "b"].forEach(function (w) { var el = $("x-" + w + i + j); if (document.activeElement !== el && +el.value !== XS[w][i][j]) el.value = String(XS[w][i][j]); });
+    }); });
+    $("x-sq").innerHTML = squareSVG(S, st, pl);
+    // equilibria table
+    var h = "<thead><tr><th>" + esc(T("gtm.x.t.eq")) + "</th><th>" + esc(T("gtm.x.t.row", { p: pl[0] })) + "</th><th>" + esc(T("gtm.x.t.col", { p: pl[1] })) +
+      "</th><th class='num'>" + esc(T("gtm.x.t.pay")) + "</th></tr></thead><tbody>";
+    S.eqs.forEach(function (e) {
+      if (e.pure) h += "<tr><td>" + esc(T("gtm.x.pure")) + "</td><td>" + esc(nm(e.i)) + "</td><td>" + esc(nm(e.j)) + "</td><td class='num'>" + esc(pair(e.u, e.v)) + "</td></tr>";
+      else h += "<tr class='on'><td>" + esc(T("gtm.x.mixed")) + "</td><td>" + esc(T("gtm.x.with", { s: nm(0), p: nice(e.p, 3) })) + "</td><td>" +
+        esc(T("gtm.x.with", { s: nm(0), p: nice(e.q, 3) })) + "</td><td class='num acc'>" + esc(pair(e.u, e.v, 3)) + "</td></tr>";
+    });
+    $("x-eqs").innerHTML = h + "</tbody>";
+    $("x-count").textContent = (S.deg ? T("gtm.x.deg") + " " : "") + T("gtm.x.count", { n: S.eqs.length });
+    var kp = [[T("gtm.x.k.n"), String(S.eqs.length), "accent"],
+      [T("gtm.x.k.p", { s: nm(0) }), S.mix ? nice(S.mix.p, 3) : "·", ""], [T("gtm.x.k.q", { s: nm(0) }), S.mix ? nice(S.mix.q, 3) : "·", ""],
+      [T("gtm.x.k.pay"), S.mix ? pair(S.mix.u, S.mix.v, 3) : "·", ""]];
+    $("x-kpis").innerHTML = kp.map(function (q) { return '<div class="kpi ' + q[2] + '"><b>' + esc(q[1]) + "</b><span>" + esc(q[0]) + "</span></div>"; }).join("");
+    // indifference formulas with the current numbers
+    var A2 = XS.a, B2 = XS.b, pn = function (v) { return v < 0 ? "(" + texNum(v) + ")" : texNum(v); };
+    var dq = A2[0][0] - A2[0][1] - A2[1][0] + A2[1][1], dp = B2[0][0] - B2[1][0] - B2[0][1] + B2[1][1];
+    var resQ = Math.abs(dq) < EPS ? "\\text{" + T("gtm.x.never") + "}" : "q^* = " + texNice(S.qs, 3) + (S.qs > EPS && S.qs < 1 - EPS ? "" : "\\;\\text{" + T("gtm.x.outside") + "}");
+    var resP = Math.abs(dp) < EPS ? "\\text{" + T("gtm.x.never") + "}" : "p^* = " + texNice(S.ps, 3) + (S.ps > EPS && S.ps < 1 - EPS ? "" : "\\;\\text{" + T("gtm.x.outside") + "}");
+    var texQ = "\\begin{aligned} " + pn(A2[0][0]) + "\\,q + " + pn(A2[0][1]) + "\\,(1-q) &= " + pn(A2[1][0]) + "\\,q + " + pn(A2[1][1]) + "\\,(1-q) && \\text{" + T("gtm.x.indR", { p: pl[0] }) + "} \\\\ \\Rightarrow\\; " + resQ + " & \\end{aligned}";
+    var texP = "\\begin{aligned} " + pn(B2[0][0]) + "\\,p + " + pn(B2[1][0]) + "\\,(1-p) &= " + pn(B2[0][1]) + "\\,p + " + pn(B2[1][1]) + "\\,(1-p) && \\text{" + T("gtm.x.indC", { p: pl[1] }) + "} \\\\ \\Rightarrow\\; " + resP + " & \\end{aligned}";
+    TeX.set($("x-indq"), texQ, T("gtm.x.indQ.plain", { q: S.qs == null ? "·" : nice(S.qs, 3) }));
+    TeX.set($("x-indp"), texP, T("gtm.x.indP.plain", { p: S.ps == null ? "·" : nice(S.ps, 3) }));
+    // your mix is set by your rival
+    $("x-rival").innerHTML = S.mix ? T("gtm.x.rival", { p: nice(S.mix.p, 3), q: nice(S.mix.q, 3), row: pl[0], col: pl[1], r: nm(0), c: nm(0) }) : T("gtm.x.rival.none");
+    // special read-outs
+    var pk = $("x-pk"), sp = $("x-special");
+    pk.hidden = k !== "pk"; sp.hidden = !(k === "hawk" || k === "chicken");
+    if (k === "pk" && S.mix) {
+      // a keeper who always dives to one side concedes the kicker's best reply against that side
+      var alwaysN = Math.max(A2[0][0], A2[1][0]), alwaysO = Math.max(A2[0][1], A2[1][1]);
+      pk.innerHTML = T("gtm.x.pk", { k: pct(S.mix.p, 1), g: pct(S.mix.q, 1), s: T("gtm.pct", { v: num(S.mix.u, 1) }), n: T("gtm.pct", { v: num(alwaysN, 2) }), o: T("gtm.pct", { v: num(alwaysO, 2) }) });
+    }
+    if (k === "hawk") {
+      sp.innerHTML = XS.V >= XS.C - EPS ? T("gtm.x.hawk.dom", { V: num(XS.V, 1), C: num(XS.C, 1) }) : T("gtm.x.hawk", { V: num(XS.V, 1), C: num(XS.C, 1), s: nice(XS.V / XS.C, 3) });
+    }
+    if (k === "chicken" && S.mix) sp.innerHTML = T("gtm.x.chk", { K: num(XS.K, 1), s: nice(1 - 1 / XS.K, 3), m: nice(S.mix.p, 3), c: pct((1 - S.mix.p) * (1 - S.mix.q), 2) });
+    renderPop(S);
+  }
+  /* ---------- the population strip (symmetric games): replicator dynamics dx/dt = x (1 - x) (u1 - u2) ---------- */
+  function renderPop(S) {
+    var sym = symmetric(XS.a, XS.b), st = XS.st;
+    $("x-pop-box").hidden = !sym; $("x-nopop").hidden = sym;
+    if (!sym) { $("x-nopop").textContent = T("gtm.x.nopop"); return; }
+    var A2 = XS.a, du = function (x) { return (A2[0][0] - A2[1][0]) * x + (A2[0][1] - A2[1][1]) * (1 - x); };
+    var f = function (x) { return x * (1 - x) * du(x); };
+    var scale = Math.max(Math.abs(du(0)), Math.abs(du(1)), 1e-6), Tm = 12 / scale, n = 240, dt = Tm / n;
+    var traj = function (x0, steps) {
+      var x = x0, out = [x];
+      for (var i = 0; i < steps; i++) {
+        var k1 = f(x), k2 = f(x + dt / 2 * k1), k3 = f(x + dt / 2 * k2), k4 = f(x + dt * k3);
+        x = clamp(x + dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4), 0, 1); out.push(x);
+      }
+      return out;
+    };
+    var x0 = +$("x-x0").value;
+    $("x-x0-lbl").textContent = T("gtm.x.x0", { s: stName(st, 0) });
+    $("x-x0v").textContent = pct(x0, 0);
+    var xs = Math.abs(du(0) - du(1)) > EPS ? du(0) / (du(0) - du(1)) : null;
+    var interior = xs !== null && xs > EPS && xs < 1 - EPS;
+    var stable = interior && du(1) < du(0);
+    $("x-pop-intro").innerHTML = T("gtm.x.pop.intro", { s1: stName(st, 0), s2: stName(st, 1) });
+    // chart: a strip of flow arrows on the left, trajectories on the right
+    var W = 640, H = 230, ml = 92, mr = 14, mt = 10, mb = 26, b = "";
+    var XT = function (i) { return ml + i / n * (W - ml - mr); }, YX = function (x) { return mt + (1 - x) * (H - mt - mb); };
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (v) { b += line(ml, YX(v), W - mr, YX(v), "gr") + txt(ml - 40, YX(v) + 4, pct(v, 0), "m", "end"); });
+    b += line(ml - 22, YX(0), ml - 22, YX(1), "ax");
+    for (var y = 0.05; y < 1; y += 0.1) {
+      var d = f(y), len = Math.min(10, Math.abs(d) / (scale * 0.25) * 10);
+      if (len < 1.5) continue;
+      var y0 = YX(y), y1 = YX(y) - Math.sign(d) * len;
+      b += line(ml - 22, y0, ml - 22, y1, "lnI thin") + '<polygon class="fI" points="' + (ml - 26) + "," + (y1 + Math.sign(d) * 3).toFixed(1) + " " + (ml - 18) + "," + (y1 + Math.sign(d) * 3).toFixed(1) + " " + (ml - 22) + "," + (y1 - Math.sign(d) * 3).toFixed(1) + '"/>';
+    }
+    for (var s0 = 0.05; s0 < 1; s0 += 0.1) b += poly(traj(s0, n).map(function (x, i) { return [XT(i), YX(x)]; }), "lnS");
+    if (interior) {
+      b += line(ml - 30, YX(xs), W - mr, YX(xs), "lnI thin dash");
+      b += txt(W - mr, YX(xs) - 6, "x* = " + nice(xs, 3), "i", "end");
+    }
+    var tr = traj(x0, n);
+    b += poly(tr.map(function (x, i) { return [XT(i), YX(x)]; }), "lnA");
+    b += dot(XT(0), YX(x0), 5, "dotA") + dot(ml - 22, YX(x0), 4, "dotA");
+    b += txt((ml + W - mr) / 2, H - 6, T("gtm.x.pop.time"), "m", "middle");
+    $("x-pop").innerHTML = svg(W, H, b, T("gtm.x.pop.aria"));
+    var xe = traj(x0, n * 6)[n * 6];
+    var note = T("gtm.x.pop.end", { x0: pct(x0, 0), s: stName(st, 0), xe: pct(xe, 1) }) + " ";
+    if (interior && stable) note += T("gtm.x.pop.attr", { x: nice(xs, 3), s: stName(st, 0) });
+    else if (interior) note += T("gtm.x.pop.water", { x: nice(xs, 3), s1: stName(st, 0), s2: stName(st, 1) });
+    else note += T("gtm.x.pop.dom", { s: stName(st, du(0.5) > 0 ? 0 : 1) });
+    $("x-pop-note").textContent = note;
+  }
+
+  /* ===================================================================================== part 4: zero-sum games */
+  var ZPRE = {
+    saddle: { A: [[4, 4, 10], [2, 3, 1], [6, 5, 7]] },
+    nosaddle: { A: [[4, 1], [2, 3]] },
+    oe: { A: [[-2, 3], [3, -4]], st: "oe" },
+    rps: { A: [[0, -1, 1], [1, 0, -1], [-1, 1, 0]], st: "rps" },
+    pk: { A: [[58.30, 94.97], [92.91, 69.92]], st: "pk" }
+  };
+  var ZS = { key: "oe", A: null, st: "oe", run: 0, sim: null };
+  function zLoad(k) { ZS.key = k; ZS.A = ZPRE[k].A.map(function (r) { return r.slice(); }); ZS.st = ZPRE[k].st || null; ZS.sim = null; zBuild(); }
+  function zRow(i) { return ZS.st ? stName(ZS.st, i) : T("gtm.z.r", { i: i + 1 }); }
+  function zCol(j) { return ZS.st ? stName(ZS.st, j) : T("gtm.z.c", { j: j + 1 }); }
+  function zBuild() {
+    var A = ZS.A, m = A.length, n = A[0].length, h = "<tr><th></th>", i, j;
+    for (j = 0; j < n; j++) h += "<th>" + esc(zCol(j)) + "</th>";
+    h += '<th class="mm">' + esc(T("gtm.z.rowmin")) + "</th></tr>";
+    for (i = 0; i < m; i++) {
+      h += '<tr><th class="rh">' + esc(zRow(i)) + "</th>";
+      for (j = 0; j < n; j++) h += '<td id="z-c' + i + "-" + j + '"><input type="number" step="any" id="z-a' + i + "-" + j + '" value="' + A[i][j] + '" aria-label="' + esc(T("gtm.z.in", { r: zRow(i), c: zCol(j) })) + '"></td>';
+      h += '<td class="mm" id="z-rm' + i + '"></td></tr>';
+    }
+    h += '<tr><th class="mm">' + esc(T("gtm.z.colmax")) + "</th>";
+    for (j = 0; j < n; j++) h += '<td class="mm" id="z-cm' + j + '"></td>';
+    h += "<td></td></tr>";
+    $("z-tab").innerHTML = h;
+    for (i = 0; i < m; i++) for (j = 0; j < n; j++) (function (i, j) {
+      var el = $("z-a" + i + "-" + j);
+      el.addEventListener("input", function () {
+        var v = parseFloat(el.value);
+        if (!isFinite(v) || Math.abs(v) > 1e6) { el.classList.add("bad"); return; }
+        el.classList.remove("bad"); ZS.A[i][j] = v; ZS.sim = null; renderZ();
+      });
+    })(i, j);
+    $("z-addr").disabled = m >= 5; $("z-delr").disabled = m <= 2; $("z-addc").disabled = n >= 5; $("z-delc").disabled = n <= 2;
+  }
+  function zResize(dr, dc) {
+    var A = ZS.A, m = A.length + dr, n = A[0].length + dc;
+    if (m < 2 || m > 5 || n < 2 || n > 5) return;
+    var B = [];
+    for (var i = 0; i < m; i++) { var r = []; for (var j = 0; j < n; j++) r.push(i < A.length && j < A[0].length ? A[i][j] : 0); B.push(r); }
+    ZS.A = B; ZS.st = null; ZS.sim = null;
+    document.querySelectorAll("#z-pre button").forEach(function (o) { o.setAttribute("aria-pressed", "false"); });
+    ZS.key = "custom";
+    zBuild(); renderZ();
+  }
+  function renderZ() {
+    var Z = solveZS(ZS.A), A = ZS.A, m = Z.m, n = Z.n, i, j;
+    $("z-desc").innerHTML = ZS.key === "custom" ? T("gtm.z.d.custom") : T("gtm.z.d." + ZS.key);
+    for (i = 0; i < m; i++) { var rm = $("z-rm" + i); rm.textContent = nice(Z.rowMin[i]); rm.classList.toggle("best", Math.abs(Z.rowMin[i] - Z.maximin) < 1e-9); }
+    for (j = 0; j < n; j++) { var cm = $("z-cm" + j); cm.textContent = nice(Z.colMax[j]); cm.classList.toggle("bestc", Math.abs(Z.colMax[j] - Z.minimax) < 1e-9); }
+    for (i = 0; i < m; i++) for (j = 0; j < n; j++) $("z-c" + i + "-" + j).classList.toggle("sad", Z.saddles.some(function (s) { return s[0] === i && s[1] === j; }));
+    var mix = function (v) { return tuple(v.map(function (x) { return nice(x, 3); })); };
+    var kp = [[T("gtm.z.k.maximin"), nice(Z.maximin, 3), ""], [T("gtm.z.k.minimax"), nice(Z.minimax, 3), ""], [T("gtm.z.k.v"), nice(Z.v, 3), "accent"],
+      [T("gtm.z.k.x"), mix(Z.x), ""], [T("gtm.z.k.y"), mix(Z.y), ""]];
+    $("z-kpis").innerHTML = kp.map(function (q) { return '<div class="kpi ' + q[2] + '"><b>' + esc(q[1]) + "</b><span>" + esc(q[0]) + "</span></div>"; }).join("");
+    var sd = Z.saddles.length;
+    $("z-sec").innerHTML = sd ? T("gtm.z.sec.saddle", { lo: nice(Z.maximin, 3), r: zRow(Z.saddles[0][0]), c: zCol(Z.saddles[0][1]) })
+      : T("gtm.z.sec.gap", { lo: nice(Z.maximin, 3), hi: nice(Z.minimax, 3), v: nice(Z.v, 3) });
+    renderGraph(Z);
+    // the two LPs with the current numbers
+    var rowsT = [], colsT = [], rowsP = [], colsP = [];
+    for (j = 0; j < n; j++) rowsT.push((j ? "& " : "\\text{ST}\\;& ") + linTex(A.map(function (r) { return r[j]; }), "x") + " \\ge v && \\text{" + T("gtm.tex.vs", { s: zCol(j) }) + "}");
+    for (i = 0; i < m; i++) colsT.push((i ? "& " : "\\text{ST}\\;& ") + linTex(A[i], "y") + " \\le w && \\text{" + T("gtm.tex.vs", { s: zRow(i) }) + "}");
+    var texR = "\\begin{aligned} \\max\\;& v && \\text{" + T("gtm.tex.guar") + "} \\\\ " + rowsT.join(" \\\\ ") + " \\\\ & " + linTex(new Array(m).fill(1), "x") + " = 1,\\; x \\ge 0 && \\text{" + T("gtm.tex.mix") + "} \\end{aligned}";
+    var texC = "\\begin{aligned} \\min\\;& w && \\text{" + T("gtm.tex.conc") + "} \\\\ " + colsT.join(" \\\\ ") + " \\\\ & " + linTex(new Array(n).fill(1), "y") + " = 1,\\; y \\ge 0 && \\text{" + T("gtm.tex.mix") + "} \\end{aligned}";
+    TeX.set($("z-lp-row"), texR, T("gtm.z.lp.row.plain", { v: nice(Z.v, 3) }));
+    TeX.set($("z-lp-col"), texC, T("gtm.z.lp.col.plain", { w: nice(Z.w, 3) }));
+    $("z-lp-note").innerHTML = T("gtm.z.lp.note", { v: nice(Z.v, 3), w: nice(Z.w, 3), k: num(Z.k, 2), vk: nice(Z.v + Z.k, 3), y: mix(Z.y), d: Math.abs(Z.v - Z.w) < 1e-6 ? T("gtm.z.lp.ok") : T("gtm.z.lp.bad") });
+    // complementary slackness: a strategy in the mix earns exactly v; one outside earns at most v (row) or concedes at least v (column)
+    var h = "<thead><tr><th>" + esc(T("gtm.z.cs.s")) + "</th><th class='num'>" + esc(T("gtm.z.cs.p")) + "</th><th class='num'>" + esc(T("gtm.z.cs.pay")) +
+      "</th><th>" + esc(T("gtm.z.cs.st")) + "</th></tr></thead><tbody>";
+    for (i = 0; i < m; i++) {
+      var inR = Z.x[i] > 1e-7;
+      h += "<tr><td>" + esc(T("gtm.z.cs.row", { s: zRow(i) })) + "</td><td class='num" + (inR ? " acc" : "") + "'>" + esc(nice(Z.x[i], 3)) + "</td><td class='num'>" + esc(nice(Z.Ay[i], 3)) +
+        "</td><td>" + esc(inR ? T("gtm.z.cs.inR", { v: nice(Z.v, 3) }) : T("gtm.z.cs.outR", { v: nice(Z.v, 3) })) + "</td></tr>";
+    }
+    for (j = 0; j < n; j++) {
+      var inC = Z.y[j] > 1e-7;
+      h += "<tr><td>" + esc(T("gtm.z.cs.col", { s: zCol(j) })) + "</td><td class='num" + (inC ? " acc" : "") + "'>" + esc(nice(Z.y[j], 3)) + "</td><td class='num'>" + esc(nice(Z.xA[j], 3)) +
+        "</td><td>" + esc(inC ? T("gtm.z.cs.inC", { v: nice(Z.v, 3) }) : T("gtm.z.cs.outC", { v: nice(Z.v, 3) })) + "</td></tr>";
+    }
+    $("z-cs").innerHTML = h + "</tbody>";
+    $("z-cs-note").textContent = T("gtm.z.cs.note");
+    // simulation
+    $("z-sim-intro").textContent = T("gtm.z.sim.intro", { s: num(Z.sigma, 2), v: nice(Z.v, 3) });
+    document.querySelectorAll("#z-sim-btns button").forEach(function (bt) { bt.textContent = T("gtm.z.sim.btn", { n: I18N.fmt(+bt.getAttribute("data-n"), 0) }); });
+    renderSim(Z);
+    ZS.last = Z;
+  }
+  function renderGraph(Z) {
+    var A = Z.A, m = Z.m, n = Z.n, box = $("z-graph"), ctl = $("z-g-ctl");
+    var rowView = m === 2, colView = !rowView && n === 2;
+    ctl.hidden = !(rowView || colView);
+    if (!rowView && !colView) { box.innerHTML = ""; $("z-g-intro").textContent = T("gtm.z.g.none"); $("z-g-note").textContent = ""; return; }
+    var pv = +$("z-p").value;
+    $("z-g-intro").textContent = T(rowView ? "gtm.z.g.introR" : "gtm.z.g.introC", { s: rowView ? zRow(0) : zCol(0) });
+    $("z-p-lbl").textContent = T(rowView ? "gtm.z.g.pR" : "gtm.z.g.pC", { s: rowView ? zRow(0) : zCol(0) });
+    $("z-pv").textContent = num(pv, 2);
+    // lines: row view, payoff of each column against x = (p, 1 - p); column view, payoff of each row against y = (q, 1 - q)
+    var Ls = [];
+    if (rowView) for (var j = 0; j < n; j++) Ls.push({ a: A[1][j], b: A[0][j], name: zCol(j) });
+    else for (var i = 0; i < m; i++) Ls.push({ a: A[i][1], b: A[i][0], name: zRow(i) });
+    var at = function (Lq, p) { return Lq.a + (Lq.b - Lq.a) * p; };
+    var env = function (p) { var vs = Ls.map(function (Lq) { return at(Lq, p); }); return rowView ? Math.min.apply(null, vs) : Math.max.apply(null, vs); };
+    var all = []; Ls.forEach(function (Lq) { all.push(Lq.a, Lq.b); });
+    var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all); if (hi - lo < EPS) { lo -= 1; hi += 1; }
+    var pad = 0.08 * (hi - lo); lo -= pad; hi += pad;
+    var W = 640, H = 270, ml = 48, mr = 110, mt = 12, mb = 32, b = "";
+    var GX = function (p) { return ml + p * (W - ml - mr); }, GY = function (v) { return mt + (hi - v) / (hi - lo) * (H - mt - mb); };
+    var tk = niceTicks(lo, hi, 5);
+    tk.forEach(function (v) { b += line(ml, GY(v), GX(1), GY(v), "gr") + txt(ml - 6, GY(v) + 4, nice(v), "m", "end"); });
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (p) { b += txt(GX(p), H - 12, num(p, 2), "m", "middle"); });
+    // the shaded region under the lower envelope (row view) or over the upper envelope (column view)
+    var ep = []; for (var s = 0; s <= 200; s++) ep.push([GX(s / 200), GY(env(s / 200))]);
+    var base = rowView ? GY(lo) : GY(hi);
+    b += '<polygon class="reg" points="' + [[GX(0), base]].concat(ep, [[GX(1), base]]).map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '"/>';
+    // lines with their names at the right end (spread when they would touch)
+    var ends = Ls.map(function (Lq) { return { y: GY(Lq.b), name: Lq.name }; }).sort(function (u, w) { return u.y - w.y; });
+    for (var e = 1; e < ends.length; e++) if (ends[e].y - ends[e - 1].y < 14) ends[e].y = ends[e - 1].y + 14;
+    Ls.forEach(function (Lq) { b += line(GX(0), GY(Lq.a), GX(1), GY(Lq.b), "lnS"); });
+    ends.forEach(function (en) { b += txt(GX(1) + 8, en.y + 4, T(rowView ? "gtm.z.g.vsC" : "gtm.z.g.vsR", { s: en.name }), "m", "start"); });
+    b += poly(ep, rowView ? "lnA" : "lnI");
+    // the optimum and the dragged point
+    var popt = rowView ? Z.x[0] : Z.y[0];
+    b += line(GX(popt), GY(Z.v), GX(popt), GY(lo), "lnI thin dash") + dot(GX(popt), GY(Z.v), 6.5, "dotA");
+    b += txt(GX(popt), GY(Z.v) - 12, "v = " + nice(Z.v, 3), "a", "middle");
+    var gv = env(pv);
+    b += line(GX(pv), GY(hi), GX(pv), GY(lo), "lnH thin") + dot(GX(pv), GY(gv), 5, "dotO");
+    b += '<rect class="grab" x="' + GX(0) + '" y="' + mt + '" width="' + (GX(1) - GX(0)) + '" height="' + (H - mt - mb) + '" fill="transparent"/>';
+    box.innerHTML = svg(W, H, b, T("gtm.z.g.aria"));
+    ZS.geo = { W: W, x0: GX(0), x1: GX(1) };
+    $("z-g-note").textContent = T(rowView ? "gtm.z.g.noteR" : "gtm.z.g.noteC", { p: num(pv, 2), g: nice(gv, 3), po: nice(popt, 3), v: nice(Z.v, 3) });
+  }
+  // dragging on the chart moves the mix (the listeners sit on the container, which survives every redraw)
+  var zDrag = false;
+  function zSetFrom(ev) {
+    var s = $("z-graph").querySelector("svg"), G = ZS.geo;
+    if (!s || !G) return;
+    var r = s.getBoundingClientRect(), sx = (ev.clientX - r.left) / r.width * G.W;
+    $("z-p").value = String(clamp(Math.round((sx - G.x0) / (G.x1 - G.x0) * 100) / 100, 0, 1));
+    renderGraph(ZS.last);
+  }
+  function niceTicks(lo, hi, n) {
+    var span = hi - lo, step = Math.pow(10, Math.floor(Math.log10(span / n))), err = span / n / step;
+    if (err >= 7.5) step *= 10; else if (err >= 3.5) step *= 5; else if (err >= 1.5) step *= 2;
+    var out = [];
+    for (var v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.round(v / step) * step);
+    return out;
+  }
+  function runSim(N) {
+    var Z = ZS.last || solveZS(ZS.A);
+    ZS.run++;
+    var seed = 500 + ZS.run, rng = AN.rng(seed), A = Z.A;
+    var cum = function (v) { var c = [], s = 0; v.forEach(function (x) { s += x; c.push(s); }); return c; };
+    var cx = cum(Z.x), cy = cum(Z.y);
+    var pick = function (c, u) { for (var k = 0; k < c.length; k++) if (u < c[k]) return k; return c.length - 1; };
+    var sum = 0, pts = [], nextLog = 1;
+    for (var t = 1; t <= N; t++) {
+      var i = pick(cx, rng() * cx[cx.length - 1]), j = pick(cy, rng() * cy[cy.length - 1]);
+      sum += A[i][j];
+      if (t >= nextLog || t === N) { pts.push([t, sum / t]); nextLog = Math.max(t + 1, Math.ceil(t * 1.015)); }
+    }
+    ZS.sim = { N: N, seed: seed, avg: sum / N, pts: pts, v: Z.v, sigma: Z.sigma };
+    renderSim(Z);
+  }
+  function renderSim(Z) {
+    var box = $("z-sim"), sm = ZS.sim;
+    $("z-sim-lg").hidden = !sm;
+    if (!sm) { box.innerHTML = ""; $("z-sim-note").textContent = T("gtm.z.sim.wait"); return; }
+    var W = 640, H = 240, ml = 52, mr = 14, mt = 12, mb = 30, LN = Math.log(sm.N), b = "";
+    var h10 = 1.96 * sm.sigma / Math.sqrt(10), lo = sm.v - Math.max(h10, 0.5), hi = sm.v + Math.max(h10, 0.5);
+    var SX = function (t) { return ml + Math.log(t) / LN * (W - ml - mr); }, SY = function (v) { return mt + (hi - clamp(v, lo, hi)) / (hi - lo) * (H - mt - mb); };
+    niceTicks(lo, hi, 5).forEach(function (v) { b += line(ml, SY(v), W - mr, SY(v), "gr") + txt(ml - 6, SY(v) + 4, nice(v, 2), "m", "end"); });
+    [1, 10, 100, 1000, 10000, 100000].forEach(function (t) { if (t <= sm.N) b += txt(SX(t), H - 10, I18N.fmt(t, 0), "m", "middle"); });
+    var up = [], dn = [];
+    for (var t = 1; t <= sm.N; t = Math.ceil(t * 1.05)) { var hh = 1.96 * sm.sigma / Math.sqrt(t); up.push([SX(t), SY(sm.v + hh)]); dn.push([SX(t), SY(sm.v - hh)]); }
+    var hN = 1.96 * sm.sigma / Math.sqrt(sm.N);
+    up.push([SX(sm.N), SY(sm.v + hN)]); dn.push([SX(sm.N), SY(sm.v - hN)]);
+    b += '<polygon class="band" points="' + up.concat(dn.slice().reverse()).map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '"/>';
+    b += line(ml, SY(sm.v), W - mr, SY(sm.v), "lnI thin dash");
+    if (Math.abs(sm.v) > 1e-9 && sm.v - lo > 0 && hi - 0 > 0 && lo < 0) b += line(ml, SY(0), W - mr, SY(0), "lnS");
+    b += poly(sm.pts.map(function (p) { return [SX(p[0]), SY(p[1])]; }), "lnA thin");
+    b += txt(W - mr, SY(sm.v) - 6, "v = " + nice(sm.v, 3), "i", "end");
+    box.innerHTML = svg(W, H, b, T("gtm.z.sim.aria", { n: I18N.fmt(sm.N, 0), a: num(sm.avg, 3) }));
+    var vis = Math.abs(sm.v) > 1e-9 ? T(hN < Math.abs(sm.v) ? "gtm.z.sim.vis" : "gtm.z.sim.hid", { h: num(hN, 3), v: nice(sm.v, 3) }) : "";
+    $("z-sim-note").textContent = T("gtm.z.sim.res", { n: I18N.fmt(sm.N, 0), a: num(sm.avg, 3), v: nice(sm.v, 3), h: num(hN, 3), seed: sm.seed }) + (vis ? " " + vis : "");
+  }
+
+  /* ===================================================================================== part 5: correlated equilibrium by LP */
+  var CE0 = { a: [[6, 2], [7, 0]], b: [[6, 7], [2, 0]] };
+  var CES = { a: null, b: null };
+  function ceReset() { CES.a = CE0.a.map(function (r) { return r.slice(); }); CES.b = CE0.b.map(function (r) { return r.slice(); }); ceBuild(); renderCE(); }
+  function ceBuild() {
+    var st = "yield", h = '<tr><th class="corner"><span class="r">' + esc(T("gtm.pl.row")) + "</span>" + esc(T("gtm.pl.col")) + "</th>";
+    [0, 1].forEach(function (j) { h += '<th class="ch">' + esc(stName(st, j)) + "</th>"; });
+    h += "</tr>";
+    [0, 1].forEach(function (i) {
+      h += '<tr><th class="rh">' + esc(stName(st, i)) + "</th>";
+      [0, 1].forEach(function (j) {
+        h += '<td><input class="ra" type="number" step="any" id="ce-a' + i + j + '" value="' + CES.a[i][j] + '" aria-label="' + esc(T("gtm.x.inA", { p: T("gtm.pl.row"), r: stName(st, i), c: stName(st, j) })) + '"> ' +
+          '<input class="cb" type="number" step="any" id="ce-b' + i + j + '" value="' + CES.b[i][j] + '" aria-label="' + esc(T("gtm.x.inA", { p: T("gtm.pl.col"), r: stName(st, i), c: stName(st, j) })) + '"></td>';
+      });
+      h += "</tr>";
+    });
+    $("ce-tab").innerHTML = h;
+    [0, 1].forEach(function (i) { [0, 1].forEach(function (j) { ["a", "b"].forEach(function (w) {
+      var el = $("ce-" + w + i + j);
+      el.addEventListener("input", function () {
+        var v = parseFloat(el.value);
+        if (!isFinite(v) || Math.abs(v) > 1e6) { el.classList.add("bad"); return; }
+        el.classList.remove("bad"); CES[w][i][j] = v; renderCE();
+      });
+    }); }); });
+  }
+  function solveCE(a, b) {
+    // variables pi_11, pi_12, pi_21, pi_22; each incentive row: obeying the device pays at least as much as deviating
+    var rows = [
+      { a: [a[0][0] - a[1][0], a[0][1] - a[1][1], 0, 0], op: ">=", b: 0 },
+      { a: [0, 0, a[1][0] - a[0][0], a[1][1] - a[0][1]], op: ">=", b: 0 },
+      { a: [b[0][0] - b[0][1], 0, b[1][0] - b[1][1], 0], op: ">=", b: 0 },
+      { a: [0, b[0][1] - b[0][0], 0, b[1][1] - b[1][0]], op: ">=", b: 0 },
+      { a: [1, 1, 1, 1], op: "=", b: 1 }
+    ];
+    var c = [a[0][0] + b[0][0], a[0][1] + b[0][1], a[1][0] + b[1][0], a[1][1] + b[1][1]];
+    var R = LP.solve({ sense: "max", c: c, rows: rows });
+    return { R: R, rows: rows, c: c };
+  }
+  function renderCE() {
+    var a = CES.a, b = CES.b, st = "yield", CE = solveCE(a, b), R = CE.R;
+    var nm = function (i) { return stName(st, i); };
+    if (R.status !== "optimal") { $("ce-note").textContent = T("gtm.ce.fail"); return; }
+    var pi = R.x, u1 = 0, u2 = 0, k;
+    for (k = 0; k < 4; k++) { u1 += pi[k] * a[k >> 1][k & 1]; u2 += pi[k] * b[k >> 1][k & 1]; }
+    var h = "<thead><tr><th></th><th class='num'>" + esc(nm(0)) + "</th><th class='num'>" + esc(nm(1)) + "</th></tr></thead><tbody>";
+    [0, 1].forEach(function (i) { h += "<tr><th>" + esc(nm(i)) + "</th><td class='num acc'>" + esc(nice(pi[2 * i], 3)) + "</td><td class='num acc'>" + esc(nice(pi[2 * i + 1], 3)) + "</td></tr>"; });
+    $("ce-pi").innerHTML = h + "</tbody>";
+    // comparisons: the best Nash equilibrium by total payoff, the mixed one, and the device that draws the three cells other than the worst equally
+    var S = solve2(a, b);
+    var tot = [0, 1, 2, 3].map(function (q) { return a[q >> 1][q & 1] + b[q >> 1][q & 1]; }), worst = tot.indexOf(Math.min.apply(null, tot));
+    var dev = [0, 1, 2, 3].map(function (q) { return q === worst ? 0 : 1 / 3; }), d1 = 0, d2 = 0;
+    for (k = 0; k < 4; k++) { d1 += dev[k] * a[k >> 1][k & 1]; d2 += dev[k] * b[k >> 1][k & 1]; }
+    var devOk = CE.rows.slice(0, 4).every(function (r) { return r.a.reduce(function (s, v, q) { return s + v * dev[q]; }, 0) >= -1e-9; });
+    var kp = [[T("gtm.ce.k.ce"), pair(u1, u2, 3), "accent"]];
+    if (S.mix) kp.push([T("gtm.ce.k.mix"), pair(S.mix.u, S.mix.v, 3), ""]);
+    kp.push([T(devOk ? "gtm.ce.k.dev" : "gtm.ce.k.devno"), pair(d1, d2, 3), ""]);
+    $("ce-kpis").innerHTML = kp.map(function (q) { return '<div class="kpi ' + q[2] + '"><b>' + esc(q[1]) + "</b><span>" + esc(q[0]) + "</span></div>"; }).join("");
+    // incentive rows with slack and the value of relaxing them (minus the dual)
+    var names = [T("gtm.ce.r1", { p: T("gtm.pl.row"), s: nm(0), d: nm(1) }), T("gtm.ce.r1", { p: T("gtm.pl.row"), s: nm(1), d: nm(0) }),
+      T("gtm.ce.r1", { p: T("gtm.pl.col"), s: nm(0), d: nm(1) }), T("gtm.ce.r1", { p: T("gtm.pl.col"), s: nm(1), d: nm(0) })];
+    h = "<thead><tr><th>" + esc(T("gtm.ce.t.row")) + "</th><th class='num'>" + esc(T("gtm.ce.t.gain")) + "</th><th class='num'>" + esc(T("gtm.ce.t.dual")) + "</th></tr></thead><tbody>";
+    for (k = 0; k < 4; k++) {
+      var lhs = CE.rows[k].a.reduce(function (s, v, q) { return s + v * pi[q]; }, 0);
+      h += "<tr><td>" + esc(names[k]) + "</td><td class='num" + (Math.abs(lhs) < 1e-7 ? " acc" : "") + "'>" + esc(nice(lhs, 3)) + "</td><td class='num'>" + esc(nice(Math.max(0, -R.duals[k]), 3)) + "</td></tr>";
+    }
+    $("ce-inc").innerHTML = h + "</tbody>";
+    $("ce-note").textContent = T("gtm.ce.note", { ce: pair(u1, u2, 3), t: nice(u1 + u2, 3), mx: S.mix ? pair(S.mix.u, S.mix.v, 3) : "·", dv: pair(d1, d2, 3) });
+    var vars = ["\\pi_{11}", "\\pi_{12}", "\\pi_{21}", "\\pi_{22}"];
+    var lin = function (co) {
+      var s = "", first = true;
+      co.forEach(function (cf, q) {
+        if (Math.abs(cf) < 1e-12) return;
+        var mag = Math.abs(cf), cc = Math.abs(mag - 1) < 1e-12 ? "" : texNum(mag) + "\\,";
+        if (first) s += cf < 0 ? "{-" + cc + vars[q] + "}" : cc + vars[q]; else s += (cf < 0 ? " - " : " + ") + cc + vars[q];
+        first = false;
+      });
+      return s || "0";
+    };
+    var tex = "\\begin{aligned} \\max\\;& " + lin(CE.c) + " && \\text{" + T("gtm.tex.total") + "} \\\\ ";
+    for (k = 0; k < 4; k++) tex += (k ? "& " : "\\text{ST}\\;& ") + lin(CE.rows[k].a) + " \\ge 0 && \\text{" + T("gtm.tex.inc", { k: k + 1 }) + "} \\\\ ";
+    tex += "& " + lin([1, 1, 1, 1]) + " = 1,\\; \\pi \\ge 0 && \\text{" + T("gtm.tex.dev") + "} \\end{aligned}";
+    TeX.set($("ce-lp"), tex, T("gtm.ce.lp.plain", { ce: pair(u1, u2, 3) }));
+  }
+
+  /* ===================================================================================== notes */
+  function renderNotes() {
+    var bos = anim.scen("bos").S, pk = PRE.pk(), Spk = solve2(pk.a, pk.b);
+    var oe = solveZS(ZPRE.oe.A), ce = solveCE(CE0.a, CE0.b), ceS = solve2(CE0.a, CE0.b), u1 = 0;
+    for (var k = 0; k < 4; k++) u1 += ce.R.x[k] * CE0.a[k >> 1][k & 1];
+    $("gtm-n1").innerHTML = T("gtm.n.p1");
+    $("gtm-n2").innerHTML = T("gtm.n.p2", { p: nice(bos.mix.p), q: nice(bos.mix.q) });
+    $("gtm-n3").innerHTML = T("gtm.n.p3", { k: pct(Spk.mix.p, 1), g: pct(Spk.mix.q, 1), s: T("gtm.pct", { v: num(Spk.mix.u, 1) }) });
+    $("gtm-n4").innerHTML = T("gtm.n.p4", { v: nice(oe.v), x: tuple(oe.x.map(function (v) { return nice(v); })), s: num(oe.sigma, 2),
+      h1: num(1.96 * oe.sigma / Math.sqrt(1000), 2), h3: num(1.96 * oe.sigma / Math.sqrt(100000), 3) });
+    $("gtm-n5").innerHTML = T("gtm.n.p5", { ce: nice(u1, 3), mx: nice(ceS.mix.u, 3) });
+  }
+
+  /* ===================================================================================== wiring */
+  document.querySelectorAll("#g-mode button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (GM.mode === b.getAttribute("data-v")) return;
+      GM.mode = b.getAttribute("data-v");
+      document.querySelectorAll("#g-mode button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      newGame();
+    });
+  });
+  $("g-new").addEventListener("click", newGame);
+  $("g-auto").addEventListener("click", autoPlay);
+  $("g-card").addEventListener("keydown", function (ev) {
+    if (ev.target.tagName === "INPUT") return;
+    var k = parseInt(ev.key, 10);
+    if (k >= 1 && k <= kOpts() && !GM.timer) { play(k - 1); ev.preventDefault(); }
+  });
+  $("fp-t").addEventListener("input", renderFP);
+  document.querySelectorAll("#x-pre button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#x-pre button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      loadPreset(b.getAttribute("data-v")); renderX();
+    });
+  });
+  $("x-s").addEventListener("input", function () { XS.a[0][0] = +$("x-s").value; renderX(); });
+  $("x-v").addEventListener("input", function () { XS.V = +$("x-v").value; loadPreset("hawk"); renderX(); });
+  $("x-c").addEventListener("input", function () { XS.C = +$("x-c").value; loadPreset("hawk"); renderX(); });
+  $("x-k").addEventListener("input", function () { XS.K = +$("x-k").value; loadPreset("chicken"); renderX(); });
+  $("x-x0").addEventListener("input", function () { renderPop(solve2(XS.a, XS.b)); });
+  document.querySelectorAll("#z-pre button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#z-pre button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      zLoad(b.getAttribute("data-v")); renderZ();
+    });
+  });
+  $("z-addr").addEventListener("click", function () { zResize(1, 0); });
+  $("z-delr").addEventListener("click", function () { zResize(-1, 0); });
+  $("z-addc").addEventListener("click", function () { zResize(0, 1); });
+  $("z-delc").addEventListener("click", function () { zResize(0, -1); });
+  $("z-p").addEventListener("input", function () { renderGraph(ZS.last); });
+  $("z-graph").addEventListener("pointerdown", function (ev) {
+    if (!ev.target.classList || !ev.target.classList.contains("grab")) return;
+    zDrag = true; $("z-graph").setPointerCapture(ev.pointerId); zSetFrom(ev); ev.preventDefault();
+  });
+  $("z-graph").addEventListener("pointermove", function (ev) { if (zDrag) zSetFrom(ev); });
+  $("z-graph").addEventListener("pointerup", function () { zDrag = false; });
+  $("z-graph").addEventListener("pointercancel", function () { zDrag = false; });
+  document.querySelectorAll("#z-sim-btns button").forEach(function (b) { b.addEventListener("click", function () { runSim(+b.getAttribute("data-n")); }); });
+  $("ce-reset").addEventListener("click", ceReset);
+
+  GM.rng = AN.rng(gameSeed());
+  $("g-card").setAttribute("data-seed", String(gameSeed()));
+  loadPreset("bos");
+  zLoad("oe");
+  CES.a = CE0.a.map(function (r) { return r.slice(); }); CES.b = CE0.b.map(function (r) { return r.slice(); });
+  var first = true;
+  I18N.onChange(function () {
+    if (first) { buildMoves(); first = false; }
+    buildBim(); zBuild(); ceBuild();
+    renderGame(); renderFP(); renderX(); renderZ(); renderCE(); renderNotes();
+    anim.refresh();
+  });
+})();
+</script>
+</body>
+</html>
