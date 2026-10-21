@@ -1,0 +1,1303 @@
+<!doctype html>
+<html lang="en" data-title-key="brs.title" data-i18n-bundles="lab/lab-braess">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>The Shortcut That Slows Everyone Down</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  [hidden] { display: none !important; }
+  /* new or urgent cues: bright red, or the crit shade where dark mode makes the accent that same red */
+  :root { --hot: var(--mit-bright); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hot: var(--crit); } }
+  :root[data-theme="dark"] { --hot: var(--crit); }
+
+  /* ---- animation ---- */
+  #brs-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;
+    top: 10px; left: 10px; right: 10px; max-width: none;
+  }
+  #brs-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #brs-sec .anim-hud .chip-stat span {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.5em;
+  }
+  #brs-sec .anim-hud .chip-stat.hot b { color: var(--hot); }
+  @media (min-width: 621px) and (max-width: 900px) {
+    #brs-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #brs-sec .anim-hud .chip-stat b { font-size: 15px; }
+  }
+  @media (max-width: 620px) {
+    #brs-sec .anim-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); top: 8px; left: 8px; right: 8px; gap: 4px; }
+    #brs-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 10.5px; }
+    #brs-sec .anim-hud .chip-stat b { font-size: 14px; }
+  }
+  #brs-sec .anim-legend i.lg-car { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
+  #brs-sec .anim-legend i.lg-carz { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  #brs-sec .anim-legend i.lg-band { width: 20px; height: 9px; background: rgba(139, 149, 158, 0.45); }
+  #brs-sec .anim-legend i.lg-ghost { width: 20px; height: 9px; border: 1.3px dashed var(--ink2); background: none; }
+  #brs-sec .anim-legend i.lg-toll { width: 20px; height: 11px; background: var(--accent); border-radius: 2px; }
+  #brs-sec .anim-legend i.lg-closed { width: 18px; height: 4px; background: var(--mit-silver); }
+  #brs-sec .anim-legend i.lg-selfish { width: 18px; height: 4px; background: var(--accent); }
+  #brs-sec .anim-legend i.lg-coord { width: 18px; height: 4px; background: var(--ink); }
+  #brs-sec .anim-legend i.lg-window { width: 18px; height: 11px; background: var(--sel); border: 1px solid var(--hot); }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+  .mhead { margin: 14px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 72ch; }
+  .mtext b { color: var(--ink); }
+  table.data.roads { min-width: 0; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.mono { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.hl { color: var(--accent-text); font-weight: 600; }
+  table.data td.hot { color: var(--hot); font-weight: 600; }
+  table.data td.dim, table.data tr.dim td { color: var(--muted); }
+  table.data td small { display: block; color: var(--muted); font-size: 11.5px; font-family: var(--font-mono); }
+  .tab-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 80ch; }
+  .tab-p b { color: var(--ink); }
+  #brs-mornings table.data { min-width: 560px; }
+  @media (max-width: 620px) {
+    #brs-mornings table.data { min-width: 0; }
+    #brs-mornings table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 6px; }
+  }
+
+  /* ---- planner ---- */
+  .ctl-row { display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: flex-end; }
+  .ctl-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ctl-group .lbl, .tolls-h { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .tolls-h { margin: 16px 0 6px; }
+  .rng { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; align-items: baseline; min-width: 0; }
+  .rng label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .rng output { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .rng input[type="range"] { flex: 1 1 100%; width: 100%; accent-color: var(--accent); margin: 4px 0 0; }
+  .rng input[type="range"]:disabled { opacity: 0.4; }
+  .rng.dem { flex: 1 1 260px; max-width: 420px; }
+  .tolls { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px 18px; }
+  @media (max-width: 900px) { .tolls { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .tolls { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tolls .rng label { font-weight: 600; font-size: 12.5px; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  button.btn {
+    font: 600 13px var(--font-sans); color: var(--on-solid); background: var(--accent); border: 1px solid var(--accent); border-radius: 2px;
+    padding: 8px 12px; cursor: pointer; white-space: normal; text-align: left;
+  }
+  button.btn:hover { filter: brightness(1.1); }
+  button.btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--border); }
+  button.btn[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--on-solid); }
+  button.btn.ghost[aria-pressed="true"] { box-shadow: none; }
+  .plan-msg {
+    margin: 12px 0 0; font-size: 14px; color: var(--ink2); background: var(--surface2); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 3px; padding: 8px 12px; max-width: 90ch;
+  }
+  .plan-msg b { color: var(--ink); }
+  .plan-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 20px; align-items: start; margin-top: 14px; }
+  @media (max-width: 820px) { .plan-grid { grid-template-columns: minmax(0, 1fr); } }
+  .plan-grid > div { min-width: 0; }
+  .net-svg { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; }
+  .net-svg text { font-family: var(--font-sans); }
+  .stats.plan { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .stat .k { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .stat .v { color: var(--accent-text); }
+  .stat .v.ink { color: var(--ink); }
+  @media (max-width: 560px) {
+    .stat { padding: 10px 11px; }
+    .stat .v { font-size: 21px; }
+    .stat .l { font-size: 12px; }
+  }
+  #brs-paths { margin-top: 12px; }
+  #brs-paths table.data { min-width: 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="brs.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="brs.eyebrow"></p>
+    <h1 data-i18n="brs.title"></h1>
+    <p class="lede" id="brs-lede"></p>
+  </header>
+
+  <section class="block" id="brs-sec" aria-labelledby="brs-h-anim">
+    <h2 class="section-title" id="brs-h-anim" data-i18n="nav.animation"></h2>
+    <p class="section-intro" id="brs-anim-intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="brs-scen-lbl" data-i18n="brs.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="brs-scen-lbl" id="brs-seg">
+        <button type="button" data-d="2000" aria-pressed="false"></button>
+        <button type="button" data-d="4000" aria-pressed="true"></button>
+        <button type="button" data-d="8000" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="anim" id="brs-anim">
+      <div class="anim-stage" role="img">
+        <div class="anim-hud" id="brs-hud">
+          <div class="chip-stat" id="brs-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="brs-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="brs-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="brs-c3"><b></b><span></span></div>
+          <div class="chip-stat accent" id="brs-c4"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-car"></i><span data-i18n="brs.lg.carAB"></span></span>
+      <span><i class="lg-carz"></i><span data-i18n="brs.lg.carZ"></span></span>
+      <span><i class="lg-band"></i><span data-i18n="brs.lg.band"></span></span>
+      <span><i class="lg-ghost"></i><span data-i18n="brs.lg.ghost"></span></span>
+      <span id="brs-lg-toll"><i class="lg-toll"></i><span data-i18n="brs.lg.toll"></span></span>
+      <span><i class="lg-closed"></i><span data-i18n="brs.lg.closed"></span></span>
+      <span><i class="lg-selfish"></i><span data-i18n="brs.lg.selfish"></span></span>
+      <span><i class="lg-coord"></i><span data-i18n="brs.lg.coord"></span></span>
+      <span><i class="lg-window"></i><span data-i18n="brs.lg.window"></span></span>
+    </div>
+    <p class="scen-status" id="brs-status" aria-live="polite"></p>
+  </section>
+
+  <div class="card">
+    <h2><span class="kicker" data-i18n="brs.model.kicker"></span><span data-i18n="brs.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mtext" id="brs-net-text" style="margin-top:0"></p>
+        <div class="tblwrap" style="margin-top:10px"><table class="data roads" id="brs-roads"></table></div>
+        <p class="mtext" id="brs-routes"></p>
+        <p class="mhead" data-i18n="brs.m.beck.head"></p>
+        <div class="formula" data-tex="brs.m.beck.tex" data-i18n="brs.m.beck.formula"></div>
+        <p class="mtext" data-i18n="brs.m.beck.why"></p>
+        <p class="mhead" data-i18n="brs.m.kkt.head"></p>
+        <div class="formula" data-tex="brs.m.kkt.tex" data-i18n="brs.m.kkt.formula"></div>
+        <p class="mtext" data-i18n="brs.m.kkt.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="brs.m.so.head"></p>
+        <div class="formula" data-tex="brs.m.so.tex" data-i18n="brs.m.so.formula"></div>
+        <p class="mtext" data-i18n="brs.m.so.why"></p>
+        <p class="mhead" data-i18n="brs.m.mc.head"></p>
+        <div class="formula" data-tex="brs.m.mc.tex" data-i18n="brs.m.mc.formula"></div>
+        <p class="mtext" data-i18n="brs.m.mc.why"></p>
+        <p class="mhead" data-i18n="brs.m.lp.head"></p>
+        <div class="formula" data-tex="brs.m.lp.tex" data-i18n="brs.m.lp.formula"></div>
+        <p class="mtext" data-i18n="brs.m.lp.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="brs-mornings">
+    <h2><span class="kicker" data-i18n="brs.tab.kicker"></span><span data-i18n="brs.tab.title"></span></h2>
+    <div class="tblwrap"><table class="data" id="brs-tab"></table></div>
+    <p class="tab-p" id="brs-tab-unit"></p>
+    <p class="tab-p" id="brs-tab-window"></p>
+  </div>
+
+  <section class="block" id="brs-plan" aria-labelledby="brs-h-plan">
+    <h2 class="section-title" id="brs-h-plan" data-i18n="brs.pl.h"></h2>
+    <p class="section-intro" data-i18n="brs.pl.intro"></p>
+    <div class="card">
+      <div class="ctl-row">
+        <div class="ctl-group">
+          <span class="lbl" id="brs-conn-lbl" data-i18n="brs.pl.conn"></span>
+          <div class="seg" role="group" aria-labelledby="brs-conn-lbl" id="brs-conn">
+            <button type="button" data-v="open" aria-pressed="true" data-i18n="brs.pl.open"></button>
+            <button type="button" data-v="closed" aria-pressed="false" data-i18n="brs.pl.closed"></button>
+          </div>
+        </div>
+        <div class="rng dem">
+          <label for="brs-d" data-i18n="brs.pl.d"></label><output id="brs-d-out" for="brs-d"></output>
+          <input type="range" id="brs-d" min="0" max="10000" step="100" value="4000">
+        </div>
+      </div>
+      <p class="tolls-h" data-i18n="brs.pl.tolls"></p>
+      <div class="tolls" id="brs-tolls"></div>
+      <div class="btn-row">
+        <button type="button" class="btn" id="brs-mc" aria-pressed="false" data-i18n="brs.pl.mc"></button>
+        <button type="button" class="btn" id="brs-lr" aria-pressed="false" data-i18n="brs.pl.lr"></button>
+        <button type="button" class="btn ghost" id="brs-clear" data-i18n="brs.pl.clear"></button>
+      </div>
+      <p class="plan-msg" id="brs-msg" aria-live="polite"></p>
+      <div class="plan-grid">
+        <div><svg class="net-svg" id="brs-svg" viewBox="0 0 400 220" role="img"></svg></div>
+        <div>
+          <div class="stats plan">
+            <div class="stat"><div class="k" data-i18n="brs.pl.s.avg"></div><div class="v" id="brs-s-avg"></div><div class="l" id="brs-s-avgl"></div></div>
+            <div class="stat"><div class="k" data-i18n="brs.pl.s.tt"></div><div class="v ink" id="brs-s-tt"></div><div class="l" id="brs-s-ttl"></div></div>
+            <div class="stat"><div class="k" data-i18n="brs.pl.s.rev"></div><div class="v ink" id="brs-s-rev"></div><div class="l" id="brs-s-revl"></div></div>
+            <div class="stat"><div class="k" data-i18n="brs.pl.s.ratio"></div><div class="v" id="brs-s-ratio"></div><div class="l" id="brs-s-ratiol"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tblwrap" id="brs-paths"><table class="data" id="brs-ptab"></table></div>
+      <p class="mhead" style="margin-top:16px" data-i18n="brs.pl.lp.head"></p>
+      <div class="formula" id="brs-lp-inst"></div>
+    </div>
+  </section>
+
+  <section>
+    <details open>
+      <summary data-i18n="brs.n.title"></summary>
+      <div class="body">
+        <p id="brs-n1"></p>
+        <p id="brs-n2"></p>
+        <p id="brs-n3"></p>
+        <p id="brs-n4"></p>
+        <p id="brs-n5"></p>
+        <p><span data-i18n="brs.n.rel"></span> <a href="read-the-table.html" data-keep-lang data-i18n="brs.n.rel1" data-ga-event="resource_open" data-ga-location="lab" data-ga-resource-id="lab-gtb-table" data-ga-level="lab"></a><span data-i18n="brs.n.rel.mid"></span><a href="pricing-the-road.html" data-keep-lang data-i18n="brs.n.rel2" data-ga-event="resource_open" data-ga-location="lab" data-ga-resource-id="lab-tolls" data-ga-level="lab"></a><span data-i18n="brs.n.rel.end"></span></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.11" data-refs="brs.refs"></p>
+  <p class="note" id="brs-footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-braess.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−";
+  var fmt = function (v, d, m) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 1 : d, m); };
+  var f0 = function (v) { return fmt(v, 0); };                       // cars, vehicle-hours, revenue
+  var fm = function (v) { return fmt(v, 1); };                       // minutes (at most one decimal)
+  var f3 = function (v) { return fmt(v, 3, 3); };                    // ratios
+  var sgnm = function (v) { var m = fm(Math.abs(v)); return m === fm(0) ? m : (v < 0 ? MINUS : "+") + m; };
+  // numbers inside TeX: no digit grouping (tex.js turns a comma between digits into a decimal comma)
+  var texN = function (v, d) { if (Math.abs(v) < 5e-10) v = 0; return (+v).toLocaleString(I18N.locale, { useGrouping: false, maximumFractionDigits: d == null ? 2 : d }); };
+
+  /* =====================================================================================
+     The network (stylized and illustrative): five roads, t_e(x) = a_e + b_e x minutes for x cars per hour.
+     Roads: 0 O->A, 1 A->D, 2 O->B, 3 B->D, 4 A->B (the connector). Routes: via A, via B and the zigzag O, A, B, D.
+     ===================================================================================== */
+  var LA = [5, 45, 45, 5, 2], LB = [0.01, 0, 0, 0.01, 0];
+  var ENDS = [["O", "A"], ["A", "D"], ["O", "B"], ["B", "D"], ["A", "B"]];
+  var PATHS = [[0, 1], [2, 3], [0, 4, 3]];
+  var NODE_SEQ = [["O", "A", "D"], ["O", "B", "D"], ["O", "A", "B", "D"]];
+  var DEMANDS = [2000, 4000, 8000];             // the three mornings of the animation (illustrative)
+  var S0 = 0.75;                                // share via A on the first morning, before drivers adjust (illustrative)
+  var VOT = 15000;                              // value of time, COP per hour (illustrative)
+  var DMAX = 10000;
+  var Z5 = [0, 0, 0, 0, 0];
+
+  function linkFlows(f) {
+    var x = [0, 0, 0, 0, 0];
+    PATHS.forEach(function (p, i) { p.forEach(function (e) { x[e] += f[i] || 0; }); });
+    return x;
+  }
+  // everything that follows from route flows f (and tolls tau): road flows and times, route times, totals
+  function evalFlows(f, tau) {
+    tau = tau || Z5;
+    var x = linkFlows(f), t = x.map(function (v, e) { return LA[e] + LB[e] * v; });
+    var c = PATHS.map(function (p) { return p.reduce(function (s, e) { return s + t[e]; }, 0); });
+    var ct = PATHS.map(function (p, i) { return c[i] + p.reduce(function (s, e) { return s + tau[e]; }, 0); });
+    var total = 0, rev = 0, beck = 0, d = (f[0] || 0) + (f[1] || 0) + (f[2] || 0);
+    for (var e = 0; e < 5; e++) {
+      total += x[e] * t[e]; rev += x[e] * tau[e];
+      beck += (LA[e] + tau[e]) * x[e] + LB[e] * x[e] * x[e] / 2;
+    }
+    return { f: f.slice(), x: x, t: t, c: c, ct: ct, total: total, rev: rev, beck: beck, d: d, tau: tau.slice() };
+  }
+  function gauss(M, b) {                         // solve M y = b (partial pivoting); null when singular
+    var n = b.length, A2 = M.map(function (r, i) { return r.concat([b[i]]); }), i, j, k;
+    for (k = 0; k < n; k++) {
+      var p = k;
+      for (i = k + 1; i < n; i++) if (Math.abs(A2[i][k]) > Math.abs(A2[p][k])) p = i;
+      if (Math.abs(A2[p][k]) < 1e-12) return null;
+      var tmp = A2[k]; A2[k] = A2[p]; A2[p] = tmp;
+      for (i = k + 1; i < n; i++) {
+        var m = A2[i][k] / A2[k][k];
+        for (j = k; j <= n; j++) A2[i][j] -= m * A2[k][j];
+      }
+    }
+    var y = new Array(n);
+    for (i = n - 1; i >= 0; i--) {
+      var s = A2[i][n];
+      for (j = i + 1; j < n; j++) s -= A2[i][j] * y[j];
+      y[i] = s / A2[i][i];
+    }
+    return y;
+  }
+  // Wardrop equilibrium (marginal = false) or system optimum (marginal = true, road costs a + 2 b x) for demand d.
+  // Enumerates the route supports: on a support every route costs the same pi, the flows add up to d, and the
+  // support is kept when its flows are >= 0 and no unused route is cheaper (the KKT conditions of the program).
+  function solve(d, open, tau, marginal) {
+    tau = tau || Z5;
+    var n = open ? 3 : 2, k = marginal ? 2 : 1;
+    var c0 = PATHS.map(function (p) { return p.reduce(function (s, e) { return s + LA[e] + tau[e]; }, 0); });
+    var J = PATHS.map(function (p) {
+      return PATHS.map(function (q) { return k * p.reduce(function (s, e) { return s + (q.indexOf(e) >= 0 ? LB[e] : 0); }, 0); });
+    });
+    var best = null;
+    if (d <= 0) {
+      var pi0 = Infinity;
+      for (var q0 = 0; q0 < n; q0++) pi0 = Math.min(pi0, c0[q0]);
+      best = { f: [0, 0, 0], pi: pi0 };
+    } else {
+      for (var mask = 1; mask < (1 << n) && !best; mask++) {
+        var S = [];
+        for (var p = 0; p < n; p++) if (mask & (1 << p)) S.push(p);
+        var M = [], rhs = [];
+        S.forEach(function (pp) { M.push(S.map(function (qq) { return J[pp][qq]; }).concat([-1])); rhs.push(-c0[pp]); });
+        M.push(S.map(function () { return 1; }).concat([0])); rhs.push(d);
+        var y = gauss(M, rhs);
+        if (!y) continue;
+        var f = [0, 0, 0], tol = 1e-7 * Math.max(1, d), pi = y[S.length], ok = true;
+        S.forEach(function (pp, i) { f[pp] = y[i]; if (y[i] < -tol) ok = false; });
+        if (!ok) continue;
+        for (var q = 0; q < n && ok; q++) {
+          if (S.indexOf(q) >= 0) continue;
+          var cq = c0[q];
+          for (var r = 0; r < 3; r++) cq += J[q][r] * f[r];
+          if (cq < pi - 1e-7) ok = false;
+        }
+        if (!ok) continue;
+        best = { f: f.map(function (v) { return Math.max(0, v); }), pi: pi };
+      }
+    }
+    var ev = evalFlows(best.f, tau);
+    ev.n = n; ev.open = open; ev.d = d;
+    var mn = Infinity, mt = Infinity;
+    for (var i2 = 0; i2 < n; i2++) { mn = Math.min(mn, ev.c[i2]); mt = Math.min(mt, ev.ct[i2]); }
+    ev.avg = d > 0 ? ev.total / d : mn;            // average minutes of travel per driver
+    ev.avgTT = d > 0 ? (ev.total + ev.rev) / d : mt; // average minutes of travel plus toll
+    return ev;
+  }
+  // Path-based gradient projection from the closed network's equilibrium: every used route moves toward the
+  // fastest one by alpha (gap / sum of b over the roads they do not share), projected on f >= 0.
+  function gradProj(d, alpha, tol, maxR) {
+    var f = solve(d, false).f.slice(), hist = [f.slice()], r;
+    for (r = 0; r < maxR; r++) {
+      var c = evalFlows(f).c, m = 0, gap = 0, p;
+      for (p = 1; p < 3; p++) if (c[p] < c[m]) m = p;
+      for (p = 0; p < 3; p++) if (f[p] > 1e-9) gap = Math.max(gap, c[p] - c[m]);
+      if (gap < tol) break;
+      var nf = f.slice(), rest = 0;
+      for (p = 0; p < 3; p++) {
+        if (p === m) continue;
+        if (f[p] > 0) {
+          var s = 0;
+          for (var e = 0; e < 5; e++) if ((PATHS[p].indexOf(e) >= 0) !== (PATHS[m].indexOf(e) >= 0)) s += LB[e];
+          nf[p] = s > 0 ? Math.max(0, f[p] - alpha * (c[p] - c[m]) / s) : 0;
+        }
+        rest += nf[p];
+      }
+      nf[m] = d - rest;
+      f = nf; hist.push(f.slice());
+    }
+    return { hist: hist, rounds: r };
+  }
+  // Frank-Wolfe from all drivers on the free-flow fastest route, exact line search; stops when the average
+  // excess cost over the fastest route is under tol minutes (only for a note)
+  function frankWolfe(d, tol, maxIt) {
+    function aon(t) {
+      var c = PATHS.map(function (p) { return p.reduce(function (s, e) { return s + t[e]; }, 0); }), m = 0, y = [0, 0, 0, 0, 0];
+      for (var p = 1; p < 3; p++) if (c[p] < c[m]) m = p;
+      PATHS[m].forEach(function (e) { y[e] = d; });
+      return y;
+    }
+    var x = aon(LA), it;
+    for (it = 0; it < maxIt; it++) {
+      var t = x.map(function (v, e) { return LA[e] + LB[e] * v; }), y = aon(t), tx = 0, ty = 0, tdx = 0, den = 0;
+      for (var e = 0; e < 5; e++) { tx += t[e] * x[e]; ty += t[e] * y[e]; }
+      if ((tx - ty) / d < tol) break;
+      for (e = 0; e < 5; e++) { var dx = y[e] - x[e]; tdx += t[e] * dx; den += LB[e] * dx * dx; }
+      var a = den > 0 ? Math.min(1, Math.max(0, -tdx / den)) : 1;
+      for (e = 0; e < 5; e++) x[e] += a * (y[e] - x[e]);
+    }
+    return it;
+  }
+  // the least-revenue toll LP with the optimal flows fixed: variables tau_1..tau_5, pi
+  function leastRevenue(so) {
+    var rows = [];
+    for (var p = 0; p < so.n; p++) {
+      var a = [0, 0, 0, 0, 0, -1];
+      PATHS[p].forEach(function (e) { a[e] = 1; });
+      rows.push({ a: a, op: so.f[p] > 1e-6 ? "=" : ">=", b: -so.c[p] });
+    }
+    var r = LP.solve({ sense: "min", c: so.x.concat([0]), rows: rows });
+    var tau = r.x.slice(0, 5), pi = r.x[5];
+    var ray = so.n === 3 && so.f[2] <= 1e-6;     // the zigzag is empty at the optimum: a ray of connector tolls
+    var thr = ray ? Math.max(0, pi - (so.c[2] + tau[0] + tau[3])) : 0;
+    if (ray) tau[4] = thr;
+    if (so.n < 3) tau[4] = 0;
+    return { tau: tau, pi: pi, rev: r.z, ray: ray, thr: thr, status: r.status };
+  }
+  function mcTolls(so) { return so.x.map(function (v, e) { return LB[e] * v; }); }
+  function gapFlows(a, b) { var g = 0; for (var i = 0; i < 3; i++) g = Math.max(g, Math.abs(a.f[i] - b.f[i])); return g; }
+
+  /* ---------- the three mornings ---------- */
+  var cache = {};
+  function scen(d) {
+    if (cache[d]) return cache[d];
+    var closed = solve(d, false), open = solve(d, true), so = solve(d, true, null, true);
+    var gp = gradProj(d, 0.5, 0.01, 30), gp1 = gradProj(d, 1, 0.01, 30);
+    var mt = mcTolls(so), mc = solve(d, true, mt), lr = leastRevenue(so), lrEq = solve(d, true, lr.tau);
+    var key = open.total > closed.total + 1e-6 ? "hurt" : (open.total < closed.total - 1e-6 ? "help" : "idle");
+    var needToll = open.total - so.total > 1e-6;
+    var animTau = needToll ? mt : Z5, toll = needToll ? mc : open;
+    var start = evalFlows([S0 * d, (1 - S0) * d, 0]);
+    var gpEv = gp.hist.map(function (f) { return evalFlows(f); });
+    var maxT = 0, maxBar = 0;
+    [start, closed, open, toll].concat(gpEv).forEach(function (e) { e.c.forEach(function (v) { maxT = Math.max(maxT, v); }); });
+    [start, closed, open, toll].concat(gpEv).forEach(function (e) { e.c.forEach(function (v) { maxBar = Math.max(maxBar, v); }); });
+    // the closed network's potential against the share of drivers via A (chapter 2)
+    var curve = [];
+    for (var i = 0; i <= 60; i++) { var s = i / 60; curve.push([s, evalFlows([s * d, (1 - s) * d, 0]).beck]); }
+    var S = {
+      d: d, key: key, needToll: needToll, closed: closed, open: open, so: so, gp: gp, gp1: gp1, gpEv: gpEv,
+      mt: mt, mc: mc, mcEq: evalFlows(mc.f, mt), lr: lr, lrEq: lrEq, animTau: animTau, toll: evalFlows(toll.f, animTau),
+      start: start, curve: curve, maxTrip: maxT, vmax: Math.ceil(maxBar / 10) * 10 + 10,
+      poa: so.total > 0 ? open.total / so.total : 1,
+      fw: frankWolfe(d, 0.01, 200000)
+    };
+    S.mcGap = gapFlows(mc, so); S.lrGap = gapFlows(lrEq, so);
+    if (S.mcGap > 1e-3 || S.lrGap > 1e-3) console.warn("toll re-solve differs from the optimum", d, S.mcGap, S.lrGap);
+    return (cache[d] = S);
+  }
+
+  /* ---------- the sweep over demand, the window and the worst demand ---------- */
+  var SW = (function () {
+    var ds = [], cl = [], op = [], so = [], f3a = [];
+    for (var d = 0; d <= DMAX + 1e-9; d += 50) {
+      var a = solve(d, false), b = solve(d, true), c = solve(d, true, null, true);
+      ds.push(d); cl.push(a.avg); op.push(b.avg); so.push(c.avg); f3a.push(b.f[2]);
+    }
+    var diff = function (d) { return solve(d, true).avg - solve(d, false).avg; };
+    var poa = function (d) { var b = solve(d, true), c = solve(d, true, null, true); return c.total > 0 ? b.total / c.total : 1; };
+    // worst demand: the grid, then golden section around the best grid point
+    var bi = 1, bv = 0;
+    for (var i = 1; i < ds.length; i++) { var v = poa(ds[i]); if (v > bv) { bv = v; bi = i; } }
+    var lo = ds[Math.max(1, bi - 1)], hi = ds[Math.min(ds.length - 1, bi + 1)], g = (Math.sqrt(5) - 1) / 2;
+    var x1 = hi - g * (hi - lo), x2 = lo + g * (hi - lo), v1 = poa(x1), v2 = poa(x2);
+    while (hi - lo > 1e-3) {
+      if (v1 < v2) { lo = x1; x1 = x2; v1 = v2; x2 = lo + g * (hi - lo); v2 = poa(x2); }
+      else { hi = x2; x2 = x1; v2 = v1; x1 = hi - g * (hi - lo); v1 = poa(x1); }
+    }
+    var dw = (lo + hi) / 2;
+    // the window: lower end where E_open - E_closed turns positive, upper end where the zigzag empties
+    var wlo = null, whi = null, k;
+    for (k = 1; k < ds.length; k++) if (op[k] - cl[k] > 1e-9 && op[k - 1] - cl[k - 1] <= 1e-9) {
+      var a1 = ds[k - 1], b1 = ds[k];
+      for (var it = 0; it < 60; it++) { var m = (a1 + b1) / 2; if (diff(m) > 1e-9) b1 = m; else a1 = m; }
+      wlo = (a1 + b1) / 2; break;
+    }
+    for (k = ds.length - 1; k > 0; k--) if (f3a[k - 1] > 1e-9 && f3a[k] <= 1e-9) {
+      var a2 = ds[k - 1], b2 = ds[k];
+      for (var it2 = 0; it2 < 60; it2++) { var m2 = (a2 + b2) / 2; if (solve(m2, true).f[2] > 1e-9) a2 = m2; else b2 = m2; }
+      whi = (a2 + b2) / 2; break;
+    }
+    return { ds: ds, cl: cl, op: op, so: so, wlo: wlo, whi: whi, dw: dw, pw: poa(dw),
+      eo: solve(dw, true).avg, ec: solve(dw, false).avg, ymax: 105 };
+  })();
+
+  var state = { d: 4000 };
+
+  /* =====================================================================================
+     "See it in motion". Numbers come from the model above; the network drawing, the starting split, the car
+     positions and the timing are illustrative.
+     ===================================================================================== */
+  var A = window.Anim, E = A.ease, seg = A.seg, lerp = A.lerp, clamp = A.clamp;
+  var root = document.getElementById("brs-anim");
+  var stage = root.querySelector(".anim-stage");
+  var hudEl = document.getElementById("brs-hud");
+  var cv = A.canvas(stage), ctx = cv.ctx;
+  stage.appendChild(hudEl);                      // counters above the canvas
+  var DUR = 54, CH = [0, 8, 17, 28, 36, 45];
+  var CHS = CH.map(function (c, k) { return { t: c, key: "brs.ch" + (k + 1) }; });
+  var MPS = 32;                                  // minutes of travel per second of animation
+  var T0 = 1.0;                                  // first departures
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
+  var MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  var C = null, HOT = "", L = {}, hudKey = "";
+  var TAU = Math.PI * 2;
+  var font = function (w, s, mono) { return w + " " + s + "px " + (mono ? MONO : SANS); };
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [128, 128, 128];
+  }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  function chapterAt(t) { var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; }); return ci; }
+
+  /* ---------- the state of the roads at time t ---------- */
+  function lerpF(a, b, u) { return [lerp(a[0], b[0], u), lerp(a[1], b[1], u), lerp(a[2], b[2], u)]; }
+  function roundsAt(S, t) {                      // rounds of switching done (fractional) between 20 and 28 s
+    return S.gp.rounds * clamp((t - 20) / 8, 0, 1);
+  }
+  function flowsAt(S, t) {
+    var f;
+    if (t < 10) f = S.start.f;
+    else if (t < 15) f = lerpF(S.start.f, S.closed.f, E.inOut(seg(t, 10, 15)));
+    else if (t < 20 || S.gp.rounds === 0) f = t < 28 ? S.closed.f : null;
+    if (!f && t < 28) {
+      var R = S.gp.rounds, u = roundsAt(S, t), k = Math.min(R - 1, Math.floor(u)), fr = E.inOut(clamp((u - k) / 0.7, 0, 1));
+      f = lerpF(S.gp.hist[k], k + 1 >= R ? S.open.f : S.gp.hist[k + 1], fr);
+    }
+    if (!f) {
+      if (t < 47) f = S.open.f;
+      else f = lerpF(S.open.f, S.toll.f, E.inOut(seg(t, 47, 50.5)));
+    }
+    return f;
+  }
+
+  /* ---------- layout ---------- */
+  function wrap(s, maxW) {
+    var words = String(s).split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2, small = !portrait && W < 820;
+    var hh = hudEl.offsetHeight, hy = hudEl.offsetTop;
+    L = { W: W, H: H, portrait: portrait, small: small, hudB: hy + hh };
+    if (portrait) { L.fs = 10.5; L.ft = 13.5; L.fsub = 11.5; L.node = 10; L.wmax = 13; L.car = 1.7; }
+    else if (small) { L.fs = 11; L.ft = 14; L.fsub = 12; L.node = 11; L.wmax = 17; L.car = 2; }
+    else { L.fs = 12; L.ft = 16; L.fsub = 13; L.node = 13; L.wmax = 22; L.car = 2.4; }
+    L.capX = portrait ? 8 : 12;
+    L.capY = L.hudB + L.ft + (portrait ? 8 : 12);
+    L.capW = portrait ? W - 16 : Math.round(W * 0.58) - 12;
+    var tl = 1, sl = 1;
+    DEMANDS.forEach(function (d) {
+      var S = scen(d);
+      CH.forEach(function (c) {
+        var cap = captions(S, c + 0.5);
+        ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+        ctx.font = font(400, L.fsub); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+      });
+    });
+    L.capB = L.capY + (tl - 1) * (L.ft + 3) + 6 + sl * (L.fsub + 4);
+    var mid;
+    if (portrait) {
+      L.nx0 = 6; L.nx1 = W - 6; L.ny0 = L.capB + 2;
+      L.ny1 = L.ny0 + Math.round((H - 8 - L.ny0) * 0.5);
+      L.pA = { x0: 8, x1: Math.round(W / 2) - 7, y0: L.ny1 + 12, y1: H - 8 };
+      L.pB = { x0: Math.round(W / 2) + 7, x1: W - 8, y0: L.ny1 + 12, y1: H - 8 };
+    } else {
+      var px0 = Math.round(W * 0.6);
+      L.nx0 = 10; L.nx1 = px0 - 26; L.ny0 = L.capB + 4; L.ny1 = H - 10;
+      var py0 = L.hudB + 16, py1 = H - 12;
+      mid = py0 + Math.round((py1 - py0) * 0.42);
+      L.pA = { x0: px0, x1: W - 14, y0: py0, y1: mid - 8 };
+      L.pB = { x0: px0, x1: W - 14, y0: mid + 12, y1: py1 };
+    }
+    // the four junctions inside the network area (room around them for the labels)
+    var padX = L.node + (portrait ? 4 : 8), padY = L.node + 4;
+    var cx = (L.nx0 + L.nx1) / 2, cy = (L.ny0 + L.ny1) / 2;
+    L.cx = cx; L.cy = cy;
+    L.N = { O: [L.nx0 + padX, cy], A: [cx, L.ny0 + padY], B: [cx, L.ny1 - padY - (portrait ? 0 : 6)], D: [L.nx1 - padX, cy] };
+    L.N.B[1] = Math.max(L.N.B[1], L.N.A[1] + 40);
+    L.cy = (L.N.A[1] + L.N.B[1]) / 2;
+    L.N.O[1] = L.cy; L.N.D[1] = L.cy;
+    // widest label of the bar rows
+    ctx.font = font(600, L.fs);
+    L.labW = 0;
+    ["brs.r1", "brs.r2", "brs.r3", "brs.l.closed", "brs.l.selfish", "brs.l.coord"].forEach(function (k) { L.labW = Math.max(L.labW, ctx.measureText(T(k)).width); });
+    ctx.font = font(600, L.fs, true);
+    L.valW = ctx.measureText("188.8").width;
+    hudKey = W + "x" + H + ":" + hh + ":" + I18N.lang;
+  }
+
+  /* ---------- camera: a zoom on the connector while it opens ---------- */
+  var cam = { z: 1 };
+  function setCam(t) { cam.z = 1 + 0.32 * E.inOut(seg(t, 17, 18.2)) * (1 - E.inOut(seg(t, 19, 20.2))); }
+  function P(name) {
+    var p = L.N[name];
+    return [L.cx + (p[0] - L.cx) * cam.z, L.cy + (p[1] - L.cy) * cam.z];
+  }
+  function wOf(x) { return Math.max(1.2, Math.min(L.wmax, L.wmax * x / 6000)); }
+
+  /* ---------- small drawing helpers ---------- */
+  function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
+  function label(txt, X, Y, align, col, f, a, base) {
+    if (a <= 0.01 || !txt) return;
+    ctx.globalAlpha = a; ctx.font = f; ctx.textAlign = align || "left"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = C.surface; ctx.strokeText(txt, X, Y);
+    ctx.fillStyle = col; ctx.fillText(txt, X, Y);
+    ctx.globalAlpha = 1;
+  }
+  function fnText(e) { return LB[e] > 0 ? T("brs.l.fn", { a: fmt(LA[e], 2), b: fmt(LB[e], 3) }) : T("brs.l.fix", { a: fmt(LA[e], 2) }); }
+
+  /* ---------- the network ---------- */
+  function drawNetwork(S, t, f, ev) {
+    var appear = function (e) { return E.out(seg(t, 0.15 + 0.12 * e, 0.75 + 0.12 * e)); };
+    var conn = E.inOut(seg(t, 17.2, 18.4));      // the connector is drawn in
+    var x = ev.x, so = S.so.x;
+    ctx.save();
+    if (cam.z > 1.001) { ctx.beginPath(); ctx.rect(L.nx0 - 4, L.ny0 - 6, L.nx1 - L.nx0 + 8, L.ny1 - L.ny0 + 12); ctx.clip(); }
+    // roads: a thin line for the road, a band as wide as its traffic
+    for (var e = 0; e < 5; e++) {
+      var a = e === 4 ? conn : appear(e);
+      if (a <= 0) continue;
+      var p = P(ENDS[e][0]), q = P(ENDS[e][1]);
+      var qx = lerp(p[0], q[0], e === 4 ? conn : 1), qy = lerp(p[1], q[1], e === 4 ? conn : 1);
+      ctx.globalAlpha = e === 4 ? 1 : a;
+      ctx.strokeStyle = e === 4 && t < 19.6 ? HOT : C.axis; ctx.lineWidth = e === 4 && t < 19.6 ? 2.5 : 1.5;
+      ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(qx, qy); ctx.stroke();
+      if (x[e] > 0.5 && (e < 4 || conn >= 1)) {
+        ctx.globalAlpha = 0.42 * a; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = wOf(x[e]); ctx.lineCap = "butt";
+        ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+    // the system optimum as a ghost: dashed outlines of its bands
+    var ga = seg(t, 36.6, 37.6);
+    if (ga > 0) {
+      ctx.setLineDash([4, 3]); ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.2;
+      for (e = 0; e < 5; e++) {
+        if (so[e] < 0.5) continue;
+        var p1 = P(ENDS[e][0]), q1 = P(ENDS[e][1]), dx = q1[0] - p1[0], dy = q1[1] - p1[1], len = Math.hypot(dx, dy);
+        var ux = dx / len, uy = dy / len, nx = -uy, ny = ux, h = wOf(so[e]) / 2 + 1.5, trim = L.node + 3;
+        ctx.globalAlpha = 0.9 * ga;
+        [-1, 1].forEach(function (sd) {
+          ctx.beginPath();
+          ctx.moveTo(p1[0] + ux * trim + nx * h * sd, p1[1] + uy * trim + ny * h * sd);
+          ctx.lineTo(q1[0] - ux * trim + nx * h * sd, q1[1] - uy * trim + ny * h * sd);
+          ctx.stroke();
+        });
+      }
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+    drawCars(S, t, ev);
+    // connector pulse while it opens
+    if (t > 17.2 && t < 20) {
+      var ph = ((t - 17.2) % 1.1) / 1.1, cA = P("A"), cB = P("B"), mx = (cA[0] + cB[0]) / 2, my = (cA[1] + cB[1]) / 2;
+      ctx.globalAlpha = 0.6 * (1 - ph) * (1 - seg(t, 19.2, 20)); ctx.strokeStyle = HOT; ctx.lineWidth = 2;
+      circle(mx, my, 6 + ph * (L.portrait ? 18 : 26)); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    // junctions
+    ["O", "A", "B", "D"].forEach(function (n, i) {
+      var a2 = E.back(seg(t, 0.05 + 0.1 * i, 0.55 + 0.1 * i));
+      if (a2 <= 0.001) return;
+      var c = P(n), r = L.node * a2;
+      ctx.fillStyle = C.surface; circle(c[0], c[1], r + 1); ctx.fill();
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6; circle(c[0], c[1], r); ctx.stroke();
+      label(n, c[0], c[1] + 0.5, "center", C.ink, font(700, L.node), clamp(a2, 0, 1));
+    });
+    // place names under O and D
+    var pa = seg(t, 0.8, 1.6), fO = P("O"), fD = P("D"), sub = font(400, L.fs - 0.5);
+    ctx.font = sub;
+    var wO = ctx.measureText(T("brs.l.north")).width, wD = ctx.measureText(T("brs.l.down")).width;
+    label(T("brs.l.north"), Math.max(fO[0], 4 + wO / 2), fO[1] + L.node + L.fs, "center", C.muted, sub, pa);
+    label(T("brs.l.down"), Math.min(fD[0], L.W - 4 - wD / 2), fD[1] + L.node + L.fs, "center", C.muted, sub, pa);
+    // road times on the outside of the diamond, the connector's beside it
+    var lf = font(600, L.fs, true);
+    for (e = 0; e < 4; e++) {
+      var la = seg(t, 1.0 + 0.1 * e, 1.7 + 0.1 * e);
+      if (la <= 0) continue;
+      var p2 = P(ENDS[e][0]), q2 = P(ENDS[e][1]), mx2 = (p2[0] + q2[0]) / 2, my2 = (p2[1] + q2[1]) / 2;
+      var ox = mx2 - L.cx, oy = my2 - L.cy, ol = Math.hypot(ox, oy) || 1, off = wOf(x[e]) / 2 + L.fs + 2;
+      // the label sits off the band, toward the outer corner (it never crosses the band)
+      var lx = mx2 + ox / ol * off, ly = my2 + oy / ol * off;
+      label(fnText(e), lx, ly, "center", C.ink2, lf, la);
+    }
+    if (conn > 0) {
+      var cA2 = P("A"), cB2 = P("B");
+      label(fnText(4), (cA2[0] + cB2[0]) / 2 + wOf(x[4]) / 2 + 6, (cA2[1] + cB2[1]) / 2, "left", t < 19.6 ? HOT : C.ink2, lf, seg(t, 18, 18.8));
+    }
+    // tolls: a badge on each tolled road, inside the diamond
+    var ta = E.back(seg(t, 45.6, 46.6));
+    if (ta > 0.001) {
+      for (e = 0; e < 5; e++) {
+        if (S.animTau[e] <= 1e-9) continue;
+        var p3 = P(ENDS[e][0]), q3 = P(ENDS[e][1]), mx3 = (p3[0] + q3[0]) / 2, my3 = (p3[1] + q3[1]) / 2;
+        var ix = L.cx - mx3, iy = L.cy - my3, il = Math.hypot(ix, iy) || 1, io = wOf(Math.max(x[e], S.toll.x[e])) / 2 + (L.portrait ? 12 : 16);
+        var bx = mx3 + ix / il * io, by = my3 + iy / il * io, txt = T("brs.l.toll", { v: fm(S.animTau[e]) }), bf = font(700, L.fs);
+        ctx.font = bf;
+        var bw = ctx.measureText(txt).width + 10, bh = L.fs + 8;
+        ctx.save(); ctx.translate(bx, by); ctx.scale(ta, ta);
+        ctx.globalAlpha = clamp(ta, 0, 1); ctx.fillStyle = C.accent; ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+        ctx.fillStyle = C["on-solid"]; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(txt, 0, 0.5);
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- cars: a pure function of t. Trip k leaves at a fixed time, picks its route from the shares of
+     that moment and moves along it at the road times of that moment (MPS minutes per second) ---------- */
+  function drawCars(S, t, evNow) {
+    var r = 55 * Math.sqrt(S.d / 4000), maxSec = (S.maxTrip + 2) / MPS;
+    var kLo = Math.max(0, Math.floor((t - maxSec - T0) * r) - 1), kHi = Math.floor((t - T0) * r) + 1;
+    var rad = L.car;
+    for (var k = kLo; k <= kHi; k++) {
+      var rn = A.rng(k * 7919 + 101), u1 = rn(), u2 = rn(), u3 = rn();
+      var dep = T0 + (k + 0.15 + 0.7 * u1) / r;
+      if (dep > t) continue;
+      var f = flowsAt(S, dep), sum = f[0] + f[1] + f[2];
+      if (sum <= 0) continue;
+      var pick = u2 * sum, p = pick < f[0] ? 0 : (pick < f[0] + f[1] ? 1 : 2);
+      if (p === 2 && dep < 17.5) p = f[0] >= f[1] ? 0 : 1;
+      var ev = evalFlows(f), m = (t - dep) * MPS, Tp = ev.c[p];
+      if (m >= Tp) continue;
+      var links = PATHS[p], cum = 0, j = 0;
+      while (j < links.length - 1 && m > cum + ev.t[links[j]]) { cum += ev.t[links[j]]; j++; }
+      var e = links[j], u = clamp((m - cum) / ev.t[e], 0, 1), na = P(ENDS[e][0]), nb = P(ENDS[e][1]);
+      var dx = nb[0] - na[0], dy = nb[1] - na[1], len = Math.hypot(dx, dy) || 1, lat = (u3 - 0.5) * 0.8 * wOf(evNow.x[e]);
+      var X = na[0] + dx * u - dy / len * lat, Y = na[1] + dy * u + dx / len * lat;
+      ctx.globalAlpha = Math.min(seg(m, 0, 2.5), 1 - seg(m, Tp - 2.5, Tp));
+      ctx.fillStyle = p === 2 ? C.accent : C.ink;
+      circle(X, Y, rad); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- panel A: minutes per route, then minutes per driver ---------- */
+  function slotTitle(R, txt, a) { label(txt, R.x0, R.y0 + L.fs / 2 + 1, "left", C.ink2, font(700, L.fs + 0.5), a); }
+  function barRows(R, rows, a, vmax) {           // rows: [{lab, v, col, solid, a, vcol}]
+    var top = R.y0 + L.fs + 10, n = rows.length, rh = Math.min(L.portrait ? 26 : 30, (R.y1 - top) / n);
+    var bx0 = R.x0 + L.labW + 8, bx1 = R.x1 - L.valW - 8, bh = Math.max(6, Math.round(rh * 0.46));
+    var pos = [];
+    rows.forEach(function (o, i) {
+      var y = top + rh * (i + 0.5), ra = a * (o.a == null ? 1 : o.a);
+      pos.push(y);
+      if (ra <= 0.01) return;
+      label(o.lab, R.x0, y, "left", C.ink, font(600, L.fs), ra);
+      var w = (bx1 - bx0) * clamp(o.v / vmax, 0, 1);
+      ctx.globalAlpha = ra;
+      ctx.fillStyle = C.surface2; ctx.fillRect(bx0, y - bh / 2, bx1 - bx0, bh);
+      if (o.solid) { ctx.fillStyle = o.col; ctx.fillRect(bx0, y - bh / 2, w, bh); }
+      else { ctx.strokeStyle = o.col; ctx.lineWidth = 1.4; ctx.strokeRect(bx0 + 0.7, y - bh / 2 + 0.7, Math.max(0, w - 1.4), bh - 1.4); }
+      ctx.globalAlpha = 1;
+      label(fm(o.v), bx1 + 6, y, "left", o.vcol || C.ink, font(600, L.fs, true), ra);
+    });
+    return { bx0: bx0, bx1: bx1, pos: pos, bh: bh, rh: rh };
+  }
+  function drawSlotA(S, t, f, ev) {
+    var R = L.pA, aR = seg(t, 1.4, 2.4) * (1 - seg(t, 31.2, 32)), aS = seg(t, 32, 33);
+    if (aR > 0) {
+      slotTitle(R, T("brs.l.routes"), aR);
+      var d = S.d, used = f.map(function (v) { return v > 0.002 * d; });
+      var rows = [0, 1, 2].map(function (p) {
+        return { lab: T("brs.r" + (p + 1)), v: ev.c[p], col: p === 2 ? C.accent : C.ink, solid: used[p], vcol: used[p] ? C.ink : C.muted,
+          a: p === 2 ? seg(t, 18, 19) : 1 };
+      });
+      var B = barRows(R, rows, aR, S.vmax);
+      // Wardrop: every used route takes the same time (a dashed line through the used bars)
+      var us = [0, 1, 2].filter(function (p) { return used[p] && (p < 2 || t >= 18); });
+      if (us.length >= 2) {
+        var lo = Infinity, hi = -Infinity;
+        us.forEach(function (p) { lo = Math.min(lo, ev.c[p]); hi = Math.max(hi, ev.c[p]); });
+        var eqa = aR * clamp(1 - (hi - lo) / 0.6, 0, 1);
+        if (eqa > 0.01) {
+          var X = B.bx0 + (B.bx1 - B.bx0) * clamp((lo + hi) / 2 / S.vmax, 0, 1);
+          ctx.globalAlpha = eqa; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.2; ctx.setLineDash([3, 3]);
+          ctx.beginPath(); ctx.moveTo(X, B.pos[0] - B.rh / 2 + 2); ctx.lineTo(X, B.pos[2] + B.rh / 2 - 2); ctx.stroke();
+          ctx.setLineDash([]); ctx.globalAlpha = 1;
+        }
+      }
+    }
+    if (aS > 0) {
+      slotTitle(R, T("brs.l.summary"), aS);
+      var srows = [
+        { lab: T("brs.l.closed"), v: S.closed.avg, col: C["mit-silver"], solid: true },
+        { lab: T("brs.l.selfish"), v: S.open.avg, col: C.accent, solid: true, vcol: S.key === "hurt" ? HOT : C.ink },
+        { lab: T("brs.l.coord"), v: S.so.avg, col: C.ink, solid: true, a: seg(t, 37, 38) }
+      ];
+      var B2 = barRows(R, srows, aS, S.vmax);
+      // the change the connector makes, beside the selfish bar
+      var da = aS * seg(t, 33, 34), dv = S.open.avg - S.closed.avg;
+      if (da > 0.01 && Math.abs(dv) > 0.05) {
+        var X2 = B2.bx0 + (B2.bx1 - B2.bx0) * clamp(Math.min(S.open.avg, S.closed.avg) / S.vmax, 0, 1);
+        label(T("brs.l.delta", { v: sgnm(dv) }), X2 - 4, B2.pos[1] - B2.bh / 2 - (L.fs / 2 + 2) + 1, "right",
+          dv > 0 ? HOT : C.ink, font(700, L.fs - 0.5), da);
+      }
+    }
+  }
+
+  /* ---------- panel B: Beckmann's potential, the rounds, minutes against demand ---------- */
+  function axesBox(R, top) { return { x0: R.x0 + 2, x1: R.x1 - 4, y0: top, y1: R.y1 - L.fs - 6 }; }
+  function drawBeck(S, t, f, a) {
+    var R = L.pB;
+    slotTitle(R, T("brs.l.beck"), a);
+    var Bx = axesBox(R, R.y0 + L.fs + 16), lo = Infinity, hi = -Infinity;
+    S.curve.forEach(function (c) { lo = Math.min(lo, c[1]); hi = Math.max(hi, c[1]); });
+    var X = function (s) { return Bx.x0 + s * (Bx.x1 - Bx.x0); };
+    var Y = function (v) { return Bx.y1 - (v - lo) / (hi - lo || 1) * (Bx.y1 - Bx.y0); };
+    ctx.globalAlpha = a; ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(Bx.x0, Bx.y1 + 0.5); ctx.lineTo(Bx.x1, Bx.y1 + 0.5); ctx.stroke();
+    var u = E.inOut(seg(t, 8.6, 9.8)), n = Math.max(1, Math.round(u * (S.curve.length - 1)));
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath();
+    for (var i = 0; i <= n; i++) { var c = S.curve[i]; if (i) ctx.lineTo(X(c[0]), Y(c[1])); else ctx.moveTo(X(c[0]), Y(c[1])); }
+    ctx.stroke(); ctx.globalAlpha = 1;
+    var tf = font(400, L.fs - 0.5, true);
+    [0, 0.5, 1].forEach(function (s) { label(T("brs.l.pct", { v: fmt(s * 100, 0) }), X(s), Bx.y1 + L.fs / 2 + 4, s === 0 ? "left" : (s === 1 ? "right" : "center"), C.muted, tf, a); });
+    label(T("brs.l.share"), X(0.5), Bx.y1 + L.fs / 2 + 4 + L.fs + 1, "center", C.muted, font(400, L.fs - 0.5), 0);
+    // the drivers' split as a marker on the curve
+    var ma = a * seg(t, 9.6, 10.2), s0 = f[0] / Math.max(1, S.d), phi = evalFlows([s0 * S.d, (1 - s0) * S.d, 0]).beck;
+    if (ma > 0.01) {
+      var mx = X(s0), my = Y(phi), mn = seg(t, 14.6, 15.2);
+      ctx.globalAlpha = ma; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(mx, Bx.y1); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = C.surface; circle(mx, my, 6.5); ctx.fill();
+      ctx.fillStyle = mn > 0.5 ? C.accent : C.ink; circle(mx, my, 4.5); ctx.fill();
+      ctx.globalAlpha = 1;
+      label(T("brs.l.phiv", { v: f0(phi) }), Bx.x1, R.y0 + L.fs / 2 + 1, "right", C.ink, font(600, L.fs, true), ma);
+      label(T("brs.l.min"), mx, my - 14, "center", C["accent-text"], font(700, L.fs), ma * mn);
+    }
+    // the share axis name, under the ticks
+    label(T("brs.l.share"), X(0.5), Bx.y1 + L.fs / 2 + 4, "center", C.muted, font(400, L.fs - 0.5), a * (L.portrait ? 0 : 0));
+  }
+  function spark(Rr, vals, u, col, a) {         // a small line of values over the rounds, drawn up to u rounds
+    var n = vals.length - 1, lo = Infinity, hi = -Infinity;
+    vals.forEach(function (v) { lo = Math.min(lo, v); hi = Math.max(hi, v); });
+    if (hi - lo < 1e-9) { lo -= 1; hi += 1; }
+    var X = function (i) { return n > 0 ? Rr.x0 + i / n * (Rr.x1 - Rr.x0) : (Rr.x0 + Rr.x1) / 2; };
+    var Y = function (v) { return Rr.y1 - (v - lo) / (hi - lo) * (Rr.y1 - Rr.y0); };
+    ctx.globalAlpha = a * 0.7; ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(Rr.x0, Rr.y1 + 3.5); ctx.lineTo(Rr.x1, Rr.y1 + 3.5); ctx.stroke();
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+    var k = Math.floor(u), fr = u - k, last = null;
+    for (var i = 0; i <= Math.min(k, n); i++) { var px = X(i), py = Y(vals[i]); if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py); last = [px, py]; }
+    if (k < n && fr > 0) { var ex = lerp(X(k), X(k + 1), fr), ey = lerp(Y(vals[k]), Y(vals[k + 1]), fr); ctx.lineTo(ex, ey); last = [ex, ey]; }
+    ctx.stroke();
+    ctx.fillStyle = col;
+    for (i = 0; i <= Math.min(k, n); i++) { circle(X(i), Y(vals[i]), 2); ctx.fill(); }
+    if (last) { ctx.fillStyle = C.surface; circle(last[0], last[1], 4.5); ctx.fill(); ctx.fillStyle = col; circle(last[0], last[1], 3.2); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    if (n === 0) {                                // nobody switches: a flat line across
+      ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(Rr.x0, Y(vals[0])); ctx.lineTo(Rr.x1, Y(vals[0])); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+  }
+  function drawTwin(S, t, a) {
+    var R = L.pB, Rn = S.gp.rounds, u = roundsAt(S, t);
+    slotTitle(R, T("brs.l.rounds"), a);
+    var phis = S.gpEv.map(function (e) { return e.beck; }), vhs = S.gpEv.map(function (e) { return e.total / 60; });
+    phis[phis.length - 1] = Rn ? S.open.beck : S.closed.beck; vhs[vhs.length - 1] = (Rn ? S.open.total : S.closed.total) / 60;
+    var top = R.y0 + L.fs + 12, rowH = (R.y1 - top) / 2;
+    var curI = Math.min(Rn, Math.floor(u)), curFr = u - curI;
+    var cur = function (vals) { return curI < Rn ? lerp(vals[curI], vals[curI + 1], curFr) : vals[Rn]; };
+    [[T("brs.l.phi"), phis, C.ink], [T("brs.l.vh"), vhs, null]].forEach(function (row, i) {
+      var y0 = top + i * rowH, vals = row[1], up = vals[Rn] > vals[0] + 1e-6, col = row[2] || (up ? HOT : C.ink);
+      label(row[0], R.x0, y0 + L.fs / 2, "left", C.ink2, font(600, L.fs), a);
+      label(f0(cur(vals)), R.x1, y0 + L.fs / 2, "right", col, font(700, L.fs, true), a);
+      spark({ x0: R.x0 + 4, x1: R.x1 - 4, y0: y0 + L.fs + 8, y1: y0 + rowH - 10 }, vals, u, col, a);
+    });
+  }
+  function drawCurve(S, t, a) {
+    var R = L.pB, wa = a * seg(t, 38.4, 39.2), u = E.inOut(seg(t, 36.4, 38.6));
+    slotTitle(R, T("brs.l.curve"), a);
+    var tf = font(400, L.fs - 0.5, true);
+    ctx.font = tf;
+    var yl = ctx.measureText("100").width + 6;
+    var Bx = { x0: R.x0 + yl, x1: R.x1 - 4, y0: R.y0 + L.fs + 14, y1: R.y1 - L.fs - 6 };
+    var X = function (d) { return Bx.x0 + d / DMAX * (Bx.x1 - Bx.x0); };
+    var Y = function (v) { return Bx.y1 - v / SW.ymax * (Bx.y1 - Bx.y0); };
+    if (SW.wlo != null && SW.whi != null && wa > 0) {
+      ctx.globalAlpha = wa * 0.14; ctx.fillStyle = HOT; ctx.fillRect(X(SW.wlo), Bx.y0, X(SW.whi) - X(SW.wlo), Bx.y1 - Bx.y0);
+      ctx.globalAlpha = wa * 0.7; ctx.strokeStyle = HOT; ctx.lineWidth = 1;
+      [SW.wlo, SW.whi].forEach(function (d) { ctx.beginPath(); ctx.moveTo(X(d) + 0.5, Bx.y0); ctx.lineTo(X(d) + 0.5, Bx.y1); ctx.stroke(); });
+      ctx.globalAlpha = 1;
+    }
+    ctx.globalAlpha = a; ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(Bx.x0 - 0.5, Bx.y0); ctx.lineTo(Bx.x0 - 0.5, Bx.y1 + 0.5); ctx.lineTo(Bx.x1, Bx.y1 + 0.5); ctx.stroke();
+    ctx.globalAlpha = 1;
+    [0, 50, 100].forEach(function (v) { label(fmt(v, 0), Bx.x0 - 4, Y(v), "right", C.muted, tf, a); });
+    [0, DMAX / 2, DMAX].forEach(function (d) { label(f0(d), X(d), Bx.y1 + L.fs / 2 + 4, d === 0 ? "left" : (d === DMAX ? "right" : "center"), C.muted, tf, a); });
+    var nmax = Math.round(u * (SW.ds.length - 1));
+    [[SW.cl, C["mit-silver"], 2.2, null], [SW.so, C.ink, 1.6, [5, 3]], [SW.op, C.accent, 2.2, null]].forEach(function (sr) {
+      ctx.globalAlpha = a; ctx.strokeStyle = sr[1]; ctx.lineWidth = sr[2]; ctx.setLineDash(sr[3] || []);
+      ctx.beginPath();
+      for (var i = 0; i <= nmax; i++) { var px = X(SW.ds[i]), py = Y(sr[0][i]); if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py); }
+      ctx.stroke(); ctx.setLineDash([]);
+    });
+    ctx.globalAlpha = 1;
+    // this morning's demand
+    var ma = a * seg(t, 38.6, 39.4);
+    if (ma > 0.01) {
+      var xd = X(S.d);
+      ctx.globalAlpha = ma; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.2; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(xd, Bx.y0); ctx.lineTo(xd, Bx.y1); ctx.stroke(); ctx.setLineDash([]);
+      [[S.closed.avg, C["mit-silver"]], [S.so.avg, C.ink], [S.open.avg, C.accent]].forEach(function (p) {
+        ctx.fillStyle = C.surface; circle(xd, Y(p[0]), 5); ctx.fill(); ctx.fillStyle = p[1]; circle(xd, Y(p[0]), 3.4); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+    }
+  }
+  function drawSlotB(S, t, f) {
+    var aB = seg(t, 8.6, 9.4) * (1 - seg(t, 16.6, 17.4));
+    if (aB > 0) drawBeck(S, t, f, aB);
+    var aT = seg(t, 18.4, 19.2) * (1 - seg(t, 35.4, 36.2));
+    if (aT > 0) drawTwin(S, t, aT);
+    var aC = seg(t, 36.2, 37);
+    if (aC > 0) drawCurve(S, t, aC);
+  }
+
+  /* ---------- caption (top left, under the counters) ---------- */
+  function captions(S, t) {
+    var ci = chapterAt(t), k = S.key;
+    if (ci === 0) return [T("brs.ch1"), T("brs.cap1.sub", { d: f0(S.d) })];
+    if (ci === 1) return [T("brs.ch2"), T("brs.cap2.sub", { t: fm(S.closed.c[0]) })];
+    if (ci === 2) return [T("brs.ch3"), T("brs.cap3." + k + ".sub", { z: fm(S.closed.c[2]), c: fm(S.closed.c[0]) })];
+    if (ci === 3) return [T("brs.ch4." + k), T("brs.cap4." + k + ".sub", { c0: fm(S.closed.avg), c1: fm(S.open.avg), d: f0(S.d) })];
+    if (ci === 4) return [T("brs.ch5"), T("brs.cap5.sub", { ue: fm(S.open.avg), so: fm(S.so.avg), poa: f3(S.poa) })];
+    if (S.needToll) return [T("brs.ch6.fix"), T("brs.cap6.fix.sub", { so: fm(S.toll.total / S.d), tt: fm((S.toll.total + S.toll.rev) / S.d) })];
+    return [T("brs.ch6.none"), T("brs.cap6.none.sub", { m: fm(S.mt[0]) })];
+  }
+  function drawCaption(S, t) {
+    var ci = chapterAt(t);
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(S, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fsub + 6;
+    ctx.font = font(400, L.fsub); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fsub + 4; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4].map(function (i) {
+    var el = document.getElementById("brs-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, lab, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== lab) { c.s.textContent = lab; c.l = lab; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) { c.el.classList.toggle("hot", kind === "hot"); c.k = kind; }
+  }
+  function hud(S, t, ev) {
+    var d = S.d, exact = t >= 28 && t < 47 ? S.open : (t >= 50.5 ? S.toll : null);
+    var tot = exact ? exact.total : ev.total;    // the chips show the exact solution once the flows have settled
+    setChip(0, f0(d), T("brs.k.d"), seg(t, 0.6, 1.2), "");
+    setChip(1, fm(tot / d), T("brs.k.avg"), seg(t, 1.0, 1.6), S.key === "hurt" && t >= 28 && t < 47 ? "hot" : "");
+    setChip(2, f0(tot / 60), T("brs.k.vh"), seg(t, 1.4, 2.0), "");
+    if (t < 46) {
+      var R = S.gp.rounds, k = t < 20 ? 0 : (t >= 28 ? R : Math.min(R, Math.floor(roundsAt(S, t)) + 1));
+      setChip(3, R ? k + " / " + R : "0", T("brs.k.round"), seg(t, 18.6, 19.2) * (1 - seg(t, 45.2, 45.8)), "");
+    } else {
+      setChip(3, fm((S.toll.total + S.toll.rev) / d), T("brs.k.tt"), seg(t, 50.2, 50.8), "");
+    }
+    setChip(4, f3(S.poa), T("brs.k.poa"), seg(t, 37.2, 37.8), "");
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = A.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var S = scen(state.d), f = flowsAt(S, t), ev = evalFlows(f);
+    hud(S, t, ev);
+    if (hudKey !== cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + I18N.lang) layout();
+    setCam(t);
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
+    drawNetwork(S, t, f, ev);
+    drawSlotA(S, t, f, ev);
+    drawSlotB(S, t, f);
+    drawCaption(S, t);
+  }
+
+  layout();
+  var player = A.create({
+    root: root,
+    duration: DUR,
+    chapters: CHS,
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Page text
+     ===================================================================================== */
+  function chapterKeys() {                       // chapters 4 and 6 tell a different story at each demand
+    var S = scen(state.d);
+    CHS[3].key = "brs.ch4." + S.key;
+    CHS[5].key = S.needToll ? "brs.ch6.fix" : "brs.ch6.none";
+    root.querySelectorAll(".anim-chap").forEach(function (b, i) { b.textContent = (i + 1) + ". " + T(CHS[i].key); });
+  }
+  function renderSeg() {
+    document.querySelectorAll("#brs-seg button").forEach(function (b) { b.textContent = T("brs.sc", { d: f0(+b.getAttribute("data-d")) }); });
+  }
+  function renderIntro() {
+    var S = scen(4000);
+    document.getElementById("brs-lede").innerHTML = T("brs.lede", { c: fmt(LA[4], 2), d: f0(S.d), late: fm(S.open.avg - S.closed.avg) });
+    document.getElementById("brs-anim-intro").textContent = T("brs.anim.intro", { fn: fnText(0), fix: fmt(LA[1], 2), c: fmt(LA[4], 2) });
+    document.getElementById("brs-footer").textContent = T("brs.footer", { vot: f0(VOT) });
+  }
+  function renderStatus() {
+    var S = scen(state.d), o = S.open, c = S.closed;
+    stage.setAttribute("aria-label", T("brs.anim.aria") + " " + T("brs.anim.aria.nums", {
+      d: f0(S.d), c0: fm(c.avg), c1: fm(o.avg), so: fm(S.so.avg), poa: f3(S.poa)
+    }));
+    document.getElementById("brs-status").innerHTML = T("brs.st." + S.key, {
+      d: f0(S.d), a1: f0(c.f[0]), a2: f0(c.f[1]), o1: f0(o.f[0]), o2: f0(o.f[1]), o3: f0(o.f[2]),
+      c0: fm(c.avg), c1: fm(o.avg), vh0: f0(c.total / 60), vh1: f0(o.total / 60), poa: f3(S.poa),
+      m1: fm(S.mt[0]), m2: fm(S.mt[3]), so: fm(S.mcEq.total / S.d), tt: fm((S.mcEq.total + S.mcEq.rev) / S.d),
+      s1: f0(S.so.f[0]), s2: f0(S.so.f[1]), z: fm(c.c[2]), rev: f0(S.mcEq.rev)
+    });
+    document.getElementById("brs-lg-toll").hidden = !S.needToll;
+  }
+  function renderModel() {
+    document.getElementById("brs-net-text").textContent = T("brs.model.net");
+    var h = "<thead><tr><th>" + T("brs.tb.road") + "</th><th class='num'>" + T("brs.tb.time") + "</th><th>" + T("brs.tb.role") + "</th></tr></thead><tbody>";
+    for (var e = 0; e < 5; e++) {
+      var role = e === 4 ? "brs.role.conn" : (LB[e] > 0 ? "brs.role.cong" : "brs.role.fix");
+      h += "<tr><td class='mono'>" + T("brs.tb.e", { n: e + 1, a: ENDS[e][0], b: ENDS[e][1] }) + "</td><td class='num'>" + fnText(e) + "</td><td>" + T(role) + "</td></tr>";
+    }
+    document.getElementById("brs-roads").innerHTML = h + "</tbody>";
+    document.getElementById("brs-routes").textContent = T("brs.tb.routes");
+  }
+  function lrText(S, short) {
+    var lr = S.lr;
+    if (lr.ray) return lr.thr > 1e-9 ? T(short ? "brs.tab.lr.ray" : "brs.pl.lr.ray", { v: fm(lr.thr) }) : T("brs.tab.lr.none");
+    var parts = [];
+    for (var e = 0; e < 5; e++) if (lr.tau[e] > 1e-9) parts.push(T("brs.tab.lr.one", { r: ENDS[e][0] + " → " + ENDS[e][1], v: fm(lr.tau[e]) }));
+    return parts.length ? T("brs.tab.lr.val", { list: parts.join(", "), rev: f0(lr.rev) }) : T("brs.tab.lr.none");
+  }
+  function renderTable() {
+    var h = "<thead><tr><th class='num'>" + T("brs.tab.d") + "</th><th class='num'>" + T("brs.tab.cl") + "</th><th class='num'>" + T("brs.tab.op") +
+      "</th><th class='num'>" + T("brs.tab.so") + "</th><th class='num wide'>" + T("brs.tab.fl") + "</th><th class='num'>" + T("brs.tab.poa") +
+      "</th><th class='num wide'>" + T("brs.tab.rd") + "</th><th class='wide'>" + T("brs.tab.lr") + "</th></tr></thead><tbody>";
+    DEMANDS.forEach(function (d) {
+      var S = scen(d), o = S.open;
+      var cls = S.key === "hurt" ? "hot" : (S.key === "help" ? "hl" : "");
+      h += "<tr" + (d === state.d ? " class='on'" : "") + "><td class='num'>" + f0(d) + "</td><td class='num'>" + fm(S.closed.avg) +
+        "</td><td class='num " + cls + "'>" + fm(o.avg) + "</td><td class='num'>" + fm(S.so.avg) + "</td><td class='num wide'>" +
+        [o.f[0], o.f[1], o.f[2]].map(f0).join(" / ") + "</td><td class='num'>" + f3(S.poa) + "</td><td class='num wide'>" + S.gp.rounds +
+        "</td><td class='wide'>" + lrText(S, true) + "</td></tr>";
+    });
+    document.getElementById("brs-tab").innerHTML = h + "</tbody>";
+    document.getElementById("brs-tab-unit").textContent = T("brs.tab.unit");
+    document.getElementById("brs-tab-window").innerHTML = SW.wlo != null && SW.whi != null ? T("brs.tab.window", {
+      lo: f0(SW.wlo), hi: f0(SW.whi), dw: f0(SW.dw), eo: fm(SW.eo), ec: fm(SW.ec), pw: f3(SW.pw), dmax: f0(DMAX)
+    }) : "";
+  }
+  function renderNotes() {
+    var h = scen(4000), l = scen(2000), i = scen(8000);
+    document.getElementById("brs-n1").textContent = T("brs.n.p1", {
+      d: f0(h.d), z: fm(h.closed.c[2]), c: fm(h.closed.c[0]), c1: fm(h.open.avg), late: fm(h.open.avg - h.closed.avg)
+    });
+    document.getElementById("brs-n2").textContent = T("brs.n.p2", {
+      p0: f0(h.closed.beck), p1: f0(h.open.beck), vh0: f0(h.closed.total / 60), vh1: f0(h.open.total / 60), poa: f3(h.poa)
+    });
+    document.getElementById("brs-n3").textContent = T("brs.n.p3", {
+      dl: f0(l.d), h0: fm(l.closed.avg), h1: fm(l.open.avg), di: f0(i.d), i0: fm(i.open.avg), z: fm(i.closed.c[2])
+    });
+    document.getElementById("brs-n4").textContent = T("brs.n.p4", {
+      d: f0(h.d), m: fm(h.mt[0]), so: fm(h.mcEq.total / h.d), tt: fm((h.mcEq.total + h.mcEq.rev) / h.d), c1: fm(h.open.avg),
+      lr: fm(h.lr.thr), dl: f0(l.d), lrh: fm(l.lr.tau[4]), revh: f0(l.lr.rev), mrevh: f0(l.mcEq.rev),
+      tth: fm((l.so.total + l.lr.rev) / l.d), uh: fm(l.open.avg), save: fm(l.open.avg - l.so.avg)
+    });
+    document.getElementById("brs-n5").textContent = T("brs.n.p5", {
+      d: f0(h.d), r4: h.gp.rounds, dl: f0(l.d), r2: l.gp.rounds, di: f0(i.d), r8: i.gp.rounds, n4: h.gp1.rounds,
+      fw4: h.fw, fw8: i.fw
+    });
+  }
+
+  /* =====================================================================================
+     Play planner: the connector, the demand and five tolls; drivers re-route at once
+     ===================================================================================== */
+  var plan = { open: true, d: 4000, tau: [0, 0, 0, 0, 0], mode: "" };
+  var tollWrap = document.getElementById("brs-tolls"), tollIn = [], tollOut = [], tollLab = [];
+  for (var e0 = 0; e0 < 5; e0++) {
+    var dv = document.createElement("div");
+    dv.className = "rng";
+    dv.innerHTML = '<label for="brs-t' + e0 + '"></label><output for="brs-t' + e0 + '"></output>' +
+      '<input type="range" id="brs-t' + e0 + '" min="0" max="60" step="0.5" value="0">';
+    tollWrap.appendChild(dv);
+    tollLab.push(dv.querySelector("label")); tollOut.push(dv.querySelector("output")); tollIn.push(dv.querySelector("input"));
+  }
+  var dIn = document.getElementById("brs-d"), dOut = document.getElementById("brs-d-out");
+  function planTolls() {                         // marginal-cost or least-revenue tolls for the current demand
+    var so = solve(plan.d, plan.open, null, true);
+    if (plan.mode === "mc") plan.tau = mcTolls(so);
+    else if (plan.mode === "lr") plan.tau = leastRevenue(so).tau;
+    if (!plan.open) plan.tau[4] = 0;
+  }
+  function lpTex(so, plain) {
+    var terms = [], lines = [];
+    for (var e = 0; e < 5; e++) if (so.x[e] > 1e-9) terms.push(plain ? f0(so.x[e]) + " τ" + (e + 1) : texN(so.x[e], 1) + "\\,\\tau_{" + (e + 1) + "}");
+    var obj = terms.length ? terms.join(" + ") : "0";
+    if (plain) lines.push("min " + obj + "   (" + T("brs.pl.lp.rev") + ")");
+    else lines.push("\\min_{\\tau \\ge 0,\\ \\pi}\\;& " + obj + " && \\text{(" + T("brs.pl.lp.rev") + ")}");
+    for (var p = 0; p < so.n; p++) {
+      var used = so.f[p] > 1e-6, cm = T("brs.r" + (p + 1)) + ", " + T(used ? "brs.pl.used" : "brs.pl.unused");
+      if (plain) {
+        lines.push(fm(so.c[p]) + " + " + PATHS[p].map(function (e) { return "τ" + (e + 1); }).join(" + ") + (used ? " = π" : " ≥ π") + "   (" + cm + ")");
+      } else {
+        lines.push((p ? "& " : "\\text{ST}\\;& ") + texN(so.c[p], 2) + " + " + PATHS[p].map(function (e) { return "\\tau_{" + (e + 1) + "}"; }).join(" + ") +
+          (used ? " = \\pi" : " \\ge \\pi") + " && \\text{(" + cm + ")}");
+      }
+    }
+    return plain ? lines.join("\n") : "\\begin{aligned}" + lines.join("\\\\") + "\\end{aligned}";
+  }
+  var SV = { O: [36, 112], A: [200, 34], B: [200, 190], D: [364, 112] };
+  function renderSvg(eq) {
+    var h = "", cx = 200, cy = 112;
+    for (var e = 0; e < 5; e++) {
+      var p = SV[ENDS[e][0]], q = SV[ENDS[e][1]], mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
+      if (e === 4 && !plan.open) {
+        h += '<line x1="' + p[0] + '" y1="' + (p[1] + 16) + '" x2="' + q[0] + '" y2="' + (q[1] - 16) + '" style="stroke:var(--axis);stroke-width:1.5;stroke-dasharray:4 4"/>';
+        h += '<text x="' + (mx + 8) + '" y="' + (my + 4) + '" style="fill:var(--muted);font-size:12px">' + T("brs.pl.closedTag") + '</text>';
+        continue;
+      }
+      var w = Math.max(1.5, Math.min(22, 22 * eq.x[e] / DMAX));
+      h += '<line x1="' + p[0] + '" y1="' + p[1] + '" x2="' + q[0] + '" y2="' + q[1] + '" style="stroke:var(--axis);stroke-width:1.5"/>';
+      if (eq.x[e] > 0.5) h += '<line x1="' + p[0] + '" y1="' + p[1] + '" x2="' + q[0] + '" y2="' + q[1] + '" style="stroke:var(--mit-silver);stroke-opacity:0.5;stroke-width:' + w.toFixed(1) + '"/>';
+      var ox = mx - cx, oy = my - cy, ol = Math.hypot(ox, oy), off = w / 2 + 12;
+      if (e === 4) { ox = 1; oy = 0; ol = 1; }
+      var lx = mx + ox / ol * off, ly = my + oy / ol * off + 4, anchor = e === 4 ? "start" : (ox < 0 ? "end" : "start");
+      if (e < 4) { lx = mx + ox / ol * off; anchor = "middle"; ly = my + oy / ol * (off + 2) + 4; }
+      h += '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + anchor + '" style="fill:var(--ink2);font-size:12.5px;font-weight:600">' +
+        T("brs.pl.svg.x", { x: f0(eq.x[e]) }) + '</text>';
+      if (plan.tau[e] > 1e-9) {
+        var ix = cx - mx, iy = cy - my, il = Math.hypot(ix, iy) || 1;
+        if (e === 4) { ix = -1; iy = 0; il = 1; }
+        var bx = mx + ix / il * (w / 2 + 22), by = my + iy / il * (w / 2 + 14), txt = T("brs.l.toll", { v: fm(plan.tau[e]) }), bw = 10 + 7 * txt.length;
+        h += '<rect x="' + (bx - bw / 2).toFixed(1) + '" y="' + (by - 10).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="19" rx="2" style="fill:var(--accent)"/>';
+        h += '<text x="' + bx.toFixed(1) + '" y="' + (by + 4).toFixed(1) + '" text-anchor="middle" style="fill:var(--on-solid);font-size:12px;font-weight:700">' + txt + '</text>';
+      }
+    }
+    ["O", "A", "B", "D"].forEach(function (n) {
+      var c = SV[n];
+      h += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="14" style="fill:var(--surface);stroke:var(--ink);stroke-width:1.6"/>';
+      h += '<text x="' + c[0] + '" y="' + (c[1] + 5) + '" text-anchor="middle" style="fill:var(--ink);font-size:14px;font-weight:700">' + n + '</text>';
+    });
+    var svg = document.getElementById("brs-svg");
+    svg.innerHTML = h;
+    svg.setAttribute("aria-label", T("brs.pl.svg", { x: eq.x.slice(0, plan.open ? 5 : 4).map(f0).join(", ") }));
+  }
+  function renderPlan() {
+    var d = plan.d, eq = solve(d, plan.open, plan.tau), so = solve(d, plan.open, null, true);
+    dOut.textContent = T("brs.pl.dv", { d: f0(d) });
+    for (var e = 0; e < 5; e++) {
+      tollLab[e].textContent = T("brs.pl.tl", { r: ENDS[e][0] + " → " + ENDS[e][1], fn: fnText(e) });
+      tollOut[e].textContent = T("brs.pl.tv", { v: fm(plan.tau[e]) });
+      if (+tollIn[e].value !== plan.tau[e]) tollIn[e].value = plan.tau[e];
+      tollIn[e].disabled = e === 4 && !plan.open;
+    }
+    document.querySelectorAll("#brs-conn button").forEach(function (b) { b.setAttribute("aria-pressed", String((b.getAttribute("data-v") === "open") === plan.open)); });
+    document.getElementById("brs-mc").setAttribute("aria-pressed", String(plan.mode === "mc"));
+    document.getElementById("brs-lr").setAttribute("aria-pressed", String(plan.mode === "lr"));
+    // stats
+    var ratio = so.total > 1e-9 ? eq.total / so.total : 1;
+    document.getElementById("brs-s-avg").textContent = fm(eq.avg);
+    document.getElementById("brs-s-avgl").textContent = T("brs.pl.s.avgl", { so: fm(so.avg) });
+    document.getElementById("brs-s-tt").textContent = fm(eq.avgTT);
+    document.getElementById("brs-s-ttl").textContent = T("brs.pl.s.ttl", { v: fm(eq.avgTT - eq.avg) });
+    document.getElementById("brs-s-rev").textContent = f0(eq.rev);
+    document.getElementById("brs-s-revl").textContent = T("brs.pl.s.revl", { cop: f0(eq.rev * VOT / 60), vot: f0(VOT) });
+    document.getElementById("brs-s-ratio").textContent = f3(ratio);
+    document.getElementById("brs-s-ratiol").textContent = T("brs.pl.s.ratiol", { vh: f0(eq.total / 60), vho: f0(so.total / 60) });
+    // message
+    var msg = "";
+    if (plan.mode === "mc") {
+      msg = T("brs.pl.msg.mc", { g: f0(gapFlows(eq, so)), rev: f0(eq.rev), tt: fm(eq.avgTT), so: fm(so.avg) });
+    } else if (plan.mode === "lr") {
+      var lr = leastRevenue(so), mcq = solve(d, plan.open, mcTolls(so)), mrev = evalFlows(mcq.f, mcTolls(so)).rev;
+      if (lr.ray && lr.thr > 1e-9) msg = T("brs.pl.msg.lr.ray", { v: fm(lr.thr), mrev: f0(mrev), g: f0(gapFlows(eq, so)) });
+      else if (lr.rev < 1e-6) msg = T("brs.pl.msg.lr.zero", { mrev: f0(mrev) });
+      else msg = T("brs.pl.msg.lr", { rev: f0(lr.rev), mrev: f0(mrev), pi: fm(lr.pi), g: f0(gapFlows(eq, so)), tt: fm(eq.avgTT) });
+    } else {
+      msg = plan.tau.some(function (v) { return v > 1e-9; }) ? T("brs.pl.msg.custom") : T("brs.pl.msg.none");
+    }
+    document.getElementById("brs-msg").innerHTML = msg;
+    // routes
+    var h = "<thead><tr><th>" + T("brs.pl.th.route") + "</th><th class='num'>" + T("brs.pl.th.flow") + "</th><th class='num'>" + T("brs.pl.th.time") +
+      "</th><th class='num'>" + T("brs.pl.th.toll") + "</th><th class='num'>" + T("brs.pl.th.tt") + "</th></tr></thead><tbody>";
+    for (var p = 0; p < eq.n; p++) {
+      var used = eq.f[p] > 1e-6 * Math.max(1, d);
+      h += "<tr" + (used ? "" : " class='dim'") + "><td>" + T("brs.r" + (p + 1)) + "<small>" + NODE_SEQ[p].join(" → ") + "</small></td><td class='num'>" + f0(eq.f[p]) +
+        "</td><td class='num'>" + fm(eq.c[p]) + "</td><td class='num'>" + fm(eq.ct[p] - eq.c[p]) + "</td><td class='num" + (used ? " hl" : "") + "'>" + fm(eq.ct[p]) + "</td></tr>";
+    }
+    document.getElementById("brs-ptab").innerHTML = h + "</tbody>";
+    renderSvg(eq);
+    TeX.set(document.getElementById("brs-lp-inst"), lpTex(so, false), lpTex(so, true));
+  }
+  dIn.addEventListener("input", function () { plan.d = +dIn.value; planTolls(); renderPlan(); });
+  tollIn.forEach(function (inp, e) {
+    inp.addEventListener("input", function () { plan.tau[e] = +inp.value; plan.mode = ""; renderPlan(); });
+  });
+  document.querySelectorAll("#brs-conn button").forEach(function (b) {
+    b.addEventListener("click", function () { plan.open = b.getAttribute("data-v") === "open"; planTolls(); renderPlan(); });
+  });
+  document.getElementById("brs-mc").addEventListener("click", function () { plan.mode = "mc"; planTolls(); renderPlan(); });
+  document.getElementById("brs-lr").addEventListener("click", function () { plan.mode = "lr"; planTolls(); renderPlan(); });
+  document.getElementById("brs-clear").addEventListener("click", function () { plan.mode = ""; plan.tau = [0, 0, 0, 0, 0]; renderPlan(); });
+
+  /* ---------- the scenario control ---------- */
+  var segBtns = document.querySelectorAll("#brs-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var d = +b.getAttribute("data-d");
+      if (state.d === d) return;
+      state.d = d;
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      chapterKeys(); renderStatus(); renderTable();
+      hudKey = "";
+      if (A.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[2]) player.refresh();
+      else { player.seek(CH[2] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderSeg(); renderIntro(); chapterKeys(); renderStatus(); renderModel(); renderTable(); renderNotes(); renderPlan();
+    hudKey = "";
+    player.refresh();
+  }
+  I18N.onChange(renderPage);
+  window.__brs = { scen: scen, SW: SW, solve: solve, plan: plan, player: player };   // for the page checks
+})();
+</script>
+</body>
+</html>
