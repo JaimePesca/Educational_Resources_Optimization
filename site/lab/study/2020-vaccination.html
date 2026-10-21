@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en" data-i18n-langs="es en nl" data-title-key="stvac.title" data-i18n-bundles="lab/study/common lab/study/2020-vaccination">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Sharing Vaccine Doses: When Is Cooperation Stable?</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../../assets/study.css?v=__BUILD__">
+<style>
+  /* ---- "Try it": the vaccine pooling game ---- */
+  .vx-chart svg .grid { stroke: var(--grid); stroke-width: 1; }
+  .vx-chart svg .axis { stroke: var(--axis); stroke-width: 1.2; }
+  .vx-chart svg .tick { fill: var(--muted); font-size: 11px; }
+  .vx-chart svg .lab { fill: var(--ink2); font-size: 12px; }
+  .vx-chart svg .curve { fill: none; stroke: var(--ink); stroke-width: 2.2; }
+  .vx-chart svg .tangent { stroke: var(--mit-silver); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+  .vx-chart svg .sweet { stroke: var(--mit-silver); stroke-width: 1.4; stroke-dasharray: 3 3; }
+  .vx-chart svg .sweet-t { fill: var(--muted); font-size: 11.5px; }
+  .vx-chart svg .move { fill: none; stroke: var(--accent); stroke-width: 7; stroke-linecap: round; opacity: 0.22; }
+  .vx-chart svg .own { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+  .vx-chart svg .pool { fill: var(--accent); stroke: var(--surface); stroke-width: 1.5; }
+  .vx-chart svg .own-t { fill: var(--ink); font-size: 12px; font-weight: 700; }
+  .vx-chart svg .pool-t { fill: var(--accent-text); font-size: 12px; font-weight: 700; }
+  .vx-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
+  .vx-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .vx-legend i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; flex: none; }
+  .vx-legend i.own { border: 2px solid var(--ink); background: var(--surface); }
+  .vx-legend i.pool { background: var(--accent); }
+  .vx-legend i.sweet { width: 14px; height: 0; border-radius: 0; border-top: 2px dashed var(--mit-silver); }
+  .vx-ruler svg .axis { stroke: var(--axis); stroke-width: 1.2; }
+  .vx-ruler svg .tick { fill: var(--muted); font-size: 11px; }
+  .vx-ruler svg .band { fill: var(--accent); opacity: 0.22; }
+  .vx-ruler svg .edge { stroke: var(--accent); stroke-width: 2.5; }
+  .vx-ruler svg .gap { fill: var(--mit-bright); opacity: 0.16; }
+  .vx-ruler svg .gapedge { stroke: var(--mit-bright); stroke-width: 2.5; }
+  .vx-ruler svg .bt { fill: var(--ink); font-size: 12px; font-weight: 600; }
+  .vx-ruler svg .gt { fill: var(--accent-text); font-size: 12px; font-weight: 700; }
+  .vx-ruler svg .pmark { fill: var(--ink); }
+  .vx-ruler svg .thmark { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+  .vx-price { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: end; }
+  @media (max-width: 620px) { .vx-price { grid-template-columns: minmax(0, 1fr); } }
+  .vx-price .st-rng { max-width: none; }
+  .vx-snaps { display: flex; flex-wrap: wrap; gap: 6px; }
+  .vx-at { margin: 0; font-size: 14px; color: var(--ink2); }
+  .vx-at b { color: var(--ink); }
+  .vx-two { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: start; }
+  .vx-two > div { min-width: 0; display: grid; gap: 6px; }
+  @media (max-width: 520px) { .st-tbl .wide { display: none; } .st-tbl td, .st-tbl th { padding: 6px 5px; } .st-tbl td.num { font-size: 11.5px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="st-crumbs" data-i18n-attr="aria-label:stu.crumbLabel">
+      <a class="backlink" href="../index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.lab"></span></a>
+      <span class="sep" aria-hidden="true">/</span>
+      <a class="backlink" href="index.html" data-keep-lang data-i18n="stu.crumb"></a>
+    </nav>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<main class="wrap" id="study-root" data-study-paper="2020-vaccination" data-study-prefix="stvac">
+  <!-- The "Try it" widget: assets/study.js moves this node into the "Try it" section and shows it -->
+  <div id="study-try" class="st-w" hidden>
+    <div class="st-w-row">
+      <div class="st-w-group">
+        <span class="lbl" id="vx-n-lbl" data-i18n="stvac.w.n"></span>
+        <div class="seg" id="vx-n" role="group" aria-labelledby="vx-n-lbl">
+          <button type="button" data-n="2">2</button><button type="button" data-n="3">3</button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="vx-pre-lbl" data-i18n="stvac.w.presets"></span>
+        <div class="st-presets" id="vx-presets" role="group" aria-labelledby="vx-pre-lbl">
+          <button type="button" class="st-btn" data-preset="ex1" data-i18n="stvac.w.p.ex1"></button>
+          <button type="button" class="st-btn" data-preset="ex2" data-i18n="stvac.w.p.ex2"></button>
+          <button type="button" class="st-btn" data-preset="ex3" data-i18n="stvac.w.p.ex3"></button>
+          <button type="button" class="st-btn" data-preset="suff" data-i18n="stvac.w.p.suff"></button>
+          <button type="button" class="st-btn" data-preset="two" data-i18n="stvac.w.p.two"></button>
+        </div>
+      </div>
+    </div>
+    <div class="st-sliders" id="vx-sliders"></div>
+    <div>
+      <p class="st-w-head" data-i18n="stvac.w.chart"></p>
+      <div class="st-chart vx-chart" id="vx-chart" role="img" data-i18n-attr="aria-label:stvac.w.chart.aria"></div>
+      <div class="vx-legend" id="vx-legend"></div>
+    </div>
+    <div class="st-kpis" id="vx-kpis"></div>
+    <p class="st-verdict" id="vx-verdict" aria-live="polite"></p>
+    <div>
+      <p class="st-w-head" data-i18n="stvac.w.ruler"></p>
+      <div class="st-chart vx-ruler" id="vx-ruler" role="img" data-i18n-attr="aria-label:stvac.w.ruler.aria"></div>
+    </div>
+    <div class="vx-price">
+      <div class="st-rng">
+        <label for="vx-p" data-i18n="stvac.w.price"></label><output id="vx-p-out" for="vx-p"></output>
+        <input type="range" id="vx-p" min="0" max="4" step="0.0001" value="1">
+      </div>
+      <div class="vx-snaps">
+        <button type="button" class="st-btn" id="vx-snap-th" data-i18n="stvac.w.snap.th"></button>
+        <button type="button" class="st-btn" id="vx-snap-an" data-i18n="stvac.w.snap.an"></button>
+        <button type="button" class="st-btn" id="vx-snap-mid" data-i18n="stvac.w.snap.mid"></button>
+      </div>
+    </div>
+    <p class="vx-at" id="vx-at" aria-live="polite"></p>
+    <div class="vx-two">
+      <div><p class="st-w-head" data-i18n="stvac.w.reg.h"></p><div class="st-tbl" id="vx-reg"></div></div>
+      <div><p class="st-w-head" data-i18n="stvac.w.coal.h"></p><div class="st-tbl" id="vx-coal"></div></div>
+    </div>
+  </div>
+</main>
+
+<script src="../../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/common.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/2020-vaccination.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="papers.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/study.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+
+  // ---- the vaccine pooling game of the paper, solved live (no hard-coded results) ----
+  // Return per inhabitant: the paper's logistic F(f) = 1 / (1 + exp(-45 f + 25)) (Examples 1 to 3), regions of equal size M_i = 1.
+  var Vax = (function () {
+    var KA = 45, KB = 25;
+    function F(f) { return 1 / (1 + Math.exp(-KA * f + KB)); }
+    function dF(f) { var y = F(f); return KA * y * (1 - y); }
+    var M = [1, 1, 1];                                              // equal sizes, as in Examples 1 to 3
+    function ret(i, d) { return M[i] * F(d / M[i]); }             // return of region i with d doses
+    function D(i, f) { return f > 0 ? (F(f) - F(0)) / f : dF(0); } // additional return per dose, D_F(f)
+
+    // maximise g on [lo, hi]: a grid scan, then a golden section search around each of the best three grid peaks
+    // (so two almost equal local maxima are both refined before one is chosen)
+    function argmax1(g, lo, hi, n) {
+      if (hi - lo < 1e-12) return { x: lo, v: g(lo) };
+      var h = (hi - lo) / n, vals = new Float64Array(n + 1), k;
+      for (k = 0; k <= n; k++) vals[k] = g(lo + k * h);
+      var peaks = [];
+      for (k = 0; k <= n; k++) {
+        if ((k === 0 || vals[k] >= vals[k - 1]) && (k === n || vals[k] >= vals[k + 1])) peaks.push(k);
+      }
+      peaks.sort(function (a, b) { return vals[b] - vals[a]; });
+      var best = { x: lo + peaks[0] * h, v: vals[peaks[0]] }, q = (Math.sqrt(5) - 1) / 2;
+      peaks.slice(0, 3).forEach(function (pk) {
+        var a = lo + Math.max(0, pk - 1) * h, b = lo + Math.min(n, pk + 1) * h;
+        var c = b - q * (b - a), d = a + q * (b - a), fc = g(c), fd = g(d);
+        for (var it = 0; it < 48; it++) {
+          if (fc > fd) { b = d; d = c; fd = fc; c = b - q * (b - a); fc = g(c); }
+          else { a = c; c = d; fc = fd; d = a + q * (b - a); fd = g(d); }
+        }
+        var xm = (a + b) / 2, vm = g(xm);
+        if (vm > best.v + 1e-13) best = { x: xm, v: vm };
+      });
+      return best;
+    }
+
+    // Problem (1) for k identical regions holding R doses in total: the best split (all doses used, Lemma 2), sorted
+    function best(k, R) {
+      if (k === 1) return { v: F(R), d: [R] };
+      if (k === 2) {
+        var o = argmax1(function (a) { return F(a) + F(R - a); }, 0, R, 400);
+        return { v: o.v, d: [o.x, R - o.x].sort(desc) };
+      }
+      var o3 = argmax1(function (a) { return F(a) + best(2, R - a).v; }, 0, R, 240);
+      return { v: F(o3.x) + best(2, R - o3.x).v, d: [o3.x].concat(best(2, R - o3.x).d).sort(desc) };
+    }
+    function desc(a, b) { return b - a; }
+
+    // v(S) and an optimal split of the coalition's doses. The regions are identical, so the larger doses go to the regions
+    // with the larger own stock (ties to the lower number): of all optimal splits this one moves the fewest doses.
+    function coalition(S, r) {
+      var R = 0; S.forEach(function (i) { R += r[i]; });
+      var sol = best(S.length, R), split = sol.d;
+      var byStock = S.slice().sort(function (a, b) { return r[b] - r[a] || a - b; }), map = {};
+      byStock.forEach(function (i, k) { map[i] = sol.d[k]; });
+      // a gain below 1e-7 (far below the four decimals shown) counts as zero: the coalition keeps its own stocks and its
+      // value is the sum of its stand-alone returns, so a numerically tiny trade cannot produce meaningless prices. The game
+      // stays consistent: a coalition never gains more than the grand coalition, so when N gains nothing, nobody does.
+      var own = 0; S.forEach(function (i) { own += ret(i, r[i]); });
+      if (sol.v - own < 1e-7) { S.forEach(function (i) { map[i] = r[i]; }); sol = { v: own }; split = null; }
+      return { members: S, R: R, v: sol.v, doses: S.map(function (i) { return map[i]; }), map: map, split: split };
+    }
+    // every distinct way to hand a split (doses sorted large to small) to the n identical regions
+    function assignments(split, n) {
+      var out = [], seen = {};
+      (function rec(prefix, rest) {
+        if (!rest.length) {
+          var key = prefix.map(function (v) { return v.toFixed(10); }).join();
+          if (!seen[key]) { seen[key] = true; out.push(prefix); }
+          return;
+        }
+        rest.forEach(function (v, k) { rec(prefix.concat([v]), rest.slice(0, k).concat(rest.slice(k + 1))); });
+      })([], split.slice(0, n));
+      return out;
+    }
+
+    // dose-optimal fraction: the maximiser of D_F (Corollary 1)
+    var TILDE = argmax1(function (f) { return D(0, f); }, 1e-6, 3, 3000).x;
+    // Definition 1: the fraction >= tilde f_i where F_i' falls to the level F_k'(tilde f_k) (identical F here, so it is tilde f)
+    function tildeK(level) {
+      var lo = TILDE, hi = 5;
+      if (dF(lo) <= level) return lo;
+      for (var it = 0; it < 80; it++) { var mid = (lo + hi) / 2; if (dF(mid) > level) lo = mid; else hi = mid; }
+      return (lo + hi) / 2;
+    }
+
+    function solve(r) {
+      var n = r.length, N = [], i;
+      for (i = 0; i < n; i++) N.push(i);
+      // every coalition, by size then lexicographic
+      var coal = [];
+      for (var mask = 1; mask < (1 << n); mask++) {
+        var S = N.filter(function (k) { return mask & (1 << k); });
+        coal.push(S);
+      }
+      coal.sort(function (a, b) { return a.length - b.length || a.join() .localeCompare(b.join()); });
+      var res = coal.map(function (S) { return coalition(S, r); });
+      var grand = res[res.length - 1], RN = grand.R, vN = grand.v;
+      var proper = res.slice(0, -1);
+
+      // ---- market allocations y_i(p) = M_i F(f_i*) + p (r_i - f_i* M_i): the prices that keep every coalition ----
+      // A market allocation belongs to SOME optimal f* of N. The regions are identical, so every way to hand the optimal
+      // split of N to the regions is optimal: the page tries the one that moves the fewest doses first, then the others
+      // (fewest moved doses first), and keeps the first that admits a single price (or the first one when none does).
+      function priceRange(dose) {
+        var keep = N.map(function (k) { return ret(k, dose[k]); }), net = N.map(function (k) { return r[k] - dose[k]; });
+        var lo = 0, hi = Infinity, loS = null, hiS = null, flat = true;
+        proper.forEach(function (c) {
+          var a = 0, b = 0;
+          c.members.forEach(function (k) { a += keep[k]; b += net[k]; });
+          if (b > 1e-12) { var l = (c.v - a) / b; if (l > lo) { lo = l; loS = c.members; } }
+          else if (b < -1e-12) { var u = (a - c.v) / -b; if (u < hi) { hi = u; hiS = c.members; } }
+          else if (a < c.v - 1e-9) flat = false;
+        });
+        return { dose: dose, keep: keep, net: net, pLo: lo, pHi: hi, pLoS: loS, pHiS: hiS, ok: flat && lo <= hi + 1e-9 };
+      }
+      function moved(d) { var s = 0; N.forEach(function (k) { s += Math.abs(r[k] - d[k]); }); return s; }
+      var first = N.map(function (k) { return grand.map[k]; }), cands = [];
+      if (grand.split) {
+        cands = assignments(grand.split, n).filter(function (d) { return d.some(function (v, k) { return Math.abs(v - first[k]) > 1e-12; }); });
+        cands.sort(function (a, b) { return moved(a) - moved(b); });
+      }
+      var mk = priceRange(first);
+      for (var ci = 0; ci < cands.length && !mk.ok; ci++) { var m2 = priceRange(cands[ci]); if (m2.ok) mk = m2; }
+      grand.doses = mk.dose.slice();
+      N.forEach(function (k) { grand.map[k] = mk.dose[k]; });
+      var fstar = N.map(function (k) { return mk.dose[k] / M[k]; });
+      var keep = mk.keep, net = mk.net, pLo = mk.pLo, pHi = mk.pHi, pLoS = mk.pLoS, pHiS = mk.pHiS, marketOk = mk.ok;
+      var trade = net.some(function (b) { return Math.abs(b) > 1e-9; });
+
+      // ---- core by LP: least total that satisfies every proper coalition (LP.solve) ----
+      var lpA = LP.solve({
+        sense: "min", c: N.map(function () { return 1; }),
+        rows: proper.map(function (c) { return { a: N.map(function (k) { return c.members.indexOf(k) >= 0 ? 1 : 0; }), op: ">=", b: c.v }; })
+      });
+      var minTotal = lpA.z, coreNonEmpty = minTotal <= vN + 1e-9;
+      var weights = proper.map(function (c, k) { return { S: c.members, w: lpA.duals[k] }; }).filter(function (w) { return w.w > 1e-9; });
+      // ---- a core allocation with the largest margin over every coalition (LP.solve) ----
+      // the margin is written as e1 - e2 with e1, e2 >= 0, so the LP stays feasible even when the core is empty by less
+      // than the tolerance of the test above
+      var x = null, eps = null;
+      if (coreNonEmpty) {
+        var rows = proper.map(function (c) {
+          return { a: N.map(function (k) { return c.members.indexOf(k) >= 0 ? 1 : 0; }).concat([-1, 1]), op: ">=", b: c.v };
+        });
+        rows.push({ a: N.map(function () { return 1; }).concat([0, 0]), op: "=", b: vN });
+        var lpB = LP.solve({ sense: "max", c: N.map(function () { return 0; }).concat([1, -1]), rows: rows });
+        if (lpB.status === "optimal") { x = lpB.x.slice(0, n); eps = lpB.x[n] - lpB.x[n + 1]; }
+      }
+
+      // ---- regimes of Theorem 3 and the prices of Theorems 2, 4 and 5 ----
+      var minT = Infinity, sumT = 0, kmin = 0;
+      N.forEach(function (k) { if (TILDE * M[k] < minT) minT = TILDE * M[k]; if (D(k, TILDE) < D(kmin, TILDE)) kmin = k; });
+      var level = dF(TILDE);
+      N.forEach(function (k) { sumT += tildeK(level) * M[k]; });
+      var regime = RN <= 1e-12 ? "none" : RN <= minT + 1e-12 ? "severe" : RN >= sumT - 1e-12 ? "sufficient" : "moderate";
+      var AN = RN > 1e-12 ? (vN - N.reduce(function (s, k) { return s + M[k] * F(0); }, 0)) / RN : null;
+      var thPrice = null, thName = null;
+      if (regime === "severe") {
+        thPrice = Math.max.apply(null, N.map(function (k) { return D(k, RN / M[k]); })); thName = "t4";
+      } else if (regime === "sufficient") {
+        var kk = N.filter(function (k) { return grand.map[k] > 1e-9; })[0];
+        thPrice = dF(fstar[kk]); thName = "t5";
+      }
+      var th2 = null;
+      if (n === 2 && trade) {
+        var s = net[0] > 0 ? 0 : 1, bb = 1 - s;
+        th2 = {
+          seller: s, buyer: bb,
+          lo: M[s] * (F(r[s] / M[s]) - F(fstar[s])) / (r[s] - M[s] * fstar[s]),
+          hi: M[bb] * (F(fstar[bb]) - F(r[bb] / M[bb])) / (M[bb] * fstar[bb] - r[bb])
+        };
+      }
+      // price shown first: the theorem price when one applies, otherwise A(N) if it is stable, otherwise the middle
+      var pShow = null;
+      if (marketOk) {
+        if (thPrice != null && thPrice >= pLo - 1e-9 && thPrice <= pHi + 1e-9) pShow = thPrice;
+        else if (AN != null && AN >= pLo - 1e-9 && AN <= pHi + 1e-9) pShow = AN;
+        else pShow = isFinite(pHi) ? (pLo + pHi) / 2 : pLo;
+      }
+      return {
+        r: r.slice(), n: n, coal: res, RN: RN, vN: vN, fstar: fstar, keep: keep, net: net, trade: trade,
+        minTotal: minTotal, coreNonEmpty: coreNonEmpty, weights: weights, x: x, eps: eps,
+        pLo: pLo, pHi: pHi, pLoS: pLoS, pHiS: pHiS, marketOk: marketOk, proper: proper,
+        tilde: TILDE, minT: minT, sumT: sumT, regime: regime, AN: AN, thPrice: thPrice, thName: thName, th2: th2, pShow: pShow
+      };
+    }
+
+    function market(res, p) { return res.keep.map(function (k, i) { return k + p * res.net[i]; }); }
+
+    return { F: F, dF: dF, D: function (f) { return D(0, f); }, solve: solve, market: market, tilde: TILDE };
+  })();
+
+  // ---- the widget ----
+  var PRESETS = {
+    ex1: [0.2, 0.2, 0.2],          // Example 1 (pp. 1725-1726)
+    ex2: [1 / 3, 1 / 3, 1 / 3],    // Example 2 (p. 1726)
+    ex3: [0.1, 1, 0.65],           // Example 3 (p. 1728)
+    suff: [0.2, 0.9, 1.0],         // sufficient supply: R(N) = 2.1 >= 3 x the sweet spot (Theorem 5, Corollary 3)
+    two: [0.3, 0.3]                // two regions (Theorem 2)
+  };
+  var RMAX = 1.2, PMAX = 4;
+  var r = PRESETS.ex1.slice(), res = null, p = 0, userPrice = false, pending = false;
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+
+  function f4(v) { return I18N.fmt(v, 4, 4); }
+  function fd(v) { return I18N.fmt(v, 3, 2); }
+  function fp(v) { return Math.abs(v) > 0 && Math.abs(v) < 0.001 ? I18N.fmt(v, 6, 6) : I18N.fmt(v, 4, 4); }
+  // a positive difference: four decimals, or m × 10^e when it is too small to show with four decimals
+  function fsmall(v) {
+    if (v >= 0.00005) return f4(v);
+    var e = Math.floor(Math.log10(v)), m = v / Math.pow(10, e);
+    if (+m.toFixed(1) >= 10) { m /= 10; e += 1; }
+    return I18N.fmt(m, 1, 1) + " × 10<sup>−" + (-e) + "</sup>";
+  }
+  function setName(S) { return "{" + S.map(function (i) { return i + 1; }).join(", ") + "}"; }
+  function same(a, b) { return a.length === b.length && a.every(function (v, i) { return Math.abs(v - b[i]) < 1e-9; }); }
+  function svg(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function h(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+
+  // sliders for the stocks of the regions
+  var sliders = [];
+  function buildSliders() {
+    var host = $("vx-sliders"); host.textContent = ""; sliders = [];
+    for (var i = 0; i < 3; i++) {
+      var box = h("div", "st-rng"), id = "vx-r" + i;
+      var lab = h("label"); lab.htmlFor = id;
+      var out = h("output"); out.htmlFor = id;
+      var inp = document.createElement("input");
+      inp.type = "range"; inp.id = id; inp.min = "0"; inp.max = String(RMAX); inp.step = "0.01";
+      (function (k) { inp.addEventListener("input", function () { r[k] = +this.value; userPrice = false; schedule(); }); })(i);
+      box.append(lab, out, inp); host.appendChild(box);
+      sliders.push({ box: box, lab: lab, out: out, inp: inp });
+    }
+  }
+
+  function setRegions(n) {
+    if (n === r.length) return;
+    r = n === 2 ? r.slice(0, 2) : r.concat([0.2]);
+    userPrice = false;
+  }
+
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; update(); });
+  }
+
+  // ---- chart: the S-curve, the sweet spot and the regions before and after pooling ----
+  // drawings use the real pixel width of their box, so text keeps its size on every screen
+  var CW = 640, CH = 250, ML = 40, MR = 14, MT = 16, MB = 36, XMAX = 1.25;
+  function boxWidth(id) { var w = $(id).clientWidth; return Math.max(300, Math.min(1000, w || 640)); }
+  function cx(f) { return ML + (CW - ML - MR) * f / XMAX; }
+  function cy(v) { return MT + (CH - MT - MB) * (1 - v / 1.05); }
+  function drawChart() {
+    var host = $("vx-chart"); host.textContent = "";
+    CW = boxWidth("vx-chart"); CH = CW < 520 ? 250 : Math.round(Math.min(330, CW * 0.36));
+    var s = svg("svg", { viewBox: "0 0 " + CW + " " + CH, width: CW, height: CH, "aria-hidden": "true" });
+    [0, 0.25, 0.5, 0.75, 1, 1.25].forEach(function (f) {
+      s.appendChild(svg("line", { "class": "grid", x1: cx(f), x2: cx(f), y1: cy(0), y2: cy(1.05) }));
+      s.appendChild(svg("text", { "class": "tick", x: cx(f), y: cy(0) + 16, "text-anchor": "middle" }, I18N.fmt(f, 2)));
+    });
+    [0, 0.5, 1].forEach(function (v) {
+      s.appendChild(svg("line", { "class": "grid", x1: cx(0), x2: cx(XMAX), y1: cy(v), y2: cy(v) }));
+      s.appendChild(svg("text", { "class": "tick", x: ML - 8, y: cy(v) + 4, "text-anchor": "end" }, I18N.fmt(v, 1)));
+    });
+    s.appendChild(svg("line", { "class": "axis", x1: cx(0), x2: cx(XMAX), y1: cy(0), y2: cy(0) }));
+    s.appendChild(svg("text", { "class": "lab", x: cx(XMAX), y: CH - 4, "text-anchor": "end" }, t("stvac.w.ax.f")));
+    s.appendChild(svg("text", { "class": "lab", x: ML + 6, y: MT + 2 }, "F(f)"));
+    // the tangent from the origin touches the curve at the sweet spot: there the average slope D_F is largest
+    var tf = Vax.tilde, Fd = Vax.F(tf), ext = Math.min(XMAX, tf * 1.32, (1.05 - Vax.F(0)) / Vax.D(tf));
+    s.appendChild(svg("line", { "class": "tangent", x1: cx(0), y1: cy(Vax.F(0)), x2: cx(ext), y2: cy(Vax.F(0) + Vax.D(tf) * ext) }));
+    s.appendChild(svg("line", { "class": "sweet", x1: cx(tf), x2: cx(tf), y1: cy(0), y2: cy(Fd) }));
+    var d = "";
+    for (var k = 0; k <= 250; k++) { var f = XMAX * k / 250; d += (k ? "L" : "M") + cx(f).toFixed(1) + " " + cy(Vax.F(f)).toFixed(1); }
+    s.appendChild(svg("path", { "class": "curve", d: d }));
+    // highlight along the curve from each region's own stock to its fraction after pooling
+    r.forEach(function (ri, i) {
+      var a = Math.min(ri, res.fstar[i]), b = Math.max(ri, res.fstar[i]);
+      if (b - a < 0.004) return;
+      var p2 = "";
+      for (var k = 0; k <= 60; k++) { var f = a + (b - a) * k / 60; p2 += (k ? "L" : "M") + cx(Math.min(f, XMAX)).toFixed(1) + " " + cy(Vax.F(f)).toFixed(1); }
+      s.appendChild(svg("path", { "class": "move", d: p2 }));
+    });
+    // markers, grouped when regions share a position
+    function groups(xs) {
+      var g = [];
+      xs.forEach(function (x, i) {
+        var hit = g.filter(function (q) { return Math.abs(q.x - x) < 0.006; })[0];
+        if (hit) hit.ids.push(i + 1); else g.push({ x: x, ids: [i + 1] });
+      });
+      return g;
+    }
+    // labels: own stock above and to the right (left near the end of the axis), after pooling straight above
+    groups(r).forEach(function (g) {
+      var x = cx(Math.min(g.x, XMAX)), y = cy(Vax.F(g.x)), left = g.x > 1.1;
+      s.appendChild(svg("circle", { "class": "own", cx: x, cy: y, r: 6 }));
+      s.appendChild(svg("text", { "class": "own-t", x: left ? x - 9 : x + 9, y: y - 9, "text-anchor": left ? "end" : "start" }, g.ids.join("\u00b7")));
+    });
+    groups(res.fstar).forEach(function (g) {
+      var x = cx(Math.min(g.x, XMAX)), y = cy(Vax.F(g.x));
+      s.appendChild(svg("circle", { "class": "pool", cx: x, cy: y, r: 6.5 }));
+      s.appendChild(svg("text", { "class": "pool-t", x: x, y: y - 12, "text-anchor": "middle" }, g.ids.join("\u00b7")));
+    });
+    host.appendChild(s);
+    var leg = $("vx-legend"); leg.textContent = "";
+    [["own", t("stvac.w.leg.own")], ["pool", t("stvac.w.leg.pool")], ["sweet", t("stvac.w.leg.sweet", { v: I18N.fmt(tf, 3, 3) })]].forEach(function (L) {
+      var sp = h("span"), i = h("i", L[0]); sp.append(i, document.createTextNode(L[1])); leg.appendChild(sp);
+    });
+  }
+
+  // ---- price ruler: the stable single prices and the chosen price ----
+  function drawRuler() {
+    var host = $("vx-ruler"); host.textContent = "";
+    var W = boxWidth("vx-ruler"), H = 78, L = 16, R = 16, Y = 46;
+    var cands = [1, p, res.pLo, res.AN || 0, res.thPrice || 0];
+    if (isFinite(res.pHi)) cands.push(res.pHi);
+    var top = Math.min(PMAX, Math.max.apply(null, cands) * 1.15);
+    var step = top > 2.5 ? 1 : top > 1.2 ? 0.5 : 0.25;
+    function X(v) { return L + (W - L - R) * Math.min(v, top) / top; }
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(top), y1: Y, y2: Y }));
+    for (var v = 0; v <= top + 1e-9; v += step) {
+      s.appendChild(svg("line", { "class": "axis", x1: X(v), x2: X(v), y1: Y - 3, y2: Y + 3 }));
+      s.appendChild(svg("text", { "class": "tick", x: X(v), y: Y + 17, "text-anchor": "middle" }, I18N.fmt(v, 2)));
+    }
+    var placed = [];
+    function label(x, txt, side, cls) {
+      // outward from the band; flipped inward when it would leave the drawing; one row higher when it would overlap a label
+      var wTxt = txt.length * 6.8, anchor = side < 0 ? "end" : "start", xx = x + side * 6;
+      if (side < 0 && xx - wTxt < 0) { anchor = "start"; xx = x + 6; }
+      if (side > 0 && xx + wTxt > W) { anchor = "end"; xx = x - 6; }
+      var x0 = anchor === "end" ? xx - wTxt : xx, x1 = x0 + wTxt, yy = Y - 16;
+      if (placed.some(function (b) { return x0 < b[1] + 6 && x1 > b[0] - 6; })) yy = Y - 31;
+      placed.push([x0, x1]);
+      s.appendChild(svg("text", { "class": cls, x: xx, y: yy, "text-anchor": anchor }, txt));
+    }
+    if (res.RN > 1e-12) {
+      if (res.marketOk) {
+        var a = X(res.pLo), b = isFinite(res.pHi) ? X(res.pHi) : X(top);
+        s.appendChild(svg("rect", { "class": "band", x: a, y: Y - 9, width: Math.max(2, b - a), height: 18 }));
+        s.appendChild(svg("line", { "class": "edge", x1: a, x2: a, y1: Y - 11, y2: Y + 11 }));
+        if (isFinite(res.pHi) && res.pHi <= top) s.appendChild(svg("line", { "class": "edge", x1: b, x2: b, y1: Y - 11, y2: Y + 11 }));
+        if (res.pLo > 1e-9) label(a, t("stvac.w.ruler.lo", { p: fp(res.pLo) }), -1, "bt");
+        if (isFinite(res.pHi)) label(b, t("stvac.w.ruler.hi", { p: fp(res.pHi) }), 1, "bt");
+      } else if (res.coreNonEmpty || isFinite(res.pHi)) {
+        var g1 = X(res.pHi), g2 = X(res.pLo);
+        s.appendChild(svg("rect", { "class": "gap", x: g1, y: Y - 9, width: Math.max(2, g2 - g1), height: 18 }));
+        s.appendChild(svg("line", { "class": "gapedge", x1: g1, x2: g1, y1: Y - 11, y2: Y + 11 }));
+        s.appendChild(svg("line", { "class": "gapedge", x1: g2, x2: g2, y1: Y - 11, y2: Y + 11 }));
+        label(g1, t("stvac.w.ruler.hi", { p: fp(res.pHi) }), -1, "bt");
+        label(g2, t("stvac.w.ruler.lo", { p: fp(res.pLo) }), 1, "bt");
+        s.appendChild(svg("text", { "class": "gt", x: (g1 + g2) / 2, y: Y + 30, "text-anchor": "middle" }, t("stvac.w.ruler.gap")));
+      }
+      if (res.thPrice != null) {
+        var tx = X(res.thPrice);
+        s.appendChild(svg("path", { "class": "thmark", d: "M" + tx + " " + (Y - 7) + "l7 7l-7 7l-7 -7z" }));
+      }
+      var px = X(p);
+      s.appendChild(svg("path", { "class": "pmark", d: "M" + px + " " + (Y + 6) + "l6 10h-12z" }));
+    }
+    host.appendChild(s);
+  }
+
+  function kpi(label, value, cls) {
+    var d = h("div", "st-kpi" + (cls ? " " + cls : "")); d.append(h("b", null, value), h("span", null, label)); return d;
+  }
+
+  function priceText() {
+    if (!res.marketOk) return t("stvac.w.pr.none");
+    if (!isFinite(res.pHi)) return res.pLo <= 1e-9 ? t("stvac.w.pr.any") : t("stvac.w.pr.from", { lo: fp(res.pLo) });
+    if (fp(res.pLo) === fp(res.pHi)) return t("stvac.w.pr.one", { p: fp(res.pLo) });
+    return t("stvac.w.pr.range", { lo: fp(res.pLo), hi: fp(res.pHi) });
+  }
+
+  function verdict() {
+    var v = $("vx-verdict"), parts = [], cls = "ok";
+    if (res.RN <= 1e-12) { v.className = "st-verdict"; v.innerHTML = t("stvac.w.v.none"); return; }
+    if (!res.trade) parts.push(t("stvac.w.v.notrade"));
+    else if (!res.coreNonEmpty) {
+      cls = "bad";
+      var w = res.weights.map(function (q) { return t("stvac.w.w.item", { w: I18N.fmt(q.w, 4), S: setName(q.S) }); }).join(t("stvac.w.list"));
+      parts.push(t("stvac.w.v.empty", { need: f4(res.minTotal), vN: f4(res.vN), gap: fsmall(res.minTotal - res.vN), w: w }));
+    } else if (res.marketOk) {
+      if (isFinite(res.pHi) && fp(res.pLo) === fp(res.pHi)) parts.push(t("stvac.w.v.market1", { p: fp(res.pLo) }));
+      else parts.push(t("stvac.w.v.market", { range: priceText() }));
+    }
+    else {
+      cls = "bad";
+      var pr = [];
+      (res.x || []).forEach(function (xi, i) {
+        if (Math.abs(res.net[i]) > 1e-9) pr.push(t("stvac.w.pr.item", { i: i + 1, p: fp((xi - res.keep[i]) / res.net[i]) }));
+      });
+      parts.push(t("stvac.w.v.nomarket", { lo: fp(res.pLo), hi: fp(res.pHi), Slo: setName(res.pLoS), Shi: setName(res.pHiS) }));
+      if (pr.length) parts.push(t("stvac.w.v.indiv", { prices: pr.join(t("stvac.w.list")) }));
+    }
+    if (res.th2) parts.push(t("stvac.w.th.t2", { lo: fp(res.th2.lo), hi: fp(res.th2.hi) }));
+    if (res.regime === "severe") parts.push(t("stvac.w.th.t4", { p: fp(res.thPrice) }));
+    else if (res.regime === "sufficient") parts.push(t("stvac.w.th.t5", { p: fp(res.thPrice) }));
+    else if (res.regime === "moderate") parts.push(t(r.length === 2 ? "stvac.w.th.mod2" : "stvac.w.th.mod", { p: fp(res.AN) }));
+    v.className = "st-verdict " + cls;
+    v.innerHTML = parts.join(" ");
+  }
+
+  function atPrice() {
+    var y = Vax.market(res, p), worst = null;
+    res.proper.forEach(function (c) {
+      var ys = 0; c.members.forEach(function (k) { ys += y[k]; });
+      var gap = c.v - ys;
+      if (gap > 1e-9 && (!worst || gap > worst.gap)) worst = { gap: gap, S: c.members, y: ys, v: c.v };
+    });
+    var status = worst ? t("stvac.w.at.bad", { S: setName(worst.S), y: f4(worst.y), v: f4(worst.v) }) : t("stvac.w.at.ok");
+    $("vx-at").innerHTML = res.RN > 1e-12 ? t("stvac.w.at", { p: "<b>" + fp(p) + "</b>", status: status }) : "";
+    return y;
+  }
+
+  function tables(y) {
+    var n = r.length;
+    // per region
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    [["stvac.w.t.region", ""], ["stvac.w.t.r", "num"], ["stvac.w.t.f", "num"], ["stvac.w.t.trade", "num wide"], ["stvac.w.t.x", "num"], ["stvac.w.t.y", "num"]].forEach(function (c) {
+      tr.appendChild(h("th", c[1], t(c[0])));
+    });
+    thead.appendChild(tr); tb.appendChild(thead);
+    var tbody = h("tbody");
+    for (var i = 0; i < n; i++) {
+      var row = h("tr"), net = res.net[i];
+      row.append(h("td", null, String(i + 1)), h("td", "num", fd(r[i])), h("td", "num", fd(res.fstar[i])),
+        h("td", "num wide", Math.abs(net) < 5e-4 ? "0" : (net > 0 ? "+" : "−") + fd(Math.abs(net))),
+        h("td", "num", res.x ? f4(res.x[i]) : t("stvac.w.dash")), h("td", "num", f4(y[i])));
+      tbody.appendChild(row);
+    }
+    tb.appendChild(tbody);
+    var host = $("vx-reg"); host.textContent = ""; host.appendChild(tb);
+    // per coalition
+    var tc = h("table"), th2 = h("thead"), tr2 = h("tr");
+    [["stvac.w.t.S", ""], ["stvac.w.t.RS", "num"], ["stvac.w.t.vS", "num"], ["stvac.w.t.split", "num wide"], ["stvac.w.t.xS", "num"], ["stvac.w.t.yS", "num"]].forEach(function (c) {
+      tr2.appendChild(h("th", c[1], t(c[0])));
+    });
+    th2.appendChild(tr2); tc.appendChild(th2);
+    var tb2 = h("tbody");
+    res.coal.forEach(function (c, k) {
+      var grand = k === res.coal.length - 1, row = h("tr", grand ? "grand" : null);
+      var xs = 0, ys = 0;
+      c.members.forEach(function (m) { ys += y[m]; if (res.x) xs += res.x[m]; });
+      var split = c.doses.map(fd).join(" · ");
+      function cell(val, ok) {
+        var td = h("td", "num", val);
+        if (!grand && ok != null) { td.appendChild(document.createTextNode(" ")); td.appendChild(h("span", ok ? "ok" : "bad", t(ok ? "stvac.w.yes" : "stvac.w.no"))); }
+        return td;
+      }
+      row.append(h("td", null, setName(c.members)), h("td", "num", fd(c.R)), h("td", "num", f4(c.v)), h("td", "num wide", split),
+        res.x ? cell(f4(xs), xs >= c.v - 1e-9) : h("td", "num", t("stvac.w.dash")), cell(f4(ys), ys >= c.v - 1e-9));
+      tb2.appendChild(row);
+    });
+    tc.appendChild(tb2);
+    var hc = $("vx-coal"); hc.textContent = ""; hc.appendChild(tc);
+  }
+
+  function defaultPrice() {
+    if (res.pShow != null) return res.pShow;
+    if (res.AN != null) return res.AN;
+    return 0;
+  }
+
+  function update() {
+    res = Vax.solve(r);
+    if (!userPrice) p = Math.min(PMAX, defaultPrice());
+    // controls
+    document.querySelectorAll("#vx-n button").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-n") === r.length)); });
+    document.querySelectorAll("#vx-presets button").forEach(function (b) { b.setAttribute("aria-pressed", String(same(PRESETS[b.getAttribute("data-preset")], r))); });
+    sliders.forEach(function (s, i) {
+      s.box.hidden = i >= r.length;
+      if (i < r.length) {
+        s.lab.textContent = t("stvac.w.r", { i: i + 1 });
+        s.out.textContent = fd(r[i]);
+        if (Math.abs(+s.inp.value - r[i]) > 0.0051) s.inp.value = String(r[i]);
+      }
+    });
+    var pin = $("vx-p"); pin.value = String(p); $("vx-p-out").textContent = fp(p);
+    $("vx-snap-th").hidden = res.thPrice == null;
+    $("vx-snap-an").hidden = res.AN == null;
+    $("vx-snap-mid").hidden = !(res.marketOk && isFinite(res.pHi) && res.trade);
+    // numbers
+    var alone = 0; res.coal.forEach(function (c) { if (c.members.length === 1) alone += c.v; });
+    var k = $("vx-kpis"); k.textContent = "";
+    k.append(kpi(t("stvac.w.k.R"), fd(res.RN)), kpi(t("stvac.w.k.alone"), f4(alone)), kpi(t("stvac.w.k.vN"), f4(res.vN), "accent"),
+      kpi(t("stvac.w.k.regime"), t("stvac.w.reg." + res.regime)),
+      kpi(t("stvac.w.k.core"), t(res.coreNonEmpty ? "stvac.w.core.yes" : "stvac.w.core.no"), res.coreNonEmpty ? null : "warn"),
+      kpi(t("stvac.w.k.prices"), priceText(), res.marketOk ? null : "warn"));
+    drawChart();
+    verdict();
+    drawRuler();
+    tables(atPrice());
+  }
+
+  // events
+  document.querySelectorAll("#vx-n button").forEach(function (b) {
+    b.addEventListener("click", function () { setRegions(+b.getAttribute("data-n")); schedule(); });
+  });
+  document.querySelectorAll("#vx-presets button").forEach(function (b) {
+    b.addEventListener("click", function () { r = PRESETS[b.getAttribute("data-preset")].slice(); userPrice = false; schedule(); });
+  });
+  $("vx-p").addEventListener("input", function () {
+    p = +this.value; userPrice = true;
+    $("vx-p-out").textContent = fp(p); drawRuler(); tables(atPrice());
+  });
+  function snap(v) { p = Math.min(PMAX, v); userPrice = true; update(); }
+  $("vx-snap-th").addEventListener("click", function () { snap(res.thPrice); });
+  $("vx-snap-an").addEventListener("click", function () { snap(res.AN); });
+  $("vx-snap-mid").addEventListener("click", function () { snap((res.pLo + res.pHi) / 2); });
+
+  buildSliders();
+  I18N.onChange(update);
+  var resizeTimer, lastW = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var w = $("vx-chart").clientWidth;
+      if (res && w !== lastW) { lastW = w; drawChart(); drawRuler(); }
+    }, 120);
+  });
+})();
+</script>
+<!-- after the page scripts, so each language switch first rebuilds the page and then typesets its formulas -->
+<script src="../../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+</body>
+</html>

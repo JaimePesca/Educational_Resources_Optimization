@@ -178,7 +178,9 @@
   .sv-ring { fill: none; stroke: var(--accent); stroke-width: 2.5; }
   .sv-hring { fill: none; stroke: var(--hot); stroke-width: 2.5; }
   .sv-halo { paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
-  .sv-hit { fill: transparent; cursor: ns-resize; }
+  .sv-hit { fill: transparent; }
+  .chartbox.edit .sv-hit { cursor: ns-resize; }
+  .chartbox.edit svg { touch-action: none; }
   .sv-hit:focus { outline: none; }
   .sv-hit:focus-visible + rect, .sv-hit:hover + rect { stroke: var(--ink); stroke-width: 1.5; }
   .legend2 { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
@@ -201,7 +203,8 @@
   table.data tr.spe td { background: var(--sel); font-weight: 600; }
   table.data td.acc { color: var(--accent-text); font-weight: 700; }
   table.data td.hot { color: var(--hot); font-weight: 600; }
-  table.data td.bar { width: 40%; min-width: 80px; }
+  table.data td.bar { width: 30%; min-width: 60px; }
+  @media (max-width: 560px) { #gts-r-table td.bar, #gts-r-table th.bar { display: none; } #gts-r-table { min-width: 0; } }
   table.data td.bar i { display: block; height: 10px; background: var(--ink2); }
   table.data tr.top td.bar i { background: var(--accent); }
   table.nf { border-collapse: collapse; margin-top: 8px; }
@@ -261,7 +264,7 @@
       <div>
         <p class="mhead" data-i18n="gts.what.head"></p>
         <div class="formula" data-tex="gts.what.tex" data-i18n="gts.what.formula"></div>
-        <p class="mtext" data-i18n-html="gts.what.p4"></p>
+        <p class="mtext" id="gts-what-p4"></p>
       </div>
     </div>
   </div>
@@ -424,7 +427,7 @@
       <div class="ctl-row" style="margin-top:14px">
         <div class="rng">
           <label for="gts-u-x" data-i18n="gts.u.x"></label><output id="gts-u-xv"></output>
-          <input type="range" id="gts-u-x" min="0" max="10" step="1" value="5">
+          <input type="range" id="gts-u-x" min="0" max="10" step="1" value="3">
         </div>
         <div class="ctl-group">
           <div class="btns">
@@ -614,6 +617,7 @@
   function pair(a, b) { return T("gts.pair", { a: a, b: b }); }
   function tpair(a, b) { return T("gts.pair.tex", { a: a, b: b }); }
   function pct(v, d) { return T("gts.pct", { v: fmt(100 * v, d == null ? 1 : d) }); }
+  function pctFine(v) { var a = Math.abs(v); return pct(v, a > 0 && a < 0.001 ? 3 : a > 0 && a < 0.01 ? 2 : 1); }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
   function K(key) { return function () { return T(key); }; }
   function labOf(a) { return typeof a.lab === "function" ? a.lab() : a.lab; }
@@ -867,10 +871,11 @@
       G.post.forEach(function (n) { var s = 0; n.acts.forEach(function (a) { s += a.c.nx; }); n.nx = s / n.acts.length; });
       G.all.forEach(function (n) { maxD = Math.max(maxD, n.depth); });
       G.all.forEach(function (n) { n.ny = n.depth / maxD; });
+      G.maxD = maxD;
     }
     // when each node appears (chapter 1)
     var lvl = {};
-    G.all.forEach(function (n) { var d = n.depth; lvl[d] = lvl[d] || 0; n.tA = 0.5 + d * 0.85 + lvl[d] * 0.12; lvl[d]++; });
+    G.all.forEach(function (n) { var d = n.depth; lvl[d] = lvl[d] || 0; n.tA = 0.6 + d * (G.kind === "cent" ? 0.95 : 1.3) + lvl[d] * 0.16; lvl[d]++; });
     // the solving steps: last movers in chapter 2, the rest up to the root in chapter 3
     var post = G.post, nD = post.length;
     var allLeaf = post.filter(function (n) { return n.acts.every(function (a) { return !!a.c.u; }); }).length;
@@ -908,15 +913,15 @@
   }
 
   /* ---------- layout ---------- */
-  function capLines(S, k, t) { return captions(S, t, k); }
   function layout() {
     var W = cv.w, H = cv.h, portrait = W / H < 1.2;
     var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
     L = { W: W, H: H, portrait: portrait, small: !portrait && W < 760 };
-    L.fs = portrait ? 10.5 : (L.small ? 11 : 12);
-    L.fb = portrait ? 11.5 : (L.small ? 12 : 13.5);
+    L.big = !portrait && W >= 900;
+    L.fs = portrait ? 10.5 : (L.small ? 11 : (L.big ? 12.5 : 12));
+    L.fb = portrait ? 11.5 : (L.small ? 12 : (L.big ? 15 : 13.5));
     L.ft = portrait ? 13.5 : (L.small ? 14 : 16);
-    L.node = portrait ? 18 : (L.small ? 19 : 23);
+    L.node = portrait ? 18 : (L.small ? 19 : (L.big ? 27 : 23));
     L.lw = portrait ? 1.8 : 2.2;
     L.capX = hx; L.capY = hy + hh + (portrait ? 17 : 24); L.capW = portrait ? W - 2 * hx : hw;
     // room for the longest caption of any scenario and chapter, so nothing jumps
@@ -942,12 +947,12 @@
     G.leaves.forEach(function (l) { pw = Math.max(pw, ctx.measureText(fv(G, l.u[0])).width, ctx.measureText(fv(G, l.u[1])).width); });
     o.payW = pw; o.tagW = pw + 12; o.tagH = 2 * L.fb + 9; o.payH = 2 * L.fb + 4;
     var R = L.R, need;
-    if (!L.portrait && (need = panelSpec(S, { x: L.capX, y: L.colY, w: L.capW, h: 0 })).h <= L.colH) {
+    if (!L.portrait && (need = panelSpec(S, { x: L.capX, y: L.colY, w: L.capW, h: 0 }, false)).h <= L.colH) {
       o.mode = "side"; o.panel = { x: L.capX, y: L.colY, w: L.capW, h: need.h };
       o.tree0 = R; o.tree1 = R;
     } else {
       var wid = Math.min(R.x1 - R.x0, 440), box = { x: (R.x0 + R.x1) / 2 - wid / 2, y: 0, w: wid, h: 0 };
-      need = panelSpec(S, box);
+      need = panelSpec(S, box, true);
       box.y = R.y1 - need.h; box.h = need.h;
       o.mode = "stack"; o.panel = box;
       o.tree0 = R; o.tree1 = { x0: R.x0, x1: R.x1, y0: R.y0, y1: box.y - 12 };
@@ -960,24 +965,25 @@
     return { x0: lerp(o.tree0.x0, o.tree1.x0, u), x1: lerp(o.tree0.x1, o.tree1.x1, u), y0: lerp(o.tree0.y0, o.tree1.y0, u), y1: lerp(o.tree0.y1, o.tree1.y1, u) };
   }
   // screen positions of every node inside the box b
-  function geom(S, b) {
-    var G = S.G, o = lay(S), P = [], nd = L.node;
+  // on small stages the tags give way in chapters 4 and 5 (the endings and the counters keep the values)
+  function tagVis(S, t) { var o = lay(S); return o.mode === "stack" && S.G.kind !== "cent" ? 1 - E.inOut(seg(t, 32.0, 33.0)) : 1; }
+  function geom(S, b, t) {
+    var G = S.G, o = lay(S), P = [], nd = L.node, tv = tagVis(S, t);
     if (G.kind === "cent") {
       var x0 = b.x0 + nd / 2 + 4, x1 = b.x1 - o.payW / 2 - 8;
       var top = b.y0 + o.tagH + 6, bottom = b.y1 - o.payH - 12;
-      var vg = clamp(bottom - top - 12, 30, L.portrait ? 80 : 110), y = top + Math.max(0, (bottom - top - vg) / 2) - 4;
-      var sp = Math.min((x1 - x0), (L.portrait ? 92 : 150) * G.n), xl = (x0 + x1) / 2 - sp / 2;
+      var vg = clamp(bottom - top - 12, 30, L.portrait ? 80 : (L.big ? 150 : 110)), y = top + Math.max(0, (bottom - top - vg) / 2) - 4;
+      var sp = Math.min((x1 - x0), (L.portrait ? 92 : (L.big ? 175 : 150)) * G.n), xl = (x0 + x1) / 2 - sp / 2;
       G.all.forEach(function (n) { P[n.id] = { x: xl + n.nx * sp, y: y + n.ny * vg }; });
       return { P: P, vg: vg };
     }
     var mx = o.payW / 2 + 8, xa = b.x0 + mx, xb = b.x1 - mx;
-    var ya = b.y0 + nd / 2 + 6, yb = b.y1 - o.payH - 12;
-    var gap = Math.min((yb - ya) / G.maxD, L.portrait ? 92 : 130), hU = gap * G.maxD, yt = ya + ((yb - ya) - hU) / 2;
-    var wU = Math.min(xb - xa, (G.leaves.length - 1) * (L.portrait ? 80 : 120)), xl2 = (xa + xb) / 2 - wU / 2;
+    var ya = b.y0 + lerp(nd / 2, Math.max(nd / 2, o.tagH - 2), tv) + 6, yb = b.y1 - o.payH - 12 - (S.threat ? L.fs + 8 : 0);
+    var gap = Math.min((yb - ya) / G.maxD, L.portrait ? 92 : (L.big ? 175 : 130)), hU = gap * G.maxD, yt = ya + ((yb - ya) - hU) / 2;
+    var wU = Math.min(xb - xa, (G.leaves.length - 1) * (L.portrait ? 130 : (L.big ? 240 : 150))), xl2 = (xa + xb) / 2 - wU / 2;
     G.all.forEach(function (n) { P[n.id] = { x: xl2 + n.nx * wU, y: yt + n.ny * hU }; });
     return { P: P, gap: gap };
   }
-  Object.defineProperty(Object.prototype, "__noop__", { value: 0, enumerable: false });
   function maxDepth(G) { var m = 0; G.all.forEach(function (n) { m = Math.max(m, n.depth); }); return m; }
 
   /* ---------- drawing helpers ---------- */
@@ -1047,7 +1053,7 @@
   function tagPos(S, n, P) {                     // the rolled-back value of a decision node, as a tag
     var o = lay(S), p = P[n.id], w = o.tagW, h = o.tagH, nd = L.node, x, y;
     if (S.G.kind === "cent") { x = p.x - w / 2; y = p.y - nd / 2 - 6 - h; }
-    else if (!n.parent) { x = p.x + nd / 2 + 8; y = p.y - h / 2; }
+    else if (!n.parent) { x = p.x + nd / 2 + 8; y = p.y + 2 - h; }
     else {
       var dx = p.x - P[n.parent.id].x;
       if (Math.abs(dx) < 1) { x = p.x + nd / 2 + 8; y = p.y - h / 2; }
@@ -1139,11 +1145,7 @@
     });
     // player 1's best reply to it, and where that ends
     var pa = a * seg(t, 39.6, 40.3);
-    if (pa > 0 && th.path[1] && th.path[1].pl !== 1) {
-      line(P[th.path[0].id].x, P[th.path[0].id].y, P[th.path[1].id].x, P[th.path[1].id].y, HOT, lw * 1.05, pa, [6, 5]);
-    } else if (pa > 0) {
-      line(P[th.path[0].id].x, P[th.path[0].id].y, P[th.path[1].id].x, P[th.path[1].id].y, HOT, lw * 1.05, pa, [6, 5]);
-    }
+    if (pa > 0) line(P[th.path[0].id].x, P[th.path[0].id].y, P[th.path[1].id].x, P[th.path[1].id].y, HOT, lw * 1.05, pa, [6, 5]);
     if (pa > 0) {
       var v = valueAt(S, th.leaf, P), bg = blockGeom(G, th.leaf.u, v.X, v.Y);
       ringLine([bg.X - bg.w / 2, bg.Y, bg.X + bg.w / 2, bg.Y + bg.h], HOT, 2, pa);
@@ -1156,12 +1158,10 @@
     th.bluff.forEach(function (n) {
       var bad = n.acts[th.s1[n.pi]].c, good = n.acts[S.sol.ch[n.id]].c, v1 = S.sol.V[bad.id][1], v2 = S.sol.V[good.id][1];
       var dm = G.kind === "leader" ? 1 : G.d, mm = G.kind === "leader" ? 1 : G.m;
-      var txt = T("gts.l.lt", { a: num(v1, dm, mm), b: num(v2, dm, mm) }), p = P[n.id];
+      var txt = T("gts.l.lt", { a: num(v1, dm, mm), b: num(v2, dm, mm) }), p = P[bad.id];
       ctx.font = font(700, L.fs + 1);
       var w = ctx.measureText(txt).width;
-      var x = p.x - w / 2, y = p.y + L.node / 2 + 12 + L.fs;
-      if (G.kind === "entry") { x = p.x + L.node / 2 + 10; y = p.y + L.node * 0.15 + L.fs * 1.6; }
-      out.push({ txt: txt, x: clamp(x, 4, L.W - w - 4), y: y, w: w, a: a });
+      out.push({ txt: txt, x: clamp(p.x - w / 2, 4, L.W - w - 4), y: leafTop(bad, P) + 2 * L.fb + 3 + 7 + L.fs / 2, w: w, a: a });
     });
     return out;
   }
@@ -1230,7 +1230,7 @@
         drawBlock(G, S.sol.V[n.id], X, Y, 1, C["accent-text"]);
       }
       // 3. the tag stays next to the node
-      var ta = tagIn(S, n, t);
+      var ta = tagIn(S, n, t) * tagVis(S, t);
       if (ta > 0.001) {
         var tg2 = tagPos(S, n, P), sc = Math.max(0.3, ta);
         ctx.save(); ctx.translate(tg2.cx, tg2.y + tg2.h / 2); ctx.scale(sc, sc); ctx.translate(-tg2.cx, -(tg2.y + tg2.h / 2));
@@ -1250,7 +1250,8 @@
     ctx.globalAlpha = a; ctx.strokeStyle = C.ink2; ctx.lineWidth = 1.6; ctx.setLineDash([6, 5]);
     rrect(lerp((x0 + x1) / 2, x0, u), y - h / 2, (x1 - x0) * u, h, h / 2); ctx.stroke(); ctx.setLineDash([]);
     ctx.globalAlpha = 1;
-    label(T("gts.l.info"), (x0 + x1) / 2, y + h / 2 + L.fs, "center", C.ink2, font(400, L.fs, true), a);
+    var lx = ns.length > 1 ? (P[ns[0].id].x + P[ns[1].id].x) / 2 : (x0 + x1) / 2;
+    label(T("gts.l.info"), lx, y + h / 2 + L.fs, "center", C.ink2, font(400, L.fs, true), a);
   }
   function drawPiles(S, P, t) {                  // chapter 1, centipede: each pass multiplies the piles
     if (S.G.kind !== "cent") return;
@@ -1267,46 +1268,49 @@
     var a = seg(t, 34.4, 35.4) * (1 - seg(t, 43.6, 44.6));
     if (a <= 0) return;
     var G = S.G, ds = G.dec, endL = ds[ds.length - 1].acts[1].c, u = seg(t, 34.4, 36.4);
-    var x0 = P[ds[0].id].x, x1 = P[endL.id].x, y = P[ds[0].id].y - L.node * 0.9;
-    line(x0, y, lerp(x0, x1, E.inOut(u)), y, C.ink2, 1.6, a, [3, 5]);
+    var x0 = P[ds[0].id].x, x1 = P[endL.id].x, y = P[ds[0].id].y;
+    ctx.lineDashOffset = -t * 18;
+    line(x0, y, lerp(x0, x1, E.inOut(u)), y, C.ink, L.lw * 1.1, a, [5, 6]);
+    ctx.lineDashOffset = 0;
     var v = valueAt(S, endL, P), bg = blockGeom(G, endL.u, v.X, v.Y);
     ringLine([bg.X - bg.w / 2, bg.Y, bg.X + bg.w / 2, bg.Y + bg.h], C.ink, 2, a * seg(t, 36.2, 36.8));
   }
 
   /* ---------- the panel: normal form (chapter 4), summary (chapter 5) ---------- */
-  function panelSpec(S, box) {
-    var G = S.G, nf = S.nf, fs = L.fs, fb = L.fb, w = box.w, o = { rowH: fs + 12 }, y;
+  // stack: on small stages the panel sits under the tree and the summary replaces the normal form in chapter 5
+  function panelSpec(S, box, stack) {
+    var G = S.G, nf = S.nf, fs = L.fs, fb = L.fb, w = box.w, o = { rowH: fs + (stack ? 9 : 12), stack: stack }, y;
     if (G.kind === "entry") {
       ctx.font = font(600, fs);
       var rl = [0, 1].map(function (r) { return rowLabel(G, nf, 0, r); }), cl = [0, 1].map(function (c) { return rowLabel(G, nf, 1, c); });
       var rw = Math.max(ctx.measureText(rl[0]).width, ctx.measureText(rl[1]).width) + 14;
-      var cw = clamp((w - rw - 4) / 2, 58, 104), ch = 2 * fb + 18, hdr = fs + 12;
+      var cw = clamp((w - rw - 4) / 2, 58, stack ? 88 : 104), ch = 2 * fb + (stack ? 10 : 18), hdr = fs + (stack ? 9 : 12);
       o.rl = rl; o.cl = cl; o.rw = rw; o.cw = cw; o.chh = ch; o.hdr = hdr;
       o.gx = box.x + rw; o.gy = box.y + hdr;
-      y = hdr + 2 * ch + 14;
+      y = hdr + 2 * ch + (stack ? 4 : 14);
     } else if (G.kind === "leader") {
       ctx.font = font(600, fs);
       var rw2 = ctx.measureText("60").width + 14, ncol = nf.nc_, grp = ncol / G.menu.length, ng = G.menu.length;
       var cs = Math.floor((w - rw2 - (ng - 1) * 4 - 2) / ncol) - 1;
       cs = clamp(cs, 5, 13);
-      o.rw = rw2; o.cs = cs; o.grp = grp; o.hdr = fs + 10;
+      o.rw = rw2; o.cs = cs; o.ch = Math.max(cs, Math.ceil(fs + 3)); o.grp = grp; o.hdr = fs + 10;
       o.gx = box.x + rw2; o.gy = box.y + o.hdr;
-      y = o.hdr + nf.nr * (cs + 1) + 16;
+      y = o.hdr + nf.nr * (o.ch + 1) + (stack ? 4 : 16);
     } else {
-      o.bh = clamp(w * 0.36, 70, 112);
+      o.bh = stack ? clamp(w * 0.2, 50, 72) : clamp(w * 0.36, 70, 112);
       o.gy = box.y + fs + 8;
-      y = fs + 8 + o.bh + fs + 14;
+      y = fs + 8 + o.bh + fs + (stack ? 8 : 14);
     }
-    o.sy = box.y + y;
     var rows = S.G.kind === "cent" ? 2 : nf.groups.length;
-    o.h = y + rows * o.rowH;
+    if (stack) { o.sy = box.y; o.h = Math.max(y, rows * o.rowH + 4); }
+    else { o.sy = box.y + y; o.h = y + rows * o.rowH; }
     return o;
   }
   function cellX(o, c) { return o.gx + c * (o.cs + 1) + Math.floor(c / o.grp) * 4; }
   function drawPanel(S, t) {
     var o = lay(S), box = o.panel, a = E.out(seg(t, 32.3, 33.5));
     if (a <= 0) return;
-    var sp = panelSpec(S, box), dy = (1 - a) * 16, G = S.G, nf = S.nf, fs = L.fs, fb = L.fb;
+    var sp = panelSpec(S, box, o.mode === "stack"), dy = (1 - a) * 16, G = S.G, nf = S.nf, fs = L.fs, fb = L.fb;
     ctx.save(); ctx.translate(0, dy);
     if (o.mode === "stack") {                      // a quiet card behind the panel on small stages
       ctx.globalAlpha = a; ctx.fillStyle = C.surface; ctx.fillRect(box.x - 6, box.y - 8, box.w + 12, box.h + 12); ctx.globalAlpha = 1;
@@ -1314,7 +1318,7 @@
     if (G.kind === "entry") {
       var ca = seg(t, 33.0, 33.8);
       // corner glyphs: rows belong to player 1, columns to player 2
-      drawNodeGlyph(box.x + 7, sp.gy - 8, 0, 11, ca); drawNodeGlyph(sp.gx - 9, box.y + 5, 1, 11, ca);
+      drawNodeGlyph(box.x + 8, sp.gy - 9, 0, 13, ca); drawNodeGlyph(sp.gx - 10, box.y + fs / 2 + 2, 1, 13, ca);
       sp.cl.forEach(function (s, c) { label(s, sp.gx + (c + 0.5) * sp.cw, box.y + fs / 2 + 2, "center", C.ink2, font(600, fs), ca); });
       sp.rl.forEach(function (s, r) { label(s, sp.gx - 8, sp.gy + (r + 0.5) * sp.chh, "right", C.ink2, font(600, fs), ca); });
       for (var r = 0; r < 2; r++) for (var c = 0; c < 2; c++) {
@@ -1326,19 +1330,23 @@
       label(T("gts.l.plans", { n: nf.nc_ }), sp.gx, box.y + fs / 2 + 1, "left", C.ink2, font(600, fs), ga);
       drawNodeGlyph(box.x + 6, box.y + fs / 2 + 1, 0, 10, ga);
       for (var r2 = 0; r2 < nf.nr; r2++) {
-        label(String(G.menu[r2]), sp.gx - 6, sp.gy + r2 * (sp.cs + 1) + sp.cs / 2, "right", C.ink2, font(600, fs), ga);
+        label(String(G.menu[r2]), sp.gx - 6, sp.gy + r2 * (sp.ch + 1) + sp.ch / 2, "right", C.ink2, font(600, fs), ga);
         for (var c2 = 0; c2 < nf.nc_; c2++) {
           var cl2 = nf.cell(r2, c2), aa2 = seg(t, 33.1 + 1.2 * c2 / nf.nc_, 33.5 + 1.2 * c2 / nf.nc_);
-          drawCell(S, cl2, cellX(sp, c2), sp.gy + r2 * (sp.cs + 1), sp.cs, sp.cs, aa2, t, false);
+          drawCell(S, cl2, cellX(sp, c2), sp.gy + r2 * (sp.ch + 1), sp.cs, sp.ch, aa2, t, false);
         }
       }
       // the sweep that marks the equilibria
       var su = seg(t, 34.8, 36.7);
       if (su > 0 && su < 1) {
         var sx = lerp(sp.gx, cellX(sp, nf.nc_ - 1) + sp.cs, su);
-        line(sx, sp.gy - 3, sx, sp.gy + nf.nr * (sp.cs + 1) + 2, C.accent, 2, 0.8);
+        line(sx, sp.gy - 3, sx, sp.gy + nf.nr * (sp.ch + 1) + 2, C.accent, 2, 0.8);
       }
     } else drawBars(S, sp, box, t);
+    if (sp.stack) {                                // small stages: the normal form gives way to the summary
+      var fo = seg(t, 44.3, 45.1);
+      if (fo > 0) { ctx.globalAlpha = fo; ctx.fillStyle = C.surface; ctx.fillRect(box.x - 6, box.y - 8, box.w + 12, box.h + 12); ctx.globalAlpha = 1; }
+    }
     drawSummary(S, sp, box, t);
     ctx.restore();
   }
@@ -1413,12 +1421,19 @@
       if (r.kind === "spe") { ctx.globalAlpha = a; ctx.fillStyle = C.accent; circle(x, y, 4.5); ctx.fill(); ctx.globalAlpha = 1; }
       else if (r.kind === "nc") { line(x - 4, y - 4, x + 4, y + 4, HOT, 2.2, a); line(x + 4, y - 4, x - 4, y + 4, HOT, 2.2, a); }
       else { ctx.globalAlpha = a; ctx.strokeStyle = C["mit-silver"]; ctx.lineWidth = 1.8; circle(x, y, 4); ctx.stroke(); ctx.globalAlpha = 1; }
-      var t1 = outcomeText(G, r.lf), f1 = font(700, fs), col = r.kind === "spe" ? C["accent-text"] : (r.kind === "nc" ? C.ink : C.ink2);
-      label(t1, x + 12, y, "left", col, f1, a);
-      ctx.font = f1; var w1 = ctx.measureText(t1).width;
-      label(upair(G, r.lf.u), x + 18 + w1, y, "left", C.ink2, font(400, fs), a);
-      var right = r.kind === "end" ? T("gts.l.never") : T("gts.l.cnt", { n: r.n });
-      label(right, box.x + box.w - 2, y, "right", C.muted, font(400, fs), a);
+      var t1 = outcomeText(G, r.lf), t2 = upair(G, r.lf.u), col = r.kind === "spe" ? C["accent-text"] : (r.kind === "nc" ? C.ink : C.ink2);
+      var right = r.kind === "end" ? T("gts.l.never") : T("gts.l.cnt", { n: r.n }), w1, w2, w3, k;
+      // shrink the row (down to 85%) when the three parts do not fit; drop the note on the right if still too long
+      for (k = 1; k >= 0.85; k -= 0.05) {
+        ctx.font = font(700, fs * k); w1 = ctx.measureText(t1).width;
+        ctx.font = font(400, fs * k); w2 = ctx.measureText(t2).width; w3 = ctx.measureText(right).width;
+        if (12 + w1 + 6 + w2 + 10 + w3 <= box.w - 6) break;
+      }
+      k = Math.max(k, 0.85);
+      if (12 + w1 + 6 + w2 + 10 + w3 > box.w - 6) right = "";
+      label(t1, x + 12, y, "left", col, font(700, fs * k), a);
+      label(t2, x + 18 + w1, y, "left", C.ink2, font(400, fs * k), a);
+      label(right, box.x + box.w - 2, y, "right", C.muted, font(400, fs * k), a);
     });
   }
 
@@ -1436,6 +1451,7 @@
         q: G.root.acts[sol.ch[G.root.id]].q, q2: sol.leaf.parent.acts[sol.leaf.ai].q, p: upair(G, sol.leaf.u) };
       var th = S.threat;
       if (th && th.bluff[0]) { var bn = th.bluff[0]; v.x = num(sol.V[bn.acts[th.s1[bn.pi]].c.id][1], 1, 1); v.y = num(sol.V[bn.acts[sol.ch[bn.id]].c.id][1], 1, 1); v.at = bn.parent.acts[bn.ai].q; }
+      v.c = COURNOT;
     } else {
       var ds = G.dec, last = ds[ds.length - 1], endL = last.acts[1].c, t1 = ds[0].acts[0].c;
       v = { g: fmt(G.g, 1), k: last.k, a: fv(G, last.acts[0].c.u[last.pl]), b: fv(G, endL.u[last.pl]), p: upair(G, sol.leaf.u), r: fmt(endL.u[0] / t1.u[0], 1) };
@@ -1496,7 +1512,7 @@
     ctx.clearRect(0, 0, L.W, L.H);
     ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
     ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
-    var b = treeBox(S, t), g = geom(S, b), P = g.P;
+    var b = treeBox(S, t), g = geom(S, b, t), P = g.P;
     drawInfoSet(S, P, t);
     drawEdges(S, P, t);
     drawWhatIf(S, P, t);
@@ -1594,7 +1610,7 @@
       P[endL.id] = { x: x0 + G.n * sp, y: 58 };
       W = x0 + G.n * sp + 40; H = 58 + vg + 48;
     } else {
-      var lg = opts.leafGap || 66, lv = 92, nl = G.leaves.length;
+      var nl = G.leaves.length, lg = Math.max(66, Math.min(150, 320 / Math.max(1, nl - 1))), lv = 92;
       G.leaves.forEach(function (l, i) { P[l.id] = { x: 36 + i * lg }; });
       G.post.forEach(function (n) { var s = 0; n.acts.forEach(function (a) { s += P[a.c.id].x; }); P[n.id] = { x: s / n.acts.length }; });
       G.all.forEach(function (n) { P[n.id].y = 26 + n.depth * lv; });
@@ -1622,7 +1638,8 @@
     G.leaves.forEach(function (l) {
       var p = P[l.id], ring = l === sol.leaf;
       h.push('<path class="sv-leaf" d="M' + (p.x - 6) + ',' + (p.y - 4) + 'h12l-6,9z"/>');
-      if (ring) h.push('<rect class="sv-ring" x="' + (p.x - 22) + '" y="' + (p.y + 7) + '" width="44" height="' + (2 * fb + 9) + '" rx="3"/>');
+      var rw = Math.max(fv(G, l.u[0]).length, fv(G, l.u[1]).length) * 7.6 + 14;
+      if (ring) h.push('<rect class="sv-ring" x="' + (p.x - rw / 2) + '" y="' + (p.y + 7) + '" width="' + rw + '" height="' + (2 * fb + 9) + '" rx="3"/>');
       h.push('<text class="b" x="' + p.x + '" y="' + (p.y + 9 + fb) + '" text-anchor="middle">' + esc(fv(G, l.u[0])) + '</text>');
       h.push('<text x="' + p.x + '" y="' + (p.y + 12 + 2 * fb) + '" text-anchor="middle">' + esc(fv(G, l.u[1])) + '</text>');
     });
@@ -1659,14 +1676,17 @@
     }
     return h + '</tbody></table>';
   }
-  function speText(G, R) {                       // the subgame perfect equilibria in words (at most four listed)
-    var list = R.spe.list, out = list.slice(0, 4).map(function (e) {
-      var lf = G.root, n = G.root;
+  function speText(G, R) {                       // the subgame perfect equilibria in words, grouped by outcome
+    var by = {}, order = [];
+    R.spe.list.forEach(function (e) {
+      var n = G.root;
       while (!n.u) n = n.acts[e.plan[n.id]].c;
-      lf = n;
-      return T("gts.e.spe.item", { o: outcomeText(G, lf), p: upair(G, lf.u) });
+      if (!by[n.id]) { by[n.id] = { lf: n, k: 0 }; order.push(by[n.id]); }
+      by[n.id].k++;
     });
-    return out.join("; ") + (list.length > 4 ? T("gts.e.spe.more", { n: R.spe.capped ? CAP + "+" : list.length }) : "");
+    return order.slice(0, 4).map(function (g) {
+      return T(g.k > 1 ? "gts.e.spe.itemn" : "gts.e.spe.item", { o: outcomeText(G, g.lf), p: upair(G, g.lf.u), n: R.spe.capped && order.length === 1 ? CAP + "+" : g.k });
+    }).join("; ") + (order.length > 4 ? T("gts.e.spe.more", { n: order.length }) : "");
   }
   function renderEditor() {
     var k = ed.tree, G, R;
@@ -1691,20 +1711,23 @@
       var cred = fI > aI + EPS, tie = Math.abs(fI - aI) < EPS, deter = cred && eO > eF + EPS;
       res = T(tie ? "gts.e.entry.tie" : cred ? (deter ? "gts.e.entry.deter" : "gts.e.entry.credible") : "gts.e.entry.empty", {
         f: fv(G, fI), a: fv(G, aI), o: fv(G, eO), ef: fv(G, eF), spe: speText(G, R) });
-      extra = '<p class="chart-title">' + T("gts.e.nf.title", { a: nf.nr, b: nf.nc_ }) + '</p><div class="tblwrap">' + nfTable(G, nf) + '</div>';
+      extra = '<p class="chart-title">' + T("gts.e.nf.title", { a: nf.nr, b: nf.nc_ }) + '</p><p class="tabkey">' + T("gts.e.nf.key") + '</p><div class="tblwrap">' + nfTable(G, nf) + '</div>';
       $("gts-e-fv").textContent = fv(G, ed.entry.fight[1]);
-      s2 = { head: "gts.s2.head.entry", tex: T("gts.s2.entry.tex", { vf: ftv(G, fI), va: ftv(G, aI), vo: ftv(G, eO), vef: ftv(G, eF), vrel: fI > aI + EPS ? ">" : (tie ? "=" : "<") }),
+      s2 = { head: "gts.s2.head.entry", tex: T("gts.s2.entry.tex", { vf: ftv(G, fI), va: ftv(G, aI), vo: ftv(G, eO), vef: ftv(G, eF), vrel: fI > aI + EPS ? ">" : (tie ? "=" : "<"),
+        vrel2: eO > eF + EPS ? ">" : (Math.abs(eO - eF) < EPS ? "=" : "<") }),
         plain: T("gts.s2.entry.formula", { f: fv(G, fI), a: fv(G, aI), o: fv(G, eO), ef: fv(G, eF) }), note: T("gts.s2.entry.note", { a: fv(G, aI) }) };
     } else if (k === "leader") {
       var rows = G.byPl[1].map(function (n) {
-        var q1 = n.parent.acts[n.ai].q, o = sol.opt[n.id].map(function (i) { return n.acts[i].q; }), w = n.acts[sol.ch[n.id]].c;
-        return { q1: q1, r: o, u: sol.V[n.id], lead: G.root.acts[sol.ch[G.root.id]].q === q1 };
+        var q1 = n.parent.acts[n.ai].q, o = sol.opt[n.id].map(function (i) { return n.acts[i].q; });
+        var u0 = [], u1 = [];
+        sol.opt[n.id].forEach(function (i) { var v = n.acts[i].c.u, a0 = fv(G, v[0]), a1 = fv(G, v[1]); if (u0.indexOf(a0) < 0) u0.push(a0); if (u1.indexOf(a1) < 0) u1.push(a1); });
+        return { q1: q1, r: o, u0: u0, u1: u1, lead: G.root.acts[sol.ch[G.root.id]].q === q1 };
       });
       var tb = '<table class="data small"><thead><tr><th class="num">' + T("gts.e.th.q1") + '</th><th class="num">' + T("gts.e.th.r") + '</th><th class="num">' +
         T("gts.e.th.p1") + '</th><th class="num">' + T("gts.e.th.p2") + '</th></tr></thead><tbody>';
       rows.forEach(function (r) {
         tb += '<tr' + (r.lead ? ' class="spe"' : '') + '><td class="num">' + r.q1 + '</td><td class="num">' + r.r.join(T("gts.e.or")) + '</td><td class="num">' +
-          esc(fv(G, r.u[0])) + '</td><td class="num">' + esc(fv(G, r.u[1])) + '</td></tr>';
+          esc(r.u0.join(T("gts.e.or"))) + '</td><td class="num">' + esc(r.u1.join(T("gts.e.or"))) + '</td></tr>';
       });
       tb += '</tbody></table>';
       var gt = '<table class="data small"><thead><tr><th>' + T("gts.e.th.out") + '</th><th class="num">' + T("gts.e.th.pay") + '</th><th class="num">' + T("gts.e.th.n") +
@@ -1731,11 +1754,11 @@
       var c = ed.cent, ds = G.dec, endL = ds[ds.length - 1].acts[1].c, t1 = ds[0].acts[0].c, rep = reputation(G, c.a);
       kp += kpi(esc(upair(G, endL.u)), T("gts.e.k.end")) +
         kpi(T("gts.e.k.gapv", { a: fmt(endL.u[0] / sol.leaf.u[0], 1), b: fmt(endL.u[1] / sol.leaf.u[1], 1) }), T("gts.e.k.gap")) +
-        kpi(rep.thr === null ? "–".replace("–", MINUS) : pct(rep.thr), T("gts.e.k.thr"), rep.thr !== null && c.a > rep.thr ? "accent" : "");
-      var takesAll = sol.leaf === t1;
-      res = T(takesAll ? "gts.e.cent.takes" : "gts.e.cent.other", { p: upair(G, sol.leaf.u), o: outcomeText(G, sol.leaf), end: upair(G, endL.u),
+        kpi(rep.thr === null ? T("gts.e.none") : pctFine(rep.thr), T("gts.e.k.thr"), rep.thr !== null && c.a > rep.thr ? "accent" : "");
+      var takesAll = sol.leaf === t1, even = Math.abs(G.L / G.S - G.g) < 1e-9;
+      res = T(even ? "gts.e.cent.even" : takesAll ? "gts.e.cent.takes" : "gts.e.cent.other", { p: upair(G, sol.leaf.u), o: outcomeText(G, sol.leaf), end: upair(G, endL.u),
         r: fmt(G.L / G.S, 2), g: fmt(G.g, 1) }) + " " + rep.text + (sol.ties ? " " + T("gts.e.cent.ties", { n: R.spe.capped ? CAP + "+" : nspe }) : "");
-      extra = '<p class="chart-title">' + T("gts.e.nf.cent", { a: nf.full[0], b: nf.full[1], c: nf.nr, d: nf.nc_ }) + '</p><div class="tblwrap">' + nfTable(G, nf) + '</div>';
+      extra = '<p class="chart-title">' + T("gts.e.nf.title", { a: nf.nr, b: nf.nc_ }) + '</p><p class="tabkey">' + T("gts.e.nf.cent", { a: nf.full[0], b: nf.full[1], c: nf.nr, d: nf.nc_ }) + '</p><div class="tblwrap">' + nfTable(G, nf) + '</div>';
       $("gts-c-nv").textContent = c.n; $("gts-c-gv").textContent = fmt(c.g, 1); $("gts-c-lv").textContent = fmt(c.L, 2, 2); $("gts-c-sv").textContent = fmt(c.S, 2, 2);
       $("gts-c-av").textContent = pct(c.a, 1);
       s2 = { head: "gts.s2.head.cent", tex: rep.tex, plain: rep.plain, note: T("gts.s2.cent.note") };
@@ -1758,7 +1781,7 @@
     else if (best > taken + EPS) thr = (take1 - taken) / (best - taken);
     var ev = (1 - a) * taken + a * best, f = function (v) { return fv(G, v); }, tf = function (v) { return ftv(G, v); };
     var text = thr === null ? T("gts.e.rep.none") :
-      T(ev > take1 + EPS ? "gts.e.rep.pass" : "gts.e.rep.take", { a: pct(a, 1), thr: pct(thr, 1), ev: fv(G, ev), t: f(take1) });
+      T(ev > take1 + EPS ? "gts.e.rep.pass" : "gts.e.rep.take", { a: pct(a, 1), thr: pctFine(thr), ev: fv(G, ev), t: f(take1) });
     var tex = T("gts.s2.cent.tex", { vt: tf(taken), vb: tf(best), vtk: tf(take1), va: tnum(a, 3), vev: tf(ev), vthr: thr === null ? "\\text{" + T("gts.e.none") + "}" : tnum(thr, 4) });
     var plain = T("gts.s2.cent.formula", { t: f(taken), b: f(best), tk: f(take1), a: num(a, 3), ev: f(ev), thr: thr === null ? T("gts.e.none") : num(thr, 4) });
     return { thr: thr, text: text, tex: tex, plain: plain, ev: ev, best: best, taken: taken, take1: take1 };
@@ -1799,7 +1822,7 @@
     MENU_ALL.forEach(function (q) { h += '<button type="button" data-q="' + q + '" aria-pressed="' + (ed.menu.indexOf(q) >= 0) + '">' + q + '</button>'; });
     var box = $("gts-menu");
     if (box.getAttribute("data-built") !== ed.menu.join(",")) { box.innerHTML = h; box.setAttribute("data-built", ed.menu.join(",")); }
-    $("gts-menu-note").textContent = T("gts.e.menu.note", { n: ed.menu.length, k: Math.pow(ed.menu.length, ed.menu.length) * ed.menu.length });
+    $("gts-menu-note").textContent = T("gts.e.menu.note", { n: ed.menu.length, k: fmt(Math.pow(ed.menu.length, ed.menu.length) * ed.menu.length, 0) });
   }
   $("gts-menu").addEventListener("click", function (ev) {
     var b = ev.target.closest("button[data-q]");
@@ -1826,10 +1849,10 @@
      3. Ultimatum: 10 coins, a population of responders
      ===================================================================================== */
   var POPS = {
-    rational: [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],                       // accept every positive offer
-    fair: [1, 9, 2, 3, 3, 2, 0, 0, 0, 0, 0]                             // illustrative: shares in twentieths
+    rational: [0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0],                      // all 20 accept every positive offer
+    fair: [1, 9, 2, 3, 3, 2, 0, 0, 0, 0, 0]                             // illustrative: 20 responders
   };
-  var ul = { pop: "fair", custom: POPS.fair.slice(), x: 5, seed: 1, n: 0, got: 0, exp: 0, last: null, plan: "spe1", k: 4 };
+  var ul = { pop: "fair", custom: POPS.fair.slice(), x: 3, seed: 1, n: 0, got: 0, exp: 0, last: null, plan: "spe1", k: 4 };
   var UG = ultTree(), UR = null;                 // the ultimatum tree and its analysis (built once)
   function weights() { return ul.pop === "custom" ? ul.custom : POPS[ul.pop]; }
   function acceptance() {                        // A(x): share of responders whose minimum acceptable offer is at most x
@@ -1864,17 +1887,18 @@
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(opts.aria) + '">' + h.join("") + '</svg>';
   }
   function renderUlt() {
-    var acc = acceptance(), b = ultBest(acc), w = acc.w, wmax = Math.max(4, Math.max.apply(null, w));
+    var acc = acceptance(), b = ultBest(acc), w = acc.w;
     var custom = ul.pop === "custom";
     $("gts-u-story").innerHTML = T("gts.u.story." + ul.pop);
-    $("gts-u-hint").textContent = custom ? T("gts.u.hint.custom") : T("gts.u.hint");
-    $("gts-u-hist").innerHTML = svgBars(w.map(function (v) { return acc.tot ? v / acc.tot : 0; }), {
-      max: custom ? Math.max(0.25, Math.ceil(wmax / Math.max(1, acc.tot) * 4) / 4) : 0.5, ticks: 2, tick: function (v) { return pct(v, 0); },
-      top: function (v) { return v > 0 ? pct(v, 0) : ""; }, xlab: T("gts.u.h.x"), aria: T("gts.u.h.title"),
+    $("gts-u-hint").textContent = T(custom ? "gts.u.hint.custom" : "gts.u.hint", { n: acc.tot });
+    $("gts-u-hist").classList.toggle("edit", custom);
+    $("gts-u-hist").innerHTML = svgBars(w, {
+      max: Math.max(10, Math.ceil(Math.max.apply(null, w) / 5) * 5), ticks: 2, tick: function (v) { return fmt(v, 0); },
+      top: function (v) { return v > 0 ? fmt(v, 0) : ""; }, xlab: T("gts.u.h.x"), aria: T("gts.u.h.title"),
       hit: custom, hitMax: 20, hitNow: function (x) { return ul.custom[x]; }, hitLabel: function (x) { return T("gts.u.h.aria", { x: x }); }
     });
     $("gts-u-acc").innerHTML = svgBars(acc.A, { max: 1, ticks: 2, tick: function (v) { return pct(v, 0); }, top: function (v) { return pct(v, 0); }, xlab: T("gts.u.x.axis"), aria: T("gts.u.a.title"), h: 130 });
-    $("gts-u-pay").innerHTML = svgBars(b.ev, { max: 10, ticks: 2, tick: function (v) { return fmt(v, 0); }, top: function (v) { return fmt(v, 1); },
+    $("gts-u-pay").innerHTML = svgBars(b.ev, { max: 10, ticks: 2, tick: function (v) { return fmt(v, 0); }, top: function (v) { return fmt(v, 2); },
       cls: function (x) { return b.arg.indexOf(x) >= 0 ? "acc" : ""; }, xlab: T("gts.u.x.axis"), aria: T("gts.u.p.title"), h: 140 });
     var x = ul.x;
     $("gts-u-xv").textContent = T("gts.u.xv", { x: x, k: 10 - x });
@@ -1887,33 +1911,40 @@
       if (ul.n > ul.last.n) res += " " + T("gts.u.res.all", { n: ul.n, got: fmt(ul.got / ul.n, 2), ev: fmt(ul.exp / ul.n, 2) });
     } else res = T("gts.u.res0");
     $("gts-u-res").innerHTML = res;
-    if (custom) bindHist();
   }
-  function bindHist() {
-    var svg = $("gts-u-hist").querySelector("svg");
-    if (!svg) return;
-    function setFrom(ev, x) {
-      var r = svg.getBoundingClientRect(), H = 150, tp = 14, bt = 30, yv = (ev.clientY - r.top) / r.height * H;
-      var frac = clamp((H - bt - yv) / (H - bt - tp), 0, 1), tot = ul.custom.reduce(function (s, v, i) { return s + (i === x ? 0 : v); }, 0);
-      // the bar height is a share: solve v / (tot + v) = frac * max for v, on the 0..20 scale
-      var mx = 0.5, want = frac * mx, v = want >= 0.999 ? 20 : Math.round(clamp(want * tot / (1 - want), 0, 20));
-      if (tot === 0) v = frac > 0.05 ? 1 : 0;
+  // the custom histogram: drag or click a bar to set how many responders hold that minimum, or use the arrow keys
+  (function bindHist() {
+    var box = $("gts-u-hist"), drag = false, cur = -1;
+    function setFrom(ev, keepX) {
+      var svg = box.querySelector("svg");
+      if (!svg || ul.pop !== "custom") return;
+      var r = svg.getBoundingClientRect(), W = 420, H = 150, l = 34, rr = 8, tp = 14, bt = 30;
+      var xv = (ev.clientX - r.left) / r.width * W, yv = (ev.clientY - r.top) / r.height * H;
+      var x = keepX >= 0 ? keepX : Math.floor((xv - l) / ((W - l - rr) / 11));
+      if (x < 0 || x > 10) return;
+      cur = x;
+      var v = Math.round(clamp((H - bt - yv) / (H - bt - tp), 0, 1) * 20);
       if (ul.custom[x] !== v) { ul.custom[x] = v; renderUltAll(); }
     }
-    svg.querySelectorAll(".sv-hit").forEach(function (el) {
-      var x = +el.getAttribute("data-x");
-      el.addEventListener("pointerdown", function (ev) { el.setPointerCapture(ev.pointerId); setFrom(ev, x); });
-      el.addEventListener("pointermove", function (ev) { if (ev.buttons) setFrom(ev, x); });
-      el.addEventListener("keydown", function (ev) {
-        var d = ev.key === "ArrowUp" || ev.key === "ArrowRight" ? 1 : ev.key === "ArrowDown" || ev.key === "ArrowLeft" ? -1 : 0;
-        if (!d) return;
-        ev.preventDefault();
-        ul.custom[x] = clamp(ul.custom[x] + d, 0, 20);
-        renderUltAll();
-        var nb = $("gts-u-hist").querySelector('.sv-hit[data-x="' + x + '"]'); if (nb) nb.focus();
-      });
+    box.addEventListener("pointerdown", function (ev) {
+      if (ul.pop !== "custom" || !ev.target.closest(".sv-hit")) return;
+      drag = true; cur = -1; box.setPointerCapture(ev.pointerId); setFrom(ev, -1); ev.preventDefault();
     });
-  }
+    box.addEventListener("pointermove", function (ev) { if (drag) setFrom(ev, cur); });
+    box.addEventListener("pointerup", function () { drag = false; });
+    box.addEventListener("pointercancel", function () { drag = false; });
+    box.addEventListener("keydown", function (ev) {
+      var el = ev.target.closest && ev.target.closest(".sv-hit");
+      if (!el || ul.pop !== "custom") return;
+      var d = ev.key === "ArrowUp" || ev.key === "ArrowRight" ? 1 : ev.key === "ArrowDown" || ev.key === "ArrowLeft" ? -1 : 0;
+      if (!d) return;
+      ev.preventDefault();
+      var x = +el.getAttribute("data-x");
+      ul.custom[x] = clamp(ul.custom[x] + d, 0, 20);
+      renderUltAll();
+      var nb = box.querySelector('.sv-hit[data-x="' + x + '"]'); if (nb) nb.focus();
+    });
+  })();
   function offer() {                             // offer x to 20 responders drawn from the population
     var acc = acceptance(), rnd = A.rng(1000 + ul.seed), w = acc.w, out = [], gotSum = 0;
     if (acc.tot <= 0) return;
@@ -1947,7 +1978,7 @@
     var isNe = UG.root.acts.length && brv(UG, 0, r) <= lf.u[0] + EPS && brv(UG, 1, [xo]) <= lf.u[1] + EPS;
     var isSpe = isNe && r.every(function (a, x2) { return x2 === 0 ? true : a === 0; });
     // the drawing: a fan of eleven offers
-    var W = 640, H = 214, top = 30, lv = 112, h = [], px = W / 2;
+    var W = 640, H = 196, top = 22, lv = 96, h = [], px = W / 2;
     for (x = 0; x <= 10; x++) {
       var nx = 40 + x * (W - 80) / 10, chosen = x === xo;
       if (chosen) h.push('<line class="sv-glow" x1="' + px + '" y1="' + top + '" x2="' + nx + '" y2="' + (top + lv) + '"/>');
@@ -1957,13 +1988,13 @@
       var nx2 = 40 + x * (W - 80) / 10, yes = r[x] === 0, y2 = top + lv;
       h.push('<rect class="sv-n2" x="' + (nx2 - 9) + '" y="' + (y2 - 9) + '" width="18" height="18"/>');
       h.push('<text class="b sm" x="' + nx2 + '" y="' + (y2 + 4) + '" text-anchor="middle">2</text>');
-      h.push('<text class="sm" x="' + nx2 + '" y="' + (y2 - 16) + '" text-anchor="middle">' + x + '</text>');
+      h.push('<text class="' + (x === xo ? "acc" : "") + ' sm" x="' + nx2 + '" y="' + (y2 + 24) + '" text-anchor="middle">' + x + '</text>');
       // the responder's answer under each node
-      if (yes) h.push('<path class="sv-acc" d="M' + (nx2 - 6) + ',' + (y2 + 24) + 'l4,5l9,-11"/>');
-      else h.push('<path class="sv-hot" d="M' + (nx2 - 5) + ',' + (y2 + 19) + 'l10,10M' + (nx2 + 5) + ',' + (y2 + 19) + 'l-10,10"/>');
+      if (yes) h.push('<path class="sv-acc" d="M' + (nx2 - 6) + ',' + (y2 + 36) + 'l4,5l9,-11"/>');
+      else h.push('<path class="sv-hot" d="M' + (nx2 - 5) + ',' + (y2 + 31) + 'l10,10M' + (nx2 + 5) + ',' + (y2 + 31) + 'l-10,10"/>');
       if (x === xo) {
-        h.push('<text class="b sm" x="' + nx2 + '" y="' + (y2 + 47) + '" text-anchor="middle">' + esc(fv(UG, lf.u[0])) + '</text>');
-        h.push('<text class="sm" x="' + nx2 + '" y="' + (y2 + 60) + '" text-anchor="middle">' + esc(fv(UG, lf.u[1])) + '</text>');
+        h.push('<text class="b sm" x="' + nx2 + '" y="' + (y2 + 60) + '" text-anchor="middle">' + esc(fv(UG, lf.u[0])) + '</text>');
+        h.push('<text class="sm" x="' + nx2 + '" y="' + (y2 + 73) + '" text-anchor="middle">' + esc(fv(UG, lf.u[1])) + '</text>');
       }
     }
     h.push('<rect class="sv-n1" x="' + (px - 10) + '" y="' + (top - 10) + '" width="20" height="20"/>');
@@ -1973,18 +2004,18 @@
       esc(T("gts.u.t.aria", { x: xo, p: upair(UG, lf.u) })) + '">' + h.join("") + '</svg>';
     var nf = UR.nf, splits = {};
     nf.groups.forEach(function (g) { splits[g.leaf.id] = 1; });
-    $("gts-u-tk").innerHTML = kpi(T("gts.u.t.offv", { x: xo }), T("gts.u.t.off"), "accent") + kpi(esc(upair(UG, lf.u)), T("gts.e.k.pay")) +
+    $("gts-u-tk").innerHTML = kpi(String(xo), T("gts.u.t.off"), "accent") + kpi(esc(upair(UG, lf.u)), T("gts.e.k.pay")) +
       kpi(T(isNe ? "gts.e.yes" : "gts.e.no"), T("gts.u.t.isne"), isNe ? "accent" : "hot") + kpi(T(isSpe ? "gts.e.yes" : "gts.e.no"), T("gts.u.t.isspe"), isSpe ? "accent" : "hot") +
-      kpi(String(nf.ne), T("gts.u.t.ne")) + kpi(String(UR.spe.list.length), T("gts.u.t.spe"));
+      kpi(fmt(nf.ne, 0), T("gts.u.t.ne")) + kpi(String(UR.spe.list.length), T("gts.u.t.spe"));
     var tv = $("gts-u-tres");
     tv.className = "verdict " + (isSpe ? "ok" : "bad");
-    tv.innerHTML = T("gts.u.t.res." + (isSpe ? "spe" : isNe ? "ne" : "no"), { x: xo, k: k, k1: Math.max(0, k - 1), p: upair(UG, lf.u), ne: nf.ne, o: Object.keys(splits).length });
+    tv.innerHTML = T("gts.u.t.res." + (isSpe ? "spe" : isNe ? "ne" : "no"), { x: xo, k: k, k1: Math.max(0, k - 1), p: upair(UG, lf.u), ne: fmt(nf.ne, 0), o: Object.keys(splits).length });
     // strip 3: the two subgame perfect equilibria from backward induction
     var spe = UR.spe.list.map(function (e) { var n = UG.root.acts[e.plan[UG.root.id]].c; return { x: n.parent.acts[n.ai].x, acc0: e.plan[UG.root.acts[0].c.id] === 0, u: n.acts[e.plan[n.id]].c.u }; });
     var s0 = spe.filter(function (s) { return s.acc0; })[0], s1 = spe.filter(function (s) { return !s.acc0; })[0];
     TeX.set($("gts-s3"), T("gts.s3.tex", { vx1: s1 ? s1.x : "", vp1: s1 ? tupair(UG, s1.u) : "", vx0: s0 ? s0.x : "", vp0: s0 ? tupair(UG, s0.u) : "" }),
       T("gts.s3.formula", { x1: s1 ? s1.x : "", p1: s1 ? upair(UG, s1.u) : "", x0: s0 ? s0.x : "", p0: s0 ? upair(UG, s0.u) : "" }));
-    $("gts-s3-note").innerHTML = T("gts.s3.note", { ne: nf.ne, spe: UR.spe.list.length });
+    $("gts-s3-note").innerHTML = T("gts.s3.note", { ne: fmt(nf.ne, 0), spe: UR.spe.list.length, plans: fmt(nf.full[1], 0), n: UG.byPl[1].length });
   }
   function renderUltAll() { renderUlt(); renderUltTree(); }
   var uPop = document.querySelectorAll("#gts-u-pop button");
@@ -2113,26 +2144,31 @@
     warn.hidden = ok; if (!ok) warn.innerHTML = T("gts.r.warn");
     var th = thresholds(), d = rp.w;
     // the discount axis
-    var W = 640, H = 92, l = 20, r = 20, y = 44, sx = function (v) { return l + v * (W - l - r); }, h = [];
+    var W = clamp(Math.round($("gts-r-axis").clientWidth || 640), 300, 640), H = 92, l = 20, r = 20, y = 44, sx = function (v) { return l + v * (W - l - r); }, h = [];
     if (ok && !rp.known) {
       h.push('<rect x="' + sx(Math.min(1, th.grim)) + '" y="' + (y - 9) + '" width="' + Math.max(0, sx(1) - sx(Math.min(1, th.grim))) + '" height="18" style="fill:var(--sel)"/>');
       h.push('<rect x="' + sx(Math.min(1, th.tft)) + '" y="' + (y - 9) + '" width="' + Math.max(0, sx(1) - sx(Math.min(1, th.tft))) + '" height="18" style="fill:var(--accent);opacity:0.22"/>');
     }
     h.push('<line class="sv-ink2" x1="' + sx(0) + '" x2="' + sx(1) + '" y1="' + y + '" y2="' + y + '"/>');
-    [0, 0.25, 0.5, 0.75, 1].forEach(function (v) { h.push('<line class="sv-ax" x1="' + sx(v) + '" x2="' + sx(v) + '" y1="' + (y + 9) + '" y2="' + (y + 14) + '"/><text class="mut sm" x="' + sx(v) + '" y="' + (y + 27) + '" text-anchor="middle">' + esc(fmt(v, 2)) + '</text>'); });
+    (W < 420 ? [0, 0.5, 1] : [0, 0.25, 0.5, 0.75, 1]).forEach(function (v) { h.push('<line class="sv-ax" x1="' + sx(v) + '" x2="' + sx(v) + '" y1="' + (y + 9) + '" y2="' + (y + 14) + '"/><text class="mut sm" x="' + sx(v) + '" y="' + (y + 27) + '" text-anchor="middle">' + esc(fmt(v, 2)) + '</text>'); });
     if (ok && !rp.known) {
-      [[th.grim, "gts.r.ax.grim", -1], [th.tft, "gts.r.ax.tft", 1]].forEach(function (m) {
-        if (m[0] > 1) return;
-        var near = Math.abs(th.grim - th.tft) < 0.12, dy = near ? m[2] * 0 : 0, anchor = near ? (m[2] < 0 ? "end" : "start") : "middle", dx = near ? m[2] * 4 : 0;
-        h.push('<line class="sv-acc" x1="' + sx(m[0]) + '" x2="' + sx(m[0]) + '" y1="' + (y - 13) + '" y2="' + (y + 9) + '"/>');
-        h.push('<text class="acc sm sv-halo" x="' + (sx(m[0]) + dx) + '" y="' + (y - 18 + dy) + '" text-anchor="' + anchor + '">' + esc(T(m[1], { v: fmt(m[0], 2, 2) })) + '</text>');
+      // grim's label to the left of its mark, tit for tat's to the right, so they never overlap; both stay inside
+      var same = Math.abs(th.grim - th.tft) < 1e-9;
+      [[th.grim, "gts.r.ax.grim", -1], [th.tft, "gts.r.ax.tft", 1]].forEach(function (m, k) {
+        if (m[0] > 1 || (same && k === 1)) return;
+        var txt = T(same ? "gts.r.ax.both" : m[1], { v: fmt(m[0], 2, 2) }), est = txt.length * 6.3, X = sx(m[0]);
+        var anchor = m[2] < 0 ? "end" : "start", dx = m[2] * 4;
+        if (anchor === "start" && X + dx + est > W - 2) { anchor = "end"; dx = -4; }
+        if (anchor === "end" && X + dx - est < 2) { anchor = "start"; dx = 4; }
+        h.push('<line class="sv-acc" x1="' + X + '" x2="' + X + '" y1="' + (y - 13) + '" y2="' + (y + 9) + '"/>');
+        h.push('<text class="acc sm sv-halo" x="' + (X + dx) + '" y="' + (y - 18 - (k && anchor === "end" && !same ? 13 : 0)) + '" text-anchor="' + anchor + '">' + esc(txt) + '</text>');
       });
     } else if (rp.known) h.push('<text class="hot sm" x="' + sx(0.5) + '" y="' + (y - 16) + '" text-anchor="middle">' + esc(T("gts.r.ax.none")) + '</text>');
     h.push('<path class="sv-n1" d="M' + sx(d) + ',' + (y + 2) + 'l-7,12h14z" style="fill:var(--ink)"/>');
     h.push('<text class="b sm" x="' + clamp(sx(d), 30, W - 30) + '" y="' + (H - 2) + '" text-anchor="middle">' + esc(T("gts.r.ax.w", { w: fmt(d, 2, 2) })) + '</text>');
     $("gts-r-axis").innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(T("gts.r.axis.title")) + '">' + h.join("") + '</svg>';
     var nKnown = clamp(Math.round(1 / (1 - d)), 2, 12);
-    $("gts-r-kpis").innerHTML = ok ? kpi(fmt(th.grim, 3), T("gts.r.k.grim")) + kpi(fmt(th.tft, 3), T("gts.r.k.tft")) + kpi(fmt(1 / (1 - d), 1), T("gts.r.k.len")) +
+    $("gts-r-kpis").innerHTML = ok ? kpi(fmt(th.grim, 3, 3), T("gts.r.k.grim")) + kpi(fmt(th.tft, 3, 3), T("gts.r.k.tft")) + kpi(fmt(1 / (1 - d), 1), T("gts.r.k.len")) +
       kpi(T(rp.known ? "gts.r.k.none" : (d >= th.tft - EPS ? "gts.r.k.both" : d >= th.grim - EPS ? "gts.r.k.grimonly" : "gts.r.k.neither")), T("gts.r.k.verdict"),
         !rp.known && d >= th.grim - EPS ? "accent" : "hot") : "";
     var res = !ok ? "" : rp.known ? T("gts.r.res.known", { n: nKnown }) :
@@ -2187,17 +2223,18 @@
     var h = '<thead><tr><th class="num">#</th><th>' + T("gts.r.th.s") + '</th><th class="num">' + T("gts.r.th.score") + '</th><th class="bar"></th><th class="num">' + T("gts.r.th.share") + '</th></tr></thead><tbody>';
     order.forEach(function (i, rk) {
       var fin = res.hist[res.hist.length - 1][i];
-      h += '<tr' + (rk === 0 ? ' class="top"' : '') + '><td class="num">' + (rk + 1) + '</td><td>' + esc(T("gts.r.s." + STRATS[i])) + '</td><td class="num">' + esc(fmt(res.score[i], 3)) +
+      h += '<tr' + (rk === 0 ? ' class="top"' : '') + '><td class="num">' + (rk + 1) + '</td><td>' + esc(T("gts.r.s." + STRATS[i])) + '</td><td class="num">' + esc(fmt(res.score[i], 3, 3)) +
         '</td><td class="bar"><i style="width:' + clamp((res.score[i] - mn) / Math.max(1e-9, mx - mn) * 100, 2, 100).toFixed(1) + '%"></i></td><td class="num">' + esc(pct(fin, 1)) + '</td></tr>';
     });
     $("gts-r-table").innerHTML = h + '</tbody>';
     // the ecological run as lines: tit for tat in accent, always defect in bright red, the rest quiet
     var W = 420, H = 230, l = 36, r = 92, tp = 10, b = 26, hh = [], ymax = 0;
     res.hist.forEach(function (x) { x.forEach(function (v) { ymax = Math.max(ymax, v); }); });
-    ymax = Math.min(1, Math.ceil(ymax * 10 + 0.0001) / 10);
+    var tstep = ymax > 0.5 ? 0.2 : 0.1;
+    ymax = Math.min(1, Math.ceil(ymax / tstep - 1e-9) * tstep);
     var sx = function (g) { return l + g / GENS * (W - l - r); }, sy = function (v) { return H - b - v / ymax * (H - b - tp); };
-    for (var g = 0; g <= 4; g++) {
-      var gv = ymax * g / 4;
+    for (var g = 0; g * tstep <= ymax + 1e-9; g++) {
+      var gv = g * tstep;
       hh.push('<line class="sv-grid" x1="' + l + '" x2="' + (W - r) + '" y1="' + sy(gv) + '" y2="' + sy(gv) + '"/><text class="mut sm" x="' + (l - 5) + '" y="' + (sy(gv) + 4) + '" text-anchor="end">' + esc(pct(gv, 0)) + '</text>');
     }
     [0, 20, 40, 60].forEach(function (gq) { hh.push('<text class="mut sm" x="' + sx(gq) + '" y="' + (H - b + 15) + '" text-anchor="middle">' + gq + '</text>'); });
@@ -2223,7 +2260,11 @@
   [["gts-r-t", "T"], ["gts-r-r", "R"], ["gts-r-p", "P"], ["gts-r-s", "S"], ["gts-r-w", "w"], ["gts-r-e", "e"]].forEach(function (p) {
     $(p[0]).addEventListener("input", function (ev) { rp[p[1]] = +ev.target.value; scheduleRep(); });
   });
-  var repRaf = 0;
+  var repRaf = 0, repW = 0;
+  window.addEventListener("resize", function () {
+    var w = $("gts-r-axis").clientWidth;
+    if (Math.abs(w - repW) > 4) { repW = w; scheduleRep(); }
+  });
   function scheduleRep() { cancelAnimationFrame(repRaf); repRaf = requestAnimationFrame(function () { renderRep(); renderNotes(); }); }
   var rKnown = document.querySelectorAll("#gts-r-known button");
   rKnown.forEach(function (b) {
@@ -2236,6 +2277,8 @@
      ===================================================================================== */
   function renderModel() {
     $("gts-mdata").innerHTML = T("gts.m.data", { a: PW.a, b: PW.b, c: PW.c, q1: fmt(STACK.q1, 1), q2: fmt(STACK.q2, 1), qc: fmt(COURNOT, 1) });
+    var Sl = scen("leader"), Gl = Sl.G;
+    $("gts-what-p4").innerHTML = T("gts.what.p4", { k: Gl.byPl[1].length, m: Gl.menu.length, plans: Sl.nf.full[1], r: Sl.nf.full[0], cells: Sl.nf.full[0] * Sl.nf.full[1], z: Gl.leaves.length });
   }
   function renderNotes() {
     var Se = scen("entry"), Sl = scen("leader"), Sc = scen("cent"), Ge = Se.G, Gl = Sl.G, Gc = Sc.G;
@@ -2248,7 +2291,7 @@
     $("gts-n3").innerHTML = T("gts.n.p3", { p: upair(Gc, Sc.sol.leaf.u), end: upair(Gc, endL.u), r: fmt(endL.u[0] / t1.u[0], 1), thr: pct(rep.thr, 1),
       num: fv(Gc, rep.take1 - rep.taken), den: fv(Gc, rep.best - rep.taken) });
     if (!UR) UR = analyse(UG);
-    $("gts-n4").innerHTML = T("gts.n.p4", { ne: UR.nf.ne, spe: UR.spe.list.length });
+    $("gts-n4").innerHTML = T("gts.n.p4", { ne: fmt(UR.nf.ne, 0), spe: UR.spe.list.length });
     var th = thresholds(), tr = pdValid() && tourCache.res ? tourCache.res : null, top = "";
     if (tr) { var sc = tr.score, bi = sc.indexOf(Math.max.apply(null, sc)); top = T("gts.r.s." + STRATS[bi]); }
     $("gts-n5").innerHTML = pdValid() ? T("gts.n.p5", { g: fmt(th.grim, 2, 2), t: fmt(th.tft, 2, 2), w: fmt(rp.w, 2, 2), top: top }) : T("gts.r.notpd");
