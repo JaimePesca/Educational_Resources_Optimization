@@ -1,0 +1,1566 @@
+<!doctype html>
+<html lang="en" data-title-key="toll.title" data-i18n-bundles="lab/lab-tolls">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Price the Road</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  [hidden] { display: none !important; }
+  /* new or urgent cues: bright red, or the crit shade where dark mode makes the accent that same red */
+  :root { --hot: var(--mit-bright); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hot: var(--crit); } }
+  :root[data-theme="dark"] { --hot: var(--crit); }
+
+  /* ---- part index ---- */
+  .case-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 760px) { .case-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 420px) { .case-nav { grid-template-columns: minmax(0, 1fr); } }
+  .case-nav a {
+    display: flex; gap: 9px; align-items: baseline; padding: 10px 12px; min-width: 0;
+    background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 3px;
+    color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14px; line-height: 1.3;
+  }
+  .case-nav a:hover { background: var(--surface2); }
+  .case-nav .n, .case-num { font-family: var(--font-mono); color: var(--accent-text); font-weight: 600; }
+  .case-num { display: block; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+  section.block { scroll-margin-top: 70px; grid-template-columns: minmax(0, 1fr); }
+  section.block > * { min-width: 0; }
+
+  /* ---- controls ---- */
+  .ctl-row { display: flex; flex-wrap: wrap; gap: 12px 26px; align-items: flex-end; }
+  .ctl-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ctl-group .lbl { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  button.btn {
+    font: 600 13px var(--font-sans); color: var(--on-solid); background: var(--accent); border: 1px solid var(--accent); border-radius: 2px;
+    padding: 8px 12px; cursor: pointer; text-align: left;
+  }
+  button.btn:hover { filter: brightness(1.1); }
+  button.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
+  button.btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--border); }
+  button.btn.ghost[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .rng { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; align-items: baseline; min-width: 0; }
+  .rng label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .rng output { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--accent-text); }
+  .rng input[type="range"] { flex: 1 1 100%; width: 100%; accent-color: var(--accent); margin: 4px 0 0; }
+  .sliders2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 26px; margin-top: 14px; }
+  @media (max-width: 560px) { .sliders2 { grid-template-columns: minmax(0, 1fr); } }
+
+  /* ---- live numbers ---- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
+  @media (max-width: 460px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .kpi { border: 1px solid var(--border); border-radius: 3px; padding: 8px 11px; background: var(--surface); min-width: 0; }
+  .kpi b { display: block; font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: -0.01em; line-height: 1.2; overflow-wrap: anywhere; }
+  .kpi span { display: block; font-size: 12.5px; color: var(--ink2); line-height: 1.3; margin-top: 2px; }
+  .kpi.accent { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .kpi.accent b { color: var(--accent-text); }
+  .kpi.hot b { color: var(--hot); }
+  @media (max-width: 460px) { .kpi b { font-size: 16px; } .kpi span { font-size: 12px; } }
+  .readline { font-size: 14px; color: var(--ink2); margin: 12px 0 0; min-height: 2.6em; max-width: 92ch; }
+  .readline b { color: var(--ink); }
+  .verdict { margin: 14px 0 0; padding: 10px 14px; border-radius: 3px; font-size: 14.5px; border: 1px solid var(--border); border-left: 3px solid var(--accent); background: var(--surface2); color: var(--ink2); }
+  .verdict b { color: var(--ink); }
+  .verdict:empty { display: none; }
+
+  /* ---- layout helpers ---- */
+  .subhead { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+  .mhead { margin: 16px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 84ch; }
+  .mtext b { color: var(--ink); }
+  .tabnote { font-size: 13px; color: var(--muted); margin: 6px 0 0; max-width: 84ch; }
+  .tabnote b { color: var(--ink2); }
+
+  /* ---- part 1: the game ---- */
+  .game-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 22px; align-items: start; margin-top: 14px; }
+  @media (max-width: 860px) { .game-grid { grid-template-columns: minmax(0, 1fr); } }
+  .game-grid > div { min-width: 0; }
+  .stage-title { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--ink2); }
+  .stage { position: relative; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .map-stage { aspect-ratio: 4 / 3; }
+  .plane-stage { aspect-ratio: 1 / 1; cursor: crosshair; touch-action: pan-y; }
+  .plane-stage.drag { touch-action: none; }
+  .g-legend { margin-top: 8px; }
+  .g-legend i.lg-road { width: 18px; height: 6px; background: var(--ink2); border-radius: 2px; }
+  .g-legend i.lg-pay { border-radius: 50%; background: var(--accent); width: 9px; height: 9px; }
+  .g-legend i.lg-free { border-radius: 50%; background: var(--mit-silver); width: 9px; height: 9px; }
+  .g-legend i.lg-flash { width: 18px; height: 4px; background: var(--hot); }
+  .g-legend i.lg-plaza { width: 5px; height: 14px; background: var(--accent); }
+  .g-legend i.lg-you { border-radius: 50%; border: 2.5px solid var(--ink); background: var(--surface); width: 12px; height: 12px; }
+  .g-legend i.lg-best { border-radius: 50%; border: 2px dashed var(--ink); background: transparent; width: 12px; height: 12px; }
+  .g-legend i.lg-alone { background: var(--surface); border: 2px solid var(--ink2); }
+  .g-legend i.lg-trail { width: 18px; height: 0; border-top: 2.5px dotted var(--ink); }
+  .g-legend i.lg-opt { width: 13px; height: 13px; background: var(--ink); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+  .g-legend i.lg-border { width: 18px; height: 0; border-top: 1.5px solid var(--ink2); }
+  .g-legend i.lg-fog { background: repeating-linear-gradient(45deg, var(--axis) 0 1px, var(--surface2) 1px 4px); border: 1px solid var(--border); }
+  .heatbar { display: inline-flex; align-items: center; gap: 6px; font: 400 11.5px var(--font-mono); color: var(--muted); }
+  .heatbar i { width: 64px !important; height: 9px !important; border: 1px solid var(--border); background: linear-gradient(90deg, var(--surface), var(--accent)); }
+  table.data { min-width: 0; margin-top: 10px; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.code { font-family: var(--font-mono); font-size: 12.5px; }
+  table.data td.code small { display: block; font-family: var(--font-sans); font-size: 11.5px; color: var(--muted); }
+  table.data td.acc { color: var(--accent-text); font-weight: 700; }
+  table.data td.mut { color: var(--muted); }
+  table.data tr.opt td { background: var(--sel); font-weight: 600; }
+  table.data tr.tot td { border-top: 1px solid var(--axis); font-weight: 700; }
+  @media (max-width: 560px) {
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 5px; font-size: 12px; }
+    table.data td.num, table.data td.code { font-size: 11.5px; }
+  }
+
+  /* ---- part 2: the exact answer ---- */
+  .locked { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  .locked p { margin: 0; color: var(--ink2); font-size: 14.5px; max-width: 64ch; }
+  .lpgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  @media (max-width: 760px) { .lpgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .lpc {
+    border: 1px solid var(--border); border-radius: 3px; padding: 8px 10px; background: var(--surface); min-width: 0;
+    display: grid; gap: 2px; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  }
+  .lpc:hover { background: var(--surface2); }
+  .lpc .h { font: 600 11.5px var(--font-mono); color: var(--ink2); line-height: 1.35; }
+  .lpc .pn { float: right; margin-left: 6px; font-weight: 400; color: var(--muted); }
+  .lpc b { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); line-height: 1.25; }
+  .lpc .s { font: 400 11.5px var(--font-mono); color: var(--muted); overflow-wrap: anywhere; }
+  .lpc.best { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); background: var(--sel); }
+  .lpc.best b { color: var(--accent-text); }
+  .lpc.off { background: var(--surface2); cursor: default; }
+  .lpc.off b { text-decoration: line-through; text-decoration-thickness: 1.5px; color: var(--muted); }
+  .lpc[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: -2px; }
+  .tiebox { border: 1px solid var(--border); border-left: 3px solid var(--hot); border-radius: 3px; background: var(--surface); padding: 12px 14px; }
+  .optstrip {
+    border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 3px; background: var(--surface);
+    padding: 10px 14px; display: grid; gap: 4px;
+  }
+  .optstrip .kicker { margin: 0; color: var(--accent-text); }
+  .optstrip p { margin: 0; font-size: 14px; color: var(--ink2); max-width: 86ch; }
+  .optstrip p b { color: var(--ink); }
+
+  /* ---- part 3: under the hood ---- */
+  #hood > summary { font-size: 15.5px; }
+  #hood .body { max-width: none; }
+  #hood .body > p { max-width: 84ch; }
+  .hood-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px 22px; align-items: start; margin-top: 12px; }
+  @media (max-width: 860px) { .hood-grid { grid-template-columns: minmax(0, 1fr); } }
+  .hood-grid > div { min-width: 0; }
+  .treebox { border: 1px solid var(--border); border-radius: 3px; background: var(--surface); padding: 8px; min-height: 120px; }
+  .treebox svg { display: block; width: 100%; height: auto; max-height: 330px; }
+  .treebox svg .e { stroke: var(--axis); stroke-width: 1.3; fill: none; }
+  .treebox svg .e1 { stroke: var(--ink2); }
+  .treebox svg .nd { stroke-width: 1.6; }
+  .treebox svg .nd.open { fill: var(--surface); stroke: var(--ink2); stroke-dasharray: 2.5 2; }
+  .treebox svg .nd.branch { fill: var(--surface); stroke: var(--ink); }
+  .treebox svg .nd.int { fill: var(--accent); stroke: var(--accent); }
+  .treebox svg .nd.prune { fill: var(--mit-silver); stroke: var(--mit-silver); }
+  .treebox svg .nd.inf { fill: var(--surface); stroke: var(--mit-silver); }
+  .treebox svg .x { stroke: var(--mit-silver); stroke-width: 1.6; }
+  .treebox svg .cur { fill: none; stroke: var(--hot); stroke-width: 2.4; }
+  .treebox svg text { font: 600 10px var(--font-mono); fill: var(--muted); }
+  .mini-stage { aspect-ratio: 1 / 1; max-width: 380px; }
+  .tlegend i.t-branch { border-radius: 50%; border: 1.6px solid var(--ink); background: var(--surface); }
+  .tlegend i.t-int { border-radius: 50%; background: var(--accent); }
+  .tlegend i.t-prune { border-radius: 50%; background: var(--mit-silver); }
+  .tlegend i.t-inf { border-radius: 50%; border: 1.6px solid var(--mit-silver); background: var(--surface); }
+  .tlegend i.t-cur { border-radius: 50%; border: 2.4px solid var(--hot); background: transparent; }
+  .tlegend i.t-reg { background: var(--accent); opacity: 0.35; border: 1.5px solid var(--accent); }
+  .tlegend i.t-pt { border-radius: 50%; background: var(--ink); }
+  .solv-log {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 8px 12px 6px; margin-top: 12px;
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--ink2); max-height: 300px; overflow: auto;
+  }
+  .solv-log .log-title { font: 700 11px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; }
+  .solv-log table { width: 100%; border-collapse: collapse; }
+  .solv-log th, .solv-log td { padding: 1px 6px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; vertical-align: top; }
+  .solv-log th { font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--axis); font-size: 11.5px; position: sticky; top: -8px; background: var(--surface2); }
+  .solv-log td.l, .solv-log th.l { text-align: left; }
+  .solv-log td.msg { text-align: left; color: var(--ink); font-family: var(--font-sans); font-size: 12.5px; white-space: normal; }
+  .solv-log td.fx { white-space: nowrap; }
+  .solv-log tr.now td { background: var(--sel); }
+  .solv-log td.inc { color: var(--accent-text); font-weight: 600; }
+  @media (max-width: 560px) {
+    .solv-log { padding: 6px 6px 4px; font-size: 11px; }
+    .solv-log th { font-size: 10px; }
+    .solv-log th, .solv-log td { padding: 1px 3px; }
+    .solv-log td.msg { font-size: 11px; }
+    .solv-log .wide { display: none; }
+  }
+  .chartbox { margin-top: 8px; min-width: 0; }
+  .chartbox svg { display: block; width: 100%; max-width: 640px; height: auto; overflow: visible; }
+  .chartbox svg text { font-family: var(--font-sans); font-size: 12px; fill: var(--ink2); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+  .chartbox svg text.m { fill: var(--muted); font-size: 11px; }
+  .chartbox svg text.a { fill: var(--accent-text); font-weight: 700; }
+  .chartbox svg .ax { stroke: var(--axis); stroke-width: 1; fill: none; }
+  .chartbox svg .gr { stroke: var(--grid); stroke-width: 1; fill: none; }
+  .chartbox svg .lnA { stroke: var(--accent); fill: none; stroke-width: 2.6; stroke-linecap: round; }
+  .chartbox svg .lnS { stroke: var(--mit-silver); fill: none; stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .chartbox svg .dotA { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+  .chartbox svg .dotO { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; margin-top: 16px; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="toll.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="toll.eyebrow"></p>
+    <h1 data-i18n="toll.title"></h1>
+    <p class="lede" data-i18n-html="toll.lede"></p>
+  </header>
+
+  <nav class="case-nav" data-i18n-attr="aria-label:toll.nav.aria">
+    <a href="#toll-p1"><span class="n">1</span><span data-i18n="toll.p1.title"></span></a>
+    <a href="#toll-p2"><span class="n">2</span><span data-i18n="toll.p2.title"></span></a>
+    <a href="#toll-p3"><span class="n">3</span><span data-i18n="toll.p3.title"></span></a>
+    <a href="#toll-model"><span class="n">4</span><span data-i18n="toll.m.title"></span></a>
+  </nav>
+
+  <!-- =================================================================== part 1: the game -->
+  <section class="block" id="toll-p1" aria-labelledby="toll-p1-h">
+    <h2 class="section-title" id="toll-p1-h"><span class="case-num" data-i18n="toll.part1"></span><span data-i18n="toll.p1.title"></span></h2>
+    <p class="section-intro" id="p1-intro"></p>
+    <div class="card" id="g-card">
+      <div class="ctl-row">
+        <div class="ctl-group">
+          <span class="lbl" id="sc-lbl" data-i18n="toll.sc.lbl"></span>
+          <div class="seg" role="group" aria-labelledby="sc-lbl" id="sc-seg">
+            <button type="button" data-lh="800" aria-pressed="true"></button>
+            <button type="button" data-lh="80" aria-pressed="false"></button>
+          </div>
+        </div>
+      </div>
+      <div class="game-grid">
+        <div>
+          <p class="stage-title" data-i18n="toll.map.title"></p>
+          <div class="stage map-stage" id="map-stage" role="img"></div>
+          <div class="anim-legend g-legend">
+            <span><i class="lg-road"></i><span data-i18n="toll.lg.road"></span></span>
+            <span><i class="lg-pay"></i><span data-i18n="toll.lg.pay"></span></span>
+            <span><i class="lg-free"></i><span data-i18n="toll.lg.free"></span></span>
+            <span><i class="lg-plaza"></i><span data-i18n="toll.lg.plaza"></span></span>
+            <span><i class="lg-flash"></i><span data-i18n="toll.lg.flash"></span></span>
+          </div>
+        </div>
+        <div>
+          <p class="stage-title" data-i18n="toll.plane.title"></p>
+          <div class="stage plane-stage" id="plane-stage" role="img"></div>
+          <div class="anim-legend g-legend">
+            <span class="heatbar"><span id="hb-lo"></span><i></i><span id="hb-hi"></span></span>
+            <span><i class="lg-you"></i><span data-i18n="toll.lg.you"></span></span>
+            <span id="lg-best" hidden><i class="lg-best"></i><span data-i18n="toll.lg.best"></span></span>
+            <span id="lg-alone" hidden><i class="lg-alone"></i><span data-i18n="toll.lg.alone"></span></span>
+            <span id="lg-trail" hidden><i class="lg-trail"></i><span data-i18n="toll.lg.trail"></span></span>
+            <span id="lg-opt" hidden><i class="lg-opt"></i><span data-i18n="toll.lg.opt"></span></span>
+            <span id="lg-border" hidden><i class="lg-border"></i><span data-i18n="toll.lg.border"></span></span>
+            <span id="lg-fog"><i class="lg-fog"></i><span data-i18n="toll.lg.fog"></span></span>
+          </div>
+        </div>
+      </div>
+      <div class="sliders2">
+        <div class="rng"><label for="t1" data-i18n="toll.s.t1"></label><output id="t1v" for="t1"></output><input type="range" id="t1" min="0" max="90" step="1" value="0"></div>
+        <div class="rng"><label for="t2" data-i18n="toll.s.t2"></label><output id="t2v" for="t2"></output><input type="range" id="t2" min="0" max="90" step="1" value="0"></div>
+      </div>
+      <div class="btnrow">
+        <button type="button" class="btn ghost" id="b-alone" data-i18n="toll.b.alone"></button>
+        <button type="button" class="btn ghost" id="b-max" data-i18n="toll.b.max"></button>
+        <button type="button" class="btn ghost" id="b-climb" data-i18n="toll.b.climb"></button>
+        <button type="button" class="btn ghost" id="b-fog" aria-pressed="false" data-i18n="toll.b.fog"></button>
+        <button type="button" class="btn ghost" id="b-zero" data-i18n="toll.b.zero"></button>
+        <button type="button" class="btn" id="b-solve" data-i18n="toll.b.solve"></button>
+      </div>
+      <div class="kpis" id="g-kpis"></div>
+      <p class="readline" id="g-read" aria-live="polite"></p>
+      <div class="tblwrap"><table class="data" id="g-routes"></table></div>
+      <p class="tabnote" id="g-unit"></p>
+    </div>
+  </section>
+
+  <!-- =================================================================== part 2: the exact answer -->
+  <section class="block" id="toll-p2" aria-labelledby="toll-p2-h">
+    <h2 class="section-title" id="toll-p2-h"><span class="case-num" data-i18n="toll.part2"></span><span data-i18n="toll.p2.title"></span></h2>
+    <p class="section-intro" id="p2-intro"></p>
+    <div class="card locked" id="opt-locked">
+      <p data-i18n="toll.p2.locked"></p>
+      <button type="button" class="btn" id="opt-show" data-i18n="toll.b.solve"></button>
+    </div>
+    <div id="opt-body" hidden>
+      <div class="card">
+        <h3 class="subhead" data-i18n="toll.lp.title"></h3>
+        <div class="lpgrid" id="lps"></div>
+        <p class="mtext" id="lp-note"></p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3 class="subhead" data-i18n="toll.cmp.title"></h3>
+        <div class="tblwrap"><table class="data" id="cmp"></table></div>
+        <p class="mtext" id="cmp-note"></p>
+      </div>
+      <div class="tiebox" style="margin-top:14px">
+        <h3 class="subhead" data-i18n="toll.tie.title"></h3>
+        <p class="mtext" style="margin-top:0" id="tie-text"></p>
+        <div class="tblwrap"><table class="data" id="opt-tab"></table></div>
+        <div class="formula" id="rev-f"></div>
+      </div>
+      <div class="optstrip" style="margin-top:14px">
+        <span class="kicker" data-i18n="toll.opt.kicker"></span>
+        <p id="opt-text"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================================================================== part 3: under the hood -->
+  <section class="block" id="toll-p3" aria-labelledby="toll-p3-h">
+    <h2 class="section-title" id="toll-p3-h"><span class="case-num" data-i18n="toll.part3"></span><span data-i18n="toll.p3.title"></span></h2>
+    <p class="section-intro" data-i18n-html="toll.p3.intro"></p>
+    <details id="hood">
+      <summary data-i18n="toll.h.sum"></summary>
+      <div class="body">
+        <p data-i18n-html="toll.h.intro"></p>
+        <div class="formula" data-tex="toll.m.milp.tex" data-i18n="toll.m.milp.formula"></div>
+        <p class="mtext" id="h-size"></p>
+        <div class="ctl-row" style="margin-top:12px">
+          <div class="ctl-group">
+            <span class="lbl" id="m-lbl" data-i18n="toll.h.m.lbl"></span>
+            <div class="seg" role="group" aria-labelledby="m-lbl" id="m-seg">
+              <button type="button" data-m="path" aria-pressed="true" data-i18n="toll.h.m.path"></button>
+              <button type="button" data-m="od" aria-pressed="false" data-i18n="toll.h.m.od"></button>
+            </div>
+          </div>
+          <div class="ctl-group">
+            <div class="btnrow" style="margin-top:0">
+              <button type="button" class="btn" id="h-run" data-i18n="toll.h.run"></button>
+              <button type="button" class="btn ghost" id="h-step" data-i18n="toll.h.step"></button>
+              <button type="button" class="btn ghost" id="h-reset" data-i18n="toll.h.reset"></button>
+            </div>
+          </div>
+        </div>
+        <div class="formula" id="m-f"></div>
+        <p class="mtext" id="h-mnote"></p>
+        <div class="kpis" id="h-kpis"></div>
+        <div class="hood-grid">
+          <div>
+            <p class="stage-title" data-i18n="toll.h.tree"></p>
+            <div class="treebox" id="tree" role="img"></div>
+            <div class="anim-legend g-legend tlegend">
+              <span><i class="t-branch"></i><span data-i18n="toll.h.lg.branch"></span></span>
+              <span><i class="t-int"></i><span data-i18n="toll.h.lg.int"></span></span>
+              <span><i class="t-prune"></i><span data-i18n="toll.h.lg.prune"></span></span>
+              <span><i class="t-inf"></i><span data-i18n="toll.h.lg.inf"></span></span>
+              <span><i class="t-cur"></i><span data-i18n="toll.h.lg.cur"></span></span>
+            </div>
+          </div>
+          <div>
+            <p class="stage-title" data-i18n="toll.h.plane"></p>
+            <div class="stage plane-stage mini-stage" id="mini-stage" role="img"></div>
+            <div class="anim-legend g-legend tlegend">
+              <span><i class="t-reg"></i><span data-i18n="toll.h.lg.reg"></span></span>
+              <span><i class="t-pt"></i><span data-i18n="toll.h.lg.pt"></span></span>
+            </div>
+          </div>
+        </div>
+        <p class="readline" id="h-read" aria-live="polite"></p>
+        <div class="solv-log" id="h-log" role="log" aria-live="off">
+          <p class="log-title" data-i18n="toll.h.log.title"></p>
+          <table id="h-logt"></table>
+        </div>
+        <p class="tabnote" id="h-check"></p>
+
+        <p class="mhead" data-i18n="toll.h.tie.title"></p>
+        <div class="ctl-row" style="margin-top:10px">
+          <div class="ctl-group">
+            <span class="lbl" id="tie-lbl" data-i18n="toll.h.tie.lbl"></span>
+            <div class="seg" role="group" aria-labelledby="tie-lbl" id="tie-seg">
+              <button type="button" data-tie="opt" aria-pressed="true" data-i18n="toll.h.tie.opt"></button>
+              <button type="button" data-tie="pess" aria-pressed="false" data-i18n="toll.h.tie.pess"></button>
+            </div>
+          </div>
+        </div>
+        <div class="chartbox" id="tie-chart" role="img"></div>
+        <p class="mtext" id="tie-read" aria-live="polite"></p>
+      </div>
+    </details>
+  </section>
+
+  <!-- =================================================================== model -->
+  <div class="card" id="toll-model">
+    <h2><span class="kicker" data-i18n="toll.m.kicker"></span><span data-i18n="toll.m.title"></span></h2>
+    <p class="mtext" style="margin-top:0" id="m-sym"></p>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="toll.m.bl.head"></p>
+        <div class="formula" data-tex="toll.m.bl.tex" data-i18n="toll.m.bl.formula"></div>
+        <p class="mtext" data-i18n-html="toll.m.bl.why"></p>
+        <p class="mhead" data-i18n="toll.m.lp.head"></p>
+        <div class="formula" data-tex="toll.m.lp.tex" data-i18n="toll.m.lp.formula"></div>
+        <p class="mtext" data-i18n-html="toll.m.lp.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="toll.m.milp.head"></p>
+        <div class="formula" data-tex="toll.m.milp.tex" data-i18n="toll.m.milp.formula"></div>
+        <p class="mtext" data-i18n-html="toll.m.milp.why"></p>
+        <p class="mhead" data-i18n="toll.m.bigm.head"></p>
+        <div class="formula" data-tex="toll.m.bigm.tex" data-i18n="toll.m.bigm.formula"></div>
+        <p class="mtext" data-i18n-html="toll.m.bigm.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="toll.n.title"></summary>
+      <div class="body">
+        <p id="toll-n1"></p>
+        <p id="toll-n2"></p>
+        <p id="toll-n3"></p>
+        <p id="toll-n4"></p>
+        <p id="toll-n5"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.11" data-refs="toll.refs"></p>
+  <p class="note" data-i18n="toll.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-tolls.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var AN = window.Anim, clamp = AN.clamp, lerp = AN.lerp, ease = AN.ease;
+  var MINUS = "−", TAU = Math.PI * 2;
+  var REDUCE = AN.reducedMotion;
+
+  /* ===================================================================================== the network (illustrative)
+     Seven places and eleven one-way roads. c is the cost of a road for one truck (fuel, time and wear, in
+     thousands of pesos), with no congestion. Toll T1 sits on Bogotá to Fusagasugá and T2 on Girardot to Ibagué.
+     Map units: x in [0, 1], y in [0, 0.75]; q is an optional control point that bends a road. */
+  var NODE = {
+    B: { x: 0.9, y: 0.3, lx: 0.5, ly: -1.35 },
+    F: { x: 0.715, y: 0.565, lx: 1, ly: 1 },
+    L: { x: 0.615, y: 0.255, lx: -0.2, ly: -1.25 },
+    G: { x: 0.43, y: 0.5, lx: 0.2, ly: 1.3 },
+    E: { x: 0.255, y: 0.655, lx: 0.2, ly: 1.3 },
+    I: { x: 0.085, y: 0.385, lx: 0.15, ly: 1.35 },
+    N: { x: 0.47, y: 0.085, lx: 1, ly: -0.1 }
+  };
+  var ARCS = [
+    { u: "B", v: "F", c: 120, toll: 0 },
+    { u: "B", v: "L", c: 170 },
+    { u: "F", v: "G", c: 110 },
+    { u: "L", v: "G", c: 120 },
+    { u: "F", v: "L", c: 60 },
+    { u: "L", v: "F", c: 60 },
+    { u: "G", v: "I", c: 150, toll: 1 },
+    { u: "G", v: "E", c: 70 },
+    { u: "E", v: "I", c: 140 },
+    { u: "B", v: "N", c: 200, q: [0.75, 0.1] },
+    { u: "N", v: "I", c: 270, q: [0.2, 0.12] }
+  ];
+  var PAIRS = [{ o: "B", d: "G" }, { o: "B", d: "I" }, { o: "F", d: "I" }];
+  var SCEN = [800, 80];                       // trucks a day from Bogotá to Ibagué
+  function etas(lh) { return [1200, lh, 300]; }
+  var TMAX = 90, GSTEP = 0.5, GN = Math.round(TMAX / GSTEP) + 1;   // heat map grid: 181 x 181
+  var TIE = 1e-9;
+
+  // every simple route of every pair, by depth-first search (path flows are used throughout)
+  var PATHS = [];
+  PAIRS.forEach(function (od, k) {
+    (function dfs(n, nodes, arcs) {
+      if (n === od.d) {
+        var c = 0, a = [0, 0];
+        arcs.forEach(function (i) { c += ARCS[i].c; if (ARCS[i].toll != null) a[ARCS[i].toll] = 1; });
+        PATHS.push({ k: k, nodes: nodes, arcs: arcs, c: c, a: a, name: nodes.join("-") });
+        return;
+      }
+      ARCS.forEach(function (e, i) { if (e.u === n && nodes.indexOf(e.v) < 0) dfs(e.v, nodes.concat(e.v), arcs.concat(i)); });
+    })(od.o, [od.o], []);
+  });
+  var NP = PATHS.length;
+  // per pair, the toll classes (which tolls a route pays) that exist, each with its cheapest route
+  var CLS = PAIRS.map(function (od, k) {
+    var out = [];
+    [[1, 1], [1, 0], [0, 1], [0, 0]].forEach(function (a) {
+      var best = -1;
+      PATHS.forEach(function (p, i) { if (p.k === k && p.a[0] === a[0] && p.a[1] === a[1] && (best < 0 || p.c < PATHS[best].c)) best = i; });
+      if (best >= 0) out.push({ a: a, c: PATHS[best].c, rep: best });
+    });
+    return out;
+  });
+  var MINC = PAIRS.map(function (od, k) { return Math.min.apply(null, PATHS.filter(function (p) { return p.k === k; }).map(function (p) { return p.c; })); });
+
+  /* ===================================================================================== the truck drivers (followers)
+     Each pair takes a cheapest route for cost plus tolls. Ties go to the route that pays the concession most
+     (optimistic, the usual convention) or least (pessimistic); remaining ties keep the search order. */
+  function respond(t, lh, pess) {
+    var eta = etas(lh), out = { od: [], rev: 0, pay: [0, 0], flow: new Array(NP).fill(0) };
+    for (var k = 0; k < 3; k++) {
+      var mn = Infinity, list = [];
+      for (var i = 0; i < NP; i++) {
+        var p = PATHS[i];
+        if (p.k !== k) continue;
+        var paid = p.a[0] * t[0] + p.a[1] * t[1];
+        list.push({ i: i, cost: p.c + paid, paid: paid });
+        if (p.c + paid < mn) mn = p.c + paid;
+      }
+      var tie = list.filter(function (q) { return q.cost <= mn + TIE * (1 + mn); }), pick = tie[0];
+      tie.forEach(function (q) { if (pess ? q.paid < pick.paid - TIE : q.paid > pick.paid + TIE) pick = q; });
+      out.od.push({ k: k, eta: eta[k], path: pick.i, cost: mn, paid: pick.paid, tie: tie.map(function (q) { return q.i; }) });
+      out.rev += eta[k] * pick.paid;
+      out.flow[pick.i] += eta[k];
+      if (PATHS[pick.i].a[0]) out.pay[0] += eta[k];
+      if (PATHS[pick.i].a[1]) out.pay[1] += eta[k];
+    }
+    return out;
+  }
+  // revenue only, from the toll classes (same answer as respond, much faster for the heat map)
+  function revAt(t1, t2, eta, pess) {
+    var r = 0;
+    for (var k = 0; k < 3; k++) {
+      var cl = CLS[k], paid = cl[0].a[0] * t1 + cl[0].a[1] * t2, mn = cl[0].c + paid;
+      for (var j = 1; j < cl.length; j++) {
+        var pd = cl[j].a[0] * t1 + cl[j].a[1] * t2, cost = cl[j].c + pd;
+        if (cost < mn - TIE * (1 + mn)) { mn = cost; paid = pd; }
+        else if (cost <= mn + TIE * (1 + mn)) paid = pess ? Math.min(paid, pd) : Math.max(paid, pd);
+      }
+      r += eta[k] * paid;
+    }
+    return r;
+  }
+
+  /* ===================================================================================== route patterns
+     A pattern picks one toll class per pair: 2 x 4 x 2 = 16. Each holds on a closed polygon of the toll plane
+     (possibly a segment, or empty), and revenue is linear on it, so one two-variable LP per pattern. */
+  function clipHalf(poly, ax, ay, b) {     // keep ax x + ay y <= b
+    var out = [];
+    for (var i = 0; i < poly.length; i++) {
+      var p = poly[i], q = poly[(i + 1) % poly.length];
+      var fp = ax * p[0] + ay * p[1] - b, fq = ax * q[0] + ay * q[1] - b;
+      if (fp <= 1e-9) out.push(p);
+      if ((fp <= 1e-9) !== (fq <= 1e-9) && Math.abs(fp - fq) > 1e-12) { var s = fp / (fp - fq); out.push([p[0] + s * (q[0] - p[0]), p[1] + s * (q[1] - p[1])]); }
+    }
+    return out;
+  }
+  var SQUARE = [[0, 0], [TMAX, 0], [TMAX, TMAX], [0, TMAX]];
+  function region(cons) {
+    var poly = SQUARE.slice();
+    cons.forEach(function (h) { if (poly.length) poly = clipHalf(poly, h.a[0], h.a[1], h.b); });
+    return poly;
+  }
+  var PATTERNS = [];
+  CLS[0].forEach(function (c0, i0) {
+    CLS[1].forEach(function (c1, i1) {
+      CLS[2].forEach(function (c2, i2) {
+        var sel = [i0, i1, i2], cons = [];
+        sel.forEach(function (si, k) {
+          var s = CLS[k][si];
+          CLS[k].forEach(function (q, qi) {
+            if (qi === si) return;
+            cons.push({ a: [s.a[0] - q.a[0], s.a[1] - q.a[1]], b: q.c - s.c });   // c_s + a_s t <= c_q + a_q t
+          });
+        });
+        PATTERNS.push({ sel: sel, cons: cons, poly: region(cons) });
+      });
+    });
+  });
+  function patternLPs(lh) {
+    var eta = etas(lh), t0 = performance.now();
+    var list = PATTERNS.map(function (pt, n) {
+      var obj = [0, 0];
+      pt.sel.forEach(function (si, k) { var a = CLS[k][si].a; obj[0] += eta[k] * a[0]; obj[1] += eta[k] * a[1]; });
+      var rows = pt.cons.map(function (h) { return { a: h.a, op: "<=", b: h.b }; });
+      rows.push({ a: [1, 0], op: "<=", b: TMAX }, { a: [0, 1], op: "<=", b: TMAX });
+      var r = LP.solve({ sense: "max", c: obj, rows: rows });
+      return r.status === "optimal" ? { n: n, ok: true, z: r.z, x: r.x, obj: obj } : { n: n, ok: false, obj: obj };
+    });
+    var best = null;
+    list.forEach(function (r) { if (r.ok && (!best || r.z > best.z + 1e-9)) best = r; });
+    return { list: list, best: best, nOk: list.filter(function (r) { return r.ok; }).length, ms: performance.now() - t0 };
+  }
+
+  /* ===================================================================================== the single-level MILP
+     Variables: t1, t2, pi_1..3, f_1..17, z_1..17 (all >= 0). The follower LP is replaced by its optimality
+     conditions; strong duality makes revenue linear: sum eta_k pi_k - sum c_p f_p. */
+  function bigM(mode) {
+    var M = PATHS.map(function (p) { return p.c + TMAX * (p.a[0] + p.a[1]) - MINC[p.k]; });
+    if (mode === "od") {
+      var Mk = [0, 1, 2].map(function (k) { return Math.max.apply(null, M.filter(function (v, i) { return PATHS[i].k === k; })); });
+      M = PATHS.map(function (p) { return Mk[p.k]; });
+    }
+    return M;
+  }
+  function milp(lh, mode) {
+    var eta = etas(lh), M = bigM(mode), nv = 5 + 2 * NP, iF = 5, iZ = 5 + NP, rows = [];
+    function row() { return new Array(nv).fill(0); }
+    var c = row();
+    for (var k = 0; k < 3; k++) c[2 + k] = eta[k];
+    PATHS.forEach(function (p, i) { c[iF + i] = -p.c; });
+    for (k = 0; k < 3; k++) { var a = row(); PATHS.forEach(function (p, i) { if (p.k === k) a[iF + i] = 1; }); rows.push({ a: a, op: "=", b: eta[k] }); }
+    PATHS.forEach(function (p) { var a = row(); a[2 + p.k] = 1; a[0] = -p.a[0]; a[1] = -p.a[1]; rows.push({ a: a, op: "<=", b: p.c }); });
+    PATHS.forEach(function (p, i) { var a = row(); a[iF + i] = 1; a[iZ + i] = -eta[p.k]; rows.push({ a: a, op: "<=", b: 0 }); });
+    PATHS.forEach(function (p, i) { var a = row(); a[0] = p.a[0]; a[1] = p.a[1]; a[2 + p.k] = -1; a[iZ + i] = M[i]; rows.push({ a: a, op: "<=", b: M[i] - p.c }); });
+    PATHS.forEach(function (p, i) { var a = row(); a[iZ + i] = 1; rows.push({ a: a, op: "<=", b: 1 }); });
+    [0, 1].forEach(function (j) { var a = row(); a[j] = 1; rows.push({ a: a, op: "<=", b: TMAX }); });
+    return { c: c, rows: rows, nv: nv, iZ: iZ, M: M, nBin: NP, nRows: rows.length };
+  }
+  // best-first branch and bound on the most fractional z; every node's LP is solved when the node is created
+  function BB(lh, mode) {
+    var m = milp(lh, mode), nodes = [], open = [], o = { m: m, nodes: nodes, inc: null, solved: 0, ms: 0, done: false, cur: null, lh: lh, mode: mode };
+    function lp(fix) {
+      var rows = m.rows.slice();
+      fix.forEach(function (f) { var a = new Array(m.nv).fill(0); a[m.iZ + f.j] = 1; rows.push({ a: a, op: "=", b: f.v }); });
+      var s = performance.now(), r = LP.solve({ sense: "max", c: m.c, rows: rows });
+      o.ms += performance.now() - s; o.solved++;
+      return r;
+    }
+    function make(parent, j, v) {
+      var fix = parent ? parent.fix.concat([{ j: j, v: v }]) : [], r = lp(fix);
+      var nd = { id: nodes.length, parent: parent, fix: fix, j: j, v: v, depth: parent ? parent.depth + 1 : 0, kids: [],
+        status: r.status === "optimal" ? "open" : "inf", z: r.status === "optimal" ? r.z : null, x: r.status === "optimal" ? r.x : null };
+      nodes.push(nd);
+      if (parent) parent.kids.push(nd);
+      if (nd.status === "open") open.push(nd);
+      return nd;
+    }
+    o.root = make(null, -1, -1);
+    o.cur = o.root;
+    o.bound = function () {
+      var b = o.inc ? o.inc.z : -Infinity;
+      open.forEach(function (nd) { if (nd.z > b) b = nd.z; });
+      return b;
+    };
+    o.step = function () {
+      if (!open.length) { o.done = true; return null; }
+      open.sort(function (a, b) { return b.z - a.z || a.id - b.id; });
+      var nd = open.shift();
+      o.cur = nd;
+      if (o.inc && nd.z <= o.inc.z + 1e-6) nd.status = "prune";
+      else {
+        var j = -1, best = 1e-6;
+        for (var i = 0; i < NP; i++) { var v = nd.x[m.iZ + i], f = Math.min(v, 1 - v); if (f > best + 1e-12) { best = f; j = i; } }
+        if (j < 0) { nd.status = "int"; o.inc = nd; }
+        else { nd.status = "branch"; nd.bj = j; nd.bv = nd.x[m.iZ + j]; make(nd, j, 1); make(nd, j, 0); }
+      }
+      if (!open.length) o.done = true;
+      return nd;
+    };
+    o.finish = function () { var g = 0; while (!o.done && g++ < 5000) o.step(); return o; };
+    return o;
+  }
+  var bbCache = {};
+  function bbFull(lh, mode) {
+    var key = lh + ":" + mode;
+    if (!bbCache[key]) {
+      var t0 = performance.now(), b = BB(lh, mode).finish();
+      b.wall = performance.now() - t0;
+      bbCache[key] = b;
+    }
+    return bbCache[key];
+  }
+
+  /* ===================================================================================== heuristics */
+  // step-1 climb: move to the neighbor (8 directions, one thousand pesos) that pays most, while it pays more
+  function climb(start, lh) {
+    var eta = etas(lh), cur = start.slice(), R = revAt(cur[0], cur[1], eta), trail = [cur.slice()];
+    for (var g = 0; g < 1000; g++) {
+      var best = null;
+      for (var dx = -1; dx <= 1; dx++) for (var dy = -1; dy <= 1; dy++) {
+        if (!dx && !dy) continue;
+        var q = [cur[0] + dx, cur[1] + dy];
+        if (q[0] < 0 || q[1] < 0 || q[0] > TMAX || q[1] > TMAX) continue;
+        var v = revAt(q[0], q[1], eta);
+        if (v > R + 1e-9 && (!best || v > best.v + 1e-9)) best = { v: v, q: q };
+      }
+      if (!best) break;
+      cur = best.q; R = best.v; trail.push(cur.slice());
+    }
+    return { end: cur, r: R, trail: trail, start: start.slice() };
+  }
+  // one toll priced as if the other were free: revenue is piecewise linear in it, so scan the breakpoints
+  function aloneOne(w, lh) {
+    var eta = etas(lh), cand = [0, TMAX], best = null;
+    CLS.forEach(function (cl) {
+      cl.forEach(function (p) {
+        cl.forEach(function (q) {
+          if (p.a[w] === q.a[w]) return;
+          var t = (q.c - p.c) / (p.a[w] - q.a[w]);
+          if (t >= 0 && t <= TMAX) cand.push(t);
+        });
+      });
+    });
+    cand.sort(function (a, b) { return a - b; }).forEach(function (t) {
+      var r = w === 0 ? revAt(t, 0, eta) : revAt(0, t, eta);
+      if (!best || r > best.r + 1e-9) best = { t: t, r: r };
+    });
+    return best;
+  }
+
+  /* ===================================================================================== per scenario, computed once */
+  var solCache = {};
+  function sol(lh) {
+    if (solCache[lh]) return solCache[lh];
+    var eta = etas(lh), heat = new Float64Array(GN * GN), hmax = 0, gb = null;
+    for (var j = 0; j < GN; j++) for (var i = 0; i < GN; i++) {
+      var v = revAt(i * GSTEP, j * GSTEP, eta);
+      heat[j * GN + i] = v;
+      if (v > hmax) hmax = v;
+      if (!gb || v > gb.r + 1e-9) gb = { r: v, t: [i * GSTEP, j * GSTEP] };
+    }
+    var lps = patternLPs(lh), opt = [lps.best.x[0], lps.best.x[1]];
+    var a1 = aloneOne(0, lh), a2 = aloneOne(1, lh), alone = [a1.t, a2.t];
+    var s = {
+      lh: lh, eta: eta, heat: heat, hmax: hmax, grid: gb, lps: lps, opt: opt, optR: respond(opt, lh),
+      a1: a1, a2: a2, alone: alone, aloneR: respond(alone, lh),
+      climb0: climb([0, 0], lh), climbA: climb(alone, lh), maxR: respond([TMAX, TMAX], lh)
+    };
+    if (Math.abs(gb.r - lps.best.z) > 1e-6) console.error("Brute force and the pattern LPs disagree", lh, gb.r, lps.best.z);
+    return (solCache[lh] = s);
+  }
+
+  /* ===================================================================================== formatting */
+  function num(v, d) {
+    d = d == null ? 1 : d;
+    var a = I18N.fmt(Math.abs(v), d, 0), z = I18N.fmt(0, d, 0);
+    return v < 0 && a !== z ? MINUS + a : a;
+  }
+  function mcop(v) { return T("toll.u.m", { v: I18N.fmt(v / 1000, 2, 1) }); }        // v in thousand COP
+  function mday(v) { return T("toll.u.mday", { v: I18N.fmt(v / 1000, 2, 1) }); }
+  function kcop(v) { return T("toll.u.k", { v: num(v, 2) }); }
+  function trucks(n) { return I18N.fmt(n, 0); }
+  function pct(v) { return T("toll.pct", { v: I18N.fmt(v, 1, 1) }); }
+  function pt(t) { return "(" + num(t[0], 2) + T("toll.ptsep") + num(t[1], 2) + ")"; }
+  function odName(k) { return T("toll.od." + k); }
+  function odCode(k) { return PAIRS[k].o + "→" + PAIRS[k].d; }
+  function pname(i) { return PATHS[i].name; }
+  function list(items) {
+    if (items.length < 2) return items.join("");
+    return items.slice(0, -1).join(T("toll.sep")) + T("toll.and") + items[items.length - 1];
+  }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function kpis(id, rows) {
+    $(id).innerHTML = rows.map(function (q) { return '<div class="kpi ' + (q[2] || "") + '"><b>' + esc(q[1]) + "</b><span>" + esc(q[0]) + "</span></div>"; }).join("");
+  }
+  function classLabel(a) { return a[0] && a[1] ? T("toll.lp.both") : a[0] ? "T1" : a[1] ? "T2" : T("toll.lp.none"); }
+
+  /* ===================================================================================== colours */
+  var COL = null;
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function lum(c) { var r = rgbOf(c); return (0.299 * r[0] + 0.587 * r[1] + 0.114 * r[2]) / 255; }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  function cols() {
+    if (COL) return COL;
+    var cs = getComputedStyle(document.documentElement), o = {};
+    ["bg", "surface", "surface2", "ink", "ink2", "muted", "grid", "axis", "accent", "accent-text", "mit-bright", "mit-silver", "crit", "on-solid"].forEach(function (k) {
+      o[k] = cs.getPropertyValue("--" + k).trim();
+    });
+    o.hot = o.accent.toLowerCase() === o["mit-bright"].toLowerCase() ? o.crit : o["mit-bright"];
+    o.dark = lum(o.surface) < 0.4;
+    o.lo = rgbOf(o.surface); o.hi = rgbOf(o.accent);
+    return (COL = o);
+  }
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif", MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  function font(w, s, mono) { return w + " " + s.toFixed(1) + "px " + (mono ? MONO : SANS); }
+  function halo(ctx, s, x, y, col, f, align, base) {
+    ctx.font = f; ctx.textAlign = align || "center"; ctx.textBaseline = base || "middle";
+    ctx.lineJoin = "round"; ctx.lineWidth = 3.5; ctx.strokeStyle = COL.surface; ctx.strokeText(s, x, y);
+    ctx.fillStyle = col; ctx.fillText(s, x, y);
+  }
+
+  /* ===================================================================================== state */
+  var S = {
+    lh: 800, t: [0, 0], best: null, trail: null, aloneOn: false, fogOff: false, shown: false, hl: null,
+    read: { k: "start" }, prev: null, flash: [null, null, null], mode: "path", tie: "opt", bb: null, bbRun: 0
+  };
+  var fog = new Uint8Array(GN * GN);
+  function reveal(t) {
+    var R = 6 / GSTEP, ci = Math.round(t[0] / GSTEP), cj = Math.round(t[1] / GSTEP);
+    for (var j = Math.max(0, cj - R); j <= Math.min(GN - 1, cj + R); j++)
+      for (var i = Math.max(0, ci - R); i <= Math.min(GN - 1, ci + R); i++)
+        if ((i - ci) * (i - ci) + (j - cj) * (j - cj) <= R * R) fog[j * GN + i] = 1;
+    heatDirty = true;
+  }
+
+  /* ===================================================================================== the map */
+  function makeMap(stage) {
+    var cv = AN.canvas(stage), ctx = cv.ctx, K = {}, G = null;
+    function fit() {
+      cv.fit();
+      var s = Math.min(cv.w - 16, (cv.h - 16) / 0.75);
+      K = { s: s, ox: (cv.w - s) / 2, oy: (cv.h - 0.75 * s) / 2 };
+      K.r = clamp(0.03 * s, 8.5, 12.5);
+      K.fs = clamp(0.026 * s, 10.5, 13);
+      K.dot = clamp(0.0062 * s, 2, 3.3);
+      // road geometry in pixels, sampled so trucks can move along it at a constant speed
+      G = ARCS.map(function (e) {
+        var a = NODE[e.u], b = NODE[e.v], pts = [], n = e.q ? 28 : 2;
+        for (var i = 0; i < n; i++) {
+          var u = i / (n - 1), x, y;
+          if (e.q) { x = (1 - u) * (1 - u) * a.x + 2 * u * (1 - u) * e.q[0] + u * u * b.x; y = (1 - u) * (1 - u) * a.y + 2 * u * (1 - u) * e.q[1] + u * u * b.y; }
+          else { x = lerp(a.x, b.x, u); y = lerp(a.y, b.y, u); }
+          pts.push([K.ox + x * K.s, K.oy + y * K.s]);
+        }
+        var len = [0];
+        for (i = 1; i < pts.length; i++) len.push(len[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+        return { pts: pts, len: len, L: len[len.length - 1] };
+      });
+    }
+    function at(g, s) {   // point and unit tangent at arc length s
+      var i = 1;
+      while (i < g.len.length - 1 && g.len[i] < s) i++;
+      var a = g.pts[i - 1], b = g.pts[i], seg = g.len[i] - g.len[i - 1] || 1, u = clamp((s - g.len[i - 1]) / seg, 0, 1);
+      var dx = (b[0] - a[0]) / seg, dy = (b[1] - a[1]) / seg;
+      return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, dx, dy];
+    }
+    function pathLen(pi) { return PATHS[pi].arcs.reduce(function (s, i) { return s + G[i].L; }, 0); }
+    function pathAt(pi, s) {
+      var arcs = PATHS[pi].arcs;
+      for (var q = 0; q < arcs.length; q++) {
+        var g = G[arcs[q]];
+        if (s <= g.L || q === arcs.length - 1) return at(g, Math.min(s, g.L));
+        s -= g.L;
+      }
+    }
+    function stroke(g, w, col, dash) {
+      ctx.beginPath();
+      g.pts.forEach(function (p, i) { if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); });
+      ctx.lineWidth = w; ctx.strokeStyle = col; ctx.setLineDash(dash || []); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.stroke(); ctx.setLineDash([]);
+    }
+    function draw(now) {
+      if (!S.view) return;
+      var C = cols(), st = S.view, r = st.r, total = st.eta[0] + st.eta[1] + st.eta[2];
+      ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+      ctx.clearRect(0, 0, cv.w, cv.h);
+      ctx.fillStyle = C.surface; ctx.fillRect(0, 0, cv.w, cv.h);
+      // trucks per road (both directions of F-L count together)
+      var load = ARCS.map(function () { return 0; });
+      r.flow.forEach(function (f, i) { if (f) PATHS[i].arcs.forEach(function (a) { load[a] += f; }); });
+      load[4] = load[5] = load[4] + load[5];
+      // road bed, then the trucks' load
+      G.forEach(function (g) { stroke(g, K.r * 0.9, C.surface2); });
+      G.forEach(function (g, i) { stroke(g, 1.6, C.axis); });
+      G.forEach(function (g, i) {
+        if (!load[i]) return;
+        stroke(g, 2 + 9 * load[i] / Math.max(total, 1), rgba(C.ink2, C.dark ? 0.75 : 0.62));
+      });
+      // routes that just changed: bright red, fading
+      S.flash.forEach(function (fl) {
+        if (!fl) return;
+        var u = REDUCE ? 0.4 : clamp((now - fl.t0) / 1400, 0, 1);
+        if (u >= 1) return;
+        PATHS[fl.path].arcs.forEach(function (a) { stroke(G[a], 6 * (1 - u) + 2, rgba(C.hot, 0.85 * (1 - u))); });
+      });
+      // road costs
+      ARCS.forEach(function (e, i) {
+        if (i === 5) return;
+        var g = G[i], m = at(g, g.L * (e.toll != null ? 0.28 : e.u === "G" && e.v === "E" ? 0.62 : 0.5)), side = 1;
+        var nx = -m[3], ny = m[2];
+        if (i === 4) { nx = Math.abs(nx); ny = 0; }
+        halo(ctx, String(e.c), m[0] + side * nx * (K.fs + 2), m[1] + side * ny * (K.fs + 2), C.muted, font(400, K.fs - 1, true));
+      });
+      // toll plazas
+      ARCS.forEach(function (e, i) {
+        if (e.toll == null) return;
+        var g = G[i], m = at(g, g.L * 0.6), nx = -m[3], ny = m[2], h = K.r * 0.95;
+        ctx.beginPath(); ctx.moveTo(m[0] - nx * h, m[1] - ny * h); ctx.lineTo(m[0] + nx * h, m[1] + ny * h);
+        ctx.lineWidth = 4.5; ctx.lineCap = "butt"; ctx.strokeStyle = C.accent; ctx.stroke();
+        var sd = e.toll === 0 ? -1 : 1, off = h + K.fs * (e.toll === 0 ? 1.9 : 1.1);
+        var tx = m[0] + sd * nx * off, ty = m[1] + sd * ny * off;
+        halo(ctx, "T" + (e.toll + 1) + " " + num(st.t[e.toll], 1), tx, ty, C["accent-text"], font(700, K.fs + 0.5));
+      });
+      // trucks: one dot per 50 trucks a day; red when they pay a toll
+      r.od.forEach(function (o, k) {
+        var pi = o.path, L = pathLen(pi), n = Math.max(1, Math.round(o.eta / 50)), lane = (k - 1) * 2.4;
+        var fl = S.flash[k], hot = fl && !REDUCE && now - fl.t0 < 1400;
+        var col = o.paid > 0 ? C.accent : C["mit-silver"], speed = clamp(K.s * 0.075, 22, 44);
+        for (var q = 0; q < n; q++) {
+          var s = REDUCE ? (q + 0.5) / n * L : ((now / 1000) * speed + q * L / n + k * 7) % L;
+          var p = pathAt(pi, s);
+          ctx.beginPath(); ctx.arc(p[0] - p[3] * lane, p[1] + p[2] * lane, K.dot, 0, TAU);
+          ctx.fillStyle = hot ? C.hot : col; ctx.fill();
+        }
+      });
+      // places
+      Object.keys(NODE).forEach(function (id) {
+        var nd = NODE[id], x = K.ox + nd.x * K.s, y = K.oy + nd.y * K.s;
+        ctx.beginPath(); ctx.arc(x, y, K.r, 0, TAU); ctx.fillStyle = C.surface; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = C.ink; ctx.stroke();
+        ctx.font = font(700, K.fs); ctx.fillStyle = C.ink; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(id, x, y + 0.5);
+        var lx = x + nd.lx * (K.r + 4), ly = y + nd.ly * (K.r + K.fs * 0.55);
+        halo(ctx, T("toll.n." + id), lx, ly, C.ink2, font(600, K.fs), nd.lx > 0.5 ? "left" : nd.lx < -0.5 ? "right" : "center");
+      });
+    }
+    fit();
+    return { fit: fit, draw: draw, el: cv.el };
+  }
+
+  /* ===================================================================================== the toll plane */
+  var heatCv = document.createElement("canvas"), heatCtx = heatCv.getContext("2d"), heatDirty = true, heatKey = "";
+  heatCv.width = GN; heatCv.height = GN;
+  function heatImage(full) {
+    var C = cols(), s = sol(S.lh), key = S.lh + ":" + C.surface + C.accent + ":" + (full ? 1 : 0);
+    if (!heatDirty && key === heatKey) return heatCv;
+    var img = heatCtx.createImageData(GN, GN), d = img.data;
+    for (var j = 0; j < GN; j++) for (var i = 0; i < GN; i++) {
+      var idx = j * GN + i, o = ((GN - 1 - j) * GN + i) * 4;
+      if (!full && !fog[idx]) { d[o + 3] = 0; continue; }
+      var u = s.heat[idx] / s.hmax, w = u > 0 ? 0.1 + 0.9 * Math.pow(u, 1.15) : 0;
+      d[o] = Math.round(lerp(C.lo[0], C.hi[0], w)); d[o + 1] = Math.round(lerp(C.lo[1], C.hi[1], w)); d[o + 2] = Math.round(lerp(C.lo[2], C.hi[2], w)); d[o + 3] = 255;
+    }
+    heatCtx.putImageData(img, 0, 0);
+    heatDirty = false; heatKey = key;
+    return heatCv;
+  }
+  function makePlane(stage, mini) {
+    var cv = AN.canvas(stage), ctx = cv.ctx, P = {};
+    function fit() {
+      cv.fit();
+      var ml = mini ? 30 : 38, mb = mini ? 26 : 32, mt = 10, mr = 12;
+      var side = Math.max(60, Math.min(cv.w - ml - mr, cv.h - mt - mb));
+      P = { x0: ml + Math.max(0, (cv.w - ml - mr - side) / 2), y0: mt, s: side, fs: clamp(side * 0.03, 10, 12) };
+    }
+    function X(t) { return P.x0 + t / TMAX * P.s; }
+    function Y(t) { return P.y0 + P.s - t / TMAX * P.s; }
+    function poly(pl) {
+      ctx.beginPath();
+      pl.forEach(function (p, i) { if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); });
+      ctx.closePath();
+    }
+    function star(x, y, r, fill, line) {
+      ctx.beginPath();
+      for (var i = 0; i < 10; i++) {
+        var a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+        if (i) ctx.lineTo(x + rr * Math.cos(a), y + rr * Math.sin(a)); else ctx.moveTo(x + rr * Math.cos(a), y + rr * Math.sin(a));
+      }
+      ctx.closePath(); ctx.lineWidth = 2.5; ctx.strokeStyle = line; ctx.stroke(); ctx.fillStyle = fill; ctx.fill();
+    }
+    function draw(o) {
+      var C = cols(), s = sol(S.lh), full = o.full;
+      ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+      ctx.clearRect(0, 0, cv.w, cv.h);
+      ctx.fillStyle = C.surface; ctx.fillRect(0, 0, cv.w, cv.h);
+      // unexplored: hatched
+      ctx.save();
+      ctx.beginPath(); ctx.rect(P.x0, P.y0, P.s, P.s); ctx.clip();
+      ctx.fillStyle = C.surface2; ctx.fillRect(P.x0, P.y0, P.s, P.s);
+      ctx.strokeStyle = rgba(C.axis, 0.7); ctx.lineWidth = 1;
+      for (var h = -P.s; h < P.s; h += 7) { ctx.beginPath(); ctx.moveTo(P.x0 + h, P.y0 + P.s); ctx.lineTo(P.x0 + h + P.s, P.y0); ctx.stroke(); }
+      ctx.imageSmoothingEnabled = false;
+      var cell = P.s / (GN - 1);
+      ctx.globalAlpha = o.fade || 1;
+      ctx.drawImage(heatImage(full), P.x0 - cell / 2, P.y0 - cell / 2, P.s + cell, P.s + cell);
+      ctx.globalAlpha = 1;
+      // where the route pattern changes (exact lines)
+      if (o.borders) {
+        ctx.lineWidth = 1; ctx.strokeStyle = rgba(C.ink, C.dark ? 0.5 : 0.45);
+        PATTERNS.forEach(function (ptn) { if (ptn.poly.length > 1) { poly(ptn.poly); ctx.stroke(); } });
+      }
+      if (o.hl) {
+        var hp = PATTERNS[o.hl.n].poly;
+        if (hp.length > 1) {
+          poly(hp); ctx.fillStyle = rgba(C.ink, 0.12); ctx.fill();
+          ctx.lineWidth = 3; ctx.strokeStyle = C.ink; ctx.stroke();
+        }
+      }
+      if (o.region) {
+        if (o.region.length > 1) {
+          poly(o.region); ctx.fillStyle = rgba(C.accent, 0.22); ctx.fill();
+          ctx.lineWidth = 2.5; ctx.strokeStyle = C.accent; ctx.stroke();
+        }
+      }
+      ctx.restore();
+      // grid and frame
+      ctx.lineWidth = 1; ctx.strokeStyle = rgba(C.axis, 0.9);
+      [30, 60].forEach(function (v) {
+        ctx.beginPath(); ctx.moveTo(X(v), P.y0); ctx.lineTo(X(v), P.y0 + P.s); ctx.moveTo(P.x0, Y(v)); ctx.lineTo(P.x0 + P.s, Y(v));
+        ctx.setLineDash([2, 4]); ctx.stroke(); ctx.setLineDash([]);
+      });
+      ctx.strokeRect(P.x0 + 0.5, P.y0 + 0.5, P.s - 1, P.s - 1);
+      [0, 30, 60, 90].forEach(function (v) {
+        ctx.font = font(400, P.fs, true); ctx.fillStyle = C.muted;
+        ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.fillText(String(v), X(v), P.y0 + P.s + 4);
+        ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.fillText(String(v), P.x0 - 5, Y(v));
+      });
+      ctx.font = font(700, P.fs); ctx.fillStyle = C.ink2; ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+      ctx.fillText(T("toll.ax.t1"), P.x0 + P.s / 2, P.y0 + P.s + (mini ? 25 : 31));
+      ctx.save(); ctx.translate(mini ? 9 : 11, P.y0 + P.s / 2); ctx.rotate(-Math.PI / 2); ctx.textBaseline = "middle"; ctx.fillText(T("toll.ax.t2"), 0, 0); ctx.restore();
+      // markers
+      if (o.trail && o.trail.length > 1) {
+        ctx.beginPath();
+        o.trail.forEach(function (q, i) { if (i) ctx.lineTo(X(q[0]), Y(q[1])); else ctx.moveTo(X(q[0]), Y(q[1])); });
+        ctx.lineWidth = 4.5; ctx.strokeStyle = rgba(C.surface, 0.9); ctx.stroke();
+        ctx.lineWidth = 2.2; ctx.strokeStyle = C.ink; ctx.setLineDash([1.5, 3.5]); ctx.lineCap = "round"; ctx.stroke(); ctx.setLineDash([]);
+        var t0 = o.trail[0]; ctx.beginPath(); ctx.arc(X(t0[0]), Y(t0[1]), 3.5, 0, TAU); ctx.fillStyle = C.ink; ctx.fill();
+      }
+      if (o.alone) {
+        var ax = X(o.alone[0]), ay = Y(o.alone[1]);
+        ctx.fillStyle = C.surface; ctx.fillRect(ax - 6, ay - 6, 12, 12);
+        ctx.lineWidth = 2.2; ctx.strokeStyle = C.ink2; ctx.strokeRect(ax - 6, ay - 6, 12, 12);
+      }
+      if (o.best) {
+        ctx.beginPath(); ctx.arc(X(o.best[0]), Y(o.best[1]), 8, 0, TAU);
+        ctx.lineWidth = 2; ctx.strokeStyle = C.ink; ctx.setLineDash([3, 2.5]); ctx.stroke(); ctx.setLineDash([]);
+      }
+      if (o.opt) star(X(o.opt[0]), Y(o.opt[1]), mini ? 7 : 9, C.ink, C.surface);
+      if (o.you) {
+        var x = X(o.you[0]), y = Y(o.you[1]);
+        ctx.lineWidth = 1; ctx.strokeStyle = rgba(C.ink, 0.55); ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(x, P.y0); ctx.lineTo(x, P.y0 + P.s); ctx.moveTo(P.x0, y); ctx.lineTo(P.x0 + P.s, y); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(x, y, 6.5, 0, TAU); ctx.fillStyle = C.surface; ctx.fill();
+        ctx.lineWidth = 3; ctx.strokeStyle = C.ink; ctx.stroke();
+        if (o.youLabel) {
+          var right = x < P.x0 + P.s * 0.62, up = y > P.y0 + P.s * 0.2;
+          halo(ctx, o.youLabel, x + (right ? 11 : -11), y + (up ? -13 : 15), C.ink, font(700, P.fs + 1), right ? "left" : "right");
+        }
+      }
+      if (o.pt) {
+        ctx.beginPath(); ctx.arc(X(o.pt[0]), Y(o.pt[1]), 5.5, 0, TAU); ctx.fillStyle = C.ink; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = C.surface; ctx.stroke();
+      }
+      if (o.empty) halo(ctx, o.empty, P.x0 + P.s / 2, P.y0 + P.s / 2, C.ink, font(700, P.fs + 1));
+    }
+    function toT(ev) {
+      var r = cv.el.getBoundingClientRect();
+      var x = ev.clientX - r.left, y = ev.clientY - r.top;
+      return [clamp(Math.round((x - P.x0) / P.s * TMAX), 0, TMAX), clamp(Math.round((P.y0 + P.s - y) / P.s * TMAX), 0, TMAX)];
+    }
+    fit();
+    return { fit: fit, draw: draw, toT: toT, el: cv.el };
+  }
+
+  /* ===================================================================================== part 1: the game */
+  var map = makeMap($("map-stage")), plane = makePlane($("plane-stage"), false), mini = makePlane($("mini-stage"), true);
+  var climbTimer = 0;
+
+  function setT(t, how) {
+    S.t = [clamp(Math.round(t[0]), 0, TMAX), clamp(Math.round(t[1]), 0, TMAX)];
+    reveal(S.t);
+    var r = respond(S.t, S.lh);
+    if (how === "hand") {
+      if (!S.best || r.rev > S.best.r + 1e-9) S.best = { t: S.t.slice(), r: r.rev };
+      S.read = { k: "hand" };
+    }
+    // flash the pairs whose route changed
+    if (S.prev) r.od.forEach(function (o, k) { if (o.path !== S.prev.od[k].path) S.flash[k] = { path: o.path, t0: performance.now() }; });
+    S.prev = r;
+    renderGame();
+  }
+  function stopClimb() { clearTimeout(climbTimer); climbTimer = 0; }
+  function doClimb() {
+    stopClimb();
+    var c = climb(S.t, S.lh);
+    S.trail = c.trail.slice(0, 1);
+    S.read = { k: "climbing" };
+    if (c.trail.length < 2 || REDUCE) {
+      S.trail = c.trail; c.trail.forEach(reveal); S.read = { k: "climbed", c: c };
+      setT(c.end, "button");
+      return;
+    }
+    var i = 0;
+    (function stepOn() {
+      i++;
+      S.trail = c.trail.slice(0, i + 1);
+      if (i >= c.trail.length - 1) { S.read = { k: "climbed", c: c }; setT(c.end, "button"); climbTimer = 0; return; }
+      setT(c.trail[i], "button");
+      climbTimer = setTimeout(stepOn, 45);
+    })();
+  }
+
+  function renderIntro() {
+    var s = sol(S.lh);
+    $("p1-intro").innerHTML = T("toll.p1.intro", { a: trucks(s.eta[0]), b: trucks(s.eta[1]), c: trucks(s.eta[2]), max: TMAX });
+    var sizes = CLS.map(function (c) { return c.length; });
+    $("p2-intro").innerHTML = T("toll.p2.intro", { a: sizes[0], b: sizes[1], c: sizes[2], n: PATTERNS.length });
+    document.querySelectorAll("#sc-seg button").forEach(function (b) { b.textContent = trucks(+b.getAttribute("data-lh")); });
+    $("m-sym").innerHTML = T("toll.m.sym", { np: NP });
+  }
+
+  function renderGame() {
+    var s = sol(S.lh), r = respond(S.t, S.lh), tot = s.eta[0] + s.eta[1] + s.eta[2];
+    S.view = { t: S.t.slice(), r: r, eta: s.eta };
+    $("t1").value = S.t[0]; $("t2").value = S.t[1];
+    $("t1v").textContent = T("toll.s.v", { v: num(S.t[0], 0) });
+    $("t2v").textContent = T("toll.s.v", { v: num(S.t[1], 0) });
+    kpis("g-kpis", [
+      [T("toll.k.rev"), mday(r.rev), "accent"],
+      [T("toll.k.p1"), T("toll.k.of", { v: trucks(r.pay[0]), n: trucks(tot) })],
+      [T("toll.k.p2"), T("toll.k.of", { v: trucks(r.pay[1]), n: trucks(tot) })],
+      [T("toll.k.best"), S.best ? T("toll.k.best.v", { r: mcop(S.best.r), pt: pt(S.best.t) }) : T("toll.k.best.none")]
+    ]);
+    // read line
+    var rd = S.read, txt = "";
+    if (rd.k === "start") txt = T("toll.r.start", { n: trucks(tot) });
+    else if (rd.k === "alone") {
+      var ar = s.aloneR, freeK = -1;
+      ar.od.forEach(function (o, k) { if (o.paid === 0 && freeK < 0) freeK = k; });
+      txt = T("toll.r.alone", { a: kcop(s.a1.t), ra: mday(s.a1.r), b: kcop(s.a2.t), rb: mday(s.a2.r), r: mday(ar.rev) }) +
+        (freeK >= 0 ? " " + T("toll.r.alone.free", { od: odName(freeK), route: pname(ar.od[freeK].path) }) : "");
+    } else if (rd.k === "max") txt = T("toll.r.max", { r: mday(r.rev), pt: pt([TMAX, TMAX]) });
+    else if (rd.k === "climbing") txt = T("toll.r.climbing");
+    else if (rd.k === "climbed") {
+      var c = rd.c;
+      txt = c.trail.length > 1 ? T("toll.r.climbed", { pt: pt(c.end), n: c.trail.length - 1, r: mday(c.r), from: pt(c.start) }) : T("toll.r.stuck", { r: mday(c.r), pt: pt(c.end) });
+    } else if (rd.k === "lp") txt = T("toll.r.lp", { n: rd.n + 1, r: mday(r.rev), pt: pt(S.t) });
+    else {
+      txt = T("toll.r.hand", { t1: kcop(S.t[0]), t2: kcop(S.t[1]), p1: trucks(r.pay[0]), p2: trucks(r.pay[1]), r: mday(r.rev) });
+    }
+    if (rd.k !== "start" && rd.k !== "climbing") {
+      var ties = r.od.filter(function (o) { return o.tie.length > 1; });
+      if (ties.length) txt += " " + T("toll.r.ties", { list: list(ties.map(function (o) { return T("toll.r.tie", { od: odName(o.k), k: o.tie.length, c: kcop(o.cost) }); })) });
+      // a cliff one step away
+      var cl = [];
+      [0, 1].forEach(function (w) {
+        if (S.t[w] >= TMAX) return;
+        var q = S.t.slice(); q[w] += 1;
+        var v = revAt(q[0], q[1], s.eta);
+        if (r.rev > 0 && v < 0.85 * r.rev) cl.push({ w: w, v: v });
+      });
+      if (cl.length) txt += " " + T("toll.r.cliff", { list: list(cl.map(function (q) { return T("toll.r.cliff.one", { tk: "T" + (q.w + 1), r: mday(q.v) }); })) });
+    }
+    $("g-read").innerHTML = txt;
+    // routes table
+    var h = "<thead><tr><th>" + esc(T("toll.tb.pair")) + '</th><th class="num">' + esc(T("toll.tb.n")) + "</th><th>" + esc(T("toll.tb.route")) +
+      '</th><th class="num wide">' + esc(T("toll.tb.cost")) + '</th><th class="num">' + esc(T("toll.tb.paid")) + '</th><th class="num">' + esc(T("toll.tb.rev")) + "</th></tr></thead><tbody>";
+    r.od.forEach(function (o) {
+      var others = o.tie.filter(function (i) { return i !== o.path; }).map(pname);
+      h += "<tr><td>" + esc(odCode(o.k)) + '</td><td class="num">' + trucks(o.eta) + '</td><td class="code">' + esc(pname(o.path)) +
+        (others.length ? "<small>" + esc(T("toll.tb.tie", { list: others.join(T("toll.sep")) })) + "</small>" : "") +
+        '</td><td class="num wide">' + num(o.cost, 1) + '</td><td class="num' + (o.paid > 0 ? " acc" : "") + '">' + num(o.paid, 1) +
+        '</td><td class="num">' + I18N.fmt(o.eta * o.paid / 1000, 2, 1) + "</td></tr>";
+    });
+    h += '<tr class="tot"><td colspan="2">' + esc(T("toll.tb.total")) + '</td><td></td><td class="wide"></td><td></td><td class="num acc">' + I18N.fmt(r.rev / 1000, 2, 1) + "</td></tr>";
+    $("g-routes").innerHTML = h + "</tbody>";
+    $("g-unit").textContent = T("toll.tb.unit");
+    $("map-stage").setAttribute("aria-label", T("toll.map.aria", {
+      t1: kcop(S.t[0]), t2: kcop(S.t[1]),
+      routes: list(r.od.map(function (o) { return T("toll.map.aria.one", { od: odName(o.k), route: pname(o.path) }); }))
+    }));
+    $("plane-stage").setAttribute("aria-label", T("toll.plane.aria", { pt: pt(S.t), r: mday(r.rev) }));
+    $("hb-lo").textContent = "0";
+    $("hb-hi").textContent = mday(s.hmax);
+    $("lg-best").hidden = !S.best;
+    $("lg-alone").hidden = !S.aloneOn;
+    $("lg-trail").hidden = !(S.trail && S.trail.length > 1);
+    $("lg-opt").hidden = !S.shown;
+    $("lg-border").hidden = !S.fogOff;
+    $("lg-fog").hidden = S.fogOff;
+    $("b-fog").setAttribute("aria-pressed", String(S.fogOff));
+    drawPlane();
+    if (!running) map.draw(performance.now());
+    if (S.shown) renderCmp();
+  }
+  function drawPlane() {
+    var r = S.view.r;
+    plane.draw({
+      full: S.fogOff, borders: S.fogOff, hl: S.hl, trail: S.trail, alone: S.aloneOn ? sol(S.lh).alone : null,
+      best: S.best && (S.best.t[0] !== S.t[0] || S.best.t[1] !== S.t[1]) ? S.best.t : null,
+      opt: S.shown ? sol(S.lh).opt : null, you: S.t, youLabel: I18N.fmt(r.rev / 1000, 2, 1)
+    });
+  }
+
+  // the map animates only while it is on screen
+  var running = false, visible = false, raf = 0;
+  function loop(now) {
+    map.draw(now);
+    raf = running ? requestAnimationFrame(loop) : 0;
+  }
+  function setRunning(v) {
+    v = v && !REDUCE;
+    if (v === running) return;
+    running = v;
+    if (v) raf = requestAnimationFrame(loop); else cancelAnimationFrame(raf);
+  }
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (en) { en.forEach(function (e) { visible = e.isIntersecting; setRunning(visible); }); }, { threshold: [0, 0.1] }).observe($("map-stage"));
+  }
+
+  /* ===================================================================================== part 2: the exact answer */
+  function reveal2(scroll) {
+    S.shown = true; S.fogOff = true; heatDirty = true;
+    $("opt-body").hidden = false; $("opt-locked").hidden = true;
+    renderOpt(); renderGame();
+    if (scroll) $("toll-p2").scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" });
+  }
+  function renderLPs() {
+    var s = sol(S.lh), L = s.lps, h = "";
+    L.list.forEach(function (r) {
+      var ptn = PATTERNS[r.n], lab = ptn.sel.map(function (si, k) { return esc(odCode(k) + " " + classLabel(CLS[k][si].a)); }).join("<br>");
+      var cls = !r.ok ? " off" : r === L.best ? " best" : "";
+      h += '<button type="button" class="lpc' + cls + '" data-n="' + r.n + '"' + (r.ok ? ' aria-pressed="' + String(S.hl && S.hl.n === r.n) + '"' : " disabled") + ">" +
+        '<span class="h"><span class="pn">' + (r.n + 1) + "</span>" + lab + "</span>" +
+        (r.ok ? "<b>" + (r === L.best ? "★ " : "") + esc(mcop(r.z)) + '</b><span class="s">' + esc(T("toll.lp.at", { pt: pt(r.x) })) + "</span>"
+          : "<b>" + esc(T("toll.lp.infeas")) + '</b><span class="s">' + esc(T("toll.lp.infeas.why")) + "</span>") + "</button>";
+    });
+    $("lps").innerHTML = h;
+    $("lps").querySelectorAll(".lpc:not(.off)").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var n = +b.getAttribute("data-n"), r = L.list[n];
+        stopClimb();
+        S.hl = S.hl && S.hl.n === n ? null : { n: n };
+        if (S.hl) { S.read = { k: "lp", n: n }; setT(r.x, "button"); } else renderGame();
+        renderLPs();
+      });
+    });
+    $("lp-note").innerHTML = T("toll.lp.note", {
+      k: L.nOk, n: PATTERNS.length, m: PATTERNS.length - L.nOk, r: mday(L.best.z), pt: pt(L.best.x),
+      g: GN, rg: mday(s.grid.r), gpt: pt(s.grid.t), ms: I18N.fmt(L.ms, 1, 1)
+    });
+  }
+  function gapOf(v, s) { return s.lps.best.z > 0 ? 100 * (s.lps.best.z - v) / s.lps.best.z : 0; }
+  function renderCmp() {
+    var s = sol(S.lh);
+    var rows = [
+      [T("toll.cmp.you"), S.best ? S.best.t : null, S.best ? S.best.r : null],
+      [T("toll.cmp.alone"), s.alone, s.aloneR.rev],
+      [T("toll.cmp.climb0", { pt: pt([0, 0]) }), s.climb0.end, s.climb0.r],
+      [T("toll.cmp.climbA", { pt: pt(s.alone) }), s.climbA.end, s.climbA.r],
+      [T("toll.cmp.max"), [TMAX, TMAX], s.maxR.rev],
+      [T("toll.cmp.opt"), s.opt, s.lps.best.z, true]
+    ];
+    var h = "<thead><tr><th>" + esc(T("toll.cmp.plan")) + "</th><th>" + esc(T("toll.cmp.tolls")) + '</th><th class="num">' + esc(T("toll.cmp.rev")) +
+      '</th><th class="num">' + esc(T("toll.cmp.gap")) + "</th></tr></thead><tbody>";
+    rows.forEach(function (q) {
+      h += (q[3] ? '<tr class="opt">' : "<tr>") + "<td>" + esc(q[0]) + '</td><td class="code">' + (q[1] ? esc(pt(q[1])) : esc(T("toll.cmp.none"))) +
+        '</td><td class="num' + (q[3] ? " acc" : "") + '">' + (q[2] != null ? esc(mcop(q[2])) : "") + '</td><td class="num">' + (q[2] != null ? esc(pct(gapOf(q[2], s))) : "") + "</td></tr>";
+    });
+    $("cmp").innerHTML = h + "</tbody>";
+    var key = gapOf(s.aloneR.rev, s) < 1e-9 ? "toll.cmp.note.alone" : "toll.cmp.note.climb";
+    $("cmp-note").innerHTML = T(key, {
+      gap: pct(gapOf(s.aloneR.rev, s)), r: mcop(s.aloneR.rev), opt: mcop(s.lps.best.z), pt: pt(s.alone),
+      cpt: pt(s.climb0.end), cr: mcop(s.climb0.r), cgap: pct(gapOf(s.climb0.r, s)), lh: trucks(S.lh), z: pt([0, 0])
+    });
+  }
+  function renderTie() {
+    var s = sol(S.lh), r = s.optR, items = r.od.filter(function (o) { return o.tie.length > 1; });
+    $("tie-text").innerHTML = T("toll.tie.text", {
+      pt: pt(s.opt),
+      list: list(items.map(function (o) { return T("toll.tie.item", { od: odName(o.k), k: o.tie.length, c: kcop(o.cost), routes: list(o.tie.map(pname)) }); }))
+    });
+    var h = "<thead><tr><th>" + esc(T("toll.tb.pair")) + '</th><th class="num">' + esc(T("toll.tb.n")) + "</th><th>" + esc(T("toll.tie.cheapest")) +
+      '</th><th class="num wide">' + esc(T("toll.tb.cost")) + '</th><th class="num">' + esc(T("toll.tb.paid")) + '</th><th class="num">' + esc(T("toll.tb.rev")) + "</th></tr></thead><tbody>";
+    r.od.forEach(function (o) {
+      h += "<tr><td>" + esc(odCode(o.k)) + '</td><td class="num">' + trucks(o.eta) + '</td><td class="code">' + o.tie.map(function (i) { return i === o.path ? "<b>" + esc(pname(i)) + "</b>" : esc(pname(i)); }).join("<br>") +
+        '</td><td class="num wide">' + num(o.cost, 1) + '</td><td class="num acc">' + num(o.paid, 1) + '</td><td class="num">' + I18N.fmt(o.eta * o.paid / 1000, 2, 1) + "</td></tr>";
+    });
+    $("opt-tab").innerHTML = h + "</tbody>";
+    // the optimum revenue, term by term
+    var terms = [], plain = [];
+    r.od.forEach(function (o) {
+      var a = PATHS[o.path].a, tk = [];
+      if (a[0]) tk.push(num(s.opt[0], 2));
+      if (a[1]) tk.push(num(s.opt[1], 2));
+      var f = tk.length ? (tk.length > 1 ? "(" + tk.join(" + ") + ")" : tk[0]) : "0";
+      terms.push(trucks(o.eta) + " \\cdot " + f);
+      plain.push(trucks(o.eta) + " × " + f);
+    });
+    var tot = I18N.fmt(r.rev, 0), tex = "\\begin{aligned} R^{*} &= " + terms.join(" + ") + " \\\\ &= " + tot + "\\ \\text{" + T("toll.tex.k") + "} = " +
+      I18N.fmt(r.rev / 1000, 2, 1) + "\\ \\text{" + T("toll.tex.m") + "} \\end{aligned}";
+    TeX.set($("rev-f"), tex, "R* = " + plain.join(" + ") + " = " + tot + " " + T("toll.tex.k"));
+    $("opt-text").innerHTML = T("toll.opt.text", { t1: kcop(s.opt[0]), t2: kcop(s.opt[1]), r: mday(s.lps.best.z), lh: trucks(S.lh) });
+  }
+  function renderOpt() {
+    if (!S.shown) return;
+    renderLPs(); renderCmp(); renderTie();
+  }
+
+  /* ===================================================================================== part 3: under the hood */
+  var bbTimer = 0;
+  function bbNew() { clearTimeout(bbTimer); bbTimer = 0; S.bb = BB(S.lh, S.mode); renderHood(); }
+  function bbRun() {
+    if (!S.bb || S.bb.done) S.bb = BB(S.lh, S.mode);
+    clearTimeout(bbTimer);
+    if (REDUCE) { S.bb.finish(); renderHood(); return; }
+    (function tick() {
+      S.bb.step(); renderHood();
+      if (!S.bb.done) bbTimer = setTimeout(tick, 380); else bbTimer = 0;
+    })();
+  }
+  function fixLabel(nd) { return nd.j < 0 ? T("toll.h.rootfix") : "z(" + pname(nd.j) + ") = " + nd.v; }
+  function nodeRegion(nd) {
+    var cons = [];
+    nd.fix.forEach(function (f) {
+      if (f.v !== 1) return;
+      var p = PATHS[f.j];
+      PATHS.forEach(function (q) { if (q.k === p.k && q !== p) cons.push({ a: [p.a[0] - q.a[0], p.a[1] - q.a[1]], b: q.c - p.c }); });
+    });
+    return region(cons);
+  }
+  function renderTree(bb) {
+    var nodes = bb.nodes, slot = 0, maxD = 0;
+    (function lay(nd) {
+      maxD = Math.max(maxD, nd.depth);
+      if (!nd.kids.length) { nd.sx = slot++; return; }
+      nd.kids.forEach(lay);
+      nd.sx = (nd.kids[0].sx + nd.kids[nd.kids.length - 1].sx) / 2;
+    })(bb.root);
+    var dx = 22, dy = 30, W = Math.max(slot * dx + 16, 220), H = (maxD + 1) * dy + 12;
+    var X = function (nd) { return 8 + dx / 2 + nd.sx * dx + (W - slot * dx - 16) / 2; }, Y = function (nd) { return 14 + nd.depth * dy; };
+    var g = "";
+    nodes.forEach(function (nd) { if (nd.parent) g += '<line class="e' + (nd.v === 1 ? " e1" : "") + '" x1="' + X(nd.parent).toFixed(1) + '" y1="' + Y(nd.parent) + '" x2="' + X(nd).toFixed(1) + '" y2="' + Y(nd) + '"/>'; });
+    nodes.forEach(function (nd) {
+      var x = X(nd).toFixed(1), y = Y(nd);
+      g += '<circle class="nd ' + nd.status + '" cx="' + x + '" cy="' + y + '" r="7"><title>' + esc("#" + nd.id + " " + fixLabel(nd)) + "</title></circle>";
+      if (nd.status === "inf") g += '<path class="x" d="M' + (+x - 3.5) + "," + (y - 3.5) + " l7,7 m0,-7 l-7,7\"/>";
+      if (nd === shownNode(bb)) g += '<circle class="cur" cx="' + x + '" cy="' + y + '" r="11"/>';
+    });
+    $("tree").innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" style="max-width:' + Math.round(W * 1.3) + 'px;margin:0 auto" role="img" aria-label="' + esc(T("toll.h.tree.aria", { n: bb.solved })) + '">' + g + "</svg>";
+  }
+  function renderHood() {
+    var bb = S.bb || (S.bb = BB(S.lh, S.mode)), m = bb.m, s = sol(S.lh);
+    $("h-size").innerHTML = T("toll.h.size", { v: m.nv, b: m.nBin, r: m.nRows, p: NP });
+    var Mp = bigM("path"), Mk = bigM("od"), rp = bbRoot(S.lh, "path"), rk = bbRoot(S.lh, "od");
+    $("h-mnote").innerHTML = T("toll.h.m.note", {
+      lo: num(Math.min.apply(null, Mp), 0), hi: num(Math.max.apply(null, Mp), 0),
+      klo: num(Math.min.apply(null, Mk), 0), khi: num(Math.max.apply(null, Mk), 0),
+      rp: mday(rp), rk: mday(rk), opt: mday(s.lps.best.z)
+    });
+    // the M values of the current choice, one per route
+    var vals = [0, 1, 2].map(function (k) {
+      return PATHS.map(function (p, i) { return i; }).filter(function (i) { return PATHS[i].k === k; }).map(function (i) { return num(m.M[i], 0); });
+    });
+    var sym = S.mode === "path" ? "M_p" : "M_k";
+    var tx = vals.map(function (v, k) { return "& " + sym + "\\ (\\text{" + PAIRS[k].o + "}\\to\\text{" + PAIRS[k].d + "}):\\; " + v.join(",\\ "); });
+    TeX.set($("m-f"), "\\begin{aligned} " + tx.join(" \\\\ ") + " \\end{aligned}",
+      vals.map(function (v, k) { return odCode(k) + ": " + v.join(", "); }).join("; "));
+    var b = bb.bound(), inc = bb.inc;
+    kpis("h-kpis", [
+      [T("toll.h.k.nodes"), String(bb.solved), "accent"],
+      [T("toll.h.k.bound"), mday(b)],
+      [T("toll.h.k.inc"), inc ? T("toll.h.k.inc.v", { r: mcop(inc.z), pt: pt([inc.x[0], inc.x[1]]) }) : T("toll.h.k.none")],
+      [T("toll.h.k.gap"), inc ? pct(inc.z > 0 ? 100 * (b - inc.z) / inc.z : 0) : T("toll.h.k.none")]
+    ]);
+    renderTree(bb);
+    var cur = shownNode(bb), reg = nodeRegion(cur);
+    mini.draw({
+      full: true, borders: true, fade: 0.55, region: reg, pt: cur.x ? [cur.x[0], cur.x[1]] : null,
+      opt: bb.done && inc ? [inc.x[0], inc.x[1]] : null, empty: reg.length < 3 && cur.status === "inf" ? T("toll.h.empty") : null
+    });
+    $("mini-stage").setAttribute("aria-label", T("toll.h.plane.aria", { id: cur.id, pt: cur.x ? pt([cur.x[0], cur.x[1]]) : T("toll.h.res.inf") }));
+    // read line
+    var rd;
+    if (bb.done) rd = T("toll.h.done", { n: bb.solved, ms: I18N.fmt(bb.ms, 1, 1), r: mday(inc.z), pt: pt([inc.x[0], inc.x[1]]), root: mday(bb.root.z) });
+    else if (bb.cur === bb.root && bb.root.status === "open") rd = T("toll.h.ready", { root: mday(bb.root.z), opt: mday(s.lps.best.z) });
+    else rd = T("toll.h.at", { id: cur.id, fix: fixLabel(cur), res: resText(cur) });
+    $("h-read").innerHTML = rd;
+    // log
+    var h = "<thead><tr><th>" + esc(T("toll.h.log.node")) + '</th><th class="wide">' + esc(T("toll.h.log.depth")) + '</th><th class="l">' + esc(T("toll.h.log.fix")) +
+      "</th><th>" + esc(T("toll.h.log.bound")) + '</th><th class="l">' + esc(T("toll.h.log.res")) + "</th></tr></thead><tbody>";
+    bb.nodes.forEach(function (nd) {
+      h += '<tr class="' + (nd === cur ? "now" : "") + '"><td>' + nd.id + '</td><td class="wide">' + nd.depth + '</td><td class="l fx">' + esc(fixLabel(nd)) +
+        "</td><td" + (nd.status === "int" ? ' class="inc"' : "") + ">" + (nd.z != null ? I18N.fmt(nd.z / 1000, 2, 2) : "") + '</td><td class="msg">' + esc(resText(nd)) + "</td></tr>";
+    });
+    $("h-logt").innerHTML = h + "</tbody>";
+    var row = $("h-logt").querySelector("tr.now"), box = $("h-log");
+    if (row && $("hood").open) {
+      var top = row.offsetTop - box.clientHeight / 2;
+      box.scrollTop = Math.max(0, top);
+    }
+    $("h-run").disabled = !!bbTimer;
+    $("h-step").disabled = bb.done || !!bbTimer;
+    // self-check (brute force, pattern LPs, MILP)
+    var full = bbFull(S.lh, "path"), okAll = Math.abs(full.inc.z - s.lps.best.z) < 1e-6 && Math.abs(s.grid.r - s.lps.best.z) < 1e-6;
+    $("h-check").innerHTML = T(okAll ? "toll.h.check.ok" : "toll.h.check.bad", { g: GN, rg: mday(s.grid.r), rl: mday(s.lps.best.z), rm: mday(full.inc.z) });
+  }
+  function shownNode(bb) { return bb.done && bb.inc ? bb.inc : bb.cur; }   // when finished, show the incumbent
+  function resText(nd) {
+    if (nd.status === "open") return T("toll.h.res.open");
+    if (nd.status === "inf") return T("toll.h.res.inf");
+    if (nd.status === "prune") return T("toll.h.res.prune");
+    if (nd.status === "int") return T("toll.h.res.int");
+    return T("toll.h.res.branch", { p: pname(nd.bj), v: I18N.fmt(nd.bv, 2, 2) });
+  }
+  var rootCache = {};
+  function bbRoot(lh, mode) {
+    var key = lh + ":" + mode;
+    if (rootCache[key] == null) rootCache[key] = BB(lh, mode).root.z;
+    return rootCache[key];
+  }
+
+  // ties for you or against you: revenue along both tolls moved together around the optimum
+  function renderTieRule() {
+    var s = sol(S.lh), o = s.opt, pess = S.tie === "pess", eta = s.eta;
+    var W = Math.round(clamp(($("tie-chart").clientWidth || 600), 280, 640)), narrow = W < 460, H = narrow ? 210 : 230;
+    var ml = narrow ? 40 : 46, mr = 12, mt = 14, mb = 34, lo = -3, hi = 3, vmax = Math.ceil(s.hmax / 1000 / 20) * 20;
+    var X = function (d) { return ml + (d - lo) / (hi - lo) * (W - ml - mr); }, Y = function (v) { return mt + (1 - v / vmax) * (H - mt - mb); };
+    var g = "", k;
+    for (k = 0; k <= vmax; k += vmax / 4) { g += '<line class="' + (k ? "gr" : "ax") + '" x1="' + ml + '" x2="' + (W - mr) + '" y1="' + Y(k).toFixed(1) + '" y2="' + Y(k).toFixed(1) + '"/>'; g += '<text class="m" x="' + (ml - 6) + '" y="' + (Y(k) + 4).toFixed(1) + '" text-anchor="end">' + I18N.fmt(k, 0) + "</text>"; }
+    for (k = lo; k <= hi; k++) g += '<text class="m" x="' + X(k).toFixed(1) + '" y="' + (H - mb + 16) + '" text-anchor="middle">' + (k > 0 ? "+" : k < 0 ? MINUS : "") + Math.abs(k) + "</text>";
+    g += '<text class="m" x="' + ((ml + W - mr) / 2).toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle">' + esc(T("toll.h.tie.axis", { pt: pt(o) })) + "</text>";
+    // left and right pieces (open at 0), then the value at 0 under the chosen rule
+    function seg(a, b) {
+      var d = "", n = 60;
+      for (var i = 0; i <= n; i++) { var x = lerp(a, b, i / n), v = revAt(o[0] + x, o[1] + x, eta, pess) / 1000; d += (i ? "L" : "M") + X(x).toFixed(1) + "," + Y(v).toFixed(1); }
+      return '<path class="lnA" d="' + d + '"/>';
+    }
+    g += seg(lo, -1e-6) + seg(1e-6, hi);
+    var vL = revAt(o[0] - 1e-6, o[1] - 1e-6, eta, pess) / 1000, vR = revAt(o[0] + 1e-6, o[1] + 1e-6, eta, pess) / 1000, v0 = revAt(o[0], o[1], eta, pess) / 1000;
+    g += '<line class="lnS" x1="' + X(0).toFixed(1) + '" x2="' + X(0).toFixed(1) + '" y1="' + Y(vmax).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"/>';
+    [vL, vR].forEach(function (v) { if (Math.abs(v - v0) > 1e-9) g += '<circle class="dotO" cx="' + X(0).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="5"/>'; });
+    g += '<circle class="dotA" cx="' + X(0).toFixed(1) + '" cy="' + Y(v0).toFixed(1) + '" r="5.5"/>';
+    g += '<text class="a" x="' + (X(0) + 9).toFixed(1) + '" y="' + (Y(v0) + (v0 > vmax * 0.8 ? 14 : -8)).toFixed(1) + '">' + esc(mcop(v0 * 1000)) + "</text>";
+    $("tie-chart").innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(T("toll.h.tie.aria", { pt: pt(o), r: mcop(v0 * 1000) })) + '">' + g + "</svg>";
+    var e = [o[0] - 0.01, o[1] - 0.01];
+    $("tie-read").innerHTML = T(pess ? "toll.h.tie.pess.text" : "toll.h.tie.opt.text", {
+      pt: pt(o), r: mday(revAt(o[0], o[1], eta)), p: mday(revAt(o[0], o[1], eta, true)), pe: pt(e), e: mday(revAt(e[0], e[1], eta, true))
+    });
+  }
+
+  /* ===================================================================================== notes */
+  function renderNotes() {
+    var s = sol(S.lh), o = s.opt, a = sol(800), b = sol(80);
+    var r1 = revAt(Math.min(o[0] + 1, TMAX), o[1], s.eta), r2 = revAt(o[0], Math.min(o[1] + 1, TMAX), s.eta);
+    $("toll-n1").innerHTML = T("toll.n.p1", { pt: pt(o), r: mday(s.lps.best.z), r1: mday(r1), r2: mday(r2) });
+    $("toll-n2").innerHTML = T(gapOf(s.aloneR.rev, s) < 1e-9 ? "toll.n.p2.alone" : "toll.n.p2.climb", {
+      c0: pt(s.climb0.end), r0: mday(s.climb0.r), a: pt(s.alone), ra: mday(s.climbA.r), ca: pt(s.climbA.end), gap: pct(gapOf(s.climb0.r, s)), lh: trucks(S.lh), z: pt([0, 0])
+    });
+    // revenue at each scenario's optimum as a function of the long-haul trucks n: A + B n
+    function lin(t) {
+      var r = respond(t, 0), paid = respond(t, 1).rev - r.rev;
+      return { A: r.rev, B: paid };
+    }
+    var la = lin(a.opt), lb = lin(b.opt), th = (lb.A - la.A) / (la.B - lb.B);
+    function expr(l) { return l.B ? trucks(l.A) + " + " + trucks(l.B) + " × <i>n</i>" : trucks(l.A); }
+    $("toll-n3").innerHTML = T("toll.n.p3", {
+      pa: pt(a.opt), ra: mday(a.lps.best.z), ga: pct(gapOf(a.aloneR.rev, a)), pb: pt(b.opt), rb: mday(b.lps.best.z),
+      ea: expr(la), eb: expr(lb), th: trucks(th), na: trucks(SCEN[0]), nb: trucks(SCEN[1])
+    });
+    $("toll-n4").innerHTML = T("toll.n.p4", { n: PATTERNS.length, k: s.lps.nOk, m: PATTERNS.length - s.lps.nOk, a: CLS[0].length, b: CLS[1].length, c: CLS[2].length });
+    var fp = bbFull(S.lh, "path"), fk = bbFull(S.lh, "od");
+    $("toll-n5").innerHTML = T("toll.n.p5", { np: fp.solved, nk: fk.solved, rp: mday(fp.root.z), rk: mday(fk.root.z), opt: mday(s.lps.best.z) });
+  }
+
+  /* ===================================================================================== wiring */
+  function setScenario(lh) {
+    if (lh === S.lh) return;
+    stopClimb(); clearTimeout(bbTimer); bbTimer = 0;
+    S.lh = lh; S.best = null; S.trail = null; S.aloneOn = false; S.hl = null; S.prev = null; S.flash = [null, null, null];
+    S.read = { k: "start" }; S.bb = null;
+    fog.fill(0); heatDirty = true;
+    document.querySelectorAll("#sc-seg button").forEach(function (o) { o.setAttribute("aria-pressed", String(+o.getAttribute("data-lh") === lh)); });
+    renderIntro();
+    setT(S.t, "button");
+    renderOpt(); renderHood(); renderTieRule(); renderNotes();
+  }
+  document.querySelectorAll("#sc-seg button").forEach(function (b) { b.addEventListener("click", function () { setScenario(+b.getAttribute("data-lh")); }); });
+  ["t1", "t2"].forEach(function (id, w) {
+    $(id).addEventListener("input", function () {
+      stopClimb(); S.hl = null;
+      var t = S.t.slice(); t[w] = +$(id).value;
+      setT(t, "hand");
+      if (S.shown) renderLPs();
+    });
+  });
+  var dragging = false;
+  function planeMove(ev) { stopClimb(); S.hl = null; setT(plane.toT(ev), "hand"); }
+  plane.el.addEventListener("pointerdown", function (ev) {
+    dragging = true; $("plane-stage").classList.add("drag");
+    try { plane.el.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
+    planeMove(ev);
+    if (S.shown) renderLPs();
+  });
+  plane.el.addEventListener("pointermove", function (ev) { if (dragging) planeMove(ev); });
+  ["pointerup", "pointercancel"].forEach(function (n) {
+    plane.el.addEventListener(n, function () { if (dragging && S.shown) renderLPs(); dragging = false; $("plane-stage").classList.remove("drag"); });
+  });
+  $("b-alone").addEventListener("click", function () { stopClimb(); S.hl = null; S.aloneOn = true; S.read = { k: "alone" }; setT(sol(S.lh).alone, "button"); if (S.shown) renderLPs(); });
+  $("b-max").addEventListener("click", function () { stopClimb(); S.hl = null; S.read = { k: "max" }; setT([TMAX, TMAX], "button"); if (S.shown) renderLPs(); });
+  $("b-climb").addEventListener("click", function () { S.hl = null; doClimb(); if (S.shown) renderLPs(); });
+  $("b-fog").addEventListener("click", function () { S.fogOff = !S.fogOff; heatDirty = true; renderGame(); });
+  $("b-zero").addEventListener("click", function () {
+    stopClimb(); S.hl = null; S.trail = null; S.aloneOn = false; S.best = null; S.read = { k: "start" };
+    if (!S.shown) { S.fogOff = false; fog.fill(0); }
+    heatDirty = true; setT([0, 0], "button"); if (S.shown) renderLPs();
+  });
+  $("b-solve").addEventListener("click", function () { reveal2(true); });
+  $("opt-show").addEventListener("click", function () { reveal2(false); });
+  document.querySelectorAll("#m-seg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var v = b.getAttribute("data-m");
+      if (v === S.mode) return;
+      S.mode = v;
+      document.querySelectorAll("#m-seg button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      bbNew();
+    });
+  });
+  $("h-run").addEventListener("click", bbRun);
+  $("h-step").addEventListener("click", function () { if (!S.bb || S.bb.done) S.bb = BB(S.lh, S.mode); S.bb.step(); renderHood(); });
+  $("h-reset").addEventListener("click", bbNew);
+  $("hood").addEventListener("toggle", function () { if ($("hood").open) { mini.fit(); renderHood(); renderTieRule(); } });
+  document.querySelectorAll("#tie-seg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var v = b.getAttribute("data-tie");
+      if (v === S.tie) return;
+      S.tie = v;
+      document.querySelectorAll("#tie-seg button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderTieRule();
+    });
+  });
+
+  function redraw() { COL = null; heatDirty = true; map.fit(); plane.fit(); mini.fit(); renderGame(); if ($("hood").open) renderHood(); }
+  var lastW = window.innerWidth, rz = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(rz);
+    rz = setTimeout(function () {
+      redraw();
+      if (window.innerWidth !== lastW) { lastW = window.innerWidth; renderTieRule(); }
+    }, 120);
+  });
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw);
+  new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  reveal(S.t);
+  I18N.onChange(function () {
+    renderIntro();
+    S.prev = S.prev || respond(S.t, S.lh);
+    renderGame(); renderOpt(); renderHood(); renderTieRule(); renderNotes();
+  });
+})();
+</script>
+</body>
+</html>

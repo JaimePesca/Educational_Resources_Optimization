@@ -92,6 +92,7 @@
   }
 
   /* ---- planner ---- */
+  #brs-plan.block { grid-template-columns: minmax(0, 1fr); }   /* a wide formula must not widen the page */
   .ctl-row { display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: flex-end; }
   .ctl-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .ctl-group .lbl, .tolls-h { font-size: 13px; color: var(--ink2); font-weight: 600; }
@@ -617,7 +618,7 @@
     var mid;
     if (portrait) {
       L.nx0 = 6; L.nx1 = W - 6; L.ny0 = L.capB + 2;
-      L.ny1 = L.ny0 + Math.round((H - 8 - L.ny0) * 0.5);
+      L.ny1 = L.ny0 + Math.round((H - 8 - L.ny0) * 0.55);
       L.pA = { x0: 8, x1: Math.round(W / 2) - 7, y0: L.ny1 + 12, y1: H - 8 };
       L.pB = { x0: Math.round(W / 2) + 7, x1: W - 8, y0: L.ny1 + 12, y1: H - 8 };
     } else {
@@ -653,6 +654,16 @@
     return [L.cx + (p[0] - L.cx) * cam.z, L.cy + (p[1] - L.cy) * cam.z];
   }
   function wOf(x) { return Math.max(1.2, Math.min(L.wmax, L.wmax * x / 6000)); }
+  // a point beside the middle of road e, off by `off` px on the outer (side 1) or inner (side -1) side of the
+  // diamond, and the road's angle turned so that text along it reads left to right
+  function roadFrame(e, side, off) {
+    var p = P(ENDS[e][0]), q = P(ENDS[e][1]), mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
+    var dx = q[0] - p[0], dy = q[1] - p[1], len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
+    if ((mx - L.cx) * nx + (my - L.cy) * ny < 0) { nx = -nx; ny = -ny; }
+    var ang = Math.atan2(dy, dx);
+    if (ang > Math.PI / 2) ang -= Math.PI; else if (ang < -Math.PI / 2) ang += Math.PI;
+    return { x: mx + nx * off * side, y: my + ny * off * side, ang: ang };
+  }
 
   /* ---------- small drawing helpers ---------- */
   function circle(X, Y, r) { ctx.beginPath(); ctx.arc(X, Y, Math.max(0, r), 0, TAU); }
@@ -727,16 +738,15 @@
     var wO = ctx.measureText(T("brs.l.north")).width, wD = ctx.measureText(T("brs.l.down")).width;
     label(T("brs.l.north"), Math.max(fO[0], 4 + wO / 2), fO[1] + L.node + L.fs, "center", C.muted, sub, pa);
     label(T("brs.l.down"), Math.min(fD[0], L.W - 4 - wD / 2), fD[1] + L.node + L.fs, "center", C.muted, sub, pa);
-    // road times on the outside of the diamond, the connector's beside it
+    // road times along each road, outside the diamond, the connector's beside it
     var lf = font(600, L.fs, true);
     for (e = 0; e < 4; e++) {
       var la = seg(t, 1.0 + 0.1 * e, 1.7 + 0.1 * e);
       if (la <= 0) continue;
-      var p2 = P(ENDS[e][0]), q2 = P(ENDS[e][1]), mx2 = (p2[0] + q2[0]) / 2, my2 = (p2[1] + q2[1]) / 2;
-      var ox = mx2 - L.cx, oy = my2 - L.cy, ol = Math.hypot(ox, oy) || 1, off = wOf(x[e]) / 2 + L.fs + 2;
-      // the label sits off the band, toward the outer corner (it never crosses the band)
-      var lx = mx2 + ox / ol * off, ly = my2 + oy / ol * off;
-      label(fnText(e), lx, ly, "center", C.ink2, lf, la);
+      var fr2 = roadFrame(e, 1, L.wmax / 2 + L.fs / 2 + 3);
+      ctx.save(); ctx.translate(fr2.x, fr2.y); ctx.rotate(fr2.ang);
+      label(fnText(e), 0, 0, "center", C.ink2, lf, la);
+      ctx.restore();
     }
     if (conn > 0) {
       var cA2 = P("A"), cB2 = P("B");
@@ -745,14 +755,13 @@
     // tolls: a badge on each tolled road, inside the diamond
     var ta = E.back(seg(t, 45.6, 46.6));
     if (ta > 0.001) {
-      for (e = 0; e < 5; e++) {
+      for (e = 0; e < 4; e++) {                  // only the corridors can carry a marginal-cost toll (b > 0)
         if (S.animTau[e] <= 1e-9) continue;
-        var p3 = P(ENDS[e][0]), q3 = P(ENDS[e][1]), mx3 = (p3[0] + q3[0]) / 2, my3 = (p3[1] + q3[1]) / 2;
-        var ix = L.cx - mx3, iy = L.cy - my3, il = Math.hypot(ix, iy) || 1, io = wOf(Math.max(x[e], S.toll.x[e])) / 2 + (L.portrait ? 12 : 16);
-        var bx = mx3 + ix / il * io, by = my3 + iy / il * io, txt = T("brs.l.toll", { v: fm(S.animTau[e]) }), bf = font(700, L.fs);
+        var txt = T("brs.l.toll", { v: fm(S.animTau[e]) }), bf = font(700, L.fs);
         ctx.font = bf;
         var bw = ctx.measureText(txt).width + 10, bh = L.fs + 8;
-        ctx.save(); ctx.translate(bx, by); ctx.scale(ta, ta);
+        var fr3 = roadFrame(e, -1, wOf(Math.max(x[e], S.toll.x[e])) / 2 + bh / 2 + 4);
+        ctx.save(); ctx.translate(fr3.x, fr3.y); ctx.rotate(fr3.ang); ctx.scale(ta, ta);
         ctx.globalAlpha = clamp(ta, 0, 1); ctx.fillStyle = C.accent; ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
         ctx.fillStyle = C["on-solid"]; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(txt, 0, 0.5);
         ctx.restore();
@@ -791,7 +800,13 @@
   }
 
   /* ---------- panel A: minutes per route, then minutes per driver ---------- */
-  function slotTitle(R, txt, a) { label(txt, R.x0, R.y0 + L.fs / 2 + 1, "left", C.ink2, font(700, L.fs + 0.5), a); }
+  function slotTitle(R, txt, a, room) {          // shrinks to fit the panel (or the room left of a value)
+    var s = L.fs + 0.5, w = room || (R.x1 - R.x0);
+    ctx.font = font(700, s);
+    var tw = ctx.measureText(txt).width;
+    if (tw > w) s = Math.max(8.5, s * w / tw);
+    label(txt, R.x0, R.y0 + L.fs / 2 + 1, "left", C.ink2, font(700, s), a);
+  }
   function barRows(R, rows, a, vmax) {           // rows: [{lab, v, col, solid, a, vcol}]
     var top = R.y0 + L.fs + 10, n = rows.length, rh = Math.min(L.portrait ? 26 : 30, (R.y1 - top) / n);
     var bx0 = R.x0 + L.labW + 8, bx1 = R.x1 - L.valW - 8, bh = Math.max(6, Math.round(rh * 0.46));
@@ -857,7 +872,7 @@
   function axesBox(R, top) { return { x0: R.x0 + 2, x1: R.x1 - 4, y0: top, y1: R.y1 - L.fs - 6 }; }
   function drawBeck(S, t, f, a) {
     var R = L.pB;
-    slotTitle(R, T("brs.l.beck"), a);
+    slotTitle(R, T("brs.l.beck"), a, (R.x1 - R.x0) * 0.6);
     var Bx = axesBox(R, R.y0 + L.fs + 16), lo = Infinity, hi = -Infinity;
     S.curve.forEach(function (c) { lo = Math.min(lo, c[1]); hi = Math.max(hi, c[1]); });
     var X = function (s) { return Bx.x0 + s * (Bx.x1 - Bx.x0); };
@@ -869,8 +884,8 @@
     for (var i = 0; i <= n; i++) { var c = S.curve[i]; if (i) ctx.lineTo(X(c[0]), Y(c[1])); else ctx.moveTo(X(c[0]), Y(c[1])); }
     ctx.stroke(); ctx.globalAlpha = 1;
     var tf = font(400, L.fs - 0.5, true);
-    [0, 0.5, 1].forEach(function (s) { label(T("brs.l.pct", { v: fmt(s * 100, 0) }), X(s), Bx.y1 + L.fs / 2 + 4, s === 0 ? "left" : (s === 1 ? "right" : "center"), C.muted, tf, a); });
-    label(T("brs.l.share"), X(0.5), Bx.y1 + L.fs / 2 + 4 + L.fs + 1, "center", C.muted, font(400, L.fs - 0.5), 0);
+    [0, 1].forEach(function (s) { label(T("brs.l.pct", { v: fmt(s * 100, 0) }), X(s), Bx.y1 + L.fs / 2 + 4, s === 0 ? "left" : "right", C.muted, tf, a); });
+    label(T("brs.l.share"), X(0.5), Bx.y1 + L.fs / 2 + 4, "center", C.muted, font(400, L.fs - 0.5), a);
     // the drivers' split as a marker on the curve
     var ma = a * seg(t, 9.6, 10.2), s0 = f[0] / Math.max(1, S.d), phi = evalFlows([s0 * S.d, (1 - s0) * S.d, 0]).beck;
     if (ma > 0.01) {
@@ -883,8 +898,6 @@
       label(T("brs.l.phiv", { v: f0(phi) }), Bx.x1, R.y0 + L.fs / 2 + 1, "right", C.ink, font(600, L.fs, true), ma);
       label(T("brs.l.min"), mx, my - 14, "center", C["accent-text"], font(700, L.fs), ma * mn);
     }
-    // the share axis name, under the ticks
-    label(T("brs.l.share"), X(0.5), Bx.y1 + L.fs / 2 + 4, "center", C.muted, font(400, L.fs - 0.5), a * (L.portrait ? 0 : 0));
   }
   function spark(Rr, vals, u, col, a) {         // a small line of values over the rounds, drawn up to u rounds
     var n = vals.length - 1, lo = Infinity, hi = -Infinity;
@@ -1139,7 +1152,7 @@
     });
     document.getElementById("brs-n5").textContent = T("brs.n.p5", {
       d: f0(h.d), r4: h.gp.rounds, dl: f0(l.d), r2: l.gp.rounds, di: f0(i.d), r8: i.gp.rounds, n4: h.gp1.rounds,
-      fw4: h.fw, fw8: i.fw
+      fw4: f0(h.fw), fw8: f0(i.fw)
     });
   }
 
@@ -1193,18 +1206,22 @@
       var w = Math.max(1.5, Math.min(22, 22 * eq.x[e] / DMAX));
       h += '<line x1="' + p[0] + '" y1="' + p[1] + '" x2="' + q[0] + '" y2="' + q[1] + '" style="stroke:var(--axis);stroke-width:1.5"/>';
       if (eq.x[e] > 0.5) h += '<line x1="' + p[0] + '" y1="' + p[1] + '" x2="' + q[0] + '" y2="' + q[1] + '" style="stroke:var(--mit-silver);stroke-opacity:0.5;stroke-width:' + w.toFixed(1) + '"/>';
-      var ox = mx - cx, oy = my - cy, ol = Math.hypot(ox, oy), off = w / 2 + 12;
-      if (e === 4) { ox = 1; oy = 0; ol = 1; }
-      var lx = mx + ox / ol * off, ly = my + oy / ol * off + 4, anchor = e === 4 ? "start" : (ox < 0 ? "end" : "start");
-      if (e < 4) { lx = mx + ox / ol * off; anchor = "middle"; ly = my + oy / ol * (off + 2) + 4; }
-      h += '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + anchor + '" style="fill:var(--ink2);font-size:12.5px;font-weight:600">' +
-        T("brs.pl.svg.x", { x: f0(eq.x[e]) }) + '</text>';
+      // the flow along each road, outside the diamond (the connector's to its right)
+      var dx = q[0] - p[0], dy = q[1] - p[1], len = Math.hypot(dx, dy), nx = -dy / len, ny = dx / len;
+      if ((mx - cx) * nx + (my - cy) * ny < 0) { nx = -nx; ny = -ny; }
+      var ang = Math.atan2(dy, dx) * 180 / Math.PI;
+      if (ang > 90) ang -= 180; else if (ang < -90) ang += 180;
+      var lx = e === 4 ? mx + w / 2 + 8 : mx + nx * (w / 2 + 11), ly = e === 4 ? my : my + ny * (w / 2 + 11);
+      h += '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" dy="0.35em" text-anchor="' + (e === 4 ? "start" : "middle") + '"' +
+        (e === 4 ? "" : ' transform="rotate(' + ang.toFixed(1) + ' ' + lx.toFixed(1) + ' ' + ly.toFixed(1) + ')"') +
+        ' style="fill:var(--ink2);font-size:12.5px;font-weight:600">' + T("brs.pl.svg.x", { x: f0(eq.x[e]) }) + '</text>';
       if (plan.tau[e] > 1e-9) {
-        var ix = cx - mx, iy = cy - my, il = Math.hypot(ix, iy) || 1;
-        if (e === 4) { ix = -1; iy = 0; il = 1; }
-        var bx = mx + ix / il * (w / 2 + 22), by = my + iy / il * (w / 2 + 14), txt = T("brs.l.toll", { v: fm(plan.tau[e]) }), bw = 10 + 7 * txt.length;
-        h += '<rect x="' + (bx - bw / 2).toFixed(1) + '" y="' + (by - 10).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="19" rx="2" style="fill:var(--accent)"/>';
-        h += '<text x="' + bx.toFixed(1) + '" y="' + (by + 4).toFixed(1) + '" text-anchor="middle" style="fill:var(--on-solid);font-size:12px;font-weight:700">' + txt + '</text>';
+        // a badge on the inner side of the road, along it (left of the connector)
+        var txt = T("brs.l.toll", { v: fm(plan.tau[e]) }), bw = 10 + 7 * txt.length;
+        var bx = e === 4 ? mx - w / 2 - 6 - bw / 2 : mx - nx * (w / 2 + 14), by = e === 4 ? my : my - ny * (w / 2 + 14);
+        var rot = e === 4 ? "" : ' transform="rotate(' + ang.toFixed(1) + ' ' + bx.toFixed(1) + ' ' + by.toFixed(1) + ')"';
+        h += '<g' + rot + '><rect x="' + (bx - bw / 2).toFixed(1) + '" y="' + (by - 9.5).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="19" rx="2" style="fill:var(--accent)"/>';
+        h += '<text x="' + bx.toFixed(1) + '" y="' + by.toFixed(1) + '" dy="0.35em" text-anchor="middle" style="fill:var(--on-solid);font-size:12px;font-weight:700">' + txt + '</text></g>';
       }
     }
     ["O", "A", "B", "D"].forEach(function (n) {

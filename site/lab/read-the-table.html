@@ -1774,7 +1774,7 @@
     var host = $("gtt-mk-sl"), qs = WB.mkQ[WB.mkN], h = "";
     qs.forEach(function (q, k) {
       h += "<div class='rng'><label for='gtt-q" + k + "'>" + esc(T("gtt.mk.q", { k: k + 1 })) + "</label><output id='gtt-qv" + k + "'></output>" +
-        "<input type='range' id='gtt-q" + k + "' min='0' max='120' step='5' value='" + q + "' data-k='" + k + "'></div>";
+        "<input type='range' id='gtt-q" + k + "' min='0' max='100' step='5' value='" + q + "' data-k='" + k + "'></div>";   // up to 100 each: the price never goes below 0
     });
     host.innerHTML = h;
     host.querySelectorAll("input").forEach(function (inp) {
@@ -1965,10 +1965,10 @@
     var G = WB.G, n = WB.seq.length;
     if (WB.dk === "strict") {
       if (!n) return T("gtt.el.none");
-      if (WB.pos === 0) return T("gtt.el.start", { n: n });
+      if (WB.pos === 0) return T(n === 1 ? "gtt.el.start1" : "gtt.el.start", { n: n });
       if (WB.pos < n) return T("gtt.el.more", { k: WB.pos, n: n });
       var r = iesds(G);
-      return T("gtt.el.endS", { n: n, end: endText(G, r.R, r.C) });
+      return T(n === 1 ? "gtt.el.endS1" : "gtt.el.endS", { n: n, end: endText(G, r.R, r.C) });
     }
     if (!n) return T("gtt.el.wnone");
     var a = iewds(G, "top"), b = iewds(G, "bottom");
@@ -2215,12 +2215,13 @@
 
   function renderKpis() {
     var G = WB.G, ne = pureNE(G, allR(G), allC(G)), el = iesds(G), cells = cellsOf(G), best = bestJoint(cells), eff = pareto(cells), h = "";
-    var kp = function (v, l, cls) { return "<div class='kpi " + (cls || "") + "'><b>" + v + "</b><span>" + l + "</span></div>"; };
+    // the value may wrap after the comma of a pair, so long strategy names never break inside a word
+    var kp = function (v, l, cls) { return "<div class='kpi " + (cls || "") + "'><b>" + String(v).replace(/\u00a0/g, " ") + "</b><span>" + l + "</span></div>"; };
     h += kp(ne.length ? joinL(ne.map(function (x) { return esc(profile(G, x[0], x[1])); })) : esc(T("gtt.kpi.none")),
       ne.length ? T(ne.length === 1 ? "gtt.kpi.ne1" : "gtt.kpi.neN", { pay: joinL(ne.map(function (x) { return pp(G.A[x[0]][x[1]], G.B[x[0]][x[1]]); })) }) : T("gtt.kpi.ne0"), "accent");
     var one = el.R.length === 1 && el.C.length === 1;
     h += kp(one ? esc(profile(G, el.R[0], el.C[0])) : T("gtt.kpi.size", { m: el.R.length, n: el.C.length }),
-      el.rounds.length ? T("gtt.kpi.iesds", { k: el.rounds.length }) : T("gtt.kpi.iesds0"));
+      el.rounds.length ? T(el.rounds.length === 1 ? "gtt.kpi.iesds1" : "gtt.kpi.iesds", { k: el.rounds.length }) : T("gtt.kpi.iesds0"));
     h += kp(esc(profile(G, best.i, best.j)), T("gtt.kpi.best", { s: pv(best.a + best.b), pay: pp(best.a, best.b) }), "hot");
     if (G.kind === "market") {
       var bk = null, bv = -Infinity;
@@ -2456,14 +2457,18 @@
       kpiH(fmt(fs, 2), T("gtt.lk.k.fee"));
     drawLake(E0, O);
     var lost = 100 * (1 - E0.W / O.W);
-    var h = T(f === 0 ? "gtt.lk.res0" : "gtt.lk.res", { n: fmt(n), x: fmt(E0.x, 2), X: fmt(E0.X, 2), W: fmt(E0.W, 1), Wo: fmt(O.W, 1), l: fmt(lost, 1), f: fmt(f, 1) });
-    h += " " + T(Math.abs(f - fs) < 0.26 ? "gtt.lk.atfee" : "gtt.lk.fee.hint", { fs: fmt(fs, 2), Xo: fmt(O.X, 1), gs: fmt(O.gs.x, 4), it: O.gs.it });
+    var args = { n: fmt(n), x: fmt(E0.x, 2), X: fmt(E0.X, 2), W: fmt(E0.W, 1), Wo: fmt(O.W, 1), l: fmt(lost, 1), f: fmt(f, 1) }, h;
+    if (n === 1) h = T(f === 0 ? "gtt.lk.one0" : "gtt.lk.one", args);       // one owner: no externality, no fee needed
+    else {
+      h = T(f === 0 ? "gtt.lk.res0" : "gtt.lk.res", args);
+      h += " " + T(Math.abs(f - fs) < 0.26 ? "gtt.lk.atfee" : "gtt.lk.fee.hint", { fs: fmt(fs, 2), Xo: fmt(O.X, 1), gs: fmt(O.gs.x, 4), it: O.gs.it });
+    }
     $("gtt-lk-res").innerHTML = h;
     // n = 2: the cement market of the animation divided by 5
     var e2 = lake(2, 0), mk0 = scen("m2"), Pn = price(mk0.qs[mk0.ne.i] + mk0.qs[mk0.ne.j]), Pc = price(mk0.qs[mk0.best.i] + mk0.qs[mk0.best.j]);
     var mk = mk0.G;
     $("gtt-lk-pw").innerHTML = T("gtt.lk.pw", {
-      W2: fmt(e2.W, 0), Wo: fmt(O.W, 0), b2: fmt(5 * e2.W / 1000, 0), bo: fmt(5 * O.W / 1000, 0),
+      W2: fmt(e2.W, 0), Wo: fmt(O.W, 0), m2: fmt(5 * e2.W, 0), mo: fmt(5 * O.W, 0), b2: fmt(5 * e2.W / 1000, 0), bo: fmt(5 * O.W / 1000, 0),
       ne: pv(mk0.ne.a + mk0.ne.b), co: pv(mk0.best.a + mk0.best.b), Pn: fmt(Pn), Pc: fmt(Pc), xe: profile(mk, mk0.ne.i, mk0.ne.j), xc: profile(mk, mk0.best.i, mk0.best.j)
     });
   }
@@ -2626,7 +2631,7 @@
       menu: menuName(ast.menu), n: S.rounds.length, order: joinL(order), x: profile(G, S.ne.i, S.ne.j), v: and2(pv(S.ne.a), pv(S.ne.b)),
       b: profile(G, S.best.i, S.best.j), vb: and2(pv(S.best.a), pv(S.best.b)), l: pv(tot - S.ne.a - S.ne.b), tot: pv(tot)
     });
-    stage.setAttribute("aria-label", T("gtt.anim.aria") + " " + T("gtt.anim.aria.nums", {
+    stage.setAttribute("aria-label", T("gtt.anim.aria") + " " + T(S.rounds.length === 1 ? "gtt.anim.aria.nums1" : "gtt.anim.aria.nums", {
       menu: menuName(ast.menu), n: S.rounds.length, x: profile(G, S.ne.i, S.ne.j), v: and2(pv(S.ne.a), pv(S.ne.b)), b: profile(G, S.best.i, S.best.j), vb: and2(pv(S.best.a), pv(S.best.b))
     }));
   }

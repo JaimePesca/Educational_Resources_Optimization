@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en" data-i18n-langs="es en nl" data-title-key="stppg.title" data-i18n-bundles="lab/study/common lab/study/2021-production-protection">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Defending Crop Production: Where to Grow and What to Protect</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../../assets/study.css?v=__BUILD__">
+<style>
+  /* ---- "Try it": the Stackelberg production(-protection) game ---- */
+  .pp-chart svg .grid { stroke: var(--grid); stroke-width: 1; }
+  .pp-chart svg .axis { stroke: var(--axis); stroke-width: 1.2; }
+  .pp-chart svg .tick { fill: var(--muted); font-size: 11px; }
+  .pp-chart svg .lab { fill: var(--ink2); font-size: 12px; }
+  .pp-chart svg .surv { fill: var(--accent); }
+  .pp-chart svg .dest { fill: var(--mit-silver); fill-opacity: 0.38; }
+  .pp-chart svg .hatch { stroke: var(--ink2); stroke-width: 1.1; opacity: 0.6; }
+  .pp-chart svg .col { fill: none; stroke: var(--surface); stroke-width: 1.5; }
+  .pp-chart svg .empty { stroke: var(--axis); stroke-width: 3; }
+  .pp-chart svg .rid { fill: var(--ink); font-size: 12px; font-weight: 700; }
+  .pp-chart svg .level { stroke: var(--ink); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .pp-chart svg .level-t { fill: var(--ink); font-size: 11.5px; font-weight: 600; }
+  .pp-chart svg .budget { stroke: var(--mit-bright); stroke-width: 2.5; }
+  .pp-chart svg .budget-t { fill: var(--accent-text); font-size: 12px; font-weight: 700; }
+  .pp-chart svg .prot { fill: var(--ink); }
+  .pp-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
+  .pp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .pp-legend i { width: 12px; height: 12px; display: inline-block; flex: none; border-radius: 1px; }
+  .pp-legend i.surv { background: var(--accent); }
+  .pp-legend i.dest { background: repeating-linear-gradient(135deg, var(--ink2) 0 1.2px, transparent 1.2px 4px), rgba(139, 149, 158, 0.38); }
+  .pp-legend i.budget { height: 0; width: 16px; border-top: 2.5px solid var(--mit-bright); border-radius: 0; }
+  .pp-legend i.prot { height: 5px; width: 16px; background: var(--ink); }
+  .pp-legend i.level { height: 0; width: 16px; border-top: 1.5px dashed var(--ink); border-radius: 0; }
+  .pp-edit summary { font-size: 13px; font-weight: 600; padding: 8px 12px; }
+  .pp-edit .st-tbl { padding: 0 12px 10px; }
+  .pp-edit input { width: 5.5em; font: 600 12.5px var(--font-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--border); border-radius: 2px; padding: 4px 6px; }
+  .pp-edit .hint { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+  .pp-small { font: 600 12px var(--font-sans); padding: 4px 8px; }
+  .st-tbl button[aria-pressed="true"] { color: var(--on-solid); background: var(--ink); border-color: var(--ink); }
+  .st-tbl tr.is-shown td { background: var(--sel); }
+  .st-tbl td.muted { color: var(--muted); }
+  .pp-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13.5px; color: var(--ink2); }
+  .pp-checks li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 6px; align-items: baseline; }
+  .pp-checks .ok { color: var(--good-text); font-weight: 700; }
+  .pp-checks .bad { color: var(--accent-text); font-weight: 700; }
+  .st-kpi b small { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 4px; }
+  @media (max-width: 520px) { .st-tbl .wide { display: none; } .st-tbl td, .st-tbl th { padding: 6px 5px; } .st-tbl td.num { font-size: 11.5px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="st-crumbs" data-i18n-attr="aria-label:stu.crumbLabel">
+      <a class="backlink" href="../index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.lab"></span></a>
+      <span class="sep" aria-hidden="true">/</span>
+      <a class="backlink" href="index.html" data-keep-lang data-i18n="stu.crumb"></a>
+    </nav>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<main class="wrap" id="study-root" data-study-paper="2021-production-protection" data-study-prefix="stppg">
+  <!-- The "Try it" widget: assets/study.js moves this node into the "Try it" section and shows it -->
+  <div id="study-try" class="st-w" hidden>
+    <div class="st-w-row">
+      <div class="st-w-group">
+        <span class="lbl" id="pp-inst-lbl" data-i18n="stppg.w.inst"></span>
+        <div class="st-presets" id="pp-inst" role="group" aria-labelledby="pp-inst-lbl">
+          <button type="button" class="st-btn" data-inst="t1" data-i18n="stppg.w.i.t1"></button>
+          <button type="button" class="st-btn" data-inst="ex13" data-i18n="stppg.w.i.ex13"></button>
+          <button type="button" class="st-btn" data-inst="eqa" data-i18n="stppg.w.i.eqa"></button>
+          <button type="button" class="st-btn" data-inst="strong" data-i18n="stppg.w.i.strong"></button>
+        </div>
+      </div>
+    </div>
+    <div class="st-sliders">
+      <div class="st-rng">
+        <label for="pp-rl" data-i18n-html="stppg.w.Rl"></label><output id="pp-rl-out" for="pp-rl"></output>
+        <input type="range" id="pp-rl" min="0.5" max="10" step="0.05" value="5">
+      </div>
+      <div class="st-rng">
+        <label for="pp-rf" data-i18n-html="stppg.w.Rf"></label><output id="pp-rf-out" for="pp-rf"></output>
+        <input type="range" id="pp-rf" min="0.05" max="3.85" step="0.05" value="1.75">
+      </div>
+      <div class="st-rng">
+        <label for="pp-rp" data-i18n-html="stppg.w.Rp"></label><output id="pp-rp-out" for="pp-rp"></output>
+        <input type="range" id="pp-rp" min="0" max="3" step="0.05" value="0">
+      </div>
+    </div>
+    <details class="pp-edit">
+      <summary data-i18n="stppg.w.edit"></summary>
+      <div class="st-tbl" id="pp-regions"></div>
+    </details>
+    <div class="st-w-group">
+      <span class="lbl" id="pp-plan-lbl" data-i18n="stppg.w.plan"></span>
+      <div class="seg" id="pp-plan" role="group" aria-labelledby="pp-plan-lbl">
+        <button type="button" data-plan="opt" data-i18n="stppg.w.pl.opt"></button><button type="button" data-plan="ex1" data-i18n="stppg.w.pl.ex1"></button><button type="button" data-plan="equal" data-i18n="stppg.w.pl.equal"></button><button type="button" data-plan="best" data-i18n="stppg.w.pl.best"></button>
+      </div>
+    </div>
+    <div>
+      <p class="st-w-head" data-i18n="stppg.w.chart"></p>
+      <div class="st-chart pp-chart" id="pp-chart" role="img" data-i18n-attr="aria-label:stppg.w.chart.aria"></div>
+      <div class="pp-legend" id="pp-legend"></div>
+    </div>
+    <div class="st-kpis" id="pp-kpis"></div>
+    <p class="st-verdict" id="pp-verdict" aria-live="polite"></p>
+    <div><p class="st-w-head" data-i18n="stppg.w.reg.h"></p><div class="st-tbl" id="pp-reg"></div></div>
+    <div><p class="st-w-head" data-i18n="stppg.w.alg.h"></p><div class="st-tbl" id="pp-alg"></div></div>
+    <div id="pp-prot-box"><p class="st-w-head" data-i18n="stppg.w.prot.h"></p><div class="st-tbl" id="pp-prot"></div></div>
+    <div><p class="st-w-head" data-i18n="stppg.w.chk.h"></p><ul class="pp-checks" id="pp-checks"></ul></div>
+  </div>
+</main>
+
+<script src="../../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/common.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/2021-production-protection.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="papers.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/study.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+
+  /* ---- the game of the article, solved live (no hard-coded results) ----
+     Regions i = 0..n-1 (shown as 1..n). The article indexes regions by non-increasing production rate; the scan order
+     here is computed from the rates (ties by region number), so edited data keep the article's convention. */
+  // MODEL-START
+  var PP = (function () {
+    var TOL = 1e-9;
+    function sum(v) { var s = 0; for (var i = 0; i < v.length; i++) s += v[i]; return s; }
+    function zeros(n) { var v = []; for (var i = 0; i < n; i++) v.push(0); return v; }
+    function add(u, v) { return u.map(function (w, i) { return w + v[i]; }); }
+    // regions by non-increasing production rate, ties by region number (the article's indexing)
+    function scanOrder(p) {
+      var o = p.map(function (_, i) { return i; });
+      o.sort(function (i, j) { return p[j] - p[i] || i - j; });
+      return o;
+    }
+    // Definition 3: the composed net production rate of a set S
+    function pbar(p, a, Rf, S) {
+      if (!S.length) return 0;
+      var A = -Rf, B = 0;
+      S.forEach(function (i) { A += a[i]; B += a[i] / p[i]; });
+      return Math.max(A / B, 0);
+    }
+    // Lemma 2: the balanced strategy on S (all of R_l, equal destruction ratios on S)
+    function balanced(p, a, Rl, S) {
+      var B = 0, x = zeros(p.length);
+      S.forEach(function (i) { B += a[i] / p[i]; });
+      S.forEach(function (i) { x[i] = a[i] * Rl / (p[i] * B); });
+      return x;
+    }
+    // Theorem 1: the follower's reply y^omega (destruction ratios non-increasing, ties by region number)
+    function follower(p, a, x, Rf) {
+      var n = p.length, ratio = [], i;
+      for (i = 0; i < n; i++) ratio.push(p[i] * x[i] / a[i]);
+      var ord = ratio.map(function (_, k) { return k; });
+      ord.sort(function (u, v) {
+        var d = ratio[v] - ratio[u];
+        return Math.abs(d) > TOL * Math.max(1, ratio[u], ratio[v]) ? d : u - v;
+      });
+      var y = zeros(n), left = Rf, q = -1;
+      for (var k = 0; k < n && left > 1e-12; k++) {
+        var j = ord[k], take = Math.min(a[j], left);
+        y[j] = take; left -= take; q = j;
+      }
+      var prod = [], dest = [];
+      for (i = 0; i < n; i++) { prod.push(p[i] * x[i]); dest.push(p[i] * x[i] * y[i] / a[i]); }
+      var total = sum(prod), lost = sum(dest);
+      return { ratio: ratio, order: ord, y: y, q: q, prod: prod, dest: dest, total: total, lost: lost, P: total - lost };
+    }
+    // Algorithm 1 (running sums), plus every seried-balanced value p̄({1..k}) R_l, the candidates of Lemma 6
+    function algorithm1(p, a, Rl, Rf) {
+      var ord = scanOrder(p), n = p.length, rows = [], A = -Rf, B = 0, S = [], stopped = false, stop = -1, prev = 0;
+      for (var k = 0; k < n; k++) {
+        var i = ord[k];
+        var pass = k === 0 || p[i] > prev + 1e-12 * Math.max(1, prev);
+        var evaluated = !stopped;
+        if (evaluated && !pass) { stopped = true; stop = i; }
+        if (!stopped) S.push(i);
+        A += a[i]; B += a[i] / p[i];
+        var pb = Math.max(A / B, 0);
+        rows.push({ k: k + 1, region: i, before: prev, pass: pass, evaluated: evaluated, pb: pb, value: pb * Rl, set: ord.slice(0, k + 1) });
+        prev = pb;
+      }
+      var BS = 0; S.forEach(function (i) { BS += a[i] / p[i]; });
+      var pS = pbar(p, a, Rf, S), best = -Infinity, lastPass = 0;
+      rows.forEach(function (r, k) { if (r.value > best) best = r.value; if (r.pass) lastPass = k; });
+      return {
+        order: ord, rows: rows, S: S, stop: stop, pbar: pS, value: pS * Rl, x: balanced(p, a, Rl, S), lambda: Rl / BS,
+        bestSeried: best, firstFailIsLast: lastPass === S.length - 1
+      };
+    }
+    // the follower's LP over all attacks (an independent check of Theorem 1)
+    function followerLP(p, a, x, Rf) {
+      var n = p.length, c = [], rows = [{ a: p.map(function () { return 1; }), op: "<=", b: Rf }];
+      for (var i = 0; i < n; i++) {
+        c.push(p[i] * x[i] / a[i]);
+        var r = zeros(n); r[i] = 1; rows.push({ a: r, op: "<=", b: a[i] });
+      }
+      var res = LP.solve({ sense: "max", c: c, rows: rows });
+      return res.status === "optimal" ? res.z : NaN;
+    }
+    // the leader's problem as one LP, by dualizing the follower's LP (an independent check of Algorithm 1):
+    // max sum p_i x_i - R_f u - sum a_i v_i  s.t.  u + v_i >= p_i x_i / a_i,  sum x_i <= R_l,  x, u, v >= 0
+    function maxminLP(p, a, Rl, Rf) {
+      var n = p.length, m = 2 * n + 1, c = [], rows = [], i, r;
+      for (i = 0; i < n; i++) c.push(p[i]);
+      c.push(-Rf);
+      for (i = 0; i < n; i++) c.push(-a[i]);
+      for (i = 0; i < n; i++) { r = zeros(m); r[i] = -p[i] / a[i]; r[n] = 1; r[n + 1 + i] = 1; rows.push({ a: r, op: ">=", b: 0 }); }
+      r = zeros(m); for (i = 0; i < n; i++) r[i] = 1; rows.push({ a: r, op: "<=", b: Rl });
+      var res = LP.solve({ sense: "max", c: c, rows: rows });
+      return res.status === "optimal" ? { z: res.z, x: res.x.slice(0, n) } : { z: NaN, x: null };
+    }
+    // protection plans: all of R_p on one region (each region), an equal split, and every split on a grid of step R_p/steps
+    function protection(p, a, Rl, Rf, Rp, steps) {
+      var n = p.length, single = [], i;
+      for (i = 0; i < n; i++) {
+        var z = zeros(n); z[i] = Rp;
+        var r1 = algorithm1(p, add(a, z), Rl, Rf);
+        single.push({ z: z, value: r1.value, S: r1.S });
+      }
+      var ze = zeros(n).map(function () { return Rp / n; }), re = algorithm1(p, add(a, ze), Rl, Rf);
+      var grid = { count: 0, best: null };
+      (function rec(k, left, comp) {
+        if (k === n - 1) {
+          var c = comp.concat([left]), zz = c.map(function (u) { return Rp * u / steps; });
+          var rr = algorithm1(p, add(a, zz), Rl, Rf);
+          grid.count++;
+          if (!grid.best || rr.value > grid.best.value + TOL) grid.best = { z: zz, value: rr.value, S: rr.S };
+          return;
+        }
+        for (var u = 0; u <= left; u++) rec(k + 1, left - u, comp.concat([u]));
+      })(0, steps, []);
+      return { single: single, equal: { z: ze, value: re.value, S: re.S }, grid: grid };
+    }
+    return {
+      scanOrder: scanOrder, pbar: pbar, balanced: balanced, follower: follower, algorithm1: algorithm1,
+      followerLP: followerLP, maxminLP: maxminLP, protection: protection, add: add, zeros: zeros, sum: sum
+    };
+  })();
+  // MODEL-END
+
+  // ---- the widget ----
+  var INST = {
+    t1: { p: [12, 8, 5, 2, 1], a: [0.9, 1, 0.25, 1, 0.75], Rl: 5, Rf: 1.75, Rp: 0 },      // Table 1 (p. 104)
+    ex13: { p: [12, 8, 5, 2, 1], a: [0.9, 1, 0.25, 1, 0.75], Rl: 5, Rf: 1.75, Rp: 1.2 },  // Example 13 (p. 111)
+    eqa: { p: [12, 8, 5, 2, 1], a: [1, 1, 1, 1, 1], Rl: 5, Rf: 1.75, Rp: 0 },            // illustrative: equal hardness
+    strong: { p: [12, 8, 5, 2, 1], a: [0.9, 1, 0.25, 1, 0.75], Rl: 5, Rf: 3.5, Rp: 0 }    // illustrative: strong attacker
+  };
+  var EX1 = [0, 0.7, 0.3, 0, 4];   // the leader's plan of Examples 1 and 2 (pp. 104-105), for Table 1 with R_l = 5
+  var GRID = 8, STEP = 0.05;
+  var st = copy(INST.t1), plan = "opt", seriedK = 0, zsel = "theorem", res = null, pending = false;
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+
+  function copy(o) { return { p: o.p.slice(), a: o.a.slice(), Rl: o.Rl, Rf: o.Rf, Rp: o.Rp }; }
+  function close(u, v) { return Math.abs(u - v) < 1e-9; }
+  function sameArr(u, v) { return u.length === v.length && u.every(function (w, i) { return close(w, v[i]); }); }
+  function f4(v) { return I18N.fmt(Math.abs(v) < 5e-10 ? 0 : v, 4); }
+  // the value as a fraction with a small denominator, when it is one (the article works in exact fractions)
+  function frac(v) {
+    if (Math.abs(v - Math.round(v)) < 1e-9) return null;
+    for (var d = 2; d <= 120; d++) {
+      var num = Math.round(v * d);
+      if (Math.abs(v - num / d) < 1e-9 * Math.max(1, Math.abs(v))) return num + "/" + d;
+    }
+    return null;
+  }
+  function withFrac(v) { var f = frac(v); return f ? f4(v) + " <small>= " + f + "</small>" : f4(v); }
+  function rid(i) { return String(i + 1); }
+  function setName(S) { return "{" + S.slice().sort(function (u, v) { return u - v; }).map(rid).join(", ") + "}"; }
+  function listName(ids) {
+    var names = ids.map(rid);
+    if (names.length <= 1) return names.join("");
+    return names.slice(0, -1).join(", ") + t("stppg.w.and") + names[names.length - 1];
+  }
+  function svg(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function h(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function hh(tag, cls, html) { var n = h(tag, cls); n.innerHTML = html; return n; }
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; update(); });
+  }
+
+  function isTable1() { return sameArr(st.p, INST.t1.p) && sameArr(st.a, INST.t1.a); }
+  function ex1Available() { return isTable1() && close(st.Rl, 5); }
+  function sumA() { return PP.sum(st.a); }
+  // the largest attacker budget on the slider grid that keeps the game non-trivial: R_f < sum of a_i
+  function rfMax() { return Math.max(STEP, Math.round((Math.ceil(sumA() / STEP - 1e-9) - 1) * STEP * 100) / 100); }
+
+  // ---- everything the page shows, computed from the current data ----
+  function solve() {
+    var n = st.p.length, p = st.p, a = st.a, Rl = st.Rl, Rf = st.Rf, Rp = st.Rp;
+    var kBest = PP.scanOrder(p)[0];
+    var z = PP.zeros(n), zname = "theorem";
+    if (Rp > 0) {
+      if (zsel === "theorem") z[kBest] = Rp;
+      else if (zsel === "equal") z = z.map(function () { return Rp / n; });
+      else if (zsel === "grid") { z = null; zname = "grid"; }
+      else z[+zsel] = Rp;
+      if (zsel !== "theorem") zname = zsel;
+    }
+    var prot = Rp > 0 ? PP.protection(p, a, Rl, Rf, Rp, GRID) : null;
+    if (z === null) z = prot.grid.best.z.slice();
+    var aEff = PP.add(a, z);
+    var alg = PP.algorithm1(p, aEff, Rl, Rf);
+    // the theorem's plan (all protection on the highest-yield region): the best the leader can do
+    var zT = PP.zeros(n); zT[kBest] = Rp;
+    var algT = Rp > 0 ? PP.algorithm1(p, PP.add(a, zT), Rl, Rf) : alg;
+    var x, planName = plan;
+    if (plan === "seried" && seriedK >= 1 && seriedK <= n) x = PP.balanced(p, aEff, Rl, alg.rows[seriedK - 1].set);
+    else if (plan === "ex1" && ex1Available()) x = EX1.slice();
+    else if (plan === "equal") x = p.map(function () { return Rl / n; });
+    else if (plan === "best") { x = PP.zeros(n); x[kBest] = Rl; }
+    else { x = alg.x.slice(); planName = "opt"; }
+    var fol = PP.follower(p, aEff, x, Rf);
+    var folLP = PP.followerLP(p, aEff, x, Rf);
+    var lp = PP.maxminLP(p, aEff, Rl, Rf);
+    var balancedPlan = (function () {
+      var pos = fol.ratio.filter(function (r, i) { return x[i] > 1e-12; });
+      return pos.length > 0 && pos.every(function (r) { return Math.abs(r - pos[0]) < 1e-9 * Math.max(1, pos[0]); }) &&
+        Math.abs(PP.sum(x) - Rl) < 1e-9;
+    })();
+    return {
+      n: n, z: z, zname: zname, aEff: aEff, kBest: kBest, alg: alg, algT: algT, prot: prot, x: x, planName: planName,
+      fol: fol, folLP: folLP, lp: lp, balanced: balancedPlan
+    };
+  }
+
+  // ---- region editor ----
+  var inputs = [];
+  function buildEditor() {
+    var host = $("pp-regions"); host.textContent = ""; inputs = [];
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    [["stppg.w.t.region", ""], ["stppg.w.e.p", "num"], ["stppg.w.e.a", "num"]].forEach(function (c) { tr.appendChild(hh("th", c[1], t(c[0]))); });
+    thead.appendChild(tr); tb.appendChild(thead);
+    var body = h("tbody");
+    for (var i = 0; i < st.p.length; i++) {
+      var row = h("tr"); row.appendChild(h("td", null, rid(i)));
+      ["p", "a"].forEach(function (key) {
+        var td = h("td", "num"), inp = document.createElement("input");
+        inp.type = "number"; inp.min = "0.05"; inp.max = key === "p" ? "50" : "5"; inp.step = "0.05"; inp.inputMode = "decimal";
+        inp.setAttribute("aria-label", t("stppg.w.e." + key + ".aria", { i: i + 1 }));
+        (function (k, field) {
+          inp.addEventListener("input", function () {
+            var v = parseFloat(this.value);
+            if (!(v > 0) || v > +this.max) return;
+            st[field][k] = v;
+            if (st.Rf > rfMax()) st.Rf = rfMax();
+            schedule();
+          });
+        })(i, key);
+        td.appendChild(inp); row.appendChild(td);
+        inputs.push({ i: i, key: key, el: inp });
+      });
+      body.appendChild(row);
+    }
+    tb.appendChild(body); host.appendChild(tb);
+    host.appendChild(hh("p", "hint", t("stppg.w.e.hint")));
+  }
+
+  // ---- chart: one column per region, width a_i + z_i, height p_i x_i/(a_i + z_i), so area = production ----
+  function niceStep(max) {
+    var raw = max / 4, e = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / e;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e;
+  }
+  function drawChart() {
+    var host = $("pp-chart"); host.textContent = "";
+    var W = Math.max(300, Math.min(1000, host.clientWidth || 640));
+    var H = W < 520 ? 270 : Math.round(Math.min(340, W * 0.38));
+    var ML = 42, MR = 12, MT = 26, MB = 64, y0 = H - MB;
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    var defs = svg("defs"), pat = svg("pattern", { id: "pp-hatch", width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+    pat.appendChild(svg("line", { "class": "hatch", x1: 0, y1: 0, x2: 0, y2: 6 }));
+    defs.appendChild(pat); s.appendChild(defs);
+    var f = res.fol, total = PP.sum(res.aEff);
+    var maxR = Math.max.apply(null, f.ratio.concat([1e-9]));
+    var step = niceStep(maxR), top = Math.ceil(maxR * 1.08 / step) * step;
+    function X(u) { return ML + (W - ML - MR) * u / total; }
+    function Y(r) { return y0 - (y0 - MT) * r / top; }
+    for (var v = 0; v <= top + 1e-9; v += step) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(0), x2: X(total), y1: Y(v), y2: Y(v) }));
+      s.appendChild(svg("text", { "class": "tick", x: ML - 6, y: Y(v) + 4, "text-anchor": "end" }, I18N.fmt(v, 2)));
+    }
+    s.appendChild(svg("text", { "class": "lab", x: ML - 6, y: MT - 12, "text-anchor": "start" }, t("stppg.w.ax.y")));
+    // columns in attack order: the attacker spends its budget from the left (Theorem 1)
+    var cx = 0;
+    f.order.forEach(function (i) {
+      var w = res.aEff[i], r = f.ratio[i], x0 = X(cx), x1 = X(cx + w), yd = f.y[i];
+      if (r > 1e-12) {
+        if (yd > 1e-12) {
+          var xd = X(cx + yd);
+          s.appendChild(svg("rect", { "class": "dest", x: x0, y: Y(r), width: Math.max(0, xd - x0), height: y0 - Y(r) }));
+          s.appendChild(svg("rect", { x: x0, y: Y(r), width: Math.max(0, xd - x0), height: y0 - Y(r), fill: "url(#pp-hatch)" }));
+          if (yd < w - 1e-12) s.appendChild(svg("rect", { "class": "surv", x: xd, y: Y(r), width: Math.max(0, x1 - xd), height: y0 - Y(r) }));
+        } else {
+          s.appendChild(svg("rect", { "class": "surv", x: x0, y: Y(r), width: Math.max(0, x1 - x0), height: y0 - Y(r) }));
+        }
+        s.appendChild(svg("rect", { "class": "col", x: x0, y: Y(r), width: Math.max(0, x1 - x0), height: y0 - Y(r) }));
+      } else {
+        s.appendChild(svg("line", { "class": "empty", x1: x0 + 1.5, x2: x1 - 1.5, y1: y0 - 1.5, y2: y0 - 1.5 }));
+      }
+      if (res.z[i] > 1e-12) s.appendChild(svg("rect", { "class": "prot", x: X(cx + res.a0[i]), y: y0 + 2, width: Math.max(1, X(cx + w) - X(cx + res.a0[i])), height: 5 }));
+      if (x1 - x0 >= 10) s.appendChild(svg("text", { "class": "rid", x: (x0 + x1) / 2, y: y0 + 19, "text-anchor": "middle" }, rid(i)));
+      cx += w;
+    });
+    s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(total), y1: y0, y2: y0 }));
+    // the common ratio of a balanced plan: the attacker is indifferent among these regions
+    if (res.balanced) {
+      var lam = f.ratio[res.x.findIndex(function (u) { return u > 1e-12; })], used = 0;
+      f.order.forEach(function (i) { if (res.x[i] > 1e-12) used += res.aEff[i]; });
+      s.appendChild(svg("line", { "class": "level", x1: X(0), x2: X(used), y1: Y(lam) - 0.5, y2: Y(lam) - 0.5 }));
+      var lt = t("stppg.w.leg.levelv", { v: f4(lam) }), anchorEnd = X(used) > W * 0.55;
+      s.appendChild(svg("text", { "class": "level-t", x: anchorEnd ? X(used) : X(0) + 4, y: Y(lam) - 6, "text-anchor": anchorEnd ? "end" : "start" }, lt));
+    }
+    // the attacker's budget, measured along the same axis
+    var yb = y0 + 30, xb = X(st.Rf);
+    s.appendChild(svg("line", { "class": "budget", x1: X(0), x2: xb, y1: yb, y2: yb }));
+    s.appendChild(svg("line", { "class": "budget", x1: X(0), x2: X(0), y1: yb - 5, y2: yb + 5 }));
+    s.appendChild(svg("line", { "class": "budget", x1: xb, x2: xb, y1: yb - 5, y2: yb + 5 }));
+    var bt = t("stppg.w.leg.budgetv", { v: f4(st.Rf) }), btw = bt.length * 6.6;
+    s.appendChild(svg("text", { "class": "budget-t", x: X(0) + btw < W - MR ? X(0) : W - MR, y: yb + 18, "text-anchor": X(0) + btw < W - MR ? "start" : "end" }, bt));
+    s.appendChild(svg("text", { "class": "tick", x: X(total), y: H - 2, "text-anchor": "end" }, t("stppg.w.ax.x")));
+    host.appendChild(s);
+    var leg = $("pp-legend"); leg.textContent = "";
+    var items = [["surv", t("stppg.w.leg.surv")], ["dest", t("stppg.w.leg.dest")], ["budget", t("stppg.w.leg.budget")]];
+    if (res.balanced) items.push(["level", t("stppg.w.leg.level")]);
+    if (st.Rp > 0) items.push(["prot", t("stppg.w.leg.prot")]);
+    items.forEach(function (L) { var sp = h("span"), i = h("i", L[0]); sp.append(i, document.createTextNode(L[1])); leg.appendChild(sp); });
+  }
+
+  function kpi(label, value, cls) {
+    var d = h("div", "st-kpi" + (cls ? " " + cls : "")); d.append(hh("b", null, value), hh("span", null, label)); return d;
+  }
+
+  function attackText() {
+    var f = res.fol, full = [], part = null;
+    f.order.forEach(function (i) {
+      if (f.y[i] <= 1e-12 || f.prod[i] <= 1e-12) return;
+      if (f.y[i] >= res.aEff[i] - 1e-12) full.push(i); else part = i;
+    });
+    if (!full.length && part === null) return t("stppg.w.att.none");
+    var pct = part !== null ? I18N.fmt(f.y[part] / res.aEff[part] * 100, 1) : "";
+    if (!full.length) return t("stppg.w.att.part", { r: rid(part), s: pct });
+    var key = full.length === 1 ? "stppg.w.att.full1" : "stppg.w.att.full";
+    return t(part === null ? key : key + ".part", { r: listName(full), q: part === null ? "" : rid(part), s: pct });
+  }
+
+  function verdict() {
+    var v = $("pp-verdict"), f = res.fol, alg = res.alg, parts = [], cls = "ok";
+    var optHere = alg.value, optAll = res.algT.value, gap = optAll - f.P;
+    if (res.planName === "opt") {
+      var stopTxt = alg.stop >= 0 ? t("stppg.w.v.stop", { r: rid(alg.stop), p: f4(st.p[alg.stop]), pb: f4(alg.pbar) }) : t("stppg.w.v.all");
+      var name = st.Rp > 0 ? (res.zname === "theorem" || +res.zname === res.kBest ? "stppg.w.v.alg2" : "stppg.w.v.algz") : "stppg.w.v.alg1";
+      parts.push(t(name, { S: setName(alg.S), stop: stopTxt }));
+      parts.push(t("stppg.w.v.bal", { lam: f4(alg.lambda), d: f4(f.lost), tot: f4(f.total), P: f4(f.P), pb: f4(alg.pbar), Rl: f4(st.Rl) }));
+      if (st.Rp > 0 && optAll > optHere + 1e-9) { cls = "bad"; parts.push(t("stppg.w.v.better", { r: rid(res.kBest), v: f4(optAll), g: f4(optAll - optHere) })); }
+    } else {
+      if (gap < 1e-9) parts.push(t("stppg.w.v.alsoopt", { P: f4(f.P) }));
+      else { cls = "bad"; parts.push(t("stppg.w.v.gap", { P: f4(f.P), g: f4(gap), opt: f4(optAll) })); }
+      if (res.planName === "best") parts.push(t("stppg.w.v.bestplan", { r: rid(res.kBest), tot: f4(f.total) }));
+      if (res.planName === "seried") parts.push(t("stppg.w.v.seried", { S: setName(alg.rows[seriedK - 1].set) }));
+      parts.push(attackText());
+      if (st.Rp > 0 && optAll > optHere + 1e-9) parts.push(t("stppg.w.v.zhere", { v: f4(optHere) }));
+    }
+    v.className = "st-verdict " + cls;
+    v.innerHTML = parts.join(" ");
+  }
+
+  function tables() {
+    var n = res.n, f = res.fol;
+    // per region
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    [["stppg.w.t.region", ""], ["stppg.w.t.p", "num wide"], ["stppg.w.t.a", "num wide"], ["stppg.w.t.x", "num"], ["stppg.w.t.prod", "num"],
+      ["stppg.w.t.ratio", "num"], ["stppg.w.t.y", "num"], ["stppg.w.t.dest", "num"]].forEach(function (c) { tr.appendChild(hh("th", c[1], t(c[0]))); });
+    thead.appendChild(tr); tb.appendChild(thead);
+    var body = h("tbody"), i;
+    for (i = 0; i < n; i++) {
+      var row = h("tr");
+      row.append(h("td", null, rid(i)), h("td", "num wide", f4(st.p[i])),
+        h("td", "num wide", res.z[i] > 1e-12 ? f4(st.a[i]) + " + " + f4(res.z[i]) : f4(st.a[i])),
+        h("td", "num", f4(res.x[i])), h("td", "num", f4(f.prod[i])), h("td", "num", f4(f.ratio[i])), h("td", "num", f4(f.y[i])), h("td", "num", f4(f.dest[i])));
+      body.appendChild(row);
+    }
+    var tot = h("tr", "grand");
+    tot.append(h("td", null, t("stppg.w.t.total")), h("td", "num wide", ""), h("td", "num wide", f4(PP.sum(res.aEff))), h("td", "num", f4(PP.sum(res.x))),
+      h("td", "num", f4(f.total)), h("td", "num", ""), h("td", "num", f4(PP.sum(f.y))), h("td", "num", f4(f.lost)));
+    body.appendChild(tot);
+    tb.appendChild(body);
+    var host = $("pp-reg"); host.textContent = ""; host.appendChild(tb);
+
+    // Algorithm 1 and the n seried-balanced candidates
+    var ta = h("table"), th2 = h("thead"), tr2 = h("tr");
+    [["stppg.w.a.k", "num wide"], ["stppg.w.a.region", ""], ["stppg.w.a.test", "num"], ["stppg.w.a.pb", "num wide"], ["stppg.w.a.value", "num"], ["stppg.w.a.show", ""]].forEach(function (c) {
+      tr2.appendChild(hh("th", c[1], t(c[0])));
+    });
+    th2.appendChild(tr2); ta.appendChild(th2);
+    var b2 = h("tbody");
+    res.alg.rows.forEach(function (r) {
+      var inS = r.k <= res.alg.S.length, shown = (res.planName === "seried" && seriedK === r.k) || (res.planName === "opt" && r.k === res.alg.S.length);
+      var row = h("tr", (inS && r.k === res.alg.S.length ? "grand" : "") + (shown ? " is-shown" : ""));
+      var test;
+      if (r.k === 1) test = t("stppg.w.a.start");
+      else test = f4(st.p[r.region]) + (r.pass ? " > " : " ≤ ") + f4(r.before) + " " + (r.pass ? "✓" : "✗");
+      var tdTest = h("td", "num" + (r.evaluated ? "" : " muted"), test);
+      if (!r.evaluated) tdTest.title = t("stppg.w.a.after");
+      var btn = h("button", "st-btn pp-small", t("stppg.w.a.btn")); btn.type = "button";
+      btn.setAttribute("aria-pressed", String(shown));
+      btn.setAttribute("aria-label", t("stppg.w.a.btn.aria", { S: setName(r.set) }));
+      (function (k) { btn.addEventListener("click", function () { plan = "seried"; seriedK = k; schedule(); }); })(r.k);
+      var tdb = h("td"); tdb.appendChild(btn);
+      row.append(h("td", "num wide", String(r.k)), h("td", null, rid(r.region)), tdTest, h("td", "num wide", f4(r.pb)), h("td", "num", f4(r.value)), tdb);
+      b2.appendChild(row);
+    });
+    ta.appendChild(b2);
+    var ha = $("pp-alg"); ha.textContent = ""; ha.appendChild(ta);
+    if (res.alg.rows.some(function (r) { return !r.evaluated; })) ha.appendChild(hh("p", "st-muted", t("stppg.w.a.note")));
+
+    // protection plans
+    var box = $("pp-prot-box"); box.hidden = !(st.Rp > 0);
+    var hp = $("pp-prot"); hp.textContent = "";
+    if (!(st.Rp > 0)) return;
+    var tp = h("table"), th3 = h("thead"), tr3 = h("tr");
+    [["stppg.w.pr.plan", ""], ["stppg.w.pr.S", ""], ["stppg.w.pr.value", "num"], ["stppg.w.a.show", ""]].forEach(function (c) { tr3.appendChild(hh("th", c[1], t(c[0]))); });
+    th3.appendChild(tr3); tp.appendChild(th3);
+    var b3 = h("tbody"), best = res.algT.value;
+    var rowsP = res.prot.single.map(function (q, k) {
+      return { key: k === res.kBest ? "theorem" : String(k), label: t(k === res.kBest ? "stppg.w.pr.onT" : "stppg.w.pr.on", { r: rid(k) }), q: q };
+    });
+    rowsP.push({ key: "equal", label: t("stppg.w.pr.equal"), q: res.prot.equal });
+    rowsP.push({ key: "grid", label: t("stppg.w.pr.grid", { m: res.prot.grid.count, z: res.prot.grid.best.z.map(f4).join(" · ") }), q: res.prot.grid.best });
+    rowsP.forEach(function (R) {
+      var cur = zsel === R.key || (zsel === String(res.kBest) && R.key === "theorem");
+      var row = h("tr", (Math.abs(R.q.value - best) < 1e-9 ? "grand" : "") + (cur ? " is-shown" : ""));
+      var btn = h("button", "st-btn pp-small", t("stppg.w.a.btn")); btn.type = "button";
+      btn.setAttribute("aria-pressed", String(cur));
+      btn.setAttribute("aria-label", t("stppg.w.pr.btn.aria", { plan: R.label }));
+      btn.addEventListener("click", function () { zsel = R.key; plan = "opt"; schedule(); });
+      var tdb = h("td"); tdb.appendChild(btn);
+      row.append(h("td", null, R.label), h("td", null, setName(R.q.S)), h("td", "num", f4(R.q.value)), tdb);
+      b3.appendChild(row);
+    });
+    tp.appendChild(b3); hp.appendChild(tp);
+  }
+
+  function checks() {
+    var ul = $("pp-checks"); ul.textContent = "";
+    function item(ok, html) {
+      var li = h("li"); li.append(h("span", ok ? "ok" : "bad", ok ? "✓" : "✗"), hh("span", null, html)); ul.appendChild(li);
+    }
+    var f = res.fol, okA = Math.abs(f.lost - res.folLP) < 1e-6 * Math.max(1, f.lost);
+    item(okA, t("stppg.w.c.att", { g: f4(f.lost), l: f4(res.folLP) }));
+    var a1 = res.alg.value, okL = Math.abs(a1 - res.alg.bestSeried) < 1e-9 * Math.max(1, a1) && Math.abs(a1 - res.lp.z) < 1e-6 * Math.max(1, a1);
+    item(okL, t("stppg.w.c.lead", { a: f4(a1), n: res.n, s: f4(res.alg.bestSeried), l: f4(res.lp.z) }));
+    item(res.alg.firstFailIsLast, t(res.alg.firstFailIsLast ? "stppg.w.c.scan" : "stppg.w.c.scanbad"));
+    if (st.Rp > 0) {
+      var tv = res.algT.value, others = res.prot.single.map(function (q) { return q.value; }).concat([res.prot.equal.value, res.prot.grid.best.value]);
+      var okP = others.every(function (v) { return v <= tv + 1e-9 * Math.max(1, tv); });
+      item(okP, t("stppg.w.c.prot", { r: rid(res.kBest), a: f4(tv), m: res.prot.grid.count, g: f4(res.prot.grid.best.value) }));
+    }
+  }
+
+  function update() {
+    res = solve(); res.a0 = st.a.slice();
+    // controls
+    document.querySelectorAll("#pp-inst button").forEach(function (b) {
+      var o = INST[b.getAttribute("data-inst")];
+      b.setAttribute("aria-pressed", String(sameArr(o.p, st.p) && sameArr(o.a, st.a) && close(o.Rl, st.Rl) && close(o.Rf, st.Rf) && close(o.Rp, st.Rp)));
+    });
+    var ex1 = document.querySelector('#pp-plan [data-plan="ex1"]'); ex1.hidden = !ex1Available();
+    document.querySelectorAll("#pp-plan button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-plan") === res.planName)); });
+    var rf = $("pp-rf"); rf.max = String(rfMax());
+    [["pp-rl", st.Rl], ["pp-rf", st.Rf], ["pp-rp", st.Rp]].forEach(function (c) {
+      var el = $(c[0]); if (Math.abs(+el.value - c[1]) > 1e-9) el.value = String(c[1]);
+      $(c[0] + "-out").textContent = f4(c[1]);
+    });
+    inputs.forEach(function (q) { if (document.activeElement !== q.el && Math.abs(+q.el.value - st[q.key][q.i]) > 1e-12) q.el.value = String(st[q.key][q.i]); });
+    // numbers
+    var f = res.fol, k = $("pp-kpis"); k.textContent = "";
+    k.append(kpi(t("stppg.w.k.total"), withFrac(f.total)), kpi(t("stppg.w.k.lost"), withFrac(f.lost)),
+      kpi(t("stppg.w.k.P"), withFrac(f.P), "accent"),
+      kpi(t(st.Rp > 0 ? "stppg.w.k.opt2" : "stppg.w.k.opt1"), withFrac(res.algT.value)),
+      kpi(t("stppg.w.k.S"), setName(res.x.map(function (u, i) { return u > 1e-12 ? i : -1; }).filter(function (i) { return i >= 0; }))));
+    drawChart();
+    verdict();
+    tables();
+    checks();
+  }
+
+  // events
+  document.querySelectorAll("#pp-inst button").forEach(function (b) {
+    b.addEventListener("click", function () { st = copy(INST[b.getAttribute("data-inst")]); plan = "opt"; zsel = "theorem"; schedule(); });
+  });
+  document.querySelectorAll("#pp-plan button").forEach(function (b) {
+    b.addEventListener("click", function () { plan = b.getAttribute("data-plan"); schedule(); });
+  });
+  $("pp-rl").addEventListener("input", function () { st.Rl = +this.value; schedule(); });
+  $("pp-rf").addEventListener("input", function () { st.Rf = Math.min(+this.value, rfMax()); schedule(); });
+  $("pp-rp").addEventListener("input", function () { st.Rp = +this.value; schedule(); });
+
+  I18N.onChange(function () { buildEditor(); update(); });
+  var resizeTimer, lastW = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var w = $("pp-chart").clientWidth;
+      if (res && w !== lastW) { lastW = w; drawChart(); }
+    }, 120);
+  });
+})();
+</script>
+<!-- after the page scripts, so each language switch first rebuilds the page and then typesets its formulas -->
+<script src="../../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+</body>
+</html>

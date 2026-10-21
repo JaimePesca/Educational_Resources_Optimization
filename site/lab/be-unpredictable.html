@@ -32,9 +32,7 @@
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hot: var(--crit); } }
   :root[data-theme="dark"] { --hot: var(--crit); }
 
-  /* ---- masthead extras and part index ---- */
-  .series { margin: 12px 0 0; font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
-  .series a { font-weight: 600; }
+  /* ---- part index ---- */
   .case-nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
   @media (max-width: 900px) { .case-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 480px) { .case-nav { grid-template-columns: minmax(0, 1fr); } }
@@ -283,7 +281,6 @@
     <p class="eyebrow" data-i18n-html="gtm.eyebrow"></p>
     <h1 data-i18n="gtm.title"></h1>
     <p class="lede" data-i18n-html="gtm.lede"></p>
-    <p class="series"><a href="read-the-table.html" data-keep-lang data-i18n="gtm.prev"></a><a href="move-by-move.html" data-keep-lang data-i18n="gtm.next"></a></p>
   </header>
 
   <nav class="case-nav" data-i18n-attr="aria-label:gtm.nav.aria">
@@ -673,6 +670,22 @@
     if (Math.abs(S.e0) < EPS) pts.unshift([0, 1 - mid]);
     if (Math.abs(S.e1) < EPS) pts.push([1, 1 - mid]);
     return pts;
+  }
+  // degenerate games: the two best response paths can share a whole segment, and then every point of it is an
+  // equilibrium (a player indifferent everywhere has no path, so every point of the rival's path is one)
+  function continuum(S) {
+    var P = pathRow(S), Q = pathCol(S);
+    if (!P || !Q) return true;
+    for (var a = 0; a + 1 < P.length; a++) for (var b = 0; b + 1 < Q.length; b++) {
+      var p0 = P[a], p1 = P[a + 1], q0 = Q[b], q1 = Q[b + 1];
+      for (var ax = 0; ax < 2; ax++) {                   // ax 0: both segments vertical, 1: both horizontal
+        var o = 1 - ax;
+        if (Math.abs(p0[ax] - p1[ax]) > EPS || Math.abs(q0[ax] - q1[ax]) > EPS || Math.abs(p0[ax] - q0[ax]) > EPS) continue;
+        var lo = Math.max(Math.min(p0[o], p1[o]), Math.min(q0[o], q1[o])), hi = Math.min(Math.max(p0[o], p1[o]), Math.max(q0[o], q1[o]));
+        if (hi - lo > 1e-6) return true;
+      }
+    }
+    return false;
   }
   function symmetric(a, b) { return Math.abs(b[0][0] - a[0][0]) < EPS && Math.abs(b[1][1] - a[1][1]) < EPS && Math.abs(b[0][1] - a[1][0]) < EPS && Math.abs(b[1][0] - a[0][1]) < EPS; }
 
@@ -1372,9 +1385,13 @@
     function extras(Sc, t) {
       if (Sc.k !== "stag" || !Sc.risk) return;
       var a = E.out(seg(t, 46.0, 46.8)), f = font(700, L.lf);
-      // deviation-loss products: at (Stag, Stag) top right, at (Hare, Hare) bottom left
-      var g = Sc.g;
-      label(num(g.a[0][0] - g.a[1][0], 2) + " × " + num(g.b[0][0] - g.b[0][1], 2) + " = " + num(Sc.risk[0], 2), X(1) - 10, Y(1) + 2.6 * L.lf + 8, "right", C.ink2, f, a);
+      // deviation-loss products: at (Stag, Stag) top right, at (Hare, Hare) bottom left. The top right one sits just
+      // above the square, clear of the mixed equilibrium label (on phones that label moves next to this corner);
+      // when the corner payoff pair itself had to move above the square, the product goes on its left
+      var g = Sc.g, fp = font(700, L.lf + (L.portrait ? 0.5 : 1.5));
+      var pw = pairW(pairParts(g.a[0][0], g.b[0][0]), fp), cp = cornerPos(1, 1, pw, Sc), inside = cp[1] > Y(1);
+      label(num(g.a[0][0] - g.a[1][0], 2) + " × " + num(g.b[0][0] - g.b[0][1], 2) + " = " + num(Sc.risk[0], 2),
+        inside ? X(1) - 14 : cp[0] - pw / 2 - 10, inside ? Y(1) - L.lf * 0.9 - 2 : cp[1], "right", C.ink2, f, a);
       label(num(g.a[1][1] - g.a[0][1], 2) + " × " + num(g.b[1][1] - g.b[1][0], 2) + " = " + num(Sc.risk[1], 2), X(0) + 10, Y(0) - 2.6 * L.lf - 8, "left", HOT, f, a);
     }
 
@@ -1595,8 +1612,9 @@
         esc(T("gtm.x.with", { s: nm(0), p: nice(e.q, 3) })) + "</td><td class='num acc'>" + esc(pair(e.u, e.v, 3)) + "</td></tr>";
     });
     $("x-eqs").innerHTML = h + "</tbody>";
-    $("x-count").textContent = (S.deg ? T("gtm.x.deg") + " " : "") + T("gtm.x.count", { n: S.eqs.length });
-    var kp = [[T("gtm.x.k.n"), String(S.eqs.length), "accent"],
+    var inf = S.deg && continuum(S);
+    $("x-count").textContent = (S.deg ? T("gtm.x.deg") + " " : "") + (inf ? T("gtm.x.count.inf") : T("gtm.x.count", { n: S.eqs.length }));
+    var kp = [[T("gtm.x.k.n"), inf ? "∞" : String(S.eqs.length), "accent"],
       [T("gtm.x.k.p", { s: nm(0) }), S.mix ? nice(S.mix.p, 3) : "·", ""], [T("gtm.x.k.q", { s: nm(0) }), S.mix ? nice(S.mix.q, 3) : "·", ""],
       [T("gtm.x.k.pay"), S.mix ? pair(S.mix.u, S.mix.v, 3) : "·", ""]];
     $("x-kpis").innerHTML = kp.map(function (q) { return '<div class="kpi ' + q[2] + '"><b>' + esc(q[1]) + "</b><span>" + esc(q[0]) + "</span></div>"; }).join("");
@@ -1966,7 +1984,7 @@
     $("gtm-n2").innerHTML = T("gtm.n.p2", { p: nice(bos.mix.p), q: nice(bos.mix.q) });
     $("gtm-n3").innerHTML = T("gtm.n.p3", { k: pct(Spk.mix.p, 1, 1), g: pct(Spk.mix.q, 1, 1), s: T("gtm.pct", { v: num(Spk.mix.u, 1, 1) }) });
     $("gtm-n4").innerHTML = T("gtm.n.p4", { v: nice(oe.v), x: tuple(oe.x.map(function (v) { return nice(v); })), s: num(oe.sigma, 2),
-      h1: num(1.96 * oe.sigma / Math.sqrt(1000), 2), h3: num(1.96 * oe.sigma / Math.sqrt(100000), 3) });
+      h1: num(1.96 * oe.sigma / Math.sqrt(1000), 2), h2: num(1.96 * oe.sigma / Math.sqrt(10000), 3), h3: num(1.96 * oe.sigma / Math.sqrt(100000), 3) });
     $("gtm-n5").innerHTML = T("gtm.n.p5", { ce: num(u1, 2), mx: approx(ceS.mix.u) });
   }
 

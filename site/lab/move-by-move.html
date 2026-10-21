@@ -164,6 +164,8 @@
   .sv-dash { stroke-dasharray: 6 4; }
   .sv-reg { fill: var(--region); stroke: var(--mit-silver); stroke-width: 1; }
   .sv-sus { fill: var(--sel); stroke: var(--accent); stroke-width: 2; }
+  .sv-susf { fill: var(--sel); stroke: none; }
+  .sv-suse { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; }
   .sv-n1 { fill: var(--ink); }
   .sv-n2 { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
   .sv-leaf { fill: var(--ink2); }
@@ -1707,10 +1709,12 @@
       kpi(String(nf.nc), T("gts.e.k.nc"), nf.nc ? "hot" : "");
     var extra = "", res = "", s2 = null;
     if (k === "entry") {
-      var I = G.byPl[1][0], aI = I.acts[0].c.u[1], fI = I.acts[1].c.u[1], eF = I.acts[1].c.u[0], eO = G.root.acts[0].c.u[0];
+      var I = G.byPl[1][0], aI = I.acts[0].c.u[1], fI = I.acts[1].c.u[1], eF = I.acts[1].c.u[0], eO = G.root.acts[0].c.u[0], eA = I.acts[0].c.u[0];
       var cred = fI > aI + EPS, tie = Math.abs(fI - aI) < EPS, deter = cred && eO > eF + EPS;
-      res = T(tie ? "gts.e.entry.tie" : cred ? (deter ? "gts.e.entry.deter" : "gts.e.entry.credible") : "gts.e.entry.empty", {
-        f: fv(G, fI), a: fv(G, aI), o: fv(G, eO), ef: fv(G, eF), spe: speText(G, R) });
+      // each story holds only when the entrant's choice really follows it; otherwise a neutral sentence with the numbers
+      var ekey = tie ? "gts.e.entry.tie" : cred ? (deter ? "gts.e.entry.deter" : (eF > eO + EPS ? "gts.e.entry.credible" : "gts.e.entry.gen")) :
+        (eA > eO + EPS ? "gts.e.entry.empty" : "gts.e.entry.gen");
+      res = T(ekey, { f: fv(G, fI), a: fv(G, aI), o: fv(G, eO), ef: fv(G, eF), i: fv(G, sol.V[I.id][0]), spe: speText(G, R) });
       extra = '<p class="chart-title">' + T("gts.e.nf.title", { a: nf.nr, b: nf.nc_ }) + '</p><p class="tabkey">' + T("gts.e.nf.key") + '</p><div class="tblwrap">' + nfTable(G, nf) + '</div>';
       $("gts-e-fv").textContent = fv(G, ed.entry.fight[1]);
       s2 = { head: "gts.s2.head.entry", tex: T("gts.s2.entry.tex", { vf: ftv(G, fI), va: ftv(G, aI), vo: ftv(G, eO), vef: ftv(G, eF), vrel: fI > aI + EPS ? ">" : (tie ? "=" : "<"),
@@ -1740,7 +1744,12 @@
       extra = '<div class="two" style="margin-top:6px"><div><p class="chart-title">' + T("gts.e.reply.title") + '</p><div class="tblwrap">' + tb + '</div></div><div><p class="chart-title">' +
         T("gts.e.groups.title", { n: nf.nr * nf.nc_ }) + '</p><div class="tblwrap">' + gt + '</div></div></div>';
       var q1 = G.root.acts[sol.ch[G.root.id]].q, q2 = sol.leaf.parent.acts[sol.leaf.ai].q, same = Math.abs(q1 - STACK.q1) < EPS && Math.abs(q2 - STACK.q2) < EPS;
-      res = T(same ? "gts.e.leader.same" : "gts.e.leader.diff", { q1: q1, q2: q2, p: upair(G, sol.leaf.u), s1: fmt(STACK.q1, 1), s2: fmt(STACK.q2, 1),
+      // with ties another subgame perfect equilibrium may still reach the continuous Stackelberg outcome
+      var reach = R.spe.list.some(function (e) {
+        var n = G.root; while (!n.u) n = n.acts[e.plan[n.id]].c;
+        var pa = pathActs(n); return Math.abs(pa[0].q - STACK.q1) < EPS && Math.abs(pa[1].q - STACK.q2) < EPS;
+      });
+      res = T(same ? "gts.e.leader.same" : reach ? "gts.e.leader.alt" : "gts.e.leader.diff", { q1: q1, q2: q2, p: upair(G, sol.leaf.u), s1: fmt(STACK.q1, 1), s2: fmt(STACK.q2, 1),
         sp: pair(fmt(STACK.p1, 2), fmt(STACK.p2, 2)), ne: nf.ne, spe: nspe }) + (sol.ties ? " " + T("gts.e.leader.ties", { spe: speText(G, R) }) : "");
       // the bilevel problem with this menu
       var set = "\\{" + G.menu.join(",\\ ") + "\\}", repl = G.byPl[1].map(function (n) { return "q_2^*(" + n.parent.acts[n.ai].q + ") = " + n.acts[sol.ch[n.id]].q; }).join(",\\ ");
@@ -1751,7 +1760,7 @@
         note: T("gts.s2.leader.note") };
       renderMenu();
     } else {
-      var c = ed.cent, ds = G.dec, endL = ds[ds.length - 1].acts[1].c, t1 = ds[0].acts[0].c, rep = reputation(G, c.a);
+      var c = ed.cent, ds = G.dec, endL = ds[ds.length - 1].acts[1].c, t1 = ds[0].acts[0].c, rep = reputation(G, c.a, sol.leaf !== t1 ? sol.V[G.root.id][0] : null);
       kp += kpi(esc(upair(G, endL.u)), T("gts.e.k.end")) +
         kpi(T("gts.e.k.gapv", { a: fmt(endL.u[0] / sol.leaf.u[0], 1), b: fmt(endL.u[1] / sol.leaf.u[1], 1) }), T("gts.e.k.gap")) +
         kpi(rep.thr === null ? T("gts.e.none") : pctFine(rep.thr), T("gts.e.k.thr"), rep.thr !== null && c.a > rep.thr ? "accent" : "");
@@ -1770,12 +1779,17 @@
     TeX.set($("gts-s2"), s2.tex, s2.plain);
     $("gts-s2-note").innerHTML = s2.note;
   }
-  // the simplified reputation argument: pass once and hope to meet a partner who always passes
-  function reputation(G, a) {
+  // the simplified reputation argument: pass once and hope to meet a partner who always passes.
+  // passV is player 1's subgame perfect value when backward induction already passes at node 1: then no reputation is needed
+  function reputation(G, a, passV) {
     var ds = G.dec, endL = ds[ds.length - 1].acts[1].c, take1 = ds[0].acts[0].c.u[0];
     var taken = ds.length > 1 ? ds[1].acts[0].c.u[0] : endL.u[0];       // player 1 if player 2 takes at node 2
     var best = endL.u[0];                                                 // against a partner who always passes
     ds.forEach(function (n) { if (n.pl === 0) best = Math.max(best, n.acts[0].c.u[0]); });
+    if (passV != null) {
+      return { thr: null, text: T("gts.e.rep.moot"), tex: T("gts.s2.cent.moot.tex", { vv: ftv(G, passV), vtk: ftv(G, take1) }),
+        plain: T("gts.s2.cent.moot.formula", { v: fv(G, passV), tk: fv(G, take1) }), ev: null, best: best, taken: taken, take1: take1 };
+    }
     var thr = null;
     if (take1 <= taken + EPS) thr = 0;
     else if (best > taken + EPS) thr = (take1 - taken) / (best - taken);
@@ -2104,17 +2118,92 @@
     }
     var poly = function (pts) { return pts.map(function (p, i) { return (i ? "L" : "M") + sx(p[0]).toFixed(1) + "," + sy(p[1]).toFixed(1); }).join("") + "Z"; };
     h.push('<path class="sv-reg" d="' + poly(hull) + '"/>');
-    var vs = (1 - rp.w) * Tv + rp.w * Pv, sus = clipHalf(clipHalf(hull, 0, vs), 1, vs);
-    if (!rp.known && sus.length > 2) h.push('<path class="sv-sus" d="' + poly(sus) + '"/>');
-    else if (!rp.known && Math.abs(vs - Rv) < 1e-9) h.push('<circle class="sv-ring" cx="' + sx(Rv) + '" cy="' + sy(Rv) + '" r="6"/>');
+    var SS = sustainSet(rp.w), has = false;
+    if (!rp.known) {
+      if (SS.polys.length) {
+        has = true;
+        h.push('<path class="sv-susf" d="' + SS.polys.map(poly).join("") + '"/>');
+        h.push('<path class="sv-suse" d="' + SS.edges.map(function (e) { return "M" + sx(e[0][0]).toFixed(1) + "," + sy(e[0][1]).toFixed(1) + "L" + sx(e[1][0]).toFixed(1) + "," + sy(e[1][1]).toFixed(1); }).join("") + '"/>');
+      }
+      SS.bits.forEach(function (bt) {
+        has = true;
+        if (bt.length > 1) h.push('<line class="sv-acc" x1="' + sx(bt[0][0]) + '" y1="' + sy(bt[0][1]) + '" x2="' + sx(bt[1][0]) + '" y2="' + sy(bt[1][1]) + '"/>');
+        else h.push('<circle class="sv-ring" cx="' + sx(bt[0][0]) + '" cy="' + sy(bt[0][1]) + '" r="6"/>');
+      });
+    }
     h.push('<circle style="fill:var(--surface);stroke:var(--ink);stroke-width:2.5" cx="' + sx(Pv) + '" cy="' + sy(Pv) + '" r="5"/>');
     [["CC", Rv, Rv], ["CD", Sv, Tv], ["DC", Tv, Sv], ["DD", Pv, Pv]].forEach(function (p) {
       h.push('<text class="b sm sv-halo" x="' + (sx(p[1]) + 7) + '" y="' + (sy(p[2]) - 7) + '">' + p[0] + '</text>');
     });
     h.push('<text class="mut sm" x="' + (W - r) + '" y="' + (H - 4) + '" text-anchor="end">' + esc(T("gts.r.folk.x")) + '</text>');
     h.push('<text class="mut sm" x="' + (l - 30) + '" y="' + (tp + 4) + '">' + esc(T("gts.r.folk.y")) + '</text>');
-    return { svg: '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(T("gts.r.folk.title")) + '">' + h.join("") + '</svg>', vs: vs, area: sus.length > 2 };
+    return { svg: '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(T("gts.r.folk.title")) + '">' + h.join("") + '</svg>', has: has };
   }
+  /* What a public lottery over the four outcomes, drawn again every round, sustains with grim punishment at w.
+     A lottery with support D and mean v works when, for every outcome it can draw and every player,
+     (1 - w) (gain from deviating in that outcome) <= w (v_i - P). The set is the union over the 15 supports. */
+  function sustainSet(w) {
+    var Tv = rp.T, Rv = rp.R, Pv = rp.P, Sv = rp.S, TOL = 1e-9;
+    var prof = [[Rv, Rv, Tv - Rv, Tv - Rv], [Sv, Tv, Pv - Sv, 0], [Tv, Sv, 0, Pv - Sv], [Pv, Pv, 0, 0]];
+    var polys = [], bits = [];
+    function bound(g) { return g <= 0 ? Pv : (w > 0 ? Pv + (1 - w) / w * g : Infinity); }
+    for (var m = 1; m < 16; m++) {
+      var sub = prof.filter(function (a, i) { return (m >> i) & 1; }), g1 = 0, g2 = 0;
+      sub.forEach(function (a) { g1 = Math.max(g1, a[2]); g2 = Math.max(g2, a[3]); });
+      var b1 = bound(g1), b2 = bound(g2);
+      if (!isFinite(b1) || !isFinite(b2)) continue;
+      var c = clipHalf(clipHalf(hull2(sub.map(function (a) { return [a[0], a[1]]; })), 0, b1 - TOL), 1, b2 - TOL);
+      c = c.filter(function (p, i) { var q = c[(i + 1) % c.length]; return c.length === 1 || Math.hypot(p[0] - q[0], p[1] - q[1]) > 1e-12; });
+      if (!c.length) continue;
+      if (Math.abs(area2(c)) > 1e-9) polys.push(c); else bits.push(c);
+    }
+    function inside(p, strict) {                 // inside one of the (convex, counterclockwise) pieces
+      return polys.some(function (q) {
+        for (var i = 0; i < q.length; i++) {
+          var a = q[i], b = q[(i + 1) % q.length], cr = (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
+          if (strict ? cr <= 1e-12 : cr < -1e-7) return false;
+        }
+        return true;
+      });
+    }
+    // the outline of the union: edge pieces whose outer side is not covered by another piece
+    var edges = [], N = 24;
+    polys.forEach(function (q) {
+      for (var i = 0; i < q.length; i++) {
+        var a = q[i], b = q[(i + 1) % q.length], dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy), run = -1;
+        if (len < 1e-9) continue;
+        for (var k = 0; k <= N; k++) {
+          var out = k < N && !inside([a[0] + dx * (k + 0.5) / N + dy / len * 1e-6, a[1] + dy * (k + 0.5) / N - dx / len * 1e-6], true);
+          if (out && run < 0) run = k;
+          if (!out && run >= 0) { edges.push([[a[0] + dx * run / N, a[1] + dy * run / N], [a[0] + dx * k / N, a[1] + dy * k / N]]); run = -1; }
+        }
+      }
+    });
+    // isolated points or segments that no piece covers, apart from (P, P) itself
+    var lone = [], seen = {};
+    bits.forEach(function (c) {
+      var lo = c[0], hi = c[0];
+      c.forEach(function (p) { if (p[0] + p[1] < lo[0] + lo[1] - 1e-12 || (Math.abs(p[0] + p[1] - lo[0] - lo[1]) < 1e-12 && p[0] < lo[0])) lo = p; if (p[0] + p[1] > hi[0] + hi[1] + 1e-12 || (Math.abs(p[0] + p[1] - hi[0] - hi[1]) < 1e-12 && p[0] > hi[0])) hi = p; });
+      var seg2 = Math.hypot(hi[0] - lo[0], hi[1] - lo[1]) > 1e-6 ? [lo, hi] : [lo], mid = [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2];
+      if (inside(mid, false)) return;
+      if (seg2.length === 1 && Math.abs(lo[0] - Pv) < 1e-9 && Math.abs(lo[1] - Pv) < 1e-9) return;
+      var key = seg2.map(function (p) { return p[0].toFixed(6) + "," + p[1].toFixed(6); }).join(";");
+      if (seen[key]) return;
+      seen[key] = true;
+      lone.push(seg2);
+    });
+    return { polys: polys, edges: edges, bits: lone };
+  }
+  function hull2(pts) {                          // convex hull, counterclockwise (monotone chain); collinear points dropped
+    pts = pts.slice().sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+    if (pts.length < 3) return pts;
+    var cr = function (o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }, lo = [], up = [], i;
+    for (i = 0; i < pts.length; i++) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], pts[i]) <= 1e-12) lo.pop(); lo.push(pts[i]); }
+    for (i = pts.length - 1; i >= 0; i--) { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], pts[i]) <= 1e-12) up.pop(); up.push(pts[i]); }
+    lo.pop(); up.pop();
+    return lo.concat(up);
+  }
+  function area2(q) { var s = 0; for (var i = 0; i < q.length; i++) { var a = q[i], b = q[(i + 1) % q.length]; s += a[0] * b[1] - a[1] * b[0]; } return s / 2; }
   function clipHalf(poly, k, v) {                // keep the points with coordinate k at least v
     var out = [];
     for (var i = 0; i < poly.length; i++) {
@@ -2187,7 +2276,7 @@
       var F = folkSvg(th);
       $("gts-r-folk").innerHTML = F.svg;
       $("gts-r-folk-note").innerHTML = rp.known ? T("gts.r.folk.known") :
-        T(F.area ? "gts.r.folk.note" : (Math.abs(F.vs - rp.R) < 1e-9 ? "gts.r.folk.edge" : "gts.r.folk.empty"), { v: fmt(F.vs, 2), w: fmt(d, 2, 2), p: fmt(rp.P, 1), t: fmt(rp.T, 1) });
+        T(F.has ? "gts.r.folk.note" : "gts.r.folk.empty", { w: fmt(d, 2, 2), p: fmt(rp.P, 1) });
       var pols = mdp(d), best = Math.max.apply(null, pols.map(function (p) { return p.vC; }));
       var tb = '<thead><tr><th>' + T("gts.r.mdp.pol") + '</th><th class="num">' + T("gts.r.mdp.vc") + '</th><th class="num">' + T("gts.r.mdp.vd") + '</th></tr></thead><tbody>';
       pols.forEach(function (p) {
@@ -2254,7 +2343,7 @@
     ends.forEach(function (e) { hh.push('<text class="' + e.cls + ' sm" x="' + (W - r + 6) + '" y="' + (e.y + 4) + '">' + esc(T("gts.r.short." + STRATS[e.i])) + '</text>'); });
     $("gts-r-eco").innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(T("gts.r.eco")) + '">' + hh.join("") + '</svg>';
     var fin2 = res.hist[res.hist.length - 1], ecoTop = fin2.indexOf(Math.max.apply(null, fin2));
-    $("gts-r-tres").innerHTML = T("gts.r.tres", { a: T("gts.r.s." + STRATS[order[0]]), sa: fmt(res.score[order[0]], 3), e: T("gts.r.s." + STRATS[ecoTop]), se: pct(fin2[ecoTop], 1),
+    $("gts-r-tres").innerHTML = T(ecoTop === STRATS.indexOf("alld") ? "gts.r.tres1" : "gts.r.tres", { a: T("gts.r.s." + STRATS[order[0]]), sa: fmt(res.score[order[0]], 3), e: T("gts.r.s." + STRATS[ecoTop]), se: pct(fin2[ecoTop], 1),
       d: T("gts.r.s.alld"), sd: pct(fin2[STRATS.indexOf("alld")], 1), g: GENS });
   }
   [["gts-r-t", "T"], ["gts-r-r", "R"], ["gts-r-p", "P"], ["gts-r-s", "S"], ["gts-r-w", "w"], ["gts-r-e", "e"]].forEach(function (p) {

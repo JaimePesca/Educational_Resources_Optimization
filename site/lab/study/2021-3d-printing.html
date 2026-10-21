@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en" data-i18n-langs="es en nl" data-title-key="stdkp.title" data-i18n-bundles="lab/study/common lab/study/2021-3d-printing">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Packing 3D Printers for Disaster Relief: When Does It Pay Off?</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../../assets/study.css?v=__BUILD__">
+<style>
+  /* ---- "Try it": the two-stage 3D-printing knapsack of Example 1 ---- */
+  .dk-segs { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: flex-end; }
+  .dk-segs .lbl i, .dk-segs .lbl sub { font-weight: 600; }
+  .dk-segs .seg { align-self: flex-start; }
+  /* first stage: the hold, one grid column per unit of capacity */
+  .dk-hold { display: grid; gap: 3px; min-height: 52px; }
+  .dk-blk { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 52px; border-radius: 2px;
+    font: 600 12.5px var(--font-sans); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 3px; }
+  .dk-blk.it { background: var(--surface2); border: 2px solid var(--ink); color: var(--ink); }
+  .dk-blk.it2 { background: repeating-linear-gradient(135deg, var(--surface2) 0 6px, var(--surface) 6px 12px); }
+  .dk-blk.pr { background: var(--accent); border: 2px solid var(--accent); color: var(--on-solid); }
+  .dk-blk.mt { background: var(--sel); border: 2px solid var(--mit-bright); color: var(--accent-text); }
+  .dk-blk.em { border: 1.5px dashed var(--mit-silver); background: transparent; }
+  .dk-cap { margin: 6px 0 0; font-size: 13.5px; color: var(--ink2); }
+  .dk-cap b { color: var(--ink); }
+  .dk-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
+  .dk-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dk-legend i { width: 14px; height: 12px; border-radius: 2px; display: inline-block; flex: none; }
+  .dk-legend i.it { background: var(--surface2); border: 2px solid var(--ink); }
+  .dk-legend i.it2 { border: 2px solid var(--ink); background: repeating-linear-gradient(135deg, var(--surface2) 0 3px, var(--surface) 3px 6px); }
+  .dk-legend i.pr { background: var(--accent); }
+  .dk-legend i.mt { background: var(--sel); border: 2px solid var(--mit-bright); }
+  .dk-legend i.em { border: 1.5px dashed var(--mit-silver); }
+  .dk-legend i.l-best { height: 0; border-top: 3px solid var(--accent); border-radius: 0; }
+  .dk-legend i.l-zero { height: 0; border-top: 2px dashed var(--ink); border-radius: 0; }
+  .dk-legend i.l-ws { height: 0; border-top: 2px solid var(--mit-silver); border-radius: 0; }
+  .dk-legend i.l-thr { width: 10px; height: 10px; transform: rotate(45deg); background: var(--surface); border: 2px solid var(--mit-bright); border-radius: 0; }
+  .dk-legend i.l-now { width: 0; height: 13px; border-left: 2px solid var(--ink2); border-radius: 0; }
+  /* second stage: one card per scenario */
+  .dk-scen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 560px) { .dk-scen { grid-template-columns: minmax(0, 1fr); } }
+  .dk-card { border: 1px solid var(--border); border-radius: 3px; padding: 10px 12px; background: var(--surface); display: grid; gap: 4px; min-width: 0; }
+  .dk-card p { margin: 0; font-size: 13.5px; color: var(--ink2); line-height: 1.4; }
+  .dk-card p b { color: var(--ink); }
+  .dk-card .dk-card-h { font-size: 14px; color: var(--ink); }
+  .dk-card .dk-card-h b { color: var(--accent-text); }
+  .dk-card .dk-card-r { border-top: 1px solid var(--grid); padding-top: 5px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .dk-card.is-off { opacity: 0.55; }
+  .dk-bound { margin: 0; font-size: 13.5px; color: var(--ink2); }
+  .dk-bound b { color: var(--ink); }
+  /* chart */
+  .dk-chart svg .grid { stroke: var(--grid); stroke-width: 1; }
+  .dk-chart svg .axis { stroke: var(--axis); stroke-width: 1.2; }
+  .dk-chart svg .tick { fill: var(--muted); font-size: 11px; }
+  .dk-chart svg .lab { fill: var(--ink2); font-size: 12px; }
+  .dk-chart svg .best { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linejoin: round; }
+  .dk-chart svg .zero { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-dasharray: 6 4; }
+  .dk-chart svg .ws { fill: none; stroke: var(--mit-silver); stroke-width: 2; }
+  .dk-chart svg .now { stroke: var(--ink2); stroke-width: 1.5; }
+  .dk-chart svg .now-t { fill: var(--ink); font-size: 12px; font-weight: 700; }
+  .dk-chart svg .thr { fill: var(--surface); stroke: var(--mit-bright); stroke-width: 2.2; }
+  .dk-chart svg .dot { fill: var(--accent); stroke: var(--surface); stroke-width: 1.5; }
+  @media (max-width: 520px) { .st-tbl .wide { display: none; } .st-tbl td, .st-tbl th { padding: 6px 5px; } .st-tbl td.num { font-size: 11.5px; } }
+  .dk-tbl td.load { font-size: 12.5px; line-height: 1.35; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="st-crumbs" data-i18n-attr="aria-label:stu.crumbLabel">
+      <a class="backlink" href="../index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.lab"></span></a>
+      <span class="sep" aria-hidden="true">/</span>
+      <a class="backlink" href="index.html" data-keep-lang data-i18n="stu.crumb"></a>
+    </nav>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<main class="wrap" id="study-root" data-study-paper="2021-3d-printing" data-study-prefix="stdkp">
+  <!-- The "Try it" widget: assets/study.js moves this node into the "Try it" section and shows it -->
+  <div id="study-try" class="st-w" hidden>
+    <div class="st-w-row">
+      <div class="st-w-group">
+        <span class="lbl" id="dk-pre-lbl" data-i18n="stdkp.w.presets"></span>
+        <div class="st-presets" id="dk-presets" role="group" aria-labelledby="dk-pre-lbl">
+          <button type="button" class="st-btn" data-preset="ex1" data-i18n="stdkp.w.p.ex1"></button>
+          <button type="button" class="st-btn" data-preset="lowq" data-i18n="stdkp.w.p.lowq"></button>
+          <button type="button" class="st-btn" data-preset="heavy" data-i18n="stdkp.w.p.heavy"></button>
+          <button type="button" class="st-btn" data-preset="sure" data-i18n="stdkp.w.p.sure"></button>
+          <button type="button" class="st-btn" data-preset="big" data-i18n="stdkp.w.p.big"></button>
+          <button type="button" class="st-btn" data-preset="time" data-i18n="stdkp.w.p.time"></button>
+        </div>
+      </div>
+    </div>
+    <div class="st-sliders">
+      <div class="st-rng">
+        <label for="dk-alpha" data-i18n-html="stdkp.w.alpha"></label><output id="dk-alpha-out" for="dk-alpha"></output>
+        <input type="range" id="dk-alpha" min="0" max="1" step="0.01" value="0.8">
+      </div>
+      <div class="st-rng">
+        <label for="dk-q" data-i18n-html="stdkp.w.q"></label><output id="dk-q-out" for="dk-q"></output>
+        <input type="range" id="dk-q" min="0" max="1" step="0.01" value="0.7">
+      </div>
+    </div>
+    <div class="dk-segs">
+      <div class="st-w-group">
+        <span class="lbl" id="dk-W-lbl" data-i18n-html="stdkp.w.W"></span>
+        <div class="seg" data-knob="W" role="group" aria-labelledby="dk-W-lbl">
+          <button type="button" data-v="4">4</button><button type="button" data-v="6">6</button><button type="button" data-v="8">8</button><button type="button" data-v="10">10</button><button type="button" data-v="12">12</button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="dk-wp-lbl" data-i18n-html="stdkp.w.wp"></span>
+        <div class="seg" data-knob="wp" role="group" aria-labelledby="dk-wp-lbl">
+          <button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="dk-m-lbl" data-i18n-html="stdkp.w.m"></span>
+        <div class="seg" data-knob="m" role="group" aria-labelledby="dk-m-lbl">
+          <button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="dk-T-lbl" data-i18n-html="stdkp.w.T"></span>
+        <div class="seg" data-knob="T" role="group" aria-labelledby="dk-T-lbl">
+          <button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="dk-d-lbl" data-i18n-html="stdkp.w.d"></span>
+        <div class="seg" data-knob="d" role="group" aria-labelledby="dk-d-lbl">
+          <button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="st-w-head" data-i18n="stdkp.w.first"></p>
+      <div class="dk-hold" id="dk-hold" role="img"></div>
+      <p class="dk-cap" id="dk-cap"></p>
+      <div class="dk-legend" id="dk-hold-leg"></div>
+    </div>
+    <div>
+      <p class="st-w-head" data-i18n="stdkp.w.second"></p>
+      <div class="dk-scen" id="dk-scen"></div>
+    </div>
+    <div class="st-kpis" id="dk-kpis"></div>
+    <p class="st-verdict" id="dk-verdict" aria-live="polite"></p>
+    <p class="dk-bound" id="dk-bound"></p>
+    <div>
+      <p class="st-w-head" data-i18n="stdkp.w.chart"></p>
+      <div class="st-chart dk-chart" id="dk-chart" role="img" data-i18n-attr="aria-label:stdkp.w.chart.aria"></div>
+      <div class="dk-legend" id="dk-chart-leg"></div>
+    </div>
+    <div>
+      <p class="st-w-head" data-i18n="stdkp.w.tbl"></p>
+      <div class="st-tbl dk-tbl" id="dk-tbl"></div>
+    </div>
+  </div>
+</main>
+
+<script src="../../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/common.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/2021-3d-printing.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="papers.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/study.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+
+  // ---- the TSS-3DKP of Example 1 (p. 4) with a few knobs; every number below is computed here, nothing is stored ----
+  // Fixed data of Example 1: two printable item types (N = N^p = {1, 2}) with w_i = v_i = 4, rewards r = (1, 2),
+  // one unit of material w_b = v_b = 1, printing time t_1 = t_2 = 1. Weight and volume coincide (W = V, w_p = v_p),
+  // so constraint (2) repeats (1). Scenario s1 (probability q) asks for d units of item 1, s2 (1 - q) for d units of item 2.
+  var R = [1, 2], WI = [4, 4], TI = [1, 1], WB = 1, EPS = 1e-9;
+  var PRESETS = {
+    ex1:   { alpha: 0.8, q: 0.7, W: 4,  wp: 2, m: 2, T: 1, d: 1 },   // Example 1 as printed (p. 4)
+    lowq:  { alpha: 0.5, q: 0.7, W: 4,  wp: 2, m: 2, T: 1, d: 1 },   // printed items worth half
+    heavy: { alpha: 0.8, q: 0.7, W: 4,  wp: 3, m: 2, T: 1, d: 1 },   // the printer leaves too little room for material
+    sure:  { alpha: 0.8, q: 1,   W: 4,  wp: 2, m: 2, T: 1, d: 1 },   // no uncertainty: s1 for sure
+    big:   { alpha: 0.8, q: 0.7, W: 12, wp: 2, m: 2, T: 1, d: 2 },   // room for physical items and a printer
+    time:  { alpha: 0.8, q: 0.7, W: 12, wp: 2, m: 2, T: 1, d: 3 }    // one print per printer, three units demanded
+  };
+  var KNOBS = ["W", "wp", "m", "T", "d"];
+  var P = Object.assign({}, PRESETS.ex1), res = null, pending = false;
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+
+  function scenarios() {
+    return [{ name: "<i>s</i><sub>1</sub>", q: P.q, d: [P.d, 0] }, { name: "<i>s</i><sub>2</sub>", q: 1 - P.q, d: [0, P.d] }];
+  }
+
+  // can the print vector x be split over ap printers with T time units each (constraint (9))? exact search
+  function fits(x, ap, T) {
+    var items = [];
+    for (var i = 0; i < x.length; i++) for (var k = 0; k < x[i]; k++) items.push(TI[i]);
+    if (!items.length) return true;
+    if (ap === 0) return false;
+    items.sort(function (a, b) { return b - a; });
+    var loads = [];
+    for (var j = 0; j < ap; j++) loads.push(0);
+    function dfs(k) {
+      if (k === items.length) return true;
+      var seen = {};
+      for (var j = 0; j < ap; j++) {
+        if (loads[j] + items[k] <= T && !seen[loads[j]]) {
+          seen[loads[j]] = true; loads[j] += items[k];
+          if (dfs(k + 1)) return true;
+          loads[j] -= items[k];
+        }
+      }
+      return false;
+    }
+    return dfs(0);
+  }
+
+  // second stage Q(a, s): physically brought items meet demand first, a_i^s = min{a_i, d_i^s} as in the article (p. 4);
+  // then every print vector within the remaining demand (6), the material (8) and the printing time (9) is tried.
+  // The printed reward is alpha times the full reward, so the best print vector does not depend on alpha:
+  // Q(a, s) = phys + alpha * printed, a line in alpha.
+  function recourse(L, dem) {
+    var phys = [Math.min(L.a[0], dem[0]), Math.min(L.a[1], dem[1])];
+    var best = { R: 0, x: [0, 0] };
+    for (var x0 = 0; x0 <= dem[0] - phys[0]; x0++) {
+      for (var x1 = 0; x1 <= dem[1] - phys[1]; x1++) {
+        if ((x0 + x1) * P.m > L.ab) continue;
+        if (!fits([x0, x1], L.ap, P.T)) continue;
+        var r = x0 * R[0] + x1 * R[1];
+        if (r > best.R || (r === best.R && x0 + x1 < best.x[0] + best.x[1])) best = { R: r, x: [x0, x1] };
+      }
+    }
+    return { dem: dem, phys: phys, P: phys[0] * R[0] + phys[1] * R[1], R: best.R, x: best.x };
+  }
+
+  // every first-stage load that satisfies (1) to (4); (3) with a big M: material only with at least one printer
+  function loads() {
+    var out = [], W = P.W;
+    for (var a1 = 0; a1 * WI[0] <= W; a1++)
+      for (var a2 = 0; a1 * WI[0] + a2 * WI[1] <= W; a2++)
+        for (var ap = 0; a1 * WI[0] + a2 * WI[1] + ap * P.wp <= W; ap++)
+          for (var ab = 0; a1 * WI[0] + a2 * WI[1] + ap * P.wp + ab * WB <= W; ab++) {
+            if (ab > 0 && ap === 0) continue;
+            out.push({ a: [a1, a2], ap: ap, ab: ab, w: a1 * WI[0] + a2 * WI[1] + ap * P.wp + ab * WB });
+          }
+    return out;
+  }
+  // among equally good loads, show the leanest: fewest printers, then least space, material and items
+  function leaner(x, y) { return x.ap - y.ap || x.w - y.w || x.ab - y.ab || (x.a[0] + x.a[1]) - (y.a[0] + y.a[1]) || x.a[0] - y.a[0]; }
+
+  function solve() {
+    var sc = scenarios(), L = loads(), al = P.alpha;
+    L.forEach(function (l) {
+      l.rec = sc.map(function (s) { return recourse(l, s.d); });
+      l.A = 0; l.B = 0;
+      sc.forEach(function (s, k) { l.A += s.q * l.rec[k].P; l.B += s.q * l.rec[k].R; });
+      l.E = l.A + al * l.B;
+    });
+    var best = -1, best0 = -1;
+    L.forEach(function (l) { if (l.E > best) best = l.E; if (l.ap === 0 && l.E > best0) best0 = l.E; });
+    var opt = L.filter(function (l) { return l.E >= best - EPS; }).sort(leaner);
+    var opt0 = L.filter(function (l) { return l.ap === 0 && l.E >= best0 - EPS; }).sort(leaner);
+    // a tie worth mentioning: a load that actually prints (not one with an idle printer in spare room) is also optimal
+    var minAp = opt[0].ap, tieWithPrinter = best - best0 <= EPS && al > EPS && opt.some(function (l) { return l.ap > 0 && l.B > EPS; });
+    // quality threshold: every load is a line A + alpha B, and loads without printers do not depend on alpha,
+    // so a printer strictly beats them exactly when alpha > min over printer loads of (best0 - A) / B
+    var thr = null;
+    L.forEach(function (l) {
+      if (l.ap === 0 || l.B <= EPS) return;
+      var a = Math.max(0, (best0 - l.A) / l.B);
+      if (thr === null || a < thr) thr = a;
+    });
+    // wait and see: the best load for each scenario separately (WS); also without printers
+    function waitSee(alpha, noPrinters) {
+      var ws = 0;
+      sc.forEach(function (s, k) {
+        var m = 0;
+        L.forEach(function (l) { if (noPrinters && l.ap > 0) return; var v = l.rec[k].P + alpha * l.rec[k].R; if (v > m) m = v; });
+        ws += s.q * m;
+      });
+      return ws;
+    }
+    var ws = waitSee(al, false), ws0 = waitSee(al, true);
+    // the bound of Section 4.1: all demand of a scenario to printers in index order, next printer when T would be exceeded
+    var U = 0;
+    sc.forEach(function (s) {
+      var k = 0, load = null;
+      for (var i = 0; i < 2; i++) for (var n = 0; n < s.d[i]; n++) {
+        if (load === null || load + TI[i] > P.T) { k++; load = 0; }
+        load += TI[i];
+      }
+      if (k > U) U = k;
+    });
+    var cap = Math.floor(P.W / P.wp), Z = Math.min(cap, cap, U);
+    // the best load for every number of printers
+    var maxAp = 0; L.forEach(function (l) { if (l.ap > maxAp) maxAp = l.ap; });
+    var byAp = [];
+    for (var k = 0; k <= maxAp; k++) {
+      var c = L.filter(function (l) { return l.ap === k; });
+      var b = -1; c.forEach(function (l) { if (l.E > b) b = l.E; });
+      byAp.push({ ap: k, E: b, load: c.filter(function (l) { return l.E >= b - EPS; }).sort(leaner)[0] });
+    }
+    return {
+      sc: sc, L: L, n: L.length, best: best, best0: best0, opt: opt, opt0: opt0, show: opt[0], minAp: minAp,
+      tieWithPrinter: tieWithPrinter, thr: thr, ws: ws, ws0: ws0, U: U, cap: cap, Z: Z, maxAp: maxAp, byAp: byAp
+    };
+  }
+  // the curves of the chart: best expected reward with and without printers and WS, as functions of alpha
+  function curveAt(alpha) {
+    var b = 0, ws = 0;
+    res.L.forEach(function (l) { var v = l.A + alpha * l.B; if (v > b) b = v; });
+    res.sc.forEach(function (s, k) {
+      var m = 0;
+      res.L.forEach(function (l) { var v = l.rec[k].P + alpha * l.rec[k].R; if (v > m) m = v; });
+      ws += s.q * m;
+    });
+    return { best: b, ws: ws };
+  }
+
+  // ---- formatting ----
+  function fv(v) { return I18N.fmt(Math.abs(v) < 5e-10 ? 0 : v, 4, 2); }
+  function f2(v) { return I18N.fmt(v, 2, 2); }
+  function pct(v) { return t("stdkp.w.pct", { v: I18N.fmt(v, 1, 1) }); }
+  function h(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function svg(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function loadText(l) {
+    var parts = [];
+    if (l.a[0]) parts.push(t("stdkp.w.part", { n: l.a[0], what: t("stdkp.w.item", { i: 1 }) }));
+    if (l.a[1]) parts.push(t("stdkp.w.part", { n: l.a[1], what: t("stdkp.w.item", { i: 2 }) }));
+    if (l.ap) parts.push(t("stdkp.w.part", { n: l.ap, what: t(l.ap === 1 ? "stdkp.w.printer1" : "stdkp.w.printerN") }));
+    if (l.ab) parts.push(t("stdkp.w.part", { n: l.ab, what: t("stdkp.w.material") }));
+    return parts.length ? parts.join(" · ") : t("stdkp.w.nothing");
+  }
+  function itemsText(x) {
+    var parts = [];
+    for (var i = 0; i < 2; i++) if (x[i]) parts.push(t("stdkp.w.part", { n: x[i], what: t("stdkp.w.item", { i: i + 1 }) }));
+    return parts.length ? parts.join(" · ") : t("stdkp.w.none");
+  }
+
+  // ---- first stage: the hold ----
+  function drawHold() {
+    var l = res.show, host = $("dk-hold"); host.textContent = "";
+    host.style.gridTemplateColumns = "repeat(" + P.W + ", minmax(0, 1fr))";
+    function blk(cls, span, text) {
+      var b = h("div", "dk-blk " + cls, text); b.style.gridColumn = "span " + span; host.appendChild(b);
+    }
+    for (var i = 0; i < 2; i++) for (var k = 0; k < l.a[i]; k++) blk("it" + (i === 1 ? " it2" : ""), WI[i], t("stdkp.w.hold.item", { i: i + 1 }));
+    for (var p = 0; p < l.ap; p++) blk("pr", P.wp, P.wp >= 3 ? t("stdkp.w.hold.p") : "3D");
+    for (var b = 0; b < l.ab; b++) blk("mt", WB, "m");
+    for (var e = l.w; e < P.W; e++) blk("em", 1, "");
+    host.setAttribute("aria-label", t("stdkp.w.hold.aria", { load: loadText(l), w: l.w, W: P.W }));
+    $("dk-cap").innerHTML = t("stdkp.w.cap", { load: loadText(l), w: l.w, W: P.W });
+    var leg = $("dk-hold-leg"); leg.textContent = "";
+    [["it", t("stdkp.w.hold.item", { i: 1 })], ["it it2", t("stdkp.w.hold.item", { i: 2 })], ["pr", t("stdkp.w.leg.p", { w: P.wp })],
+     ["mt", t("stdkp.w.leg.m")], ["em", t("stdkp.w.leg.e")]].forEach(function (L) {
+      var sp = h("span"), ic = h("i", L[0]); sp.append(ic, document.createTextNode(L[1])); leg.appendChild(sp);
+    });
+  }
+
+  // ---- second stage: one card per scenario for the load shown ----
+  function drawScenarios() {
+    var host = $("dk-scen"); host.textContent = "";
+    res.sc.forEach(function (s, k) {
+      var r = res.show.rec[k], card = h("div", "dk-card" + (s.q < EPS ? " is-off" : ""));
+      var printed = r.x[0] + r.x[1], unmet = s.d[0] + s.d[1] - r.phys[0] - r.phys[1] - printed;
+      var val = r.P + P.alpha * r.R;
+      function line(cls, html) { var p = h("p", cls); p.innerHTML = html; card.appendChild(p); }
+      line("dk-card-h", t("stdkp.w.sc.h", { s: s.name, q: f2(s.q) }));
+      line(null, t("stdkp.w.sc.dem", { what: itemsText(s.d) }));
+      line(null, t("stdkp.w.sc.phys", { what: itemsText(r.phys) }));
+      line(null, printed ? t("stdkp.w.sc.print", { what: itemsText(r.x), mat: printed * P.m, ab: res.show.ab })
+                         : t("stdkp.w.sc.noprint"));
+      line(null, t("stdkp.w.sc.unmet", { n: unmet }));
+      line("dk-card-r", t("stdkp.w.sc.r", { v: fv(val), qv: fv(s.q * val) }));
+      host.appendChild(card);
+    });
+  }
+
+  function kpi(label, value, cls) {
+    var d = h("div", "st-kpi" + (cls ? " " + cls : "")); d.append(h("b", null, value), h("span", null, label)); return d;
+  }
+
+  function drawKpis() {
+    var k = $("dk-kpis"); k.textContent = "";
+    var gain = res.best0 > EPS ? pct(100 * (res.best - res.best0) / res.best0) : t("stdkp.w.na");
+    var evpi = res.ws - res.best, evpi0 = res.ws0 - res.best0;
+    function withPct(v, base) { return fv(v) + " (" + (base > EPS ? pct(100 * v / base) : t("stdkp.w.na")) + ")"; }
+    k.append(
+      kpi(t("stdkp.w.k.best"), fv(res.best), "accent"),
+      kpi(t("stdkp.w.k.best0"), fv(res.best0)),
+      kpi(t("stdkp.w.k.gain"), gain),
+      kpi(t("stdkp.w.k.ap"), t("stdkp.w.k.apv", { n: res.minAp, Z: res.Z }), res.minAp > res.Z ? "warn" : null),
+      kpi(t("stdkp.w.k.evpi"), withPct(evpi, res.best)),
+      kpi(t("stdkp.w.k.evpi0"), withPct(evpi0, res.best0)));
+  }
+
+  function verdict() {
+    var v = $("dk-verdict"), parts = [], l = res.show, sure = P.q < EPS || P.q > 1 - EPS, pack = res.best - res.best0 > EPS;
+    if (pack) {
+      parts.push(t(l.ap === 1 ? "stdkp.w.v.pack1" : "stdkp.w.v.packN", { n: l.ap }));
+      // with certain demand nothing is hedged: the gain can only come from packing material instead of items
+      parts.push(t(sure ? "stdkp.w.v.packWhySure" : "stdkp.w.v.packWhy", { load: loadText(l), v: fv(res.best), v0: fv(res.best0), load0: loadText(res.opt0[0]) }));
+      if (res.thr !== null) parts.push(t("stdkp.w.v.thr", { a: I18N.fmt(res.thr, 4, 2) }));
+      v.className = "st-verdict ok";
+    } else {
+      parts.push(t("stdkp.w.v.no", { load: loadText(res.opt0[0]), v: fv(res.best0) }));
+      if (res.tieWithPrinter) parts.push(t("stdkp.w.v.tie"));
+      if (res.thr !== null && res.thr < 1 - EPS) parts.push(t("stdkp.w.v.thrNo", { a: I18N.fmt(res.thr, 4, 2) }));
+      else parts.push(t("stdkp.w.v.never"));
+      v.className = "st-verdict";
+    }
+    if (sure) { if (!pack) parts.push(t("stdkp.w.v.sure")); }
+    else parts.push(t("stdkp.w.v.ws", { ws: fv(res.ws), evpi: fv(res.ws - res.best) }));
+    v.innerHTML = parts.join(" ");
+  }
+
+  function boundLine() {
+    $("dk-bound").innerHTML = t("stdkp.w.bound", { U: res.U, cap: res.cap, Z: res.Z, k: res.minAp, n: res.n }) + " " +
+      t(res.minAp <= res.Z ? "stdkp.w.bound.ok" : "stdkp.w.bound.bad");
+  }
+
+  // ---- chart: expected reward against alpha ----
+  function boxWidth(id) { var w = $(id).clientWidth; return Math.max(280, Math.min(1000, w || 640)); }
+  function drawChart() {
+    var host = $("dk-chart"); host.textContent = "";
+    var CW = boxWidth("dk-chart"), CH = CW < 520 ? 240 : Math.round(Math.min(300, CW * 0.34));
+    var ML = 44, MR = 14, MT = 14, MB = 36, n = 200, pts = [];
+    for (var k = 0; k <= n; k++) { var a = k / n, c = curveAt(a); pts.push({ a: a, best: c.best, ws: c.ws }); }
+    var top = 0; pts.forEach(function (p) { if (p.ws > top) top = p.ws; if (p.best > top) top = p.best; });
+    var step = top > 3 ? 1 : top > 1.5 ? 0.5 : top > 0.6 ? 0.25 : 0.1;
+    var ymax = Math.max(step, Math.ceil(top * 1.08 / step) * step);
+    function X(a) { return ML + (CW - ML - MR) * a; }
+    function Y(v) { return MT + (CH - MT - MB) * (1 - v / ymax); }
+    var s = svg("svg", { viewBox: "0 0 " + CW + " " + CH, width: CW, height: CH, "aria-hidden": "true" });
+    for (var g = 0; g <= 1.0001; g += 0.25) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(g), x2: X(g), y1: Y(0), y2: Y(ymax) }));
+      s.appendChild(svg("text", { "class": "tick", x: X(g), y: Y(0) + 16, "text-anchor": "middle" }, I18N.fmt(g, 2)));
+    }
+    for (var v = 0; v <= ymax + 1e-9; v += step) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(0), x2: X(1), y1: Y(v), y2: Y(v) }));
+      s.appendChild(svg("text", { "class": "tick", x: ML - 8, y: Y(v) + 4, "text-anchor": "end" }, I18N.fmt(v, 2)));
+    }
+    s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(1), y1: Y(0), y2: Y(0) }));
+    s.appendChild(svg("text", { "class": "lab", x: X(1), y: CH - 4, "text-anchor": "end" }, t("stdkp.w.ax.a")));
+    function path(key) {
+      var d = "";
+      pts.forEach(function (p, i) { d += (i ? "L" : "M") + X(p.a).toFixed(1) + " " + Y(p[key]).toFixed(1); });
+      return d;
+    }
+    s.appendChild(svg("path", { "class": "ws", d: path("ws") }));
+    s.appendChild(svg("line", { "class": "zero", x1: X(0), x2: X(1), y1: Y(res.best0), y2: Y(res.best0) }));
+    s.appendChild(svg("path", { "class": "best", d: path("best") }));
+    // the chosen alpha and the threshold
+    var nx = X(P.alpha);
+    s.appendChild(svg("line", { "class": "now", x1: nx, x2: nx, y1: Y(0), y2: Y(ymax) }));
+    s.appendChild(svg("circle", { "class": "dot", cx: nx, cy: Y(res.best), r: 5.5 }));
+    var lab = "α = " + f2(P.alpha), right = P.alpha < 0.8;
+    s.appendChild(svg("text", { "class": "now-t", x: right ? nx + 7 : nx - 7, y: MT + 12, "text-anchor": right ? "start" : "end" }, lab));
+    if (res.thr !== null && res.thr < 1 - EPS) {
+      var tx = X(res.thr), ty = Y(res.best0);
+      s.appendChild(svg("path", { "class": "thr", d: "M" + tx + " " + (ty - 7) + "l7 7l-7 7l-7 -7z" }));
+    }
+    host.appendChild(s);
+    var leg = $("dk-chart-leg"); leg.textContent = "";
+    var items = [["l-best", t("stdkp.w.leg.best")], ["l-zero", t("stdkp.w.leg.zero")], ["l-ws", t("stdkp.w.leg.ws")], ["l-now", t("stdkp.w.leg.now")]];
+    if (res.thr !== null && res.thr < 1 - EPS) items.splice(2, 0, ["l-thr", t("stdkp.w.leg.thr", { a: I18N.fmt(res.thr, 4, 2) })]);
+    items.forEach(function (L) { var sp = h("span"), ic = h("i", L[0]); sp.append(ic, document.createTextNode(L[1])); leg.appendChild(sp); });
+  }
+
+  // ---- table: the best load for every number of printers ----
+  function drawTable() {
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    [["stdkp.w.t.ap", "num"], ["stdkp.w.t.load", ""], ["stdkp.w.t.s1", "num wide"], ["stdkp.w.t.s2", "num wide"], ["stdkp.w.t.E", "num"]].forEach(function (c) {
+      tr.appendChild(h("th", c[1], t(c[0])));
+    });
+    thead.appendChild(tr); tb.appendChild(thead);
+    var body = h("tbody"), last = Math.min(res.maxAp, Math.max(res.Z, res.minAp) + 1);
+    res.byAp.slice(0, last + 1).forEach(function (row) {
+      var l = row.load, isOpt = row.E >= res.best - EPS, r = h("tr", isOpt ? "grand" : null);
+      var e = h("td", "num", fv(row.E));
+      if (isOpt) { e.appendChild(document.createTextNode(" ")); e.appendChild(h("span", "ok", "✓")); }
+      r.append(h("td", "num", String(row.ap)), h("td", "load", loadText(l)),
+        h("td", "num wide", fv(l.rec[0].P + P.alpha * l.rec[0].R)), h("td", "num wide", fv(l.rec[1].P + P.alpha * l.rec[1].R)), e);
+      body.appendChild(r);
+    });
+    if (res.maxAp > last) {
+      var rest = res.byAp.slice(last + 1), b = -1;
+      rest.forEach(function (row) { if (row.E > b) b = row.E; });
+      var r2 = h("tr"), c2 = h("td", "load", t("stdkp.w.t.more", { k: last + 1, K: res.maxAp }));
+      r2.append(h("td", "num", (last + 1) + "+"), c2, h("td", "num wide", ""), h("td", "num wide", ""), h("td", "num", fv(b)));
+      body.appendChild(r2);
+    }
+    tb.appendChild(body);
+    var host = $("dk-tbl"); host.textContent = ""; host.appendChild(tb);
+  }
+
+  function same(a, b) { return Object.keys(a).every(function (k) { return Math.abs(a[k] - b[k]) < 1e-9; }); }
+
+  function update() {
+    res = solve();
+    $("dk-alpha").value = String(P.alpha); $("dk-alpha-out").textContent = f2(P.alpha);
+    $("dk-q").value = String(P.q); $("dk-q-out").textContent = f2(P.q);
+    document.querySelectorAll("#study-try .seg[data-knob]").forEach(function (g) {
+      var key = g.getAttribute("data-knob");
+      g.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-v") === P[key])); });
+    });
+    document.querySelectorAll("#dk-presets button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(same(PRESETS[b.getAttribute("data-preset")], P)));
+    });
+    drawHold();
+    drawScenarios();
+    drawKpis();
+    verdict();
+    boundLine();
+    drawChart();
+    drawTable();
+  }
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; update(); });
+  }
+
+  // events
+  document.querySelectorAll("#dk-presets button").forEach(function (b) {
+    b.addEventListener("click", function () { P = Object.assign({}, PRESETS[b.getAttribute("data-preset")]); schedule(); });
+  });
+  document.querySelectorAll("#study-try .seg[data-knob] button").forEach(function (b) {
+    b.addEventListener("click", function () { P[b.parentNode.getAttribute("data-knob")] = +b.getAttribute("data-v"); schedule(); });
+  });
+  $("dk-alpha").addEventListener("input", function () { P.alpha = +this.value; schedule(); });
+  $("dk-q").addEventListener("input", function () { P.q = +this.value; schedule(); });
+
+  I18N.onChange(update);
+  var resizeTimer, lastW = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var w = $("dk-chart").clientWidth;
+      if (res && w !== lastW) { lastW = w; drawChart(); }
+    }, 120);
+  });
+})();
+</script>
+<!-- after the page scripts, so each language switch first rebuilds the page and then typesets its formulas -->
+<script src="../../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+</body>
+</html>

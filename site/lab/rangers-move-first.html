@@ -103,6 +103,7 @@
   .chartbox svg text.h { fill: var(--hot); font-weight: 700; }
   .chartbox svg text.mono { font-family: var(--font-mono); }
   .chartbox svg text.on { fill: var(--on-solid); stroke: none; font-weight: 700; }
+  .chartbox svg text.sm { font-size: 10.5px; letter-spacing: -0.02em; }
   .chartbox svg .ax { stroke: var(--axis); stroke-width: 1; fill: none; }
   .chartbox svg .gr { stroke: var(--grid); stroke-width: 1; fill: none; }
   .chartbox svg .col { fill: var(--region); stroke: var(--mit-silver); stroke-width: 1; }
@@ -201,7 +202,7 @@
   .anim-legend i.s-idle { background: repeating-linear-gradient(45deg, var(--mit-silver) 0 1.5px, transparent 1.5px 4px); border: 1px solid var(--mit-silver); }
 
   /* ---- model ---- */
-  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; margin-top: 16px; }
   @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
   .model-grid > div { min-width: 0; }
 </style>
@@ -643,7 +644,13 @@
     return items.slice(0, -1).join(", ") + T("pat.and") + items[items.length - 1];
   }
   function zl(ts) { return list(ts.map(zn)); }
-  function tuple(c) { return "(" + c.map(function (v) { return num(100 * v, 1); }).join(T("pat.sep")) + ")%"; }
+  function tuple(c) { return T("pat.pct", { v: "(" + c.map(function (v) { return num(100 * v, 1); }).join(T("pat.sep")) + ")" }); }
+  function sci(v) {   // a small difference as m × 10^e, with the decimal mark of the language
+    if (!(v > 0)) return I18N.fmt(0, 0);
+    var e = Math.floor(Math.log10(v)), mt = v / Math.pow(10, e);
+    if (mt >= 9.95) { mt /= 10; e++; }
+    return I18N.fmt(mt, 1, 1) + " × 10<sup>" + (e < 0 ? MINUS : "") + Math.abs(e) + "</sup>";
+  }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function svg(w, h, body, aria) { return '<svg viewBox="0 0 ' + w + " " + h + '" role="img"' + (aria ? ' aria-label="' + esc(aria) + '"' : "") + ">" + body + "</svg>"; }
   function txt(x, y, s, cls, anchor, extra) {
@@ -1059,7 +1066,7 @@
       g += line(ml, Y(v), W - mr, Y(v), v === 0 ? "ax" : "gr");
       g += txt(ml - 6, Y(v) + 4, num(v, 0), "m", "end");
     });
-    g += txt(ml - 6, 12, T("pat.wf.axis"), "m", "end");
+    g += txt(2, 12, T("pat.wf.axis"), "m", "start");
     var at = [];
     for (var t = 0; t < N; t++) {
       var x = Xc(t), top = Y(R[t]), bot = Y(P[t]);
@@ -1070,7 +1077,7 @@
       var onLevel = R[t] >= U - 1e-9;
       if (onLevel) at.push(t);
       g += dot(x, Y(e), narrow ? 4 : 5, onLevel ? "dotI" : "dotO");
-      g += txt(x, 16, pct(cv, 0), cv > 0 ? "a mono" : "m mono", "middle");
+      g += txt(x, 16, pct(cv, 0), (cv > 0 ? "a mono" : "m mono") + (narrow ? " sm" : ""), "middle");
       g += txt(x, H - 8, zn(t), "i", "middle");
     }
     if (Math.abs(U - Ustar) > 0.005) {
@@ -1127,7 +1134,8 @@
     var vals = o.set.filter(function (t) { return o.c[t] > 0; }).map(function (t) { return num(o.c[t], 3); });
     var tex = "\\begin{aligned} U^* &= " + num(o.U, 2) + "\\ \\text{" + T("pat.tex.mcop") + "}:\\\\ " +
       "&" + parts.slice(0, 4).join(" + ") + (parts.length > 4 ? " \\\\ &\\quad + " + parts.slice(4).join(" + ") : "") +
-      " \\\\ &= " + vals.join(" + ") + " = " + S.m + "\\end{aligned}";
+      " \\\\ &= " + vals.slice(0, 4).join(" + ") + (vals.length > 4 ? " \\\\ &\\quad + " + vals.slice(4).join(" + ") : "") +
+      " = " + S.m + "\\end{aligned}";
     TeX.set($("wf-f"), tex, "U* = " + num(o.U, 2) + ": " + plain.join(" + ") + " = " + S.m);
   }
   function renderLPs() {
@@ -1142,7 +1150,7 @@
     $("lps").innerHTML = h;
     var off = so.lp0.list.filter(function (r) { return !r.ok; }).map(function (r) { return r.t; });
     $("lp-note").innerHTML = T("pat.lp.note", {
-      k: so.nOk, cov: tuple(so.o.c), diff: so.diff.toExponential(1).replace("-", MINUS).replace("e", " × 10^").replace(/\^(\S+)/, "<sup>$1</sup>"),
+      k: so.nOk, cov: tuple(so.o.c), diff: sci(so.diff),
       z: zn(best.t), ha: ha(best.ha), ms: num(so.lp0.ms, 1)
     }) + (off.length ? " " + T("pat.lp.note.off", { z: zl(off), u: cop(so.o.U) }) : "");
   }
@@ -1199,7 +1207,6 @@
       g += '<path class="fA" d="M' + (x - 6).toFixed(1) + "," + (top - 26) + " L" + (x + 6).toFixed(1) + "," + (top - 26) + " L" + x.toFixed(1) + "," + (top - 14) + ' Z"/>';
       g += txt(x, top - 30, String(j + 1), "a", "middle");
     }
-    g += line(X(0), top - 20, X(1), top - 20, "lnS");
     $("comb").innerHTML = svg(W, H, g, T("pat.d.comb.aria", { u: num(u, 2), z: zl(cb.hit.filter(function (t) { return t >= 0; })) }));
     return cb;
   }
@@ -1224,7 +1231,7 @@
   }
   function renderYear() {
     var c = srcCov(), m = S.m, Y = year(), d = S.days, cnt = Y.cnt[d - 1];
-    var W = boxW("year", 300, 760), narrow = W < 520, H = narrow ? 220 : 240, ml = narrow ? 34 : 40, mr = 8, mt = 14, mb = 26;
+    var W = boxW("year", 300, 760), narrow = W < 520, H = narrow ? 220 : 240, ml = narrow ? 42 : 46, mr = 8, mt = 14, mb = 26;
     var Yp = function (v) { return mt + (1 - v) * (H - mt - mb); };
     var cw = (W - ml - mr) / N, Xc = function (t) { return ml + (t + 0.5) * cw; }, bw = Math.min(30, cw * 0.38), band = Math.min(46, cw * 0.7);
     var g = "", inside = 0, gap = 0, gapT = 0;
