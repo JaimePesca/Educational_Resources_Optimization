@@ -107,7 +107,10 @@
   .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 80ch; }
   .mtext b { color: var(--ink); }
   .chartbox { margin-top: 8px; min-width: 0; }
-  .chartbox svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chartbox svg { display: block; width: 100%; max-width: 760px; height: auto; overflow: visible; }
+  #fp-sq svg { max-width: 300px; margin: 0 auto; }
+  #fp-band svg { max-width: 480px; }
+  #x-sq svg { max-width: 380px; margin: 0 auto; }
   .chart-title { margin: 14px 0 0; font-size: 13px; font-weight: 600; color: var(--ink2); }
   .tabnote { font-size: 13px; color: var(--muted); margin: 6px 0 0; max-width: 80ch; }
   .readline { font-size: 13.5px; color: var(--ink2); margin: 10px 0 0; min-height: 2.6em; }
@@ -116,8 +119,8 @@
   /* ---- SVG charts (colours from the tokens) ---- */
   .chartbox svg text { font-family: var(--font-sans); font-size: 12px; fill: var(--ink2); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
   .chartbox svg text.m { fill: var(--muted); font-size: 11px; }
-  .chartbox svg text.a { fill: var(--accent-text); font-weight: 700; }
-  .chartbox svg text.i { fill: var(--ink); font-weight: 700; }
+  .chartbox svg .a { fill: var(--accent-text); font-weight: 700; }
+  .chartbox svg .i { fill: var(--ink); font-weight: 700; }
   .chartbox svg text.h { fill: var(--hot); font-weight: 700; }
   .chartbox svg text.mono { font-family: var(--font-mono); }
   .chartbox svg .ax { stroke: var(--axis); stroke-width: 1; fill: none; }
@@ -331,7 +334,7 @@
       <h3 class="subhead" data-i18n="gtm.fp.title"></h3>
       <p class="mtext" style="margin-top:0" data-i18n-html="gtm.fp.intro"></p>
       <div class="ctl-row" style="margin-top:12px">
-        <div class="rng"><label for="fp-t" data-i18n="gtm.fp.t"></label><output id="fp-tv" for="fp-t"></output><input type="range" id="fp-t" min="0" max="1000" step="1" value="700"></div>
+        <div class="rng"><label for="fp-t" data-i18n="gtm.fp.t"></label><output id="fp-tv" for="fp-t"></output><input type="range" id="fp-t" min="0" max="1000" step="1" value="860"></div>
       </div>
       <div class="kpis" id="fp-kpis"></div>
       <div class="two">
@@ -620,6 +623,8 @@
   function line(x0, y0, x1, y1, cls) { return '<line class="' + cls + '" x1="' + x0.toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + x1.toFixed(1) + '" y2="' + y1.toFixed(1) + '"/>'; }
   function dot(x, y, r, cls) { return '<circle class="' + cls + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r + '"/>'; }
   function stName(st, k) { return T("gtm.st." + st + "." + (k + 1)); }
+  // charts are drawn at the width of their box, so their text keeps its real size on phones
+  function boxW(id, lo, hi) { var w = $(id).clientWidth || $(id).parentNode.clientWidth || hi; return Math.round(clamp(w, lo, hi)); }
 
   /* ===================================================================================== 2 x 2 bimatrix games
      a[i][j]: row player's payoff, b[i][j]: column player's payoff, when the row player plays i and the column player j.
@@ -830,7 +835,7 @@
     renderOpt();
   }
   function drawGameChart() {
-    var W = 640, H = 210, ml = 42, mr = 14, mt = 12, mb = 30, ht = GM.mode === "ht";
+    var W = boxW("g-chart", 300, 960), H = 210, ml = 42, mr = 14, mt = 12, mb = 30, ht = GM.mode === "ht";
     var y0 = ht ? 0 : -1, y1 = 1, N = GM.N;
     var X = function (r) { return ml + (r - 1) / (N - 1) * (W - ml - mr); };
     var Y = function (v) { return mt + (y1 - v) / (y1 - y0) * (H - mt - mb); };
@@ -918,7 +923,7 @@
     b += txt(X(0) - 10, Y(0.5), T("gtm.fp.ax.y"), "m", "middle", ' transform="rotate(-90 ' + (X(0) - 10).toFixed(1) + " " + Y(0.5).toFixed(1) + ')"');
     $("fp-sq").innerHTML = svg(S + m + 10, S + 34, b, T("gtm.fp.sq.aria", { x: pct(s.x, 1), y: pct(s.y, 1) }));
     // the band on a log round axis
-    var W = 420, H = 254, ml = 40, mr = 10, mt = 10, mb = 30, LT = Math.log(FP.length);
+    var W = boxW("fp-band", 280, 480), H = 254, ml = 40, mr = 10, mt = 10, mb = 30, LT = Math.log(FP.length);
     var BX = function (r) { return ml + Math.log(r) / LT * (W - ml - mr); }, BY = function (v) { return mt + (1 - v) / 2 * (H - mt - mb); };
     var g = "";
     [-1, -0.5, 0, 0.5, 1].forEach(function (v) { g += line(ml, BY(v), W - mr, BY(v), "gr") + txt(ml - 6, BY(v) + 4, num(v, 1), "m", "end"); });
@@ -1167,11 +1172,12 @@
       var an = E.out(seg(t, 5.6, 6.8)), f = font(600, L.lf), yb = Y(0) + L.g * 0.42;
       label(sname(Sc, 1), X(0) + 12, yb, "left", C["accent-text"], f, an);
       label(sname(Sc, 0), X(1) - 12, yb, "right", C["accent-text"], f, an);
-      label("p", X(0.5), yb, "center", C.ink2, font(700, L.lf, true), an);
+      var m0 = Sc.S.mix, pl = m0 && Math.abs(m0.p - 0.5) < 0.12 ? 0.32 : 0.5, ql = m0 && Math.abs(m0.q - 0.5) < 0.12 ? 0.32 : 0.5;  // axis letters clear of the guides
+      label("p", X(pl), yb, "center", C.ink2, font(700, L.lf, true), an);
       var xl = X(0) - L.g * 0.42;
       ctx.save(); ctx.translate(xl, Y(0) - 12); ctx.rotate(-Math.PI / 2); label(sname(Sc, 1), 0, 0, "left", C.ink, f, an); ctx.restore();
       ctx.save(); ctx.translate(xl, Y(1) + 12); ctx.rotate(-Math.PI / 2); label(sname(Sc, 0), 0, 0, "right", C.ink, f, an); ctx.restore();
-      label("q", xl, Y(0.5), "center", C.ink2, font(700, L.lf, true), an);
+      label("q", xl, Y(ql), "center", C.ink2, font(700, L.lf, true), an);
     }
     function drawDeviations(Sc, t) {
       var a = E.out(seg(t, 6.4, 7.2)) * (1 - E.inOut(seg(t, 9.2, 10.4)));
@@ -1637,7 +1643,7 @@
     var stable = interior && du(1) < du(0);
     $("x-pop-intro").innerHTML = T("gtm.x.pop.intro", { s1: stName(st, 0), s2: stName(st, 1) });
     // chart: a strip of flow arrows on the left, trajectories on the right
-    var W = 640, H = 230, ml = 92, mr = 14, mt = 10, mb = 26, b = "";
+    var W = boxW("x-pop", 300, 760), H = 230, ml = 92, mr = 14, mt = 10, mb = 26, b = "";
     var XT = function (i) { return ml + i / n * (W - ml - mr); }, YX = function (x) { return mt + (1 - x) * (H - mt - mb); };
     [0, 0.25, 0.5, 0.75, 1].forEach(function (v) { b += line(ml, YX(v), W - mr, YX(v), "gr") + txt(ml - 40, YX(v) + 4, pct(v, 0), "m", "end"); });
     b += line(ml - 22, YX(0), ml - 22, YX(1), "ax");
@@ -1688,7 +1694,7 @@
     }
     h += '<tr><th class="mm">' + esc(T("gtm.z.colmax")) + "</th>";
     for (j = 0; j < n; j++) h += '<td class="mm" id="z-cm' + j + '"></td>';
-    h += "<td></td></tr>";
+    h += '<td class="mm"></td></tr>';
     $("z-tab").innerHTML = h;
     for (i = 0; i < m; i++) for (j = 0; j < n; j++) (function (i, j) {
       var el = $("z-a" + i + "-" + j);
@@ -1772,7 +1778,7 @@
     var all = []; Ls.forEach(function (Lq) { all.push(Lq.a, Lq.b); });
     var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all); if (hi - lo < EPS) { lo -= 1; hi += 1; }
     var pad = 0.08 * (hi - lo); lo -= pad; hi += pad;
-    var W = 640, H = 270, ml = 48, mr = 110, mt = 12, mb = 32, b = "";
+    var W = boxW("z-graph", 300, 760), H = 270, ml = 44, mr = W < 520 ? 84 : 110, mt = 12, mb = 32, b = "";
     var GX = function (p) { return ml + p * (W - ml - mr); }, GY = function (v) { return mt + (hi - v) / (hi - lo) * (H - mt - mb); };
     var tk = niceTicks(lo, hi, 5);
     tk.forEach(function (v) { b += line(ml, GY(v), GX(1), GY(v), "gr") + txt(ml - 6, GY(v) + 4, nice(v), "m", "end"); });
@@ -1834,7 +1840,7 @@
     var box = $("z-sim"), sm = ZS.sim;
     $("z-sim-lg").hidden = !sm;
     if (!sm) { box.innerHTML = ""; $("z-sim-note").textContent = T("gtm.z.sim.wait"); return; }
-    var W = 640, H = 240, ml = 52, mr = 14, mt = 12, mb = 30, LN = Math.log(sm.N), b = "";
+    var W = boxW("z-sim", 300, 760), H = 240, ml = 52, mr = 14, mt = 12, mb = 30, LN = Math.log(sm.N), b = "";
     var h10 = 1.96 * sm.sigma / Math.sqrt(10), lo = sm.v - Math.max(h10, 0.5), hi = sm.v + Math.max(h10, 0.5);
     var SX = function (t) { return ml + Math.log(t) / LN * (W - ml - mr); }, SY = function (v) { return mt + (hi - clamp(v, lo, hi)) / (hi - lo) * (H - mt - mb); };
     niceTicks(lo, hi, 5).forEach(function (v) { b += line(ml, SY(v), W - mr, SY(v), "gr") + txt(ml - 6, SY(v) + 4, nice(v, 2), "m", "end"); });
@@ -1899,7 +1905,7 @@
     var pi = R.x, u1 = 0, u2 = 0, k;
     for (k = 0; k < 4; k++) { u1 += pi[k] * a[k >> 1][k & 1]; u2 += pi[k] * b[k >> 1][k & 1]; }
     var h = "<thead><tr><th></th><th class='num'>" + esc(nm(0)) + "</th><th class='num'>" + esc(nm(1)) + "</th></tr></thead><tbody>";
-    [0, 1].forEach(function (i) { h += "<tr><th>" + esc(nm(i)) + "</th><td class='num acc'>" + esc(nice(pi[2 * i], 3)) + "</td><td class='num acc'>" + esc(nice(pi[2 * i + 1], 3)) + "</td></tr>"; });
+    [0, 1].forEach(function (i) { h += "<tr><td>" + esc(nm(i)) + "</td><td class='num acc'>" + esc(nice(pi[2 * i], 3)) + "</td><td class='num acc'>" + esc(nice(pi[2 * i + 1], 3)) + "</td></tr>"; });
     $("ce-pi").innerHTML = h + "</tbody>";
     // comparisons: the best Nash equilibrium by total payoff, the mixed one, and the device that draws the three cells other than the worst equally
     var S = solve2(a, b);
@@ -1999,6 +2005,15 @@
   $("z-graph").addEventListener("pointercancel", function () { zDrag = false; });
   document.querySelectorAll("#z-sim-btns button").forEach(function (b) { b.addEventListener("click", function () { runSim(+b.getAttribute("data-n")); }); });
   $("ce-reset").addEventListener("click", ceReset);
+  var lastW = window.innerWidth, rz = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(rz);
+    rz = setTimeout(function () {
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
+      drawGameChart(); renderFP(); renderPop(solve2(XS.a, XS.b)); if (ZS.last) { renderGraph(ZS.last); renderSim(ZS.last); }
+    }, 150);
+  });
 
   GM.rng = AN.rng(gameSeed());
   $("g-card").setAttribute("data-seed", String(gameSeed()));

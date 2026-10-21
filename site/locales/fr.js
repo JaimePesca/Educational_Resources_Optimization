@@ -30,6 +30,7 @@ I18N.register("fr", {
   "nav.byType": "Par type",
   "nav.close": "Fermer",
   "lab.door": "Laboratoire de propositions",
+  "lab.studyDoor": "Étude",
 
   /* ---- accueil ---- */
   "home.eyebrow": "Recherche opérationnelle · Ressources interactives",

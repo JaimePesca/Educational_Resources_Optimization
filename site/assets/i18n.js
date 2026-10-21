@@ -3,7 +3,7 @@
  *
  * Adding a language:
  *   1. Copy locales/en.js to locales/<code>.js and translate the values (keep the keys).
- *   2. Add one entry to LANGS below.
+ *   2. Add one entry to ALL below and its code to SITE_LANGS (or declare it per page with data-i18n-langs).
  * Nothing else changes: pages, catalog and switcher read from this list.
  *
  * Markup hooks:
@@ -20,13 +20,23 @@
 (function () {
   "use strict";
 
-  var LANGS = [
+  var ALL = [
     { code: "en", name: "English", locale: "en-US" },
     { code: "es", name: "Español", locale: "es-CO" },
     { code: "pt", name: "Português", locale: "pt-BR" },
-    { code: "fr", name: "Français", locale: "fr-FR" }
+    { code: "fr", name: "Français", locale: "fr-FR" },
+    { code: "nl", name: "Nederlands", locale: "nl-NL" }
   ];
-  var DEFAULT = "en";
+  // The site's languages are en, es, pt and fr. A page can declare its own list on <html data-i18n-langs="es en nl">
+  // (the hidden study section uses Spanish, English and Dutch); the selector, the URL parameter and the remembered
+  // choice only accept the languages of the page, so nothing changes on pages that do not declare a list.
+  var SITE_LANGS = ["en", "es", "pt", "fr"];
+  var LANGS = (function () {
+    var own = (document.documentElement.getAttribute("data-i18n-langs") || "").split(/\s+/).filter(Boolean);
+    var codes = own.length ? own : SITE_LANGS;
+    return ALL.filter(function (l) { return codes.indexOf(l.code) >= 0; });
+  })();
+  var DEFAULT = LANGS.some(function (l) { return l.code === "en"; }) ? "en" : LANGS[0].code;
   var STORE_KEY = "oia-lang";
 
   var script = document.currentScript;
@@ -179,7 +189,8 @@
     if (!known(code)) code = DEFAULT;
     load(code, function () {
       current = dicts[code] ? code : DEFAULT;
-      try { localStorage.setItem(STORE_KEY, current); } catch (e) { /* ok */ }
+      // remember only the site's own languages, so choosing Dutch in the study section does not change the rest of the site
+      if (SITE_LANGS.indexOf(current) >= 0) { try { localStorage.setItem(STORE_KEY, current); } catch (e) { /* ok */ } }
       try {
         var u = new URL(location.href);
         if (u.searchParams.has("lang")) {

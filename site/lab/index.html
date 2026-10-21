@@ -88,6 +88,24 @@
   .lab-eq .note .sym { font-family: "Times New Roman", Times, serif; font-size: 1.12em; }
   .lab-eq .note sub { font-size: 0.85em; line-height: 0; }
   @media (max-width: 620px) { .lab-eq .body { padding: 0 10px 10px; } }
+
+  /* ---- door to the study section: invisible, bottom right, in the gap just above the black footer bar, exactly like the
+     door to this lab on the home page (index.html .lab-door). Out of the flow, so it moves nothing; hover shows a faint dot,
+     keyboard focus the standard outline. ---- */
+  .wrap { position: relative; }
+  .study-door {
+    /* -34px = 28px door + 6px, inside the 40px margin-top of .site-footer (site.css); change both together */
+    position: absolute; bottom: -34px; width: 28px; height: 28px;
+    /* the home page container is 1080 px wide and this one 1060 px: shift by the difference so both doors sit on the
+       same spot of the screen at every width */
+    right: calc(max(16px, (100vw - 1080px) / 2) - max(16px, (100vw - 1060px) / 2));
+    display: block; background: transparent; border-radius: 2px; cursor: pointer;
+  }
+  .study-door::after {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+    border-radius: 50%; background: var(--mit-silver); opacity: 0; transition: opacity 0.25s;
+  }
+  .study-door:hover::after, .study-door:focus-visible::after { opacity: 0.35; }
 </style>
 </head>
 <body>
@@ -106,6 +124,7 @@
   </header>
 
   <ul class="lab-grid" id="lab-grid" data-i18n-attr="aria-label:lab.listLabel"></ul>
+  <a class="study-door" href="study/index.html" data-keep-lang data-i18n-attr="aria-label:lab.studyDoor"></a>
 </div>
 
 <script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
