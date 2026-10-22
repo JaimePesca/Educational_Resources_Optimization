@@ -15,7 +15,7 @@ I18N.register("fr", {
 
   "gts.what.kicker": "Avant de commencer",
   "gts.what.title": "Des jeux à tour de rôle",
-  "gts.what.p1": "Dans les jeux de <a href=\"read-the-table.html\" data-keep-lang>Lisez le tableau</a>, tout le monde joue en même temps. Ici, les joueurs jouent <b>à tour de rôle</b> et voient ce qui s'est passé avant. Le jeu est un arbre : chaque nœud de décision appartient à un joueur, chaque branche est un coup et chaque fin porte les gains des deux joueurs.",
+  "gts.what.p1": "Dans les jeux de <a href=\"read-the-table.html\" data-keep-lang data-ga-event=\"resource_open\" data-ga-location=\"lab\" data-ga-resource-id=\"lab-gtb-table\" data-ga-level=\"lab\">Lisez le tableau</a>, tout le monde joue en même temps. Ici, les joueurs jouent <b>à tour de rôle</b> et voient ce qui s'est passé avant. Le jeu est un arbre : chaque nœud de décision appartient à un joueur, chaque branche est un coup et chaque fin porte les gains des deux joueurs.",
   "gts.what.p2": "Une <b>stratégie</b> est un plan complet : elle dit ce que le joueur ferait à chacun de ses nœuds, y compris ceux que la partie n'atteint jamais. C'est pourquoi un plan peut contenir une <b>menace</b>, un coup promis pour une situation qui, si la menace fonctionne, n'arrive jamais.",
   "gts.what.p3": "La rationalité est connaissance commune, comme avant. Si un joueur devait jouer sans voir les coups précédents, les nœuds qu'il ne peut pas distinguer formeraient un <b>ensemble d'information</b>, et l'arbre décrirait un jeu simultané.",
   "gts.what.head": "Une stratégie est un plan pour chaque nœud propre",
@@ -272,7 +272,7 @@ I18N.register("fr", {
   "gts.s3.note": "L'égalité en x = 0 explique qu'il y ait deux équilibres parfaits en sous-jeux, et le moteur trouve les deux. Le joueur 2 a {n} nœuds et donc {plans} plans ; en les énumérant tous face aux offres du proposant, on trouve {ne} équilibres de Nash purs du jeu complet, dont seulement {spe} parfaits en sous-jeux.",
 
   "gts.r.title": "Rejouez",
-  "gts.r.intro": "Le dilemme du prisonnier de <a href=\"read-the-table.html\" data-keep-lang>Lisez le tableau</a>, joué encore et encore : après chaque manche, le jeu continue avec probabilité w, il dure donc en moyenne 1/(1 − w) manches et personne ne sait quelle manche est la dernière. C signifie coopérer et D trahir (de l'anglais defect). L'avenir peut désormais récompenser la coopération et punir la trahison.",
+  "gts.r.intro": "Le dilemme du prisonnier de <a href=\"read-the-table.html\" data-keep-lang data-ga-event=\"resource_open\" data-ga-location=\"lab\" data-ga-resource-id=\"lab-gtb-table\" data-ga-level=\"lab\">Lisez le tableau</a>, joué encore et encore : après chaque manche, le jeu continue avec probabilité w, il dure donc en moyenne 1/(1 − w) manches et personne ne sait quelle manche est la dernière. C signifie coopérer et D trahir (de l'anglais defect). L'avenir peut désormais récompenser la coopération et punir la trahison.",
   "gts.r.stage": "Le jeu de chaque manche et l'ombre de l'avenir",
   "gts.r.T": "Tentation T",
   "gts.r.R": "Récompense R",

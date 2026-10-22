@@ -15,7 +15,7 @@ I18N.register("es", {
 
   "gts.what.kicker": "Antes de empezar",
   "gts.what.title": "Juegos por turnos",
-  "gts.what.p1": "En los juegos de <a href=\"read-the-table.html\" data-keep-lang>Lee la tabla</a> todos juegan a la vez. Aquí los jugadores mueven <b>por turnos</b> y ven lo que pasó antes. El juego es un árbol: cada nodo de decisión pertenece a un jugador, cada rama es una jugada y cada final lleva los pagos de los dos jugadores.",
+  "gts.what.p1": "En los juegos de <a href=\"read-the-table.html\" data-keep-lang data-ga-event=\"resource_open\" data-ga-location=\"lab\" data-ga-resource-id=\"lab-gtb-table\" data-ga-level=\"lab\">Lee la tabla</a> todos juegan a la vez. Aquí los jugadores mueven <b>por turnos</b> y ven lo que pasó antes. El juego es un árbol: cada nodo de decisión pertenece a un jugador, cada rama es una jugada y cada final lleva los pagos de los dos jugadores.",
   "gts.what.p2": "Una <b>estrategia</b> es un plan completo: dice qué haría el jugador en cada uno de sus nodos, también en los que el juego nunca alcanza. Por eso un plan puede contener una <b>amenaza</b>, una jugada prometida para una situación que, si la amenaza funciona, nunca ocurre.",
   "gts.what.p3": "La racionalidad es conocimiento común, como antes. Si un jugador tuviera que mover sin ver las jugadas anteriores, los nodos que no puede distinguir formarían un <b>conjunto de información</b>, y el árbol describiría un juego simultáneo.",
   "gts.what.head": "Una estrategia es un plan para cada nodo propio",
@@ -272,7 +272,7 @@ I18N.register("es", {
   "gts.s3.note": "El empate en x = 0 es la razón de que haya dos equilibrios perfectos en subjuegos, y el motor encuentra los dos. El jugador 2 tiene {n} nodos y por eso {plans} planes; al enumerarlos todos frente a las ofertas del proponente aparecen {ne} equilibrios de Nash puros del juego completo, de los cuales solo {spe} son perfectos en subjuegos.",
 
   "gts.r.title": "Juega otra vez",
-  "gts.r.intro": "El dilema del prisionero de <a href=\"read-the-table.html\" data-keep-lang>Lee la tabla</a>, jugado una y otra vez: después de cada ronda el juego sigue con probabilidad w, así que dura en promedio 1/(1 − w) rondas y nadie sabe cuál es la última. C significa cooperar y D traicionar (del inglés defect). Ahora el futuro puede premiar la cooperación y castigar la traición.",
+  "gts.r.intro": "El dilema del prisionero de <a href=\"read-the-table.html\" data-keep-lang data-ga-event=\"resource_open\" data-ga-location=\"lab\" data-ga-resource-id=\"lab-gtb-table\" data-ga-level=\"lab\">Lee la tabla</a>, jugado una y otra vez: después de cada ronda el juego sigue con probabilidad w, así que dura en promedio 1/(1 − w) rondas y nadie sabe cuál es la última. C significa cooperar y D traicionar (del inglés defect). Ahora el futuro puede premiar la cooperación y castigar la traición.",
   "gts.r.stage": "El juego de cada ronda y la sombra del futuro",
   "gts.r.T": "Tentación T",
   "gts.r.R": "Recompensa R",

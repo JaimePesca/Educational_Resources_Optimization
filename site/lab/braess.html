@@ -85,6 +85,9 @@
   .tab-p { font-size: 14px; color: var(--ink2); margin: 10px 0 0; max-width: 80ch; }
   .tab-p b { color: var(--ink); }
   #brs-mornings table.data { min-width: 560px; }
+  @media (min-width: 621px) and (max-width: 900px) {
+    #brs-mornings table.data th, #brs-mornings table.data td { padding-inline: 6px; }
+  }
   @media (max-width: 620px) {
     #brs-mornings table.data { min-width: 0; }
     #brs-mornings table.data .wide { display: none; }
@@ -899,7 +902,8 @@
       label(T("brs.l.min"), mx, my - 14, "center", C["accent-text"], font(700, L.fs), ma * mn);
     }
   }
-  function spark(Rr, vals, u, col, a) {         // a small line of values over the rounds, drawn up to u rounds
+  function spark(Rr, vals, u, col, a, curV) {   // a small line of values over the rounds, drawn up to u rounds;
+    // curV (optional) is the value at the drivers' current split, so the moving dot matches the counters
     var n = vals.length - 1, lo = Infinity, hi = -Infinity;
     vals.forEach(function (v) { lo = Math.min(lo, v); hi = Math.max(hi, v); });
     if (hi - lo < 1e-9) { lo -= 1; hi += 1; }
@@ -910,7 +914,7 @@
     ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
     var k = Math.floor(u), fr = u - k, last = null;
     for (var i = 0; i <= Math.min(k, n); i++) { var px = X(i), py = Y(vals[i]); if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py); last = [px, py]; }
-    if (k < n && fr > 0) { var ex = lerp(X(k), X(k + 1), fr), ey = lerp(Y(vals[k]), Y(vals[k + 1]), fr); ctx.lineTo(ex, ey); last = [ex, ey]; }
+    if (k < n && fr > 0) { var ex = lerp(X(k), X(k + 1), fr), ey = curV != null ? Y(curV) : lerp(Y(vals[k]), Y(vals[k + 1]), fr); ctx.lineTo(ex, ey); last = [ex, ey]; }
     ctx.stroke();
     ctx.fillStyle = col;
     for (i = 0; i <= Math.min(k, n); i++) { circle(X(i), Y(vals[i]), 2); ctx.fill(); }
@@ -921,19 +925,18 @@
       ctx.beginPath(); ctx.moveTo(Rr.x0, Y(vals[0])); ctx.lineTo(Rr.x1, Y(vals[0])); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
     }
   }
-  function drawTwin(S, t, a) {
+  function drawTwin(S, t, a, ev) {
     var R = L.pB, Rn = S.gp.rounds, u = roundsAt(S, t);
     slotTitle(R, T("brs.l.rounds"), a);
     var phis = S.gpEv.map(function (e) { return e.beck; }), vhs = S.gpEv.map(function (e) { return e.total / 60; });
     phis[phis.length - 1] = Rn ? S.open.beck : S.closed.beck; vhs[vhs.length - 1] = (Rn ? S.open.total : S.closed.total) / 60;
     var top = R.y0 + L.fs + 12, rowH = (R.y1 - top) / 2;
-    var curI = Math.min(Rn, Math.floor(u)), curFr = u - curI;
-    var cur = function (vals) { return curI < Rn ? lerp(vals[curI], vals[curI + 1], curFr) : vals[Rn]; };
-    [[T("brs.l.phi"), phis, C.ink], [T("brs.l.vh"), vhs, null]].forEach(function (row, i) {
+    // the values shown are those of the drivers' current split, the same as the counters above
+    [[T("brs.l.phi"), phis, C.ink, ev.beck], [T("brs.l.vh"), vhs, null, ev.total / 60]].forEach(function (row, i) {
       var y0 = top + i * rowH, vals = row[1], up = vals[Rn] > vals[0] + 1e-6, col = row[2] || (up ? HOT : C.ink);
       label(row[0], R.x0, y0 + L.fs / 2, "left", C.ink2, font(600, L.fs), a);
-      label(f0(cur(vals)), R.x1, y0 + L.fs / 2, "right", col, font(700, L.fs, true), a);
-      spark({ x0: R.x0 + 4, x1: R.x1 - 4, y0: y0 + L.fs + 8, y1: y0 + rowH - 10 }, vals, u, col, a);
+      label(f0(row[3]), R.x1, y0 + L.fs / 2, "right", col, font(700, L.fs, true), a);
+      spark({ x0: R.x0 + 4, x1: R.x1 - 4, y0: y0 + L.fs + 8, y1: y0 + rowH - 10 }, vals, u, col, a, row[3]);
     });
   }
   function drawCurve(S, t, a) {
@@ -976,11 +979,11 @@
       ctx.globalAlpha = 1;
     }
   }
-  function drawSlotB(S, t, f) {
+  function drawSlotB(S, t, f, ev) {
     var aB = seg(t, 8.6, 9.4) * (1 - seg(t, 16.6, 17.4));
     if (aB > 0) drawBeck(S, t, f, aB);
     var aT = seg(t, 18.4, 19.2) * (1 - seg(t, 35.4, 36.2));
-    if (aT > 0) drawTwin(S, t, aT);
+    if (aT > 0) drawTwin(S, t, aT, ev);
     var aC = seg(t, 36.2, 37);
     if (aC > 0) drawCurve(S, t, aC);
   }
@@ -1055,7 +1058,7 @@
     ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]);
     drawNetwork(S, t, f, ev);
     drawSlotA(S, t, f, ev);
-    drawSlotB(S, t, f);
+    drawSlotB(S, t, f, ev);
     drawCaption(S, t);
   }
 
@@ -1176,19 +1179,21 @@
     else if (plan.mode === "lr") plan.tau = leastRevenue(so).tau;
     if (!plan.open) plan.tau[4] = 0;
   }
-  function lpTex(so, plain) {
+  // on a narrow box the comment column (route names, used or unused) is left out: = and >= already say it
+  var lpBox = document.getElementById("brs-lp-inst"), lpNarrow = null;
+  function lpTex(so, plain, bare) {
     var terms = [], lines = [];
     for (var e = 0; e < 5; e++) if (so.x[e] > 1e-9) terms.push(plain ? f0(so.x[e]) + " τ" + (e + 1) : texN(so.x[e], 1) + "\\,\\tau_{" + (e + 1) + "}");
     var obj = terms.length ? terms.join(" + ") : "0";
-    if (plain) lines.push("min " + obj + "   (" + T("brs.pl.lp.rev") + ")");
-    else lines.push("\\min_{\\tau \\ge 0,\\ \\pi}\\;& " + obj + " && \\text{(" + T("brs.pl.lp.rev") + ")}");
+    if (plain) lines.push("min " + obj + (bare ? "" : "   (" + T("brs.pl.lp.rev") + ")"));
+    else lines.push("\\min_{\\tau \\ge 0,\\ \\pi}\\;& " + obj + (bare ? "" : " && \\text{(" + T("brs.pl.lp.rev") + ")}"));
     for (var p = 0; p < so.n; p++) {
       var used = so.f[p] > 1e-6, cm = T("brs.r" + (p + 1)) + ", " + T(used ? "brs.pl.used" : "brs.pl.unused");
       if (plain) {
-        lines.push(fm(so.c[p]) + " + " + PATHS[p].map(function (e) { return "τ" + (e + 1); }).join(" + ") + (used ? " = π" : " ≥ π") + "   (" + cm + ")");
+        lines.push(fm(so.c[p]) + " + " + PATHS[p].map(function (e) { return "τ" + (e + 1); }).join(" + ") + (used ? " = π" : " ≥ π") + (bare ? "" : "   (" + cm + ")"));
       } else {
         lines.push((p ? "& " : "\\text{ST}\\;& ") + texN(so.c[p], 2) + " + " + PATHS[p].map(function (e) { return "\\tau_{" + (e + 1) + "}"; }).join(" + ") +
-          (used ? " = \\pi" : " \\ge \\pi") + " && \\text{(" + cm + ")}");
+          (used ? " = \\pi" : " \\ge \\pi") + (bare ? "" : " && \\text{(" + cm + ")}"));
       }
     }
     return plain ? lines.join("\n") : "\\begin{aligned}" + lines.join("\\\\") + "\\end{aligned}";
@@ -1278,8 +1283,10 @@
     }
     document.getElementById("brs-ptab").innerHTML = h + "</tbody>";
     renderSvg(eq);
-    TeX.set(document.getElementById("brs-lp-inst"), lpTex(so, false), lpTex(so, true));
+    lpNarrow = lpBox.clientWidth < 520;
+    TeX.set(lpBox, lpTex(so, false, lpNarrow), lpTex(so, true, lpNarrow));
   }
+  window.addEventListener("resize", function () { if ((lpBox.clientWidth < 520) !== lpNarrow) renderPlan(); });
   dIn.addEventListener("input", function () { plan.d = +dIn.value; planTolls(); renderPlan(); });
   tollIn.forEach(function (inp, e) {
     inp.addEventListener("input", function () { plan.tau[e] = +inp.value; plan.mode = ""; renderPlan(); });

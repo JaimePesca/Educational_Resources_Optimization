@@ -94,8 +94,8 @@ I18N.register("en", {
   "pat.wf.k.level": "Level now",
   "pat.wf.k.need": "Teams this level needs",
   "pat.wf.k.opt": "Lowest level the teams can pay for",
-  "pat.wf.k.set": "Zones under the water",
-  "pat.wf.note.at": "At {u} the coverage uses exactly {m} teams. Every zone under the water pays the loggers the same {u}, so they are indifferent among them. With ties broken for the rangers they go to <b>{z}</b>: <b>{ha}</b> affected.",
+  "pat.wf.k.set": "Zones pulled down to the level",
+  "pat.wf.note.at": "At {u} the coverage uses exactly {m} teams. Every zone pulled down to the level pays the loggers the same {u}, so they are indifferent among them. With ties broken for the rangers they go to <b>{z}</b>: <b>{ha}</b> affected.",
   "pat.wf.note.above": "Above the optimum: this level needs only {need} teams, so {spare} are left over. Lower it.",
   "pat.wf.note.below": "Below the optimum: this level needs {need} teams, more than the {m} you have. Raise it.",
 
@@ -118,7 +118,7 @@ I18N.register("en", {
   "pat.tie.rnd": "Optimum rounded to 3 decimals",
   "pat.tie.note": "The same patrol gives {fav} or {adv} depending only on the tie: a difference of {diff}. To stop relying on luck, the rangers can ask each LP for a margin: <b>{z}</b> must beat every other zone by {g} M COP. That costs only {cost} more ({rob} in total), and the loggers' choice no longer hangs on a tie. Careless rounding does the opposite: rounding the coverage to 3 decimals (it still uses {used} teams) makes <b>{zr}</b> strictly best for the loggers: {har}.",
   "pat.opt.kicker": "What this means",
-  "pat.opt.text": "The best patrol is random on purpose: any fixed plan leaves a zone empty for sure. It pulls the loggers' best gain down to the water level and leaves them indifferent among the zones under it; the hectares only decide where in that tie they end up. In practice: <b>protect the tie</b>. Ask for a small margin, and never round the coverage carelessly.",
+  "pat.opt.text": "The best patrol is random on purpose: any fixed plan leaves a zone empty for sure. It pulls the loggers' best gain down to the water level and leaves them indifferent among the zones pulled down to it; the hectares only decide where in that tie they end up. In practice: <b>protect the tie</b>. Ask for a small margin, and never round the coverage carelessly.",
 
   "pat.p3.intro": "A coverage is a promise about frequencies, but each morning the teams need concrete zones. Lay the coverages end to end on a line from 0 to the number of teams, draw one random offset <i>u</i> between 0 and 1, and send team <i>j</i> to the zone under <i>u</i> + <i>j</i> − 1: a comb with one tooth per team, one unit apart. Each zone gets a team with probability exactly equal to its coverage, no zone gets two teams, and the loggers, who know the coverage, cannot know the day's draw.",
   "pat.d.src": "Coverage",

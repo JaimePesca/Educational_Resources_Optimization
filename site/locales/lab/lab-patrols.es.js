@@ -94,8 +94,8 @@ I18N.register("es", {
   "pat.wf.k.level": "Nivel actual",
   "pat.wf.k.need": "Equipos que necesita este nivel",
   "pat.wf.k.opt": "Nivel más bajo que pagan los equipos",
-  "pat.wf.k.set": "Zonas bajo el agua",
-  "pat.wf.note.at": "En {u} la cobertura usa exactamente {m} equipos. Cada zona bajo el agua les paga a los taladores los mismos {u}, así que les da igual cuál escoger. Con los empates a favor de los guardaparques van a <b>{z}</b>: <b>{ha}</b> afectadas.",
+  "pat.wf.k.set": "Zonas bajadas hasta el nivel",
+  "pat.wf.note.at": "En {u} la cobertura usa exactamente {m} equipos. Cada zona bajada hasta el nivel les paga a los taladores los mismos {u}, así que les da igual cuál escoger. Con los empates a favor de los guardaparques van a <b>{z}</b>: <b>{ha}</b> afectadas.",
   "pat.wf.note.above": "Por encima del óptimo: este nivel solo necesita {need} equipos, así que sobran {spare}. Bájalo.",
   "pat.wf.note.below": "Por debajo del óptimo: este nivel necesita {need} equipos, más que los {m} que tienes. Súbelo.",
 
@@ -118,7 +118,7 @@ I18N.register("es", {
   "pat.tie.rnd": "Óptimo redondeado a 3 decimales",
   "pat.tie.note": "La misma patrulla da {fav} o {adv} según el empate y nada más: una diferencia de {diff}. Para no depender de la suerte, los guardaparques pueden pedirle a cada PL un margen: <b>{z}</b> debe superar a todas las demás zonas por {g} M COP. Eso cuesta apenas {cost} más ({rob} en total), y la elección de los taladores ya no cuelga de un empate. Redondear sin cuidado hace lo contrario: redondear la cobertura a 3 decimales (aún usa {used} equipos) vuelve <b>{zr}</b> estrictamente la mejor para los taladores: {har}.",
   "pat.opt.kicker": "Qué significa",
-  "pat.opt.text": "La mejor patrulla es aleatoria a propósito: cualquier plan fijo deja una zona vacía con seguridad. Baja la mejor ganancia de los taladores hasta el nivel del agua y los deja indiferentes entre las zonas que quedan bajo él; las hectáreas solo deciden en qué punto de ese empate terminan. En la práctica: <b>protege el empate</b>. Pide un margen pequeño y nunca redondees la cobertura sin cuidado.",
+  "pat.opt.text": "La mejor patrulla es aleatoria a propósito: cualquier plan fijo deja una zona vacía con seguridad. Baja la mejor ganancia de los taladores hasta el nivel del agua y los deja indiferentes entre las zonas bajadas hasta él; las hectáreas solo deciden en qué punto de ese empate terminan. En la práctica: <b>protege el empate</b>. Pide un margen pequeño y nunca redondees la cobertura sin cuidado.",
 
   "pat.p3.intro": "Una cobertura es una promesa sobre frecuencias, pero cada mañana los equipos necesitan zonas concretas. Pon las coberturas una tras otra sobre una recta de 0 al número de equipos, sortea un desplazamiento aleatorio <i>u</i> entre 0 y 1, y envía el equipo <i>j</i> a la zona que queda bajo <i>u</i> + <i>j</i> − 1: un peine con un diente por equipo, separados una unidad. Cada zona recibe un equipo con probabilidad exactamente igual a su cobertura, ninguna zona recibe dos equipos, y los taladores, que conocen la cobertura, no pueden conocer el sorteo del día.",
   "pat.d.src": "Cobertura",

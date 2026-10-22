@@ -15,7 +15,7 @@ I18N.register("en", {
 
   "gts.what.kicker": "Before you start",
   "gts.what.title": "Games in turns",
-  "gts.what.p1": "In the games of <a href=\"read-the-table.html\" data-keep-lang>Read the Table</a> everybody moves at once. Here players move <b>in turns</b> and see what happened before. The game is a tree: every decision node belongs to one player, every branch is a move and every ending carries the payoffs of both players.",
+  "gts.what.p1": "In the games of <a href=\"read-the-table.html\" data-keep-lang data-ga-event=\"resource_open\" data-ga-location=\"lab\" data-ga-resource-id=\"lab-gtb-table\" data-ga-level=\"lab\">Read the Table</a> everybody moves at once. Here players move <b>in turns</b> and see what happened before. The game is a tree: every decision node belongs to one player, every branch is a move and every ending carries the payoffs of both players.",
   "gts.what.p2": "A <b>strategy</b> is a complete plan: it says what the player would do at each of their nodes, also at the nodes the play never reaches. That is why a plan can hold a <b>threat</b>, a move promised for a situation that, if the threat works, never happens.",
   "gts.what.p3": "Rationality is common knowledge, as before. If a player had to move without seeing the earlier moves, the nodes they cannot tell apart would form one <b>information set</b>, and the tree would describe a simultaneous game.",
   "gts.what.head": "A strategy is a plan for every own node",
@@ -272,7 +272,7 @@ I18N.register("en", {
   "gts.s3.note": "The tie at x = 0 is why there are two subgame perfect equilibria, and the engine finds both. Player 2 has {n} nodes and so {plans} plans; enumerating them all against the proposer's offers gives {ne} pure Nash equilibria of the whole game, of which only {spe} are subgame perfect.",
 
   "gts.r.title": "Play it again",
-  "gts.r.intro": "The prisoner's dilemma of <a href=\"read-the-table.html\" data-keep-lang>Read the Table</a>, played again and again: after each round the game goes on with probability w, so it lasts 1/(1 − w) rounds on average and nobody knows which round is the last. C means cooperate and D defect. The future can now reward cooperation and punish defection.",
+  "gts.r.intro": "The prisoner's dilemma of <a href=\"read-the-table.html\" data-keep-lang data-ga-event=\"resource_open\" data-ga-location=\"lab\" data-ga-resource-id=\"lab-gtb-table\" data-ga-level=\"lab\">Read the Table</a>, played again and again: after each round the game goes on with probability w, so it lasts 1/(1 − w) rounds on average and nobody knows which round is the last. C means cooperate and D defect. The future can now reward cooperation and punish defection.",
   "gts.r.stage": "The stage game and the shadow of the future",
   "gts.r.T": "Temptation T",
   "gts.r.R": "Reward R",

@@ -94,8 +94,8 @@ I18N.register("pt", {
   "pat.wf.k.level": "Nível atual",
   "pat.wf.k.need": "Equipes que este nível exige",
   "pat.wf.k.opt": "Menor nível que as equipes pagam",
-  "pat.wf.k.set": "Zonas sob a água",
-  "pat.wf.note.at": "Em {u} a cobertura usa exatamente {m} equipes. Cada zona sob a água paga aos madeireiros os mesmos {u}, então para eles tanto faz. Com os empates a favor dos guarda-parques eles vão para <b>{z}</b>: <b>{ha}</b> afetados.",
+  "pat.wf.k.set": "Zonas puxadas até o nível",
+  "pat.wf.note.at": "Em {u} a cobertura usa exatamente {m} equipes. Cada zona puxada até o nível paga aos madeireiros os mesmos {u}, então para eles tanto faz. Com os empates a favor dos guarda-parques eles vão para <b>{z}</b>: <b>{ha}</b> afetados.",
   "pat.wf.note.above": "Acima do ótimo: este nível só precisa de {need} equipes, então sobram {spare}. Abaixe-o.",
   "pat.wf.note.below": "Abaixo do ótimo: este nível precisa de {need} equipes, mais que as {m} que você tem. Suba-o.",
 
@@ -118,7 +118,7 @@ I18N.register("pt", {
   "pat.tie.rnd": "Ótimo arredondado para 3 casas decimais",
   "pat.tie.note": "A mesma patrulha dá {fav} ou {adv} dependendo só do empate: uma diferença de {diff}. Para não depender da sorte, os guarda-parques podem pedir a cada PL uma margem: <b>{z}</b> deve superar todas as outras zonas por {g} M COP. Isso custa apenas {cost} a mais ({rob} no total), e a escolha dos madeireiros deixa de depender de um empate. Arredondar sem cuidado faz o contrário: arredondar a cobertura para 3 casas decimais (ainda usa {used} equipes) torna <b>{zr}</b> estritamente a melhor para os madeireiros: {har}.",
   "pat.opt.kicker": "O que isso significa",
-  "pat.opt.text": "A melhor patrulha é aleatória de propósito: qualquer plano fixo deixa uma zona vazia com certeza. Ela puxa o melhor ganho dos madeireiros até o nível da água e os deixa indiferentes entre as zonas abaixo dele; os hectares só decidem em que ponto desse empate eles terminam. Na prática: <b>proteja o empate</b>. Peça uma pequena margem e nunca arredonde a cobertura sem cuidado.",
+  "pat.opt.text": "A melhor patrulha é aleatória de propósito: qualquer plano fixo deixa uma zona vazia com certeza. Ela puxa o melhor ganho dos madeireiros até o nível da água e os deixa indiferentes entre as zonas puxadas até ele; os hectares só decidem em que ponto desse empate eles terminam. Na prática: <b>proteja o empate</b>. Peça uma pequena margem e nunca arredonde a cobertura sem cuidado.",
 
   "pat.p3.intro": "Uma cobertura é uma promessa sobre frequências, mas a cada manhã as equipes precisam de zonas concretas. Coloque as coberturas uma após a outra numa reta de 0 até o número de equipes, sorteie um deslocamento aleatório <i>u</i> entre 0 e 1 e envie a equipe <i>j</i> para a zona sob <i>u</i> + <i>j</i> − 1: um pente com um dente por equipe, separados por uma unidade. Cada zona recebe uma equipe com probabilidade exatamente igual à sua cobertura, nenhuma zona recebe duas equipes, e os madeireiros, que conhecem a cobertura, não podem conhecer o sorteio do dia.",
   "pat.d.src": "Cobertura",

@@ -94,8 +94,8 @@ I18N.register("fr", {
   "pat.wf.k.level": "Niveau actuel",
   "pat.wf.k.need": "Équipes que ce niveau demande",
   "pat.wf.k.opt": "Plus bas niveau finançable",
-  "pat.wf.k.set": "Zones sous l'eau",
-  "pat.wf.note.at": "À {u}, la couverture utilise exactement {m} équipes. Chaque zone sous l'eau rapporte aux bûcherons les mêmes {u}, donc elles leur sont indifférentes. Avec les égalités tranchées en faveur des gardes, ils vont en <b>{z}</b> : <b>{ha}</b> touchés.",
+  "pat.wf.k.set": "Zones ramenées au niveau",
+  "pat.wf.note.at": "À {u}, la couverture utilise exactement {m} équipes. Chaque zone ramenée au niveau rapporte aux bûcherons les mêmes {u}, donc elles leur sont indifférentes. Avec les égalités tranchées en faveur des gardes, ils vont en <b>{z}</b> : <b>{ha}</b> touchés.",
   "pat.wf.note.above": "Au-dessus de l'optimum : ce niveau ne demande que {need} équipes, il en reste donc {spare}. Baissez-le.",
   "pat.wf.note.below": "Au-dessous de l'optimum : ce niveau demande {need} équipes, plus que les {m} dont vous disposez. Remontez-le.",
 
@@ -118,7 +118,7 @@ I18N.register("fr", {
   "pat.tie.rnd": "Optimum arrondi à 3 décimales",
   "pat.tie.note": "La même patrouille donne {fav} ou {adv} selon la seule égalité : une différence de {diff}. Pour ne plus dépendre de la chance, les gardes peuvent demander une marge à chaque PL : <b>{z}</b> doit battre toute autre zone de {g} M COP. Cela ne coûte que {cost} de plus ({rob} au total), et le choix des bûcherons ne tient plus à une égalité. Un arrondi négligent fait l'inverse : arrondir la couverture à 3 décimales (elle utilise toujours {used} équipes) rend <b>{zr}</b> strictement la meilleure pour les bûcherons : {har}.",
   "pat.opt.kicker": "Ce que cela signifie",
-  "pat.opt.text": "La meilleure patrouille est aléatoire exprès : tout plan fixe laisse à coup sûr une zone vide. Elle ramène le meilleur gain des bûcherons au niveau de l'eau et les rend indifférents entre les zones situées dessous ; les hectares décident seulement où, dans cette égalité, ils finissent. En pratique : <b>protégez l'égalité</b>. Demandez une petite marge et n'arrondissez jamais la couverture à la légère.",
+  "pat.opt.text": "La meilleure patrouille est aléatoire exprès : tout plan fixe laisse à coup sûr une zone vide. Elle ramène le meilleur gain des bûcherons au niveau de l'eau et les rend indifférents entre les zones ramenées à ce niveau ; les hectares décident seulement où, dans cette égalité, ils finissent. En pratique : <b>protégez l'égalité</b>. Demandez une petite marge et n'arrondissez jamais la couverture à la légère.",
 
   "pat.p3.intro": "Une couverture est une promesse sur des fréquences, mais chaque matin les équipes ont besoin de zones concrètes. Placez les couvertures bout à bout sur une droite allant de 0 au nombre d'équipes, tirez un décalage aléatoire <i>u</i> entre 0 et 1 et envoyez l'équipe <i>j</i> dans la zone située sous <i>u</i> + <i>j</i> − 1 : un peigne avec une dent par équipe, espacées d'une unité. Chaque zone reçoit une équipe avec une probabilité exactement égale à sa couverture, aucune zone ne reçoit deux équipes, et les bûcherons, qui connaissent la couverture, ne peuvent pas connaître le tirage du jour.",
   "pat.d.src": "Couverture",
