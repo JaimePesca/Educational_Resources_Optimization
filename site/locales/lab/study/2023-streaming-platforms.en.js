@@ -145,7 +145,7 @@ I18N.register("en", {
 
   "ststr.num.1": "Section 5 (pp. 6-8) explores the cases that the propositions do not cover. The parameters are chosen to keep calculations simple, not to represent reality, and every instance has two creators, two users and <i>r</i> = (1, 1).",
   "ststr.num.2": "<b>From inclusive to disjoint</b> (Section 5.1, Fig. 1). The path <i>V<sup>α</sup></i> of Fig. 1 starts at an inclusive market and ends at disjoint segments with distinct premium fees. The users' totals stay 600 and 400, so <i>p<sup>N</sup></i> = 400 and <i>v</i>(<i>N</i>) = 800 throughout. Up to α = 0.1 both creators keep both users. At 0.15 creator <i>i</i><sub>1</sub> switches to the fee 345 with only <i>j</i><sub>1</sub>, and the platform becomes unstable. From 0.35 the sum of the stand-alone revenues is at most 800 again; at 0.5 both 150 and 300 are optimal for <i>i</i><sub>2</sub>, and from 0.55 it charges 310 and keeps only <i>j</i><sub>2</sub>. From 0.65 on the platform is unstable.",
-  "ststr.num.2.tex": "\\begin{aligned} \\alpha=0.1:\\;& 360+440=800 && \\text{(stable)}\\\\ \\alpha=0.15:\\;& 345+460=805 && \\text{(unstable)}\\\\ \\alpha=0.3:\\;& 390+420=810 && \\text{(unstable)}\\\\ \\alpha=0.35:\\;& 405+390=795 && \\text{(stable)}\\\\ \\alpha=0.6:\\;& 480+320=800 && \\text{(stable)}\\\\ \\alpha=0.65:\\;& 495+330=825 && \\text{(unstable)} \\end{aligned}",
+  "ststr.num.2.tex": "\\begin{aligned} \\alpha=0.1 \\quad& 360+440=800 && \\text{(stable)}\\\\ \\alpha=0.15 \\quad& 345+460=805 && \\text{(unstable)}\\\\ \\alpha=0.3 \\quad& 390+420=810 && \\text{(unstable)}\\\\ \\alpha=0.35 \\quad& 405+390=795 && \\text{(stable)}\\\\ \\alpha=0.6 \\quad& 480+320=800 && \\text{(stable)}\\\\ \\alpha=0.65 \\quad& 495+330=825 && \\text{(unstable)} \\end{aligned}",
   "ststr.num.3": "<b>From homogeneous to heterogeneous</b> (Section 5.2, Fig. 2). The total streams of <i>j</i><sub>2</sub> stay 400 and those of <i>j</i><sub>1</sub> grow from β = 400 to 840 in steps of 40, on a grid with the 21 values of α. The row β = 400 is homogeneous and stable for every α. Stability is not necessarily monotonic in α, but it is monotonic in β: as the users become less alike, a platform switches once from stable to unstable.",
   "ststr.num.4": "<b>Summary on p. 8</b>: platforms may switch several times between stable and unstable when an inclusive market is gradually turned into disjoint segments, and they switch once when a homogeneous market is gradually turned into a heterogeneous one; stability is a delicate matter. A slip in the text of p. 7: it writes α = 0.3 where α = 0.25 is meant (the fee 225 is the entry of <i>V</i><sup>0.25</sup>; at 0.3 the entry is 210).",
   "ststr.num.stat.1.v": "800",
@@ -315,7 +315,7 @@ I18N.register("en", {
   "ststr.w.a.pr": "Pro-rata [6]",
   "ststr.w.a.uc": "User-centric [6]",
   "ststr.w.a.ok": "✓ yes",
-  "ststr.w.a.bad": "✗ {S} gets {x} &lt; {v}",
+  "ststr.w.a.bad": "✗ {S}<span class='wide'> gets {x} &lt; {v}</span>",
   "ststr.w.a.eff": "✗ sum ≠ v(N)",
   "ststr.w.a.none": "no core point",
   "ststr.w.a.cap": "Prop. 2 pays creator <i>i</i> the amount <i>r<sub>j*</sub> V<sub>ij*</sub></i> |<i>U</i>| for a user <i>j</i>* who pays exactly <i>p<sup>N</sup></i>; Prop. 4 pays Σ<sub><i>j</i></sub> <i>r<sub>j</sub> V<sub>ij</sub></i>, which adds up to <i>v</i>(<i>N</i>) only in a homogeneous market. Pro-rata and user-centric come from ref. [6]; the article does not test them. A ✗ names the coalition that would leave.",

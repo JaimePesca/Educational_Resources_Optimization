@@ -66,19 +66,19 @@
   .sp-chart svg .best { stroke: var(--accent); stroke-width: 1.3; stroke-dasharray: 4 4; opacity: 0.8; }
   .sp-chart svg .pn { fill: var(--ink); stroke: var(--surface); stroke-width: 1.5; }
   .sp-chart svg .pnline { stroke: var(--ink2); stroke-width: 1.3; stroke-dasharray: 3 3; }
-  .sp-chart svg .pn-t { fill: var(--ink); font-size: 12px; font-weight: 700; }
+  .sp-chart svg .pn-t { fill: var(--ink); font-size: 12px; font-weight: 700; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
   .sp-chart svg .user { stroke: var(--mit-silver); stroke-width: 1.2; }
   .sp-chart svg .user-t { fill: var(--ink2); font-size: 11.5px; font-weight: 600; }
   .sp-pchart svg .pline { fill: none; stroke: var(--mit-silver); stroke-width: 1.6; }
   .sp-pchart svg .vn { stroke: var(--ink); stroke-width: 1.4; stroke-dasharray: 5 4; }
-  .sp-pchart svg .vn-t { fill: var(--ink); font-size: 12px; font-weight: 700; }
+  .sp-pchart svg .vn-t { fill: var(--ink); font-size: 12px; font-weight: 700; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
   .sp-pchart svg .st { fill: var(--accent); stroke: var(--surface); stroke-width: 1.2; }
   .sp-pchart svg .un { fill: var(--surface); stroke: var(--mit-bright); stroke-width: 2; }
   .sp-pchart svg .cur { fill: none; stroke: var(--ink); stroke-width: 2; }
   .sp-pchart svg .guide { stroke: var(--axis); stroke-width: 1; }
   .sp-pchart svg { cursor: pointer; }
   .sp-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
-  .sp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sp-legend > span { display: inline-flex; align-items: center; gap: 6px; }
   .sp-legend i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; flex: none; }
   .sp-legend i.opt, .sp-legend i.st { background: var(--accent); }
   .sp-legend i.cand { border: 2px solid var(--ink2); background: var(--surface); box-sizing: border-box; }
@@ -100,6 +100,7 @@
     .st-tbl .wide { display: none; }
     .st-tbl td, .st-tbl th { padding: 6px 5px; }
     .st-tbl td.num { font-size: 11.5px; }
+    .st-tbl td.lbl { white-space: normal; min-width: 64px; }
   }
 </style>
 </head>
@@ -503,11 +504,19 @@
   // ---- the revenue p |Q^S(p)| of the selected coalition's own platform (the figure of Example 1, p. 3) ----
   function drawRevenue() {
     var c = res.byMask[sel], host = $("sp-chart"); host.textContent = "";
-    var W = boxWidth("sp-chart"), H = W < 520 ? 250 : Math.round(Math.min(310, W * 0.34));
-    var ML = 44, MR = 18, MT = 22, MB = 58;
+    var W = boxWidth("sp-chart"), ML = 44, MR = 18, MT = 22;
     var tvals = c.reach.map(function (j) { return c.t[j]; });
     var tmax = Math.max.apply(null, tvals);
     var tx = ticks(tmax * 1.12, W < 520 ? 4 : 6), pmax = tx.top;
+    // users: a mark at the fee where each one stops subscribing, on as many rows as needed so the names never overlap
+    var placed = [];
+    c.reach.slice().sort(function (a, b) { return c.t[a] - c.t[b] || a - b; }).forEach(function (j) {
+      var x = ML + (W - ML - MR) * c.t[j] / pmax, row = 0;
+      while (placed.some(function (q) { return q.row === row && Math.abs(q.x - x) < 24; })) row++;
+      placed.push({ x: x, row: row, j: j });
+    });
+    var rows = 1 + Math.max.apply(null, placed.map(function (q) { return q.row; }));
+    var MB = 50 + rows * 14, H = (W < 520 ? 210 : Math.round(Math.min(270, W * 0.3))) + MB;
     var rmax = c.best; if (c.grand) rmax = Math.max(rmax, res.vN);
     var ty = ticks(rmax * 1.2, 4), ymax = ty.top;
     function X(p) { return ML + (W - ML - MR) * p / pmax; }
@@ -525,14 +534,9 @@
     s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(pmax), y1: Y(0), y2: Y(0) }));
     s.appendChild(svg("text", { "class": "lab", x: X(pmax), y: H - 4, "text-anchor": "end" }, t("ststr.w.ax.p")));
     s.appendChild(svg("text", { "class": "lab", x: ML + 4, y: MT - 8 }, t("ststr.w.ax.rev")));
-    // users: a mark at the fee where each one stops subscribing
-    var placed = [];
-    c.reach.slice().sort(function (a, b) { return c.t[a] - c.t[b]; }).forEach(function (j) {
-      var x = X(c.t[j]), row = 0;
-      while (placed.some(function (q) { return q.row === row && Math.abs(q.x - x) < 24; })) row++;
-      placed.push({ x: x, row: row });
-      s.appendChild(svg("line", { "class": "user", x1: x, x2: x, y1: Y(0) + 20, y2: Y(0) + 24 + row * 14 }));
-      s.appendChild(subText({ x: x, y: Y(0) + 34 + row * 14, "text-anchor": "middle" }, "j", j + 1, "user-t"));
+    placed.forEach(function (q) {
+      s.appendChild(svg("line", { "class": "user", x1: q.x, x2: q.x, y1: Y(0) + 20, y2: Y(0) + 24 + q.row * 14 }));
+      s.appendChild(subText({ x: q.x, y: Y(0) + 34 + q.row * 14, "text-anchor": "middle" }, "j", q.j + 1, "user-t"));
     });
     // the step curve: on (a_{k+1}, a_k] exactly k users subscribe, so the revenue is k p
     var a = tvals.slice().sort(function (p, q) { return q - p; });
@@ -567,8 +571,8 @@
     if (c.grand) {
       var dx = X(res.pN), dy = Y(res.vN);
       s.appendChild(svg("path", { "class": "pn", d: "M" + dx + " " + (dy - 7) + "l7 7l-7 7l-7 -7z" }));
-      var left = dx > W * 0.6;
-      var lab = svg("text", { "class": "pn-t", x: left ? dx - 11 : dx + 11, y: dy + 18, "text-anchor": left ? "end" : "start" });
+      var left = dx - ML > 70;
+      var lab = svg("text", { "class": "pn-t", x: left ? dx - 10 : dx + 10, y: dy - 9, "text-anchor": left ? "end" : "start" });
       lab.appendChild(document.createTextNode("p"));
       lab.appendChild(svg("tspan", { "baseline-shift": "super", "font-size": "75%" }, "N"));
       lab.appendChild(document.createTextNode(" = " + fv(res.pN)));
@@ -680,10 +684,11 @@
     s.appendChild(svg("text", { "class": "lab", x: X(20), y: H - 2, "text-anchor": "end" }, "α"));
     s.appendChild(svg("line", { "class": "guide", x1: X(pk), x2: X(pk), y1: MT, y2: H - MB }));
     s.appendChild(svg("line", { "class": "vn", x1: X(0), x2: X(20), y1: Y(vN), y2: Y(vN) }));
-    s.appendChild(svg("text", { "class": "vn-t", x: X(0) + 4, y: Y(vN) - 6 }, "v(N) = " + fv(vN)));
+    var vlab = svg("text", { "class": "vn-t", x: X(0) + 4, y: Y(vN) + 16 }, "v(N) = " + fv(vN));
     s.appendChild(svg("polyline", { "class": "pline", points: pts.map(function (p) { return X(p.k) + "," + Y(p.sum); }).join(" ") }));
     pts.forEach(function (p) { s.appendChild(svg("circle", { "class": p.stable ? "st" : "un", cx: X(p.k), cy: Y(p.sum), r: 4.5 })); });
     s.appendChild(svg("circle", { "class": "cur", cx: X(pk), cy: Y(pts[pk].sum), r: 9 }));
+    s.appendChild(vlab);
     s.addEventListener("click", function (e) {
       var rect = s.getBoundingClientRect(), x = (e.clientX - rect.left) * W / rect.width;
       var k2 = Math.max(0, Math.min(20, Math.round((x - ML) / (W - ML - MR) * 20)));
