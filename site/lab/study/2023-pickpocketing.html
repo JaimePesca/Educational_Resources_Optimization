@@ -73,6 +73,8 @@
   .pk-checks li::marker { color: var(--accent-text); }
   .pk-checks b { color: var(--ink); }
   .st-tbl td.pk-rowh { white-space: nowrap; }
+  /* an exponent such as e^(alpha_i/(1 + sum beta)) never breaks over two lines */
+  #study-root sup { white-space: nowrap; }
   .st-tbl tr.pk-sum td { font-weight: 700; color: var(--ink); background: var(--surface2); }
   .st-tbl tr.pk-gap td { border-top: 1px solid var(--axis); }
   @media (max-width: 460px) { .st-tbl td, .st-tbl th { padding: 6px 5px; } .st-tbl td.num { font-size: 11.5px; } .st-tbl td.pk-rowh { white-space: normal; font-size: 12.5px; } }
@@ -386,8 +388,9 @@
   function share(v) { return t("stpkp.w.pct", { v: I18N.fmt(v * 100, 1, 0) }); }
   function amt(v) { return I18N.fmt(v, 3, 3); }
   function amt1(v) { return I18N.fmt(v, v < 10 ? 2 : 1, v < 10 ? 2 : 1); }
-  function f3(v) { return I18N.fmt(v, 3, 3); }
-  function f4(v) { return I18N.fmt(v, 4, 4); }
+  function minus(s) { return s.replace(/^-/, "\u2212"); }   // a true minus sign for negative utilities
+  function f3(v) { return minus(I18N.fmt(v, 3, 3)); }
+  function f4(v) { return minus(I18N.fmt(v, 4, 4)); }
   function small(v) { return v === 0 ? "0" : v < 5e-5 ? sci(v, 0) : I18N.fmt(v, 4, 4); }
   function lam(lnLam) {   // -exp(lnLam) as m x 10^e
     var l10 = lnLam / Math.LN10, e = Math.floor(l10), m = Math.pow(10, l10 - e);
