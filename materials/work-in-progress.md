@@ -2,7 +2,7 @@
 
 Read this first after any interruption (credits, context reset). It is the single source of truth for the current job. Update the status table and commit it after every step.
 
-- Branch: `feat/lab-game-theory` (from main 4a06ff5). Do not merge to main until the owner says so.
+- Branch: `feat/lab-game-theory` (from main 4a06ff5). MERGED to main 31dbfb9 on 2026-10-22 with the owner's approval; "Deploy website" run 39837121966 succeeded. This job is finished; the next one (Dutch for the whole site) waits for the owner.
 - Local server for checks: `cd site && python3 -m http.server 8765`.
 - Previous jobs (lab pages, home visuals, SEO, GA4 events, research under review, icons, PDF purge) are merged and deployed.
 
