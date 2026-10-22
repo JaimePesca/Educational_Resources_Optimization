@@ -26,3 +26,6 @@ New elements for the hidden lab about game theory. First help the owner decide w
 - The second door goes on site/lab/index.html, same invisible style and position as the home page door.
 - Existing game theory on the site: Price Wars (level 5: Cournot best responses, Stackelberg leader). Do not duplicate it.
 - Lab pages follow materials/briefs/lab-page.md; every number computed live; four languages; GA4 tag and icon links as in resources/_template.html; noindex (hidden lab).
+
+## Next job, after this one is merged (owner: "Lo revisamos luego del trabajo actual")
+Dutch (nl) for the whole site, not only the lab and the five levels. Measured volume (English bundles): levels 48 pages, 5,617 strings, about 56,000 words; lab 16 pages, 3,379 strings, about 39,000 words; shared 400 strings, 3,600 words; research and about about 7,000 words more. Proposed plan: glossary of Dutch OR terms first, pilot with Level 1 and one lab page for the owner to review, then the rest (translator + reviewer per page, 400 px checks for long compounds); add nl to SITE_LANGS, seo_gen.py hreflang/og:locale/sitemap, and the CLAUDE.md rule "new keys go to all five languages". Discuss with the owner before starting.
