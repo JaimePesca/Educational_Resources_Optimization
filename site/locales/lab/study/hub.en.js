@@ -1,6 +1,6 @@
 /* Strings of lab/study/index.html, the hub of the study section. */
 I18N.register("en", {
-  "sth.title": "Study: Cooperation and Shared Spare Parts",
+  "sth.title": "Study: Game Theory in Operations",
   "sth.lede": "This section follows a line of published work by Loe Schlicher and co-authors on game theory in operations, paper by paper, in chronological order.",
   "sth.how": "Each card opens a study page: the question, the model, the main results with their proof ideas, study questions and a small model to try in the browser. Filter by line or scroll the timeline sideways.",
 

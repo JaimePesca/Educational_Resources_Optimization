@@ -1,6 +1,6 @@
 /* Textos de lab/study/index.html, el inicio de la sección de estudio (español de Colombia, tuteo). */
 I18N.register("es", {
-  "sth.title": "Estudio: cooperación y repuestos compartidos",
+  "sth.title": "Estudio: teoría de juegos en operaciones",
   "sth.lede": "Esta sección sigue una línea de trabajos publicados por Loe Schlicher y coautores sobre teoría de juegos en operaciones, artículo por artículo y en orden cronológico.",
   "sth.how": "Cada tarjeta abre una página de estudio: la pregunta, el modelo, los resultados principales con la idea de sus pruebas, preguntas de estudio y un modelo pequeño para probar en el navegador. Filtra por línea o desliza la línea de tiempo hacia los lados.",
 

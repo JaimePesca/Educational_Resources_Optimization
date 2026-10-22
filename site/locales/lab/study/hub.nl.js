@@ -1,6 +1,6 @@
 /* Teksten van lab/study/index.html, de startpagina van de studiesectie. */
 I18N.register("nl", {
-  "sth.title": "Studie: samenwerking en gedeelde reserveonderdelen",
+  "sth.title": "Studie: speltheorie in operations",
   "sth.lede": "Deze sectie volgt een lijn van gepubliceerd werk van Loe Schlicher en coauteurs over speltheorie in operations, artikel voor artikel, in chronologische volgorde.",
   "sth.how": "Elke kaart opent een studiepagina: de vraag, het model, de belangrijkste resultaten met hun bewijsidee, studievragen en een klein model om in de browser te proberen. Filter op lijn of schuif de tijdlijn opzij.",
 
