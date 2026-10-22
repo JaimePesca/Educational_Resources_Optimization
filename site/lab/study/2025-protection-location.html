@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en" data-i18n-langs="es en nl" data-title-key="sttpl.title" data-i18n-bundles="lab/study/common lab/study/2025-protection-location">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>When Damage Changes Over Time: Balancing Still Works</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../../assets/study.css?v=__BUILD__">
+<style>
+  /* ---- "Try it": the time-dependent protection location game ---- */
+  .tp-chart svg .grid { stroke: var(--grid); stroke-width: 1; }
+  .tp-chart svg .axis { stroke: var(--axis); stroke-width: 1.2; }
+  .tp-chart svg .tick { fill: var(--muted); font-size: 11px; }
+  .tp-chart svg .lab { fill: var(--ink2); font-size: 12px; }
+  .tp-chart svg .darea { fill: var(--accent); fill-opacity: 0.12; }
+  .tp-chart svg .dline { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+  .tp-chart svg .d0line { fill: none; stroke: var(--mit-silver); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  .tp-chart svg .tline { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.55; }
+  .tp-chart svg .team { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+  .tp-chart svg .team-t { fill: var(--on-solid); font-size: 11px; font-weight: 700; pointer-events: none; }
+  .tp-chart svg .thit { fill: transparent; cursor: grab; touch-action: none; }
+  .tp-chart.is-drag svg .thit { cursor: grabbing; }
+  .tp-chart svg .lmax { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+  .tp-chart svg .best { fill: var(--mit-bright); stroke: var(--surface); stroke-width: 1.5; }
+  .tp-chart svg .atkline { stroke: var(--mit-bright); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .tp-chart svg .atkdot { fill: var(--surface); stroke: var(--mit-bright); stroke-width: 2; }
+  .tp-chart svg .popt { stroke: var(--ink2); stroke-width: 1.3; stroke-dasharray: 6 4; }
+  .tp-chart svg .popt-t { fill: var(--ink2); font-size: 11.5px; font-weight: 600; }
+  .tp-chart svg .lv { fill: var(--muted); font-size: 10.5px; }
+  .tp-chart svg .lv.hot { fill: var(--accent-text); font-weight: 700; }
+  .tp-chart svg .cell { fill: var(--accent); }
+  .tp-chart svg .tent { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; }
+  .tp-chart svg .jump { stroke: var(--ink2); stroke-width: 1.5; stroke-dasharray: 7 4; fill: none; }
+  .tp-chart svg .jump-t { fill: var(--ink2); font-size: 11.5px; font-weight: 600; }
+  .tp-chart svg .atkcol { stroke: var(--mit-bright); stroke-width: 3; }
+  .tp-chart svg .bar { fill: var(--mit-silver); fill-opacity: 0.55; }
+  .tp-chart svg .bar.cur { fill: var(--accent); fill-opacity: 1; }
+  .tp-chart svg .bar-t { fill: var(--ink2); font-size: 11px; }
+  .tp-chart svg .bar-t.cur { fill: var(--accent-text); font-weight: 700; }
+  .tp-chart svg .bar-n { fill: var(--muted); font-size: 11px; }
+  .tp-chart svg .bar-none { fill: var(--muted); font-size: 12.5px; }
+  .tp-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
+  .tp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .tp-legend i { width: 14px; height: 12px; display: inline-block; flex: none; }
+  .tp-legend i.d { height: 0; width: 16px; border-top: 2px solid var(--ink); }
+  .tp-legend i.d0 { height: 0; width: 16px; border-top: 2px dashed var(--mit-silver); }
+  .tp-legend i.team { width: 12px; border-radius: 50%; background: var(--accent); }
+  .tp-legend i.best { width: 10px; height: 10px; border-radius: 50%; background: var(--mit-bright); }
+  .tp-legend i.p { height: 0; width: 16px; border-top: 1.5px dashed var(--ink2); }
+  .tp-legend i.rate { background: linear-gradient(to right, transparent, var(--accent)); border: 1px solid var(--border); border-radius: 1px; }
+  .tp-legend i.tent { height: 0; width: 16px; border-top: 2px solid var(--ink); }
+  .tp-legend i.jump { height: 0; width: 16px; border-top: 2px dashed var(--ink2); }
+  .tp-legend i.atk { height: 12px; width: 0; border-left: 3px solid var(--mit-bright); }
+  .tp-hint { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+  #tp-k-box .seg { align-self: flex-start; }
+  .tp-sliders { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .tp-atk { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: end; }
+  @media (max-width: 620px) { .tp-atk { grid-template-columns: minmax(0, 1fr); } .tp-atk .st-btn { justify-self: start; } }
+  .tp-atk .st-rng { max-width: none; }
+  .tp-at, .tp-check { margin: 0; font-size: 14px; color: var(--ink2); }
+  .tp-at b, .tp-check b { color: var(--ink); }
+  .tp-check { font-size: 13.5px; }
+  .st-tbl tr.is-atk td { background: var(--sel); }
+  .st-tbl .atk-tag { color: var(--accent-text); font-weight: 700; font-size: 11.5px; margin-left: 4px; }
+  @media (max-width: 520px) { .st-tbl .wide { display: none; } .st-tbl td, .st-tbl th { padding: 6px 5px; } .st-tbl td.num { font-size: 11.5px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="st-crumbs" data-i18n-attr="aria-label:stu.crumbLabel">
+      <a class="backlink" href="../index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.lab"></span></a>
+      <span class="sep" aria-hidden="true">/</span>
+      <a class="backlink" href="index.html" data-keep-lang data-i18n="stu.crumb"></a>
+    </nav>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<main class="wrap" id="study-root" data-study-paper="2025-protection-location" data-study-prefix="sttpl">
+  <!-- The "Try it" widget: assets/study.js moves this node into the "Try it" section and shows it -->
+  <div id="study-try" class="st-w" hidden>
+    <div class="st-w-row">
+      <div class="st-w-group">
+        <span class="lbl" id="tp-h-lbl" data-i18n="sttpl.w.h"></span>
+        <div class="st-presets" id="tp-h" role="group" aria-labelledby="tp-h-lbl">
+          <button type="button" class="st-btn" data-h="police" data-i18n="sttpl.w.h.police"></button>
+          <button type="button" class="st-btn" data-h="ex3" data-i18n="sttpl.w.h.ex3"></button>
+          <button type="button" class="st-btn" data-h="ex4" data-i18n="sttpl.w.h.ex4"></button>
+          <button type="button" class="st-btn" data-h="ex5" data-i18n="sttpl.w.h.ex5"></button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="tp-n-lbl" data-i18n="sttpl.w.n"></span>
+        <div class="seg" id="tp-n" role="group" aria-labelledby="tp-n-lbl">
+          <button type="button" data-n="1">1</button><button type="button" data-n="2">2</button><button type="button" data-n="3">3</button><button type="button" data-n="4">4</button><button type="button" data-n="5">5</button><button type="button" data-n="6">6</button>
+        </div>
+      </div>
+      <div class="st-w-group" id="tp-k-box">
+        <span class="lbl" id="tp-k-lbl" data-i18n="sttpl.w.k"></span>
+        <div class="seg" id="tp-k" role="group" aria-labelledby="tp-k-lbl">
+          <button type="button" data-k="1"></button><button type="button" data-k="0.75"></button><button type="button" data-k="0.5"></button><button type="button" data-k="0.25"></button>
+        </div>
+      </div>
+    </div>
+    <div class="st-w-group">
+      <span class="lbl" id="tp-plan-lbl" data-i18n="sttpl.w.plan"></span>
+      <div class="st-presets" id="tp-plan" role="group" aria-labelledby="tp-plan-lbl">
+        <button type="button" class="st-btn" data-plan="opt" data-i18n="sttpl.w.plan.opt"></button>
+        <button type="button" class="st-btn" data-plan="ign" data-i18n="sttpl.w.plan.ign"></button>
+        <button type="button" class="st-btn" data-plan="art"></button>
+        <button type="button" class="st-btn" data-plan="own" data-i18n="sttpl.w.plan.own"></button>
+      </div>
+    </div>
+    <div>
+      <p class="st-w-head" data-i18n="sttpl.w.prof"></p>
+      <div class="st-chart tp-chart" id="tp-prof" role="img" data-i18n-attr="aria-label:sttpl.w.prof.aria"></div>
+      <div class="tp-legend" id="tp-leg1"></div>
+      <p class="tp-hint" data-i18n="sttpl.w.drag"></p>
+    </div>
+    <div class="st-sliders tp-sliders" id="tp-teams"></div>
+    <div class="st-kpis" id="tp-kpis"></div>
+    <p class="st-verdict" id="tp-verdict" aria-live="polite"></p>
+    <p class="tp-check" id="tp-check"></p>
+    <div>
+      <p class="st-w-head" data-i18n="sttpl.w.area"></p>
+      <div class="st-chart tp-chart" id="tp-area" role="img" data-i18n-attr="aria-label:sttpl.w.area.aria"></div>
+      <div class="tp-legend" id="tp-leg2"></div>
+    </div>
+    <div class="tp-atk">
+      <div class="st-rng">
+        <label for="tp-a" data-i18n="sttpl.w.a"></label><output id="tp-a-out" for="tp-a"></output>
+        <input type="range" id="tp-a" min="0" max="1" step="0.001" value="0.5">
+      </div>
+      <button type="button" class="st-btn" id="tp-a-best" data-i18n="sttpl.w.a.best"></button>
+    </div>
+    <p class="tp-at" id="tp-at" aria-live="polite"></p>
+    <div><p class="st-w-head" data-i18n="sttpl.w.t.h"></p><div class="st-tbl" id="tp-tbl"></div></div>
+    <div>
+      <p class="st-w-head" data-i18n="sttpl.w.bars.h"></p>
+      <div class="st-chart tp-chart" id="tp-bars" role="img" data-i18n-attr="aria-label:sttpl.w.bars.aria"></div>
+    </div>
+  </div>
+</main>
+
+<script src="../../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/common.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/2025-protection-location.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="papers.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/study.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+
+  /* ---- the time-dependent Stackelberg protection location game, solved live (no hard-coded results) ----
+     Positions on [0, 1], speed 1, damage of an attack = ∫_0^{min_i |d_i - a|} h(a, t) dt. */
+  // TP-START
+  var TP = (function () {
+    /* A damage rate h(a, t) of class Θ^J: H(a, τ) is the damage ∫_0^τ h(a, t) dt in closed form, jumps lists the jump
+       curves t = p(a) = α + β a, h0(a) = h(a, 0) is the rate at the start (the time-constant model that ignores the
+       time effect), tvar says whether h changes with t between jumps. */
+    function police(k) {
+      return {
+        id: "police", k: k, tvar: false, jumps: [[1, -1]],
+        h: function (a, t) { return t <= 1 - a ? a : k * a; },
+        H: function (a, tau) { var p = 1 - a; return tau <= p ? a * tau : a * p + k * a * (tau - p); },
+        h0: function (a) { return a; }
+      };
+    }
+    function constant(c) {
+      return { id: "ex3", tvar: false, jumps: [], h: function () { return c; }, H: function (a, tau) { return c * tau; }, h0: function () { return c; } };
+    }
+    function ex4() {
+      return { id: "ex4", tvar: true, jumps: [], h: function (a, t) { return 1 - t; },
+        H: function (a, tau) { return tau - tau * tau / 2; }, h0: function () { return 1; } };
+    }
+    function ex5() {
+      return { id: "ex5", tvar: true, jumps: [[0.3, 0]], h: function (a, t) { return t <= 0.3 ? 1 - t : 0; },
+        H: function (a, tau) { var s = Math.min(tau, 0.3); return s - s * s / 2; }, h0: function () { return 1; } };
+    }
+    // the time-constant model of the same situation: ĥ(a) = h(a, 0) for all t (a situation of class Θ^C)
+    function frozen(rate) {
+      return { id: rate.id + "0", tvar: false, jumps: [], h: function (a) { return rate.h0(a); },
+        H: function (a, tau) { return rate.h0(a) * tau; }, h0: rate.h0 };
+    }
+
+    // damage of an attack at a against the plan d: the rate integrated until the closest team arrives
+    function resp(d, a) { var m = Infinity; for (var i = 0; i < d.length; i++) m = Math.min(m, Math.abs(d[i] - a)); return m; }
+    function damage(rate, d, a) { return rate.H(a, resp(d, a)); }
+
+    /* max over a in [lo, hi] of H(a, s (a - c)): the closest team sits at c (s = 1: team on the left, s = -1: team on the
+       right). Between the jump crossings the damage is a polynomial of degree at most 2 in a for every rate on this page,
+       so its maximum on each piece is at an end or at the vertex, which three exact evaluations locate. */
+    function maxSide(rate, lo, hi, c, s) {
+      function g(a) { return rate.H(a, Math.max(0, s * (a - c))); }
+      var best = { v: g(s > 0 ? lo : hi), a: s > 0 ? lo : hi };
+      if (!(hi > lo)) return best;
+      var cuts = [lo, hi];
+      rate.jumps.forEach(function (J) {          // s (a - c) = α + β a
+        if (s - J[1] !== 0) { var x = (J[0] + s * c) / (s - J[1]); if (x > lo && x < hi) cuts.push(x); }
+      });
+      cuts.sort(function (x, y) { return x - y; });
+      function consider(a) { var v = g(a); if (v > best.v + 1e-15) best = { v: v, a: a }; }
+      for (var k = 0; k + 1 < cuts.length; k++) {
+        var p = cuts[k], q = cuts[k + 1];
+        if (q - p < 1e-13) continue;
+        var m = (p + q) / 2, hh = (q - p) / 2, gp = g(p), gm = g(m), gq = g(q);
+        consider(p); consider(q); consider(m);
+        var A = (gp - 2 * gm + gq) / (2 * hh * hh), slope = (gq - gp) / (2 * hh);
+        if (A < -1e-12) { var x = m - slope / (2 * A); if (x > p && x < q) consider(x); }
+      }
+      return best;
+    }
+    // the n + 1 local damage problems of Section 3
+    function L(rate, d1) { return maxSide(rate, 0, d1, d1, -1); }
+    function R(rate, dn) { return maxSide(rate, dn, 1, dn, 1); }
+    function I(rate, di, dj) {
+      if (!(dj > di)) return { v: 0, a: di };
+      var m = (di + dj) / 2, x = maxSide(rate, di, m, di, 1), y = maxSide(rate, m, dj, dj, -1);
+      return y.v > x.v + 1e-15 ? y : x;
+    }
+    function locals(rate, d) {
+      var n = d.length, out = [], l = L(rate, d[0]), r = R(rate, d[n - 1]);
+      out.push({ kind: "L", v: l.v, a: l.a, lo: 0, hi: d[0] });
+      for (var i = 0; i < n - 1; i++) { var b = I(rate, d[i], d[i + 1]); out.push({ kind: "I", i: i + 1, v: b.v, a: b.a, lo: d[i], hi: d[i + 1] }); }
+      out.push({ kind: "R", v: r.v, a: r.a, lo: d[n - 1], hi: 1 });
+      return out;
+    }
+    // the follower's best response: the largest local damage (every attack point lies in one of the n + 1 intervals)
+    function worst(rate, d) {
+      var loc = locals(rate, d), w = loc[0];
+      loc.forEach(function (x) { if (x.v > w.v) w = x; });
+      return { v: w.v, a: w.a, loc: loc };
+    }
+
+    // largest y in [lo, cap] with g(y) <= z (g non-decreasing, g(lo) <= z); smallest y with g(y) >= z
+    function largestLE(g, lo, cap, z) {
+      if (g(cap) <= z) return cap;
+      var a = lo, b = cap;
+      for (var it = 0; it < 56; it++) { var m = (a + b) / 2; if (g(m) <= z) a = m; else b = m; }
+      return a;
+    }
+    function smallestGE(g, lo, cap, z) {
+      if (g(lo) >= z) return lo;
+      if (g(cap) < z) return cap;
+      var a = lo, b = cap;
+      for (var it = 0; it < 56; it++) { var m = (a + b) / 2; if (g(m) >= z) b = m; else a = m; }
+      return b;
+    }
+    /* sweeps at a target damage z, from left to right. "far": each team as far right as the local damage on its left
+       allows (<= z); "near": each team at the first point where that local damage reaches z. By Lemma 3.7 (L
+       non-decreasing, I^i non-increasing in d_i and non-decreasing in d_{i+1}) the far sweep places every team at least as
+       far right as any plan whose local damages are all <= z, so z is reachable exactly when the far sweep also keeps the
+       right end R(d_n) <= z. */
+    function sweep(rate, n, z, far) {
+      var d = [], pick = far ? largestLE : smallestGE;
+      d.push(pick(function (y) { return L(rate, y).v; }, 0, 1, z));
+      for (var i = 1; i < n; i++) {
+        var prev = d[i - 1];
+        d.push(pick(function (y) { return I(rate, prev, y).v; }, prev, 1, z));
+      }
+      return d;
+    }
+    function spread(loc) {
+      var mx = -Infinity, mn = Infinity;
+      loc.forEach(function (x) { mx = Math.max(mx, x.v); mn = Math.min(mn, x.v); });
+      return { max: mx, min: mn, rel: mx > 0 ? (mx - mn) / mx : 0 };
+    }
+    // the leader's problem (2): 𝒫* by bisection on z, then a balanced optimal plan (Theorem 3.8 says one exists)
+    function optimum(rate, n) {
+      var zeros = []; for (var i = 0; i < n; i++) zeros.push(0);
+      var hi = worst(rate, zeros).v, lo = 0;
+      for (var it = 0; it < 64; it++) {
+        var z = (lo + hi) / 2, d = sweep(rate, n, z, true);
+        if (R(rate, d[n - 1]).v <= z) hi = z; else lo = z;
+      }
+      var P = hi, far = sweep(rate, n, P, true), near = sweep(rate, n, P * (1 - 1e-11), false);
+      var wn = worst(rate, near), wf = worst(rate, far);
+      // prefer the plan whose local damages agree best; both must reach the optimum
+      var sn = spread(wn.loc).rel, sf = spread(wf.loc).rel;
+      var use = (wn.v <= P * (1 + 1e-8) && sn <= sf) ? { d: near, w: wn, s: sn } : { d: far, w: wf, s: sf };
+      return { P: P, d: use.d, worst: use.w, spread: use.s, far: far, near: near };
+    }
+    // the plan of a planner who ignores the time effect: optimal for ĥ(a) = h(a, 0), then evaluated in the true model
+    function ignoring(rate, n) {
+      var f = frozen(rate), o = optimum(f, n);
+      return { d: o.d, Pmodel: o.P, worst: worst(rate, o.d) };
+    }
+    return { police: police, constant: constant, ex4: ex4, ex5: ex5, frozen: frozen, resp: resp, damage: damage,
+      maxSide: maxSide, L: L, R: R, I: I, locals: locals, worst: worst, sweep: sweep, spread: spread,
+      optimum: optimum, ignoring: ignoring };
+  })();
+  // TP-END
+
+  // ---- the widget ----
+  var NMAX = 6, TOL = 1e-9;
+  var ART = { ex3: [0.2, 0.8], ex4: [0.2, 0.8], ex5: [0, 0.8] };   // Examples 1 to 5 (n = 2, attack at a = 0.4)
+  var st = { h: "police", k: 0.5, n: 4, plan: "opt", d: null, a: 0.5, userA: false };
+  var cache = {}, pending = false, view = null, cur = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+  function svg(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function h(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+
+  function rateOf() {
+    return st.h === "police" ? TP.police(st.k) : st.h === "ex3" ? TP.constant(1) : st.h === "ex4" ? TP.ex4() : TP.ex5();
+  }
+  // the leader's optimum and the plan that ignores the time effect, for the current rate and n teams (cached)
+  function solved(n) {
+    var key = st.h + (st.h === "police" ? ":" + st.k : "") + "|" + n;
+    if (!cache[key]) { var r = rateOf(); cache[key] = { opt: TP.optimum(r, n), ign: TP.ignoring(r, n) }; }
+    return cache[key];
+  }
+  function artPlan() { return st.n === 2 && ART[st.h] ? ART[st.h] : null; }
+  function plan() {
+    var S = solved(st.n);
+    if (st.plan === "ign") return S.ign.d.slice();
+    if (st.plan === "art" && artPlan()) return artPlan().slice();
+    if (st.plan === "own" && st.d && st.d.length === st.n) return st.d.slice();
+    return S.opt.d.slice();
+  }
+
+  // ---- number formats ----
+  function f4(v) { return I18N.fmt(Math.abs(v) < 5e-13 ? 0 : v, 4, 4); }
+  function vec(d) { return "(" + d.map(f4).join(t("sttpl.w.sep")) + ")"; }
+  function short(d) { return "(" + d.map(function (x) { return I18N.fmt(x, 2); }).join(t("sttpl.w.sep")) + ")"; }
+  // one decimal, or enough decimals to show a gap below 0.1% (a plan on the 0.001 grid can miss the optimum by 0.02%)
+  function pct(x) {
+    var v = x * 100, dg = v > 0 && v < 0.1 ? Math.min(6, 1 - Math.floor(Math.log10(v))) : 1;
+    return t("sttpl.w.pct", { v: I18N.fmt(v, dg, 1) });
+  }
+  function f6(v) { return I18N.fmt(v, 6, 6); }
+  function kfmt(k) { return I18N.fmt(k, 2); }
+  function where(l, n) {
+    if (l.kind === "L") return t("sttpl.w.w.L");
+    if (l.kind === "R") return t("sttpl.w.w.R", { n: n });
+    return t("sttpl.w.w.I", { i: l.i, j: l.i + 1 });
+  }
+  function sym(l) { return l.kind === "L" ? "ℒ" : l.kind === "R" ? "ℛ" : "ℐ<sup>" + l.i + "</sup>"; }
+
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; update(); });
+  }
+
+  // ---- controls ----
+  function buildTeams() {
+    var host = $("tp-teams"); host.textContent = "";
+    for (var i = 0; i < NMAX; i++) {
+      var box = h("div", "st-rng"), id = "tp-d" + i, lab = h("label"), out = h("output"), inp = document.createElement("input");
+      lab.htmlFor = id; out.htmlFor = id;
+      inp.type = "range"; inp.id = id; inp.min = "0"; inp.max = "1"; inp.step = "0.001";
+      (function (k) { inp.addEventListener("input", function () { move(k, +this.value); }); })(i);
+      box.append(lab, out, inp); host.appendChild(box);
+    }
+  }
+  // a team moves between its neighbours, so the positions stay ordered (the strategy set D^n)
+  function move(k, a) {
+    var d = plan(), lo = k > 0 ? d[k - 1] : 0, hi = k < d.length - 1 ? d[k + 1] : 1;
+    d[k] = Math.min(hi, Math.max(lo, Math.round(a * 1000) / 1000));
+    st.d = d; st.plan = "own"; schedule();
+  }
+
+  function boxWidth(id) { var w = $(id).clientWidth; return Math.max(280, Math.min(1000, w || 640)); }
+  function niceStep(x) {
+    var e = Math.pow(10, Math.floor(Math.log10(x))), m = x / e;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e;
+  }
+  // points where the damage profile changes formula: teams, midpoints, jump crossings and the local maxima
+  function breakpoints(rate, d, loc) {
+    var pts = [0, 1];
+    d.forEach(function (x, i) {
+      pts.push(x); if (i < d.length - 1) pts.push((x + d[i + 1]) / 2);
+      rate.jumps.forEach(function (J) {
+        [1, -1].forEach(function (s) { if (s - J[1] !== 0) { var y = (J[0] + s * x) / (s - J[1]); if (y > 0 && y < 1) pts.push(y); } });
+      });
+    });
+    loc.forEach(function (l) { pts.push(l.a); });
+    return pts;
+  }
+
+  // ---- chart 1: the damage of an attack at every point, the local maxima and the optimum ----
+  function drawProfile(rate, d, res) {
+    var host = $("tp-prof"); host.textContent = "";
+    var W = boxWidth("tp-prof"), small = W < 520, ML = small ? 40 : 48, MR = small ? 10 : 14, MT = 24;
+    var H2 = small ? 170 : 210, AX = MT + H2, H = AX + 40, n = d.length;
+    function X(a) { return ML + (W - ML - MR) * a; }
+    var frozen = TP.frozen(rate), showF = res.inc > TOL || rate.tvar || (rate.id === "police" && rate.k < 1);
+    var pts = breakpoints(rate, d, res.loc), N = small ? 300 : 500, k;
+    for (k = 0; k <= N; k++) pts.push(k / N);
+    pts.sort(function (a, b) { return a - b; });
+    var D = pts.map(function (a) { return TP.damage(rate, d, a); }), D0 = pts.map(function (a) { return TP.damage(frozen, d, a); });
+    var top = Math.max(res.v, res.P);
+    if (showF) D0.forEach(function (v) { top = Math.max(top, v); });
+    top = Math.max(top, 1e-9) * 1.18;
+    function Y(v) { return AX - H2 * v / top; }
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (a) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(a), x2: X(a), y1: MT - 6, y2: AX }));
+      s.appendChild(svg("text", { "class": "tick", x: X(a), y: AX + 26, "text-anchor": "middle" }, I18N.fmt(a, 2)));
+    });
+    var step = niceStep(top / 3);
+    for (var v = step; v < top * 0.97; v += step) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(0), x2: X(1), y1: Y(v), y2: Y(v) }));
+      s.appendChild(svg("text", { "class": "tick", x: ML - 6, y: Y(v) + 4, "text-anchor": "end" }, I18N.fmt(v, 3)));
+    }
+    s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(1), y1: AX, y2: AX }));
+    s.appendChild(svg("text", { "class": "lab", x: ML + 4, y: MT - 10 }, t("sttpl.w.ax.D")));
+    s.appendChild(svg("text", { "class": "lab", x: X(1), y: H - 2, "text-anchor": "end" }, t("sttpl.w.ax.a")));
+    d.forEach(function (x) { s.appendChild(svg("line", { "class": "tline", x1: X(x), x2: X(x), y1: MT - 6, y2: AX })); });
+    var pd = "", p0 = "";
+    pts.forEach(function (a, i) {
+      pd += (i ? "L" : "M") + X(a).toFixed(2) + " " + Y(D[i]).toFixed(2);
+      p0 += (i ? "L" : "M") + X(a).toFixed(2) + " " + Y(D0[i]).toFixed(2);
+    });
+    s.appendChild(svg("path", { "class": "darea", d: pd + "L" + X(1) + " " + AX + "L" + X(0) + " " + AX + "Z" }));
+    if (showF) s.appendChild(svg("path", { "class": "d0line", d: p0 }));
+    s.appendChild(svg("path", { "class": "dline", d: pd }));
+    // the optimum 𝒫*
+    s.appendChild(svg("line", { "class": "popt", x1: X(0), x2: X(1), y1: Y(res.P), y2: Y(res.P) }));
+    s.appendChild(svg("line", { "class": "popt", x1: X(1) - 2, x2: X(1) - 20, y1: MT - 14, y2: MT - 14 }));
+    s.appendChild(svg("text", { "class": "popt-t", x: X(1) - 26, y: MT - 10, "text-anchor": "end" }, t("sttpl.w.lbl.P", { v: f4(res.P) })));
+    // the attack chosen with the slider
+    var ya = Y(TP.damage(rate, d, st.a));
+    s.appendChild(svg("line", { "class": "atkline", x1: X(st.a), x2: X(st.a), y1: AX, y2: ya }));
+    s.appendChild(svg("circle", { "class": "atkdot", cx: X(st.a), cy: ya, r: 4.5 }));
+    // local maxima: the attacker's best points in bright red, values above the humps when there is room
+    var lastX = -1e9;
+    res.loc.forEach(function (l) {
+      var hot = l.v >= res.v * (1 - TOL), x = X(l.a), y = Y(l.v);
+      s.appendChild(svg("circle", { "class": hot ? "best" : "lmax", cx: x, cy: y, r: hot ? 5.5 : 3.5 }));
+      var lx = Math.min(X(1) - 22, Math.max(X(0) + 22, x));
+      if (!res.balanced && l.v > 0 && lx - lastX >= (small ? 46 : 52)) {
+        s.appendChild(svg("text", { "class": "lv" + (hot ? " hot" : ""), x: lx, y: y - 9, "text-anchor": "middle" }, f4(l.v)));
+        lastX = lx;
+      }
+    });
+    // teams on the axis (drag them)
+    d.forEach(function (x, i) {
+      s.appendChild(svg("circle", { "class": "team", cx: X(x), cy: AX, r: 9 }));
+      s.appendChild(svg("text", { "class": "team-t", x: X(x), y: AX + 4, "text-anchor": "middle" }, String(i + 1)));
+      s.appendChild(svg("circle", { "class": "thit", cx: X(x), cy: AX, r: 16, "data-i": i }));
+    });
+    host.appendChild(s);
+    view = { W: W, ML: ML, MR: MR };
+    var leg = $("tp-leg1"); leg.textContent = "";
+    var items = [["d", "sttpl.w.leg.D"]];
+    if (showF) items.push(["d0", "sttpl.w.leg.D0"]);
+    items.push(["best", "sttpl.w.leg.best"], ["p", "sttpl.w.leg.P"], ["team", "sttpl.w.leg.team"]);
+    items.forEach(function (L) { var sp = h("span"), i = h("i", L[0]); sp.append(i, document.createTextNode(t(L[1]))); leg.appendChild(sp); });
+  }
+  // dragging a team on the chart
+  var drag = null;
+  $("tp-prof").addEventListener("pointerdown", function (e) {
+    var tg = e.target;
+    if (!tg || !tg.classList || !tg.classList.contains("thit")) return;
+    e.preventDefault();
+    drag = +tg.getAttribute("data-i");
+    $("tp-prof").classList.add("is-drag");
+  });
+  window.addEventListener("pointermove", function (e) {
+    if (drag == null || !view) return;
+    var el = $("tp-prof").querySelector("svg"); if (!el) return;
+    var r = el.getBoundingClientRect(), sc = view.W / r.width;
+    move(drag, Math.min(1, Math.max(0, ((e.clientX - r.left) * sc - view.ML) / (view.W - view.ML - view.MR))));
+  });
+  function endDrag() { if (drag != null) { drag = null; $("tp-prof").classList.remove("is-drag"); } }
+  window.addEventListener("pointerup", endDrag);
+  window.addEventListener("pointercancel", endDrag);
+
+  // ---- chart 2: the (a, t) plane, the rate under the response time of the closest team ----
+  function drawArea(rate, d) {
+    var host = $("tp-area"); host.textContent = "";
+    var W = boxWidth("tp-area"), small = W < 520, ML = small ? 40 : 48, MR = small ? 10 : 14, MT = 22;
+    var H2 = small ? 170 : 200, AX = MT + H2, H = AX + 40, n = d.length;
+    var maxT = Math.max(d[0], 1 - d[n - 1]);
+    for (var i = 0; i + 1 < n; i++) maxT = Math.max(maxT, (d[i + 1] - d[i]) / 2);
+    var T = Math.max(maxT * 1.12, rate.id === "ex5" ? 0.36 : 0.2);
+    var tstep = niceStep(T / 3); T = Math.min(1, Math.ceil(T / tstep - 1e-9) * tstep);
+    function X(a) { return ML + (W - ML - MR) * a; }
+    function Y(tt) { return AX - H2 * tt / T; }
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (a) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(a), x2: X(a), y1: Y(T), y2: AX }));
+      s.appendChild(svg("text", { "class": "tick", x: X(a), y: AX + 26, "text-anchor": "middle" }, I18N.fmt(a, 2)));
+    });
+    for (var v = tstep; v <= T + 1e-9; v += tstep) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(0), x2: X(1), y1: Y(v), y2: Y(v) }));
+      s.appendChild(svg("text", { "class": "tick", x: ML - 6, y: Y(v) + 4, "text-anchor": "end" }, I18N.fmt(v, 2)));
+    }
+    // cells under the response time, shaded by the rate h(a, t) (rates on this page lie in [0, 1])
+    var NC = Math.max(60, Math.round((W - ML - MR) / 4)), cw = (X(1) - X(0)) / NC, g = svg("g", { "shape-rendering": "crispEdges" });
+    for (var c = 0; c < NC; c++) {
+      var a = (c + 0.5) / NC, tau = Math.min(T, TP.resp(d, a)), cuts = [0, tau];
+      rate.jumps.forEach(function (J) { var p = J[0] + J[1] * a; if (p > 0 && p < tau) cuts.push(p); });
+      cuts.sort(function (x, y) { return x - y; });
+      for (var q = 0; q + 1 < cuts.length; q++) {
+        var t0 = cuts[q], t1 = cuts[q + 1], m = rate.tvar ? Math.max(1, Math.ceil((t1 - t0) / (T / 14))) : 1;
+        for (var r = 0; r < m; r++) {
+          var u0 = t0 + (t1 - t0) * r / m, u1 = t0 + (t1 - t0) * (r + 1) / m, hv = rate.h(a, (u0 + u1) / 2);
+          if (u1 - u0 <= 0) continue;
+          g.appendChild(svg("rect", { "class": "cell", x: (X(0) + c * cw).toFixed(2), y: Y(u1).toFixed(2), width: cw.toFixed(2),
+            height: (Y(u0) - Y(u1)).toFixed(2), "fill-opacity": (0.08 + 0.8 * Math.max(0, Math.min(1, hv))).toFixed(3) }));
+        }
+      }
+    }
+    s.appendChild(g);
+    // the response time of the closest team: a tent over each stretch
+    var tp = "M" + X(0) + " " + Y(d[0]) + "L" + X(d[0]) + " " + Y(0);
+    for (i = 0; i + 1 < n; i++) { var mid = (d[i] + d[i + 1]) / 2; tp += "L" + X(mid).toFixed(2) + " " + Y((d[i + 1] - d[i]) / 2).toFixed(2) + "L" + X(d[i + 1]).toFixed(2) + " " + Y(0); }
+    tp += "L" + X(1) + " " + Y(1 - d[n - 1]);
+    s.appendChild(svg("path", { "class": "tent", d: tp }));
+    s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(1), y1: AX, y2: AX }));
+    // the jump curve
+    var jl = null;
+    if (rate.id === "police") {
+      s.appendChild(svg("line", { "class": "jump", x1: X(1 - T), y1: Y(T), x2: X(1), y2: Y(0) }));
+      jl = { x: X(1 - T) - 6, y: Y(T) + 13, txt: t("sttpl.w.jump.police") };
+    } else if (rate.id === "ex5") {
+      s.appendChild(svg("line", { "class": "jump", x1: X(0), y1: Y(0.3), x2: X(1), y2: Y(0.3) }));
+      jl = { x: X(1) - 4, y: Y(0.3) - 6, txt: t("sttpl.w.jump.ex5") };
+    }
+    if (jl) s.appendChild(svg("text", { "class": "jump-t", x: jl.x, y: jl.y, "text-anchor": "end" }, jl.txt));
+    // the attack: the column of the plane that is integrated
+    var ta = TP.resp(d, st.a);
+    s.appendChild(svg("line", { "class": "atkcol", x1: X(st.a), x2: X(st.a), y1: AX, y2: Y(Math.min(T, ta)) }));
+    s.appendChild(svg("circle", { "class": "atkdot", cx: X(st.a), cy: Y(Math.min(T, ta)), r: 4.5 }));
+    d.forEach(function (x, k) {
+      s.appendChild(svg("circle", { "class": "team", cx: X(x), cy: AX, r: 9 }));
+      s.appendChild(svg("text", { "class": "team-t", x: X(x), y: AX + 4, "text-anchor": "middle" }, String(k + 1)));
+    });
+    s.appendChild(svg("text", { "class": "lab", x: ML + 4, y: MT - 8 }, t("sttpl.w.ax.t")));
+    s.appendChild(svg("text", { "class": "lab", x: X(1), y: H - 2, "text-anchor": "end" }, t("sttpl.w.ax.a")));
+    host.appendChild(s);
+    var leg = $("tp-leg2"); leg.textContent = "";
+    var items = [["rate", "sttpl.w.leg.rate"], ["tent", "sttpl.w.leg.tent"]];
+    if (rate.id === "police") items.push(["jump", "sttpl.w.leg.jump.police"]);
+    if (rate.id === "ex5") items.push(["jump", "sttpl.w.leg.jump.ex5"]);
+    items.push(["atk", "sttpl.w.leg.atk"]);
+    items.forEach(function (L) { var sp = h("span"), i = h("i", L[0]); sp.append(i, document.createTextNode(t(L[1]))); leg.appendChild(sp); });
+  }
+
+  // ---- chart 3: the extra damage of ignoring the time effect, for 1 to 6 teams (Example 6 for every n) ----
+  function drawBars(vals) {
+    var host = $("tp-bars"); host.textContent = "";
+    var W = boxWidth("tp-bars"), small = W < 520, ML = 8, MR = 8, MT = 22, BH = small ? 100 : 120, H = MT + BH + 26;
+    var top = 0; vals.forEach(function (v) { top = Math.max(top, v); });
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    var cw = (W - ML - MR) / vals.length, bw = Math.min(cw * 0.56, 70);
+    s.appendChild(svg("line", { "class": "axis", x1: ML, x2: W - MR, y1: MT + BH, y2: MT + BH }));
+    vals.forEach(function (v, i) {
+      var cx = ML + cw * (i + 0.5), hh = top > TOL ? BH * v / top : 0, curN = i + 1 === st.n;
+      s.appendChild(svg("rect", { "class": "bar" + (curN ? " cur" : ""), x: cx - bw / 2, y: MT + BH - hh, width: bw, height: Math.max(hh, 1) }));
+      s.appendChild(svg("text", { "class": "bar-t" + (curN ? " cur" : ""), x: cx, y: MT + BH - hh - 6, "text-anchor": "middle" }, v > TOL ? "+" + pct(v) : pct(0)));
+      s.appendChild(svg("text", { "class": "bar-n", x: cx, y: MT + BH + 17, "text-anchor": "middle" }, "n = " + (i + 1)));
+    });
+    if (top <= TOL) s.appendChild(svg("text", { "class": "bar-none", x: W / 2, y: MT + BH / 2, "text-anchor": "middle" }, t("sttpl.w.bars.none")));
+    host.appendChild(s);
+  }
+
+  function kpi(label, value, cls) {
+    var d = h("div", "st-kpi" + (cls ? " " + cls : "")); d.append(h("b", null, value), h("span", null, label)); return d;
+  }
+
+  function table(rate, res) {
+    var hasJ = rate.jumps.length > 0, n = res.d.length;
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    var cols = [["sttpl.w.t.prob", ""], ["sttpl.w.t.int", "num wide"], ["sttpl.w.t.a", "num"], ["sttpl.w.t.tau", "num wide"]];
+    if (hasJ) cols.push(["sttpl.w.t.jump", "wide"]);
+    cols.push(["sttpl.w.t.v", "num"]);
+    cols.forEach(function (c) { tr.appendChild(h("th", c[1], t(c[0]))); });
+    thead.appendChild(tr); tb.appendChild(thead);
+    var body = h("tbody");
+    res.loc.forEach(function (l) {
+      var hot = l.v >= res.v * (1 - TOL), row = h("tr", hot ? "is-atk" : null), tau = TP.resp(res.d, l.a);
+      var c1 = h("td"); c1.innerHTML = sym(l) + " " + where(l, n);
+      if (hot) c1.appendChild(h("span", "atk-tag", t("sttpl.w.t.atk")));
+      row.append(c1, h("td", "num wide", "[" + f4(l.lo) + t("sttpl.w.sep") + f4(l.hi) + "]"), h("td", "num", f4(l.a)), h("td", "num wide", f4(tau)));
+      if (hasJ) {
+        var p = rate.id === "police" ? 1 - l.a : 0.3, first = tau > p + 1e-12;
+        row.appendChild(h("td", "wide", t(first ? "sttpl.w.j." + rate.id : "sttpl.w.j.none")));
+      }
+      row.appendChild(h("td", "num", f4(l.v)));
+      body.appendChild(row);
+    });
+    tb.appendChild(body);
+    var host = $("tp-tbl"); host.textContent = ""; host.appendChild(tb);
+  }
+
+  function attackText(rate, res) {
+    var d = res.d, a = st.a, tau = TP.resp(d, a), D = TP.damage(rate, d, a);
+    var s = t("sttpl.w.at", { a: f4(a), tau: f4(tau), D: "<b>" + f4(D) + "</b>" });
+    if (rate.id === "police" && rate.k < 1) {
+      if (tau > 1 - a + 1e-12) s += " " + t("sttpl.w.at.police1", { p: f4(1 - a), k: kfmt(rate.k) });
+      else s += " " + t("sttpl.w.at.police0", { p: f4(1 - a) });
+    } else if (rate.id === "ex5" && tau > 0.3) s += " " + t("sttpl.w.at.ex5");
+    else if (rate.id === "ex4") s += " " + t("sttpl.w.at.ex4", { r: f4(1 - tau) });
+    if (D >= res.v * (1 - TOL)) s += " " + t("sttpl.w.at.best");
+    else s += " " + t("sttpl.w.at.notbest", { b: f4(res.a), v: f4(res.v) });
+    $("tp-at").innerHTML = s;
+  }
+
+  function verdict(rate, res, S) {
+    var v = $("tp-verdict"), parts = [], cls = "ok", n = res.d.length;
+    if (res.optimal && res.balanced) parts.push(t("sttpl.w.v.bal", { m: n + 1, P: f4(res.P) }));
+    else if (res.optimal) parts.push(t("sttpl.w.v.optnb", { P: f4(res.P), min: f4(res.spr.min) }));
+    else {
+      cls = "bad";
+      var w = res.loc.filter(function (l) { return l.v >= res.v * (1 - TOL); })[0], fv = res.v / res.P - 1 < 1e-3 ? f6 : f4;
+      parts.push(t("sttpl.w.v.not", { a: f4(w.a), where: where(w, n), v: fv(res.v), pct: pct(res.v / res.P - 1), P: fv(res.P) }));
+    }
+    if (st.plan === "ign" && S.ign.worst.v > S.opt.P * (1 + TOL) && rate.id === "police") {
+      var rr = res.loc[res.loc.length - 1].v;
+      parts.push(t("sttpl.w.v.ign", { pm: f4(S.ign.Pmodel), r: f4(rr) }));
+    }
+    v.className = "st-verdict " + cls;
+    v.innerHTML = parts.join(" ");
+  }
+
+  function checks(rate, S) {
+    var n = st.n, out = [];
+    function agree(x, y) { var m = 0; x.forEach(function (v, i) { m = Math.max(m, Math.abs(v - y[i])); }); return m; }
+    if (rate.id === "police") {
+      var d41 = [], d53 = [], i;
+      for (i = 1; i <= n; i++) { d41.push(Math.sqrt((2 + n) * i) - Math.sqrt(n * i)); d53.push(2 * Math.sqrt(i) * (Math.sqrt(n + 1) - Math.sqrt(n))); }
+      var v41 = 0.5 * (1 + n - Math.sqrt(2 * n + n * n)), v53 = Math.pow(Math.sqrt(n + 1) - Math.sqrt(n), 2);
+      if (rate.k === 0.5) {
+        var e1 = Math.max(agree(d41, S.opt.d), Math.abs(v41 - S.opt.P) / v41);
+        out.push(t("sttpl.w.chk.th41", { d: vec(d41), v: f4(v41) }) + " " + (e1 < 1e-9 ? t("sttpl.w.chk.agree") : t("sttpl.w.chk.differ", { x: e1.toExponential(1) })));
+      } else out.push(t("sttpl.w.chk.noth", { k: kfmt(rate.k) }));
+      var e2 = Math.max(agree(d53, S.ign.d), Math.abs(v53 - S.ign.Pmodel) / v53);
+      out.push(t("sttpl.w.chk.th53", { d: vec(d53), v: f4(v53), w: f4(S.ign.worst.v) }) + " " + (e2 < 1e-9 ? t("sttpl.w.chk.agree") : t("sttpl.w.chk.differ", { x: e2.toExponential(1) })));
+    } else {
+      if (rate.id === "ex3" && n === 2) out.push(t("sttpl.w.chk.ex2", { d: vec(S.opt.d), v: f4(S.opt.P) }));
+      out.push(t(rate.id === "ex3" ? "sttpl.w.chk.none" : "sttpl.w.chk.same"));
+    }
+    $("tp-check").innerHTML = out.join(" ");
+  }
+
+  function update() {
+    var rate = rateOf(), S = solved(st.n), d = plan(), W = TP.worst(rate, d), spr = TP.spread(W.loc);
+    var res = { d: d, v: W.v, a: W.a, loc: W.loc, P: S.opt.P, spr: spr };
+    res.optimal = W.v <= S.opt.P * (1 + TOL) + 1e-15;
+    res.balanced = spr.rel <= TOL;
+    res.inc = S.ign.worst.v / S.opt.P - 1;
+    if (!st.userA) st.a = W.a;
+    cur = { rate: rate, res: res };
+    // controls
+    document.querySelectorAll("#tp-h button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-h") === st.h)); });
+    document.querySelectorAll("#tp-n button").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-n") === st.n)); });
+    $("tp-k-box").hidden = st.h !== "police";
+    document.querySelectorAll("#tp-k button").forEach(function (b) {
+      var k = +b.getAttribute("data-k");
+      b.textContent = kfmt(k); b.setAttribute("aria-pressed", String(k === st.k));
+    });
+    var art = artPlan();
+    document.querySelectorAll("#tp-plan button").forEach(function (b) {
+      var p = b.getAttribute("data-plan");
+      if (p === "art") { b.hidden = !art; if (art) b.textContent = t("sttpl.w.plan.art." + st.h, { d: short(art) }); }
+      b.setAttribute("aria-pressed", String(p === st.plan));
+    });
+    var sl = $("tp-teams").children;
+    for (var i = 0; i < NMAX; i++) {
+      var box = sl[i], on = i < st.n; box.hidden = !on;
+      if (!on) continue;
+      box.querySelector("label").textContent = t("sttpl.w.team", { i: i + 1 });
+      box.querySelector("output").textContent = f4(d[i]);
+      var inp = box.querySelector("input"); if (Math.abs(+inp.value - d[i]) > 0.0005) inp.value = String(d[i]);
+    }
+    var ai = $("tp-a"); if (Math.abs(+ai.value - st.a) > 0.0005) ai.value = String(st.a);
+    $("tp-a-out").textContent = f4(st.a);
+    // numbers
+    var k = $("tp-kpis"); k.textContent = "";
+    k.append(kpi(t("sttpl.w.k.plan"), f4(W.v), res.optimal ? "accent" : "warn"), kpi(t("sttpl.w.k.opt"), f4(S.opt.P)),
+      kpi(t("sttpl.w.k.atk"), "a = " + f4(W.a)), kpi(t("sttpl.w.k.bal"), t(res.balanced ? "sttpl.w.yes" : "sttpl.w.no"), res.balanced ? null : "warn"),
+      kpi(t("sttpl.w.k.ign"), res.inc > TOL ? "+" + pct(res.inc) : pct(0), res.inc > TOL ? "warn" : null));
+    drawProfile(rate, d, res);
+    verdict(rate, res, S);
+    checks(rate, S);
+    drawArea(rate, d);
+    attackText(rate, res);
+    table(rate, res);
+    var bars = [];
+    for (var m = 1; m <= NMAX; m++) { var Sm = solved(m); bars.push(Math.max(0, Sm.ign.worst.v / Sm.opt.P - 1)); }
+    drawBars(bars);
+  }
+
+  // events
+  document.querySelectorAll("#tp-h button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      st.h = b.getAttribute("data-h");
+      if (st.plan === "art" && !artPlan()) st.plan = "opt";
+      st.userA = false; schedule();
+    });
+  });
+  document.querySelectorAll("#tp-n button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      st.n = +b.getAttribute("data-n");
+      if (st.plan === "own" || (st.plan === "art" && !artPlan())) st.plan = "opt";
+      st.userA = false; schedule();
+    });
+  });
+  document.querySelectorAll("#tp-k button").forEach(function (b) {
+    b.addEventListener("click", function () { st.k = +b.getAttribute("data-k"); st.userA = false; schedule(); });
+  });
+  document.querySelectorAll("#tp-plan button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var p = b.getAttribute("data-plan");
+      if (p === "own") { st.d = plan(); st.plan = "own"; st.userA = false; }
+      else if (p === "art") { st.plan = "art"; st.a = 0.4; st.userA = true; }       // the attack of Examples 1, 3, 4 and 5
+      else { st.plan = p; st.userA = false; }
+      schedule();
+    });
+  });
+  $("tp-a").addEventListener("input", function () { st.a = +this.value; st.userA = true; schedule(); });
+  $("tp-a-best").addEventListener("click", function () { st.userA = false; schedule(); });
+
+  buildTeams();
+  I18N.onChange(update);
+  var resizeTimer, lastW = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var w = $("tp-prof").clientWidth;
+      if (cur && w !== lastW) { lastW = w; update(); }
+    }, 120);
+  });
+})();
+</script>
+<!-- after the page scripts, so each language switch first rebuilds the page and then typesets its formulas -->
+<script src="../../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+</body>
+</html>

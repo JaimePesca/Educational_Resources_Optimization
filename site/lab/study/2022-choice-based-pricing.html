@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en" data-i18n-langs="es en nl" data-title-key="stcbp.title" data-i18n-bundles="lab/study/common lab/study/2022-choice-based-pricing">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Setting Prices Together: When Market Share Changes Hands</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../../assets/study.css?v=__BUILD__">
+<style>
+  /* ---- "Try it": the cooperative transport choice game ---- */
+  #study-try { grid-template-columns: minmax(0, 1fr); }
+  #study-try > * { min-width: 0; }
+  .cb-ops { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .cb-card { border: 1px solid var(--border); border-radius: 3px; padding: 10px 12px; display: grid; gap: 8px; min-width: 0; background: var(--surface); }
+  .cb-card h3 { margin: 0; font-size: 13.5px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 7px; }
+  .cb-sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; flex: none; }
+  .cb-sw.op1 { background: var(--accent); }
+  .cb-sw.op2 { background: var(--ink2); }
+  .cb-sw.op3 { background: var(--mit-silver); }
+  .cb-sw.op4 { background: repeating-linear-gradient(45deg, var(--accent) 0 2px, transparent 2px 5px); border: 1px solid var(--accent); }
+  .cb-sw.none { background: var(--surface2); border: 1px dashed var(--axis); }
+  .cb-chart svg .seg-op1 { fill: var(--accent); }
+  .cb-chart svg .seg-op2 { fill: var(--ink2); }
+  .cb-chart svg .seg-op3 { fill: var(--mit-silver); }
+  .cb-chart svg .seg-op4 { fill: url(#cb-hatch); stroke: var(--accent); stroke-width: 1; }
+  .cb-chart svg .flow { opacity: 0.16; }
+  .cb-chart svg .gapline { stroke: var(--surface); stroke-width: 1.5; }
+  .cb-chart svg .hatch { stroke: var(--accent); stroke-width: 2; }
+  .cb-chart svg .bt { fill: var(--ink2); font-size: 12px; font-weight: 600; }
+  .cb-chart svg .in { font-size: 11.5px; font-weight: 700; fill: var(--on-solid); }
+  .cb-chart svg .in.op4 { fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; }
+  .cb-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink2); }
+  .cb-legend span { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+  .cb-cap { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+  .cb-ruler svg .axis { stroke: var(--axis); stroke-width: 1.2; }
+  .cb-ruler svg .tick { fill: var(--muted); font-size: 11px; }
+  .cb-ruler svg .band { fill: var(--accent); opacity: 0.22; }
+  .cb-ruler svg .edge { stroke: var(--accent); stroke-width: 2.5; }
+  .cb-ruler svg .gap { fill: var(--mit-bright); opacity: 0.12; }
+  .cb-ruler svg .bt { fill: var(--ink); font-size: 12px; font-weight: 600; }
+  .cb-ruler svg .pmark { fill: var(--ink); }
+  .cb-ruler svg .thmark { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+  .cb-ruler svg .e6mark { stroke: var(--ink2); stroke-width: 2; }
+  .cb-rules { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: flex-end; }
+  .cb-two { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .cb-two > div { min-width: 0; display: grid; gap: 6px; }
+  .cb-bar { display: inline-block; position: relative; width: 84px; height: 10px; vertical-align: middle; margin-right: 8px; background: var(--surface2); }
+  .cb-bar i { position: absolute; top: 0; bottom: 0; display: block; }
+  .cb-bar i.pos { background: var(--accent); }
+  .cb-bar i.neg { background: var(--mit-bright); }
+  .cb-bar b { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--ink2); }
+  .st-tbl td.lbl { white-space: nowrap; }
+  .st-tbl tr.sel td { background: var(--sel); }
+  .cb-check { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .cb-nc { text-transform: none; letter-spacing: 0; }
+  .st-tbl td.cb-pair i { font-style: normal; }
+  .cb-sim { display: grid; gap: 8px; }
+  .cb-sim .row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  .cb-sim p { margin: 0; font-size: 13px; color: var(--ink2); }
+  @media (max-width: 520px) {
+    .st-tbl .wide { display: none; }
+    .st-tbl td, .st-tbl th { padding: 6px 5px; }
+    .st-tbl td.num { font-size: 11.5px; }
+    .cb-bar { width: 56px; }
+    .st-tbl td.cb-pair i { display: block; }
+    .st-tbl td.rl { min-width: 56px; }
+    .st-tbl .cb-more { display: none; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="st-crumbs" data-i18n-attr="aria-label:stu.crumbLabel">
+      <a class="backlink" href="../index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.lab"></span></a>
+      <span class="sep" aria-hidden="true">/</span>
+      <a class="backlink" href="index.html" data-keep-lang data-i18n="stu.crumb"></a>
+    </nav>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<main class="wrap" id="study-root" data-study-paper="2022-choice-based-pricing" data-study-prefix="stcbp">
+  <!-- The "Try it" widget: assets/study.js moves this node into the "Try it" section and shows it -->
+  <div id="study-try" class="st-w" hidden>
+    <div class="st-w-row">
+      <div class="st-w-group">
+        <span class="lbl" id="cb-n-lbl" data-i18n="stcbp.w.n"></span>
+        <div class="seg" id="cb-n" role="group" aria-labelledby="cb-n-lbl">
+          <button type="button" data-n="2">2</button><button type="button" data-n="3">3</button><button type="button" data-n="4">4</button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="cb-pre-lbl" data-i18n="stcbp.w.presets"></span>
+        <div class="st-presets" id="cb-presets" role="group" aria-labelledby="cb-pre-lbl">
+          <button type="button" class="st-btn" data-preset="ex1" data-i18n="stcbp.w.p.ex1"></button>
+          <button type="button" class="st-btn" data-preset="ex7" data-i18n="stcbp.w.p.ex7"></button>
+          <button type="button" class="st-btn" data-preset="nash" data-i18n="stcbp.w.p.nash"></button>
+          <button type="button" class="st-btn" data-preset="equal" data-i18n="stcbp.w.p.equal"></button>
+          <button type="button" class="st-btn" data-preset="rand" data-i18n="stcbp.w.p.rand"></button>
+        </div>
+      </div>
+    </div>
+    <div class="cb-ops" id="cb-ops"></div>
+    <div>
+      <p class="st-w-head" data-i18n="stcbp.w.chart"></p>
+      <div class="st-chart cb-chart" id="cb-chart" role="img" data-i18n-attr="aria-label:stcbp.w.chart.aria"></div>
+      <div class="cb-legend" id="cb-legend"></div>
+      <p class="cb-cap" id="cb-cap"></p>
+    </div>
+    <div class="st-kpis" id="cb-kpis"></div>
+    <p class="st-verdict" id="cb-verdict" aria-live="polite"></p>
+    <div>
+      <p class="st-w-head" data-i18n="stcbp.w.ops.h"></p>
+      <div class="st-tbl" id="cb-optbl"></div>
+    </div>
+    <div class="cb-rules">
+      <div class="st-w-group">
+        <span class="lbl" id="cb-rule-lbl" data-i18n="stcbp.w.rule"></span>
+        <div class="seg" id="cb-rule" role="group" aria-labelledby="cb-rule-lbl">
+          <button type="button" data-rule="iprop" data-i18n="stcbp.w.r.iprop"></button><button type="button" data-rule="mprop" data-i18n="stcbp.w.r.mprop"></button><button type="button" data-rule="sv" data-i18n="stcbp.w.r.sv"></button><button type="button" data-rule="mse" data-i18n="stcbp.w.r.mse"></button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="cb-k-lbl" data-i18n="stcbp.w.bench"></span>
+        <div class="seg" id="cb-k" role="group" aria-labelledby="cb-k-lbl">
+          <button type="button" data-k="1" data-i18n="stcbp.w.bench.1"></button><button type="button" data-k="2" data-i18n="stcbp.w.bench.2"></button>
+        </div>
+      </div>
+    </div>
+    <div class="cb-two">
+      <div><p class="st-w-head" data-i18n="stcbp.w.rules.h"></p><div class="st-tbl" id="cb-rtbl"></div></div>
+      <div><p class="st-w-head" id="cb-ctbl-h"></p><div class="st-tbl" id="cb-ctbl"></div></div>
+    </div>
+    <p class="cb-check" id="cb-check" aria-live="polite"></p>
+    <div>
+      <p class="st-w-head" data-i18n="stcbp.w.ruler"></p>
+      <div class="st-chart cb-ruler" id="cb-ruler" role="img" data-i18n-attr="aria-label:stcbp.w.ruler.aria"></div>
+    </div>
+    <div class="cb-sim">
+      <p class="st-w-head" data-i18n="stcbp.w.sim.h"></p>
+      <div class="row">
+        <button type="button" class="st-btn primary" id="cb-sim-run" data-i18n="stcbp.w.sim.run"></button>
+        <p id="cb-sim-status" aria-live="polite"></p>
+      </div>
+      <div class="st-tbl" id="cb-sim-tbl"></div>
+    </div>
+  </div>
+</main>
+
+<script src="../../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/common.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/2022-choice-based-pricing.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="papers.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/study.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+
+  // ---- the transport choice (TC) game of the article, solved live (no hard-coded results) ----
+  var TC = (function () {
+    function add(s, v) { return s + v; }
+    function cmpSets(a, b) {
+      for (var i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i] - b[i];
+      return a.length - b.length;
+    }
+    // every non-empty coalition, by size and then lexicographic; the grand coalition is last
+    function coalitions(n) {
+      var out = [];
+      for (var m = 1; m < (1 << n); m++) {
+        var S = [];
+        for (var i = 0; i < n; i++) if (m & (1 << i)) S.push(i);
+        out.push({ S: S, mask: m });
+      }
+      out.sort(function (a, b) { return a.S.length - b.S.length || cmpSets(a.S, b.S); });
+      return out;
+    }
+    // D^M(x) = sum over i in M of e^(alpha_i - beta x_i)
+    function D(M, x, a, b) { var s = 0; for (var k = 0; k < M.length; k++) s += Math.exp(a[M[k]] - b * x[M[k]]); return s; }
+    // Theorem 2: v(M) = D^M(p) / (beta (D^N(p) + 1)) ln(D^M(c) / D^M(p))
+    function vClosed(M, p, c, a, b, DNp) { var Dp = D(M, p, a, b), Dc = D(M, c, a, b); return Dp / (b * (DNp + 1)) * Math.log(Dc / Dp); }
+
+    // Problem (5) solved directly, as an independent check of Theorem 2: the coalition chooses the market shares of its
+    // members (their sum fixed at the initial one); the prices follow by inverting the logit model with the outsiders at
+    // their initial prices, and the joint profit is maximized by golden section searches that move share between two
+    // members at a time (the profit is concave in the shares, so these pairwise moves reach the optimum)
+    function vSearch(M, p, c, a, b) {
+      var n = p.length, O = 0, DNp = 0, j, k;
+      for (j = 0; j < n; j++) { var e = Math.exp(a[j] - b * p[j]); DNp += e; if (M.indexOf(j) < 0) O += e; }
+      var s = M.map(function (i) { return Math.exp(a[i] - b * p[i]) / (1 + DNp); });
+      var tot = s.reduce(add, 0), U = tot * (1 + O) / (1 - tot), K = 1 + U + O;
+      function term(k2, sh) { var x = (a[M[k2]] - Math.log(sh * K)) / b; return (x - c[M[k2]]) * sh; }
+      function obj(sh) { var z = 0; for (var q = 0; q < sh.length; q++) z += term(q, sh[q]); return z; }
+      var z = obj(s), G = (Math.sqrt(5) - 1) / 2;
+      for (var sweep = 0; sweep < 300 && M.length > 1; sweep++) {
+        var before = z;
+        for (j = 0; j < M.length; j++) for (k = j + 1; k < M.length; k++) {
+          var si = s[j], sk = s[k], rest = z - term(j, si) - term(k, sk);
+          var g = function (tt) { return term(j, si + tt) + term(k, sk - tt); };
+          var lo = -si * (1 - 1e-12), hi = sk * (1 - 1e-12);
+          var x1 = hi - G * (hi - lo), x2 = lo + G * (hi - lo), f1 = g(x1), f2 = g(x2);
+          for (var it = 0; it < 120 && hi - lo > 1e-15 * (1 + Math.abs(lo) + Math.abs(hi)); it++) {
+            if (f1 > f2) { hi = x2; x2 = x1; f2 = f1; x1 = hi - G * (hi - lo); f1 = g(x1); }
+            else { lo = x1; x1 = x2; f1 = f2; x2 = lo + G * (hi - lo); f2 = g(x2); }
+          }
+          var tb = (lo + hi) / 2, cand = rest + g(tb);
+          if (cand > z) { s[j] = si + tb; s[k] = sk - tb; z = obj(s); }
+        }
+        if (z - before <= 1e-15 * (1 + Math.abs(z))) break;
+      }
+      return z;
+    }
+
+    // Shapley value from a value table indexed by bit mask
+    function shapley(val, n) {
+      var fact = [1]; for (var q = 1; q <= n; q++) fact[q] = fact[q - 1] * q;
+      var sv = [];
+      for (var i = 0; i < n; i++) {
+        var s = 0;
+        for (var m = 0; m < (1 << n); m++) {
+          if (m & (1 << i)) continue;
+          var size = 0; for (var k = 0; k < n; k++) if (m & (1 << k)) size++;
+          s += fact[size] * fact[n - 1 - size] / fact[n] * (val[m | (1 << i)] - val[m]);
+        }
+        sv.push(s);
+      }
+      return sv;
+    }
+
+    // core test by LP: the least total that satisfies every proper coalition (allocations can be negative, so each
+    // x_i is written as x_i+ - x_i-); the duals are balancing weights that prove an empty core. The values are divided
+    // by their largest size first, so the LP's fixed tolerances also work when all profits are tiny
+    function coreLP(coal, val, n, scale) {
+      var rows = [];
+      coal.slice(0, -1).forEach(function (C) {
+        var a1 = [];
+        for (var i = 0; i < n; i++) a1.push(C.S.indexOf(i) >= 0 ? 1 : 0);
+        rows.push({ a: a1.concat(a1.map(function (v) { return -v; })), op: ">=", b: val[C.mask] / scale });
+      });
+      var cc = []; for (var i = 0; i < n; i++) cc.push(1);
+      var r = LP.solve({ sense: "min", c: cc.concat(cc.map(function () { return -1; })), rows: rows });
+      if (r.status === "optimal") r.z *= scale;
+      return r;
+    }
+    // the size of the game: tolerances are relative to it (all profits can be tiny when the prices are high)
+    function scaleOf(val, coal) {
+      var s = 0; coal.forEach(function (C) { s = Math.max(s, Math.abs(val[C.mask])); });
+      return s > 0 && isFinite(s) ? s : 1;
+    }
+    function deltaVal(val, coal, d) {
+      var out = val.slice();
+      coal.forEach(function (C) { if (C.S.length >= 2) out[C.mask] = (1 - d) * val[C.mask]; });
+      return out;
+    }
+    function violations(x, coal, val, tol) {
+      var bad = [];
+      coal.slice(0, -1).forEach(function (C) {
+        var s = 0; C.S.forEach(function (i) { s += x[i]; });
+        if (!(s >= val[C.mask] - tol)) bad.push(C.S);
+      });
+      return bad;
+    }
+
+    // principal branch of the Lambert W function for x >= 0 (Halley's method)
+    function lambertW(x) {
+      if (x === 0) return 0;
+      var w = Math.log(1 + x);
+      if (x > 3) { var L1 = Math.log(x), L2 = Math.log(L1); w = L1 - L2 + L2 / L1; }
+      for (var k = 0; k < 60; k++) {
+        var ew = Math.exp(w), f = w * ew - x;
+        var wn = w - f / (ew * (w + 1) - (w + 2) * f / (2 * w + 2));
+        if (Math.abs(wn - w) <= 1e-15 * (1 + Math.abs(wn))) { w = wn; break; }
+        w = wn;
+      }
+      return w;
+    }
+    // Eq. (3): the best response of every operator to the others' prices
+    function bestResponse(p, c, a, b) {
+      var n = p.length, q = [];
+      for (var i = 0; i < n; i++) {
+        var others = 1;
+        for (var j = 0; j < n; j++) if (j !== i) others += Math.exp(a[j] - b * p[j]);
+        q.push((1 + lambertW(Math.exp(a[i] - 1 - b * c[i]) / others)) / b + c[i]);
+      }
+      return q;
+    }
+    // Nash prices by fixed-point iteration of Eq. (3), started at margins 1/beta
+    function nash(c, a, b) {
+      var p = c.map(function (ci) { return ci + 1 / b; });
+      for (var it = 0; it < 10000; it++) {
+        var q = bestResponse(p, c, a, b), diff = 0;
+        for (var i = 0; i < p.length; i++) diff = Math.max(diff, Math.abs(q[i] - p[i]));
+        p = q;
+        if (diff < 1e-12) return { p: p, ok: true };
+      }
+      return { p: p, ok: false };
+    }
+
+    // everything the widget shows for one situation theta = (N, p, c, alpha, beta), payback delta and benchmark margin k/beta
+    function solve(p, c, a, b, d, k) {
+      var n = p.length, i, N = [];
+      for (i = 0; i < n; i++) N.push(i);
+      var coal = coalitions(n), grand = coal[coal.length - 1];
+      var ep = p.map(function (pi, j) { return Math.exp(a[j] - b * pi); });
+      var DNp = ep.reduce(add, 0), DNc = D(N, c, a, b);
+      var S = ep.map(function (e) { return e / (1 + DNp); }), T = DNp / (1 + DNp);
+      var prof0 = S.map(function (s, j) { return (p[j] - c[j]) * s; });
+      // Theorem 1
+      var markup = Math.log(DNc / DNp) / b;
+      var pstar = c.map(function (cj) { return cj + markup; });
+      var es = pstar.map(function (x, j) { return Math.exp(a[j] - b * x); }), DNs = es.reduce(add, 0);
+      var Sstar = es.map(function (e) { return e / (1 + DNs); });
+      var prof1 = Sstar.map(function (s, j) { return (pstar[j] - c[j]) * s; });
+      // Theorem 2 for every coalition
+      var val = [0];
+      coal.forEach(function (C) { val[C.mask] = vClosed(C.S, p, c, a, b, DNp); });
+      var vN = val[grand.mask], sing = N.map(function (j) { return val[1 << j]; });
+      var alone = sing.reduce(add, 0);
+      // MSE: phi from the benchmark theta-hat with cost prices p_i - k/beta (k = 1 in the article)
+      function mseFor(kk) {
+        var chat = p.map(function (pi) { return pi - kk / b; });
+        var vhat = vClosed(N, p, chat, a, b, DNp), phi = (vN - vhat) / T;
+        return { phi: phi, x: N.map(function (j) { return prof1[j] - phi * (Sstar[j] - S[j]); }) };
+      }
+      var m1 = mseFor(1), mk = k === 1 ? m1 : mseFor(k);
+      // the game that is played: TC game (delta = 0) or TC-delta game
+      var vd = deltaVal(val, coal, d), vdN = vd[grand.mask];
+      var scale = scaleOf(val, coal), tol = 1e-9 * scale;
+      // Remark 4: the gain is zero exactly when all initial margins are equal (the joint optimum is unique)
+      var marg = p.map(function (pi, j) { return pi - c[j]; });
+      var mMax = Math.max.apply(null, marg), mMin = Math.min.apply(null, marg);
+      var eqMargins = mMax - mMin <= 1e-9 * (1 + Math.max(Math.abs(mMax), Math.abs(mMin)));
+      var rules = {
+        iprop: sing.map(function (s) { return s / alone * vdN; }),
+        mprop: S.map(function (s) { return s / T * vdN; }),
+        sv: shapley(vd, n),
+        mse: mk.x.map(function (x) { return (1 - d) * x; })
+      };
+      var viol = {};
+      Object.keys(rules).forEach(function (r) { viol[r] = violations(rules[r], coal, vd, tol); });
+      var lp = coreLP(coal, vd, n, scale), coreNonEmpty = lp.status === "optimal" && lp.z <= vdN + tol;
+      var weights = [];
+      if (!coreNonEmpty && lp.status === "optimal") {
+        coal.slice(0, -1).forEach(function (C, j) { if (lp.duals[j] > 1e-9) weights.push({ S: C.S, w: lp.duals[j] }); });
+      }
+      // the largest delta for which the core of the TC-delta game is non-empty (bisection; the set is an interval
+      // because the LP's least total is convex in delta and v(N) shrinks linearly)
+      function nonempty(dd) {
+        var g = deltaVal(val, coal, dd), r = coreLP(coal, g, n, scale);
+        return r.status === "optimal" && r.z <= g[grand.mask] + tol;
+      }
+      var DMAX = 0.999, dstar;
+      if (nonempty(DMAX)) dstar = DMAX;
+      else {
+        var lo = 0, hi = DMAX;
+        for (var it = 0; it < 45; it++) { var mid = (lo + hi) / 2; if (nonempty(mid)) lo = mid; else hi = mid; }
+        dstar = lo;
+      }
+      // Theorem 4 (needs MSE_i > 0) and Eq. (6)
+      var mPos = m1.x.every(function (x) { return x > 0; });
+      var th4 = mPos ? 1 - Math.max.apply(null, N.map(function (j) { return sing[j] / m1.x[j]; })) : null;
+      var eq6 = vN > 1e-12 ? 1 - alone / vN : null;
+      // is p a Nash equilibrium of Eq. (3)?
+      var br = bestResponse(p, c, a, b), isNash = br.every(function (q, j) { return Math.abs(q - p[j]) < 1e-6; });
+      return {
+        n: n, coal: coal, S: S, T: T, prof0: prof0, markup: markup, pstar: pstar, Sstar: Sstar, prof1: prof1,
+        val: val, vd: vd, vN: vN, vdN: vdN, sing: sing, alone: alone, phi: mk.phi, phi1: m1.phi, mse1: m1.x,
+        rules: rules, viol: viol, lp: lp, coreNonEmpty: coreNonEmpty, weights: weights, dstar: dstar, dmax: DMAX,
+        th4: th4, eq6: eq6, isNash: isNash, gain: vN - alone, eqMargins: eqMargins, tol: tol
+      };
+    }
+    function check(p, c, a, b) {
+      var n = p.length, worst = 0, DNp = 0;
+      for (var j = 0; j < n; j++) DNp += Math.exp(a[j] - b * p[j]);
+      coalitions(n).forEach(function (C) {
+        worst = Math.max(worst, Math.abs(vSearch(C.S, p, c, a, b) - vClosed(C.S, p, c, a, b, DNp)));
+      });
+      return worst;
+    }
+
+    // ---- the simulation of Section 6: c_i, alpha_i on {0.5, ..., 15}, beta on {0.1, ..., 1}, p from Eq. (3) ----
+    function mulberry32(seed) {
+      var s = seed | 0;
+      return function () {
+        s = s + 0x6D2B79F5 | 0;
+        var q = Math.imul(s ^ s >>> 15, 1 | s);
+        q = q + Math.imul(q ^ q >>> 7, 61 | q) ^ q;
+        return ((q ^ q >>> 14) >>> 0) / 4294967296;
+      };
+    }
+    function draw(rnd, n) {
+      var c = [], a = [];
+      for (var i = 0; i < n; i++) { c.push((1 + Math.floor(rnd() * 30)) / 2); a.push((1 + Math.floor(rnd() * 30)) / 2); }
+      return { c: c, a: a, b: (1 + Math.floor(rnd() * 10)) / 10 };
+    }
+    function simOne(rnd, n) {
+      var d = draw(rnd, n), ne = nash(d.c, d.a, d.b), r = solveLight(ne.p, d.c, d.a, d.b);
+      return { ok: ne.ok, inCore: r };
+    }
+    // core membership of the four rules in the TC game (no LP needed)
+    function solveLight(p, c, a, b) {
+      var n = p.length, N = [], i;
+      for (i = 0; i < n; i++) N.push(i);
+      var coal = coalitions(n), grand = coal[coal.length - 1];
+      var ep = p.map(function (pi, j) { return Math.exp(a[j] - b * pi); }), DNp = ep.reduce(add, 0);
+      var ec = c.map(function (ci, j) { return Math.exp(a[j] - b * ci); }), DNc = ec.reduce(add, 0);
+      var S = ep.map(function (e) { return e / (1 + DNp); });
+      var val = [0];
+      coal.forEach(function (C) { val[C.mask] = vClosed(C.S, p, c, a, b, DNp); });
+      var vN = val[grand.mask], sing = N.map(function (j) { return val[1 << j]; }), alone = sing.reduce(add, 0);
+      var markup = Math.log(DNc / DNp) / b, phi = markup - 1 / b;
+      var Sstar = ec.map(function (e) { return e * DNp / DNc / (1 + DNp); });
+      var tol = 1e-9 * scaleOf(val, coal), sumS = S.reduce(add, 0);
+      var rules = {
+        iprop: sing.map(function (s) { return s / alone * vN; }),
+        mprop: S.map(function (s) { return s / sumS * vN; }),
+        sv: shapley(val, n),
+        mse: N.map(function (j) { return markup * Sstar[j] - phi * (Sstar[j] - S[j]); })
+      };
+      var out = {};
+      Object.keys(rules).forEach(function (r) {
+        out[r] = rules[r].every(isFinite) && violations(rules[r], coal, val, tol).length === 0;
+      });
+      return out;
+    }
+
+    return { solve: solve, check: check, nash: nash, mulberry32: mulberry32, draw: draw, simOne: simOne };
+  })();
+  window.StudyTC = TC; // for the page's own tests
+
+  // ---- the widget ----
+  var EX1 = { p: [6, 8, 15], c: [8, 4, 1], a: [1, 0.5, 1.5], b: 0.36 };   // Example 1 (p. 1246)
+  var EXTRA = { p: 10, c: 5, a: 1 };                                       // a fourth operator when one is added
+  var st = { p: EX1.p.slice(), c: EX1.c.slice(), a: EX1.a.slice(), b: EX1.b, d: 0, rule: "mse", k: 1 };
+  var res = null, pending = false, preset = "ex1", drawSeed = 1;
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+
+  function f3(v) { return (v < -0.0005 ? "−" : "") + I18N.fmt(Math.abs(v), 3, 3); }
+  function f4(v) { return (v < -0.00005 ? "−" : "") + I18N.fmt(Math.abs(v), 4, 4); }
+  function sgn3(v) { return (v > 0.0005 ? "+" : v < -0.0005 ? "−" : "") + I18N.fmt(Math.abs(v), 3, 3); }
+  function fsmall(v) {
+    if (!(v > 0)) return "0";
+    var e = Math.floor(Math.log10(v)), m = v / Math.pow(10, e);
+    if (+m.toFixed(1) >= 10) { m /= 10; e += 1; }
+    return I18N.fmt(m, 1, 1) + " × 10<sup>" + (e < 0 ? "−" + (-e) : e) + "</sup>";
+  }
+  function setName(S) { return "{" + S.map(function (i) { return i + 1; }).join(", ") + "}"; }
+  function h(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function svg(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function boxWidth(id) { var w = $(id).clientWidth; return Math.max(280, Math.min(1000, w || 640)); }
+
+  // ---- sliders: one card per operator, one for the market ----
+  var cards = [], market = null;
+  function slider(host, id, min, max, step, onInput) {
+    var box = h("div", "st-rng"), lab = h("label"), out = h("output"), inp = document.createElement("input");
+    lab.htmlFor = id; out.htmlFor = id;
+    inp.type = "range"; inp.id = id; inp.min = String(min); inp.max = String(max); inp.step = String(step);
+    inp.addEventListener("input", function () { onInput(+this.value); preset = null; schedule(); });
+    box.append(lab, out, inp); host.appendChild(box);
+    return { box: box, lab: lab, out: out, inp: inp };
+  }
+  function buildSliders() {
+    var host = $("cb-ops"); host.textContent = ""; cards = [];
+    for (var i = 0; i < 4; i++) {
+      (function (k) {
+        var card = h("div", "cb-card"), head = h("h3"), sw = h("i", "cb-sw op" + (k + 1)), name = h("span");
+        head.append(sw, name); card.appendChild(head);
+        var sp = slider(card, "cb-p" + k, 0, 40, 0.01, function (v) { st.p[k] = v; });
+        var sc = slider(card, "cb-c" + k, 0, 20, 0.01, function (v) { st.c[k] = v; });
+        var sa = slider(card, "cb-a" + k, 0, 15, 0.05, function (v) { st.a[k] = v; });
+        host.appendChild(card);
+        cards.push({ card: card, name: name, p: sp, c: sc, a: sa });
+      })(i);
+    }
+    var mc = h("div", "cb-card"), mh = h("h3"), mn = h("span");
+    mh.appendChild(mn); mc.appendChild(mh);
+    var sb = slider(mc, "cb-b", 0.05, 1, 0.01, function (v) { st.b = v; });
+    var sd = slider(mc, "cb-d", 0, 0.99, 0.001, function (v) { st.d = v; });
+    host.appendChild(mc);
+    market = { name: mn, b: sb, d: sd };
+  }
+  function syncSlider(s, v, label, text) {
+    s.lab.textContent = label;
+    s.out.textContent = text;
+    var max = +s.inp.max;
+    if (v > max) s.inp.max = String(Math.ceil(v * 1.1 / 10) * 10);
+    if (Math.abs(+s.inp.value - v) > +s.inp.step / 2 + 1e-12) s.inp.value = String(v);
+  }
+
+  function setN(n) {
+    var cur = st.p.length;
+    if (n === cur) return;
+    if (n < cur) { st.p.length = n; st.c.length = n; st.a.length = n; }
+    else for (var i = cur; i < n; i++) {
+      var src = i < 3 ? { p: EX1.p[i], c: EX1.c[i], a: EX1.a[i] } : EXTRA;
+      st.p.push(src.p); st.c.push(src.c); st.a.push(src.a);
+    }
+    preset = null;
+  }
+  function loadPreset(name) {
+    if (name === "ex1" || name === "ex7") {
+      st.p = EX1.p.slice(); st.c = EX1.c.slice(); st.a = EX1.a.slice(); st.b = EX1.b; st.d = name === "ex7" ? 0.08 : 0;
+    } else if (name === "nash") {
+      st.p = TC.nash(st.c, st.a, st.b).p;
+    } else if (name === "equal") {
+      var m = 0; st.p.forEach(function (pi, i) { m += pi - st.c[i]; }); m /= st.p.length;
+      if (!(m > 0)) m = 1 / st.b;
+      st.p = st.c.map(function (ci) { return ci + m; });
+    } else if (name === "rand") {
+      var rnd = TC.mulberry32(9000 + drawSeed++), dr = TC.draw(rnd, st.p.length);
+      st.c = dr.c; st.a = dr.a; st.b = dr.b; st.p = TC.nash(dr.c, dr.a, dr.b).p;
+    }
+    preset = name;
+  }
+
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; update(); });
+  }
+
+  // ---- chart: the composition of the fixed total market share, before and after ----
+  function drawChart() {
+    var host = $("cb-chart"); host.textContent = "";
+    var W = boxWidth("cb-chart"), L = 2, R = 2, BH = 30, Y1 = 22, Y2 = Y1 + BH + 46, H = Y2 + BH + 4;
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    var defs = svg("defs"), pat = svg("pattern", { id: "cb-hatch", width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+    pat.appendChild(svg("line", { "class": "hatch", x1: 0, y1: 0, x2: 0, y2: 6 }));
+    defs.appendChild(pat); s.appendChild(defs);
+    function spans(sh) {
+      var x = L, out = [];
+      sh.forEach(function (v) { var w = (W - L - R) * v / res.T; out.push([x, x + w]); x += w; });
+      return out;
+    }
+    var A = spans(res.S), B = spans(res.Sstar);
+    for (var i = 0; i < res.n; i++) {
+      var cls = "seg-op" + (i + 1);
+      s.appendChild(svg("path", { "class": cls + " flow", d: "M" + A[i][0] + " " + (Y1 + BH) + "L" + A[i][1] + " " + (Y1 + BH) + "L" + B[i][1] + " " + Y2 + "L" + B[i][0] + " " + Y2 + "Z" }));
+    }
+    [[A, Y1], [B, Y2]].forEach(function (row, r) {
+      row[0].forEach(function (sp, i) {
+        s.appendChild(svg("rect", { "class": "seg-op" + (i + 1), x: sp[0], y: row[1], width: Math.max(0.5, sp[1] - sp[0]), height: BH }));
+        if (i > 0) s.appendChild(svg("line", { "class": "gapline", x1: sp[0], x2: sp[0], y1: row[1], y2: row[1] + BH }));
+        var w = sp[1] - sp[0], share = r === 0 ? res.S[i] : res.Sstar[i];
+        var txt = w > 92 ? (i + 1) + ": " + f3(share) : w > 16 ? String(i + 1) : "";
+        if (txt) s.appendChild(svg("text", { "class": "in" + (i === 3 ? " op4" : ""), x: (sp[0] + sp[1]) / 2, y: row[1] + BH / 2 + 4, "text-anchor": "middle" }, txt));
+      });
+    });
+    s.appendChild(svg("text", { "class": "bt", x: L, y: Y1 - 7 }, t("stcbp.w.bar.before")));
+    s.appendChild(svg("text", { "class": "bt", x: L, y: Y2 - 7 }, t("stcbp.w.bar.after", { m: f3(res.markup) })));
+    host.appendChild(s);
+    var leg = $("cb-legend"); leg.textContent = "";
+    for (var j = 0; j < res.n; j++) {
+      var sp2 = h("span"), sw = h("i", "cb-sw op" + (j + 1));
+      sp2.append(sw, document.createTextNode(t("stcbp.w.leg", { i: j + 1, a: f3(res.S[j]), b: f3(res.Sstar[j]) })));
+      leg.appendChild(sp2);
+    }
+    $("cb-cap").innerHTML = t("stcbp.w.cap", { T: f3(res.T), o: f3(1 - res.T) });
+  }
+
+  // ---- ruler: how much can be paid back to society ----
+  function drawRuler() {
+    var host = $("cb-ruler"); host.textContent = "";
+    var W = boxWidth("cb-ruler"), H = 100, L = 14, R = 14, Y = 60;
+    function X(v) { return L + (W - L - R) * Math.max(0, Math.min(1, v)); }
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    s.appendChild(svg("rect", { "class": "band", x: X(0), y: Y - 9, width: Math.max(2, X(res.dstar) - X(0)), height: 18 }));
+    if (res.dstar < res.dmax) {
+      s.appendChild(svg("rect", { "class": "gap", x: X(res.dstar), y: Y - 9, width: X(1) - X(res.dstar), height: 18 }));
+      s.appendChild(svg("line", { "class": "edge", x1: X(res.dstar), x2: X(res.dstar), y1: Y - 11, y2: Y + 11 }));
+    }
+    s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(1), y1: Y, y2: Y }));
+    for (var v = 0; v <= 1.0001; v += 0.2) {
+      s.appendChild(svg("line", { "class": "axis", x1: X(v), x2: X(v), y1: Y - 3, y2: Y + 3 }));
+      s.appendChild(svg("text", { "class": "tick", x: X(v), y: Y + 32, "text-anchor": "middle" }, I18N.fmt(v, 1)));
+    }
+    var placed = [];
+    function label(x, txt, side) {
+      var wTxt = txt.length * 6.6, anchor = side < 0 ? "end" : "start", xx = x + side * 6;
+      if (side < 0 && xx - wTxt < 0) { anchor = "start"; xx = x + 6; }
+      if (side > 0 && xx + wTxt > W) { anchor = "end"; xx = x - 6; }
+      var x0 = anchor === "end" ? xx - wTxt : xx, x1 = x0 + wTxt, yy = Y - 16;
+      if (placed.some(function (q) { return x0 < q[1] + 6 && x1 > q[0] - 6; })) yy = Y - 31;
+      if (placed.some(function (q) { return x0 < q[1] + 6 && x1 > q[0] - 6 && q[2] === yy; })) yy = Y - 46;
+      placed.push([x0, x1, yy]);
+      s.appendChild(svg("text", { "class": "bt", x: xx, y: yy, "text-anchor": anchor }, txt));
+    }
+    label(X(res.dstar), res.dstar < res.dmax ? t("stcbp.w.ruler.core", { d: f3(res.dstar) }) : t("stcbp.w.ruler.coreall", { d: f3(res.dmax) }), res.dstar > 0.5 ? -1 : 1);
+    if (res.th4 != null) {
+      var tx = X(Math.min(res.th4, 1));
+      s.appendChild(svg("path", { "class": "thmark", d: "M" + tx + " " + (Y - 7) + "l7 7l-7 7l-7 -7z" }));
+      label(tx, t("stcbp.w.ruler.t4", { d: f3(res.th4) }), res.th4 > 0.5 ? 1 : -1);
+    }
+    if (res.eq6 != null && res.eq6 < 1) {
+      var ex = X(Math.max(0, res.eq6));
+      s.appendChild(svg("line", { "class": "e6mark", x1: ex, x2: ex, y1: Y - 12, y2: Y + 12 }));
+      label(ex, t("stcbp.w.ruler.e6", { d: f3(res.eq6) }), -1);
+    }
+    var px = X(st.d);
+    s.appendChild(svg("path", { "class": "pmark", d: "M" + px + " " + (Y + 6) + "l6 10h-12z" }));
+    host.appendChild(s);
+  }
+
+  function kpi(label, value, cls) {
+    var d = h("div", "st-kpi" + (cls ? " " + cls : "")); d.append(h("b", null, value), h("span", null, label)); return d;
+  }
+  function ruleName(r, mid) { return t(r === "mse" && st.d > 0 ? "stcbp.w.r.msed" : "stcbp.w.r." + r + (mid && r === "sv" ? ".mid" : "")); }
+  function list(items) { return items.join(t("stcbp.w.list")); }
+
+  function verdict() {
+    var parts = [], cls = "ok";
+    if (res.eqMargins) parts.push(t("stcbp.w.v.nogain", { vN: f3(res.vN) }));
+    else {
+      parts.push(t("stcbp.w.v.gain", { vN: f3(res.vN), alone: f3(res.alone), T: f3(res.T), m: f3(res.markup) }));
+      var losers = [];
+      for (var i = 0; i < res.n; i++) if (res.prof1[i] < res.prof0[i] - res.tol) losers.push(t("stcbp.w.v.loser", { i: i + 1, a: f3(res.prof1[i]), b: f3(res.prof0[i]) }));
+      if (losers.length) parts.push(t(losers.length > 1 ? "stcbp.w.v.losers" : "stcbp.w.v.loser1", { list: list(losers) }));
+    }
+    var inC = [], outC = [];
+    ["iprop", "mprop", "sv", "mse"].forEach(function (r) { (res.viol[r].length ? outC : inC).push(ruleName(r, true)); });
+    parts.push(t(outC.length ? (inC.length ? "stcbp.w.v.rules" : "stcbp.w.v.rulesnone") : "stcbp.w.v.rulesall", { inn: list(inC), out: list(outC) }));
+    if (st.k === 1) parts.push(t("stcbp.w.v.mse", { phi: f3(res.phi) }));
+    else parts.push(t(res.viol.mse.length ? "stcbp.w.v.k2out" : "stcbp.w.v.k2in", { phi: f3(res.phi) }));
+    if (st.d > 0) {
+      if (!res.coreNonEmpty) {
+        cls = "bad";
+        var w = res.weights.map(function (q) { return t("stcbp.w.w.item", { w: I18N.fmt(q.w, 3), S: setName(q.S) }); });
+        parts.push(t("stcbp.w.v.empty", { d: f3(st.d), need: f3(res.lp.z), vN: f3(res.vdN), w: list(w) }));
+      }
+      if (st.k === 1) {
+        if (res.th4 == null) parts.push(t("stcbp.w.v.t4na"));
+        else if (st.d <= res.th4 + 1e-12) parts.push(t("stcbp.w.v.t4ok", { d: f3(st.d), th: f3(res.th4) }));
+        else parts.push(t(res.viol.mse.length ? "stcbp.w.v.t4out" : "stcbp.w.v.t4in", { d: f3(st.d), th: f3(res.th4) }));
+      }
+    }
+    parts.push(t(res.isNash ? "stcbp.w.v.nash" : "stcbp.w.v.nonash"));
+    var v = $("cb-verdict");
+    v.className = "st-verdict " + cls;
+    v.innerHTML = parts.join(" ");
+  }
+
+  function opTable() {
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    [["stcbp.w.t.op", ""], ["stcbp.w.t.p", "num wide"], ["stcbp.w.t.S", "num"], ["stcbp.w.t.pi", "num"], ["stcbp.w.t.pay", "num"], ["stcbp.w.t.mse", "num"]].forEach(function (c) {
+      tr.appendChild(h("th", c[1], t(c[0])));
+    });
+    thead.appendChild(tr); tb.appendChild(thead);
+    var body = h("tbody");
+    // "before → after" in one cell; on phones the second value goes to its own line (CSS)
+    function pair(a, b, cls) {
+      var td = h("td", "num " + (cls || "") + " cb-pair");
+      td.append(document.createTextNode(f3(a)), h("i", null, " → " + f3(b)));
+      return td;
+    }
+    for (var i = 0; i < res.n; i++) {
+      var row = h("tr"), pay = res.phi * (res.S[i] - res.Sstar[i]);
+      row.append(h("td", "lbl", String(i + 1)), pair(st.p[i], res.pstar[i], "wide"),
+        pair(res.S[i], res.Sstar[i]), pair(res.prof0[i], res.prof1[i]),
+        h("td", "num", sgn3(pay)), h("td", "num", f3(res.prof1[i] + pay)));
+      body.appendChild(row);
+    }
+    var tot = h("tr", "grand");
+    tot.append(h("td", "lbl", t("stcbp.w.t.total")), h("td", "num wide", ""), pair(res.T, res.Sstar.reduce(function (s, v) { return s + v; }, 0)),
+      pair(res.alone, res.vN), h("td", "num", sgn3(0)), h("td", "num", f3(res.vN)));
+    body.appendChild(tot);
+    tb.appendChild(body);
+    var host = $("cb-optbl"); host.textContent = ""; host.appendChild(tb);
+  }
+
+  function rulesTable() {
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    tr.appendChild(h("th", null, t("stcbp.w.t.rule")));
+    for (var i = 0; i < res.n; i++) tr.appendChild(h("th", "num", t("stcbp.w.t.xi", { i: i + 1 })));
+    tr.appendChild(h("th", null, t("stcbp.w.t.core")));
+    thead.appendChild(tr); tb.appendChild(thead);
+    var body = h("tbody");
+    ["iprop", "mprop", "sv", "mse"].forEach(function (r) {
+      var row = h("tr", r === st.rule ? "sel" : null);
+      row.appendChild(h("td", "rl", ruleName(r)));
+      res.rules[r].forEach(function (x) { row.appendChild(h("td", "num", isFinite(x) ? f3(x) : t("stcbp.w.dash"))); });
+      var bad = res.viol[r], td = h("td", "lbl");
+      if (!bad.length) td.appendChild(h("span", "ok", t("stcbp.w.yes")));
+      else {
+        td.appendChild(h("span", "bad", t("stcbp.w.no")));
+        // the first coalition that leaves, and how many more do
+        td.appendChild(document.createTextNode(" " + setName(bad[0])));
+        if (bad.length > 1) td.appendChild(h("span", "cb-more", " +" + (bad.length - 1)));
+      }
+      row.appendChild(td);
+      body.appendChild(row);
+    });
+    tb.appendChild(body);
+    var host = $("cb-rtbl"); host.textContent = ""; host.appendChild(tb);
+  }
+
+  function coalTable() {
+    var x = res.rules[st.rule], vals = res.vd;
+    // the rule name keeps its case (the heading is uppercase, and an uppercase δ would read as a different symbol)
+    var head = $("cb-ctbl-h"), parts = t("stcbp.w.coal.h").split("{rule}");
+    head.textContent = "";
+    head.append(document.createTextNode(parts[0]), h("span", st.rule === "mse" && st.d > 0 ? "cb-nc" : null, ruleName(st.rule)), document.createTextNode(parts[1] || ""));
+    var ex = res.coal.map(function (C) { var s = 0; C.S.forEach(function (i) { s += x[i]; }); return s - vals[C.mask]; });
+    var big = Math.max.apply(null, ex.map(function (e) { return isFinite(e) ? Math.abs(e) : 0; }).concat([1e-12]));
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    [["stcbp.w.t.M", ""], [st.d > 0 ? "stcbp.w.t.vdM" : "stcbp.w.t.vM", "num"], ["stcbp.w.t.xM", "num"], ["stcbp.w.t.ex", "num"]].forEach(function (c) {
+      tr.appendChild(h("th", c[1], t(c[0])));
+    });
+    thead.appendChild(tr); tb.appendChild(thead);
+    var body = h("tbody");
+    res.coal.forEach(function (C, k) {
+      var grand = k === res.coal.length - 1, row = h("tr", grand ? "grand" : null), e = ex[k];
+      var cell = h("td", "num");
+      if (!grand) {
+        var bar = h("span", "cb-bar"), fill = h("i", e < -res.tol ? "neg" : "pos"), frac = isFinite(e) ? Math.abs(e) / big : 1;
+        fill.style.width = (50 * frac) + "%";
+        fill.style.left = e < 0 ? (50 - 50 * frac) + "%" : "50%";
+        bar.append(fill, h("b"));
+        cell.append(bar, document.createTextNode(isFinite(e) ? f4(e) + " " : ""), h("span", e >= -res.tol ? "ok" : "bad", t(e >= -res.tol ? "stcbp.w.yes" : "stcbp.w.no")));
+      } else cell.textContent = f4(e);
+      row.append(h("td", "lbl", setName(C.S)), h("td", "num", f3(vals[C.mask])), h("td", "num", isFinite(e) ? f3(e + vals[C.mask]) : t("stcbp.w.dash")), cell);
+      body.appendChild(row);
+    });
+    tb.appendChild(body);
+    var host = $("cb-ctbl"); host.textContent = ""; host.appendChild(tb);
+  }
+
+  // the direct numerical check of Theorem 2 runs a moment after the last change, so slider drags stay smooth
+  var checkTimer = null;
+  function scheduleCheck() {
+    clearTimeout(checkTimer);
+    $("cb-check").textContent = "";
+    checkTimer = setTimeout(function () {
+      var d = TC.check(st.p, st.c, st.a, st.b);
+      $("cb-check").innerHTML = t("stcbp.w.check", { d: fsmall(d) });
+    }, 160);
+  }
+
+  function update() {
+    res = TC.solve(st.p, st.c, st.a, st.b, st.d, st.k);
+    document.querySelectorAll("#cb-n button").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-n") === res.n)); });
+    document.querySelectorAll("#cb-presets button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-preset") === preset)); });
+    document.querySelectorAll("#cb-rule button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-rule") === st.rule));
+      if (b.getAttribute("data-rule") === "mse") b.textContent = ruleName("mse");
+    });
+    document.querySelectorAll("#cb-k button").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-k") === st.k)); });
+    cards.forEach(function (cd, i) {
+      cd.card.hidden = i >= res.n;
+      if (i >= res.n) return;
+      cd.name.textContent = t("stcbp.w.op", { i: i + 1 });
+      syncSlider(cd.p, st.p[i], t("stcbp.w.s.p"), f3(st.p[i]));
+      syncSlider(cd.c, st.c[i], t("stcbp.w.s.c"), f3(st.c[i]));
+      syncSlider(cd.a, st.a[i], t("stcbp.w.s.a"), I18N.fmt(st.a[i], 2, 2));
+    });
+    market.name.textContent = t("stcbp.w.mkt");
+    syncSlider(market.b, st.b, t("stcbp.w.s.b"), I18N.fmt(st.b, 2, 2));
+    syncSlider(market.d, st.d, t("stcbp.w.s.d"), f3(st.d));
+    var k = $("cb-kpis"); k.textContent = "";
+    k.append(kpi(t("stcbp.w.k.T"), f3(res.T)), kpi(t("stcbp.w.k.alone"), f3(res.alone)), kpi(t("stcbp.w.k.vN"), f3(res.vN), "accent"),
+      kpi(t("stcbp.w.k.mk"), f3(res.markup)), kpi(t(st.k === 1 ? "stcbp.w.k.phi" : "stcbp.w.k.phi2"), f3(res.phi)),
+      kpi(t(st.d > 0 ? "stcbp.w.k.cored" : "stcbp.w.k.core"), t(res.coreNonEmpty ? "stcbp.w.core.yes" : "stcbp.w.core.no"), res.coreNonEmpty ? null : "warn"));
+    drawChart();
+    verdict();
+    opTable();
+    rulesTable();
+    coalTable();
+    drawRuler();
+    scheduleCheck();
+  }
+
+  // ---- the simulation of Section 6, in chunks so the page stays responsive ----
+  var sim = { seed: 2022, running: false, out: null };
+  function simTable() {
+    var host = $("cb-sim-tbl"); host.textContent = "";
+    if (!sim.out) return;
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    tr.appendChild(h("th", null, t("stcbp.w.t.rule")));
+    [3, 4, 5].forEach(function (n) { tr.appendChild(h("th", "num", t("stcbp.w.sim.col", { n: n }))); });
+    thead.appendChild(tr); tb.appendChild(thead);
+    var body = h("tbody");
+    ["iprop", "mprop", "sv", "mse"].forEach(function (r) {
+      var row = h("tr");
+      row.appendChild(h("td", "lbl", t("stcbp.w.r." + r)));
+      [3, 4, 5].forEach(function (n) {
+        var o = sim.out[n];
+        row.appendChild(h("td", "num", o && o.done ? I18N.fmt(o[r] / o.done, 4, 4) : ""));
+      });
+      body.appendChild(row);
+    });
+    tb.appendChild(body);
+    host.appendChild(tb);
+  }
+  function simStatus() {
+    var el = $("cb-sim-status"), btn = $("cb-sim-run");
+    btn.textContent = t(sim.out && !sim.running ? "stcbp.w.sim.again" : "stcbp.w.sim.run");
+    btn.disabled = sim.running;
+    if (!sim.out) { el.textContent = t("stcbp.w.sim.idle"); return; }
+    var done = 0, conv = 0;
+    [3, 4, 5].forEach(function (n) { done += sim.out[n].done; conv += sim.out[n].conv; });
+    el.innerHTML = sim.running ? t("stcbp.w.sim.running", { done: I18N.fmt(done, 0), total: I18N.fmt(30000, 0) })
+      : t("stcbp.w.sim.done", { seed: sim.out.seed, total: I18N.fmt(done, 0), conv: I18N.fmt(conv, 0) });
+  }
+  function runSim() {
+    if (sim.running) return;
+    sim.running = true;
+    var rnd = TC.mulberry32(sim.seed), sizes = [3, 4, 5], si = 0, RUNS = 10000;
+    sim.out = { seed: sim.seed };
+    sizes.forEach(function (n) { sim.out[n] = { done: 0, conv: 0, iprop: 0, mprop: 0, sv: 0, mse: 0 }; });
+    sim.seed++;
+    function chunk() {
+      var t0 = performance.now();
+      while (si < sizes.length && performance.now() - t0 < 30) {
+        var n = sizes[si], o = sim.out[n];
+        for (var q = 0; q < 100 && o.done < RUNS; q++) {
+          var r = TC.simOne(rnd, n);
+          o.done++; if (r.ok) o.conv++;
+          ["iprop", "mprop", "sv", "mse"].forEach(function (k) { if (r.inCore[k]) o[k]++; });
+        }
+        if (o.done >= RUNS) si++;
+      }
+      if (si >= sizes.length) sim.running = false;
+      simTable(); simStatus();
+      if (sim.running) setTimeout(chunk, 0);
+    }
+    simStatus();
+    setTimeout(chunk, 0);
+  }
+
+  // events
+  document.querySelectorAll("#cb-n button").forEach(function (b) {
+    b.addEventListener("click", function () { setN(+b.getAttribute("data-n")); schedule(); });
+  });
+  document.querySelectorAll("#cb-presets button").forEach(function (b) {
+    b.addEventListener("click", function () { loadPreset(b.getAttribute("data-preset")); schedule(); });
+  });
+  document.querySelectorAll("#cb-rule button").forEach(function (b) {
+    b.addEventListener("click", function () { st.rule = b.getAttribute("data-rule"); schedule(); });
+  });
+  document.querySelectorAll("#cb-k button").forEach(function (b) {
+    b.addEventListener("click", function () { st.k = +b.getAttribute("data-k"); schedule(); });
+  });
+  $("cb-sim-run").addEventListener("click", runSim);
+
+  buildSliders();
+  I18N.onChange(function () { update(); simTable(); simStatus(); });
+  // the drawings use the real pixel width of their box: redraw when that width changes (also when the widget is first shown)
+  var resizeTimer, lastW = 0;
+  function redraw() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var w = $("cb-chart").clientWidth;
+      if (res && w && w !== lastW) { lastW = w; drawChart(); drawRuler(); }
+    }, 60);
+  }
+  if (window.ResizeObserver) new ResizeObserver(redraw).observe($("cb-chart"));
+  window.addEventListener("resize", redraw);
+})();
+</script>
+<!-- after the page scripts, so each language switch first rebuilds the page and then typesets its formulas -->
+<script src="../../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+{
+ "notes": {
+  "slug": "2020-vaccination",
+  "bibliography": {
+   "title": "Core Allocations for Cooperation Problems in Vaccination",
+   "authors": [
+    "Lotty E. Westerink-Duijzer (marked * in the PDF; the asterisk is not explained on the page, conventionally the corresponding author)",
+    "Loe P. J. Schlicher",
+    "Marieke Musegaas"
+   ],
+   "affiliations_as_printed": "Lotty E. Westerink-Duijzer: Econometric Institute, Erasmus School of Economics, Erasmus University Rotterdam, P.O. Box 1738, Rotterdam, 3000 DR, The Netherlands. Loe P. J. Schlicher: Faculty of Military Sciences The Netherlands Defense Academy, P.O. Box 90002, Breda, 4800 PA, The Netherlands. Marieke Musegaas: Econometric Institute, Erasmus School of Economics, Erasmus University Rotterdam, P.O. Box 1738, Rotterdam, 3000 DR, The Netherlands. (Each affiliation is followed by an institutional e-mail address in the PDF; omitted here. The first two authors carry ORCID icons.)",
+   "journal": "Production and Operations Management (ISSN 1059-1478, EISSN 1937-5956)",
+   "volume_issue_pages_or_article": "Vol. 29, No. 7, July 2020, pp. 1720-1737",
+   "year": "2020",
+   "received": "February 2019",
+   "accepted": "March 2020 (by Sergei Savin, after 3 revisions); only the month is printed",
+   "available_online": "Not printed in the PDF",
+   "doi": "10.1111/poms.13184",
+   "open_access_or_license": "Open access under the Creative Commons Attribution-NonCommercial-NoDerivs License (p. 1720 footnote). (c) 2020 The Authors. Production and Operations Management published by Wiley Periodicals LLC on behalf of Production and Operations Management Society. Supporting Information (Appendix S1 Return functions, S2 Proofs, S3 Numerical analyses: results; p. 1737) is online only and is NOT in this PDF.",
+   "keywords": [
+    "cooperative game theory",
+    "market allocations",
+    "S-shaped return functions",
+    "vaccination"
+   ]
+  },
+  "chronology_date": "2020-03-01",
+  "one_line": "Health agencies that pool and redistribute vaccine doses under S-shaped (convex-concave) returns form a resource pooling game whose core can be empty; the paper proves the core is non-empty, and contains a single-market-price allocation, under severe shortage and under sufficient supply (always for two players, and also for identical returns when the stock exactly covers a subset at its dose-optimal fraction), and confirms this numerically on a 10-region US influenza case.",
+  "question": "Under which conditions are parties (health agencies, regions, countries) that each hold a stockpile of the same vaccine willing to cooperate by redistributing their doses without a central planner, i.e., when does the cooperative game with S-shaped return functions have a non-empty core, and can the total return then be divided by trading all doses at one uniform market price (a \"market allocation\")? (pp. 1720-1721)",
+  "motivation_application": "Vaccination suffers from delayed deliveries and limited stockpiles. Real examples of vaccine sharing: the 2004-2005 US influenza season supply disruption (Hinman et al. 2006, McQuillan et al. 2009), the 2009 influenza pandemic where various countries shared pandemic vaccine supplies to reach the most vulnerable (WHO 2012), CDC rules allowing parties to redistribute or sell vaccine after delayed delivery or another emergency (CDC 2009b), and Taiwan's recommendation to share and redistribute influenza vaccine in shortages (Chen 2017) (p. 1720). Sharing raises total health benefits but may lower some parties' benefits, so they must be compensated; the authors ask for a stable allocation of total health benefits (pp. 1720-1721). Earlier vaccination game papers (Sun et al. 2009, Wang et al. 2009, Mamani et al. 2013) use a central planner, contracts or subsidies and only individual rationality; this paper studies self-organized cooperation with the core, which is stronger (pp. 1721-1722). Self-organized cooperation also avoids sharing all information with a central planner (p. 1722). The model applies to any resource reallocation with S-shaped returns: returns from investing into a market (Zschocke et al. 2013), sales response in marketing (Abedi 2017), fill rates in exchangeable-item repair systems (Dreyfuss and Giat 2017) (p. 1721), allocation of ambulances over regions, medical specialists over hospitals (p. 1735). Case study: redistribution of influenza vaccine across the 10 US regions of Teytelman and Larson (2013), with 2009 H1N1 disease parameters, starting from the CDC pro rata policy (Section 6, pp. 1732-1734).",
+  "model": "Players and data (Section 3.1, p. 1724). Finite player set $N$; player $i$ is responsible for a geographic region with $M_i$ inhabitants and initially holds $r_i \\ge 0$ doses of (the same type of) vaccine. Monetary health benefit per inhabitant is an S-shaped return function $F_i(\\cdot)$ of the vaccinated fraction, so $r$ doses give player $i$ the total return $M_i F_i(r/M_i)$. $F_i$ depends only on player $i$'s doses (no interaction between regions: reasonable for geographically distant regions where within-region interaction dominates). Any total-return function $H$ satisfying Assumption 1 can be rewritten as a fractional return via $F(r/M)=H(r)/M$.\n\nAssumption 1 (p. 1724), \"nicely convex-concave\" (see Ginsberg 1974): (1) $F_i$ is continuously differentiable, non-negative and non-decreasing; (2) $F_i$ is strictly convex on $[0,c_i)$ and strictly concave on $(c_i,+\\infty)$ for some $c_i\\ge 0$; (3) $F_i$ is convergent, $\\lim_{f\\to+\\infty} \\frac{d}{df}F_i(f)=0$. Interpretation: primary effect (vaccinee protected) plus secondary effect (unvaccinated people benefit) gives increasing returns with few doses; with many doses extra doses go to people who would not have been infected, so the added value of a dose falls to zero.\n\nGame (pp. 1724-1725). TU game $(N,v)$, $v:2^N\\to\\mathbb{R}$, coalition $S\\subseteq N$, grand coalition $N$. The value of a coalition is the optimal value of Problem (1) (p. 1725), a knapsack problem with S-shaped return functions (NP-hard, Agrali and Geunes 2009):\n$$v(S)=\\max \\sum_{i\\in S} M_i F_i(f_i)\\quad \\text{s.t.}\\ \\sum_{i\\in S} f_i M_i \\le \\sum_{i\\in S} r_i,\\quad f_i\\ge 0\\ \\forall i\\in S,$$\nwhere $f_i$ is the fraction of doses player $i$ receives relative to its size $M_i$. Notation $R(S)=\\sum_{i\\in S} r_i$ (p. 1730).\n\nCore (2) (p. 1725): $x\\in\\mathbb{R}^N$ with Efficiency $\\sum_{i\\in N}x_i=v(N)$ and Stability $\\sum_{i\\in S}x_i\\ge v(S)$ for all $S\\subset N$. Cooperation is called plausible when the core is non-empty (p. 1727).\n\nCooperation costs (Section 3.4, pp. 1726-1727): (a) $v^K(S)=v(S)-K$ for $|S|\\ge 2$, $v^K(\\{i\\})=v(\\{i\\})$ (independent of the players, e.g., political willingness, organization); (b) $v^{\\mathbf K}(S)=v(S)-\\sum_{i\\in S}K_i$ for $|S|\\ge 2$, $v^{\\mathbf K}(\\{i\\})=v(\\{i\\})$ (player-specific, e.g., transport). Costs depending on how many doses are shipped are not covered.\n\nMarket allocations (Section 4.1, pp. 1727-1728). With $f^*$ optimal for $N$, any allocation can be written as (3): $y_i=M_iF_i(f_i^*)+p_i(r_i-f_i^*M_i)$; $p_i$ is player $i$'s price per dose bought/sold. $y$ is a market allocation if $p_i=p_j$ for all $i,j$ (single market price $p$).\n\nAdditional return per dose (4) (p. 1729): $D_{F_i}(f)=\\frac1f[F_i(f)-F_i(0)]$ for $f>0$ and $\\lim_{f\\downarrow 0}\\frac1f[F_i(f)-F_i(0)]$ for $f=0$ (average slope of $F_i$ on $[0,f]$). Its unique maximizer $\\tilde f_i$ (Corollary 1) is the \"dose-optimal vaccination fraction\" (Duijzer et al. 2018b), the sweet spot. Definition 1 (p. 1730): for $i,k$ with $F_i'(\\tilde f_i)\\ge F_k'(\\tilde f_k)$, $\\tilde f_i^{(k)}\\ge\\tilde f_i$ with $F_i'(\\tilde f_i^{(k)})=F_k'(\\tilde f_k)$. Average additional return per dose (5) (p. 1731): $A(N)=\\frac{v(N)-\\sum_{i\\in N}M_iF_i(0)}{R(N)}=\\frac{1}{R(N)}\\big[\\sum_{i\\in N}M_if_i^*D_{F_i}(f_i^*)\\big]$.\n\nRegimes: severe shortage $0<R(S)\\le\\min_{i\\in S}\\tilde f_iM_i$ (Theorem 3(a)); sufficient supply $R(S)\\ge\\sum_{i\\in S}\\tilde f_i^{(k)}M_i$, $k\\in\\arg\\min_{i\\in S}D_{F_i}(\\tilde f_i)$ (Theorem 3(b)); no assumption on the initial distribution, so sufficient supply can still have supply-demand mismatches (p. 1730).\n\nCase study return (Section 6.1, pp. 1732-1733): $F_i$ = fraction of people in region $i$ escaping infection under an SIR model with 2009 H1N1 parameters (Teytelman and Larson 2013), independent epidemics per region, a single vaccination moment $\\tau$ days after the start (defined in Section 6.2, p. 1733); a common health-benefit factor per person spared, so the objective is the number escaping infection; full characterization in \"Appendix S5\" (not in this PDF).",
+  "results": [
+   {
+    "label": "Lemma 1",
+    "page": "1724",
+    "statement": "If the epidemic is modeled with the SIR model, then the health benefits of people escaping infection as a function of the doses of vaccine distributed in the population satisfies Assumption 1.",
+    "meaning": "Return functions derived from the standard SIR epidemic model are nicely convex-concave (S-shaped, smooth, non-decreasing, with marginal return tending to zero), so the abstract model fits vaccination.",
+    "proof_idea": "The characterization of the SIR return function and the proof are in Appendix S1, which is not included in this PDF. The text states that, by Ma and Earn (2006) and Duijzer et al. (2018b), the lemma generalizes to extensions such as the SEIR and SI^nR models."
+   },
+   {
+    "label": "Example 1 (cooperation pays; core allocations exist)",
+    "page": "1725-1726",
+    "statement": "Three identical players, M = [1,1,1], r = [0.2,0.2,0.2], F_i(f) = 1/(1 + exp{-45f + 25}). v({i}) = 1/(1 + exp{16}) = 0, v of every pair = 0.0009, v(N) = 0.8808 (all 0.6 doses to one player). The equal split x = [0.8808/3, 0.8808/3, 0.8808/3] is a core allocation; the allocation giving everything to one player is efficient and individually rational but not in the core.",
+    "meaning": "Pooling scarce doses on one player exploits the convex part of the S-curve (total return from about 0 to almost 0.9), and here practically any allocation giving every player a strictly positive share is stable, since every pair needs only 0.0009.",
+    "proof_idea": "Values by discretized enumeration with step 10^-4, rounded to four decimals; core membership checked directly against the value table."
+   },
+   {
+    "label": "Example 2 (empty core)",
+    "page": "1726",
+    "statement": "Three identical players, M = [1,1,1], r = [1/3,1/3,1/3], F_i(f) = 1/(1 + exp{-45f + 25}). Every coalition maximizes its return by giving all doses to one player, and the core of this game is empty.",
+    "meaning": "With S-shaped returns and three or more players, stable cooperation can fail. Each pair's 2/3 dose already brings one player close to full return (0.9933), while the grand coalition's 1 dose cannot be used much better (1.0000): beyond one player's sweet spot the extra third is nearly wasted. Each pair would need compensation for its loss in effectiveness, and nobody can pay for it.",
+    "proof_idea": "By contradiction: for a core allocation x, efficiency and stability give x_i = v(N) - sum_{j != i} x_j <= v(N) - v(N\\{i}) = 1.0000 - 0.9933 = 0.0067 for i = 1,2,3, so x_1 + x_2 + x_3 <= 3 * 0.0067 < v(N). Values from discretized enumeration with step 10^-4, rounded to 4 decimals."
+   },
+   {
+    "label": "Theorem 1",
+    "page": "1727",
+    "statement": "Suppose that the core of the original game (N,v) is non-empty. 1. The core of the game (N, v^K) is also non-empty if 0 <= K <= v(N) - sum_{i in N} v({i}). 2. The core of the game (N, v^{\\mathbf K}) is also non-empty if there exists a core allocation (x_i)_{i in N} in the core of the original game (N,v) for which 0 <= K_i <= x_i - v({i}) for all i in N. (Here v^K(S) = v(S) - K and v^{\\mathbf K}(S) = v(S) - sum_{i in S} K_i for |S| >= 2, singletons unchanged.)",
+    "meaning": "Core non-emptiness is robust to coalition-level fixed cooperation costs and to player-specific costs, as long as the costs are outweighed by the cooperation gains; this justifies using core non-emptiness as the plausibility criterion.",
+    "proof_idea": "The paper gives no proof in the main text (all proofs are relegated to the online appendix, p. 1722). A direct argument consistent with the statement: for part 1 take z = (1 - lambda) x + lambda (v({i}))_i with lambda = K / (v(N) - sum v({i})) in [0,1] (if v(N) = sum v({i}) then K = 0 and x itself works); then sum z = v(N) - K, z_i >= v({i}), and for |S| >= 2 the reduction lambda sum_{i in S}(x_i - v({i})) is at most lambda (v(N) - sum_N v({i})) = K. For part 2 take z_i = x_i - K_i."
+   },
+   {
+    "label": "Example 3 (non-empty core, no market allocation in the core)",
+    "page": "1728",
+    "statement": "Three players, M = [1,1,1], r = [0.1, 1, 0.65], F_i(f) = 1/(1 + exp{-45f + 25}); v({1}) = 0, v({2}) = 1.0000, v({3}) = 0.9859, v({1,2}) = 1.0000, v({1,3}) = 0.9998, v({2,3}) = 2.0000, v(N) = 2.3319. x = [0.1319, 1.1, 1.1] is a core allocation, but no market allocation belongs to the core.",
+    "meaning": "A single market price can be too restrictive: the core may require different per-dose prices for different sellers (here player 3, initially at the sweet spot, loses a lot by selling and must be paid much more per dose than player 2).",
+    "proof_idea": "The optimal grand-coalition distribution is proportional, f_i* = 1.75/3 = 0.5833 with F_i(f_i*) = 0.7773. Player 1's individual rationality gives p <= (0.7773 - 0)/(0.5833 - 0.1) = 1.6083; player 3's gives p >= (0.9859 - 0.7773)/(0.65 - 0.5833) = 3.1274; contradiction. The core allocation x corresponds via (3) to individual prices p1 = 1.3354, p2 = 0.7744, p3 = 4.8381 (player 1 buys 0.4167 doses from player 2 and 0.0667 from player 3). These numbers use the rounded inputs 0.5833 and 0.7773; with unrounded values the bounds are 1.6082 and 3.1295 and p3 = 4.8405 (same conclusion)."
+   },
+   {
+    "label": "Theorem 2",
+    "page": "1729",
+    "statement": "In case of two players (i.e., |N| = 2) the core is equal to the set of all market allocations corresponding to an optimal solution f* for coalition N and a price p, with p in [ M_s[F_s(r_s/M_s) - F_s(f_s*)] / (r_s - M_s f_s*) , M_b[F_b(f_b*) - F_b(r_b/M_b)] / (M_b f_b* - r_b) ], where b denotes the buyer and s the seller.",
+    "meaning": "With two players the core is never empty, and every core allocation is a market allocation: the buyer pays the seller a per-dose price between the seller's loss per dose and the buyer's gain per dose.",
+    "proof_idea": "Proof in Appendix S2 (stated on p. 1729; not in this PDF). The text's intuition: the price must be high enough for the seller and not too high for the buyer; such a price exists because by redistributing the players achieve at least their stand-alone total; with only two players all compensation for the seller is paid by the buyer, so every core allocation has one price. Note (not discussed in the paper): if no doses change hands the formula's denominators are zero."
+   },
+   {
+    "label": "Lemma 2",
+    "page": "1729",
+    "statement": "For every coalition S subset of N, there always exists an optimal solution f* in R^S to Problem (1) for which sum_{i in S} f_i* M_i = sum_{i in S} r_i.",
+    "meaning": "A coalition can always use all its doses; the capacity constraint can be taken as binding.",
+    "proof_idea": "Follows directly from return functions being non-negative and non-decreasing (Assumption 1)."
+   },
+   {
+    "label": "Corollary 1",
+    "page": "1729",
+    "statement": "The function D_{F_i}(.) is maximized by a unique vaccination fraction tilde f_i for which F_i'(tilde f_i) = D_{F_i}(tilde f_i), for all i in N. Moreover, D_{F_i}(.) is increasing on the interval [0, tilde f_i) and decreasing on the interval (tilde f_i, infinity).",
+    "meaning": "Each player has a unique sweet spot, the dose-optimal vaccination fraction, where the average additional return per dose peaks; there the marginal return equals the average return. From Duijzer et al. (2018b) the text adds: tilde f_i increases in the reproduction ratio and decreases in the moment of vaccination.",
+    "proof_idea": "Stated to follow from Assumption 1. Reconstruction: D'(f) = [F'(f) - D(f)]/f, so D rises while the marginal slope exceeds the average slope and falls afterwards; the nicely convex-concave shape gives exactly one tangency point. Illustrated in Figure 2 (p. 1730)."
+   },
+   {
+    "label": "Definition 1",
+    "page": "1730",
+    "statement": "Define tilde f_i^{(k)} for all i,k in N with F_i'(tilde f_i) >= F_k'(tilde f_k) such that tilde f_i^{(k)} >= tilde f_i and F_i'(tilde f_i^{(k)}) = F_k'(tilde f_k).",
+    "meaning": "tilde f_i^{(k)} is the fraction (to the right of player i's sweet spot) where player i's marginal return has fallen to player k's marginal return at k's sweet spot.",
+    "proof_idea": "Definition; existence and uniqueness are Corollary 2."
+   },
+   {
+    "label": "Corollary 2",
+    "page": "1730",
+    "statement": "For any i,k in N with F_i'(tilde f_i) >= F_k'(tilde f_k), there exists a unique tilde f_i^{(k)} >= 0 as defined in Definition 1.",
+    "meaning": "The fractions used to define the sufficient-supply threshold are well defined.",
+    "proof_idea": "Proof in Appendix S2 (stated on p. 1730; not in this PDF). Reconstruction: tilde f_i lies in the concave part, so beyond it F_i' is strictly decreasing and tends to 0 (Assumption 1.3); by continuity it hits the level F_k'(tilde f_k) exactly once (for a positive level). Figure 2 shows tilde f_1^{(2)} for F_1(f) = exp{0.75 - 0.25/f} and F_2(f) = 0.6 exp{1.25 - 0.6/f}."
+   },
+   {
+    "label": "Theorem 3",
+    "page": "1730",
+    "statement": "Consider a coalition of players S subset of N. Then any optimal solution f* in R^S to Problem (1) for particular cases has the following characteristics: (a) If 0 < R(S) <= min_{i in S}{tilde f_i M_i}, then there exists a player k in argmax_{i in S}{D_{F_i}(R(S)/M_i)} such that all doses of vaccine are given to this player, that is, the optimal solution is as follows: f_k* = R(S)/M_k and f_i* = 0 for all i in S\\{k}. (b) If R(S) >= sum_{i in S} tilde f_i^{(k)} M_i, with k in argmin_{i in S}{D_{F_i}(tilde f_i)}, then the doses of vaccine are divided among all players in S in such a way that f_i* >= tilde f_i for all i in S and F_i'(f_i*) = F_j'(f_j*) for all i,j in S.",
+    "meaning": "Severe shortage (a): concentrate all doses on the single player with the highest average additional return. Sufficient supply (b): everyone gets at least its sweet spot and marginal returns are equalized. Because tilde f_i depends on timing and infectiousness, sufficient supply also covers late vaccination or mild diseases, and still allows supply-demand mismatches (p. 1730).",
+    "proof_idea": "Proof in the online appendix (not in this PDF; p. 1729 points to Appendix S3 while the Supporting Information list names S2 Proofs). The paper cites Ginsberg (1974) for conditions under which the optimal solution can be described analytically (p. 1723) but does not say how its own proof proceeds. Reconstruction for (a): every feasible fraction satisfies f_i <= R(S)/M_i <= tilde f_i, where D_{F_i} is increasing, so the additional return is sum_i (f_i M_i) D_{F_i}(f_i) <= R(S) max_i D_{F_i}(R(S)/M_i), attained by giving all doses to the argmax. For (b): all players sit in the concave region, where the first-order (KKT) conditions equalize derivatives."
+   },
+   {
+    "label": "Theorem 4",
+    "page": "1731",
+    "statement": "Assume R(N) <= min_{i in N}{tilde f_i M_i} and let f* be an optimal solution for coalition N. Then, the market allocation corresponding to solution f* and price max_{i in N}{D_{F_i}(R(N)/M_i)} is in the core. This implies that the core is non-empty.",
+    "meaning": "Under severe shortage cooperation is plausible: give all doses to the most beneficial player k and pay every dose holder the average additional return per dose D_{F_k}(R(N)/M_k), which equals A(N) in this situation (stated on p. 1731).",
+    "proof_idea": "Paper's intuition: no coalition can earn more than D_{F_k}(R(N)/M_k) per dose because of the limited doses, the convex part of the return function and the choice of k. Reconstruction: with f_k* = R(N)/M_k and f_i* = 0 otherwise, (3) gives y_i = M_i F_i(0) + p r_i for every i; for any S, v(S) - sum_{S} M_i F_i(0) = R(S) max_{i in S} D_{F_i}(R(S)/M_i) <= R(S) p, since D_{F_i} is increasing below tilde f_i (Theorem 3(a), Corollary 1)."
+   },
+   {
+    "label": "Theorem 5",
+    "page": "1731",
+    "statement": "Assume R(N) >= sum_{i in N} tilde f_i^{(j)} M_i, with j in argmin_{i in N}{D_{F_i}(tilde f_i)}, and let f* be an optimal solution for coalition N, where all doses of vaccine are used. Then, the market allocation corresponding to solution f* and price F_k'(f_k*), where k in N, is in the core. This implies that the core is non-empty.",
+    "meaning": "Under sufficient supply cooperation is plausible with the market price equal to the common marginal return F_i'(f_i*) at the optimum; at that price no player wants to buy or sell more. The paper shows F_i'(f_i*) <= min_j D_{F_j}(f_j*) <= A(N), so the price is below the average additional return per dose, unlike in Theorem 4.",
+    "proof_idea": "The paper says it uses duality for convex non-linear optimization problems, extending the LP-duality route to core allocations (Owen 1975, Deng et al. 1999) to non-linear problems; the full proof is in the online appendix (not in this PDF). Reconstruction consistent with the text: the price is a Lagrange multiplier of the dose constraint; because f_i* >= tilde f_i and F_i'(f_i*) <= D_{F_i}(f_i*), f_i* globally maximizes M_i(F_i(f) - p f) despite non-concavity, so the Lagrangian bound for any coalition S equals the market payoff sum over S. Note: the text says the first inequality 'follows from Theorem 3(a)', apparently meaning 3(b)."
+   },
+   {
+    "label": "Corollary 3",
+    "page": "1732",
+    "statement": "Consider identical return functions (F_i(.) = F_j(.) for all i,j in N). Assume R(N) >= sum_{i in N} tilde f_i M_i and let f* be an optimal solution for coalition N, where all doses of vaccine are used. Then, the market allocation corresponding to solution f* and price F_k'(f_k*), where k in N, is in the core. This implies that the core is non-empty.",
+    "meaning": "With identical return functions (same disease in all regions), tilde f_i^{(j)} = tilde f_i, so the sufficient-supply threshold is simply giving everyone its dose-optimal fraction; the severe-shortage case (Theorem 4) is unchanged.",
+    "proof_idea": "Specialization of Theorem 5 using tilde f_i = tilde f_j, D_{F_i} = D_{F_j} and, by Definition 1, tilde f_i^{(j)} = tilde f_i."
+   },
+   {
+    "label": "Theorem 6",
+    "page": "1732",
+    "statement": "Consider identical return functions (F_i(.) = F_j(.) for all i,j in N). Assume R(N) = sum_{i in T} tilde f_i M_i for some T subset of N and let f* be an optimal solution for coalition N. Then, the market allocation corresponding to solution f* and price D_{F_k}(tilde f_k), where k in N, is in the core. This implies that the core is non-empty.",
+    "meaning": "If the total stock exactly covers a subset of players at their dose-optimal fraction, cooperation is plausible and every player receives exactly the maximal additional return per dose D_F(tilde f) for each initial dose (on top of M_i F(0)); the paper notes D_{F_i}(tilde f_i) = A(N) here.",
+    "proof_idea": "Text intuition (p. 1732): D_F is maximized at tilde f and is the same for all players, so no coalition can earn more than D_F(tilde f) per dose; the allocation pays exactly that per initial dose r_i, so no player or coalition is better off alone. Proof in the online appendix (not in this PDF)."
+   }
+  ],
+  "methods_and_tools": [
+   "Cooperative game theory with transferable utility (TU games); OR games (Borm et al. 2001) / resource pooling games",
+   "Core (Gillies 1959): efficiency and coalitional stability; comparison with individual rationality",
+   "Market games of Shapley and Shubik (1969), modified to S-shaped (convex-concave) utilities; Debreu and Scarf (1963) on non-concave utilities",
+   "Market allocations with a single market price; individual per-player prices from Equation (3)",
+   "Knapsack problem with S-shaped return functions (NP-hard, Agrali and Geunes 2009); analytic characterization of optimal solutions (Ginsberg 1974 cited for this)",
+   "Average-slope function D_F and dose-optimal vaccination fraction (Duijzer et al. 2018b)",
+   "Duality for convex non-linear optimization (Lagrangian), extending LP-duality core constructions of Owen (1975) and Deng et al. (1999)",
+   "Cooperation-cost games v^K obtained by subtracting fixed or player-specific costs",
+   "Discretized enumeration of the value function (step 10^-4) for the examples; heuristic of Duijzer et al. (2018b) and complete enumeration for small instances",
+   "SIR compartmental epidemic model (Kermack and McKendrick 1927) with 2009 H1N1 parameters from Teytelman and Larson (2013)",
+   "Numerical experiments with altruistic and selfish players (online Appendix S3)"
+  ],
+  "allocation_rules": "1) Core allocations (p. 1725): efficient and coalitionally stable; stronger than individual rationality. In Example 1 the equal split x = [0.8808/3, 0.8808/3, 0.8808/3] is in the core (p. 1725), and practically any allocation giving each player a strictly positive share is, but giving everything to one player is not, because each pair needs at least 0.0009 (p. 1726).\n2) Market allocation (Section 4.1, pp. 1727-1728): y_i = M_i F_i(f_i*) + p (r_i - f_i* M_i); everyone keeps the return from the optimal redistribution f* and buys or sells doses at one price p. Market allocations can always be constructed, even with an empty core; argued to enhance cooperation because it prevents dissatisfied players who find out others bought (sold) for a lower (higher) price. A non-empty core need not contain one (Example 3).\n3) Individual-price allocations: the same formula with player-specific p_i (Example 3: p1 = 1.3354, p2 = 0.7744, p3 = 4.8381).\n4) Price rules proven to give core allocations:\n - Two players (Theorem 2): any p in [seller's loss per dose, buyer's gain per dose]; core = set of these market allocations.\n - Severe shortage (Theorem 4): p = max_i D_{F_i}(R(N)/M_i) = A(N), the average additional return per dose.\n - Sufficient supply (Theorem 5; Corollary 3 for identical F): p = F_k'(f_k*), the common marginal return at the optimum, with F_i'(f_i*) <= min_j D_{F_j}(f_j*) <= A(N).\n - Identical F with R(N) = sum_{i in T} tilde f_i M_i (Theorem 6): p = D_F(tilde f) = A(N).\n5) Rule of thumb: A(N) = (v(N) - sum M_i F_i(0)) / R(N), total additional return divided by total doses (p. 1731).\n6) Further market prices are proposed in online Appendix S3.3 (one is called p4, \"often in the core\" for R(N) > 5*10^7 in the case study, p. 1734); their definitions are not in this PDF.\n7) Robustness: core non-emptiness survives fixed or player-specific cooperation costs under the bounds of Theorem 1.\n8) Alternatives mentioned for empty cores (p. 1735): restricted games (Faigle 1989), least core (Maschler et al. 1979), multiplicative epsilon-core (Faigle and Kern 1993), Shapley value (Shapley 1953), nucleolus (Schmeidler 1969), tau-value (Driessen and Tijs 1985).",
+  "numerical_study": "In the main text: (i) Examples 1-3 (pp. 1725-1728), value functions computed by discretized enumeration with step size 10^-4 and rounded to four decimals; (ii) the case study (Section 6, pp. 1732-1734). The general numerical analyses (online Appendix S3: altruistic vs selfish players, various numbers of players, Figures S3.2 and S3.4, proposed market prices of S3.3) and Appendix S5 (return-function characterization, input parameters, identical-return-function results) are referenced but not in this PDF. The introduction reports from them: cooperation is more likely with selfish players (who only share doses if they have more than enough for their own population), but the benefits of cooperation are smaller (p. 1721); the conclusion says the main result is independent of the number of players and of altruism/selfishness (p. 1735). Solution approach: heuristic of Duijzer et al. (2018b), complete enumeration for small instances (p. 1723).\n\nCase study setup (pp. 1732-1733): US population split into the 10 regions of Teytelman and Larson (2013), Table 1 (p. 1732): New England 14,429,720; New York area 19,949,192; Mid-Atlantic 28,891,734; Southeast 60,580,377; Great lakes 51,766,882; Southwest 37,860,549; The plains 13,610,802; Rocky mountains 10,787,806; West 47,495,705; Pacific Northwest 12,734,126; total 298,106,893 (sum checked). SIR model with 2009 H1N1 parameters, independent epidemics per region, a single vaccination moment tau (the same in all regions), F_i = fraction escaping infection (Figure 3, p. 1733: for region 1 at tau = 0 it rises roughly linearly from about 0.47 at f = 0 to 1 at about f = 0.3, then is flat; the text says it has characteristics of both the appendix's 'type (i)' (moderate increase) and 'type (ii)' (horizontal part) functions). Initial doses pro rata to population (CDC policy). Grid: tau in {0,5,10,...,50} and R(N) printed as {0, 0.5*10^7, 1*10^6, ..., 3*10^8}; the markers in Figure 4 are spaced 0.5*10^7 apart, so '1*10^6' is presumably a typo for 1*10^7.\n\nKey findings (pp. 1733-1734, Figure 4 on p. 1734): the core is non-empty when there are sufficient doses; additional unreported results show it is also non-empty for \"V <= 2.5*10^6\" (V is undefined, presumably R(N)) for almost all tau >= 0, i.e., also with almost no doses. sum_i tilde f_i M_i decreases from 3.6*10^7 at tau = 0 to 0 for tau >= 40; approximately, the core is non-empty when R(N) > sum_i tilde f_i M_i. Read approximately from Figure 4: empty-core points occur only at low stockpiles, the highest at about 0.45*10^8 (tau = 0 and 5), about 0.3*10^8 to 0.4*10^8 for tau = 10 to 30, only 0.05*10^8 at tau = 35, and none for tau >= 40; R(N) = 0 is shown as non-empty. Outside the connected non-empty region only a few non-empty points occur, with no clear pattern (sometimes where the stock approximately covers a subset of regions at tilde f_i, but not always). When the core is non-empty, a market allocation is almost always in the core (unreported); for R(N) > 5*10^7 the market price p4 is often in the core; for moderate stockpiles with a non-empty core, most of the time none of the proposed market allocations is in the core. Benefits of cooperation are smaller with many doses, where pro rata is often already close to optimal. Very late vaccination removes the convex part (tilde f_i = 0), making the game equivalent to a market game with a non-empty core. Similar results for identical return functions are reported in Appendix S5.",
+  "worked_example": "All instances use the paper's logistic return F(f) = 1/(1 + exp(-45 f + 25)) with M = [1,1,1] (pp. 1725-1728). Values marked [paper] are printed; values marked [computed] were recomputed for these notes and are consistent with the paper's numbers.\n\nExample 1 [paper, pp. 1725-1726]: r = [0.2, 0.2, 0.2]. v({i}) = 1/(1 + e^16) = 0; v(pair) = 1/(1 + e^7) = 0.0009; v(N) = 1/(1 + e^-2) + 2/(1 + e^25) = 0.8808 (give all 0.6 doses to one player). Core allocation [0.2936, 0.2936, 0.2936]. [computed] The sweet spot of this F is tilde f = 0.629 (D_F max = F'(tilde f) = 1.5335); the paper informally says 'around f = 0.65' (p. 1726). Since R(N) = 0.6 <= 0.629, Theorem 4 applies: price D_F(0.6) = 0.8808/0.6 = 1.4680 = A(N); receiver gets 0.8808 + 1.468*(0.2 - 0.6) = 0.2936, each other player gets 1.468*0.2 = 0.2936, i.e., exactly the paper's equal split.\n\nExample 2 [paper, p. 1726]: r = [1/3, 1/3, 1/3]. v({i}) = 0, v(pair) = 1/(1 + e^-5) = 0.9933, v(N) = 1/(1 + e^-20) = 1.0000. Any core x would need x_i <= 1.0000 - 0.9933 = 0.0067, so the sum <= 0.0201 < 1: empty core. [computed] The three pair constraints alone force x_1 + x_2 + x_3 >= 1.49 > v(N). R(N) = 1 lies strictly between min tilde f M = 0.629 and sum tilde f M = 1.887 (moderate shortage, neither theorem applies).\n\nExample 3 [paper, p. 1728]: r = [0.1, 1, 0.65]. v: {1} 0, {2} 1.0000, {3} 0.9859, {1,2} 1.0000, {1,3} 0.9998, {2,3} 2.0000, N 2.3319 with f* = 0.5833 each, F(f*) = 0.7773. Core allocation x = [0.1319, 1.1, 1.1]. Market price bounds: p <= 0.7773/0.4833 = 1.6083 (player 1) and p >= 0.2086/0.0667 = 3.1274 (player 3): no market allocation in the core. Individual prices p = [1.3354, 0.7744, 4.8381]. [computed] With unrounded f* = 7/12 the bounds are 1.6082 and 3.1295 and p3 = 4.8405; the paper's figures follow from the rounded inputs.\n\nTwo-player illustration of Theorem 2 [computed, minimal instance]: M = [1,1], r = [0.3, 0.3]. v({i}) = F(0.3) = 1.0e-5; v(N) = F(0.6) + F(0) = 0.8808 (buyer receives all 0.6). Price interval [ (F(0.3) - F(0))/0.3 , (F(0.6) - F(0.3))/0.3 ] = [0.00003, 2.9360]; allocation y_seller = 0.3 p, y_buyer = 0.8808 - 0.3 p.\n\nSufficient supply, Theorem 5 / Corollary 3 [computed]: r = [0.2, 0.9, 1.0], R(N) = 2.1 >= 3*0.629 = 1.887. f* = 0.7 each, F(0.7) = 0.99850, v(N) = 2.9955, price F'(0.7) = 45 F (1 - F) = 0.06745. y = [0.9648, 1.0120, 1.0187]. Checks: v({1}) = 0, v({2}) = v({3}) = 1.0000, v({1,2}) = 1.0000 <= 1.9768, v({1,3}) = 1.7616 (0.6 each) <= 1.9835, v({2,3}) = 2.0000 <= 2.0307: in the core.\n\nFigure 2 functions [paper p. 1730; values computed]: F_1(f) = exp(0.75 - 0.25/f), F_2(f) = 0.6 exp(1.25 - 0.6/f). For a exp(b - c/f), F' = F c/f^2 and D = F/f, so tilde f = c: tilde f_1 = 0.25, tilde f_2 = 0.6; D_{F_1}(0.25) = F_1'(0.25) = 4 e^-0.25 = 3.1152 > D_{F_2}(0.6) = F_2'(0.6) = e^0.25 = 1.2840, so k = 2; tilde f_1^(2) = 0.5 because F_1'(0.5) = e^0.25. With M = [1,1]: severe shortage if 0 < R <= 0.25 (Theorem 3(a)); sufficient supply if R >= 0.5 + 0.6 = 1.1 (Theorem 3(b), k = 2).",
+  "insights": [
+   "S-shaped returns create a sweet spot (the dose-optimal fraction tilde f_i); cooperation can raise total return enormously (Example 1: from about 0 to 0.8808) by concentrating doses, yet the same shape makes stable division fragile.",
+   "For three or more players the core can be empty (Example 2), unlike classical market games with concave utilities; for two players it is never empty and coincides with the market allocations (Theorem 2).",
+   "Cooperation is plausible at the two extremes: severe shortage (all doses to one player, price = average additional return A(N), Theorem 4) and sufficient supply (equalized marginal returns, price = common derivative <= A(N), Theorem 5); moderate shortage is where emptiness and the lack of an analytical price appear.",
+   "A non-empty core does not guarantee a single market price (Example 3): a seller sitting at its sweet spot can demand a high per-dose price that the buyer will only pay on a few doses.",
+   "The price signal differs by regime: in shortage a buyer gets a higher return per dose from bought doses than from its own (increasing average returns), so it pays A(N); in abundance bought doses may be worth less than A(N), so the price falls below A(N).",
+   "Sufficient supply is not only 'many doses': because tilde f_i decreases in vaccination time and increases in the reproduction ratio, late vaccination or mild diseases also fall into it, and supply-demand mismatches can still make cooperation useful.",
+   "Non-emptiness of the core is robust to fixed and player-specific cooperation costs bounded by the cooperation gains (Theorem 1).",
+   "If vaccination is late enough, return functions lose their convex part (tilde f_i = 0), the game becomes a market game and the core is non-empty.",
+   "In the H1N1 case study the empirical threshold for a non-empty core is approximately R(N) > sum tilde f_i M_i (3.6*10^7 doses at tau = 0, 0 for tau >= 40), and pro rata allocation is often close to optimal when doses are plentiful, so gains are smaller there.",
+   "Selfish players make cooperation more likely but less beneficial (online appendix results summarized on p. 1721).",
+   "Methodologically, the paper carries the construction of core allocations from dual prices (Owen 1975, Deng et al. 1999, linear problems) over to a non-linear problem with S-shaped returns; under sufficient supply the optimum sits in the concave region, so the marginal return works as a supporting price."
+  ],
+  "limitations_future_work": "Stated by the authors (Sections 3.4 and 7, pp. 1726-1727, 1735): doses must be exchangeable and returns convertible into money (a seller is compensated with money assumed usable for treatment or transmission-reduction campaigns); players are independent (no cross-regional transmission), justified only for distant regions, and including interaction would make return functions and the value function (which then needs assumptions on the actions of players outside the coalition) harder; cooperation costs that depend on the number of doses shipped are not covered by Theorem 1 and may affect the core; the core may not exist, so restricted games, least core, multiplicative epsilon-core, Shapley value, nucleolus or tau-value are suggested alternatives; for moderate shortages it is hard to predict core non-emptiness, and there need not be an analytical market price even when a market allocation is in the core (p. 1734). Computational limits: Problem (1) is NP-hard and must be solved for exponentially many coalitions, so a heuristic or complete enumeration (small instances) is used (p. 1723). Case study simplifications: single vaccination moment (unlike Teytelman and Larson 2013), pro rata initial stocks, same benefit factor across regions. Points unclear in the text: p. 1729 says numerical analyses are in Appendix S2 and proofs in S3, contradicting p. 1729/1730 (proofs of Theorem 2 and Corollary 2 in S2), p. 1727 (numerical experiments in S3) and the Supporting Information list (S2 Proofs, S3 Numerical analyses); p. 1731 cites Theorem 3(a) for an inequality in the sufficient-supply case (likely 3(b)); p. 1733 uses an undefined symbol V (presumably R(N)) and prints the R(N) grid as {0, 0.5*10^7, 1*10^6, ..., 3*10^8}; Appendix S5 is cited but the Supporting Information list ends at S3; in Example 3 the y3 bound is written with f3* M1 (harmless since all M = 1); proofs, the SIR return characterization and the appendix numerics are not in this PDF.",
+  "connections": "Builds on the first author's vaccine allocation work: Duijzer et al. (2016) (most efficient critical vaccination coverage; listed as 'Duijzer, E.' in the references, presumably the same author), Duijzer et al. (2018a) (vaccine supply chain literature review, EJOR) and especially Duijzer et al. (2018b, POM 27(1)) (dose-optimal vaccine allocation over multiple populations), which supplies the D_F function, the dose-optimal fraction tilde f_i, the S-shaped return framing, its monotonicity in reproduction ratio and timing, and the heuristic used to solve Problem (1). Schlicher's resource pooling line is cited as related resource pooling games in a railway setting (repair vans, tamping machines, spare parts): Schlicher, Slikker and van Houtum (2017a) maximal covering location games (Oper. Res. Lett.), (2017b) probabilistic resource pooling games (Nav. Res. Logist.), (2018) pooling of critical, low-utilization resources with unavailability (OR Spectrum). No earlier paper by Musegaas is cited. Cooperative game theory roots: core (Gillies 1959), OR games survey (Borm et al. 2001), market games (Shapley and Shubik 1969), whose concave-utility setting with an always non-empty core the paper modifies to convex-concave utilities, Debreu and Scarf (1963) on non-concave utilities, linear production games and LP-duality core construction (Owen 1975, Deng et al. 1999) extended here to non-linear problems. Resource pooling literature: inventory reallocation among retailers (Anupindi et al. 2001, Granot and Sosic 2003, Sosic 2006, Yan and Zhao 2015), emergency vehicles in health care (Karsten et al. 2015), technicians in the service industry (Anily and Haviv 2010), production capacity (Anily and Haviv 2017, Ozen et al. 2011), spare parts (Karsten et al. 2012, Karsten and Basten 2014, Guajardo and Ronnqvist 2015). S-shaped knapsack literature: Ginsberg (1974), Agrali and Geunes (2009, NP-hardness), Srivastava and Bullo (2014), Abedi (2017). Vaccination games with a central planner or contracts: Sun et al. (2009), Wang et al. (2009), Mamani et al. (2013); vaccine market coordination via contracts or subsidies: Chick et al. (2008, 2017), Arifoglu et al. (2012), Adida et al. (2013), Dai et al. (2016). Case study data from Teytelman and Larson (2013). The authors claim to be first to analyze resource pooling games with S-shaped return functions (p. 1721) and first to focus on a resource pooling game with an application in vaccination (p. 1723).",
+  "prerequisites": [
+   "TU cooperative games: coalitions, characteristic (value) function, grand coalition",
+   "The core: efficiency, coalitional stability, individual rationality; showing emptiness by summing stability constraints",
+   "Market games (Shapley and Shubik 1969) and linear production games (Owen 1975): core allocations from dual prices",
+   "Convex and concave functions, inflection point, average vs marginal slope",
+   "Lagrangian duality and KKT conditions for non-linear (resource allocation) problems",
+   "Knapsack / resource allocation problems with S-shaped (sigmoid) returns and their NP-hardness",
+   "Basic epidemiology: SIR compartmental model, reproduction ratio, herd (secondary) effect of vaccination",
+   "Basic notions of resource pooling games in operations (inventory, spare parts, capacity pooling)"
+  ],
+  "glossary": [
+   {
+    "term": "TU game (N, v)",
+    "definition": "Cooperative game with transferable utility: a player set N and a value function v assigning to each coalition S the return it can secure on its own; here v(S) is the optimal value of Problem (1)."
+   },
+   {
+    "term": "Resource pooling game",
+    "definition": "OR game in which resources are reallocated or shared among players (here vaccine doses) to realize additional return."
+   },
+   {
+    "term": "Market game",
+    "definition": "Game (Shapley and Shubik 1969) where players own resources and have concave utilities; its core is always non-empty and contains a market allocation. The vaccination game is a modified market game with S-shaped utilities."
+   },
+   {
+    "term": "Core",
+    "definition": "Set of allocations x with sum_{i in N} x_i = v(N) (efficiency) and sum_{i in S} x_i >= v(S) for all S (stability). Cooperation is called plausible when it is non-empty."
+   },
+   {
+    "term": "Individual rationality",
+    "definition": "x_i >= v({i}) for every player; weaker than core stability."
+   },
+   {
+    "term": "S-shaped / nicely convex-concave return function",
+    "definition": "F_i satisfying Assumption 1: continuously differentiable, non-negative, non-decreasing, strictly convex on [0, c_i), strictly concave on (c_i, infinity), derivative tending to 0."
+   },
+   {
+    "term": "Primary and secondary effect",
+    "definition": "Vaccination protects the vaccinee (primary) and also unvaccinated people through reduced transmission (secondary); together they give increasing returns with few doses."
+   },
+   {
+    "term": "Problem (1)",
+    "definition": "Knapsack problem with S-shaped returns: maximize sum M_i F_i(f_i) subject to sum f_i M_i <= sum r_i, f_i >= 0; NP-hard."
+   },
+   {
+    "term": "Market allocation",
+    "definition": "Allocation y_i = M_i F_i(f_i*) + p (r_i - f_i* M_i) with one market price p for all players buying or selling doses."
+   },
+   {
+    "term": "D_{F_i}(f)",
+    "definition": "Additional return per dose relative to having no doses, (F_i(f) - F_i(0))/f, the average slope of F_i on [0, f]."
+   },
+   {
+    "term": "Dose-optimal vaccination fraction tilde f_i",
+    "definition": "Unique maximizer of D_{F_i}, where F_i'(tilde f_i) = D_{F_i}(tilde f_i); the sweet spot. Increases with the reproduction ratio and decreases with the moment of vaccination."
+   },
+   {
+    "term": "tilde f_i^{(k)}",
+    "definition": "For F_i'(tilde f_i) >= F_k'(tilde f_k): the fraction >= tilde f_i at which F_i' equals F_k'(tilde f_k) (Definition 1)."
+   },
+   {
+    "term": "R(S)",
+    "definition": "Total doses held by coalition S, sum_{i in S} r_i."
+   },
+   {
+    "term": "A(N)",
+    "definition": "Average additional return per dose of the grand coalition, (v(N) - sum M_i F_i(0))/R(N); a rule-of-thumb price."
+   },
+   {
+    "term": "Severe shortage",
+    "definition": "Case (a) of Theorem 3: 0 < R(S) <= min_i tilde f_i M_i; all doses go to one player."
+   },
+   {
+    "term": "Sufficient supply",
+    "definition": "Case (b) of Theorem 3: R(S) >= sum tilde f_i^{(k)} M_i with k the player of smallest D_{F_i}(tilde f_i); everyone gets at least tilde f_i and marginal returns are equal."
+   },
+   {
+    "term": "Cooperation costs",
+    "definition": "Indirect (organizational, political, ethical) and direct (transport) costs, modeled as v^K(S) = v(S) - K or v(S) - sum_{i in S} K_i for |S| >= 2."
+   },
+   {
+    "term": "Altruistic vs selfish players",
+    "definition": "Altruistic players are willing to share all their doses; selfish players only share doses if they have more than enough for their own population (online Appendix S3)."
+   },
+   {
+    "term": "SIR model",
+    "definition": "Compartmental epidemic model (Susceptible, Infected, Recovered) used to derive the return function as the fraction escaping infection."
+   },
+   {
+    "term": "Restricted game, least core, multiplicative epsilon-core",
+    "definition": "Relaxations of the core mentioned for empty-core situations: drop some coalitions' stability constraints, or relax them by a fixed constant or factor."
+   }
+  ],
+  "study_questions": [
+   "Write Problem (1) for a coalition S and explain why giving all doses to one player can be optimal when doses are scarce.",
+   "Why can the core be empty in Example 2 but not in any two-player game? Reproduce the bound x_i <= v(N) - v(N\\{i}) = 0.0067.",
+   "In Example 3, derive the two bounds on a market price from the individual rationality of players 1 and 3, and explain economically why player 3 demands a high price per dose.",
+   "Define D_{F_i} and tilde f_i. Why does F_i'(tilde f_i) = D_{F_i}(tilde f_i) characterize the maximizer, and how do disease severity and vaccination timing shift tilde f_i?",
+   "State the severe-shortage and sufficient-supply conditions of Theorem 3. Why does case (b) use tilde f_i^{(k)} with k the player of smallest maximal average return?",
+   "Show that under Theorem 4 the market allocation gives every player M_i F_i(0) + p r_i, and use this to verify the core inequalities.",
+   "Why is the Theorem 5 market price below A(N) while the Theorem 4 price equals A(N)? Relate this to increasing vs decreasing average returns.",
+   "How does Lagrangian duality give core allocations for linear production games, and what extra condition is needed when F_i is not concave?",
+   "Prove both parts of Theorem 1 by constructing a core allocation of the cost-adjusted game from a core allocation of (N, v).",
+   "In the case study, why does sum_i tilde f_i M_i fall from 3.6*10^7 at tau = 0 to 0 for tau >= 40, and why does that make the game a market game?",
+   "What would change in the model if regions interacted epidemiologically, and why would v(S) then require assumptions about players outside S?",
+   "Which solution concepts do the authors suggest when the core is empty, and what does each relax?"
+  ]
+ },
+ "verification": {
+  "changes": [
+   "Bibliography/authors: the PDF marks Westerink-Duijzer with * but prints no footnote saying 'corresponding author' (p. 1720); reworded to 'marked *, not explained, conventionally the corresponding author'. Added the ORCID note and the location of the license footnote (p. 1720) and Supporting Information list (p. 1737).",
+   "Model: cooperation costs Section 3.4 spans pp. 1726-1727, not only p. 1727; market-allocation definition (p_i = p_j) is on p. 1728, so Section 4.1 cited as pp. 1727-1728; severe shortage condition written with the strict lower bound 0 < R(S) as in Theorem 3(a) (p. 1730), also in the glossary.",
+   "Results: added Example 1 (pp. 1725-1726) as a result entry, since it is the paper's illustration of core allocations and the base of the worked example.",
+   "Example 2 meaning rewritten: the old text said total doses are 'too few to reach the sweet spot'; in fact the grand coalition's 1 dose overshoots one player's sweet spot and the extra third is nearly wasted (v(N) = 1.0000 vs pairs 0.9933), matching the paper's 'loss in effectiveness' explanation (p. 1726).",
+   "Example 3 proof idea: added that the printed bounds 1.6083 / 3.1274 and p3 = 4.8381 come from the rounded inputs 0.5833 and 0.7773; unrounded values give 1.6082 / 3.1295 and p3 = 4.8405 (same conclusion).",
+   "Theorem 1 proof idea: the paper does not locate this proof beyond 'all proofs are in the appendix' (p. 1722); kept the reconstruction, added the degenerate case v(N) = sum v({i}), and checked it numerically on Example 3.",
+   "Theorem 3 proof idea: removed the claim that the proof 'builds on Ginsberg (1974) and Duijzer et al. (2018b)', which the paper never says; Ginsberg is only cited (p. 1723) for analytic solutions. Added a correct reconstruction of part (a) and noted the S2/S3 inconsistency about where the proofs are (p. 1729 vs Supporting Information list).",
+   "Theorem 5 proof idea: says 'duality for convex non-linear optimization problems' as printed (p. 1731) instead of asserting the appendix location of the proof; reconstruction now states the f_i* >= tilde f_i condition it relies on.",
+   "Corollary 2 reconstruction: made explicit that tilde f_i lies in the concave part and that the target level must be positive for the derivative to reach it.",
+   "Connections: Anily and Haviv (2017) is cited for pooling of production capacity together with Ozen et al. (2011), and Anily and Haviv (2010) for technicians (p. 1723), not 'technicians and line balancing (2010, 2017)'. Duijzer et al. (2016) is listed as 'Duijzer, E.', so identity with the first author is now marked 'presumably'. Market games: the paper modifies the Shapley-Shubik setting to S-shaped utilities (non-emptiness only under conditions), not 'extends their non-emptiness result'. Vaccine production literature described as coordination via contracts or subsidies (p. 1722).",
+   "Numerical study: Figure 4 (p. 1734) markers are spaced 0.5*10^7 apart, so the printed grid entry '1*10^6' (p. 1733) is presumably a typo for 1*10^7. Figure 4 readings made precise: highest empty-core point about 0.45*10^8 (tau = 0, 5), about 0.3-0.4*10^8 for tau = 10-30, only 0.05*10^8 at tau = 35, none for tau >= 40, R(N) = 0 shown as non-empty. Table 1 total 298,106,893 verified by summing.",
+   "Motivation: cited the specific applications sources (Zschocke et al. 2013, Abedi 2017, Dreyfuss and Giat 2017, p. 1721) and page range pp. 1720-1721 for the compensation argument.",
+   "Insights: rephrased the methodology insight to what the paper states (LP-duality approach of Owen 1975 and Deng et al. 1999 extended to non-linear problems, p. 1731) instead of 'conditions that make the Lagrangian bound tight'; rephrased the price-signal insight to match pp. 1731-1732 ('may be' below A(N)).",
+   "Limitations: added that p. 1727 also places numerical experiments in Appendix S3, which contradicts p. 1729; added p. 1734 for the 'no analytical market price' remark.",
+   "Worked example: all numbers confirmed; added Example 2 LP check (pair constraints force sum x >= 1.49 > 1) and the A(N) = 1.4680 identity for Example 1."
+  ],
+  "example_recomputed": true,
+  "example_check": "Script /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2020-vaccination/check_example.py (run with python3 -I) solves Problem (1) for every coalition with F(f) = 1/(1+exp(-45f+25)), M = 1, by grid enumeration (step 1e-4 for pairs, 2e-3 coarse plus 1e-4 refinement for triples) and checks core membership. Results: sweet spot tilde f = 0.6290 with D_max = F'(tilde f) = 1.5335. Example 1 values 0 / 0.0009 / 0.8808 reproduced; Theorem 4 price D(0.6) = 1.4680 = A(N) gives the market allocation [0.2936, 0.2936, 0.2936], equal to the paper's equal split and in the core. Example 2 values 0 / 0.9933 / 1.0000 reproduced, bound 0.0067, and an LP gives min sum x under the stability constraints = 1.49 > 1, so the core is empty; R(N) = 1 lies between 0.629 and 1.887. Example 3 value table reproduced exactly (0, 1.0000, 0.9859, 1.0000, 0.9998, 2.0000, 2.3319), the grand-coalition optimum is proportional (0.5833 each), and x = [0.1319, 1.1, 1.1] satisfies all stability constraints. With rounded inputs the bounds are 1.6083 / 3.1274 and the prices [1.3354, 0.7744, 4.8381], as printed; unrounded gives 1.6082 / 3.1295 and [1.3353, 0.7745, 4.8405]. Two-player instance: v(i) = 1.01e-5, v(N) = 0.8808 at (0, 0.6), price interval [0.00003, 2.9360], and both endpoints are individually rational. Sufficient-supply instance r = [0.2, 0.9, 1.0]: optimum 0.7 each, v(N) = 2.9955, price 0.06745, y = [0.9648, 1.0120, 1.0187], pair values 1.0000 / 1.7616 / 2.0000 below y(S) = 1.9768 / 1.9835 / 2.0307: in the core. Figure 2 functions: tilde f1 = 0.25, tilde f2 = 0.6, F1'(0.25) = 3.1152, F2'(0.6) = 1.2840, tilde f1^(2) = 0.5000, so thresholds 0.25 and 1.1. Table 1 sums to 298,106,893. The Theorem 1(a) construction checked on Example 3 for K = 0.1 and K = v(N) - sum v({i}) = 0.3460. No inconsistencies with the model were found, so only clarifications were added to the worked example."
+ }
+}

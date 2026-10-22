@@ -1,0 +1,303 @@
+{
+ "notes": {
+  "slug": "2021-production-protection",
+  "bibliography": {
+   "title": "Stackelberg production-protection games: Defending crop production against intentional attacks",
+   "authors": [
+    "Marieke Musegaas",
+    "Loe Schlicher",
+    "Herman Blok"
+   ],
+   "affiliations_as_printed": "a Department of Data Science and Knowledge Engineering, Maastricht University, P.O. Box 616, Maastricht 6200 MD, the Netherlands (Musegaas); b School of Industrial Engineering, Eindhoven University of Technology, P.O. Box 513, Eindhoven 5600 MB, the Netherlands (Schlicher, corresponding author); c Department of Mathematics, Vrije Universiteit Amsterdam, De Boelelaan 1081a, Amsterdam 1081 HV, the Netherlands (Blok)",
+   "journal": "European Journal of Operational Research (section: Production, Manufacturing, Transportation and Logistics)",
+   "volume_issue_pages_or_article": "Vol. 297 (2022), pp. 102-119 (no issue number printed on the article; the citing papers in this collection give it as 297(1))",
+   "year": "2022",
+   "received": "18 July 2020",
+   "accepted": "8 April 2021",
+   "available_online": "18 April 2021",
+   "doi": "10.1016/j.ejor.2021.04.012",
+   "open_access_or_license": "Open access article under the CC BY license (http://creativecommons.org/licenses/by/4.0/); (c) 2021 The Author(s). Published by Elsevier B.V.",
+   "keywords": [
+    "OR in defense",
+    "Stackelberg game",
+    "production",
+    "protection",
+    "resource allocation"
+   ]
+  },
+  "chronology_date": "2021-04-18",
+  "one_line": "A government (leader) spreads production resources over regions with different yields and different attack hardness, and an attacker (follower) then destroys as much output as possible. The follower attacks greedily by output lost per attack resource. The leader's optimum is a 'seried-balanced' allocation over the highest-yield regions, found by a linear-time algorithm. Extra protection resources should all go to the highest-yield region.",
+  "question": "How should a government optimally spread its production of a single product (e.g., wheat) over regions with different production rates, taking into account a strategic opponent (e.g., a terrorist group burning crops) who observes the allocation and then allocates a limited destructive budget to destroy as much production as possible (p. 102)? In an extension, the leader can also allocate extra protection resources (e.g., extra firefighter teams or security forces) that raise the amount of destructive resources needed to destroy a region (p. 103). For both Stackelberg games the authors want the follower's and the leader's optimal strategies (abstract p. 102; p. 103). Section 2 then narrows the focus to an optimal strategy for the leader, starting from the follower's best reply (p. 104).",
+  "motivation_application": "Inspired by intentional fires on cereal fields in Iraq (p. 102). Cereal production (wheat and barley) is Iraq's principal agricultural activity, accounting for 70% to 85% of the cultivated area. In 2019 and 2020 more than half a million dunams (about 1250 km2) of wheat and barley fields caught fire. A study by the Iraqi Center for Policy Analysis and Research puts the cost at about 540 million dollars (Aboulenein, 2020). The majority of fires is believed to be organized by terrorist groups (Nuri, 2020). At several burned fields, local police found electricity cables cut from utility poles, cell phone devices and sometimes remnants of devices suspected of being small improvised explosives. Precautions taken: in Ninawa province (the country's epicentre of wheat production) about 45 vehicles of mobile firefighting teams were deployed to cover as much planted area as possible, and farmers were urged to report suspicious movements or activities to the security forces. The paper adds a further idea. Part of the production is in rural, poorly accessible regions, which are attractive targets, so it could be shifted to better protected regions (close to other protected regions, or more urbanized). Those regions may however be less productive (soil fertility, sun hours), so the shift is not obviously good a priori. The abstract frames this as two models: in the first the leader protects production only by spreading production resources over regions; in the second he can also allocate extra protection resources. The leading example came from remarks of Roy Lindelauf (Acknowledgements, p. 111). Other applications suggested (p. 103-104): a retailer distributing products across countries under worst-case supply disruptions (production rates read as profit margins per country), and an NGO distributing humanitarian aid programs in a conflict zone while insurgents try to reduce the resulting support.",
+  "model": "Non-cooperative two-player Stackelberg (leader-follower) game written as a bilevel max-min problem. There are no coalitions and no characteristic function.\n\nStackelberg production game (Section 2, p. 104). Regions $N=\\{1,\\dots,n\\}$. The leader (government) has $R_l\\in\\mathbb{R}_{>0}$ production resources; the follower (opponent) has $R_f\\in\\mathbb{R}_{>0}$ destructive resources. Region $i$ has a production rate $p_i\\in\\mathbb{R}_{>0}$ (production per invested resource) and a destruction quantity $a_i\\in\\mathbb{R}_{>0}$ (destructive resources needed to destroy region $i$ completely; it depends on the fixed level of protection, the geographical location and the size). Regions are indexed so that $p_1\\ge p_2\\ge\\dots\\ge p_n$. Section 2 does not say this explicitly: it only says each region has a 'unique' production rate and a 'unique' destruction quantity, which must mean region-specific, since Table 1 has $a_2=a_4=1$. The ordering is 'recalled' on p. 108 and p. 109, written out in the proof of Lemma 1 (p. 112) and used throughout the proofs; the use of $\\ge$ allows ties.\nLeader strategies: $\\mathscr{X}=\\{x\\in\\mathbb{R}^n_{\\ge 0}: \\sum_{i=1}^n x_i\\le R_l\\}$. Regional production $p_i x_i$.\nFollower strategies (1): $\\mathscr{Y}=\\{y\\in\\mathbb{R}^n_{\\ge 0}: \\sum_{i=1}^n y_i\\le R_f,\\ y_i\\le a_i\\ \\forall i\\in N\\}$ (the follower never allocates more than needed). Regional production reduction $p_i x_i \\frac{y_i}{a_i}$.\nNon-triviality assumption: $R_f<\\sum_{i\\in N}a_i$.\nTotal production after destruction (2): $\\mathscr{P}(x,y)=\\sum_{i\\in N}p_i x_i-\\sum_{i\\in N}p_i x_i\\frac{y_i}{a_i}$. Worst case: $\\mathscr{P}(x)=\\min_{y\\in\\mathscr{Y}}\\mathscr{P}(x,y)$. The leader solves $\\max_{x\\in\\mathscr{X}}\\mathscr{P}(x)=\\max_{x\\in\\mathscr{X}}\\min_{y\\in\\mathscr{Y}}\\mathscr{P}(x,y)$.\nFollower structure (p. 105). The destruction ratio of region $i$ is $\\frac{p_i x_i}{a_i}$. $\\Omega^x=\\{\\omega\\in\\Omega:\\frac{p_{\\omega(i)}x_{\\omega(i)}}{a_{\\omega(i)}}\\ge\\frac{p_{\\omega(j)}x_{\\omega(j)}}{a_{\\omega(j)}}\\ \\forall i<j\\}$, with $\\Omega$ the set of all permutations of N. Next, $q^\\omega=\\min\\{j\\in N:\\sum_{i=1}^j a_{\\omega(i)}\\ge R_f\\}$, described as 'the last region for which there are still destructive resources available'. As printed, the formula returns a position $j$, but the region meant is $\\omega(j)$: in Example 2 the paper gives $q^\\omega=5$, while the minimal position is 3. Then $A^\\omega=\\{i\\in N:\\omega(i)\\le\\omega(q^\\omega)\\}$ is the set of (fully or partly) destroyed regions, i.e., the regions in the first $j$ positions of $\\omega$. Equation (3): $y^\\omega_i=a_i$ if $i\\in A^\\omega\\setminus\\{q^\\omega\\}$; $y^\\omega_i=R_f-\\sum_{j\\in A^\\omega\\setminus\\{q^\\omega\\}}a_j$ if $i=q^\\omega$; and $y^\\omega_i=0$ otherwise. Equation (6), p. 111: $\\mathscr{P}(x)=x_{q^\\omega}p_{q^\\omega}\\left(1-\\frac{y^\\omega_{q^\\omega}}{a_{q^\\omega}}\\right)+\\sum_{i\\in N\\setminus A^\\omega}x_i p_i$.\nLeader structure. Balanced strategy (Def. 1, p. 105): $\\sum_i x_i=R_l$, $x_i>0$ on $S^x$, equal destruction ratios on $S^x$, and $x_i=0$ off $S^x$. Semi-balanced strategy (Def. 2, p. 106): additionally one region $r^x\\notin S^x$ with $x_{r^x}>0$ and a strictly smaller ratio. Composed net production rate (Def. 3, p. 107): $\\overline{p}(S)=\\max\\left\\{\\frac{\\sum_{i\\in S}a_i-R_f}{\\sum_{i\\in S}a_i/p_i},0\\right\\}$ for $S\\ne\\emptyset$, and $\\overline{p}(\\emptyset)=0$. Seried-balanced strategy (Def. 4, p. 108): balanced with $S^x=\\{1,\\dots,s^x\\}$, where $s^x=\\max\\{i: i\\in S^x\\}$.\n\nStackelberg production-protection game (Section 5, p. 109-110). The leader also has $R_p\\in\\mathbb{R}_{>0}$ protection resources. A leader strategy is $(x,z)\\in\\mathscr{X}\\times\\mathscr{Z}$ with $\\mathscr{Z}=\\{z\\in\\mathbb{R}^n_{\\ge0}:\\sum_i z_i\\le R_p\\}$. Protection raises the destruction quantity from $a_i$ to $a_i+z_i$. Follower set: $\\mathscr{Y}_z=\\{y\\in\\mathbb{R}^n_{\\ge 0}:\\sum_i y_i\\le R_f,\\ y_i\\le a_i+z_i\\ \\forall i\\}$. Assumption: $R_f<\\sum_{i\\in N}a_i+R_p$. Equation (5): $\\mathscr{P}((x,z),y)=\\sum_i p_i x_i-\\sum_i p_i x_i\\frac{y_i}{a_i+z_i}$, and $\\mathscr{P}((x,z))=\\min_{y\\in\\mathscr{Y}_z}\\mathscr{P}((x,z),y)$. Footnote 1 (p. 110): balancedness uses $a_i+z_i$ in Def. 1(iii); $\\overline{p}((S,z))=\\max\\left\\{\\frac{\\sum_{i\\in S}(a_i+z_i)-R_f}{\\sum_{i\\in S}(a_i+z_i)/p_i},0\\right\\}$ and $\\overline{p}((\\emptyset,z))=0$; and $\\mathscr{P}((x,z))=\\overline{p}((S^x,z))R_l$ for every balanced $x$. Note (ours) that the budgets $R_l$ and $R_p$ are separate, so there is no trade-off between production and protection resources. Production is linear in resources, the destroyed share of a region is $y_i/(a_i+z_i)$, and information is complete and deterministic.",
+  "results": [
+   {
+    "label": "Theorem 1",
+    "page": "105 (proof p. 111)",
+    "statement": "Let $x\\in\\mathscr{X}$. Then, every strategy $y^\\omega$, with $\\omega\\in\\Omega^x$, is optimal for the follower.",
+    "meaning": "The attacker sorts regions by destruction ratio $p_i x_i/a_i$ (production lost per destructive resource). He fully destroys regions in that order and spends the remainder on the next region $q^\\omega$, the only region that may be partly destroyed. Ties give several optimal follower strategies with the same value. Right after the theorem the paper notes that $\\mathscr{P}(x)=\\mathscr{P}(x,y^\\omega)$ for every $\\omega\\in\\Omega^x$ (p. 105). The same structure holds in the protection game with $a_i$ replaced by $a_i+z_i$ (p. 110).",
+    "proof_idea": "Rewrite $\\min_y\\mathscr{P}(x,y)=\\sum_i x_ip_i-\\max_{y\\in\\mathscr{Y}}\\sum_i \\frac{p_ix_i}{a_i}y_i$. For fixed x the ratios are constants, so the follower fills regions in the order $\\omega$, each up to $a_i$, until $R_f$ is spent. That is exactly $y^\\omega$ in (3)."
+   },
+   {
+    "label": "Lemma 1",
+    "page": "106 (proof p. 111-114)",
+    "statement": "There exists an optimal strategy for the leader that is either balanced or semi-balanced.",
+    "meaning": "Every leader strategy is weakly dominated by an associated strategy in which a set of regions has equal destruction ratios (balanced), possibly plus one extra region with a strictly smaller ratio (semi-balanced) (p. 105, p. 106).",
+    "proof_idea": "Take an optimal x that is neither balanced nor semi-balanced, and fix $\\omega\\in\\Omega^x$, $q=q^\\omega$, $A=A^\\omega$. Case 1 ($R_l<\\sum_{i\\in N}\\frac{a_ip_qx_q}{a_qp_i}$): lower all regions of A to the level $p_qx_q/a_q$, then fill $N\\setminus A$ greedily in production-rate order up to that level. With k the last region filled and $B=\\{i\\in N\\setminus A: i<k\\}$, the result is balanced with $S=A\\cup B\\cup\\{k\\}$ (Case 1a, equality) or semi-balanced with $S=A\\cup B$, $r=k$ (Case 1b). Case 2 (otherwise): balance over all of N at level $R_l/\\sum_{i\\in N}a_i/p_i$, eq. (7). Step 3 shows the new strategy is at least as good. It uses (6), the ordering inequalities (8), and an LP argument (10) showing that greedy filling of $N\\setminus A$ maximizes undestroyed production. In Case 2 it also uses an intermediate strategy $\\hat x$, eqs. (17)-(20)."
+   },
+   {
+    "label": "Lemma 2",
+    "page": "107 (proof p. 114)",
+    "statement": "Let x be a balanced strategy. Then $\\mathscr{P}(x)=\\frac{(\\sum_{i\\in S^x}a_i-R_f)R_l}{\\sum_{i\\in S^x}a_i/p_i}$ if $R_f\\le\\sum_{i\\in S^x}a_i$, and $\\mathscr{P}(x)=0$ if $R_f>\\sum_{i\\in S^x}a_i$. Moreover $x_i=\\frac{a_iR_l}{p_i\\sum_{j\\in S^x}a_j/p_j}$ if $i\\in S^x$ and $x_i=0$ if $i\\in N\\setminus S^x$.",
+    "meaning": "A balanced strategy is fully determined by its support. More leader resources raise the worst-case production at the constant rate $\\frac{\\sum_{S^x}a_i-R_f}{\\sum_{S^x}a_i/p_i}$, the composed net production rate (p. 107).",
+    "proof_idea": "Follows from the proof of Lemma 3 with $x_r=0$, using Definition 3. The paper notes this is possible because that proof does not rely on the sign of $x_r$."
+   },
+   {
+    "label": "Definition 3 (composed net production rate)",
+    "page": "107",
+    "statement": "For all $S\\subseteq N$, $S\\ne\\emptyset$: $\\overline{p}(S)=\\max\\left\\{\\frac{\\sum_{i\\in S}a_i-R_f}{\\sum_{i\\in S}a_i/p_i},0\\right\\}$, and $\\overline{p}(\\emptyset)=0$.",
+    "meaning": "Worst-case production after destruction per invested leader resource for a balanced strategy on S. It is zero when the follower can destroy all of S.",
+    "proof_idea": "Definition, motivated by Lemma 2."
+   },
+   {
+    "label": "Corollary 1",
+    "page": "107",
+    "statement": "Let x be a balanced strategy. Then $\\mathscr{P}(x)=\\overline{p}(S^x)R_l$.",
+    "meaning": "Comparing balanced strategies reduces to comparing the composed net production rates of their supports.",
+    "proof_idea": "Immediate from Lemma 2 and Definition 3."
+   },
+   {
+    "label": "Lemma 3",
+    "page": "108 (proof p. 114)",
+    "statement": "Let x be a semi-balanced strategy. Then $\\mathscr{P}(x)=\\overline{p}(S^x)(R_l-x_{r^x})+p_{r^x}x_{r^x}$ if $R_f\\le\\sum_{i\\in S^x}a_i$; $\\mathscr{P}(x)=\\frac{p_{r^x}x_{r^x}}{a_{r^x}}\\left(\\sum_{i\\in S^x\\cup\\{r^x\\}}a_i-R_f\\right)$ if $\\sum_{i\\in S^x}a_i<R_f<\\sum_{i\\in S^x\\cup\\{r^x\\}}a_i$; and $\\mathscr{P}(x)=0$ if $R_f\\ge\\sum_{i\\in S^x\\cup\\{r^x\\}}a_i$. Moreover $x_i=\\frac{a_i(R_l-x_{r^x})}{p_i\\sum_{j\\in S^x}a_j/p_j}$ if $i\\in S^x$ and $x_i=0$ if $i\\in N\\setminus(S^x\\cup r^x)$.",
+    "meaning": "If the follower cannot get past the balanced set, the extra region $r^x$ is untouched and contributes its full production $p_{r^x}x_{r^x}$. Otherwise the follower moves on to $r^x$.",
+    "proof_idea": "Equal ratios plus the budget give the allocation (22). The value follows from (6) in five cases: $R_f<\\sum_S a$, $R_f=\\sum_S a$, $\\sum_S a<R_f<\\sum_{S\\cup\\{r\\}}a$, $R_f=\\sum_{S\\cup\\{r\\}}a$ and $R_f>\\sum_{S\\cup\\{r\\}}a$. (In Case 1 the printed text says 'we use $R_l<\\sum_{i\\in S}a_i$ (the assumption for Case 1)', where $R_f$ is meant.)"
+   },
+   {
+    "label": "Lemma 4",
+    "page": "108 (proof p. 114-115)",
+    "statement": "There exists an optimal strategy for the leader that is balanced.",
+    "meaning": "Semi-balanced strategies are never needed: a semi-balanced x is dominated by the balanced strategy on $S^x$ or by the balanced strategy on $S^x\\cup\\{r^x\\}$ (p. 108).",
+    "proof_idea": "For an optimal semi-balanced x, compare it with the balanced strategies x' ($S^{x'}=S$) and x'' ($S^{x''}=S\\cup\\{r\\}$) via Corollary 1 and Lemma 3, in four cases. (1) $R_f\\ge\\sum_{S\\cup\\{r\\}}a_i$: both values are 0. (2) $\\sum_S a_i<R_f<\\sum_{S\\cup\\{r\\}}a_i$: $\\mathscr{P}(x'')>\\mathscr{P}(x)$. (3) $R_f\\le\\sum_S a_i$ and $p_r\\le\\overline{p}(S)$: $\\mathscr{P}(x')\\ge\\mathscr{P}(x)$. (4) $R_f\\le\\sum_S a_i$ and $p_r>\\overline{p}(S)$: $\\mathscr{P}(x'')>\\mathscr{P}(x)$, by algebra using (23)."
+   },
+   {
+    "label": "Lemma 5",
+    "page": "108 (proof p. 115-116)",
+    "statement": "Let x and x' be two balanced strategies such that $S^x\\cap S^{x'}=\\emptyset$, and let x'' be the balanced strategy with $S^{x''}=S^x\\cup S^{x'}$. 1. If $p_i\\ge\\overline{p}(S^x)$ for all $i\\in S^{x'}$, then $\\overline{p}(S^{x''})\\ge\\overline{p}(S^x)$. 2. If $p_i\\le\\overline{p}(S^x)$ for all $i\\in S^{x'}$, then $\\overline{p}(S^{x''})\\le\\overline{p}(S^x)$. 3. If $p_i\\ge\\overline{p}(S^{x''})$ for all $i\\in S^{x'}$, then $\\overline{p}(S^{x''})\\ge\\overline{p}(S^x)$. 4. If $p_i\\le\\overline{p}(S^{x''})$ for all $i\\in S^{x'}$, then $\\overline{p}(S^{x''})\\le\\overline{p}(S^x)$. (The items are numbered 1-4 in the statement but cited as (i)-(iv) in the text.)",
+    "meaning": "Adding regions whose own production rates are at least the current composed net production rate helps; adding regions with lower rates hurts. This is the add/remove test behind Lemma 6 and Algorithm 1.",
+    "proof_idea": "Write $S=S^x$, $T=S^{x'}$. Case 1, $\\sum_S a_j<\\sum_{S\\cup T}a_j\\le R_f$: both rates are 0, so all four statements hold. Case 2, $\\sum_S a_j\\le R_f<\\sum_{S\\cup T}a_j$: $\\overline{p}(S)=0<\\overline{p}(S\\cup T)$, so (i) and (iii) are immediate. The hypothesis of (ii) is impossible because production rates are strictly positive; the hypothesis of (iv) is shown to be impossible via (24), with $k\\in\\arg\\max_{i\\in T}p_i$. Case 3, $R_f<\\sum_S a_j$: (i) follows by writing $\\overline{p}(S\\cup T)-\\overline{p}(S)$ over a common denominator and using (25), and (ii) similarly. (iii) and (iv) are reduced to (i) and (ii) by showing that the smallest (largest) rate $p_k$ in T is at least (at most) $\\overline{p}(S)$."
+   },
+   {
+    "label": "Lemma 6",
+    "page": "108 (proof p. 116)",
+    "statement": "There exists an optimal strategy for the leader that is seried-balanced.",
+    "meaning": "Only the n balanced strategies on $\\{1\\},\\{1,2\\},\\dots,\\{1,\\dots,n\\}$ need to be compared (Example 10).",
+    "proof_idea": "Start from an optimal balanced, non-seried x with support S and $s=\\max S$. First add all $i\\in\\{1,\\dots,s\\}\\setminus S$ with $p_i\\ge\\overline{p}(S)$: by Lemma 5(i) this gives (26). If the result is still not seried, remove all regions with $p_i<\\overline{p}(S)$, which by (26) and Lemma 5(iv) gives (27). Then show the result is $\\{1,\\dots,t\\}$: region 1 is in it since $p_1\\ge\\overline{p}(S)$, and any $i<t$ has $p_i\\ge p_t\\ge\\overline{p}(S)$, eq. (28)."
+   },
+   {
+    "label": "Algorithm 1",
+    "page": "109",
+    "statement": "Input: $(N,\\{a_i\\}_{i\\in N},\\{p_i\\}_{i\\in N},R_l,R_f)$. Output: an optimal strategy $x^*$. Set $S:=\\{1\\}$ and $i:=2$. While $p_i>\\max\\left\\{\\frac{\\sum_{i\\in S}a_i-R_f}{\\sum_{i\\in S}a_i/p_i},0\\right\\}$ and $i\\le n$: $S:=S\\cup\\{i\\}$, $i:=i+1$. Then, for $j=1$ to $i-1$, set $x^*_j:=\\frac{a_iR_l}{p_i\\sum_{j\\in S}a_j/p_j}$, as printed: read $a_j$ and $p_j$ in the numerator and the front factor. For $j=i$ to $n$, set $x^*_j:=0$. (The summation index i in the while test clashes with the loop counter i.)",
+    "meaning": "Grow the set of top-yield regions while the next region's production rate beats the current composed net production rate, then balance the resources on that set.",
+    "proof_idea": "See Theorem 2."
+   },
+   {
+    "label": "Theorem 2",
+    "page": "109 (proof p. 116-117)",
+    "statement": "Algorithm 1 is a linear time algorithm for finding an optimal strategy for the leader.",
+    "meaning": "The leader's bilevel problem is solved by a simple greedy scan. The optimal value is $\\mathscr{P}(x^*)=\\overline{p}(\\{1,\\dots,i^*\\})R_l$.",
+    "proof_idea": "Linearity is read off the pseudocode. Let $i^*=\\max\\{j\\in N: p_j>\\overline{p}(\\{1,\\dots,j-1\\})\\}$. The paper notes that $i^*=i-1$ (with i the end value of the loop counter) and that $i^*$ exists since $p_1>0=\\overline{p}(\\emptyset)$. Lemma 5(i) gives $\\overline{p}(\\{1..i^*\\})\\ge\\dots\\ge\\overline{p}(\\{1\\})$, eq. (29). The ordering of rates and Lemma 5(ii) give $\\overline{p}(\\{1..i^*\\})\\ge\\overline{p}(\\{1..j\\})$ for $j>i^*$, eq. (30). With Corollary 1 the output is the best seried-balanced strategy (31), which is optimal by Lemma 6; the allocation comes from Lemma 2. The equality $i^*=i-1$, i.e., that the first failure of the while test is followed by no later pass, is asserted but not argued. Our check: when $\\overline{p}(S)>0$, $\\overline{p}(S\\cup\\{j\\})$ is the mediant of $\\overline{p}(S)$ and $p_j$, so once $p_j\\le\\overline{p}(S)$ every later region fails too; when $\\overline{p}(S)=0$ the test always passes. We also confirmed it on 400 random instances."
+   },
+   {
+    "label": "Algorithm 2",
+    "page": "110",
+    "statement": "Input: $(N,\\{a_i\\},\\{p_i\\},R_l,R_f,R_p)$. Output: an optimal strategy $(x^*,z^*)$. Set $z^*_1=R_p$ and $z^*_i:=0$ for $i=2,\\dots,n$. Then $x^*:=$ Algorithm 1 applied to $(N,\\{a_i+z^*_i\\},\\{p_i\\},R_l,R_f)$.",
+    "meaning": "Preprocess by putting all protection on the highest-yield region, then solve the production game with the adjusted destruction quantities.",
+    "proof_idea": "See Lemmas 7-9, Theorem 3 and Corollary 2."
+   },
+   {
+    "label": "Lemma 7",
+    "page": "110 (proof p. 117)",
+    "statement": "There exists an optimal strategy for the leader that uses all protection resources.",
+    "meaning": "Extra protection never hurts the leader.",
+    "proof_idea": "Give the unused $\\varepsilon=R_p-\\sum_i z_i>0$ to region 1. Eq. (32) prints $z'_i=0$ for $i\\ne1$; $z'_i=z_i$ is meant, as Step 2 and (33) require. For the follower's best reply y' to the new strategy, the rescaled $\\hat y_i=y'_i\\frac{a_i+z_i}{a_i+z'_i}$ (34) is feasible against the old strategy and causes the same damage, so the new value is at least the old one."
+   },
+   {
+    "label": "Lemma 8",
+    "page": "110 (proof p. 117)",
+    "statement": "There exists an optimal strategy for the leader such that the production is seried-balanced and all protection resources are used.",
+    "meaning": "For any fixed protection plan that uses all of $R_p$, the Section 4 theory applies with destruction quantities $a+z$.",
+    "proof_idea": "Restrict to $\\mathscr{Z}'=\\{z\\in\\mathscr{Z}:\\sum_i z_i=R_p\\}$ (Lemma 7). Then $\\sum_i(a_i+z_i)>R_f$, so Lemma 6 applies for each such z."
+   },
+   {
+    "label": "Lemma 9",
+    "page": "110 (proof p. 117-118)",
+    "statement": "There exists an optimal strategy for the leader such that the production is seried-balanced and all protection resources are assigned to these seried regions.",
+    "meaning": "Protecting regions with no production is pointless (p. 110).",
+    "proof_idea": "Move all protection $\\varepsilon$ from $N\\setminus S^x$ to $S^x$ in proportion to $p_ix_i$ (35). This keeps the production balanced with respect to $a+z'$ (37). A rescaled follower reply (38) shows the value does not decrease."
+   },
+   {
+    "label": "Theorem 3",
+    "page": "110 (proof p. 118-119)",
+    "statement": "There exists an optimal strategy for the leader such that the production is seried-balanced and assigns all protection resources to the first region.",
+    "meaning": "All protection goes to region 1 (the highest production rate). The optimal production plan is then the best seried-balanced strategy for destruction quantities $(a_1+R_p,a_2,\\dots,a_n)$.",
+    "proof_idea": "Start from Lemma 9's strategy. Set $z'=R_pe_1$ (39), and let x' be seried-balanced with respect to $a+z'$ on the same seried set. Case 1 ($\\sum_{S^x}a_i+R_p\\le R_f$): the old value is 0. Case 2: the numerator $\\sum_{S^x}(a_i+z_i)-R_f$ is the same for any allocation of all protection inside the seried set. The denominator $\\sum_{S^x}(a_i+z_i)/p_i$ is minimized by putting all protection on the region with the smallest $1/p_i$, which is region 1; see (40)-(42). (The main text on p. 110 says 'minimize the numerator' twice where the denominator is meant.)"
+   },
+   {
+    "label": "Corollary 2",
+    "page": "111",
+    "statement": "Algorithm 2 is a linear time algorithm for finding an optimal strategy for the leader.",
+    "meaning": "The production-protection game is solved as easily as the production game.",
+    "proof_idea": "The paper omits the proof as it 'directly follows from the previous explanation' (Theorem 3 plus Theorem 2 applied to the adjusted game)."
+   }
+  ],
+  "methods_and_tools": [
+   "Stackelberg leader-follower game with perfect observation of the leader's move",
+   "Bilevel max-min optimization (military-oriented Stackelberg game; the 'interdiction-type' label is ours)",
+   "Greedy best response of the follower by sorting destruction ratios. The inner problem is a continuous knapsack-type LP; the knapsack label is ours, the paper describes the greedy rule",
+   "Dominance and exchange arguments: constructing an alternative strategy at least as good (Lemmas 1, 4, 6, 7, 9, Theorem 3)",
+   "Balancing to make the attacker indifferent among used regions (balanced strategies), a property the paper says is common in military-oriented games, e.g. Powell (2009)",
+   "Ratio and mediant-type inequalities for the composed net production rate (Lemma 5)",
+   "A small LP and greedy-optimality argument inside the proof of Lemma 1 (LP (10))",
+   "Rescaling the follower's reply, $\\hat y_i=y'_i(a_i+z_i)/(a_i+z'_i)$, to compare protection plans (Lemmas 7 and 9)",
+   "Linear-time greedy algorithms with correctness proofs (Algorithms 1 and 2)",
+   "One running numerical example (Examples 1-13) with exact fractions"
+  ],
+  "allocation_rules": "This is not a cooperative game, so there is no cost or benefit sharing rule. The 'allocations' are resource allocation strategies.\nFollower rule (eq. (3), Theorem 1, p. 105): order regions by destruction ratio $p_ix_i/a_i$ (non-increasing), allocate $a_i$ to each region in that order, and give the remainder to $q^\\omega$. This is optimal for every $\\omega\\in\\Omega^x$.\nLeader balanced rule (Def. 1, Lemma 2, p. 105-107): on support S, $x_i=\\frac{a_iR_l}{p_i\\sum_{j\\in S}a_j/p_j}$. All destruction ratios then equal $R_l/\\sum_{j\\in S}a_j/p_j$, and the value is $\\overline{p}(S)R_l$ (Corollary 1). A consequence visible in the formula (our reading): $x_i\\propto a_i/p_i$, so regional production $p_ix_i$ is proportional to $a_i$, and among regions of equal hardness a higher-yield region receives fewer resources.\nSemi-balanced rule (Def. 2, Lemma 3): balanced on S plus one region $r^x$ with a strictly lower ratio. It is never needed for optimality (Lemma 4).\nSeried-balanced rule (Def. 4): balanced with support $\\{1,\\dots,s\\}$ (the top production rates). There are n candidates (Example 10), and one of them is optimal (Lemma 6).\nAlgorithm 1 (p. 109): add regions 2, 3, ... while $p_i>\\overline{p}(\\{1,\\dots,i-1\\})$, stop at the first failure, and balance on the resulting set. Properties: optimal and linear time (Theorem 2). The add test is justified by Lemma 5(i)/(ii).\nAlgorithm 2 (p. 110): $z^*=(R_p,0,\\dots,0)$, then Algorithm 1 with $a_1$ replaced by $a_1+R_p$. Supporting properties: some optimal strategy uses all protection (Lemma 7), puts protection only on seried regions (Lemma 9) and puts all of it on region 1 (Theorem 3). Algorithm 2 is optimal and linear time (Corollary 2).",
+  "numerical_study": "There is no computational study and no real data. Everything is illustrated on one running five-region example (Example 1, Table 1, p. 104): $p=(12,8,5,2,1)$, $a=(9/10,1,1/4,1,3/4)$, $R_l=5$, $R_f=1\\tfrac34$.\n- Example 1 / Table 2 (p. 104): x = (0, 7/10, 3/10, 0, 4) and y = (0, 7/8, 1/8, 0, 3/4). Regional productions (0, 5 6/10, 1 1/2, 0, 4); reductions (0, 4 9/10, 3/4, 0, 4); $\\mathscr{P}(x,y)=1\\tfrac{9}{20}$.\n- Example 2 / Table 3 (p. 105): ratios (0, 5 6/10, 6, 0, 5 1/3). $\\Omega^x=\\{(3,2,5,1,4),(3,2,5,4,1)\\}$, $q^\\omega=5$, $A^\\omega=\\{2,3,5\\}$, $y^\\omega=(0,1,1/4,0,1/2)$, $\\mathscr{P}(x)=1\\tfrac13$, so the y of Example 1 was not optimal.\n- Example 3 / Table 4 (p. 106): x' = (3/8, 5/8, 1/4, 0, 3 3/4) is balanced with ratio 5 and $S^{x'}=\\{1,2,3,5\\}$; x'' = (0, 25/37, 10/37, 0, 4 2/37) is balanced with ratio 5 15/37 and $S^{x''}=\\{2,3,5\\}$.\n- Example 4 / Table 5 (p. 106): $\\hat x=(1/15,2/3,4/15,0,4)$ is semi-balanced, with ratios (8/9, 5 1/3, 5 1/3, 0, 5 1/3), $S=\\{2,3,5\\}$ and $r=1$.\n- Example 5 (p. 106; Fig. 1 on p. 107): lowering regions 2 and 3 to ratio 5 1/3 (allocations 2/3 and 4/15) frees 1/15, which goes to region 1 (ratio 8/9); $\\mathscr{P}(\\hat x)=1\\tfrac13+12\\cdot\\tfrac1{15}=2\\tfrac{2}{15}$.\n- Example 6 (p. 106; Fig. 2 on p. 107): schematic continuation if $R_l>5$. Fill region 1 up to ratio 5 1/3, then region 4, then all regions equally; (a) and (c) are balanced, (b) is semi-balanced. The bar heights are not given numerically.\n- Example 7 (p. 107): $\\mathscr{P}(x')=\\overline{p}(\\{1,2,3,5\\})R_l=1\\tfrac{3}{20}\\cdot5=5\\tfrac34$ and $\\mathscr{P}(x'')=\\tfrac{10}{37}\\cdot5=1\\tfrac{13}{37}$.\n- Example 8 (p. 108): Lemma 3 gives $\\mathscr{P}(\\hat x)=\\tfrac{10}{37}(5-\\tfrac1{15})+12\\cdot\\tfrac1{15}=2\\tfrac{2}{15}$.\n- Example 9 (p. 108): $p_1=12>10/37=\\overline{p}(\\{2,3,5\\})$, eq. (4), so moving resources to region 1 gives x', which dominates $\\hat x$.\n- Example 10 (p. 108): the five seried-balanced strategies, with supports {1}, {1,2}, {1,2,3}, {1,2,3,4}, {1,...,5}.\n- Example 11 (p. 108-109): $p_4=2>1\\tfrac{3}{20}=\\overline{p}(\\{1,2,3,5\\})$, so by Lemma 5(i) adding region 4 helps. Then $p_5=1<1\\tfrac{13}{30}=\\overline{p}(\\{1,...,5\\})$, so by Lemma 5(iv) $\\{1,2,3,4\\}$ dominates.\n- Example 12 (p. 109), Algorithm 1 iterations: $p_2=8>0$; $p_3=5>3/4$; $p_4=2>1\\tfrac35$; $p_5=1\\not>1\\tfrac{13}{15}$. These numbers are $\\overline{p}(\\{1,\\dots,i-1\\})$, as the algorithm requires. The printed max-expressions have upper summation limit $i$ (2, 3, 4, 5) instead of $i-1$, a typo: with limit $i$ the values would be 3/4, 1 3/5, 1 13/15, 1 13/30. Output: $x^*=(1/2,5/6,1/3,3\\tfrac13,0)$ and $\\mathscr{P}(x^*)=1\\tfrac{13}{15}\\cdot5=9\\tfrac13$.\n- Example 13 (p. 111): $R_p=1\\tfrac15$, $z^*=(1\\tfrac15,0,0,0,0)$, $a+z^*=(2\\tfrac1{10},1,1/4,1,3/4)$. Then $x^*=(2\\tfrac12,1\\tfrac{11}{14},5/7,0,0)$ and $\\mathscr{P}((x^*,z^*))=22\\tfrac67$; the gain from protection is $22\\tfrac67-9\\tfrac13=13\\tfrac{11}{21}$.\nWe recomputed all of these numbers with exact fractions, and they match.",
+  "worked_example": "The paper's running example (Table 1, p. 104; Examples 2, 12 and 13 on p. 105, 109 and 111). Regions 1..5 have $p=(12,8,5,2,1)$ and $a=(0.9,1,0.25,1,0.75)$, with $R_l=5$ and $R_f=1.75$.\nFollower response (Example 2, p. 105): for x = (0, 0.7, 0.3, 0, 4) the destruction ratios $p_ix_i/a_i$ are (0, 5.6, 6, 0, 5.333). The attack order is 3, 2, 5, and y = (0, 1, 0.25, 0, 0.5). Total production is 11.1, the follower destroys 5.6 + 1.5 + 2.667 = 9.767, and $\\mathscr{P}(x)=4/3$.\nAlgorithm 1 (Example 12): $\\overline{p}(\\{1\\})=\\max\\{(0.9-1.75)/0.075,0\\}=0$; $\\overline{p}(\\{1,2\\})=(1.9-1.75)/0.2=0.75$; $\\overline{p}(\\{1,2,3\\})=(2.15-1.75)/0.25=1.6$; $\\overline{p}(\\{1,2,3,4\\})=(3.15-1.75)/0.75=28/15\\approx1.867$. The test $p_5=1>28/15$ fails, so the scan stops with $S=\\{1,2,3,4\\}$. The allocation $x_i=a_iR_l/(p_i\\cdot0.75)$ gives $x^*=(0.5,0.8333,0.3333,3.3333,0)$ and $\\mathscr{P}=28/15\\cdot5=28/3\\approx9.333$.\nOur own consistency checks with the same data (not printed in the paper):\n- The five seried-balanced values $\\overline{p}(\\{1..k\\})R_l$ are 0, 3.75, 8, 9.333 and 7.167 ($\\overline{p}(\\{1..5\\})=43/30$, as in Example 11). Each equals the greedy-follower value of that balanced strategy.\n- In $x^*$ all destruction ratios equal $\\lambda=R_l/\\sum_S a_i/p_i=20/3$. Regional productions are $\\lambda a_i=(6,6.667,1.667,6.667,0)$, total 21, of which the follower destroys $\\lambda R_f=11.667$.\n- Putting all 5 resources on region 1 gives production 60, but $a_1=0.9<R_f$, so $\\mathscr{P}=0$.\n- The max-min LP obtained by dualizing the follower LP gives 9.333 and the same $x^*$.\nProtection (Example 13): $R_p=1.2$ goes entirely on region 1, so $a_1+z_1=2.1$. Running Algorithm 1 (the intermediate rates are our computation): $\\overline{p}=2$ for {1}, 4.5 for {1,2} and 32/7 = 4.571 for {1,2,3}; $p_4=2\\le32/7$ stops the scan. This gives $x^*=(2.5,25/14,5/7,0,0)$ and $\\mathscr{P}=32/7\\cdot5=160/7\\approx22.857$; the gain is $160/7-28/3=284/21\\approx13.524$. A grid search over all protection plans (steps of $R_p/12$ on the simplex, each solved by Algorithm 1 with $a+z$) finds the best value 160/7 at $z=(1.2,0,0,0,0)$, consistent with Theorem 3.\nWidget recipe:\n1. Sort regions by $p$.\n2. Keep $A=\\sum_{S}a_i-R_f$ and $B=\\sum_S a_i/p_i$.\n3. Add the next region while $p_i>\\max(A/B,0)$.\n4. Output $x_i=a_iR_l/(p_iB)$ and the value $\\max(A/B,0)R_l$.\n5. For protection, add $R_p$ to $a_1$ first.\nSlider ideas: $R_l$ (scales the value linearly and does not change S), $R_f$ and $R_p$.",
+  "insights": [
+   "The attacker's best reply is purely greedy: hit regions in order of production destroyed per destructive resource, $p_ix_i/a_i$. Only one region is partly destroyed (Theorem 1). The same structure holds with protection, with $a_i+z_i$ in place of $a_i$ (p. 110).",
+   "The leader hedges by making the attacker indifferent: on the regions used, all destruction ratios are equal (balanced). The paper relates this to Powell (2009), where the defender balances protection to make the attacker indifferent (p. 103).",
+   "Candidate supports are ordered by production rate alone: some optimal support is a prefix $\\{1,\\dots,s\\}$ of the regions sorted by yield (seriedness, Lemma 6). Where the prefix stops depends on $a_i$ and $R_f$ through $\\overline{p}$: a region is worth adding exactly when its own rate beats the current composed net production rate (Lemma 5, Algorithm 1).",
+   "In a balanced strategy $x_i\\propto a_i/p_i$, so regional production $p_ix_i$ is proportional to the hardness $a_i$, not to the yield. Resources are therefore not concentrated on high-yield regions: in Example 12, region 1 (rate 12) gets 1/2 while region 4 (rate 2) gets 3 1/3. Concentrating everything on the best region can be worthless: in our computation, all 5 units on region 1 give 0, since $a_1<R_f$.",
+   "The guaranteed production is linear in the leader's budget, $\\mathscr{P}(x^*)=\\overline{p}(S^*)R_l$ (Corollary 1, p. 107). The stopping test in Algorithm 1 does not involve $R_l$, so the optimal set of regions does not depend on $R_l$ (our observation from the algorithm).",
+   "All protection should go to the highest-yield region (Theorem 3). With all protection inside the seried set, the numerator of $\\overline{p}((S,z))$ is fixed, and the denominator $\\sum(a_i+z_i)/p_i$ is smallest when the protection sits where $1/p_i$ is smallest. Even then the leader keeps spreading production (Example 13, p. 111: production goes to regions 1, 2 and 3). Comparing Examples 12 and 13 (our comparison), protection shrinks the set of used regions (region 4 drops out) and shifts production toward region 1 (from 1/2 to 2 1/2).",
+   "In the example, 1 1/5 protection units raise the guaranteed production from 9 1/3 to 22 6/7, a gain of 13 11/21 (Example 13). Our comment: this is large relative to the 5 production units.",
+   "Our remark (not in the paper): the production game can also be written as one LP by dualizing the follower's LP: maximize $\\sum p_ix_i-R_fu-\\sum a_iv_i$ s.t. $u+v_i\\ge p_ix_i/a_i$, $\\sum x_i\\le R_l$, $x,u,v\\ge0$. On the running example it gives 9 1/3 with the same $x^*$, and it agreed with Algorithm 1 on 400 random instances. The paper's contribution is the closed-form structure and the linear-time rule. With protection, the term $p_ix_iy_i/(a_i+z_i)$ is not linear, so Theorem 3 is what makes that game easy.",
+   "Linearity of production in resources matters: the authors note that the proof of Lemma 6 uses it, and that restricting to seried-balanced strategies is unlikely to remain valid under (dis)economies of scale (p. 111)."
+  ],
+  "limitations_future_work": "Stated by the authors (Section 6, p. 111):\n(1) The model implicitly assumes ample production capacity per region, so all resources may go to one region. With a maximum production capacity per region, balanced strategies are not always feasible, and it is unclear whether each production strategy is still dominated by a balanced one.\n(2) The difficulty of destroying a region is assumed independent of the amount produced there. Including such a dependency is a direction for future research; Fischetti, Ljubic, Monaci and Sinnl (2019) indicate that it might make a Stackelberg game computationally hard.\n(3) Production is linear in resources, a plausible first step (Hirshleifer, 1995). With (dis)economies of scale, the linearity used in the proof of Lemma 6 fails, so restricting attention to seried-balanced strategies is unlikely to remain valid.\nFurther observations of ours (not claimed by the paper):\n- The model has a single product, a single attacker, deterministic and fully known data, and damage linear in $y_i/(a_i+z_i)$.\n- The budgets $R_l$ and $R_p$ are separate, so there is no trade-off between producing and protecting, unlike the production-versus-protection split in Levitin and Hausken (2009).\n- There is no numerical study with real Iraqi data.\n- The 'linear time' claim presumes that regions are already sorted by $p_i$ and that the while test uses running sums. Sorting would add $O(n\\log n)$, and recomputing the sums naively would be quadratic; the paper discusses neither.\n- Existence of an optimal leader strategy is used implicitly, since the proofs start from 'an optimal strategy'. It holds because $\\mathscr{P}(x)$ is continuous (indeed concave) on a compact set, but the paper does not argue it.\nUnclear points and typos in the text, all checked against the PDF:\n- p. 105: every $\\omega\\in\\Omega^x$ is said to 'correspond to an optimal strategy for the leader'; the follower is meant.\n- p. 105: $q^\\omega=\\min\\{j:\\sum_{i=1}^j a_{\\omega(i)}\\ge R_f\\}$ is a position, while the text and Example 2 treat it as a region ($\\omega(j)$). $A^\\omega$ inherits this mix-up.\n- The ordering $p_1\\ge\\dots\\ge p_n$ is 'recalled' on p. 108 but not stated in Section 2.\n- p. 106 and 108: Example 4 writes $r^{\\hat x}=1$, while Examples 6, 8 and 9 write $r^{\\hat x}=\\{1\\}$.\n- p. 108: the Lemma 5 items are numbered 1-4 but cited as (i)-(iv).\n- p. 109, Algorithm 1: the allocation line prints $a_i$ and $p_i$ where $a_j$ and $p_j$ are meant, and the sum index i clashes with the loop counter; the while test also reads $p_{n+1}$ before checking $i\\le n$.\n- p. 109, Example 12: the printed max-expressions sum up to $i$ instead of $i-1$.\n- p. 110: 'minimize the numerator' (twice) where the denominator is meant.\n- p. 112, proof of Lemma 1, Case 1a(ii): 'contradicts $R_l\\in\\mathbb{R}_{<0}$' where $\\mathbb{R}_{>0}$ is meant.\n- p. 114, proof of Lemma 3, Case 1: '$R_l<\\sum_{i\\in S}a_i$ (the assumption for Case 1)' where $R_f$ is meant.\n- p. 114, proof of Lemma 4: 'the theorem holds immediately' (lemma).\n- p. 116, proof of Lemma 6: 'the production rate production rate' (duplicated).\n- p. 116-117, proof of Theorem 2: $i^*=i-1$ is stated without justification.\n- p. 117, eq. (32): prints $z'_i=0$ 'otherwise' where $z'_i=z_i$ is meant.\n- p. 119: the last equality in (42) cites 'the assumption for Case 1' inside Case 2.",
+  "connections": "The paper places itself among military-oriented Stackelberg games, which are typically written as bilevel optimization problems (Dempe, 2002). Example applications: routing a military supply convoy through hostile territory (Israeli & Wood, 2002), protecting a border against smuggling (Morton, Pan & Saeger, 2007) and delaying an opponent's nuclear weapons project (Gutin, Kuhn & Wiesemann, 2014).\nTwo literature streams (p. 103):\n- Computational methods for the bilevel problems: Cappanera & Scaparra 2011; Gutin et al. 2014; Israeli & Wood 2002; Jiang & Liu 2018; Liberatore, Scaparra & Daskin 2011; Scaparra & Church 2008a, 2008b; Starita & Scaparra 2016; Washburn & Wood 1995.\n- Analytical characterisation of optimal strategies: Bier, Oliveros & Samuelson 2007; Hausken & Zhuang 2011; Powell 2009; Shan & Zhuang 2013; Zhuang & Bier 2011.\nThe paper contributes to the second stream.\nClosest work: Powell (2009). There the attacker attacks the regions with the highest net value and the defender balances protection to make the attacker indifferent. The paper stresses two differences: in Powell location values are fixed, while here they result from the leader's production decision; and in Powell the defender fully controls defense, while here protection also depends on regional characteristics.\nLevitin and Hausken (2009) study a power company dividing resources between new generating units and their protection. That is similar in spirit, but its setting (a homogeneous parallel system) and objective (forced and planned losses due to unmet demand) differ, so its results do not apply.\nReliability-theory defense models: Levitin & Hausken 2009, 2010; Hausken & Levitin 2009.\nThe Hausken and Levitin (2012) review classifies systems by structure (eight categories), defense measures (six) and attack tactics and circumstances (seven). In that taxonomy the paper is 'multiple elements'; 'separation of system elements' and 'protection'; 'attack against multiple elements'. Papers that partially overlap ('multiple elements', 'protection', 'attack against multiple elements') use game theory (Bier & Haphuriwat 2011; Haphuriwat, Bier & Willis 2011), risk analysis (Cox 2008; Guikema & Aven 2010; Patterson & Apostolakis 2007; Rosoff & Von Winterfeldt 2007) and regression models (Brandt & Sandler 2010).\nThe paper cites none of its authors' own earlier papers. Per the author contribution statement (p. 111), Schlicher initiated the project, Blok and Schlicher developed the model and results, and Musegaas joined later for the writing.\nWithin this study collection, three later papers cite it as Musegaas, Schlicher & Blok (2022), EJOR 297(1), 102-119 (verified in their reference lists): 'Fighting terrorism: How to position rapid response teams', 'Scheduling Bodyguards' and 'Fighting pickpocketing using a choice-based resource allocation model'. 'Time-dependent Stackelberg protection location games' (also co-authored by Schlicher) does not cite it. Musegaas and Schlicher are also co-authors of the cooperative-game papers on vaccination core allocations and on streaming platforms, and Schlicher is on every other paper in the collection. This paper itself is purely non-cooperative.",
+  "prerequisites": [
+   "Stackelberg (leader-follower) games and the idea of commitment",
+   "Bilevel and max-min optimization; worst-case reasoning",
+   "Linear programming basics, LP duality, and the greedy solution of the continuous (fractional) knapsack problem",
+   "Manipulating ratios, mediants and weighted averages (comparisons like those in Lemma 5)",
+   "Permutations and sorting; basic algorithm complexity (linear time)",
+   "Dominance arguments: constructing a weakly better strategy",
+   "Familiarity with defender-attacker resource allocation models (e.g., Powell 2009, Colonel Blotto style games) helps"
+  ],
+  "glossary": [
+   {
+    "term": "Leader / follower",
+    "definition": "The leader is the government, which allocates production (and protection) resources first. The follower is the opponent, who observes this and allocates destructive resources to minimize production."
+   },
+   {
+    "term": "Production rate $p_i$",
+    "definition": "Production per invested leader resource in region i. Regions are indexed with $p_1\\ge\\dots\\ge p_n$."
+   },
+   {
+    "term": "Destruction quantity $a_i$",
+    "definition": "Destructive resources needed to completely destroy region i's production. With protection it becomes $a_i+z_i$."
+   },
+   {
+    "term": "Regional production / regional production reduction",
+    "definition": "$p_ix_i$ and $p_ix_iy_i/a_i$ (or $p_ix_iy_i/(a_i+z_i)$ with protection)."
+   },
+   {
+    "term": "Total production after destruction $\\mathscr{P}(x,y)$",
+    "definition": "Sum of regional productions minus sum of reductions, eq. (2) or (5)."
+   },
+   {
+    "term": "Worst case total production after destruction $\\mathscr{P}(x)$",
+    "definition": "$\\min_{y\\in\\mathscr{Y}}\\mathscr{P}(x,y)$, which the leader maximizes."
+   },
+   {
+    "term": "Destruction ratio",
+    "definition": "$p_ix_i/a_i$: the region's production reduction per destructive resource. The follower attacks in non-increasing order of it."
+   },
+   {
+    "term": "$\\Omega^x$, $q^\\omega$, $A^\\omega$, $y^\\omega$",
+    "definition": "$\\Omega^x$ is the set of orderings by non-increasing destruction ratio; $q^\\omega$ is the last (possibly partly) destroyed region; $A^\\omega$ is the set of destroyed regions; $y^\\omega$ is the corresponding follower strategy (3)."
+   },
+   {
+    "term": "Balanced strategy",
+    "definition": "All of $R_l$ is allocated, positive exactly on a set $S^x$, with equal destruction ratios on $S^x$ (Definition 1)."
+   },
+   {
+    "term": "Semi-balanced strategy",
+    "definition": "Balanced on $S^x$ plus one extra region $r^x$ with a positive allocation and a strictly smaller destruction ratio (Definition 2)."
+   },
+   {
+    "term": "Composed net production rate $\\overline{p}(S)$",
+    "definition": "$\\max\\{(\\sum_{i\\in S}a_i-R_f)/\\sum_{i\\in S}(a_i/p_i),0\\}$: the worst-case production per leader resource of the balanced strategy on S (Definition 3)."
+   },
+   {
+    "term": "Seried-balanced strategy",
+    "definition": "A balanced strategy whose support is $\\{1,\\dots,s^x\\}$, the regions with the highest production rates (Definition 4). There are n of them."
+   },
+   {
+    "term": "Seried regions",
+    "definition": "The support $\\{1,\\dots,s^x\\}$ of a seried-balanced production strategy (p. 110)."
+   },
+   {
+    "term": "Stackelberg production-protection game",
+    "definition": "The extension in which the leader also allocates $R_p$ protection resources z that raise the destruction quantities to $a_i+z_i$ (Section 5)."
+   },
+   {
+    "term": "$\\overline{p}((S,z))$",
+    "definition": "Composed net production rate with adjusted destruction quantities $a_i+z_i$ (footnote 1, p. 110)."
+   },
+   {
+    "term": "Military-oriented Stackelberg game",
+    "definition": "A leader-follower game with opposed objectives, typically formulated as a bilevel optimization problem (p. 103)."
+   }
+  ],
+  "study_questions": [
+   "Write the follower's problem for fixed x as an LP and explain why the greedy rule (3) solves it. Why is only one region partly destroyed?",
+   "In Example 1, why is y = (0, 7/8, 1/8, 0, 3/4) not optimal? Compute $y^\\omega$ and $\\mathscr{P}(x)=1\\tfrac13$.",
+   "Derive $\\mathscr{P}(x)=\\overline{p}(S^x)R_l$ for a balanced x directly: what is the common destruction ratio, how much is produced, and how much does the follower destroy?",
+   "Why can a semi-balanced strategy always be replaced by the balanced strategy on $S^x$ or on $S^x\\cup\\{r^x\\}$ (Lemma 4)? Which cases give a strict improvement?",
+   "State Lemma 5 in words. How does it justify the while test in Algorithm 1? Why can the scan stop at the first failure (hint: mediant of $\\overline{p}(S)$ and $p_j$)?",
+   "Why does the strategy returned by Algorithm 1 always use region 1, even though in Example 12 region 1 receives fewer resources than every other used region except region 3?",
+   "Does the optimal set of regions depend on $R_l$? On $R_f$? Explain using Algorithm 1.",
+   "Why does all protection go to region 1 (Theorem 3)? Which part of $\\overline{p}((S,z))$ is unaffected by how protection is split inside the seried set?",
+   "In Example 13, why does region 4 drop out and region 1's allocation rise from 1/2 to 2 1/2 once $R_p=1\\tfrac15$ is placed on region 1?",
+   "Which proof steps break with a production capacity per region, or with production nonlinear in resources (Section 6)?",
+   "What role do the assumptions $R_f<\\sum a_i$ and $R_f<\\sum a_i+R_p$ play?",
+   "Compare the model with Powell (2009): what are the two modelling differences the authors stress?",
+   "Is the 'linear time' claim valid if regions are not pre-sorted by production rate? What else must an implementation do to keep the while loop linear?",
+   "Reformulate the production game as a single LP via duality of the follower's problem. Why does this not directly work for the production-protection game?",
+   "Find the typo in eq. (32) of the proof of Lemma 7: why must $z'_i=z_i$ for $i\\ne1$ for (33) and Step 2 to hold?"
+  ]
+ },
+ "verification": {
+  "changes": [
+   "Bibliography, license: the paper prints 'open access article under the CC BY license (http://creativecommons.org/licenses/by/4.0/)' with (c) 2021 The Author(s), published by Elsevier B.V. (p. 102). Restated with that wording.",
+   "Bibliography, issue: no issue number is printed on the article. Added that the three citing papers in the collection give it as 297(1).",
+   "Question, page references: the 'for both games we want the follower's and leader's optimal strategy' statement is in the abstract (p. 102) and on p. 103. On p. 104 the paper narrows the focus to the leader's optimal strategy. Page citations corrected.",
+   "Motivation: made the evidence wording exact, i.e. electricity cables cut from utility poles, cell phone devices, and remnants of devices suspected of being small improvised explosives (p. 102). Added the abstract's framing of the two models.",
+   "Model: Section 2 calls both the production rate and the destruction quantity 'unique' (p. 104). This must mean region-specific, since Table 1 has a_2 = a_4 = 1. The ordering p_1 >= ... >= p_n is recalled on p. 108 and p. 109 and written out on p. 112. Rewritten accordingly.",
+   "Model: as printed on p. 105, q^omega = min{j : sum_{i<=j} a_omega(i) >= R_f} is a position, while the text and Example 2 (q^omega = 5, where the minimal position is 3) treat it as a region. Added this notational slip and the reading of A^omega.",
+   "Theorem 1 (p. 105): the statement is only that every y^omega with omega in Omega^x is optimal. The consequence P(x) = P(x, y^omega) appears in the text after the theorem, so it was moved out of the statement into 'meaning'.",
+   "Algorithm 1 (p. 109): the notes had silently corrected the allocation line. The pseudocode actually prints x*_j := a_i R_l / (p_i sum_{j in S} a_j/p_j), i.e. a_i and p_i where a_j and p_j are meant. Restored the printed version, flagged the slip and the index clash, and noted that p_{n+1} is evaluated before the i <= n check.",
+   "Example 12 (p. 109): the printed max-expressions have upper summation limit i (2, 3, 4, 5), but the printed values 0, 3/4, 1 3/5, 1 13/15 equal pbar({1..i-1}). Noted this as a typo; with limit i the values would be 3/4, 1 3/5, 1 13/15, 1 13/30. The numbers in the notes were already correct.",
+   "Lemma 7 proof (p. 117): eq. (32) prints z'_i = 0 'otherwise'. It must be z_i, or (33) and Step 2 fail. Added to the proof idea and to the typo list.",
+   "Lemma 3 proof, Case 1 (p. 114): the text says 'R_l < sum_{i in S} a_i (the assumption for Case 1)' where R_f is meant. Added.",
+   "Theorem 3 / p. 110 main text: the paper says 'one needs to minimize the numerator. Note that the numerator is minimized ...' where the denominator is meant. The proof itself, (40)-(42), uses the denominator. Added.",
+   "Typo list: Example 4 writes r = 1, while Examples 6, 8 and 9 (not only Example 6) write r = {1}. Also added that the proof of Lemma 4 (p. 114) calls the lemma a 'theorem' and that the proof of Lemma 6 (p. 116) duplicates 'production rate'.",
+   "Lemma 5 proof idea: made precise. In Case 2 the hypothesis of (iv) is shown impossible via (24) with k = argmax p_i; in Case 3, (iii) and (iv) are reduced to (i) and (ii) by bounding the min/max rate in T against pbar(S) (p. 115-116).",
+   "Theorem 2 proof idea: kept the remark that i* = i - 1 is asserted without argument. Added our justification (pbar(S u {j}) is the mediant of pbar(S) and p_j when pbar(S) > 0, so after the first failure all later regions fail too), confirmed on 400 random instances.",
+   "Lemma 1 page and meaning: domination is weak ('equally good or better'). The claim that each strategy is dominated is from the text on p. 105, so it is now cited there.",
+   "Allocation rules and insights: 'high-yield regions receive fewer resources' is not true in general, since x_i is proportional to a_i/p_i. Qualified to 'among regions of equal hardness'. Also rephrased 'which regions to use is decided by production rate only': the ordering is by p, but where the prefix stops depends on a_i and R_f.",
+   "Insights: the claims about region 4 dropping out and region 1 rising from 1/2 to 2 1/2 come from our comparison of Examples 12 and 13, and are now marked as ours. The paper's own point (p. 111) is only that production is still spread over other regions.",
+   "Connections: the Hausken-Levitin overlap papers share 'multiple elements', 'protection' and 'attack against multiple elements', without 'separation' (p. 103), and the review's category counts (8/6/7) were added. Verified the three citing papers in the collection by their reference lists, and noted that 'Time-dependent Stackelberg protection location games' does not cite it. Added the author contribution statement (p. 111).",
+   "Limitations: removed doubled backslashes in the LaTeX (e.g. \\\\log, \\\\mathscr, \\\\mathbb), which would have broken the MathJax rendering. Added that a naive while test is quadratic without running sums, and that P(x) is concave and continuous, so an optimum exists.",
+   "Worked example: all numbers confirmed. Added LP cross-checks (follower LP for Example 2; the max-min LP gives 28/3 and the same x*; with a_1 + R_p it gives 160/7) and a grid search over protection plans, which supports Theorem 3 (best at z = (1.2, 0, 0, 0, 0)).",
+   "Study questions: the region 1 question now refers to the strategy returned by Algorithm 1, since with tied rates other optimal strategies need not use region 1. Added a question on the typo in eq. (32)."
+  ],
+  "example_recomputed": true,
+  "example_check": "Script: /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2021-production-protection/check_examples.py (Python fractions + scipy linprog/HiGHS). It recomputes every printed number of Examples 1-13 exactly, and all of them match the paper: P(x,y) = 29/20; ratios (0, 28/5, 6, 0, 16/3), order 3,2,5, y = (0,1,1/4,0,1/2), P(x) = 4/3; the balanced x' and x'' have ratios 5 and 200/37; x-hat has ratios (8/9, 16/3, 16/3, 0, 16/3) and P = 32/15; pbar({1,2,3,5}) = 23/20 with P = 23/4, and pbar({2,3,5}) = 10/37 with P = 50/37; pbar({1..5}) = 43/30. Algorithm 1 with running sums reproduces the Example 12 trace (0, 3/4, 8/5, then 28/15 stops), x* = (1/2, 5/6, 1/3, 10/3, 0) and value 28/3; the greedy follower confirms the value. Example 13 (a_1 + 6/5 = 21/10) gives intermediate rates 2, 9/2, 32/7, x* = (5/2, 25/14, 5/7, 0, 0), value 160/7 and gain 284/21. Seried values 0, 15/4, 8, 28/3, 43/6. Independent checks: the follower LP gives 1.3333 for the Example 2 x; the max-min LP built by dualizing the follower LP gives 9.3333 with the same x*, and 22.857 with the protected a; a grid search over protection plans (steps of R_p/12 on the 5-simplex, each solved by Algorithm 1) finds the maximum 160/7 at z = (R_p, 0, 0, 0, 0), consistent with Theorem 3. On 400 random instances, Algorithm 1 matched the LP optimum, and the end of the scan always equalled i* = max{j : p_j > pbar(1..j-1)} (0 problems). No inconsistency was found in the worked example."
+ }
+}

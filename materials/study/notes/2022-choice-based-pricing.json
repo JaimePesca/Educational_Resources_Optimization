@@ -1,0 +1,319 @@
+{
+ "notes": {
+  "slug": "2022-choice-based-pricing",
+  "bibliography": {
+   "title": "Stable allocations for choice-based collaborative price setting",
+   "authors": [
+    "Loe Schlicher",
+    "Virginie Lurkin"
+   ],
+   "affiliations_as_printed": "a Eindhoven University of Technology, Department of Industrial Engineering and Innovation Sciences PO Box 513, 5600 MB, Eindhoven, the Netherlands (Loe Schlicher, [e-mail omitted]); b University of Lausanne, HEC Lausanne Faculty of Business and Economics Quartier de Chamberonne CH-1015, Lausanne, Switzerland (Virginie Lurkin, corresponding author, [e-mail omitted])",
+   "journal": "European Journal of Operational Research (section: Interfaces with Other Disciplines)",
+   "volume_issue_pages_or_article": "Volume 302 (2022), pages 1242-1254 (the issue number is not printed on the article)",
+   "year": "2022",
+   "received": "8 September 2021",
+   "accepted": "22 January 2022",
+   "available_online": "31 January 2022",
+   "doi": "10.1016/j.ejor.2022.01.036",
+   "open_access_or_license": "Open access under the CC BY license (creativecommons.org/licenses/by/4.0/), (c) 2022 The Authors, published by Elsevier B.V. Supplementary material (with the proofs of Remarks 1 and 6) is online at the DOI and is not part of the PDF.",
+   "keywords": [
+    "Game theory",
+    "Choice-based pricing",
+    "Cooperative game",
+    "Core",
+    "Allocation rules"
+   ]
+  },
+  "chronology_date": "2022-01-31",
+  "one_line": "Competing micromobility operators whose travelers choose by a multinomial logit model jointly reset prices while keeping their total market share fixed. The joint profit of every coalition has a closed form. Proportional rules and the Shapley value can fall outside the core, while a market share exchange rule priced at phi is always in the core, and a scaled version stays in the core when the fraction delta of profit paid back to society is small enough (delta <= 1 - max_i v({i})/MSE_i).",
+  "question": "How should the transport operators in the cooperative transport choice (TC) game distribute the joint profit to sustain the collaboration (p. 1247: \"The central question is this section is how players of our TC game should distribute the joint profit, in order to sustain the collaboration\")? Concretely: (i) what prices maximize the joint profit of a coalition under a constant market share constraint, and what is that profit (Theorems 1 and 2); (ii) to what extent do intuitive allocation rules (two proportional rules, the Shapley value, the market share exchange rule) produce core allocations (Section 6); (iii) in an extension where coalitions pay back a fraction delta of the joint profit to society, which fraction can be paid back while the market share exchange rule still gives core allocations (Section 7, p. 1249).",
+  "motivation_application": "Micromobility (e-bikes, e-scooters and other shared, small and light emission-free vehicles) helps cities with congestion and pollution, but many startups have profitability problems (Fearnley, 2020), and collaboration is seen as an important factor to unlock its benefits (Moller & Simlett, 2020) (pp. 1242-1243). Under Article 101 TFEU, horizontal agreements between competitors such as price fixing are usually perceived as anti-competitive and heavily fined. Article 101(3) allows exemptions when the pro-consumer benefits outweigh the anti-competitive effects and the agreement does not eliminate competition: participants should have a small market share and their combined share should not exceed a limit (for example 20% in the Netherlands). The motivating precedent is the Webtaxi case in Luxembourg (Bostoen, 2018), where taxi companies were allowed to use a pricing algorithm because of expected pro-consumer benefits (mainly less waiting time and lower prices, as well as more rides for drivers), with a combined share far below the threshold. The authors imagine micromobility startups in Paris, London or Amsterdam setting prices collectively while keeping their combined market share stable, so that it stays under the authorized limit. Some startups then lose market share and others gain it while the joint profit rises, so the losers must be compensated by the winners. That requires an allocation rule. Section 7 adds that for some forms of collaboration it is also necessary to pay back part of the joint profit to society, for example as subsidies for customers switching from traditional modes to e-modes or as campaigns to go green(er). Its result is meant as 'a useful piece of information for governments' that must evaluate an exemption (p. 1249).",
+  "model": "Players: a finite set $N\\subseteq\\mathbb{N}$ of transport operators. Operator $i$ offers one micromobility service at price $p_i\\in\\mathbb{R}_+$ with cost price $c_i\\in\\mathbb{R}_+$ (footnote 1, p. 1246: maintenance, alternative fuel, personnel and depreciation, or the cost of leasing the mobility service from a larger provider).\n\nDemand (Section 3.1 and Section 4): a homogeneous population of travelers with no discrimination. Random utility $U_i=V_i+\\varepsilon_i$ with $\\varepsilon_i$ i.i.d. EV(0,1), which gives the logit model. Deterministic utility $V_i=\\alpha_i-\\beta p_i$, where $\\alpha_i\\in\\mathbb{R}_+$ is an alternative-specific constant and $\\beta\\in\\mathbb{R}_+$ is one price sensitivity common to all services. Choice set $C=N\\cup\\{0\\}$ with the no-purchase option $V_0=0$. Market share (Eq. 1): $\\frac{e^{\\alpha_i-\\beta p_i}}{1+\\sum_{j\\in N}e^{\\alpha_j-\\beta p_j}}$. Profit of operator $i$ (Eq. 2): $(p_i-c_i)\\cdot\\frac{e^{\\alpha_i-\\beta p_i}}{1+\\sum_{j\\in N}e^{\\alpha_j-\\beta p_j}}$.\n\nTC situation: $\\theta=(N,p,c,\\alpha,\\beta)$, where $p$ is the vector of (initial, status quo) prices. $\\Theta$ is the set of all TC situations.\n\nNotation: $D(x)=D^N(x)=\\sum_{i\\in N}e^{\\alpha_i-\\beta x_i}$ and $D^M(x)=\\sum_{i\\in M}e^{\\alpha_i-\\beta x_i}$. The total market share is $D(p)/(D(p)+1)$.\n\nGrand coalition problem (Eq. 4, p. 1246):\n$\\mathcal{P}:=\\max_{x\\in\\mathbb{R}^N}\\sum_{i\\in N}(x_i-c_i)\\frac{e^{\\alpha_i-\\beta x_i}}{1+\\sum_{j\\in N}e^{\\alpha_j-\\beta x_j}}$\ns.t. $\\sum_{i\\in N}\\frac{e^{\\alpha_i-\\beta p_i}}{1+\\sum_{j}e^{\\alpha_j-\\beta p_j}}=\\sum_{i\\in N}\\frac{e^{\\alpha_i-\\beta x_i}}{1+\\sum_j e^{\\alpha_j-\\beta x_j}}$.\nThe constraint keeps the total market share constant. Footnote 3 says this guarantees that the operators cannot start dominating the market, which is one of the governmental rules for an antitrust exception. An optimal solution is called the optimal price vector $p^*$, and the optimal value is the optimal joint profit $\\mathcal{P}^*$.\n\nCooperative TC game (Definition 1, Eq. 5, p. 1247): for every nonempty $M$ (the paper writes $M\\subseteq N\\setminus\\{\\emptyset\\}$),\n$v^\\theta(M)=\\max_{x\\in\\mathbb{R}^M}\\sum_{i\\in M}(x_i-c_i)\\frac{e^{\\alpha_i-\\beta x_i}}{1+\\sum_{j\\in M}e^{\\alpha_j-\\beta x_j}+\\sum_{j\\in N\\setminus M}e^{\\alpha_j-\\beta p_j}}$\ns.t. $\\sum_{i\\in M}\\frac{e^{\\alpha_i-\\beta p_i}}{1+\\sum_{j\\in N}e^{\\alpha_j-\\beta p_j}}=\\sum_{i\\in M}\\frac{e^{\\alpha_i-\\beta x_i}}{1+\\sum_{j\\in M}e^{\\alpha_j-\\beta x_j}+\\sum_{j\\in N\\setminus M}e^{\\alpha_j-\\beta p_j}}$,\nand $v^\\theta(\\emptyset)=0$. Two conditions apply: (i) the sum of the members' market shares stays the same, and (ii) the players outside $M$ keep their initially set prices. Closed form (Theorem 2): $v^\\theta(M)=\\frac{D^M(p)}{\\beta(D^N(p)+1)}\\ln\\frac{D^M(c)}{D^M(p)}$. Singleton values equal the initial profits (observed in Example 3, p. 1247).\n\nTU game preliminaries (Section 3.2, p. 1245): a game is $(N,v)$ with $v(\\emptyset)=0$. The core is $\\mathcal{C}(N,v)=\\{x\\in\\mathbb{R}^N:\\sum_{i\\in M}x_i\\ge v(M)\\ \\forall M\\subseteq N,\\ \\sum_{i\\in N}x_i=v(N)\\}$. The paper also defines monotonic, superadditive and convex games, efficiency, individual rationality, stability, allocation rules and the Shapley value.\n\nExtension (Section 7, p. 1249), the TC-delta game: $v^{\\theta,\\delta}(M)=(1-\\delta)v^\\theta(M)$ if $|M|\\ge2$ and $v^{\\theta,\\delta}(M)=v^\\theta(M)$ if $|M|\\le1$, with $\\delta\\in(0,1)$ the fraction of joint profit paid back to society by every coalition of size at least 2.\n\nAssumptions:\n- Homogeneous travelers and a single $\\beta$.\n- $c_i$ stays constant when shares change (footnote 2: reasonable if market share changes are limited or resources are leased at a fixed price per unit; changes are more limited when the initial prices come from market competition).\n- Deterministic, known parameters.\n- In the optimization, prices are unrestricted reals ($x\\in\\mathbb{R}^N$).\n- Remark 1 argues that $p$ should reasonably be a Nash equilibrium, but the illustrative Examples 1 to 7 use fictitious prices chosen 'to keep calculations simple' (footnote 4 implies they are not an equilibrium; reader's check: the equilibrium of Eq. (3) for the example's c, alpha, beta is about p = (10.862, 6.993, 5.321), not (6, 8, 15)).",
+  "results": [
+   {
+    "label": "Remark 1",
+    "page": "1246",
+    "statement": "If the aim of the transport operators is to maximize their profits, it is reasonable to consider only those $\\theta\\in\\Theta$ for which $p$ is a Nash equilibrium (no operator would unilaterally deviate from $p_i$, for the given $N$, $c$, $\\alpha$ and $\\beta$). For those situations $p$ satisfies Eq. (3): $p_i=\\frac{1+W\\left(\\frac{e^{\\alpha_i-1-\\beta c_i}}{1+\\sum_{j\\in N\\setminus\\{i\\}}e^{\\alpha_j-\\beta p_j}}\\right)}{\\beta}+c_i$ for all $i\\in N$, where $W$ is the Lambert W function.",
+    "meaning": "This is the Bertrand-Nash price under MNL demand with an outside option. Each competitive markup is $(1+W(\\cdot))/\\beta$, which is above $1/\\beta$ because the argument of $W$ is positive. The numerical study uses these equilibrium prices as the initial prices $p$. Eq. (3) is a fixed point, because $p_i$ depends on the other operators' prices.",
+    "proof_idea": "The proof is not in the article. Appendix A refers to the online 'Supplementary material Appendix A'. Reader's hint, not from the paper: the first-order condition of $(p_i-c_i)S_i$ gives $\\beta(p_i-c_i)(1-S_i)=1$. Setting $y=\\beta(p_i-c_i)-1$ gives $ye^y=e^{\\alpha_i-1-\\beta c_i}/(1+\\sum_{j\\ne i}e^{\\alpha_j-\\beta p_j})$, so $y=W(\\cdot)$. (Checked numerically: fixed-point iteration of Eq. (3) on the example data converges and satisfies this first-order condition.)"
+   },
+   {
+    "label": "Theorem 1",
+    "page": "1246",
+    "statement": "For each TC situation $\\theta\\in\\Theta$ an optimal price vector $p^*$ is given by $p_i^*=c_i+\\frac{1}{\\beta}\\ln\\left(\\frac{D(c)}{D(p)}\\right)$ for all $i\\in N$, and the associated optimal joint profit equals $\\mathcal{P}^*=\\frac{D(p)}{\\beta(D(p)+1)}\\ln\\left(\\frac{D(c)}{D(p)}\\right)$.",
+    "meaning": "Under collaboration with a fixed total market share, every operator charges the same markup $\\frac{1}{\\beta}\\ln(D(c)/D(p))$ over its own cost. Reader's derivation: the collaborative market shares are then proportional to $e^{\\alpha_i-\\beta c_i}$, so share moves toward operators with low cost and high $\\alpha_i$ (in the example, operator 3 ends with 85% of the fixed total). The joint profit depends on the data only through $D(c)$, $D(p)$ and $\\beta$.",
+    "proof_idea": "Three steps (pp. 1250-1251). (1) Multiplying out the constraint shows it is equivalent to $\\sum_i e^{\\alpha_i-\\beta p_i}=\\sum_i e^{\\alpha_i-\\beta x_i}$ (A.2), i.e. $D(x)=D(p)$. The MNL denominator is then the constant $1/\\gamma=1+D(p)$, the objective becomes $\\gamma\\sum_i(x_i-c_i)e^{\\alpha_i-\\beta x_i}$ (A.3), and this is turned into the minimization $\\mathcal{P}'$. (2) The Lagrangian $\\mathcal{L}(\\lambda)=\\min_x f(x)+\\lambda h(x)$ separates into $|N|$ one-dimensional problems (A.4). The derivative $(\\beta(x_i-c_i)-1-\\lambda\\beta)e^{\\alpha_i-\\beta x_i}$ (A.5) gives the minimizer $x_i=1/\\beta+c_i+\\lambda$, hence $\\mathcal{L}(\\lambda)=-\\frac1\\beta e^{-1-\\lambda\\beta}D(c)-\\lambda D(p)$. Take $\\lambda^*=\\frac1\\beta(\\ln\\frac{D(c)}{D(p)}-1)$ and $x^*_i=c_i+\\frac1\\beta\\ln\\frac{D(c)}{D(p)}$; then $f(x^*)=\\mathcal{L}(\\lambda^*)=-D(p)\\frac1\\beta\\ln\\frac{D(c)}{D(p)}$ (A.6, A.7), and Theorem 5 (a Lagrangian sufficiency result) shows that $x^*$ is optimal. (3) Multiplying by $-\\gamma$ gives the profit (A.8)."
+   },
+   {
+    "label": "Remark 2",
+    "page": "1246",
+    "statement": "Vector $p^*$ is only player-specific in the cost price. So, if $c_i=0$ for all $i\\in N$, every transport operator will select the same price under collaboration.",
+    "meaning": "The brand constants $\\alpha_i$ affect $p^*$ only through the common markup term (via $D(c)$ and $D(p)$), not player by player.",
+    "proof_idea": "This follows directly from the formula in Theorem 1."
+   },
+   {
+    "label": "Remark 3",
+    "page": "1246",
+    "statement": "The gain of collaboration is always non-negative: $\\mathcal{P}^*-\\sum_{i\\in N}(p_i-c_i)\\cdot\\frac{e^{\\alpha_i-\\beta p_i}}{D(p)+1}\\ge0$.",
+    "meaning": "Collaborating never lowers the joint profit compared with the status quo.",
+    "proof_idea": "The initial price vector $p$ is a feasible solution of $\\mathcal{P}$."
+   },
+   {
+    "label": "Remark 4",
+    "page": "1246-1247",
+    "statement": "If $p_i-c_i=p_j-c_j$ for all $i,j\\in N$, the gain of collaboration equals zero: $\\mathcal{P}^*-\\sum_{i}(p_i-c_i)\\frac{e^{\\alpha_i-\\beta p_i}}{D(p)+1}=\\frac{(p_j-c_j)D(p)}{D(p)+1}-\\frac{(p_j-c_j)D(p)}{D(p)+1}=0$ for all $j\\in N$. Such a situation, with a constant marginal profit per operator and total market share $D(p)/(D(p)+1)$, can be used as a benchmark for situations with the same total market share where operators do gain from collaboration (p. 1247).",
+    "meaning": "Equal margins are already optimal for the fixed total share. The gain comes only from unequal initial margins. This benchmark is the basis of the price $\\phi$ in the MSE rule. The paper states only the 'if' direction.",
+    "proof_idea": "Substitution: with a common margin $k$, $D(c)=e^{\\beta k}D(p)$, so $\\mathcal{P}^*=kD(p)/(D(p)+1)$, which equals the status quo profit."
+   },
+   {
+    "label": "Theorem 2",
+    "page": "1247",
+    "statement": "For every TC situation $\\theta\\in\\Theta$ it holds, for all $M\\subseteq N\\setminus\\{\\emptyset\\}$, that $v^\\theta(M)=\\frac{D^M(p)}{\\beta(D^N(p)+1)}\\ln\\left(\\frac{D^M(c)}{D^M(p)}\\right)$.",
+    "meaning": "This is the closed-form characteristic function. Outsiders keep their prices, so the denominator $D^N(p)+1$ is common to all coalitions. For a singleton the formula reduces to the initial profit $(p_i-c_i)\\frac{e^{\\alpha_i-\\beta p_i}}{D^N(p)+1}$.",
+    "proof_idea": "The coalition constraint (A.9) is cross-multiplied; after subtracting a common term, both sides share the strictly positive factor $1+\\sum_{i\\in N\\setminus M}e^{\\alpha_i-\\beta p_i}$, and dividing by it gives $\\sum_{i\\in M}e^{\\alpha_i-\\beta p_i}=\\sum_{i\\in M}e^{\\alpha_i-\\beta x_i}$ (A.10). The problem then has the same form as (A.3) restricted to $M$, and (A.8) is applied (pp. 1251-1252)."
+   },
+   {
+    "label": "Remark 5",
+    "page": "1247",
+    "statement": "It is not straightforward to recognize the TC game as a market game. In a market game players can freely reallocate resources, so some may end up with none. In the TC game, where market shares could be seen as resources, no player can be assigned zero market share ($D^{\\{i\\}}(p)/(D^N(p)+1)>0$ for all $p\\in\\mathbb{R}^N$ and $i\\in N$). So the game does not fall in the market game framework directly.",
+    "meaning": "Reader's reading: this is why core membership is proved directly rather than through Shapley-Shubik market games. Section 2.3 (p. 1245) adds that the authors 'don't rule out' a translation, which 'may be as difficult as studying the game itself' (Anily & Haviv, 2017).",
+    "proof_idea": "This is an argument, not a formal proof."
+   },
+   {
+    "label": "Remark 6",
+    "page": "1247",
+    "statement": "As a side result, the TC game is superadditive, but not monotonic nor convex.",
+    "meaning": "Reader's interpretation: convexity-based core results (for example, the Shapley value lying in the core) cannot be used, which is consistent with the Shapley value failures. Superadditivity means merging disjoint coalitions never hurts. Reader's check on Example 3, not from the paper: $v(\\{1\\})=-0.440<0=v(\\emptyset)$ and $v(\\{1,2\\})=0.230<0.260=v(\\{2\\})$ (not monotonic); player 2 adds 0.670 to $\\{1\\}$ but only 0.302 to $\\{1,3\\}$ (not convex); all superadditivity inequalities hold for this instance.",
+    "proof_idea": "The proof is in the online supplementary material, not in the PDF."
+   },
+   {
+    "label": "Theorem 3",
+    "page": "1249",
+    "statement": "For each TC situation $\\theta\\in\\Theta$ and associated TC game $(N,v^\\theta)$, it holds that $MSE\\in\\mathcal{C}(N,v^\\theta)$.",
+    "meaning": "The market share exchange rule always gives core allocations. Each operator keeps its collaborative profit, and market share that changes hands is paid for at the single price $\\phi$. A direct consequence (not stated as a separate result) is that the core of every TC game is nonempty. Reader's derivation from (A.13) and Theorem 2: $\\sum_{i\\in M}MSE_i-v^\\theta(M)=\\frac{S_M}{\\beta}(y_M-1-\\ln y_M)\\ge0$, where $S_M=D^M(p)/(D^N(p)+1)$ and $y_M=\\frac{D^M(c)/D^N(c)}{D^M(p)/D^N(p)}$; a coalition is tight exactly when $y_M=1$.",
+    "proof_idea": "Two steps (pp. 1252-1253). (i) Efficiency: summing, the $\\phi$ terms cancel because the total market share remains stable ($D^N(p^*)/(D^N(p^*)+1)=D^N(p)/(D^N(p)+1)$, derived explicitly later as (A.12)), and the remaining sum is $v^\\theta(N)$. (ii) Stability: (A.11) gives $\\phi=\\frac1\\beta\\ln\\frac{D^N(c)}{D^N(p)}-\\frac1\\beta$, (A.12) gives $D^N(p^*)=D^N(p)$, and (A.13) rewrites $MSE_i=\\frac{1}{\\beta(D^N(p)+1)}[\\ln(\\frac{D^N(c)}{D^N(p)})D^{\\{i\\}}(p)+\\frac{D^N(p)}{D^N(c)}D^{\\{i\\}}(c)-D^{\\{i\\}}(p)]$. This is linear in the player data, so $\\sum_{i\\in M}MSE_i$ has the same form with $D^M$. Lemma 1 with $A=D^M(c)D^N(p)/D^N(c)$ and $B=D^M(p)$ then gives $\\sum_{i\\in M}MSE_i\\ge v^\\theta(M)$ (A.15)."
+   },
+   {
+    "label": "Remark 7",
+    "page": "1249",
+    "statement": "Other benchmark situations $\\hat\\theta$ with a constant marginal profit could have been formulated (for example $p_i-c_i=2/\\beta$ for all $i$). However, for such settings the MSE allocations are no longer core guaranteed.",
+    "meaning": "The specific margin $1/\\beta$ in $\\hat\\theta$ matters. It makes $\\phi$ the right exchange price for market share. Reader's check, not from the paper: with benchmark margin $k/\\beta$ the exchange price is $(\\ln\\frac{D(c)}{D(p)}-k)/\\beta$ and the coalition excess becomes $\\frac{S_M}{\\beta}(k(y_M-1)-\\ln y_M)$, which is nonnegative for every $y_M>0$ only when $k=1$. In Example 1 with $k=2$: $\\phi=0.425$ and the rule gives (0.162, 0.204, 1.421), violating player 2's stand-alone value 0.260.",
+    "proof_idea": "No proof or counterexample is given in the article; Appendix A sends only the proofs of Remarks 1 and 6 to the supplementary material."
+   },
+   {
+    "label": "Remark 8",
+    "page": "1249",
+    "statement": "The result of Theorem 3 also applies if players outside a coalition may play against it. In this pessimistic view (cf. Lardon, 2019), the outside players set prices before the coalitional players do. Because of this first-mover advantage, the value of any coalition $M\\subset N$ may drop, while the value of the grand coalition stays the same. So the core of the new game includes the core of the original TC game, and MSE still produces core allocations.",
+    "meaning": "Core membership of MSE does not depend on the assumption that outsiders keep their prices.",
+    "proof_idea": "The paper's argument: the values of proper coalitions weakly decrease and $v(N)$ is unchanged, so the core can only grow."
+   },
+   {
+    "label": "Eq. (6)",
+    "page": "1249",
+    "statement": "There is no reason to collaborate (the core is empty) if $v^{\\theta,\\delta}(N)<\\sum_{i\\in N}v^{\\theta,\\delta}(\\{i\\})$. So the fraction that can be paid back is at most $\\delta\\le1-\\frac{\\sum_{i\\in N}v^\\theta(\\{i\\})}{v^\\theta(N)}=1-\\beta\\frac{\\sum_{i\\in N}(p_i-c_i)D^{\\{i\\}}(N)}{D^N(p^*)\\ln\\frac{D^N(c)}{D^N(p)}}$. The paper then restricts attention to TC-delta games for which (6) holds.",
+    "meaning": "This is only a necessary condition for a nonempty core in the TC-delta game. Notation as printed: $D^{\\{i\\}}(N)$ appears to be a typo for $D^{\\{i\\}}(p)$, and $D^N(p^*)=D^N(p)$ by (A.12). Reader's check on Example 1: (6) allows up to 0.990, but an LP shows the core of the TC-delta game is already empty for $\\delta>0.141$, because $(1-\\delta)(v(N)-v(\\{1,3\\}))\\ge v(\\{2\\})$ fails. So (6) is far from sufficient.",
+    "proof_idea": "Individual rationality plus efficiency require $(1-\\delta)v^\\theta(N)\\ge\\sum_i v^\\theta(\\{i\\})$; then substitute Theorem 2."
+   },
+   {
+    "label": "Theorem 4",
+    "page": "1249",
+    "statement": "If $\\delta\\le1-\\max_{i\\in N}\\frac{v^\\theta(\\{i\\})}{MSE_i}$, then $(1-\\delta)MSE\\in\\mathcal{C}(N,v^\\delta)\\neq\\emptyset$ (the statement writes $v^\\delta$ for the TC-delta game $v^{\\theta,\\delta}$; the proof uses $v^{\\theta,\\delta}$).",
+    "meaning": "If the share paid to society is small enough that every operator, after the cut, still gets at least its stand-alone profit, then scaling MSE by $(1-\\delta)$ sustains the collaboration. This is a sufficient condition for core non-emptiness. The paper does not discuss the sign of $MSE_i$, although the step from the condition to $(1-\\delta)MSE_i\\ge v^\\theta(\\{i\\})$ needs $MSE_i>0$. Reader's check: with Nash-equilibrium initial prices every margin exceeds $1/\\beta$ by (3), so $\\phi>0$ and $MSE_i>0$.",
+    "proof_idea": "Efficiency: $\\sum(1-\\delta)MSE_i=(1-\\delta)v^\\theta(N)=v^{\\theta,\\delta}(N)$. Singletons: the condition gives $(1-\\delta)MSE_i\\ge v^\\theta(\\{i\\})=v^{\\theta,\\delta}(\\{i\\})$. Coalitions with $|M|\\ge2$: multiply the Theorem 3 inequality by $(1-\\delta)$ (p. 1253)."
+   },
+   {
+    "label": "Lemma 1",
+    "page": "1252",
+    "statement": "For all $A,B\\in\\mathbb{R}_{++}$, it holds that $A\\ge B\\left(\\ln\\left(\\frac{A}{B}\\right)+1\\right)$.",
+    "meaning": "This elementary inequality is equivalent to $\\ln y\\le y-1$ with $y=A/B$. It is the only analytic tool needed for the stability part of Theorem 3.",
+    "proof_idea": "Show that $e^y-ye\\ge0$ for all $y$: the function is convex with minimum 0 at $y=1$. Put $y=A/B$, raise to the power $B$, take logs, and use $\\ln(e)=1$."
+   },
+   {
+    "label": "Theorem 5",
+    "page": "1253",
+    "statement": "Let $f:\\mathbb{R}^N\\to\\mathbb{R}$ and $h:\\mathbb{R}^N\\to\\mathbb{R}$. If $x^*\\in\\mathbb{R}^N$ is a feasible solution of the nonlinear programming problem $\\mathcal{G}=\\min f(x)$ s.t. $h(x)=0$, $x\\in\\mathbb{R}^N$, and $f(x^*)=\\mathcal{L}(\\lambda)$ for some $\\lambda\\in\\mathbb{R}$, where $\\mathcal{L}(\\lambda)=\\min_{x\\in\\mathbb{R}^N}\\{f(x)+\\lambda h(x)\\}$, then $x^*$ is an optimal solution of $\\mathcal{G}$.",
+    "meaning": "This is a Lagrangian sufficiency (weak duality) certificate. It lets the authors prove global optimality in a nonconvex pricing problem without concavity arguments.",
+    "proof_idea": "Cited: Bazaraa, Sherali & Shetty (2013), Chapter 6, Corollary 2."
+   }
+  ],
+  "methods_and_tools": [
+   "Multinomial logit (MNL) discrete choice model with a no-purchase option (random utility, i.i.d. EV(0,1) errors)",
+   "Choice-based pricing: nonlinear, nonconvex constrained price optimization",
+   "Constraint reformulation: a constant total MNL market share is equivalent to a constant total exponentiated utility D(x)=D(p)",
+   "Lagrangian dual function with a separable inner minimization and the sufficiency certificate f(x*) = L(lambda*) (Theorem 5, Bazaraa, Sherali & Shetty 2013)",
+   "Closed-form characteristic function of a TU game (Theorem 2)",
+   "Lambert W function for Bertrand-Nash prices under MNL (Remark 1, Eq. 3)",
+   "Cooperative TU games: core, superadditivity, monotonicity, convexity",
+   "Allocation rules: individual-proportional, market share-proportional, Shapley value, a new market share exchange rule",
+   "Benchmark (counterfactual) situation with constant margin 1/beta to price market share (phi)",
+   "Elementary inequality A >= B(ln(A/B)+1) (Lemma 1) to prove core membership",
+   "Simulation experiment: 10,000 random TC situations per player count (3, 4, 5) to estimate how often each rule is in the core",
+   "Scaled game with a payback fraction delta (TC-delta game) and a sufficient condition for core non-emptiness"
+  ],
+  "allocation_rules": "The paper studies four allocation rules for the TC game (Section 6) and one for the TC-delta game (Section 7).\n\n(1) Individual-proportional rule, I-PROP (p. 1248): $\\text{I-PROP}_i=\\frac{v^\\theta(\\{i\\})}{\\sum_{j\\in N}v^\\theta(\\{j\\})}v^\\theta(N)$. It is not always in the core. Table 4 gives the share of random situations in the core: 0.9460, 0.8959, 0.8538 for |N| = 3, 4, 5. In Example 4, $\\text{I-PROP}_1+\\text{I-PROP}_2=-17.242<0.230=v^\\theta(\\{1,2\\})$. Reader's note: when the sum of stand-alone profits is close to 0 (0.019 in the example), the allocations explode, for example -42.101 for player 1 (Table 5).\n\n(2) Market share-proportional rule, M-PROP (p. 1248): $\\text{M-PROP}_i=\\frac{S_i}{\\sum_{j\\in N}S_j}v^\\theta(N)$, with $S_i$ the initial market share. The paper never formally defines the symbol $S_i$, but the numbers in Table 5 match the initial shares of Table 1. It is almost never in the core: Table 4 gives 0.0001, 0.0000, 0.0000. In Example 4, $\\text{M-PROP}_3=0.085<0.199=v^\\theta(\\{3\\})$.\n\n(3) Shapley value (p. 1248): $SV_i=\\sum_{M\\subseteq N\\setminus\\{i\\}}\\frac{|M|!(|N|-1-|M|)!}{|N|!}(v^\\theta(M\\cup\\{i\\})-v^\\theta(M))$. It is not always in the core: Table 6 gives 0.9620, 0.9303, 0.8991. The text says it is 'slightly better than the I-PROP rule (see Table 5)', which apparently means Table 4. In Example 5, SV = (0.407, 0.392, 0.989) is not in the core. Reader's check: $SV_1+SV_3=1.396<1.485=v^\\theta(\\{1,3\\})$.\n\n(4) Market share exchange rule, MSE (pp. 1248-1249): $MSE_i=(p_i^*-c_i)\\frac{D^{\\{i\\}}(p^*)}{D^N(p^*)+1}-\\phi\\left(\\frac{D^{\\{i\\}}(p^*)}{D^N(p^*)+1}-\\frac{D^{\\{i\\}}(p)}{D^N(p)+1}\\right)$.\n- Each player first gets the profit it generates under full collaboration. It then receives $\\phi$ per unit of market share it gives up and pays $\\phi$ per unit it gains.\n- The price is $\\phi=\\frac{v^\\theta(N)-v^{\\hat\\theta}(N)}{D^N(p)/(D^N(p)+1)}$, with $\\hat\\theta=(N,p,(p_i-1/\\beta)_{i\\in N},\\alpha,\\beta)$: costs are reset so that every margin is $1/\\beta$, with the same total market share. By Remark 4 no one gains from collaborating in $\\hat\\theta$, so $\\phi$ is 'the additional return per unit of market share'.\n- Equivalent form (A.11): $\\phi=\\frac1\\beta\\ln\\frac{D^N(c)}{D^N(p)}-\\frac1\\beta$.\n- Properties as stated in the paper:\n  - efficient by construction;\n  - always in the core (Theorem 3; Table 7 shows 1.0000 for 3, 4 and 5 players);\n  - still in the core when outsiders move first in a pessimistic game (Remark 8);\n  - not core-guaranteed if the benchmark uses another constant margin such as $2/\\beta$ (Remark 7).\n- Reader's identities derived from the paper's formulas but not stated there:\n  - $MSE_i=S_i^*/\\beta+\\phi S_i$, where $S_i$ and $S_i^*$ are i's market shares before and after collaboration;\n  - $\\phi$ equals the multiplier $\\lambda^*$ used in the proof of Theorem 1;\n  - coalition excess $\\sum_{i\\in M}MSE_i-v^\\theta(M)=\\frac{S_M}{\\beta}(y_M-1-\\ln y_M)$ with $y_M=\\frac{D^M(c)/D^N(c)}{D^M(p)/D^N(p)}$.\n\n(5) For the TC-delta game (p. 1249): $(1-\\delta)MSE$ is in $\\mathcal{C}(N,v^{\\theta,\\delta})$ when $\\delta\\le1-\\max_i v^\\theta(\\{i\\})/MSE_i$ (Theorem 4). Example 7: with $\\delta=0.08$, $(1-\\delta)MSE=(0.679,0.272,0.693)$ is in the core.\n\nThe paper analyzes no other axioms for these rules, such as symmetry, additivity or monotonicity. It checks only efficiency and core membership (stability).",
+  "numerical_study": "Section 6, pp. 1247-1249. This is a simulation test of core membership. There is no real data and no case study.\n\nSetup: for each of the four allocation rules, 10,000 random TC situations are generated for |N| = 3, 4 and 5 players.\n- For each $i$, $c_i$ and $\\alpha_i$ are drawn uniformly from [0.5, 15.0] with step 0.5.\n- $\\beta$ is drawn uniformly from (0, 1] with step 0.1.\n- The initial price vector $p$ is computed from the cost and utility parameters by Eq. (3), so it is a Nash equilibrium.\n- Metric: (# TC situations whose allocation is in the core) / 10,000.\n\nResults:\n- Table 4 (p. 1248): I-PROP 0.9460 / 0.8959 / 0.8538 for N = 3 / 4 / 5; M-PROP 0.0001 / 0.0000 / 0.0000.\n- Table 6 (p. 1248): Shapley value 0.9620 / 0.9303 / 0.8991. The text rounds these to 96% for 3 players and 90% for 5 players.\n- Table 7 (p. 1249), captioned 'Outcome for the Market rule': MSE 1.0000 / 1.0000 / 1.0000.\n\nObservations in the paper: almost all M-PROP allocations are outside the core. I-PROP performs much better (around 95% for 3 players), but the number of non-core allocations grows with the size of the game. The Shapley value is slightly better than I-PROP. MSE is always in the core, which Theorem 3 then explains.\n\nNot reported:\n- how the fixed point (3) is solved;\n- random seeds;\n- the tolerance used in the core checks;\n- run times;\n- how often the I-PROP denominator is close to zero;\n- any experiment for the TC-delta game.\n\nReader's re-run (own seed, fixed-point iteration of Eq. (3), converged in every instance): I-PROP 0.9462 / 0.9005 / 0.8477, M-PROP 0.0001 / 0.0000 / 0.0000, SV 0.9632 / 0.9315 / 0.8937, MSE 1.0000 / 1.0000 / 1.0000. This is within sampling error of Tables 4, 6 and 7.\n\nIllustrative instance: Examples 1 to 7 (pp. 1246-1249, Tables 1, 2, 3, 5, 8) use a fictitious 3-operator situation whose parameters 'are not selected to represent reality, but to keep calculations simple and easy to follow'. Footnote 4 (p. 1247) notes that with Nash-equilibrium initial prices the differences in market share are smaller.",
+  "worked_example": "The paper's Examples 1 to 7 (pp. 1246-1249) give the instance and the main numbers. Everything below follows from closed forms; all printed numbers were reproduced, and Theorems 1 and 2 were also checked with a numerical constrained optimizer (SLSQP gives p* = (13.980, 9.980, 6.980), P* = 1.787312, v({1,2}) = 0.2302, v({1,3}) = 1.4852, v({2,3}) = 0.7557).\n\nData (Example 1): N = {1, 2, 3}, initial prices p = (6, 8, 15), costs c = (8, 4, 1), alpha = (1, 0.5, 1.5), beta = 0.36.\n\nIntermediate values (reader's computation):\n- D(p) = sum exp(alpha_i - beta p_i) = 0.426279\n- D(c) = 3.669986\n- D(c)/D(p) = 8.60936, ln = 2.152850\n- common collaborative markup (1/beta) ln(D(c)/D(p)) = 5.980139\n- e^{alpha_i - beta c_i} = (0.1526, 0.3906, 3.1268), so collaborative shares are split 4.2% / 10.6% / 85.2% of the fixed total.\n\nTable 1 (status quo): market shares (0.220, 0.065, 0.014), total 0.2989. Profits (-0.440, 0.260, 0.199), sum 0.019 (0.01866). Operator 1 prices below cost.\n\nTable 2 (Theorem 1): p* = (13.980, 9.980, 6.980), shares (0.012, 0.032, 0.255) with the same total 0.2989, profits (0.074, 0.190, 1.523). Joint profit 1.787 (1.787312). Operator 2's profit falls from 0.260 to 0.190, so it must be compensated.\n\nTable 3 (Theorem 2, v(M) = D^M(p)/(beta(D^N(p)+1)) ln(D^M(c)/D^M(p))):\n\n| M | v(M) |\n|---|---|\n| {} | 0 |\n| {1} | -0.440 |\n| {2} | 0.260 |\n| {3} | 0.199 |\n| {1,2} | 0.230 |\n| {1,3} | 1.485 |\n| {2,3} | 0.756 |\n| {1,2,3} | 1.787 |\n\nTable 5 (Example 4), coalition sums of each proportional rule:\n\n| M | I-PROP | M-PROP |\n|---|---|---|\n| {1} | -42.101 | 1.314 |\n| {2} | 24.859 | 0.388 |\n| {3} | 19.029 | 0.085 |\n| {1,2} | -17.242 | 1.702 |\n| {1,3} | -23.072 | 1.399 |\n| {2,3} | 43.889 | 0.473 |\n| {1,2,3} | 1.787 | 1.787 |\n\nI-PROP violates {1}, {1,2} and {1,3} (the paper cites {1,2}); M-PROP violates {3}, {1,3} and {2,3} (the paper cites {3}).\n\nExample 5: SV = (0.407, 0.392, 0.989), outside the core because SV_1 + SV_3 = 1.396 < 1.485 (the only violated coalition).\n\nExample 6 (MSE):\n- benchmark v^hat(N) = (1/beta) x 0.298875 = 0.830208 (reader's computation);\n- phi = (1.787312 - 0.830208)/0.298875 = 3.202 (also = (2.152850 - 1)/0.36 = lambda*);\n- MSE = (0.738, 0.296, 0.753). Coalition sums: {1,2} 1.034 >= 0.230; {1,3} 1.491 >= 1.485 (nearly tight); {2,3} 1.049 >= 0.756; all singletons hold. So MSE is in the core.\n- Market share changes S* - S: (-0.2074, -0.0331, +0.2404). Side payments phi(S - S*): operator 1 receives 0.664, operator 2 receives 0.106, operator 3 pays 0.770. Check: 0.074 + 0.664 = 0.738; 0.190 + 0.106 = 0.296; 1.523 - 0.770 = 0.753.\n- Reader identity MSE_i = S*_i/beta + phi S_i: 0.012427/0.36 + 3.202 x 0.219793 = 0.738.\n- Lemma 1 slack for {1,3}: y = 1.1414, (S_M/beta)(y - 1 - ln y) = 0.6494 x 0.0091 = 0.0059 = 1.4911 - 1.4852.\n\nRemark 7 check (reader's): benchmark margin 2/beta gives phi = 0.425 and allocation (0.162, 0.204, 1.421), which violates {2} (0.204 < 0.260).\n\nExample 7 (TC-delta game, delta = 0.08), Table 8: v^{theta,delta} = 0, -0.440, 0.260, 0.199, 0.212, 1.366, 0.695, 1.644 in the order of Table 3. (1 - delta)MSE = (0.679, 0.272, 0.693) is in the core. Theorem 4 threshold: 1 - max{-0.440/0.738, 0.260/0.296, 0.199/0.753} = 1 - 0.8764 = 0.1236 with unrounded values, printed as 0.124 (the rounded inputs shown in the paper would give 0.122). Player 2's singleton constraint binds first (0.272 vs 0.260).\n\nEq. (6) bound for this instance (reader's computation): delta <= 1 - 0.01866/1.78731 = 0.990. True limit (reader's LP check): the core of the TC-delta game is nonempty only for delta <= 1 - v({2})/(v(N) - v({1,3})) = 1 - 0.2596/0.3021 = 0.141. So Theorem 4 (0.124) is close to the true limit here, and Eq. (6) is very loose.\n\nNash prices for the same c, alpha, beta (Eq. 3, reader's computation): p = (10.862, 6.993, 5.321), margins (2.862, 2.993, 4.321) all above 1/beta = 2.778; the example's p = (6, 8, 15) is not an equilibrium.\n\nWidget idea: sliders for p, c, alpha, beta and delta. Recompute D(.), p*, v(M) for all 7 coalitions, SV, I-PROP, M-PROP, phi and MSE, highlight the violated coalition constraints, and show (1 - delta)MSE against the Theorem 4 threshold and the true core-emptiness threshold.",
+  "insights": [
+   "The constant total market share constraint is equivalent to keeping the sum of exponentiated utilities D(x) equal to D(p) (A.2). That fixes the MNL denominator, so the collaborative problem becomes separable and has a closed-form solution despite being nonconvex in prices.",
+   "Collaborative optimal prices give every operator the same markup over cost, (1/beta) ln(D(c)/D(p)) (Theorem 1). Market share then moves in proportion to e^{alpha_i - beta c_i}: in the example, operator 3 (c = 1, highest alpha) drops its price from 15 to 6.98 and its share grows from 0.014 to 0.255.",
+   "The joint profit rises, but some operators lose profit (operator 2: 0.260 to 0.190). Side payments are therefore essential, which is the reason for the cooperative game.",
+   "Gains come only from unequal initial margins (Remark 4). If all margins are equal, collaboration under a fixed total share adds nothing.",
+   "The characteristic function is explicit (Theorem 2). Outsiders keep their prices, so every coalition faces the same denominator D^N(p)+1. The game is superadditive but neither monotonic nor convex (Remark 6), so convexity results cannot guarantee that the Shapley value is in the core.",
+   "Intuitive rules fail. Sharing in proportion to initial market share almost never gives a core allocation (Table 4). Proportional-to-stand-alone sharing and the Shapley value fail in roughly 5% to 15% and 4% to 10% of the random situations, with failures increasing in the number of players (Tables 4 and 6).",
+   "The paper suggests, hedged as 'one reason could be' (p. 1248), that these rules fail because they 'do not explicitly compensate for the exchange of market share'. MSE prices market share explicitly at phi, the extra return per unit of total market share compared with a no-gain benchmark whose margins are all 1/beta, and it is always in the core (Theorem 3).",
+   "The choice of benchmark margin 1/beta is essential: with 2/beta the core guarantee is lost (Remark 7). Reader's identities from the paper's formulas: phi = (ln(D(c)/D(p)) - 1)/beta equals the Lagrange multiplier lambda* in the proof of Theorem 1, MSE_i = S*_i/beta + phi S_i, and the excess of coalition M is (S_M/beta)(y_M - 1 - ln y_M), which with margin k/beta becomes (S_M/beta)(k(y_M - 1) - ln y_M) and is guaranteed nonnegative only for k = 1.",
+   "Reader's observation, not in the paper and worth checking: v(M) = g(D^M(c), D^M(p)) with g(A,B) = B ln(A/B)/(beta(D^N(p)+1)), which is concave and positively homogeneous of degree 1. MSE_i equals the gradient of g at (D^N(c), D^N(p)) applied to (D^{i}(c), D^{i}(p)), which is exactly (A.13), and Lemma 1 is the supergradient inequality. This suggests the market-game representation that the paper leaves open (Remark 5, Section 2.3) may be available with the 'resources' (e^{alpha_i - beta c_i}, e^{alpha_i - beta p_i}) instead of market share; a caveat is that g tends to minus infinity as A goes to 0, so the standard Shapley-Shubik conditions on the closed orthant need care.",
+   "MSE remains in the core in a pessimistic version where outsiders move first, because only the values of proper coalitions can drop (Remark 8).",
+   "Policy link: when coalitions of size at least 2 must pay a fraction delta to society, scaled MSE keeps all coalition constraints of size at least 2, so only the singleton constraints can break. A government can check delta <= 1 - max_i v({i})/MSE_i (Theorem 4). In the example that is 0.124. The necessary bound of Eq. (6) is about 0.99 there, but a direct LP check (reader's) shows the core itself is empty for delta above 0.141, so Eq. (6) is very loose and Theorem 4 is close to the true limit in this instance.",
+   "Methodologically, global optimality in a nonconvex choice-based pricing problem is certified by a Lagrangian sufficiency argument (Theorem 5) rather than by concavity; the acknowledgements thank Ahmadreza Marandi for discussions on optimality conditions. Separately, the conclusion presents the choice-based cooperative game as a contribution to 'bridge the gap between cooperative game theory and discrete choice modelling' (p. 1250)."
+  ],
+  "limitations_future_work": "Stated by the authors (Section 8, p. 1250):\n(1) A unique price sensitivity parameter. Relaxing it matters because consumers have different willingness to pay.\n(2) A constant marginal cost, reasonable when market shares do not change significantly (see also footnote 2). Quantity-dependent costs could be investigated.\n(3) Richer utility functions that include brand loyalty and environmental and societal benefits (safety, ease of use, affordability, a better and healthier planet), some of which could also enter the operators' objectives.\n(4) A deterministic game with known, fixed costs and preferences. A dynamic version where parameters and allocations vary over time is suggested.\nThe authors warn that any of these extensions will most likely break the unimodal property of the joint profit function, which is crucial for the closed form in Theorem 1. Without it a closed form probably does not exist. As an alternative they suggest optimization software to find (close-to-)optimal solutions for numerical experiments or a single realistic case study.\n\nFurther limitations visible in the text (reader's notes):\n- Homogeneous travelers, plain MNL (IIA), and an outside option normalized to 0.\n- Outsiders keep their initial prices in the base game; Remark 8 covers the pessimistic alternative only for MSE.\n- The proofs of Remarks 1 and 6 are only in the online supplementary material; Remark 7 has no proof or counterexample anywhere in the article (a counterexample on Example 1 is easy, see the worked example).\n- The numerical study does not explain how the Nash fixed point (3) is computed, uses only synthetic instances with N <= 5, and does not test the TC-delta game.\n- The examples use non-equilibrium initial prices.\n- Theorem 4 implicitly needs MSE_i > 0 for the ratio argument; the paper does not discuss this.\n- Eq. (6) is only necessary; the paper gives no exact characterization of the delta at which the TC-delta core becomes empty.\n- Prices are unrestricted reals in the optimization.\n- No axiomatic characterization of MSE is given.\n- Small notational slips: the convexity definition on p. 1245 ('v(K u {i} - V(K))'), 'D^{i}(N)' in Eq. (6), 'see Table 5' where Table 4 is meant, Theorem 4 written with C(N, v^delta), Table 8's row labelled v^theta(M) instead of v^{theta,delta}(M), 'MSE_i^delta' at the end of the proof of Theorem 4, and 'Adler et al. 2020' in the text vs 2021 in the references.",
+  "connections": "Research line (reader's reading): the paper combines Schlicher's cooperative game theory work with Lurkin's discrete choice modelling. The conclusion says the authors hope the choice-based cooperative game 'contributed to bridge the gap between cooperative game theory and discrete choice modelling' (p. 1250).\n\nSchlicher's other papers that it cites:\n- Westerink-Duijzer, Schlicher & Musegaas (2020), 'Core allocations for cooperation problems in vaccination', Production and Operations Management 29(7), 1720-1737. This is one of the papers in the current upload set. It is cited as an application of cooperative games (identifying fair prices for vaccine exchange between countries in pandemics, p. 1245) and, with 'see, e.g.', as an example of the common approach that this paper follows: introduce several allocation rules and check whether they are in the core (p. 1247).\n- Schlicher, Slikker & van Houtum (2017), 'Probabilistic resource pooling games', Naval Research Logistics 64(7); (2018), 'Pooling of critical, low-utilization resources with unavailability', OR Spectrum 40(1); and Schlicher, Slikker, van Jaarsveld & van Houtum (2020), 'Core nonemptiness of stratified pooling games: A structured Markov decision process approach', Mathematics of Operations Research 45(4). All are cited for fair prices to share railway equipment among railway contractors (p. 1245).\nLurkin's own work cited: Bierlaire & Lurkin (2017, introduction to disaggregate demand models) and Bortolomiol, Lurkin & Bierlaire (2021, a simulation-based heuristic for approximate equilibria with disaggregate demand models).\n\nLiterature it extends:\n- Choice-based pricing: Hanson & Martin 1996; Li & Huh 2011; Zhang, Rusmevichientong & Topaloglu 2018 (GEV) and others. Apart from Li & Huh 2011, the studies reviewed consider a monopoly.\n- Non-cooperative logit price competition: Aksoy-Pierson et al. 2013; Gallego & Wang 2014; Lin & Sibdari 2009; Levin et al. 2009; Morrow & Skerlos 2011.\n- Cooperative games in transport and logistics: Lozano et al. 2013; Engevall et al. 2004; Hezarkhani, Slikker & Van Woensel 2016; Kimms & Kozeletskyi 2016.\n- Closest work: Lardon (2019, 2020), cooperative Bertrand oligopoly TU games with demand linear in price. The TC game departs from it through nonlinear MNL demand and a sum of demands that is stable in price. The pessimistic view of Remark 8 follows Lardon 2019.\n- Market games: Shapley & Shubik 1969 and Anily & Haviv 2017 (Section 2.3, Remark 5).\n\nThe authors claim to be the first in this stream of research to focus on collaborative price setting between transport operators (p. 1244).\n\nPosition in the uploaded set (by available-online date): after the 2020 vaccination paper and the 3D-printing knapsack paper (Computers & Operations Research, online 30 April 2021, not cited here), and before the streaming platforms paper (Omega, online 19 December 2023) and the freight consolidation paper (Operations Research Letters, online 8 July 2024). It reuses the rules-then-core methodology of the vaccination paper while adding a choice model and a new exchange-price rule. The same two authors later published a choice-based resource allocation paper on pickpocketing (EJOR 315, 2024), which is in the papers folder but not in this upload.",
+  "prerequisites": [
+   "Cooperative TU games: characteristic function, efficiency, individual rationality, core",
+   "Superadditive, monotonic and convex games, and why convexity implies that the Shapley value is in the core",
+   "Shapley value and proportional allocation rules",
+   "Market games (Shapley and Shubik 1969) and total balancedness (helpful for Remark 5)",
+   "Random utility theory and the multinomial logit model with a no-purchase option (Gumbel/EV errors, IIA)",
+   "Bertrand price competition under MNL demand and first-order conditions",
+   "Lambert W function",
+   "Nonlinear programming: Lagrangian function, dual function, weak duality / Lagrangian sufficiency (Bazaraa, Sherali and Shetty, Chapter 6)",
+   "Basic exponential and logarithm inequalities (ln y <= y - 1)",
+   "Basics of EU competition law: Article 101 TFEU and exemptions for horizontal agreements"
+  ],
+  "glossary": [
+   {
+    "term": "TC situation",
+    "definition": "Tuple theta = (N, p, c, alpha, beta): operators, initial prices, cost prices, alternative-specific constants, price sensitivity. Theta is the set of all of them."
+   },
+   {
+    "term": "TC game (N, v^theta)",
+    "definition": "Cooperative transport choice game. v^theta(M) is the maximal joint profit of coalition M when it resets its own prices, keeps its total market share equal to the initial one, and outsiders keep their initial prices (Definition 1, Eq. 5)."
+   },
+   {
+    "term": "D^M(x)",
+    "definition": "Sum over i in M of exp(alpha_i - beta x_i). D(x) = D^N(x). The total market share of N at prices p is D(p)/(D(p)+1)."
+   },
+   {
+    "term": "Multinomial logit (MNL)",
+    "definition": "Discrete choice model with i.i.d. EV(0,1) errors. The probability of choosing i is e^{V_i}/sum_j e^{V_j}; here V_i = alpha_i - beta p_i and V_0 = 0 for not buying."
+   },
+   {
+    "term": "Alternative-specific constant alpha_i",
+    "definition": "Non-price attractiveness of operator i's service in the utility function."
+   },
+   {
+    "term": "Price sensitivity beta",
+    "definition": "Common coefficient of price in the utility, assumed identical for all services and travelers."
+   },
+   {
+    "term": "Optimal price vector p*",
+    "definition": "An optimal solution of the grand coalition problem P (Eq. 4): p*_i = c_i + (1/beta) ln(D(c)/D(p)) (Theorem 1)."
+   },
+   {
+    "term": "Gain of collaboration",
+    "definition": "P* minus the sum of initial profits. It is always >= 0 (Remark 3) and zero when all initial margins are equal (Remark 4)."
+   },
+   {
+    "term": "Core",
+    "definition": "Set of efficient allocations x with sum_{i in M} x_i >= v(M) for every coalition M. No group has an incentive to leave the grand coalition."
+   },
+   {
+    "term": "Allocation rule",
+    "definition": "A function f assigning to each game in a class a payoff vector with sum_i f_i(N, v) = v(N)."
+   },
+   {
+    "term": "I-PROP",
+    "definition": "Individual-proportional rule: v(N) shared in proportion to stand-alone values v({i})."
+   },
+   {
+    "term": "M-PROP",
+    "definition": "Market share-proportional rule: v(N) shared in proportion to initial market shares S_i."
+   },
+   {
+    "term": "Shapley value",
+    "definition": "Weighted average of a player's marginal contributions over all coalitions, with weights |M|!(|N|-1-|M|)!/|N|!."
+   },
+   {
+    "term": "Market share exchange (MSE) rule",
+    "definition": "Each operator gets its profit under collaboration, then receives phi per unit of market share lost and pays phi per unit gained. It is always in the core (Theorem 3)."
+   },
+   {
+    "term": "phi (exchange price)",
+    "definition": "(v^theta(N) - v^{theta-hat}(N)) divided by total market share D(p)/(D(p)+1): the additional return per unit of market share. It equals (1/beta) ln(D(c)/D(p)) - 1/beta (A.11)."
+   },
+   {
+    "term": "theta-hat (benchmark situation)",
+    "definition": "(N, p, (p_i - 1/beta)_i, alpha, beta): same prices and total share but costs set so every margin is 1/beta, so collaboration brings no gain."
+   },
+   {
+    "term": "TC-delta game",
+    "definition": "v^{theta,delta}(M) = (1-delta) v^theta(M) for |M| >= 2 and v^theta(M) for |M| <= 1. Coalitions pay a fraction delta of joint profit back to society (Section 7)."
+   },
+   {
+    "term": "Pessimistic view",
+    "definition": "Variant in which players outside a coalition set prices first, against it (cf. Lardon 2019). Proper coalitions may lose value; MSE stays in the core (Remark 8)."
+   },
+   {
+    "term": "Market game",
+    "definition": "Shapley-Shubik game where players hold resources and concave profit functions and collaborate by reallocating resources. The TC game is not directly one, because no player can have zero market share (Remark 5)."
+   },
+   {
+    "term": "Lambert W function",
+    "definition": "Inverse of y -> y e^y. It appears in the Nash equilibrium prices of Eq. (3)."
+   },
+   {
+    "term": "Horizontal agreement exemption",
+    "definition": "Article 101(3) TFEU allows agreements between competitors (such as price fixing) if pro-consumer benefits outweigh anti-competitive effects and competition is not eliminated, which requires a small combined market share below a specified limit."
+   },
+   {
+    "term": "Superadditive / monotonic / convex game",
+    "definition": "v(M)+v(K) <= v(M union K) for disjoint M, K / v(M) <= v(K) for M subset of K / marginal contributions increase with coalition size. The TC game is superadditive but neither monotonic nor convex (Remark 6)."
+   }
+  ],
+  "study_questions": [
+   "Why is the constraint 'total market share of the coalition stays constant' equivalent to keeping D^M(x) = D^M(p), and why does this make the MNL denominator constant?",
+   "Derive p*_i = c_i + (1/beta) ln(D(c)/D(p)) with the Lagrangian of Theorem 1. Why can the inner minimization be split into |N| one-dimensional problems?",
+   "What does Theorem 5 guarantee, and why is it enough here even though the profit function is not concave in prices?",
+   "Show from Theorem 2 that v^theta({i}) equals operator i's initial profit.",
+   "Using Example 3, verify that the TC game is not monotonic and not convex. Is it superadditive for this instance?",
+   "Why does Remark 4 imply that the benchmark theta-hat with margins 1/beta yields no gain, and how is it used to define phi?",
+   "Recompute phi = 3.202 and MSE = (0.738, 0.296, 0.753) for Example 1. Which coalition constraint is nearly tight, and how large is its slack?",
+   "Show that MSE is efficient. Which identity about D^N(p*) is needed (A.12)?",
+   "State Lemma 1. With which A and B is it applied in the proof of Theorem 3, and what does it then give?",
+   "Why does the paper believe proportional rules and the Shapley value fail? How do their core frequencies change with the number of players (Tables 4 and 6)?",
+   "What does Remark 7 claim about using a benchmark margin of 2/beta? Find a coalition in Example 1 that is violated with that benchmark.",
+   "Explain why the core of the pessimistic game in Remark 8 contains the core of the original TC game.",
+   "In the TC-delta game, why are only the singleton constraints at risk when MSE is scaled by (1-delta)? Derive the threshold in Theorem 4 and check 0.124 for Example 7.",
+   "What is the difference between the necessary bound in Eq. (6) and the sufficient condition in Theorem 4? For Example 1, at which delta does the core actually become empty?",
+   "Which modelling assumptions (single beta, constant costs, deterministic data, outsiders fixed) would break the closed form, and why does the authors' 'unimodal property' matter?",
+   "How does the TC game differ from the cooperative Bertrand oligopoly games of Lardon (2019, 2020)?"
+  ]
+ },
+ "verification": {
+  "changes": [
+   "Model/footnote 1 (p. 1246): cost items are 'maintenance, alternative fuel, personnel and depreciation' or leasing from a larger provider; the notes said 'fuel'.",
+   "Motivation (p. 1242): Webtaxi benefits are 'less waiting time, and lower prices, as well as more rides for drivers'; added 'for drivers'. Added the Fearnley 2020 and Moller & Simlett 2020 sources for the profitability and collaboration claims.",
+   "One-line summary: the scaled MSE stays in the core only when delta is small enough (Theorem 4, p. 1249: delta <= 1 - max_i v({i})/MSE_i), not for any paid-back fraction.",
+   "Theorem 1 meaning: 'low-cost operators get larger shares' was too strong; collaborative shares are proportional to e^{alpha_i - beta c_i} (reader's derivation from p*), so alpha also matters (operator 3 gets 85.2% of the fixed total in the example).",
+   "Remark 2 meaning: alpha_i does affect p* through the common markup (via D(c) and D(p)); reworded to say it does not enter player by player.",
+   "Theorem 3 proof idea (p. 1252): the paper's efficiency step uses 'the total market share remains stable'; (A.12) D^N(p*) = D^N(p) is derived later, in the stability part. Reworded; noted that core non-emptiness is a direct corollary, not a separately stated result.",
+   "Remark 7 (p. 1249): clarified that no proof or counterexample is given anywhere (Appendix A sends only Remarks 1 and 6 to the supplement). Added a reader's counterexample on Example 1: with margin 2/beta, phi = 0.425 and the allocation (0.162, 0.204, 1.421) violates v({2}) = 0.260; added the general excess formula (S_M/beta)(k(y_M - 1) - ln y_M).",
+   "Eq. (6) and the policy insight: the notes implied the gap between 0.124 (Theorem 4) and 0.99 (Eq. 6) came only from Theorem 4 certifying one allocation. A direct LP check shows the core of the TC-delta game in Example 1 is empty for delta > 0.141 (1 - v({2})/(v(N) - v({1,3}))). So Eq. (6) is very loose and Theorem 4 is close to the true limit. Corrected in results, worked example, insights and limitations.",
+   "Example 7 (p. 1249): the printed 0.124 matches the unrounded values (0.1236); with the rounded inputs shown in the paper (0.260/0.296) one gets 0.122. Added this note.",
+   "Insight on why the rules fail (p. 1248): the paper hedges ('One reason could be'); the notes presented it as a firm attribution.",
+   "Insight on 'bridging the gap' (p. 1250): the conclusion says this about the choice-based cooperative game as a whole, not about the Lagrangian sufficiency argument. Separated the two claims and added the acknowledgement to Marandi.",
+   "Remark 5 and Remark 6 meanings: marked the 'why proved directly' and 'convexity results cannot be used' readings as the reader's interpretation, not the paper's statements.",
+   "Connections: Westerink-Duijzer et al. (2020) is cited with 'see, e.g.' as an example of the common rules-then-core approach (p. 1247), not as 'the model'; added POM 29(7), 1720-1737 and the full titles and venues of the Schlicher pooling papers. Marked 'combines Schlicher's and Lurkin's lines' as the reader's reading.",
+   "Connections, chronology: within the upload set the paper also comes after the 3D-printing knapsack paper (C&OR, online 30 April 2021, not cited here) and before the streaming (Omega, online 19 Dec 2023) and freight (ORL, online 8 July 2024) papers. The notes mentioned only the vaccination paper. Added that the later Schlicher & Lurkin pickpocketing paper (EJOR 315, 2024) is in the folder.",
+   "Non-cooperative literature list: added Levin, McGill & Nediak 2009, which the paper also discusses (p. 1244).",
+   "Numerical study: added the reader's independent re-run of the Section 6 experiment, which reproduces Tables 4, 6 and 7 within sampling error (I-PROP 0.9462/0.9005/0.8477, M-PROP 0.0001/0/0, SV 0.9632/0.9315/0.8937, MSE 1/1/1). Renamed 'Monte Carlo' to 'simulation' in methods, since the paper does not use that term.",
+   "Worked example: added a numerical optimizer check of Theorems 1 and 2, the full list of violated coalitions for I-PROP, M-PROP and SV (beyond the one the paper cites), the MSE side payments (0.664, 0.106, -0.770), the Lemma 1 slack 0.0059 for {1,3}, and the Nash prices (10.862, 6.993, 5.321) for the example data, which confirm that p = (6, 8, 15) is not an equilibrium.",
+   "Limitations, notational slips: added Table 8's row label v^theta(M) (it should be v^{theta,delta}(M)) and 'MSE_i^delta' at the end of the proof of Theorem 4 (p. 1253). Added that the paper gives no exact delta at which the core becomes empty.",
+   "Market-game insight: added the caveat that g(A,B) = B ln(A/B) tends to minus infinity as A goes to 0, so the standard Shapley-Shubik conditions need care.",
+   "Bibliography: the license is printed as 'CC BY license (http://creativecommons.org/licenses/by/4.0/)'. Kept CC BY 4.0 and quoted the license URL. All other bibliographic fields (dates, DOI, pages, keywords, affiliations, section) were confirmed on p. 1242."
+  ],
+  "example_recomputed": true,
+  "example_check": "Script: /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2022-choice-based-pricing/recompute.py (numpy/scipy). It recomputes Examples 1 to 7 from the closed forms and reproduces every printed number:\n- Table 1: shares (0.220, 0.065, 0.014), profits (-0.440, 0.260, 0.199), sum 0.01866.\n- Table 2: p* = (13.980, 9.980, 6.980), shares (0.012, 0.032, 0.255), profits (0.074, 0.190, 1.523), P* = 1.787312.\n- Table 3: all 8 values.\n- Table 5: all I-PROP and M-PROP coalition sums.\n- SV = (0.407, 0.392, 0.989).\n- phi = 3.2024, equal to lambda* and to (ln(D(c)/D(p)) - 1)/beta.\n- MSE = (0.738, 0.296, 0.753); it is in the core, and A.13 and the identity S*/beta + phi S give the same values.\n- Table 8 and (1 - delta)MSE = (0.679, 0.272, 0.693), in the core.\n- Theorem 4 threshold 0.1236 (printed 0.124).\n\nTheorems 1 and 2 were also checked independently with SLSQP constrained optimization: same p*, P* = 1.787312, and v({1,2}) = 0.2302, v({1,3}) = 1.4852, v({2,3}) = 0.7557.\n\nExtra checks:\n- Superadditive yes; not monotonic and not convex, as stated.\n- The Eq. (6) bound is 0.9896, but a bisection over an LP core test shows the TC-delta core is empty for delta > 0.1408, which corrects the notes' reading of the gap.\n- A benchmark margin of 2/beta gives (0.162, 0.204, 1.421), which is not in the core (supports Remark 7).\n- Nash prices for the example data: (10.862, 6.993, 5.321).\n\nA second script, /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2022-choice-based-pricing/montecarlo.py, re-ran the Section 6 experiment with 10,000 situations per size and seed 1. Results: I-PROP 0.9462/0.9005/0.8477, M-PROP 0.0001/0/0, SV 0.9632/0.9315/0.8937, MSE 1/1/1. These match Tables 4, 6 and 7 within sampling error."
+ }
+}

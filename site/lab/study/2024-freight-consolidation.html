@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en" data-i18n-langs="es en nl" data-title-key="stctt.title" data-i18n-bundles="lab/study/common lab/study/2024-freight-consolidation">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Freight Consolidation Between Carriers: When Is Collaboration Stable?</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../../assets/study.css?v=__BUILD__">
+<style>
+  /* ---- "Try it": the CTT game of Examples 1 and 3, solved live ---- */
+  #study-try > * { min-width: 0; }
+  .fc-lam { max-width: 640px; }
+  .fc-chart svg { cursor: pointer; }
+  .fc-chart svg .grid { stroke: var(--grid); stroke-width: 1; }
+  .fc-chart svg .axis { stroke: var(--axis); stroke-width: 1.2; }
+  .fc-chart svg .zero { stroke: var(--ink2); stroke-width: 1.2; }
+  .fc-chart svg .tick { fill: var(--muted); font-size: 11px; }
+  .fc-chart svg .lab { fill: var(--ink2); font-size: 11.5px; }
+  .fc-chart svg .band { fill: var(--mit-bright); opacity: 0.13; }
+  .fc-chart svg .band-t { fill: var(--accent-text); font-size: 11.5px; font-weight: 700; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+  .fc-chart svg .sav { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round; }
+  .fc-chart svg .eps { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+  .fc-chart svg .mk { stroke: var(--mit-silver); stroke-width: 1.3; stroke-dasharray: 3 3; }
+  .fc-chart svg .mk-utc { stroke: var(--mit-silver); stroke-width: 1.4; stroke-dasharray: 6 4; }
+  .fc-chart svg .mk-t { fill: var(--muted); font-size: 11px; }
+  .fc-chart svg .cur { stroke: var(--ink); stroke-width: 1.6; }
+  .fc-chart svg .cur-d { fill: var(--ink); stroke: var(--surface); stroke-width: 1.5; }
+  .fc-chart svg .cur-e { fill: var(--accent); stroke: var(--surface); stroke-width: 1.5; }
+  .fc-chart svg .rb-ok { fill: var(--ink2); }
+  .fc-chart svg .rb-empty { fill: var(--mit-bright); }
+  .fc-chart svg .rb-add { fill: var(--mit-silver); opacity: 0.55; }
+  .fc-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
+  .fc-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .fc-legend i { display: inline-block; flex: none; }
+  .fc-legend i.l-sav { width: 16px; height: 0; border-top: 2.2px solid var(--ink); }
+  .fc-legend i.l-eps { width: 16px; height: 0; border-top: 2px solid var(--accent); }
+  .fc-legend i.r-ok, .fc-legend i.r-empty, .fc-legend i.r-add { width: 14px; height: 9px; }
+  .fc-legend i.r-ok { background: var(--ink2); }
+  .fc-legend i.r-empty { background: var(--mit-bright); }
+  .fc-legend i.r-add { background: var(--mit-silver); opacity: 0.55; }
+  .fc-cap { margin: 6px 0 0; font-size: 13.5px; color: var(--ink2); }
+  .fc-conds { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .fc-conds li { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 14em); gap: 4px 10px; align-items: baseline; font-size: 13.5px; color: var(--ink2); padding: 7px 10px; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); }
+  .fc-conds li b { color: var(--ink); font-weight: 700; }
+  .fc-conds li .yn { font: 600 11px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 7px; border-radius: 2px; border: 1px solid var(--axis); color: var(--muted); justify-self: start; }
+  .fc-conds li .why { color: var(--muted); font-size: 12.5px; }
+  .fc-conds li.on { border-left: 3px solid var(--accent); }
+  .fc-conds li.on .yn { color: var(--on-solid); background: var(--accent); border-color: var(--accent); }
+  @media (max-width: 640px) { .fc-conds li { grid-template-columns: minmax(0, 1fr) auto; } .fc-conds li .why { grid-column: 1 / -1; } }
+  .st-w .seg.fc-coal button { padding: 7px 10px; min-width: 42px; font-variant-numeric: tabular-nums; }
+  .fc-flow { margin-top: 8px; }
+  .fc-flow svg .hdr { fill: var(--muted); font-size: 11.5px; font-weight: 600; }
+  .fc-flow svg .badge { fill: var(--ink); }
+  .fc-flow svg .badge-t { fill: var(--bg); font-size: 11.5px; font-weight: 700; }
+  .fc-flow svg .dem { fill: var(--ink2); font-size: 11.5px; }
+  .fc-flow svg .track { fill: var(--mit-silver); opacity: 0.22; }
+  .fc-flow svg .vol { fill: var(--ink2); }
+  .fc-flow svg .lt { fill: var(--ink); font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .fc-flow svg .lt.full { fill: var(--accent-text); font-weight: 700; }
+  .fc-flow svg .lc { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .fc-flow svg .node { fill: var(--surface); stroke: var(--ink); stroke-width: 1.6; }
+  .fc-flow svg .xfer { fill: none; stroke: var(--accent); stroke-width: 2.2; }
+  .fc-flow svg .xfer-t { fill: var(--accent-text); font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+  .fc-flow svg .arrow { fill: var(--accent); }
+  .fc-flow svg .off { opacity: 0.28; }
+  .fc-cost { margin: 4px 0 0; font-size: 13px; color: var(--ink2); }
+  .fc-cost b { color: var(--ink); }
+  .fc-two { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: start; }
+  .fc-two > div { min-width: 0; display: grid; gap: 6px; }
+  .fc-data summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--ink2); }
+  .fc-data .st-tbl { margin-top: 8px; }
+  .fc-data table + table { margin-top: 10px; }
+  .fc-data caption { text-align: left; font-size: 12px; color: var(--muted); padding: 0 0 4px; caption-side: top; }
+  @media (max-width: 520px) { .st-tbl .wide { display: none; } .st-tbl td, .st-tbl th { padding: 6px 5px; } .st-tbl td.num { font-size: 11.5px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="st-crumbs" data-i18n-attr="aria-label:stu.crumbLabel">
+      <a class="backlink" href="../index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.lab"></span></a>
+      <span class="sep" aria-hidden="true">/</span>
+      <a class="backlink" href="index.html" data-keep-lang data-i18n="stu.crumb"></a>
+    </nav>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<main class="wrap" id="study-root" data-study-paper="2024-freight-consolidation" data-study-prefix="stctt">
+  <!-- The "Try it" widget: assets/study.js moves this node into the "Try it" section and shows it -->
+  <div id="study-try" class="st-w" hidden>
+    <div class="st-w-row">
+      <div class="st-w-group">
+        <span class="lbl" id="fc-inst-lbl" data-i18n="stctt.w.inst"></span>
+        <div class="seg" id="fc-inst" role="group" aria-labelledby="fc-inst-lbl">
+          <button type="button" data-inst="ex1" data-i18n="stctt.w.ex1"></button><button type="button" data-inst="ex3" data-i18n="stctt.w.ex3"></button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="fc-snap-lbl" data-i18n="stctt.w.snap"></span>
+        <div class="st-presets" id="fc-snaps" role="group" aria-labelledby="fc-snap-lbl">
+          <button type="button" class="st-btn" data-snap="nf" data-i18n="stctt.w.snap.nf"></button>
+          <button type="button" class="st-btn" data-snap="paper" data-i18n="stctt.w.snap.paper"></button>
+          <button type="button" class="st-btn" data-snap="utc" data-i18n="stctt.w.snap.utc"></button>
+        </div>
+      </div>
+    </div>
+    <div class="st-rng fc-lam">
+      <label for="fc-l" data-i18n="stctt.w.lam"></label><output id="fc-l-out" for="fc-l"></output>
+      <input type="range" id="fc-l" min="0" max="1000" step="1" value="202">
+    </div>
+    <div>
+      <p class="st-w-head" data-i18n="stctt.w.chart"></p>
+      <div class="st-chart fc-chart" id="fc-chart" role="img" data-i18n-attr="aria-label:stctt.w.chart.aria"></div>
+      <div class="fc-legend" id="fc-legend"></div>
+      <p class="fc-cap" id="fc-cap"></p>
+    </div>
+    <div class="st-kpis" id="fc-kpis"></div>
+    <p class="st-verdict" id="fc-verdict" aria-live="polite"></p>
+    <div>
+      <p class="st-w-head" data-i18n="stctt.w.conds"></p>
+      <ul class="fc-conds" id="fc-conds"></ul>
+    </div>
+    <div>
+      <p class="st-w-head" data-i18n="stctt.w.flow"></p>
+      <div class="seg fc-coal" id="fc-coal" role="group" data-i18n-attr="aria-label:stctt.w.flow.coal"></div>
+      <div class="st-chart fc-flow" id="fc-flow" role="img" data-i18n-attr="aria-label:stctt.w.flow.aria"></div>
+      <p class="fc-cost" id="fc-cost"></p>
+    </div>
+    <div class="fc-two">
+      <div><p class="st-w-head" data-i18n="stctt.w.car.h"></p><div class="st-tbl" id="fc-car"></div></div>
+      <div><p class="st-w-head" data-i18n="stctt.w.coa.h"></p><div class="st-tbl" id="fc-coa"></div></div>
+    </div>
+    <details class="fc-data">
+      <summary data-i18n="stctt.w.data"></summary>
+      <div class="st-tbl" id="fc-data"></div>
+    </details>
+  </div>
+</main>
+
+<script src="../../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/common.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/2024-freight-consolidation.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="papers.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/study.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+
+  // ---- the data of the article: Table 2 (Example 1) and Table 4 (Example 3) ----
+  // D[i]; Q[p][i] and c[p][i] per leg p; TS[p][i][j] = [t_ij^p, s_ij^p], fixed and variable cost of a transfer from
+  // carrier i (row, sender) to carrier j (column, receiver) at point p. Internal transfers (i = j) are free in both tables.
+  var DATA = {
+    ex1: {
+      D: [6, 4, 3], Q: [[7, 8, 7], [7, 6, 7]], c: [[6, 1, 9], [9, 2, 4]],
+      TS: [[[[0, 0], [4, 2], [6, 1]], [[9, 4], [0, 0], [7, 1]], [[5, 4], [5, 3], [0, 0]]],
+           [[[0, 0], [6, 4], [9, 4]], [[5, 4], [0, 0], [5, 3]], [[9, 3], [5, 2], [0, 0]]]]
+    },
+    ex3: {
+      D: [3, 3, 6], Q: [[7, 7, 9], [6, 5, 9]], c: [[9, 7, 2], [2, 8, 6]],
+      TS: [[[[0, 0], [9, 4], [5, 1]], [[7, 2], [0, 0], [7, 2]], [[8, 1], [8, 2], [0, 0]]],
+           [[[0, 0], [7, 2], [8, 4]], [[5, 1], [0, 0], [8, 4]], [[4, 1], [7, 2], [0, 0]]]]
+    }
+  };
+  // the article's core allocation of Example 2 (Example 1 with lambda = 1), checked live against the computed game
+  var PAPER_U = [80, 5, 35];
+  var NC = 3, NP = 2, TOL = 1e-7, LMAX = 30, LN = Math.log1p(LMAX);
+  var ORDER = [7, 3, 5, 6, 1, 2, 4];              // coalitions shown: N, the pairs, the single carriers
+
+  function members(m) { var S = []; for (var k = 0; k < NC; k++) if (m >> k & 1) S.push(k); return S; }
+  function zeros(n) { var a = []; for (var k = 0; k < n; k++) a.push(0); return a; }
+  function ind(m) { var a = []; for (var k = 0; k < NC; k++) a.push(m >> k & 1); return a; }
+
+  // ---- Problem (2) of coalition S for a fixed set of open transfers between different carriers ----
+  // Variables x_ji^p: volume handed from j to i at point p and carried by i on leg p; the cost per unit is c_i^p + s_ji^p.
+  // Internal transfers x_ii^p are always allowed (no fixed cost in either example). Relaxed form of Observation 1.
+  function flowLP(d, S, open) {
+    var vars = [], p;
+    for (p = 0; p < NP; p++) S.forEach(function (j) { S.forEach(function (i) { if (i === j || open[p * 9 + j * 3 + i]) vars.push([p, j, i]); }); });
+    var c = vars.map(function (v) { return d.c[v[0]][v[2]] + d.TS[v[0]][v[1]][v[2]][1]; });
+    var rows = [];
+    S.forEach(function (i) {
+      for (var q = 0; q < NP; q++) rows.push({ a: vars.map(function (v) { return v[0] === q && v[2] === i ? 1 : 0; }), op: "<=", b: d.Q[q][i] });   // (2b)
+      for (q = 0; q < NP - 1; q++) rows.push({ a: vars.map(function (v) { return (v[0] === q && v[2] === i ? 1 : 0) - (v[0] === q + 1 && v[1] === i ? 1 : 0); }), op: "<=", b: 0 }); // (2c)
+      rows.push({ a: vars.map(function (v) { return v[0] === 0 && v[1] === i ? 1 : 0; }), op: ">=", b: d.D[i] });  // (2d)
+    });
+    var r = LP.solve({ sense: "min", c: c, rows: rows }), x = [];
+    if (r.status !== "optimal") return null;
+    vars.forEach(function (v, k) { if (r.x[k] > 1e-9) x.push({ p: v[0], j: v[1], i: v[2], v: r.x[k] }); });
+    return { z: r.z, x: x };
+  }
+
+  // every choice of open transfers (z = 1) for every coalition: the LP cost and the fixed cost of the choice
+  function precompute(d) {
+    var pats = {};
+    for (var m = 1; m < 8; m++) {
+      var S = members(m), arcs = [], list = [];
+      for (var p = 0; p < NP; p++) S.forEach(function (j) { S.forEach(function (i) { if (i !== j) arcs.push([p, j, i]); }); });
+      for (var b = 0; b < (1 << arcs.length); b++) {
+        var open = {}, T = 0, n = 0;
+        arcs.forEach(function (a, k) {
+          if (b >> k & 1) { open[a[0] * 9 + a[1] * 3 + a[2]] = true; T += d.TS[a[0]][a[1]][a[2]][0]; n++; }
+        });
+        var r = flowLP(d, S, open);
+        if (r) list.push({ lp: r.z, T: T, n: n, x: r.x });
+      }
+      pats[m] = list;
+    }
+    return pats;
+  }
+
+  // C(S) at factor lambda: the cheapest choice (ties: fewer open transfers, then lower fixed cost), so every open
+  // transfer of the chosen solution carries volume
+  function values(pats, lam) {
+    var C = [0], pat = [null];
+    for (var m = 1; m < 8; m++) {
+      var bv = Infinity, bp = null;
+      pats[m].forEach(function (q) {
+        var v = q.lp + lam * q.T;
+        if (v < bv - 1e-9 || (Math.abs(v - bv) <= 1e-9 && (q.n < bp.n || (q.n === bp.n && q.T < bp.T)))) { bv = v; bp = q; }
+      });
+      C.push(bv); pat.push(bp);
+    }
+    return { C: C, pat: pat };
+  }
+
+  // ---- core by LP (allocations are free in sign: u = u+ - u-) ----
+  function coreRows(C, withEps) {
+    var rows = [];
+    for (var m = 1; m < 7; m++) {
+      var a = ind(m);
+      rows.push({ a: a.concat(a.map(function (v) { return -v; }), withEps ? [1, -1] : []), op: "<=", b: C[m] });
+    }
+    rows.push({ a: [1, 1, 1, -1, -1, -1].concat(withEps ? [0, 0] : []), op: "=", b: C[7] });
+    return rows;
+  }
+  // the largest margin eps with u(S) + eps <= C(S) for every proper coalition: the core is non-empty iff eps >= 0
+  function margin(C) {
+    var r = LP.solve({ sense: "max", c: [0, 0, 0, 0, 0, 0, 1, -1], rows: coreRows(C, true) });
+    return { eps: r.x[6] - r.x[7], u: [r.x[0] - r.x[3], r.x[1] - r.x[4], r.x[2] - r.x[5]] };
+  }
+  // smallest and largest share of each carrier over the core (null when the core is empty)
+  function ranges(C) {
+    var rows = coreRows(C, false), out = [];
+    for (var i = 0; i < NC; i++) {
+      var c = zeros(6); c[i] = 1; c[i + 3] = -1;
+      var lo = LP.solve({ sense: "min", c: c, rows: rows }), hi = LP.solve({ sense: "max", c: c, rows: rows });
+      if (lo.status !== "optimal" || hi.status !== "optimal") return null;
+      out.push([lo.z, hi.z]);
+    }
+    return out;
+  }
+
+  // ---- the dual (4) of the grand coalition without fixed costs, and the Owen allocation u_i = D_i eta_i - sum Q gamma ----
+  function owen(d) {
+    var nE = NC, nG = NC * NP, nv = nE + nG + NC * (NP - 1);
+    function G(i, p) { return nE + i * NP + p; }
+    function F(i, p) { return nE + nG + i * (NP - 1) + p; }
+    var c = zeros(nv), rows = [], i, j, p;
+    for (i = 0; i < NC; i++) { c[i] = d.D[i]; for (p = 0; p < NP; p++) c[G(i, p)] = -d.Q[p][i]; }
+    for (p = 0; p < NP; p++) for (i = 0; i < NC; i++) for (j = 0; j < NC; j++) {
+      // one constraint per variable x_ji^p (from j to i at point p): (4d) at the first point, (4b) in between, (4c) at the last
+      var a = zeros(nv);
+      if (p === 0) a[j] += 1; else a[F(j, p - 1)] += 1;
+      if (p < NP - 1) a[F(i, p)] -= 1;
+      a[G(i, p)] -= 1;
+      rows.push({ a: a, op: "<=", b: d.c[p][i] + d.TS[p][j][i][1] });
+    }
+    var r = LP.solve({ sense: "max", c: c, rows: rows });
+    if (r.status !== "optimal") return null;
+    var u = [], eta = [], gam = [];
+    for (i = 0; i < NC; i++) {
+      var ui = d.D[i] * r.x[i];
+      eta.push(r.x[i]);
+      for (p = 0; p < NP; p++) { ui -= d.Q[p][i] * r.x[G(i, p)]; if (r.x[G(i, p)] > 1e-9) gam.push({ i: i, p: p, v: r.x[G(i, p)] }); }
+      u.push(ui);
+    }
+    return { u: u, eta: eta, gam: gam, z: r.z };
+  }
+
+  // Proposition 2 holds when lambda t_ij^p > D_i sum_q (c_i^q + s_ii^q) + lambda sum_q t_ii^q for every i != j and p
+  function utcThreshold(d) {
+    var th = 0;
+    for (var i = 0; i < NC; i++) {
+      var A = 0, Tii = 0, p;
+      for (p = 0; p < NP; p++) { A += d.D[i] * (d.c[p][i] + d.TS[p][i][i][1]); Tii += d.TS[p][i][i][0]; }
+      for (p = 0; p < NP; p++) for (var j = 0; j < NC; j++) {
+        if (j === i) continue;
+        var g = d.TS[p][i][j][0] - Tii;
+        if (g <= 0) return Infinity;
+        th = Math.max(th, A / g);
+      }
+    }
+    return th;
+  }
+  // Proposition 3: every capacity above the total demand, and at each point one fixed and one variable cost for all pairs
+  function ucetc(d, lam) {
+    var DN = d.D.reduce(function (s, v) { return s + v; }, 0), qmin = Infinity, eq = true;
+    for (var p = 0; p < NP; p++) {
+      for (var i = 0; i < NC; i++) {
+        qmin = Math.min(qmin, d.Q[p][i]);
+        for (var j = 0; j < NC; j++) {
+          if (Math.abs(lam * d.TS[p][i][j][0] - lam * d.TS[p][0][0][0]) > 1e-12 || d.TS[p][i][j][1] !== d.TS[p][0][0][1]) eq = false;
+        }
+      }
+    }
+    return { cap: qmin > DN, eq: eq, qmin: qmin, DN: DN };
+  }
+
+  // breakpoints of the lower envelope of the lines lp + lambda T on (0, hi]
+  function breaks(list, hi) {
+    var out = [], lam = 0, cur = null;
+    list.forEach(function (q) { if (!cur || q.lp < cur.lp - 1e-9 || (Math.abs(q.lp - cur.lp) <= 1e-9 && q.T < cur.T)) cur = q; });
+    for (var guard = 0; guard < 200; guard++) {
+      var next = Infinity, nb = null;
+      list.forEach(function (q) {
+        if (q.T < cur.T - 1e-12) {
+          var x = (q.lp - cur.lp) / (cur.T - q.T);
+          if (x > lam + 1e-12 && (x < next - 1e-12 || (Math.abs(x - next) <= 1e-12 && q.T < nb.T))) { next = x; nb = q; }
+        }
+      });
+      if (!nb || next > hi) break;
+      out.push(next); lam = next; cur = nb;
+    }
+    return out;
+  }
+
+  // the whole range of lambda: savings and margin at every breakpoint of every C(S) and on a log grid, the empty core
+  // intervals (edges by bisection) and the factor from which no transfer pays. Between two breakpoints every C(S) is
+  // linear in lambda and the margin is concave, so a sign of the margin seen at both ends of a step holds in between.
+  function scan(pats) {
+    var B = [0, LMAX], m, k;
+    for (m = 1; m < 8; m++) B = B.concat(breaks(pats[m], LMAX));
+    for (k = 0; k <= 240; k++) B.push(Math.expm1(LN * k / 240));
+    B.sort(function (a, b) { return a - b; });
+    var L = [];
+    B.forEach(function (v) { if (!L.length || v - L[L.length - 1] > 1e-9) L.push(v); });
+    function at(lam) { var g = values(pats, lam), C = g.C; return { lam: lam, sav: C[1] + C[2] + C[4] - C[7], eps: margin(C).eps }; }
+    var pts = L.map(at);
+    function bisect(a, b, test) { for (var it = 0; it < 50; it++) { var mid = (a + b) / 2; if (test(at(mid))) b = mid; else a = mid; } return (a + b) / 2; }
+    function isEmpty(q) { return q.sav > TOL && q.eps < -TOL; }
+    var empties = [], open = null;
+    for (k = 0; k < pts.length; k++) {
+      var e = isEmpty(pts[k]);
+      if (e && open == null) open = k === 0 ? 0 : bisect(pts[k - 1].lam, pts[k].lam, isEmpty);
+      if (!e && open != null) { empties.push([open, bisect(pts[k - 1].lam, pts[k].lam, function (q) { return !isEmpty(q); })]); open = null; }
+    }
+    if (open != null) empties.push([open, LMAX]);
+    var add = null;
+    for (k = 0; k < pts.length; k++) {
+      if (pts[k].sav <= TOL) { add = k === 0 ? 0 : bisect(pts[k - 1].lam, pts[k].lam, function (q) { return q.sav <= TOL; }); break; }
+    }
+    // ribbon: the state on each stretch between consecutive edges
+    var edges = [0, LMAX];
+    empties.forEach(function (iv) { edges.push(iv[0], iv[1]); });
+    if (add != null) edges.push(add);
+    edges.sort(function (a, b) { return a - b; });
+    var segs = [];
+    for (k = 0; k + 1 < edges.length; k++) {
+      if (edges[k + 1] - edges[k] < 1e-9) continue;
+      var mid = Math.expm1((Math.log1p(edges[k]) + Math.log1p(edges[k + 1])) / 2), q = at(mid);
+      segs.push({ a: edges[k], b: edges[k + 1], s: q.sav <= TOL ? "add" : q.eps < -TOL ? "empty" : "ok" });
+    }
+    var savMax = 0, epsMin = 0;
+    pts.forEach(function (q) { savMax = Math.max(savMax, q.sav); epsMin = Math.min(epsMin, q.eps); });
+    return { pts: pts, empties: empties, add: add, segs: segs, savMax: savMax, epsMin: epsMin };
+  }
+
+  // ---- state ----
+  // lambda moves over fixed stops (fine near 0, coarser further out), the slider runs on a log1p scale
+  var STOPS = [0];
+  (function () {
+    var v;
+    for (v = 5; v <= 100; v += 5) STOPS.push(v / 100);
+    for (v = 11; v <= 30; v += 1) STOPS.push(v / 10);
+    for (v = 13; v <= 24; v += 1) STOPS.push(v / 4);
+    for (v = 13; v <= 20; v += 1) STOPS.push(v / 2);
+    for (v = 11; v <= LMAX; v += 1) STOPS.push(v);
+  })();
+  function snapLam(x) {
+    var best = 0, bd = Infinity, lx = Math.log1p(Math.max(0, x));
+    STOPS.forEach(function (s) { var dd = Math.abs(Math.log1p(s) - lx); if (dd < bd) { bd = dd; best = s; } });
+    return best;
+  }
+  var inst = "ex1", lam = 1, selMask = 7, cache = {}, S = null, pending = false;
+
+  function f2(v) { if (Math.abs(v) < 5e-10) v = 0; var s = I18N.fmt(v, 2, 0); return v < 0 ? "−" + s.replace(/^[-−]/, "") : s; }
+  function f3(v) { return I18N.fmt(v, 3, 0); }
+  function setName(m) { return m === 7 ? "N" : "{" + members(m).map(function (i) { return i + 1; }).join(", ") + "}"; }
+  function vec(u) { return u.map(f2).join(t("stctt.w.vsep")); }
+  function svg(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function h(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function boxWidth(id) { var w = $(id).clientWidth; return Math.max(280, Math.min(1000, w || 640)); }
+  function niceStep(x) { var e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; }
+
+  function compute() {
+    var d = DATA[inst];
+    if (!cache[inst]) { var pats = precompute(d); cache[inst] = { pats: pats, scan: scan(pats), th: utcThreshold(d) }; }
+    var cc = cache[inst], g = values(cc.pats, lam), C = g.C;
+    var mg = margin(C), alone = C[1] + C[2] + C[4], sav = alone - C[7];
+    var st = sav <= TOL ? "add" : mg.eps < -TOL ? "empty" : "ok";
+    var ow = lam === 0 ? owen(d) : null, u, kind;
+    if (ow) { u = ow.u; kind = "owen"; }
+    else if (inst === "ex1" && lam === 1) { u = PAPER_U.slice(); kind = "paper"; }
+    else { u = mg.u; kind = "lp"; }
+    var floors = [0, 1, 2].map(function (i) { return C[7] - C[7 & ~(1 << i)]; });
+    S = {
+      d: d, cc: cc, C: C, pat: g.pat, eps: mg.eps, alone: alone, sav: sav, st: st, ow: ow, u: u, kind: kind,
+      rng: st === "empty" ? null : ranges(C), floors: floors, uc: ucetc(d, lam),
+      nf: lam === 0, utc: lam > cc.th + 1e-12
+    };
+  }
+  function inCore(u) {
+    for (var m = 1; m < 7; m++) { var s = 0; members(m).forEach(function (i) { s += u[i]; }); if (s > S.C[m] + 1e-6) return false; }
+    return Math.abs(u[0] + u[1] + u[2] - S.C[7]) < 1e-6;
+  }
+
+  // ---- chart over lambda ----
+  function drawChart() {
+    var host = $("fc-chart"); host.textContent = "";
+    var sc = S.cc.scan, W = boxWidth("fc-chart"), narrow = W < 520;
+    var H = narrow ? 250 : Math.round(Math.min(310, W * 0.34)), ML = 34, MR = 12, MT = 22, MB = 62;
+    var x0 = ML, x1 = W - MR, yT = MT, yB = H - MB;
+    var ymax = Math.max(4, sc.savMax) * 1.1, ymin = Math.min(0, sc.epsMin) - ymax * 0.08;
+    function X(l) { return x0 + (x1 - x0) * Math.log1p(l) / LN; }
+    function Y(v) { return yT + (yB - yT) * (ymax - v) / (ymax - ymin); }
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    sc.empties.forEach(function (e) {
+      s.appendChild(svg("rect", { "class": "band", x: X(e[0]), y: yT, width: Math.max(2, X(e[1]) - X(e[0])), height: yB - yT }));
+    });
+    var step = niceStep(ymax / 4);
+    for (var v = 0; v <= ymax + 1e-9; v += step) {
+      s.appendChild(svg("line", { "class": "grid", x1: x0, x2: x1, y1: Y(v), y2: Y(v) }));
+      s.appendChild(svg("text", { "class": "tick", x: x0 - 6, y: Y(v) + 4, "text-anchor": "end" }, f2(v)));
+    }
+    (narrow ? [0, 1, 2, 5, 10, 20, 30] : [0, 0.5, 1, 2, 5, 10, 20, 30]).forEach(function (l) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(l), x2: X(l), y1: yT, y2: yB }));
+      s.appendChild(svg("text", { "class": "tick", x: X(l), y: yB + 15, "text-anchor": "middle" }, I18N.fmt(l, 1)));
+    });
+    s.appendChild(svg("line", { "class": "zero", x1: x0, x2: x1, y1: Y(0), y2: Y(0) }));
+    // markers: the article's lambda = 1 and the threshold of Proposition 2
+    s.appendChild(svg("line", { "class": "mk", x1: X(1), x2: X(1), y1: yT - 4, y2: yB }));
+    s.appendChild(svg("text", { "class": "mk-t", x: X(1), y: yT - 8, "text-anchor": "middle" }, t("stctt.w.mk.paper")));
+    if (S.cc.th <= LMAX) {
+      s.appendChild(svg("line", { "class": "mk-utc", x1: X(S.cc.th), x2: X(S.cc.th), y1: yT - 4, y2: yB }));
+      s.appendChild(svg("text", { "class": "mk-t", x: X(S.cc.th) - 4, y: yT - 8, "text-anchor": "end" }, t("stctt.w.mk.utc")));
+    }
+    function poly(key, cls) {
+      var dd = "";
+      sc.pts.forEach(function (q, k) { dd += (k ? "L" : "M") + X(q.lam).toFixed(1) + " " + Y(q[key]).toFixed(1); });
+      s.appendChild(svg("path", { "class": cls, d: dd }));
+    }
+    poly("sav", "sav"); poly("eps", "eps");
+    sc.empties.forEach(function (e) {
+      s.appendChild(svg("text", { "class": "band-t", x: (X(e[0]) + X(e[1])) / 2, y: yT + 14, "text-anchor": "middle" }, t("stctt.w.band")));
+    });
+    // ribbon of states under the axis
+    var ry = yB + 25;
+    sc.segs.forEach(function (g) {
+      s.appendChild(svg("rect", { "class": "rb-" + g.s, x: X(g.a), y: ry, width: Math.max(1.5, X(g.b) - X(g.a)), height: 9 }));
+    });
+    s.appendChild(svg("text", { "class": "lab", x: x1, y: H - 6, "text-anchor": "end" }, t("stctt.w.ax")));
+    // current lambda
+    var cx = X(lam);
+    s.appendChild(svg("line", { "class": "cur", x1: cx, x2: cx, y1: yT, y2: ry + 9 }));
+    s.appendChild(svg("circle", { "class": "cur-d", cx: cx, cy: Y(S.sav), r: 4.5 }));
+    s.appendChild(svg("circle", { "class": "cur-e", cx: cx, cy: Y(S.eps), r: 4.5 }));
+    s.addEventListener("click", function (ev) {
+      var rect = s.getBoundingClientRect(), x = (ev.clientX - rect.left) * W / rect.width;
+      var l = Math.expm1(Math.max(0, Math.min(1, (x - x0) / (x1 - x0))) * LN);
+      lam = snapLam(l); schedule();
+    });
+    host.appendChild(s);
+    var leg = $("fc-legend"); leg.textContent = "";
+    [["l-sav", "stctt.w.leg.sav"], ["l-eps", "stctt.w.leg.eps"], ["r-ok", "stctt.w.leg.ok"], ["r-empty", "stctt.w.leg.empty"], ["r-add", "stctt.w.leg.add"]].forEach(function (L) {
+      var sp = h("span"); sp.append(h("i", L[0]), document.createTextNode(t(L[1]))); leg.appendChild(sp);
+    });
+    var th = isFinite(S.cc.th) ? f2(S.cc.th) : "∞", c = sc.add != null ? f2(sc.add) : "∞";
+    $("fc-cap").innerHTML = sc.empties.length
+      ? t("stctt.w.cap.empty", { a: f3(sc.empties[0][0]), b: f3(sc.empties[0][1]), c: c, d: th })
+      : t("stctt.w.cap.none", { c: c, d: th });
+  }
+
+  // ---- one optimal flow of the chosen coalition, drawn like Fig. 2 of the article ----
+  function drawFlow() {
+    var host = $("fc-flow"); host.textContent = "";
+    var d = S.d, W = boxWidth("fc-flow"), narrow = W < 460;
+    var L = narrow ? 62 : 84, R = narrow ? 8 : 18, top = 30, rowH = narrow ? 72 : 80, H = top + rowH * NC + 4;
+    var xs = [L + 8, 0, W - R - 6]; xs[1] = (xs[0] + xs[2]) / 2;
+    var mem = members(selMask), pat = S.pat[selMask], maxQ = 0, p, i;
+    for (p = 0; p < NP; p++) for (i = 0; i < NC; i++) maxQ = Math.max(maxQ, d.Q[p][i]);
+    var k = (narrow ? 13 : 16) / maxQ;
+    function Y(r) { return top + rowH * (r + 0.5); }
+    var carried = [zeros(NC), zeros(NC)], xf = [];
+    pat.x.forEach(function (e) { carried[e.p][e.i] += e.v; if (e.i !== e.j) xf.push(e); });
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    var defs = svg("defs", {}), mk = svg("marker", { id: "fc-arr", viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" });
+    mk.appendChild(svg("path", { "class": "arrow", d: "M0 0L10 5L0 10z" })); defs.appendChild(mk); s.appendChild(defs);
+    for (p = 0; p <= NP; p++) {
+      s.appendChild(svg("text", { "class": "hdr", x: p === NP ? xs[p] + 4 : xs[p], y: 14, "text-anchor": p === NP ? "end" : "middle" }, t("stctt.w.pt", { p: p + 1 })));
+    }
+    for (i = 0; i < NC; i++) {
+      var g = svg("g", mem.indexOf(i) < 0 ? { "class": "off" } : {}), y = Y(i);
+      g.appendChild(svg("circle", { "class": "badge", cx: 10, cy: y, r: 10 }));
+      g.appendChild(svg("text", { "class": "badge-t", x: 10, y: y + 4, "text-anchor": "middle" }, String(i + 1)));
+      g.appendChild(svg("text", { "class": "dem", x: 26, y: y + 4 }, t("stctt.w.dem", { d: f2(d.D[i]) })));
+      for (p = 0; p < NP; p++) {
+        var q = d.Q[p][i], vol = carried[p][i], hq = q * k, full = vol > q - 1e-9;
+        g.appendChild(svg("rect", { "class": "track", x: xs[p], y: y - hq / 2, width: xs[p + 1] - xs[p], height: hq }));
+        if (vol > 1e-9) g.appendChild(svg("rect", { "class": "vol", x: xs[p], y: y - vol * k / 2, width: xs[p + 1] - xs[p], height: vol * k }));
+        if (mem.indexOf(i) >= 0) {
+          // above the bar, at the end of the leg: volume / capacity and the transport cost in brackets
+          var lt = svg("text", { "class": "lt" + (full ? " full" : ""), x: xs[p + 1] - 9, y: y - hq / 2 - 5, "text-anchor": "end" }, f2(vol) + "/" + f2(q));
+          if (vol > 1e-9) lt.appendChild(svg("tspan", { "class": "lc" }, " (" + f2(vol * d.c[p][i]) + ")"));
+          g.appendChild(lt);
+        }
+      }
+      for (p = 0; p <= NP; p++) g.appendChild(svg("circle", { "class": "node", cx: xs[p], cy: y, r: 4.5 }));
+      s.appendChild(g);
+    }
+    // transfers between carriers: from the sender's node at point p into the receiver's leg; the labels (volume and
+    // transfer cost) go under the receiver's bar, right of the arrow heads, one line per sender
+    var groups = {};
+    xf.forEach(function (e) { var key = e.p + ":" + e.i; (groups[key] = groups[key] || []).push(e); });
+    Object.keys(groups).forEach(function (key) {
+      var grp = groups[key].sort(function (a, b) { return a.j - b.j; }), base = narrow ? 26 : 34, maxDx = base + (grp.length - 1) * 14;
+      grp.forEach(function (e, n) {
+        var dx = base + n * 14, sx = xs[e.p], sy = Y(e.j), ex = xs[e.p] + dx, ey = Y(e.i), down = e.i > e.j;
+        var hq = d.Q[e.p][e.i] * k, ey2 = ey + (down ? -hq / 2 - 2 : hq / 2 + 2);
+        s.appendChild(svg("path", { "class": "xfer", d: "M" + sx + " " + sy + "C" + (sx + dx * 0.15) + " " + (sy + (ey2 - sy) * 0.55) + " " + (ex - dx * 0.1) + " " + (ey2 - (down ? 14 : -14)) + " " + ex + " " + ey2, "marker-end": "url(#fc-arr)" }));
+        var cost = d.TS[e.p][e.j][e.i][1] * e.v + lam * d.TS[e.p][e.j][e.i][0];
+        var txt = (grp.length > 1 ? t("stctt.w.from", { j: e.j + 1 }) : "") + f2(e.v) + " (" + f2(cost) + ")";
+        s.appendChild(svg("text", { "class": "xfer-t", x: xs[e.p] + maxDx + 6, y: ey + d.Q[e.p][e.i] * k / 2 + 14 + n * 13, "text-anchor": "start" }, txt));
+      });
+    });
+    host.appendChild(s);
+    var tr = 0, ha = 0, fx = 0;
+    pat.x.forEach(function (e) { tr += d.c[e.p][e.i] * e.v; ha += d.TS[e.p][e.j][e.i][1] * e.v; });
+    xf.forEach(function (e) { fx += lam * d.TS[e.p][e.j][e.i][0]; });
+    $("fc-cost").innerHTML = t("stctt.w.cost", { S: setName(selMask), v: "<b>" + f2(S.C[selMask]) + "</b>", tr: f2(tr), ha: f2(ha), fx: f2(fx) });
+  }
+
+  function kpi(label, value, cls) { var dv = h("div", "st-kpi" + (cls ? " " + cls : "")); dv.append(h("b", null, value), h("span", null, label)); return dv; }
+
+  function verdict() {
+    var parts = [], cls = "ok", v = $("fc-verdict");
+    if (S.st === "add") {
+      parts.push(t("stctt.w.v.add", { l: f2(lam), cn: f2(S.C[7]), u: vec([S.C[1], S.C[2], S.C[4]]) }));
+      var c = S.cc.scan.add != null ? f2(S.cc.scan.add) : "∞", th = isFinite(S.cc.th) ? f2(S.cc.th) : "∞";
+      parts.push(t(S.utc ? "stctt.w.v.add.utc" : "stctt.w.v.add.pre", { th: th, c: c }));
+      cls = "";
+    } else if (S.st === "empty") {
+      cls = "bad";
+      var sb = S.floors[0] + S.floors[1] + S.floors[2];
+      parts.push(t("stctt.w.v.empty", { b: S.floors.map(f2).join(" + "), sb: f2(sb), cn: f2(S.C[7]), sav: f2(S.sav), e: f2(-S.eps) }));
+    } else {
+      parts.push(t(Math.abs(S.eps) <= TOL ? "stctt.w.v.ok0" : "stctt.w.v.ok", { sav: f2(S.sav), e: f2(S.eps) }));
+    }
+    if (S.ow) {
+      var gam = S.ow.gam.map(function (q) { return t("stctt.w.v.gam", { v: f2(q.v), i: q.i + 1, p: q.p + 1 }); }).join(t("stctt.w.list"));
+      parts.push(t("stctt.w.v.nf", { u: vec(S.ow.u), eta: vec(S.ow.eta), gam: gam || t("stctt.w.v.gam0"), z: f2(S.ow.z) }));
+    }
+    if (S.kind === "paper") parts.push(t(inCore(S.u) ? "stctt.w.v.paper" : "stctt.w.v.paperbad"));
+    v.className = "st-verdict" + (cls ? " " + cls : "");
+    v.innerHTML = parts.join(" ");
+  }
+
+  function conds() {
+    var ul = $("fc-conds"); ul.textContent = "";
+    var th = isFinite(S.cc.th) ? f2(S.cc.th) : "∞", why = [];
+    if (!S.uc.cap) why.push(t("stctt.w.c.ucetc.cap", { q: f2(S.uc.qmin), d: f2(S.uc.DN) }));
+    if (!S.uc.eq) why.push(t("stctt.w.c.ucetc.cost"));
+    [
+      ["stctt.w.c.nf", S.nf, t(S.nf ? "stctt.w.c.nf.yes" : "stctt.w.c.nf.no", { l: f2(lam) })],
+      ["stctt.w.c.utc", S.utc, t(S.utc ? "stctt.w.c.utc.yes" : "stctt.w.c.utc.no", { l: f2(lam), th: th })],
+      ["stctt.w.c.ucetc", S.uc.cap && S.uc.eq, why.length ? why.join(t("stctt.w.c.sep")) : t("stctt.w.c.ucetc.yes")]
+    ].forEach(function (c) {
+      var li = h("li", c[1] ? "on" : null), nm = h("span");
+      nm.innerHTML = t(c[0]);
+      var w = h("span", "why"); w.innerHTML = c[2];
+      li.append(nm, h("span", "yn", t(c[1] ? "stctt.w.c.yes" : "stctt.w.c.no")), w);
+      ul.appendChild(li);
+    });
+  }
+
+  function tables() {
+    var C = S.C, u = S.u, uKey = "stctt.w.t.u." + S.kind;
+    // per carrier
+    var tb = h("table"), tr = h("tr"), th = h("thead");
+    [["stctt.w.t.i", ""], ["stctt.w.t.D", "num wide"], ["stctt.w.t.alone", "num"], ["stctt.w.t.floor", "num"], ["stctt.w.t.range", "num"], [uKey, "num"]].forEach(function (c) { tr.appendChild(h("th", c[1], t(c[0]))); });
+    th.appendChild(tr); tb.appendChild(th);
+    var body = h("tbody");
+    for (var i = 0; i < NC; i++) {
+      var row = h("tr");
+      row.append(h("td", null, String(i + 1)), h("td", "num wide", f2(S.d.D[i])), h("td", "num", f2(C[1 << i])), h("td", "num", f2(S.floors[i])),
+        h("td", "num", S.rng ? t("stctt.w.range", { lo: f2(S.rng[i][0]), hi: f2(S.rng[i][1]) }) : t("stctt.w.na")), h("td", "num", f2(u[i])));
+      body.appendChild(row);
+    }
+    tb.appendChild(body);
+    var hc = $("fc-car"); hc.textContent = ""; hc.appendChild(tb);
+    // per coalition
+    var tc = h("table"), th2 = h("thead"), tr2 = h("tr");
+    [["stctt.w.t.S", ""], ["stctt.w.t.CS", "num"], ["stctt.w.t.sumS", "num"], ["stctt.w.t.savS", "num"], ["stctt.w.t.uS", "num"], ["stctt.w.t.tr", "wide"]].forEach(function (c) { tr2.appendChild(h("th", c[1], t(c[0]))); });
+    th2.appendChild(tr2); tc.appendChild(th2);
+    var b2 = h("tbody");
+    ORDER.forEach(function (m) {
+      var mem = members(m), us = 0, al = 0;
+      mem.forEach(function (k) { us += u[k]; al += C[1 << k]; });
+      var ok = m === 7 ? Math.abs(us - C[7]) < 1e-6 : us <= C[m] + 1e-6;
+      var row = h("tr", m === 7 ? "grand" : null), cell = h("td", "num", f2(us) + " ");
+      cell.appendChild(h("span", ok ? "ok" : "bad", t(ok ? "stctt.w.yes" : "stctt.w.no")));
+      var xs = S.pat[m].x.filter(function (e) { return e.i !== e.j; }).map(function (e) {
+        return t("stctt.w.tr.item", { a: e.j + 1, b: e.i + 1, p: e.p + 1, v: f2(e.v) });
+      });
+      row.append(h("td", null, setName(m)), h("td", "num", f2(C[m])), h("td", "num", f2(al)), h("td", "num", f2(al - C[m])), cell,
+        h("td", "wide", xs.length ? xs.join(t("stctt.w.list")) : t("stctt.w.tr.none")));
+      b2.appendChild(row);
+    });
+    tc.appendChild(b2);
+    var hk = $("fc-coa"); hk.textContent = ""; hk.appendChild(tc);
+  }
+
+  function dataTables() {
+    var d = S.d, host = $("fc-data"); host.textContent = "";
+    var t1 = h("table"), hd = h("thead"), r0 = h("tr");
+    [t("stctt.w.d.car"), "D", "Q¹", "Q²", "c¹", "c²"].forEach(function (x, k) { r0.appendChild(h("th", k ? "num" : "", x)); });
+    hd.appendChild(r0); t1.appendChild(hd);
+    var b1 = h("tbody");
+    for (var i = 0; i < NC; i++) {
+      var r = h("tr");
+      [String(i + 1), d.D[i], d.Q[0][i], d.Q[1][i], d.c[0][i], d.c[1][i]].forEach(function (x, k) { r.appendChild(h("td", k ? "num" : "", String(x))); });
+      b1.appendChild(r);
+    }
+    t1.appendChild(b1); host.appendChild(t1);
+    for (var p = 0; p < NP; p++) {
+      var tp = h("table"), cap = h("caption", null, t("stctt.w.d.pt", { p: p + 1 })), hp = h("thead"), rp = h("tr");
+      tp.appendChild(cap);
+      ["", "1", "2", "3"].forEach(function (x, k) { rp.appendChild(h("th", k ? "num" : "", x)); });
+      hp.appendChild(rp); tp.appendChild(hp);
+      var bp = h("tbody");
+      for (i = 0; i < NC; i++) {
+        var rr = h("tr"); rr.appendChild(h("td", null, String(i + 1)));
+        for (var j = 0; j < NC; j++) rr.appendChild(h("td", "num", d.TS[p][i][j][0] + ", " + d.TS[p][i][j][1]));
+        bp.appendChild(rr);
+      }
+      tp.appendChild(bp); host.appendChild(tp);
+    }
+  }
+
+  function update() {
+    compute();
+    document.querySelectorAll("#fc-inst button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-inst") === inst)); });
+    document.querySelectorAll("#fc-snaps button").forEach(function (b) {
+      var k = b.getAttribute("data-snap");
+      b.setAttribute("aria-pressed", String(k === "nf" ? lam === 0 : k === "paper" ? lam === 1 : S.utc));
+    });
+    var sl = $("fc-l"), want = Math.round(1000 * Math.log1p(lam) / LN);
+    if (snapLam(Math.expm1(+sl.value / 1000 * LN)) !== lam) sl.value = String(want);
+    $("fc-l-out").textContent = "λ = " + f2(lam);
+    // coalition buttons
+    var cb = $("fc-coal");
+    if (!cb.children.length) {
+      ORDER.forEach(function (m) {
+        var b = h("button", null, setName(m).replace(/, /g, ",")); b.type = "button"; b.setAttribute("data-m", String(m));
+        b.addEventListener("click", function () { selMask = m; drawFlow(); markCoal(); });
+        cb.appendChild(b);
+      });
+    }
+    markCoal();
+    var k = $("fc-kpis"); k.textContent = "";
+    var cond = S.nf ? "stctt.w.cond.nf" : S.utc ? "stctt.w.cond.utc" : S.uc.cap && S.uc.eq ? "stctt.w.cond.ucetc" : "stctt.w.cond.none";
+    k.append(kpi(t("stctt.w.k.alone"), f2(S.alone)), kpi(t("stctt.w.k.cn"), f2(S.C[7]), "accent"), kpi(t("stctt.w.k.sav"), f2(S.sav)),
+      kpi(t("stctt.w.k.core"), t(S.st === "empty" ? "stctt.w.core.no" : "stctt.w.core.yes"), S.st === "empty" ? "warn" : null),
+      kpi(t("stctt.w.k.eps"), f2(S.eps), S.eps < -TOL ? "warn" : null), kpi(t("stctt.w.k.cond"), t(cond)));
+    drawChart();
+    verdict();
+    conds();
+    drawFlow();
+    tables();
+    dataTables();
+  }
+  function markCoal() {
+    document.querySelectorAll("#fc-coal button").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-m") === selMask)); });
+  }
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; update(); });
+  }
+
+  document.querySelectorAll("#fc-inst button").forEach(function (b) {
+    b.addEventListener("click", function () { inst = b.getAttribute("data-inst"); schedule(); });
+  });
+  document.querySelectorAll("#fc-snaps button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-snap"), th = cache[inst] ? cache[inst].th : utcThreshold(DATA[inst]);
+      if (k === "nf") lam = 0;
+      else if (k === "paper") lam = 1;
+      else lam = STOPS.filter(function (s) { return s > th + 1e-9; })[0] || LMAX;
+      schedule();
+    });
+  });
+  $("fc-l").addEventListener("input", function () { lam = snapLam(Math.expm1(+this.value / 1000 * LN)); schedule(); });
+
+  I18N.onChange(update);
+  var resizeTimer, lastW = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var w = $("fc-chart").clientWidth;
+      if (S && w !== lastW) { lastW = w; drawChart(); drawFlow(); }
+    }, 120);
+  });
+})();
+</script>
+<!-- after the page scripts, so each language switch first rebuilds the page and then typesets its formulas -->
+<script src="../../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+</body>
+</html>

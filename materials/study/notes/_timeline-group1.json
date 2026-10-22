@@ -1,0 +1,89 @@
+{
+ "order": [
+  "2020-vaccination",
+  "2021-3d-printing",
+  "2022-choice-based-pricing",
+  "2023-streaming-platforms",
+  "2024-freight-consolidation"
+ ],
+ "evolution_en": "Ordered by chronology_date, the five papers open and close with cooperative games in operations, with one single decision maker stochastic optimization paper in 2021. The 2020 paper (with Westerink-Duijzer and Musegaas, Production and Operations Management) models vaccine redistribution as a resource pooling game whose coalition values come from a knapsack problem with S-shaped returns. It shows the core can be empty, proves it non-empty under severe shortage and sufficient supply with single-price market allocations, and tests this on a 10-region H1N1 case. The 2021 paper (with Tönissen, Computers & Operations Research) has no players or coalitions: a two-stage stochastic integer program decides which items, 3D-printers and printing material to pack for disaster response, solved via a deterministic equivalent. It also has a knapsack structure, but its reference list contains no Schlicher paper. The 2022 paper (with Lurkin, EJOR) adds a multinomial logit choice model: micromobility operators set prices jointly under a fixed total market share. The game has a closed-form characteristic function; proportional rules and the Shapley value can leave the core, while a new market share exchange rule is always in it. The 2023 paper (with Dietzenbacher and Musegaas, Omega) studies a revenue game for streaming platforms where coalitions re-optimize a posted fee, with sufficient conditions for stability or instability by market type. The 2024 letter (with Mercurio, Rohmer and Van Woensel, Operations Research Letters) builds a cost game for freight consolidation from a MILP; without fixed transfer costs it is an Owen linear production game with dual-based core allocations. A template recurs in 2020, 2023 and 2024: define a game from an operational problem, prove core (non)emptiness for subclasses, give counterexamples, then explore the rest numerically. Duality is a recurring tool (2020, 2022, 2024). The 2022 and 2023 papers cite the 2020 paper; the 2024 letter cites none. Co-authors change in every paper; only Musegaas appears twice. Schlicher's printed affiliation moves from the Netherlands Defense Academy (2020) to Eindhoven University of Technology (2021 onward).",
+ "themes": [
+  {
+   "theme": "Cooperative TU games: core non-emptiness as the stability test",
+   "slugs": [
+    "2020-vaccination",
+    "2022-choice-based-pricing",
+    "2023-streaming-platforms",
+    "2024-freight-consolidation"
+   ]
+  },
+  {
+   "theme": "Allocation rules and prices (market price, market share exchange rule, constructive core allocations, Owen set)",
+   "slugs": [
+    "2020-vaccination",
+    "2022-choice-based-pricing",
+    "2023-streaming-platforms",
+    "2024-freight-consolidation"
+   ]
+  },
+  {
+   "theme": "Sufficient conditions for subclasses plus numerical study of the uncovered cases",
+   "slugs": [
+    "2020-vaccination",
+    "2023-streaming-platforms",
+    "2024-freight-consolidation"
+   ]
+  },
+  {
+   "theme": "Duality and Lagrangian arguments (non-linear duality for core prices, Lagrangian sufficiency, LP dual / Owen set)",
+   "slugs": [
+    "2020-vaccination",
+    "2022-choice-based-pricing",
+    "2024-freight-consolidation"
+   ]
+  },
+  {
+   "theme": "Pricing against heterogeneous customers (multinomial logit choice, posted subscription fee)",
+   "slugs": [
+    "2022-choice-based-pricing",
+    "2023-streaming-platforms"
+   ]
+  },
+  {
+   "theme": "Knapsack-type optimization (S-shaped knapsack, two-stage stochastic multidimensional knapsack)",
+   "slugs": [
+    "2020-vaccination",
+    "2021-3d-printing"
+   ]
+  },
+  {
+   "theme": "Single decision maker stochastic integer programming (no game)",
+   "slugs": [
+    "2021-3d-printing"
+   ]
+  },
+  {
+   "theme": "Health and disaster response applications",
+   "slugs": [
+    "2020-vaccination",
+    "2021-3d-printing"
+   ]
+  },
+  {
+   "theme": "Transport and logistics applications (relief cargo, micromobility, freight consolidation)",
+   "slugs": [
+    "2021-3d-printing",
+    "2022-choice-based-pricing",
+    "2024-freight-consolidation"
+   ]
+  },
+  {
+   "theme": "Platforms, markets and competition policy (antitrust exemption, streaming revenue sharing)",
+   "slugs": [
+    "2022-choice-based-pricing",
+    "2023-streaming-platforms"
+   ]
+  }
+ ],
+ "gaps_note": "The timeline starts in 2020 only because nothing earlier has been uploaded. The notes cite earlier resource and spare parts pooling papers by Schlicher that are not in this set: Schlicher, Slikker and van Houtum 2017 (maximal covering location games, Oper. Res. Lett.), 2017 (probabilistic resource pooling games, Nav. Res. Logist.), 2018 (pooling of critical, low-utilization resources with unavailability, OR Spectrum), and Schlicher, Slikker, van Jaarsveld and van Houtum 2020 (stratified pooling games, Math. Oper. Res.). The thesis has not been uploaded either. So the timeline cannot show where the pooling line began, how the railway, spare parts and repair resource problems were modeled, or how they led to the vaccination paper. It also cannot show whether the 2021 3D-printing paper is a one-off or part of a wider stochastic optimization line. Later work is also missing. The notes mention a choice-based resource allocation paper on pickpocketing with Lurkin (EJOR 315, 2024) and a parcel locker paper by the same four freight authors (Int. J. Production Economics, 2026). Both sit in the study folder but are not in this upload, so the trajectory after mid-2024 is unknown. Dates are not fully comparable. The 2020 date is the acceptance month (March 2020) because no online date is printed, while the other four use the available-online date. Online supplements (proofs, appendix numerics) for the 2020, 2022 and 2024 papers are not in the PDFs."
+}

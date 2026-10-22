@@ -1,0 +1,2835 @@
+<!doctype html>
+<html lang="en" data-title-key="gtc.title" data-i18n-bundles="lab/lab-gtb-share">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Game Theory 4: Share the Savings</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  [hidden] { display: none !important; }
+  /* bright red for new or urgent cues; where the dark theme makes the accent that same red, the crit shade */
+  :root { --hot: var(--mit-bright); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hot: var(--crit); } }
+  :root[data-theme="dark"] { --hot: var(--crit); }
+
+  section.block { grid-template-columns: minmax(0, 1fr); scroll-margin-top: 70px; }
+  section.block > * { min-width: 0; }
+  .case-num { display: block; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 4px; }
+  .mhead { margin: 14px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 80ch; }
+  .mtext b, .mtext strong { color: var(--ink); }
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 26px; align-items: start; }
+  @media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+  .two > div { min-width: 0; }
+
+  /* ---- animation ---- */
+  #gtc-sec .anim-hud {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+    top: 12px; left: 12px; width: min(310px, max(232px, 30%)); max-width: none;
+  }
+  #gtc-sec .anim-hud .chip-stat { opacity: 0; min-width: 0; }
+  #gtc-sec .anim-hud .chip-stat span { display: block; line-height: 1.2; }
+  #gtc-sec .anim-hud .chip-stat.hot b { color: var(--hot); }
+  #gtc-sec .anim-hud .chip-stat.long b { font-size: 14.5px; white-space: nowrap; }
+  @media (min-width: 621px) and (max-width: 820px) {
+    #gtc-sec .anim-hud .chip-stat { padding: 4px 7px; font-size: 11px; }
+    #gtc-sec .anim-hud .chip-stat b { font-size: 15px; }
+    #gtc-sec .anim-hud .chip-stat.long b { font-size: 12.5px; }
+  }
+  @media (max-width: 620px) {
+    #gtc-sec .anim-hud { top: 8px; left: 8px; right: 8px; width: auto; gap: 4px; }
+    #gtc-sec .anim-hud .chip-stat { padding: 3px 6px; font-size: 10.5px; }
+    #gtc-sec .anim-hud .chip-stat b { font-size: 14px; }
+    #gtc-sec .anim-hud .chip-stat.long b { font-size: 12px; }
+  }
+  .anim-legend i.lg-core { width: 14px; height: 11px; background: var(--sel); border: 2px solid var(--accent); }
+  .anim-legend i.lg-reg { width: 14px; height: 11px; background: var(--region); border: 1px solid var(--mit-silver); }
+  .anim-legend i.lg-in { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+  .anim-legend i.lg-out { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--hot); }
+  .anim-legend i.lg-web { width: 18px; height: 0; border-top: 2px dashed var(--ink); }
+  .anim-legend i.lg-shap { width: 10px; height: 10px; background: var(--ink); transform: rotate(45deg); margin: 0 2px; }
+  .anim-legend i.lg-nuc { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent); margin: 0 3px; }
+  .scen-status {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 3px; padding: 9px 13px; font-size: 14px; color: var(--ink2); margin: 0;
+  }
+  .scen-status b { color: var(--ink); }
+
+  /* ---- controls ---- */
+  .ctl-row { display: flex; flex-wrap: wrap; gap: 12px 26px; align-items: flex-end; }
+  .ctl-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ctl-group .lbl, label.lbl { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+  button.btn {
+    font: 600 13px var(--font-sans); color: var(--on-solid); background: var(--accent); border: 1px solid var(--accent); border-radius: 2px;
+    padding: 7px 11px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.1); }
+  button.btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--border); }
+  button.btn.ghost[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
+  .rng { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; min-width: 0; flex: 1 1 200px; max-width: 360px; }
+  .rng label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .rng output { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .rng input[type="range"] { flex: 1 1 100%; width: 100%; accent-color: var(--accent); margin: 4px 0 0; }
+  select.sel {
+    font: 13.5px var(--font-sans); color: var(--ink); background: var(--surface2); max-width: 100%;
+    border: 1px solid var(--border); border-radius: 2px; padding: 6px 8px;
+  }
+  /* a segmented control laid out as a grid (eight data sets) */
+  .seg.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .seg.grid button { border: 0 !important; padding: 8px 10px; }
+  @media (max-width: 560px) {
+    .seg.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ctl-row > .ctl-group { flex: 1 1 100%; }
+  }
+  .src-panel { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .sliders { display: flex; flex-wrap: wrap; gap: 10px 22px; flex: 1 1 100%; }
+  .sliders .rng { flex: 1 1 160px; max-width: 240px; }
+  .num-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; max-width: 640px; }
+  @media (max-width: 620px) { .num-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .num-grid label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--ink2); font-weight: 600; min-width: 0; }
+  input.num {
+    width: 100%; min-width: 0; font: 600 13.5px var(--font-sans); color: var(--ink); background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 2px; padding: 5px 6px; text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .story { font-size: 14px; color: var(--ink2); margin: 14px 0 0; max-width: 92ch; }
+  .story b { color: var(--ink); }
+  .regime { margin-top: 10px; max-width: 640px; }
+  .regime svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .regime svg text { font-family: var(--font-sans); font-size: 11px; fill: var(--ink2); }
+
+  /* ---- live numbers ---- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+  @media (max-width: 460px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .kpi { border: 1px solid var(--border); border-radius: 3px; padding: 8px 11px; background: var(--surface); min-width: 0; }
+  .kpi b { display: block; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: -0.01em; line-height: 1.2; overflow-wrap: anywhere; }
+  .kpi span { display: block; font-size: 12.5px; color: var(--ink2); line-height: 1.3; margin-top: 2px; }
+  .kpi.accent { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .kpi.accent b { color: var(--accent-text); }
+  .kpi.hot { border-color: var(--hot); box-shadow: inset 3px 0 0 var(--hot); }
+  .kpi.hot b { color: var(--hot); }
+  @media (max-width: 460px) { .kpi b { font-size: 15.5px; } .kpi span { font-size: 12px; } }
+  .verdict { margin: 12px 0 0; padding: 10px 14px; border-radius: 3px; font-size: 14px; border: 1px solid var(--border); border-left: 3px solid var(--ink2); background: var(--surface2); color: var(--ink2); max-width: 92ch; }
+  .verdict b { color: var(--ink); }
+  .verdict.ok { border-left-color: var(--accent); }
+  .verdict.bad { border-left-color: var(--hot); }
+
+  /* ---- triangle and coalition table ---- */
+  .tri-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 14px 26px; margin-top: 14px; align-items: start; }
+  @media (max-width: 900px) { .tri-grid { grid-template-columns: minmax(0, 1fr); } }
+  .tri-grid > div { min-width: 0; }
+  .chart-title { margin: 0; font-size: 13px; font-weight: 700; color: var(--ink); }
+  .chartbox { margin-top: 8px; min-width: 0; }
+  .chartbox svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: none; }
+  .chartbox svg text { font-family: var(--font-sans); font-size: 12px; fill: var(--ink2); }
+  .chartbox svg text.b { font-weight: 700; fill: var(--ink); }
+  .chartbox svg text.acc { font-weight: 700; fill: var(--accent-text); }
+  .chartbox svg text.hot { font-weight: 700; fill: var(--hot); }
+  .chartbox svg text.mut { fill: var(--muted); }
+  .sv-halo { paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+  .nontri { font-size: 13.5px; color: var(--ink2); margin: 8px 0 0; padding: 12px 14px; border: 1px dashed var(--border); border-radius: 3px; }
+  .legend2 { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
+  .legend2 span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend2 i { display: inline-block; flex: none; }
+  .legend2 i.l-core { width: 14px; height: 11px; background: var(--sel); border: 2px solid var(--accent); }
+  .legend2 i.l-reg { width: 14px; height: 11px; background: var(--region); border: 1px solid var(--mit-silver); }
+  .legend2 i.l-you { width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid var(--ink); }
+  .legend2 i.l-shap { width: 9px; height: 9px; background: var(--ink); transform: rotate(45deg); margin: 0 2px; }
+  .legend2 i.l-nuc { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .legend2 i.l-owen { width: 10px; height: 10px; background: var(--surface); border: 2.5px solid var(--accent); }
+  .legend2 i.l-web { width: 18px; height: 0; border-top: 2px dashed var(--ink); }
+  .legend2 i.l-eps { width: 18px; height: 0; border-top: 2.5px dashed var(--accent); }
+  .legend2 i.l-rule { width: 9px; height: 9px; border-radius: 50%; background: var(--mit-silver); }
+  .tri-help { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
+  .tblwrap { overflow-x: auto; margin-top: 8px; }
+  table.data { min-width: 0; }
+  table.data td, table.data th { white-space: nowrap; }
+  table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.data td.bad { color: var(--hot); font-weight: 700; }
+  table.data td.good { color: var(--ink2); }
+  table.data td.mut { color: var(--muted); }
+  table.data tr.grand td { border-top: 1px solid var(--axis); font-weight: 600; }
+  table.data tr.sel td { background: var(--sel); }
+  table.data.compact { font-size: 13px; }
+  .lens-panel table.data.compact, #gtc-pooltab, #gtc-links, #gtc-ws-own { width: auto; min-width: min(100%, 340px); }
+  .lens-panel #gtc-board { width: 100%; }
+  #gtc-board th { white-space: normal; vertical-align: bottom; min-width: 80px; }
+  #gtc-coal th { white-space: normal; vertical-align: bottom; }
+  #gtc-board td { white-space: normal; min-width: 64px; }
+  #gtc-board td:first-child { min-width: 120px; }
+  #gtc-board td:nth-child(2) { white-space: nowrap; }
+  #gtc-board td:nth-child(n+3) { min-width: 96px; }
+  #gtc-lattice svg, #gtc-map svg { max-width: 440px; }
+  #gtc-verts-box { margin-top: 16px; }
+  table.data.compact td, table.data.compact th { padding: 5px 8px; }
+  .tsel { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 8px; }
+  .tsel label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+
+  /* ---- lenses ---- */
+  .lens-panel { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .lens-panel .chart-title { margin-top: 16px; }
+  .lens-panel .chart-title:first-child { margin-top: 0; }
+  .gauge { display: grid; gap: 5px; margin-top: 10px; max-width: 560px; }
+  .gbar { display: grid; grid-template-columns: 120px minmax(0, 1fr) 70px; gap: 8px; align-items: center; font-size: 12.5px; color: var(--ink2); }
+  .gbar .tr { height: 13px; background: var(--surface2); border: 1px solid var(--border); position: relative; }
+  .gbar .tr i { position: absolute; inset: 0 auto 0 0; background: var(--ink2); }
+  .gbar.z .tr i { background: var(--accent); }
+  .gbar.z.bad .tr i { background: var(--hot); }
+  .gbar output { font-family: var(--font-mono); font-size: 12px; text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+  @media (max-width: 460px) { .gbar { grid-template-columns: 92px minmax(0, 1fr) 60px; } }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chips .pc { font-size: 12.5px; border: 1px solid var(--border); border-radius: 2px; padding: 4px 8px; color: var(--ink2); background: var(--surface); }
+  .chips .pc b { color: var(--ink); }
+  .chips .pc.on { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .chips .pc.on b { color: var(--accent-text); }
+  .elog { margin: 10px 0 0; padding-left: 22px; font-size: 13.5px; color: var(--ink2); max-width: 92ch; }
+  .elog li { margin: 3px 0; }
+  .elog li b { color: var(--ink); }
+  .cols3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 18px; }
+  @media (max-width: 860px) { .cols3 { grid-template-columns: minmax(0, 1fr); } }
+  .cols3 > div, .cols2 > div { min-width: 0; }
+  .cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 22px; }
+  @media (max-width: 760px) { .cols2 { grid-template-columns: minmax(0, 1fr); } }
+  .yes { color: var(--accent-text); font-weight: 700; }
+  .no { color: var(--hot); font-weight: 700; }
+  .na { color: var(--muted); }
+  .paths { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 14px; margin-top: 10px; }
+  @media (max-width: 760px) { .paths { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .paths svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .paths svg text { font-family: var(--font-sans); font-size: 11px; fill: var(--ink2); }
+  .paths .pt { font-size: 12.5px; font-weight: 700; color: var(--ink); margin: 0; }
+  .map-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 22px; align-items: start; }
+  @media (max-width: 760px) { .map-grid { grid-template-columns: minmax(0, 1fr); } }
+  .map-grid > div { min-width: 0; }
+  #gtc-map circle.drag { cursor: grab; }
+  #gtc-lattice g.node { cursor: pointer; }
+  #gtc-lattice g.node:focus { outline: none; }
+  #gtc-lattice g.node:focus-visible rect { stroke: var(--ink); stroke-width: 2.5; }
+  .own-tbl input.num { max-width: 84px; }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="gtc.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="gtc.eyebrow"></p>
+    <h1 data-i18n="gtc.title"></h1>
+    <p class="lede" id="gtc-lede"></p>
+  </header>
+
+  <!-- =================================================================== contracts change the game -->
+  <div class="card">
+    <h2><span class="kicker" data-i18n="gtc.what.kicker"></span><span data-i18n="gtc.what.title"></span></h2>
+    <div class="two">
+      <div>
+        <p class="mtext" style="margin-top:0" data-i18n-html="gtc.what.p1"></p>
+        <p class="mtext" id="gtc-what-pw"></p>
+        <p class="mtext" data-i18n-html="gtc.what.p3"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="gtc.what.head"></p>
+        <div class="formula" data-tex="gtc.what.tex" data-i18n="gtc.what.formula"></div>
+        <p class="mtext" data-i18n-html="gtc.what.p4"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================== 1. animation -->
+  <section class="block" id="gtc-sec" aria-labelledby="h-anim">
+    <h2 class="section-title" id="h-anim"><span class="case-num" data-i18n="gtc.part1"></span><span data-i18n="nav.animation"></span></h2>
+    <p class="section-intro" id="gtc-anim-intro"></p>
+    <div class="anim-controls">
+      <span class="ctl-label" id="gtc-sc-lbl" data-i18n="gtc.anim.ctl"></span>
+      <div class="seg" role="group" aria-labelledby="gtc-sc-lbl" id="gtc-seg">
+        <button type="button" data-sc="weak" aria-pressed="false"></button>
+        <button type="button" data-sc="mid" aria-pressed="true"></button>
+        <button type="button" data-sc="strong" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="anim" id="gtc-anim">
+      <div class="anim-stage" role="img">
+        <div class="anim-hud" id="gtc-hud">
+          <div class="chip-stat" id="gtc-c0"><b></b><span></span></div>
+          <div class="chip-stat" id="gtc-c1"><b></b><span></span></div>
+          <div class="chip-stat" id="gtc-c2"><b></b><span></span></div>
+          <div class="chip-stat" id="gtc-c3"><b></b><span></span></div>
+          <div class="chip-stat" id="gtc-c4"><b></b><span></span></div>
+          <div class="chip-stat" id="gtc-c5"><b></b><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="anim-legend">
+      <span><i class="lg-core"></i><span data-i18n="gtc.lg.core"></span></span>
+      <span><i class="lg-reg"></i><span data-i18n="gtc.lg.reg"></span></span>
+      <span><i class="lg-in"></i><span data-i18n="gtc.lg.in"></span></span>
+      <span><i class="lg-out"></i><span data-i18n="gtc.lg.out"></span></span>
+      <span><i class="lg-web"></i><span data-i18n="gtc.lg.web"></span></span>
+      <span><i class="lg-shap"></i><span data-i18n="gtc.lg.shap"></span></span>
+      <span><i class="lg-nuc"></i><span data-i18n="gtc.lg.nuc"></span></span>
+    </div>
+    <p class="scen-status" id="gtc-status" aria-live="polite"></p>
+    <p class="mhead" data-i18n="gtc.s1.head"></p>
+    <div class="formula" id="gtc-s1"></div>
+    <p class="mtext" id="gtc-s1-note"></p>
+  </section>
+
+  <!-- =================================================================== 2. your alliance -->
+  <section class="block" id="gtc-bench" aria-labelledby="h-bench">
+    <h2 class="section-title" id="h-bench"><span class="case-num" data-i18n="gtc.part2"></span><span data-i18n="gtc.b.title"></span></h2>
+    <p class="section-intro" data-i18n-html="gtc.b.intro"></p>
+    <div class="card">
+      <div class="ctl-row">
+        <div class="ctl-group" style="flex:1 1 420px;max-width:640px">
+          <span class="lbl" id="gtc-ds-lbl" data-i18n="gtc.b.ds"></span>
+          <div class="seg grid" role="group" aria-labelledby="gtc-ds-lbl" id="gtc-ds">
+            <button type="button" data-v="dc" aria-pressed="true" data-i18n="gtc.ds.dc"></button>
+            <button type="button" data-v="ws" aria-pressed="false" data-i18n="gtc.ds.ws"></button>
+            <button type="button" data-v="maj" aria-pressed="false" data-i18n="gtc.ds.maj"></button>
+            <button type="button" data-v="glv" aria-pressed="false" data-i18n="gtc.ds.glv"></button>
+            <button type="button" data-v="air" aria-pressed="false" data-i18n="gtc.ds.air"></button>
+            <button type="button" data-v="bk" aria-pressed="false" data-i18n="gtc.ds.bk"></button>
+            <button type="button" data-v="net" aria-pressed="false" data-i18n="gtc.ds.net"></button>
+            <button type="button" data-v="pool" aria-pressed="false" data-i18n="gtc.ds.pool"></button>
+          </div>
+        </div>
+        <div class="ctl-group">
+          <span class="lbl" id="gtc-lens-lbl" data-i18n="gtc.b.lens"></span>
+          <div class="seg" role="group" aria-labelledby="gtc-lens-lbl" id="gtc-lens">
+            <button type="button" data-v="core" aria-pressed="true" data-i18n="gtc.lens.core"></button>
+            <button type="button" data-v="shap" aria-pressed="false" data-i18n="gtc.lens.shap"></button>
+            <button type="button" data-v="nuc" aria-pressed="false" data-i18n="gtc.lens.nuc"></button>
+            <button type="button" data-v="rules" aria-pressed="false" data-i18n="gtc.lens.rules"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- data: distribution center -->
+      <div class="src-panel" id="gtc-p-dc">
+        <p class="mtext" style="margin-top:0" id="gtc-dc-intro"></p>
+        <div class="num-grid" id="gtc-dc-in" style="margin-top:10px"></div>
+        <div class="ctl-row" style="margin-top:12px">
+          <div class="rng" style="max-width:640px;flex-basis:100%">
+            <label for="gtc-dc-ab" data-i18n="gtc.dc.ab"></label><output id="gtc-dc-abv"></output>
+            <input type="range" id="gtc-dc-ab" min="45" max="95" step="0.5" value="65">
+          </div>
+        </div>
+        <div class="regime" id="gtc-regime"></div>
+        <div class="ctl-row" style="margin-top:8px">
+          <div class="ctl-group">
+            <span class="lbl" data-i18n="gtc.dc.presets"></span>
+            <div class="btns" id="gtc-dc-pre">
+              <button type="button" class="btn ghost" data-v="80"></button>
+              <button type="button" class="btn ghost" data-v="65"></button>
+              <button type="button" class="btn ghost" data-v="60"></button>
+              <button type="button" class="btn ghost" data-v="50"></button>
+              <button type="button" class="btn ghost" data-v="reset" data-i18n="gtc.dc.reset"></button>
+            </div>
+          </div>
+        </div>
+        <p class="verdict" id="gtc-dc-why" aria-live="polite"></p>
+      </div>
+
+      <!-- data: three workshops (Giapetto LP per coalition) -->
+      <div class="src-panel" id="gtc-p-ws" hidden>
+        <p class="mtext" style="margin-top:0" id="gtc-ws-intro"></p>
+        <div class="cols2" style="margin-top:10px">
+          <div>
+            <p class="chart-title" data-i18n="gtc.ws.own"></p>
+            <div class="tblwrap"><table class="data compact own-tbl" id="gtc-ws-own"></table></div>
+            <div class="ctl-row" style="margin-top:10px">
+              <div class="ctl-group">
+                <span class="lbl" id="gtc-cap-lbl" data-i18n="gtc.ws.cap"></span>
+                <div class="seg" role="group" aria-labelledby="gtc-cap-lbl" id="gtc-cap">
+                  <button type="button" data-v="40" aria-pressed="true"></button>
+                  <button type="button" data-v="10" aria-pressed="false"></button>
+                </div>
+              </div>
+              <div class="ctl-group"><div class="btns"><button type="button" class="btn ghost" id="gtc-ws-reset" data-i18n="gtc.dc.reset"></button></div></div>
+            </div>
+          </div>
+          <div>
+            <p class="chart-title" data-i18n="gtc.ws.lattice"></p>
+            <div class="chartbox" id="gtc-lattice"></div>
+            <p class="mtext" id="gtc-plan" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- data: majority -->
+      <div class="src-panel" id="gtc-p-maj" hidden>
+        <p class="mtext" style="margin-top:0" id="gtc-maj-intro"></p>
+        <div class="ctl-row" style="margin-top:10px">
+          <div class="rng">
+            <label for="gtc-maj" data-i18n="gtc.maj.c2"></label><output id="gtc-majv"></output>
+            <input type="range" id="gtc-maj" min="55" max="120" step="0.5" value="70">
+          </div>
+        </div>
+        <p class="verdict" id="gtc-maj-a"></p>
+      </div>
+
+      <!-- data: gloves -->
+      <div class="src-panel" id="gtc-p-glv" hidden>
+        <p class="mtext" style="margin-top:0" data-i18n-html="gtc.glv.intro"></p>
+        <div class="ctl-row" style="margin-top:10px">
+          <div class="ctl-group">
+            <span class="lbl" id="gtc-gl-lbl" data-i18n="gtc.glv.l"></span>
+            <div class="seg" role="group" aria-labelledby="gtc-gl-lbl" id="gtc-gl">
+              <button type="button" data-v="1" aria-pressed="true">1</button>
+              <button type="button" data-v="2" aria-pressed="false">2</button>
+              <button type="button" data-v="3" aria-pressed="false">3</button>
+            </div>
+          </div>
+          <div class="ctl-group">
+            <span class="lbl" id="gtc-gr-lbl" data-i18n="gtc.glv.r"></span>
+            <div class="seg" role="group" aria-labelledby="gtc-gr-lbl" id="gtc-gr">
+              <button type="button" data-v="1" aria-pressed="false">1</button>
+              <button type="button" data-v="2" aria-pressed="true">2</button>
+              <button type="button" data-v="3" aria-pressed="false">3</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- data: airport -->
+      <div class="src-panel" id="gtc-p-air" hidden>
+        <p class="mtext" style="margin-top:0" data-i18n-html="gtc.air.intro"></p>
+        <div class="sliders" id="gtc-air-sl" style="margin-top:10px"></div>
+      </div>
+
+      <!-- data: bankruptcy -->
+      <div class="src-panel" id="gtc-p-bk" hidden>
+        <p class="mtext" style="margin-top:0" data-i18n-html="gtc.bk.intro"></p>
+        <div class="sliders" id="gtc-bk-sl" style="margin-top:10px"></div>
+        <div class="ctl-row" style="margin-top:10px">
+          <div class="ctl-group">
+            <span class="lbl" data-i18n="gtc.bk.talmud"></span>
+            <div class="btns" id="gtc-bk-pre">
+              <button type="button" class="btn ghost" data-v="100"></button>
+              <button type="button" class="btn ghost" data-v="200"></button>
+              <button type="button" class="btn ghost" data-v="300"></button>
+              <button type="button" class="btn ghost" data-v="reset" data-i18n="gtc.dc.reset"></button>
+            </div>
+          </div>
+        </div>
+        <p class="chart-title" style="margin-top:14px" data-i18n="gtc.bk.paths"></p>
+        <div class="paths" id="gtc-paths"></div>
+        <div class="legend2" id="gtc-paths-lg"></div>
+      </div>
+
+      <!-- data: shared network -->
+      <div class="src-panel" id="gtc-p-net" hidden>
+        <p class="mtext" style="margin-top:0" id="gtc-net-intro"></p>
+        <div class="map-grid" style="margin-top:10px">
+          <div>
+            <div class="chartbox" id="gtc-map"></div>
+            <div class="legend2">
+              <span><i class="l-eps" style="border-top-style:solid"></i><span data-i18n="gtc.net.lg.tree"></span></span>
+              <span><i class="l-web" style="border-top-color:var(--mit-silver)"></i><span data-i18n="gtc.net.lg.link"></span></span>
+            </div>
+            <div class="btns" style="margin-top:8px"><button type="button" class="btn ghost" id="gtc-net-reset" data-i18n="gtc.net.reset"></button></div>
+          </div>
+          <div>
+            <p class="chart-title" data-i18n="gtc.net.links"></p>
+            <div class="tblwrap"><table class="data compact" id="gtc-links"></table></div>
+            <p class="mtext" id="gtc-net-note"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- data: pooling -->
+      <div class="src-panel" id="gtc-p-pool" hidden>
+        <div class="ctl-row">
+          <div class="ctl-group">
+            <span class="lbl" id="gtc-pm-lbl" data-i18n="gtc.pool.mode"></span>
+            <div class="seg" role="group" aria-labelledby="gtc-pm-lbl" id="gtc-pm">
+              <button type="button" data-v="spare" aria-pressed="true" data-i18n="gtc.pool.spare"></button>
+              <button type="button" data-v="eoq" aria-pressed="false" data-i18n="gtc.pool.eoq"></button>
+            </div>
+          </div>
+        </div>
+        <p class="mtext" id="gtc-pool-intro"></p>
+        <div class="sliders" id="gtc-pool-sl" style="margin-top:10px"></div>
+        <div class="tblwrap"><table class="data compact" id="gtc-pooltab"></table></div>
+      </div>
+
+      <p class="story" id="gtc-story"></p>
+      <div class="kpis" id="gtc-kpis"></div>
+
+      <div class="tri-grid">
+        <div>
+          <p class="chart-title" id="gtc-tri-title"></p>
+          <div class="chartbox" id="gtc-tri"></div>
+          <div class="legend2" id="gtc-tri-lg"></div>
+          <p class="tri-help" id="gtc-tri-help"></p>
+        </div>
+        <div>
+          <p class="chart-title" data-i18n="gtc.tb.title"></p>
+          <div class="tsel">
+            <label for="gtc-test" data-i18n="gtc.tb.test"></label>
+            <select class="sel" id="gtc-test"></select>
+          </div>
+          <div class="tblwrap"><table class="data compact" id="gtc-coal"></table></div>
+          <p class="verdict" id="gtc-block" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <!-- lens: core -->
+      <div class="lens-panel" id="gtc-l-core">
+        <p class="chart-title" data-i18n="gtc.lc.lp"></p>
+        <div class="gauge" id="gtc-gauge"></div>
+        <p class="verdict" id="gtc-corelp"></p>
+        <p class="chart-title" data-i18n="gtc.lc.cert"></p>
+        <div class="chips" id="gtc-lam"></div>
+        <p class="mtext" id="gtc-cert"></p>
+        <div id="gtc-verts-box">
+          <p class="chart-title" data-i18n="gtc.lc.verts"></p>
+          <div class="tblwrap"><table class="data compact" id="gtc-verts"></table></div>
+        </div>
+        <p class="verdict" id="gtc-owen" hidden></p>
+      </div>
+
+      <!-- lens: Shapley -->
+      <div class="lens-panel" id="gtc-l-shap" hidden>
+        <div class="ctl-row">
+          <div class="ctl-group">
+            <span class="lbl" id="gtc-sf-lbl" data-i18n="gtc.ls.firm"></span>
+            <div class="seg" role="group" aria-labelledby="gtc-sf-lbl" id="gtc-sf"></div>
+          </div>
+        </div>
+        <div class="cols2" style="margin-top:12px">
+          <div>
+            <p class="chart-title" id="gtc-sub-title"></p>
+            <div class="tblwrap"><table class="data compact" id="gtc-subsets"></table></div>
+          </div>
+          <div>
+            <p class="chart-title" data-i18n="gtc.ls.orders"></p>
+            <div class="tblwrap"><table class="data compact" id="gtc-orders"></table></div>
+          </div>
+        </div>
+        <p class="chart-title" style="margin-top:16px" data-i18n="gtc.ls.divs"></p>
+        <p class="mtext" data-i18n-html="gtc.ls.divs.intro"></p>
+        <div class="tblwrap"><table class="data compact" id="gtc-divs"></table></div>
+        <p class="verdict" id="gtc-shapnote"></p>
+      </div>
+
+      <!-- lens: nucleolus -->
+      <div class="lens-panel" id="gtc-l-nuc" hidden>
+        <p class="chart-title" data-i18n="gtc.ln.rounds"></p>
+        <ol class="elog" id="gtc-rounds"></ol>
+        <div class="ctl-row" style="margin-top:10px">
+          <div class="rng" style="max-width:520px">
+            <label for="gtc-eps" data-i18n="gtc.ln.eps"></label><output id="gtc-epsv"></output>
+            <input type="range" id="gtc-eps" min="0" max="1000" step="1" value="1000">
+          </div>
+        </div>
+        <p class="mtext" id="gtc-eps-note"></p>
+        <p class="chart-title" style="margin-top:14px" data-i18n="gtc.ln.sorted"></p>
+        <div class="tblwrap"><table class="data compact" id="gtc-sorted"></table></div>
+        <p class="verdict" id="gtc-nucnote"></p>
+      </div>
+
+      <!-- lens: rules -->
+      <div class="lens-panel" id="gtc-l-rules" hidden>
+        <p class="chart-title" data-i18n="gtc.lr.title"></p>
+        <div class="tblwrap"><table class="data compact" id="gtc-board"></table></div>
+        <p class="mtext" data-i18n-html="gtc.lr.key"></p>
+        <p class="verdict" id="gtc-young"></p>
+      </div>
+    </div>
+    <p class="mhead" data-i18n="gtc.s2.head"></p>
+    <div class="formula" id="gtc-s2"></div>
+    <p class="mtext" id="gtc-s2-note"></p>
+  </section>
+
+  <!-- =================================================================== model card -->
+  <div class="card">
+    <h2><span class="kicker" data-i18n="gtc.model.kicker"></span><span data-i18n="gtc.model.title"></span></h2>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="gtc.m.lp.head"></p>
+        <div class="formula" data-tex="gtc.m.lp.tex" data-i18n="gtc.m.lp.formula"></div>
+        <p class="mtext" data-i18n-html="gtc.m.lp.why"></p>
+        <p class="mhead" data-i18n="gtc.m.core.head"></p>
+        <div class="formula" data-tex="gtc.m.core.tex" data-i18n="gtc.m.core.formula"></div>
+        <p class="mtext" data-i18n-html="gtc.m.core.why"></p>
+        <p class="mhead" data-i18n="gtc.m.clp.head"></p>
+        <div class="formula" data-tex="gtc.m.clp.tex" data-i18n="gtc.m.clp.formula"></div>
+        <p class="mtext" data-i18n-html="gtc.m.clp.why"></p>
+        <p class="mhead" data-i18n="gtc.m.owen.head"></p>
+        <div class="formula" data-tex="gtc.m.owen.tex" data-i18n="gtc.m.owen.formula"></div>
+        <p class="mtext" data-i18n-html="gtc.m.owen.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="gtc.m.lc.head"></p>
+        <div class="formula" data-tex="gtc.m.lc.tex" data-i18n="gtc.m.lc.formula"></div>
+        <p class="mtext" data-i18n-html="gtc.m.lc.why"></p>
+        <p class="mhead" data-i18n="gtc.m.shap.head"></p>
+        <div class="formula" data-tex="gtc.m.shap.tex" data-i18n="gtc.m.shap.formula"></div>
+        <p class="mtext" data-i18n-html="gtc.m.shap.why"></p>
+        <p class="mhead" data-i18n="gtc.m.erl.head"></p>
+        <div class="formula" data-tex="gtc.m.erl.tex" data-i18n="gtc.m.erl.formula"></div>
+        <p class="mtext" data-i18n-html="gtc.m.erl.why"></p>
+        <p class="mhead" data-i18n="gtc.m.cls.head"></p>
+        <div class="formula" data-tex="gtc.m.cls.tex" data-i18n="gtc.m.cls.formula"></div>
+        <p class="mtext" id="gtc-mdata"></p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="gtc.n.title"></summary>
+      <div class="body">
+        <p id="gtc-n1"></p>
+        <p id="gtc-n2"></p>
+        <p id="gtc-n3"></p>
+        <p id="gtc-n4"></p>
+        <p id="gtc-n5"></p>
+        <p id="gtc-n6"></p>
+        <p id="gtc-n7"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.11" data-refs="gtc.refs"></p>
+  <p class="note" data-i18n="gtc.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-gtb-share.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var MINUS = "−", EPS = 1e-9;
+  var fmt = function (v, d, m) { if (Math.abs(v) < 5e-10) v = 0; return I18N.fmt(v, d == null ? 2 : d, m); };
+  // the sign is chosen after rounding, so a tiny value never shows as "−0"
+  var signed = function (v, d, neg, pos) { var m = fmt(Math.abs(v), d); return m === fmt(0, d) ? m : (v < 0 ? neg : pos) + m; };
+  var num = function (v, d) { return signed(v, d == null ? 2 : d, MINUS, ""); };
+  var snum = function (v, d) { return signed(v, d == null ? 2 : d, MINUS, "+"); };
+  // numbers inside TeX: a comma is punctuation there, so it is braced; thin spaces become \,
+  var texNum = function (v, d) { return signed(v, d == null ? 2 : d, "-", "").replace(/,/g, "{,}").replace(/[   ]/g, "\\,"); };
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function texText(s) { return "\\text{" + String(s).replace(/([{}%$#&_])/g, "\\$1") + "}"; }
+  function $(id) { return document.getElementById(id); }
+  function joinL(arr) { return arr.join(T("gtc.sep")); }
+  // whole numbers stay whole; the others always show two decimals
+  function nfix(v) {
+    if (Math.abs(v - Math.round(v)) < 5e-7) return num(v, 0);
+    var m = I18N.fmt(Math.abs(v), 2, 2); return (v < 0 ? MINUS : "") + m;
+  }
+  function tri(x, d) { return x.map(function (v) { return d == null ? nfix(v) : num(v, d); }).join("\u00a0·\u00a0"); }
+  var NS = "http://www.w3.org/2000/svg";
+  /* =====================================================================================
+     TU game engine: one game with n <= 6 players, in cost form (c(S), savings v(S) = sum of
+     stand alone costs - c(S)) or in profit form (v(S) given). Everything below is computed
+     from v: imputations, core LP and its dual (balancing weights), least core, nucleolus by a
+     sequence of LPs, Shapley value by subsets and by arrival orders, dividends, rules.
+     ===================================================================================== */
+  var TU = (function () {
+    function pc(m) { var c = 0; while (m) { c += m & 1; m >>= 1; } return c; }
+    function mem(m, n) { var a = []; for (var i = 0; i < n; i++) if (m & (1 << i)) a.push(i); return a; }
+    function vec(m, n) { var a = []; for (var i = 0; i < n; i++) a.push(m & (1 << i) ? 1 : 0); return a; }
+    function zeros(k) { var a = []; for (var i = 0; i < k; i++) a.push(0); return a; }
+    function ones(k) { var a = []; for (var i = 0; i < k; i++) a.push(1); return a; }
+    function sumIn(x, m) { var s = 0; for (var i = 0; i < x.length; i++) if (m & (1 << i)) s += x[i]; return s; }
+
+    function finish(G) {
+      var n = G.n, N = (1 << n) - 1, v = G.v, mx = 1;
+      for (var m = 1; m <= N; m++) { mx = Math.max(mx, Math.abs(v[m])); if (G.c) mx = Math.max(mx, Math.abs(G.c[m])); }
+      G.N = N; G.scale = mx; G.tol = 1e-7 * mx;
+      G.vi = []; for (var i = 0; i < n; i++) G.vi.push(v[1 << i]);
+      G.sur = v[N] - G.vi.reduce(function (a, b) { return a + b; }, 0);
+      return G;
+    }
+    function fromCost(n, cArr) {
+      var N = (1 << n) - 1, c = [0], v = [0];
+      for (var m = 1; m <= N; m++) c.push(+cArr[m]);
+      for (m = 1; m <= N; m++) { var s = 0; for (var i = 0; i < n; i++) if (m & (1 << i)) s += c[1 << i]; v.push(s - c[m]); }
+      return finish({ n: n, kind: "cost", c: c, v: v });
+    }
+    function fromProfit(n, vArr) {
+      var N = (1 << n) - 1, v = [0];
+      for (var m = 1; m <= N; m++) v.push(+vArr[m]);
+      return finish({ n: n, kind: "profit", c: null, v: v });
+    }
+    function clone(G) { return G.kind === "cost" ? fromCost(G.n, G.c) : fromProfit(G.n, G.v); }
+    // the game played by the players of mask sub only (players renumbered in order)
+    function restrict(G, sub) {
+      var ids = mem(sub, G.n), k = ids.length, K = (1 << k) - 1, arr = [0];
+      for (var m = 1; m <= K; m++) {
+        var big = 0; for (var j = 0; j < k; j++) if (m & (1 << j)) big |= 1 << ids[j];
+        arr.push(G.kind === "cost" ? G.c[big] : G.v[big]);
+      }
+      return G.kind === "cost" ? fromCost(k, arr) : fromProfit(k, arr);
+    }
+
+    // largest violation of superadditivity, v(S u T) >= v(S) + v(T) for disjoint S, T
+    function superadd(G) {
+      var N = G.N, v = G.v, worst = null;
+      for (var S = 1; S < N; S++) for (var T = S + 1; T <= N; T++) {
+        if (S & T) continue;
+        var gap = v[S] + v[T] - v[S | T];
+        if (gap > G.tol && (!worst || gap > worst.gap + G.tol)) worst = { S: S, T: T, gap: gap, lhs: v[S] + v[T], rhs: v[S | T] };
+      }
+      return worst;
+    }
+    // largest violation of convexity, v(S u T) + v(S n T) >= v(S) + v(T)
+    function convex(G) {
+      var N = G.N, v = G.v, worst = null;
+      for (var S = 1; S <= N; S++) for (var T = S + 1; T <= N; T++) {
+        if ((S & T) === S || (S & T) === T) continue;
+        var lhs = v[S] + v[T], rhs = v[S | T] + v[S & T], gap = lhs - rhs;
+        if (gap > G.tol && (!worst || gap > worst.gap + G.tol)) worst = { S: S, T: T, gap: gap, lhs: lhs, rhs: rhs };
+      }
+      return worst;
+    }
+
+    // core LP: z* = min sum x_i s.t. x(S) >= v(S) for every S other than N (x_i = v(i) + u_i, u >= 0);
+    // its duals are balancing weights lambda_S (singletons fill each row of the balance up to 1)
+    function coreLP(G) {
+      var n = G.n, N = G.N, v = G.v, vi = G.vi, rows = [], masks = [];
+      for (var m = 1; m < N; m++) if (pc(m) >= 2) {
+        rows.push({ a: vec(m, n), op: ">=", b: v[m] - sumIn(vi, m) });
+        masks.push(m);
+      }
+      var r = LP.solve({ sense: "min", c: ones(n), rows: rows });
+      if (r.status !== "optimal") return null;
+      var lam = zeros(N + 1);
+      masks.forEach(function (m, k) { lam[m] = Math.max(0, r.duals[k]); });
+      for (var i = 0; i < n; i++) {
+        var s = 0; masks.forEach(function (m) { if (m & (1 << i)) s += lam[m]; });
+        lam[1 << i] = Math.max(0, 1 - s);
+      }
+      var z = r.z + sumIn(vi, N), cert = 0;
+      for (m = 1; m < N; m++) cert += lam[m] * v[m];
+      return { z: z, lam: lam, cert: cert, x: r.x.map(function (u, i) { return u + vi[i]; }), nonempty: z <= v[N] + G.tol, gap: z - v[N] };
+    }
+
+    function rankOf(rowsIn, n) {
+      var M = rowsIn.map(function (r) { return r.slice(); }), rank = 0;
+      for (var col = 0; col < n && rank < M.length; col++) {
+        var p = -1, best = 1e-9;
+        for (var i = rank; i < M.length; i++) if (Math.abs(M[i][col]) > best) { best = Math.abs(M[i][col]); p = i; }
+        if (p < 0) continue;
+        var tmp = M[p]; M[p] = M[rank]; M[rank] = tmp;
+        for (i = 0; i < M.length; i++) if (i !== rank) {
+          var f = M[i][col] / M[rank][col];
+          if (f) for (var j = 0; j < n; j++) M[i][j] -= f * M[rank][j];
+        }
+        rank++;
+      }
+      return rank;
+    }
+
+    // nucleolus (Schmeidler, over imputations) by the LP sequence of Kopelowitz and of Maschler, Peleg and Shapley:
+    // round k minimises the largest excess e(S, x) = v(S) - x(S) of the coalitions still free; a tight coalition is
+    // fixed when its LP dual is positive, or when one more LP shows x(S) cannot rise at that epsilon.
+    function nucleolus(G) {
+      var n = G.n, N = G.N, v = G.v, vi = G.vi, tol = G.tol;
+      if (G.sur < -tol) return null;
+      var free = [], fixed = [], fixEps = {}, rounds = [], lps = 0, x = null;
+      for (var m = 1; m < N; m++) free.push(m);
+      for (var k = 0; k < 2 * N + 2; k++) {
+        var rows = [];
+        free.forEach(function (m) { rows.push({ a: vec(m, n).concat([1, -1]), op: ">=", b: v[m] - sumIn(vi, m) }); });
+        fixed.forEach(function (m) { rows.push({ a: vec(m, n).concat([0, 0]), op: "=", b: v[m] - fixEps[m] - sumIn(vi, m) }); });
+        rows.push({ a: ones(n).concat([0, 0]), op: "=", b: G.sur });
+        var r = LP.solve({ sense: "min", c: zeros(n).concat([1, -1]), rows: rows });
+        lps++;
+        if (r.status !== "optimal") return null;
+        var eps = r.x[n] - r.x[n + 1];
+        x = r.x.slice(0, n).map(function (u, i) { return u + vi[i]; });
+        var newly = [], extra = 0;
+        free.forEach(function (m, idx) {
+          var e = v[m] - sumIn(x, m);
+          if (e < eps - tol) return;
+          if (r.duals[idx] > 1e-9) { newly.push(m); return; }
+          var rows2 = [];
+          free.forEach(function (q) { rows2.push({ a: vec(q, n), op: ">=", b: v[q] - eps - sumIn(vi, q) }); });
+          fixed.forEach(function (q) { rows2.push({ a: vec(q, n), op: "=", b: v[q] - fixEps[q] - sumIn(vi, q) }); });
+          rows2.push({ a: ones(n), op: "=", b: G.sur });
+          var r2 = LP.solve({ sense: "max", c: vec(m, n), rows: rows2 });
+          lps++; extra++;
+          if (r2.status === "optimal" && r2.z <= v[m] - eps - sumIn(vi, m) + tol) newly.push(m);
+        });
+        if (!newly.length) {            // numerical safety: fix every tight coalition
+          free.forEach(function (m) { if (v[m] - sumIn(x, m) >= eps - tol) newly.push(m); });
+        }
+        newly.forEach(function (m) { fixed.push(m); fixEps[m] = eps; });
+        free = free.filter(function (m) { return !(m in fixEps); });
+        rounds.push({ eps: eps, fixed: newly.slice(), x: x.slice(), extra: extra });
+        var rk = rankOf(fixed.map(function (m) { return vec(m, n); }).concat([ones(n)]), n);
+        if (rk >= n || !free.length) break;
+      }
+      return { x: x, rounds: rounds, lps: lps, least: rounds[0].eps, fixEps: fixEps };
+    }
+
+    function perms(n) {
+      var out = [];
+      (function rec(p, used) {
+        if (p.length === n) { out.push(p.slice()); return; }
+        for (var i = 0; i < n; i++) if (!used[i]) { used[i] = true; p.push(i); rec(p, used); p.pop(); used[i] = false; }
+      })([], []);
+      return out;
+    }
+    var FACT = [1, 1, 2, 6, 24, 120, 720];
+    function marginal(G, perm) {
+      var x = zeros(G.n), S = 0;
+      perm.forEach(function (i) { x[i] = G.v[S | (1 << i)] - G.v[S]; S |= 1 << i; });
+      return x;
+    }
+    function shapley(G) {
+      var n = G.n, N = G.N, v = G.v, x = zeros(n), xo = zeros(n);
+      for (var i = 0; i < n; i++) {
+        var bit = 1 << i;
+        for (var S = 0; S <= N; S++) {
+          if (S & bit) continue;
+          var s = pc(S);
+          x[i] += FACT[s] * FACT[n - s - 1] / FACT[n] * (v[S | bit] - v[S]);
+        }
+      }
+      var P = perms(n), orders = P.map(function (p) { return { perm: p, m: marginal(G, p) }; });
+      orders.forEach(function (o) { for (var i = 0; i < n; i++) xo[i] += o.m[i] / P.length; });
+      return { x: x, xOrders: xo, orders: orders };
+    }
+    // Harsanyi dividends: d(S) = sum over T in S of (-1)^(|S|-|T|) v(T)
+    function dividends(G) {
+      var N = G.N, d = zeros(N + 1);
+      for (var S = 1; S <= N; S++) {
+        var s = pc(S), sum = 0;
+        for (var T = S; ; T = (T - 1) & S) {
+          sum += ((s - pc(T)) % 2 ? -1 : 1) * G.v[T];
+          if (T === 0) break;
+        }
+        d[S] = sum;
+      }
+      return d;
+    }
+    // largest complaint v(S) - x(S) over the coalitions other than N (and which one)
+    function worst(G, x) {
+      var best = null;
+      for (var m = 1; m < G.N; m++) {
+        var e = G.v[m] - sumIn(x, m);
+        if (!best || e > best.e + G.tol || (Math.abs(e - best.e) <= G.tol && pc(m) > pc(best.m))) best = { m: m, e: e };
+      }
+      return best;
+    }
+    function inCore(G, x) { var w = worst(G, x); return !w || w.e <= Math.max(G.tol, 1e-7 * G.scale); }
+    function sortedExcess(G, x) {
+      var a = [];
+      for (var m = 1; m < G.N; m++) a.push({ m: m, e: G.v[m] - sumIn(x, m) });
+      a.sort(function (p, q) { return q.e - p.e || p.m - q.m; });
+      return a;
+    }
+
+    /* ---------- the triangle of imputations (n = 3): points are 3-vectors with x(N) = v(N) ---------- */
+    function triangle(G) {
+      var vi = G.vi, vN = G.v[G.N], V = [];
+      for (var k = 0; k < 3; k++) {
+        var p = vi.slice(); p[k] = vN - (vi[0] + vi[1] + vi[2]) + vi[k]; V.push(p);
+      }
+      return V;
+    }
+    // Sutherland-Hodgman clipping of a polygon (3-vectors) by x(m) >= b
+    function clip(poly, m, b, tol) {
+      if (!poly.length) return poly;
+      var out = [], f = function (p) { return sumIn(p, m) - b; };
+      for (var i = 0; i < poly.length; i++) {
+        var P = poly[i], Q = poly[(i + 1) % poly.length], fp = f(P), fq = f(Q);
+        var inP = fp >= -tol, inQ = fq >= -tol;
+        if (inP) out.push(P);
+        if (inP !== inQ) {
+          var u = fp / (fp - fq);
+          out.push([P[0] + u * (Q[0] - P[0]), P[1] + u * (Q[1] - P[1]), P[2] + u * (Q[2] - P[2])]);
+        }
+      }
+      return dedupe(out, tol * 10);
+    }
+    function dedupe(poly, tol) {
+      var out = [];
+      poly.forEach(function (p) {
+        if (!out.some(function (q) { return Math.abs(p[0] - q[0]) <= tol && Math.abs(p[1] - q[1]) <= tol && Math.abs(p[2] - q[2]) <= tol; })) out.push(p);
+      });
+      return out;
+    }
+    // polygon of the imputations x with v(S) - x(S) <= eps(S) for the given coalitions;
+    // epsOf(m) returns the allowed excess of m (null to skip m)
+    function polygon(G, epsOf) {
+      if (G.n !== 3 || G.sur < -G.tol) return [];
+      var poly = triangle(G), tol = Math.max(1e-9, 1e-9 * G.scale);
+      for (var m = 1; m < G.N; m++) {
+        var e = epsOf(m);
+        if (e == null) continue;
+        poly = clip(poly, m, G.v[m] - e, tol);
+        if (!poly.length) break;
+      }
+      return order(poly);
+    }
+    // order the vertices around their centre, in plane coordinates of the simplex
+    function order(poly) {
+      if (poly.length < 3) return poly;
+      var P = poly.map(function (p) { return { p: p, X: p[1] - p[0], Y: 2 * p[2] - p[0] - p[1] }; }), cx = 0, cy = 0;
+      P.forEach(function (q) { cx += q.X; cy += q.Y; });
+      cx /= P.length; cy /= P.length;
+      P.sort(function (a, b) { return Math.atan2(a.Y - cy, a.X - cx) - Math.atan2(b.Y - cy, b.X - cx); });
+      return P.map(function (q) { return q.p; });
+    }
+    function core(G) { return polygon(G, function () { return 0; }); }
+    function hull2(pts) {                     // convex hull in the plane coordinates of the simplex
+      var P = pts.map(function (p) { return { p: p, X: p[1] - p[0], Y: p[2] }; });
+      P.sort(function (a, b) { return a.X - b.X || a.Y - b.Y; });
+      var cross = function (o, a, b) { return (a.X - o.X) * (b.Y - o.Y) - (a.Y - o.Y) * (b.X - o.X); };
+      var lo = [], up = [];
+      P.forEach(function (q) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 1e-12) lo.pop(); lo.push(q); });
+      P.slice().reverse().forEach(function (q) { while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], q) <= 1e-12) up.pop(); up.push(q); });
+      up.pop(); lo.pop();
+      return lo.concat(up).map(function (q) { return q.p; });
+    }
+
+    /* ---------- allocation rules (all return the split of savings or profit, x) ---------- */
+    function rEqual(G) {
+      var n = G.n, N = G.N;
+      if (G.kind === "cost") return G.vi.map(function (z, i) { return G.c[1 << i] - G.c[N] / n; });
+      return zeros(n).map(function () { return G.v[N] / n; });
+    }
+    function rProp(G) {
+      var n = G.n, N = G.N;
+      if (G.kind === "cost") {
+        var tot = 0; for (var i = 0; i < n; i++) tot += G.c[1 << i];
+        if (Math.abs(tot) < G.tol) return null;
+        return zeros(n).map(function (z, i) { return G.c[1 << i] - G.c[N] * G.c[1 << i] / tot; });
+      }
+      var sv = G.vi.reduce(function (a, b) { return a + b; }, 0);
+      if (sv <= G.tol) return null;
+      return G.vi.map(function (w) { return G.v[N] * w / sv; });
+    }
+    function rDriver(G, d) {
+      var n = G.n, N = G.N, tot = d.reduce(function (a, b) { return a + b; }, 0);
+      if (tot <= 0) return null;
+      if (G.kind === "cost") return d.map(function (w, i) { return G.c[1 << i] - G.c[N] * w / tot; });
+      return d.map(function (w) { return G.v[N] * w / tot; });
+    }
+    // separable costs, remaining benefits: in savings form, the surplus split in proportion to M_i - v(i),
+    // with M_i = v(N) - v(N minus i) the separable saving of i
+    function rSCRB(G) {
+      var n = G.n, N = G.N, r = [], tot = 0;
+      for (var i = 0; i < n; i++) { var w = G.v[N] - G.v[N & ~(1 << i)] - G.vi[i]; r.push(w); tot += w; }
+      if (Math.abs(tot) <= G.tol) return G.vi.map(function (w) { return w + G.sur / n; });
+      return G.vi.map(function (w, i) { return w + r[i] * G.sur / tot; });
+    }
+
+    return {
+      pc: pc, mem: mem, sumIn: sumIn, fromCost: fromCost, fromProfit: fromProfit, clone: clone, restrict: restrict,
+      superadd: superadd, convex: convex, coreLP: coreLP, nucleolus: nucleolus, shapley: shapley, marginal: marginal,
+      dividends: dividends, worst: worst, inCore: inCore, sortedExcess: sortedExcess, triangle: triangle, polygon: polygon, core: core,
+      hull2: hull2, perms: perms, FACT: FACT, rEqual: rEqual, rProp: rProp, rDriver: rDriver, rSCRB: rSCRB
+    };
+  })();
+  /* =====================================================================================
+     Data sets: each builds the game of a subset of its players (so subgames reuse the same
+     model) and its own allocation rule when it has one.
+     ===================================================================================== */
+  var GEN = (function () {
+    var pc = TU.pc, mem = TU.mem;
+    function idsOf(players) { return players; }
+
+    // distribution center: the seven bills are data (million COP per month)
+    function dcGame(cost7, players) {
+      players = players || [0, 1, 2];
+      var k = players.length, arr = [0];
+      for (var m = 1; m < (1 << k); m++) {
+        var big = 0; for (var j = 0; j < k; j++) if (m & (1 << j)) big |= 1 << players[j];
+        arr.push(cost7[big]);
+      }
+      return TU.fromCost(k, arr);
+    }
+
+    // three workshops pool their resources and solve the Giapetto LP: max 3 soldiers + 2 trains
+    var GP = { p: [3, 2], A: [[2, 1], [1, 1], [1, 0]] };      // rows: finishing, carpentry, soldier demand
+    function giapLP(b) {
+      var r = LP.solve({ sense: "max", c: GP.p, rows: [
+        { a: GP.A[0], op: "<=", b: b[0] }, { a: GP.A[1], op: "<=", b: b[1] }, { a: GP.A[2], op: "<=", b: b[2] }] });
+      return r;
+    }
+    function pooled(own, ids) { var b = [0, 0, 0]; ids.forEach(function (i) { for (var r = 0; r < 3; r++) b[r] += own[i][r]; }); return b; }
+    function wsGame(own, players) {
+      players = players || [0, 1, 2];
+      var k = players.length, arr = [0], plans = [null];
+      for (var m = 1; m < (1 << k); m++) {
+        var ids = []; for (var j = 0; j < k; j++) if (m & (1 << j)) ids.push(players[j]);
+        var b = pooled(own, ids), r = giapLP(b);
+        arr.push(r.z); plans.push({ b: b, q: r.x, y: r.duals, binding: r.binding, it: r.iterations });
+      }
+      var G = TU.fromProfit(k, arr);
+      G.plans = plans;
+      var y = plans[(1 << k) - 1].y;
+      G.owen = players.map(function (i) { return y[0] * own[i][0] + y[1] * own[i][1] + y[2] * own[i][2]; });
+      G.lps = (1 << k) - 1;
+      return G;
+    }
+    // range of each Owen share over all optimal duals of the grand LP (one min and one max LP per workshop)
+    function owenRange(own, G) {
+      var bN = pooled(own, [0, 1, 2]), vN = G.v[G.N], tol = 1e-7 * Math.max(1, vN), out = [];
+      var rows = [
+        { a: [GP.A[0][0], GP.A[1][0], GP.A[2][0]], op: ">=", b: GP.p[0] },
+        { a: [GP.A[0][1], GP.A[1][1], GP.A[2][1]], op: ">=", b: GP.p[1] },
+        { a: bN, op: "<=", b: vN + tol }];
+      for (var i = 0; i < 3; i++) {
+        var lo = LP.solve({ sense: "min", c: own[i], rows: rows }), hi = LP.solve({ sense: "max", c: own[i], rows: rows });
+        out.push([lo.z, hi.z]);
+      }
+      return out;
+    }
+
+    // majority: three firms with stand alone 60, each pair c2, all three 110
+    function majGame(c2, players) {
+      players = players || [0, 1, 2];
+      var k = players.length, arr = [0];
+      for (var m = 1; m < (1 << k); m++) { var s = pc(m); arr.push(s === 1 ? 60 : s === 2 ? c2 : 110); }
+      return TU.fromCost(k, arr);
+    }
+
+    // gloves: a pair is worth 1; v(S) = min(left, right)
+    function gloveGame(left, players) {
+      var k = players.length, arr = [0];
+      for (var m = 1; m < (1 << k); m++) {
+        var l = 0, r = 0;
+        for (var j = 0; j < k; j++) if (m & (1 << j)) { if (left[players[j]]) l++; else r++; }
+        arr.push(Math.min(l, r));
+      }
+      return TU.fromProfit(k, arr);
+    }
+
+    // airport: one runway serves the longest plane of the coalition
+    function airGame(r, players) {
+      players = players || [0, 1, 2];
+      var k = players.length, arr = [0];
+      for (var m = 1; m < (1 << k); m++) { var mx = 0; for (var j = 0; j < k; j++) if (m & (1 << j)) mx = Math.max(mx, r[players[j]]); arr.push(mx); }
+      var G = TU.fromCost(k, arr);
+      // segment rule: each stretch of runway is paid in equal parts by the planes that need it
+      var rr = players.map(function (i) { return r[i]; }), srt = rr.slice().sort(function (a, b) { return a - b; });
+      var bill = rr.map(function (ri) {
+        var s = 0, prev = 0;
+        srt.forEach(function (h, q) { if (h <= ri + 1e-12 && h > prev) { var users = rr.filter(function (z) { return z >= h - 1e-12; }).length; s += (h - prev) / users; prev = h; } });
+        return s;
+      });
+      G.segment = bill;
+      return G;
+    }
+
+    // bankruptcy: estate E, claims d; v(S) = max(0, E - claims outside S)
+    function bkGame(d, E, players) {
+      players = players || [0, 1, 2];
+      var k = players.length, all = 0, arr = [0];
+      players.forEach(function (i) { all += d[i]; });
+      for (var m = 1; m < (1 << k); m++) {
+        var out = 0; for (var j = 0; j < k; j++) if (!(m & (1 << j))) out += d[players[j]];
+        arr.push(Math.max(0, E - out));
+      }
+      return TU.fromProfit(k, arr);
+    }
+    function bisect(f, lo, hi) { for (var it = 0; it < 200; it++) { var mid = (lo + hi) / 2; if (f(mid) > 0) hi = mid; else lo = mid; } return (lo + hi) / 2; }
+    function cea(d, E) {                       // constrained equal awards
+      var tot = d.reduce(function (a, b) { return a + b; }, 0);
+      if (E >= tot) return d.slice();
+      var lam = bisect(function (l) { return d.reduce(function (s, c) { return s + Math.min(c, l); }, 0) - E; }, 0, Math.max.apply(null, d));
+      return d.map(function (c) { return Math.min(c, lam); });
+    }
+    function cel(d, E) {                       // constrained equal losses
+      var tot = d.reduce(function (a, b) { return a + b; }, 0);
+      if (E >= tot) return d.slice();
+      var mu = bisect(function (l) { return E - d.reduce(function (s, c) { return s + Math.max(0, c - l); }, 0); }, 0, Math.max.apply(null, d));
+      return d.map(function (c) { return Math.max(0, c - mu); });
+    }
+    function talmud(d, E) {                    // Aumann and Maschler: CEA on half claims, then CEL on half claims
+      var tot = d.reduce(function (a, b) { return a + b; }, 0), h = d.map(function (c) { return c / 2; });
+      if (E <= tot / 2) return cea(h, E);
+      var rest = cel(h, E - tot / 2);
+      return h.map(function (c, i) { return c + rest[i]; });
+    }
+    function propClaims(d, E) { var tot = d.reduce(function (a, b) { return a + b; }, 0); return d.map(function (c) { return tot > 0 ? E * c / tot : 0; }); }
+
+    // shared network: minimum spanning tree from the node 0 to the members (Kruskal)
+    function mstOf(D, nodes) {
+      var edges = [];
+      for (var a = 0; a < nodes.length; a++) for (var b = a + 1; b < nodes.length; b++) edges.push({ a: nodes[a], b: nodes[b], w: D[nodes[a]][nodes[b]] });
+      edges.sort(function (p, q) { return p.w - q.w || p.a - q.a || p.b - q.b; });
+      var par = {}; nodes.forEach(function (x) { par[x] = x; });
+      var find = function (x) { while (par[x] !== x) x = par[x] = par[par[x]]; return x; };
+      var tot = 0, used = [];
+      edges.forEach(function (e) { var ra = find(e.a), rb = find(e.b); if (ra !== rb) { par[ra] = rb; tot += e.w; used.push(e); } });
+      return { cost: tot, edges: used };
+    }
+    function netGame(D, players) {
+      players = players || [0, 1, 2];
+      var k = players.length, arr = [0], trees = [null];
+      for (var m = 1; m < (1 << k); m++) {
+        var nodes = [0]; for (var j = 0; j < k; j++) if (m & (1 << j)) nodes.push(players[j] + 1);
+        var t = mstOf(D, nodes); arr.push(t.cost); trees.push(t);
+      }
+      var G = TU.fromCost(k, arr);
+      G.trees = trees;
+      // Bird's rule: in the tree of all members, each customer pays the link to its parent on the way to node 0
+      var T = trees[(1 << k) - 1], adj = {};
+      T.edges.forEach(function (e) { (adj[e.a] = adj[e.a] || []).push(e); (adj[e.b] = adj[e.b] || []).push(e); });
+      var pay = {}, seen = { 0: true }, queue = [0];
+      while (queue.length) {
+        var u = queue.shift();
+        (adj[u] || []).forEach(function (e) { var w = e.a === u ? e.b : e.a; if (!seen[w]) { seen[w] = true; pay[w] = e.w; queue.push(w); } });
+      }
+      G.bird = players.map(function (i) { return pay[i + 1] || 0; });
+      return G;
+    }
+
+    // joint ordering (EOQ): c(S) = sqrt(sum of c_i^2); share of ordering costs SOC: c_i^2 / c(S)
+    function eoqGame(c, players) {
+      players = players || [0, 1, 2];
+      var k = players.length, arr = [0];
+      for (var m = 1; m < (1 << k); m++) { var s = 0; for (var j = 0; j < k; j++) if (m & (1 << j)) s += c[players[j]] * c[players[j]]; arr.push(Math.sqrt(s)); }
+      var G = TU.fromCost(k, arr);
+      G.soc = players.map(function (i) { return c[i] * c[i] / arr[(1 << k) - 1]; });
+      return G;
+    }
+
+    // spare parts pool: Erlang loss with failure rate lambda, repair time T, holding h per part per year and
+    // an emergency cost p per demand that finds no part; the pool picks its integer base stock
+    function erlangB(s, a) { var B = 1; for (var k = 1; k <= s; k++) B = a * B / (k + a * B); return B; }
+    function poolCost(lam, P) {
+      var a = lam * P.T, best = null;
+      for (var s = 0; s <= 200; s++) {
+        var B = erlangB(s, a), c = P.h * s + P.p * lam * B;
+        if (!best || c < best.c - 1e-12) best = { c: c, s: s, B: B };
+        if (P.h * s > best.c) break;           // every larger stock costs more than the best one in holding alone
+      }
+      return best;
+    }
+    function spareGame(lam, P, players) {
+      players = players || [0, 1, 2];
+      var k = players.length, arr = [0], info = [null];
+      for (var m = 1; m < (1 << k); m++) {
+        var l = 0; for (var j = 0; j < k; j++) if (m & (1 << j)) l += lam[players[j]];
+        var b = poolCost(l, P); arr.push(b.c); info.push({ lam: l, s: b.s, B: b.B });
+      }
+      var G = TU.fromCost(k, arr);
+      G.pool = info;
+      return G;
+    }
+
+    return {
+      GP: GP, dcGame: dcGame, wsGame: wsGame, giapLP: giapLP, pooled: pooled, owenRange: owenRange, majGame: majGame, gloveGame: gloveGame,
+      airGame: airGame, bkGame: bkGame, cea: cea, cel: cel, talmud: talmud, propClaims: propClaims, mstOf: mstOf, netGame: netGame,
+      eoqGame: eoqGame, erlangB: erlangB, poolCost: poolCost, spareGame: spareGame
+    };
+  })();
+
+  /* =====================================================================================
+     Price Wars (page 1 of the series and the resource): P = a - b (q1 + q2), cost c.
+     Cournot gives each plant (a - c)^2 / (9 b); one binding agreement on the monopoly output
+     gives the pair (a - c)^2 / (4 b). Million COP, shown in billion COP per month.
+     ===================================================================================== */
+  var PW = { a: 1000, b: 5, c: 400 };
+  function priceWars() {
+    var m = PW.a - PW.c, cour = 2 * m * m / (9 * PW.b) / 1000, mono = m * m / (4 * PW.b) / 1000;
+    return { cour: cour, mono: mono, gain: 100 * (mono / cour - 1) };
+  }
+
+  /* =====================================================================================
+     Part 1: the animation. Firms A, B and C share a distribution center; the scenario is the
+     bill of the pair A and B alone. Every number comes from the engine above.
+     ===================================================================================== */
+  var AN = Anim, E = AN.ease, seg = AN.seg, clamp = AN.clamp, lerp = AN.lerp;
+  var DUR = 56, CH = [0, 9, 19.5, 32, 39, 48.5];
+  var DC0 = [0, 40, 50, 65, 60, 85, 95, 115];             // by mask: A 1, B 2, AB 3, C 4, AC 5, BC 6, ABC 7
+  var SCV = { weak: 80, mid: 65, strong: 60 };
+  var N3 = ["A", "B", "C"];
+  var ast = { sc: "mid" };
+  var cache = {};
+  function scen(k) {
+    if (cache[k]) return cache[k];
+    var c = DC0.slice(); c[3] = SCV[k];
+    var G = GEN.dcGame(c), sh = TU.shapley(G), nu = TU.nucleolus(G), cl = TU.coreLP(G);
+    var orders = sh.orders.map(function (o) { return { perm: o.perm, m: o.m, inCore: TU.inCore(G, o.m) }; });
+    var S = {
+      k: k, cab: SCV[k], c: c, G: G, sh: sh, nu: nu, cl: cl, core: TU.core(G), orders: orders,
+      weber: TU.hull2(orders.map(function (o) { return o.m; })), shIn: TU.inCore(G, sh.x), shW: TU.worst(G, sh.x),
+      nIn: orders.filter(function (o) { return o.inCore; }).length, fixedAt: {}
+    };
+    S.bill = function (x) { return x.map(function (v, i) { return c[1 << i] - v; }); };
+    nu.rounds.forEach(function (r, j) { r.fixed.forEach(function (m) { S.fixedAt[m] = j; }); });
+    var R = nu.rounds.length;
+    // timing of chapter 5: one shrink per LP round, then the nucleolus
+    S.sh5 = R === 1 ? [[40.4, 44.2]] : [[40.4, 43.0], [43.6, 46.4]];
+    S.nucT = R === 1 ? 44.6 : 46.8;
+    cache[k] = S;
+    return S;
+  }
+  function cname(m) { return N3.filter(function (z, i) { return m & (1 << i); }).join(""); }
+  function shapeKey(poly) {
+    if (!poly.length) return "gtc.shape.empty";
+    if (poly.length === 1) return "gtc.shape.point";
+    if (poly.length === 2) return "gtc.shape.segment";
+    return "gtc.shape.poly";
+  }
+  function shapeName(poly) { return T(shapeKey(poly), { n: poly.length }); }
+
+  var aroot = $("gtc-anim"), stage = aroot.querySelector(".anim-stage"), hudEl = $("gtc-hud");
+  var cv = AN.canvas(stage), ctx = cv.ctx;
+  stage.insertBefore(cv.el, hudEl);
+  var C = AN.colors(), HOT = C["mit-bright"], L = null, hudKey = "", FONT = getComputedStyle(document.body).fontFamily;
+  function font(w, s) { return w + " " + s + "px " + FONT; }
+  function wrap(s, maxW) {
+    var words = String(s).replace(/ε = /g, "ε\u00a0=\u00a0").split(" "), lines = [], cur = "";
+    words.forEach(function (w) {
+      var tr = cur ? cur + " " + w : w;
+      if (ctx.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function key() { return cv.w + "x" + cv.h + ":" + hudEl.offsetHeight + ":" + hudEl.offsetWidth + ":" + ast.sc + ":" + I18N.lang; }
+
+  function layout() {
+    var W = cv.w, H = cv.h, portrait = W / H < 1.2, S = scen(ast.sc);
+    var hx = hudEl.offsetLeft, hy = hudEl.offsetTop, hw = hudEl.offsetWidth, hh = hudEl.offsetHeight;
+    L = { W: W, H: H, portrait: portrait };
+    if (portrait) { L.capX = hx; L.capY = hy + hh + 18; L.capW = W - 2 * hx; L.fs = 11.5; L.ft = 13; }
+    else if (W < 760) { L.capX = hx; L.capY = hy + hh + 22; L.capW = hw; L.fs = 11.5; L.ft = 13.5; }
+    else { L.capX = hx; L.capY = hy + hh + 28; L.capW = hw; L.fs = 12.5; L.ft = 15.5; }
+    var tl = 1, sl = 1;
+    allCaptions(S).forEach(function (cap) {
+      ctx.font = font(700, L.ft); tl = Math.max(tl, wrap(cap[0], L.capW - 12).length);
+      ctx.font = font(400, L.fs + (portrait ? 0 : 1)); sl = Math.max(sl, wrap(cap[1], L.capW - 12).length);
+    });
+    L.capBottom = L.capY + (tl - 1) * (L.ft + 3) + L.fs + 6 + (sl - 1) * (L.fs + 5) + 4;
+    var R, strip;
+    if (portrait) {
+      L.stripH = 34;
+      R = { x: 8, y: L.capBottom + 4, w: W - 16, h: H - L.capBottom - 10 };
+      strip = { x: R.x + 4, y: R.y + R.h - L.stripH + 4, w: R.w - 8, h: L.stripH - 4 };
+    } else {
+      R = { x: hx + hw + 22, y: 12, w: W - hx - hw - 22 - 12, h: H - 24 };
+      strip = { x: hx, y: L.capBottom + 16, w: hw, h: 40 };
+      L.stripH = 0;
+    }
+    L.R = R; L.strip = strip;
+    var A = { x: R.x, y: R.y, w: R.w, h: R.h - L.stripH };
+    var lab = portrait ? 16 : 24;
+    var side = Math.max(60, Math.min(A.w - 2 * lab, (A.h - 2 * lab) * 2 / Math.sqrt(3)));
+    var th = side * Math.sqrt(3) / 2, cx = A.x + A.w / 2, top = A.y + (A.h - th) / 2;
+    L.V = [[cx - side / 2, top + th], [cx + side / 2, top + th], [cx, top]];   // A lower left, B lower right, C on top
+    L.A = A; L.side = side; L.cx0 = A.x + A.w / 2; L.cy0 = A.y + A.h / 2;
+    L.bars = { x: R.x, y: R.y, w: R.w, h: R.h };
+    // camera frames: the whole triangle, the core (chapter 5), everything that matters (chapter 6)
+    L.Z0 = { s: 1, fx: L.cx0, fy: L.cy0 };
+    L.Z1 = frameOf(S.core.map(P0), 0.45, 2.6, 44);
+    var pts = S.core.concat(S.weber, [S.sh.x, S.nu.x]).map(P0);
+    L.Z2 = frameOf(pts, 0.16, 2.0, 30, 1.4);             // a mild zoom is not worth losing the corners
+    hudKey = key();
+  }
+  // a camera that fits a set of points with a margin (fraction of their size, at least minPad pixels)
+  function frameOf(pts, pad, smax, minPad, smin) {
+    if (!pts.length) return L.Z0;
+    var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    pts.forEach(function (p) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+    var bw = Math.max(20, x1 - x0), bh = Math.max(20, y1 - y0), px = Math.max(minPad, bw * pad), py = Math.max(minPad, bh * pad);
+    var s = Math.min(smax, L.A.w / (bw + 2 * px), L.A.h / (bh + 2 * py));
+    if (s <= (smin || 1)) return L.Z0;
+    var fy = (y0 + y1) / 2, base = L.V[0][1], bottom = L.A.y + L.A.h - (L.portrait ? 14 : 22);
+    // no empty band under the base of the triangle: slide the view down as far as the points allow
+    if (L.cy0 + s * (base - fy) < bottom) fy = base - (bottom - L.cy0) / s;
+    return { s: s, fx: (x0 + x1) / 2, fy: fy };
+  }
+  // a split of the savings x (3-vector) to its point on the triangle, before the camera
+  function P0(x) {
+    var S = scen(ast.sc), G = S.G, w = [0, 1, 2].map(function (i) { return (x[i] - G.vi[i]) / G.sur; });
+    return [w[0] * L.V[0][0] + w[1] * L.V[1][0] + w[2] * L.V[2][0], w[0] * L.V[0][1] + w[1] * L.V[1][1] + w[2] * L.V[2][1]];
+  }
+  function camAt(t) {
+    var u1 = E.inOut(seg(t, 39.0, 40.4)), u2 = E.inOut(seg(t, 48.6, 50.2));
+    var a = L.Z0, b = L.Z1, c = L.Z2, z;
+    if (u2 > 0) z = { s: lerp(b.s, c.s, u2), fx: lerp(b.fx, c.fx, u2), fy: lerp(b.fy, c.fy, u2) };
+    else z = { s: lerp(a.s, b.s, u1), fx: lerp(a.fx, b.fx, u1), fy: lerp(a.fy, b.fy, u1) };
+    return z;
+  }
+  var CAM = null;
+  function scr(p) { return [L.cx0 + CAM.s * (p[0] - CAM.fx), L.cy0 + CAM.s * (p[1] - CAM.fy)]; }
+  function P(x) { return scr(P0(x)); }
+
+  /* ---------- drawing helpers ---------- */
+  function line(x0, y0, x1, y1) { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); }
+  function rrect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+  }
+  function haloText(s, x, y, col, fnt, al, bl) {
+    ctx.font = fnt; ctx.textAlign = al || "left"; ctx.textBaseline = bl || "alphabetic";
+    ctx.lineWidth = 4; ctx.lineJoin = "round"; ctx.strokeStyle = C.surface; ctx.strokeText(s, x, y);
+    ctx.fillStyle = col; ctx.fillText(s, x, y);
+  }
+  function pulse(u) { return Math.sin(Math.PI * clamp(u, 0, 1)); }
+  function polyPath(pts) {
+    ctx.beginPath();
+    pts.forEach(function (p, i) { if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); });
+    ctx.closePath();
+  }
+  // a convex set of splits: filled polygon, thick segment or dot
+  function drawSet(poly, fill, stroke, lw, alpha) {
+    if (!poly.length) return;
+    var pts = poly.map(P);
+    ctx.save(); ctx.globalAlpha *= alpha;
+    if (pts.length >= 3) {
+      polyPath(pts);
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.lineJoin = "round"; ctx.stroke();
+    } else if (pts.length === 2) {
+      ctx.strokeStyle = stroke; ctx.lineWidth = lw + 2.5; ctx.lineCap = "round";
+      line(pts[0][0], pts[0][1], pts[1][0], pts[1][1]); ctx.lineCap = "butt";
+    } else {
+      ctx.fillStyle = stroke; ctx.beginPath(); ctx.arc(pts[0][0], pts[0][1], lw + 2, 0, 6.2832); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function diamond(x, y, r) { ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y); ctx.closePath(); }
+
+  /* ---------- chapter 1: seven bills ---------- */
+  var COLS = [1, 2, 4, 3, 5, 6, 7];
+  function barTimes(k) {                       // k = index in COLS
+    if (k < 3) return { g0: 0.4 + 0.3 * k, g1: 1.0 + 0.3 * k };
+    var j = k - 3, s = 2.3 + 1.05 * j;
+    return { g0: s, g1: s + 0.5, p0: s + 0.45, p1: s + 1.0, v0: s + 0.85, v1: s + 1.15 };
+  }
+  function drawBars(S, t) {
+    var out = 1 - E.inOut(seg(t, 8.2, 9.2));
+    if (out <= 0) return;
+    var B = L.bars, G = S.G, n = COLS.length, cw = B.w / n, bw = Math.min(56, cw * 0.58);
+    var fs = L.portrait ? 10.5 : 12, y0 = B.y + B.h - (L.portrait ? 20 : 26), top = B.y + (L.portrait ? 30 : 34);
+    var sc = (y0 - top) / 150, drop = (1 - out) * 18;
+    ctx.save(); ctx.globalAlpha = out;
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1; line(B.x + 4, y0 + drop, B.x + B.w - 4, y0 + drop);
+    COLS.forEach(function (m, k) {
+      var tm = barTimes(k), cx = B.x + (k + 0.5) * cw, x = cx - bw / 2, a = E.out(seg(t, tm.g0, tm.g0 + 0.3));
+      if (a <= 0) return;
+      ctx.globalAlpha = out * a;
+      ctx.font = font(700, fs + 1); ctx.fillStyle = C.ink; ctx.textAlign = "center"; ctx.textBaseline = "top";
+      ctx.fillText(cname(m), cx, y0 + 6 + drop);
+      var alone = 0; TU.mem(m, 3).forEach(function (i) { alone += G.c[1 << i]; });
+      if (k < 3) {
+        var h = G.c[m] * sc * E.out(seg(t, tm.g0, tm.g1));
+        ctx.fillStyle = C.ink2; ctx.fillRect(x, y0 - h + drop, bw, h);
+        if (t > tm.g1 - 0.2) { ctx.font = font(700, fs); ctx.fillStyle = C.ink; ctx.textBaseline = "bottom"; ctx.fillText(num(G.c[m], 0), cx, y0 - h - 4 + drop); }
+        return;
+      }
+      // the members' own bills stacked, then the pooled bill rising inside them; the rest is the saving
+      var ug = E.out(seg(t, tm.g0, tm.g1)), y = y0 + drop;
+      TU.mem(m, 3).forEach(function (i, q) {
+        var hh = G.c[1 << i] * sc * ug;
+        ctx.fillStyle = C["mit-silver"]; ctx.globalAlpha = out * a * 0.42; ctx.fillRect(x, y - hh, bw, hh);
+        ctx.globalAlpha = out * a; ctx.strokeStyle = C.surface; ctx.lineWidth = 1.5; line(x, y - hh, x + bw, y - hh);
+        y -= hh;
+      });
+      var up = E.inOut(seg(t, tm.p0, tm.p1)), hp = G.c[m] * sc * up;
+      if (up > 0) { ctx.globalAlpha = out * a; ctx.fillStyle = C.ink2; ctx.fillRect(x, y0 - hp + drop, bw, hp); }
+      var uv = E.out(seg(t, tm.v0, tm.v1));
+      if (uv > 0) {
+        var hs = (alone - G.c[m]) * sc, ys = y0 - G.c[m] * sc + drop, isN = m === 7;
+        var hot = isN ? pulse(seg(t, 6.5, 7.3)) : 0;
+        ctx.globalAlpha = out * uv; ctx.fillStyle = isN ? HOT : C.accent; ctx.fillRect(x, ys - hs, bw, hs);
+        ctx.font = font(700, fs + (isN ? 2 + 3 * hot : 0)); ctx.textBaseline = "bottom";
+        ctx.fillStyle = isN ? HOT : C["accent-text"]; ctx.fillText(MINUS + num(G.v[m], 0), cx, ys - hs - 4);
+        if (bw > 26 && G.c[m] * sc > fs + 8) {
+          ctx.font = font(700, fs); ctx.fillStyle = C.surface; ctx.textBaseline = "top";
+          ctx.fillText(num(G.c[m], 0), cx, ys + 4);
+        }
+      }
+    });
+    ctx.restore();
+  }
+
+  /* ---------- chapters 2 to 6: the triangle of splits ---------- */
+  function drawTriangle(S, t) {
+    var a = E.out(seg(t, 9.0, 10.2));
+    if (a <= 0) return;
+    var V = L.V.map(scr), fs = L.portrait ? 12 : 14;
+    ctx.save();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+    for (var e = 0; e < 3; e++) {
+      var u = E.inOut(seg(t, 9.0 + 0.35 * e, 9.6 + 0.35 * e));
+      if (u <= 0) continue;
+      var p = V[e], q = V[(e + 1) % 3];
+      line(p[0], p[1], lerp(p[0], q[0], u), lerp(p[1], q[1], u));
+    }
+    ctx.globalAlpha = a;
+    var off = [[-12, 14], [12, 14], [0, -10]], al = ["right", "left", "center"], bl = ["middle", "middle", "bottom"];
+    var R = L.R, inset = 12;
+    V.forEach(function (p, i) {
+      var x = p[0] + off[i][0], y = p[1] + (i < 2 ? 0 : off[i][1]), a2 = al[i], b2 = bl[i];
+      if (x < R.x + inset || x > R.x + R.w - inset || y < R.y + inset || y > R.y + R.h - inset) {
+        // the corner is off screen: the letter waits at the border, on the way to it
+        var cx = L.cx0, cy = L.cy0, dx = p[0] - cx, dy = p[1] - cy, k = 1;
+        if (dx) k = Math.min(k, ((dx > 0 ? R.x + R.w - inset : R.x + inset) - cx) / dx);
+        if (dy) k = Math.min(k, ((dy > 0 ? R.y + R.h - inset : R.y + inset) - cy) / dy);
+        x = cx + dx * k; y = cy + dy * k; a2 = "center"; b2 = "middle";
+      }
+      haloText(N3[i], x, y, C.ink, font(700, fs + 2), a2, b2);
+    });
+    ctx.restore();
+  }
+  // the line x(S) = v(S) of a pair: where the third firm keeps exactly v(N) - v(S)
+  function pairLine(S, m) {
+    var G = S.G, k = [0, 1, 2].filter(function (i) { return !(m & (1 << i)); })[0], w = (G.v[G.N] - G.v[m] - G.vi[k]) / G.sur;
+    if (w < -1e-9 || w > 1 - 1e-9) return null;
+    var others = [0, 1, 2].filter(function (i) { return i !== k; });
+    var pt = function (i) { return [L.V[i][0] + w * (L.V[k][0] - L.V[i][0]), L.V[i][1] + w * (L.V[k][1] - L.V[i][1])]; };
+    return { k: k, w: w, p: pt(others[0]), q: pt(others[1]) };
+  }
+  var PAIRS = [3, 5, 6];
+  function lerpP(a, b, u) { return [a[0] + u * (b[0] - a[0]), a[1] + u * (b[1] - a[1])]; }
+  // the part of segment p-q inside the rectangle R shrunk by pad (Liang and Barsky), or null
+  function clipSeg(p, q, R, pad) {
+    var x0 = R.x + pad, x1 = R.x + R.w - pad, y0 = R.y + pad, y1 = R.y + R.h - pad, dx = q[0] - p[0], dy = q[1] - p[1], a = 0, b = 1;
+    var P4 = [-dx, dx, -dy, dy], Q4 = [p[0] - x0, x1 - p[0], p[1] - y0, y1 - p[1]];
+    for (var i = 0; i < 4; i++) {
+      if (Math.abs(P4[i]) < 1e-12) { if (Q4[i] < 0) return null; continue; }
+      var r = Q4[i] / P4[i];
+      if (P4[i] < 0) a = Math.max(a, r); else b = Math.min(b, r);
+    }
+    return a < b ? [lerpP(p, q, a), lerpP(p, q, b)] : null;
+  }
+  function pairT(j) { return 10.8 + 1.6 * j; }
+  function drawPairs(S, t) {
+    if (t < 10.8) return;
+    var fs = L.portrait ? 11 : 12.5, fade = 1 - 0.45 * E.inOut(seg(t, 19.5, 20.5)) * (1 - E.inOut(seg(t, 48.6, 50.2)));
+    PAIRS.forEach(function (m, j) {
+      var pl = pairLine(S, m);
+      if (!pl) return;
+      var t0 = pairT(j), u = E.inOut(seg(t, t0, t0 + 0.7)), r = E.out(seg(t, t0 + 0.5, t0 + 1.1));
+      if (u <= 0) return;
+      var p = scr(pl.p), q = scr(pl.q), k = scr(L.V[pl.k]);
+      ctx.save(); ctx.globalAlpha = fade;
+      if (r > 0) {
+        ctx.globalAlpha = fade * r;
+        polyPath([p, q, k]); ctx.fillStyle = C.region; ctx.fill();
+      }
+      // in chapter 4 the pair that blocks Shapley glows; in chapter 5 the coalitions fixed by the LPs light up
+      var hot = !S.shIn && S.shW.m === m ? E.out(seg(t, 35.0, 35.8)) * (1 - E.inOut(seg(t, 38.6, 39.4))) : 0;
+      var fx = S.fixedAt[m], fixedU = fx == null ? 0 : E.out(seg(t, S.sh5[fx][1], S.sh5[fx][1] + 0.5)) * (1 - E.inOut(seg(t, 48.6, 49.6)));
+      ctx.globalAlpha = fade;
+      ctx.strokeStyle = hot > 0 ? HOT : fixedU > 0 ? C.accent : C.ink2;
+      ctx.lineWidth = 1.6 + 1.6 * Math.max(hot, fixedU) + (u < 1 ? 0.8 : 0);
+      line(p[0], p[1], lerp(p[0], q[0], u), lerp(p[1], q[1], u));
+      // label on the allowed side, on the visible part of the line, away from the Shapley value
+      var la = E.out(seg(t, t0 + 0.4, t0 + 0.9)), vis = clipSeg(p, q, L.R, 16);
+      if (la > 0 && vis) {
+        var sp = P(S.sh.x), c1 = lerpP(vis[0], vis[1], 0.16), c2 = lerpP(vis[0], vis[1], 0.84);
+        var at = Math.hypot(c1[0] - sp[0], c1[1] - sp[1]) >= Math.hypot(c2[0] - sp[0], c2[1] - sp[1]) ? c1 : c2;
+        var nx = -(q[1] - p[1]), ny = q[0] - p[0], nl = Math.hypot(nx, ny) || 1;
+        if (nx * (at[0] - k[0]) + ny * (at[1] - k[1]) < 0) { nx = -nx; ny = -ny; }
+        ctx.globalAlpha = fade * la;
+        haloText(cname(m), at[0] + nx / nl * (fs + 1), at[1] + ny / nl * (fs + 1), hot > 0 ? HOT : C.ink2, font(700, fs), "center", "middle");
+      }
+      ctx.restore();
+    });
+  }
+  function drawCore(S, t) {
+    var a = E.out(seg(t, 16.4, 17.4));
+    if (a <= 0) return;
+    var dim = 1 - 0.62 * E.inOut(seg(t, 40.2, 41.0)) * (1 - E.inOut(seg(t, 48.6, 50.2)));
+    var fill = C.accent, sel = C.sel;
+    drawSet(S.core, sel, fill, 2.4, a * dim);
+    if (S.core.length >= 3) {
+      ctx.save(); ctx.globalAlpha = a * dim * (1 - E.out(seg(t, 19.5, 20.5)));
+      S.core.forEach(function (x, i) {
+        var p = P(x), r = 3.5 + 2.5 * pulse(seg(t, 16.8 + 0.12 * i, 17.6 + 0.12 * i));
+        ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill();
+      });
+      ctx.restore();
+    }
+  }
+
+  /* ---------- chapter 3: firms arrive in turn ---------- */
+  function ordT(k) { return 20.0 + 1.85 * k; }
+  function drawOrders(S, t) {
+    if (t < 20.0) return;
+    var st = L.strip, fs = L.portrait ? 11.5 : 12.5;
+    // the strip with the current order: who arrives, and what each one adds to the bill
+    var k = Math.min(5, Math.floor((t - 20.0) / 1.85)), o = S.orders[k];
+    var sa = E.out(seg(t, ordT(k), ordT(k) + 0.3)) * (1 - E.inOut(seg(t, 31.6, 32.4)));
+    if (sa > 0 && t < 32.4) {
+      var gap = 24, tw = Math.min(70, (st.w - 2 * gap) / 3), bills = S.bill(o.m), x00 = st.x + (L.portrait ? (st.w - 3 * tw - 2 * gap) / 2 : 0);
+      ctx.save();
+      o.perm.forEach(function (i, q) {
+        var u = E.out(seg(t, ordT(k) + 0.12 * q, ordT(k) + 0.12 * q + 0.3));
+        if (u <= 0) return;
+        var x = x00 + q * (tw + gap), y = st.y + 2;
+        ctx.globalAlpha = sa * u;
+        rrect(x, y, tw, st.h - 6, 3); ctx.fillStyle = C.surface; ctx.fill();
+        ctx.strokeStyle = o.inCore ? C.accent : C.axis; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.font = font(700, fs + 1); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+        ctx.fillText(N3[i], x + 7, y + (st.h - 6) / 2);
+        ctx.font = font(600, fs); ctx.fillStyle = C["accent-text"]; ctx.textAlign = "right";
+        ctx.fillText(num(bills[i], 0), x + tw - 7, y + (st.h - 6) / 2);
+        if (q < 2) { ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.font = font(700, fs); ctx.fillText("→", x + tw + gap / 2, y + (st.h - 6) / 2); }
+      });
+      ctx.restore();
+    }
+    // each order sends its marginal vector from the strip to the triangle
+    ctx.save();
+    S.orders.forEach(function (o, j) {
+      var t0 = ordT(j) + 0.55, u = seg(t, t0, t0 + 0.75);
+      if (u <= 0 || u >= 1) return;
+      var p = P(o.m), x0 = (L.portrait ? st.x + st.w / 2 : st.x + 1.5 * Math.min(70, (st.w - 48) / 3) + 24), y0 = L.portrait ? st.y : st.y + st.h, mx = (x0 + p[0]) / 2, my = Math.min(y0, p[1]) - 30;
+      for (var q = 6; q >= 0; q--) {
+        var v = E.inOut(clamp(u - q * 0.035, 0, 1)), X = (1 - v) * (1 - v) * x0 + 2 * (1 - v) * v * mx + v * v * p[0], Y = (1 - v) * (1 - v) * y0 + 2 * (1 - v) * v * my + v * v * p[1];
+        ctx.globalAlpha = q ? 0.3 * (1 - q / 7) : 1;
+        ctx.fillStyle = q ? C["mit-silver"] : (o.inCore ? C.accent : HOT);
+        ctx.beginPath(); ctx.arc(X, Y, q ? 3 : 4.5, 0, 6.2832); ctx.fill();
+      }
+    });
+    ctx.restore();
+  }
+  // the landed marginal vectors (in the core: filled; outside: a ring) and their hull, the Weber set
+  function drawOrderDots(S, t) {
+    if (t < 20.0) return;
+    var small = 1 - 0.45 * E.inOut(seg(t, 32.2, 33.4));
+    ctx.save();
+    S.orders.forEach(function (o, j) {
+      var t0 = ordT(j) + 0.55;
+      if (t < t0 + 0.75) return;
+      var p = P(o.m), land = pulse(seg(t, t0 + 0.75, t0 + 1.3)), r = (4.5 + 3 * land) * (0.7 + 0.3 * small);
+      ctx.globalAlpha = 1;
+      if (o.inCore) { ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill(); }
+      else { ctx.strokeStyle = HOT; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.arc(p[0], p[1], r + 1, 0, 6.2832); ctx.stroke(); }
+    });
+    ctx.restore();
+    // the Weber set: the hull of the six marginal vectors
+    var wu = E.inOut(seg(t, 31.0, 31.9));
+    if (wu > 0 && S.weber.length >= 2) {
+      var pts = S.weber.map(P), tot = 0, segL = [];
+      for (var i = 0; i < pts.length; i++) { var nx = pts[(i + 1) % pts.length], d = Math.hypot(nx[0] - pts[i][0], nx[1] - pts[i][1]); segL.push(d); tot += d; }
+      var left = tot * wu;
+      ctx.save(); ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6; ctx.setLineDash([6, 5]); ctx.globalAlpha = 0.85;
+      ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+      for (i = 0; i < pts.length && left > 0; i++) {
+        var f = Math.min(1, left / segL[i]), nx2 = pts[(i + 1) % pts.length];
+        ctx.lineTo(lerp(pts[i][0], nx2[0], f), lerp(pts[i][1], nx2[1], f));
+        left -= segL[i];
+      }
+      ctx.stroke(); ctx.restore();
+    }
+  }
+
+  /* ---------- chapter 4: the average order ---------- */
+  function drawShapley(S, t) {
+    if (t < 32.2) return;
+    var ps = P(S.sh.x), u = seg(t, 32.2, 34.4);
+    if (u < 1) {
+      ctx.save();
+      S.orders.forEach(function (o, j) {
+        var p = P(o.m), uu = seg(u, 0.05 * j, 0.7 + 0.05 * j);
+        for (var q = 5; q >= 0; q--) {
+          var v = E.inOut(clamp(uu - q * 0.04, 0, 1));
+          ctx.globalAlpha = q ? 0.28 * (1 - q / 6) : 0.95;
+          ctx.fillStyle = q ? C["mit-silver"] : C.ink;
+          ctx.beginPath(); ctx.arc(lerp(p[0], ps[0], v), lerp(p[1], ps[1], v), q ? 2.6 : 3.4, 0, 6.2832); ctx.fill();
+        }
+      });
+      ctx.restore();
+      return;
+    }
+    var pop = E.back(seg(t, 34.4, 34.9)), r = 7 * pop, col = S.shIn ? C.ink : HOT;
+    ctx.save();
+    ctx.lineWidth = 3; ctx.strokeStyle = C.surface; diamond(ps[0], ps[1], r + 1.5); ctx.stroke();
+    ctx.fillStyle = col; diamond(ps[0], ps[1], r); ctx.fill();
+    var la = E.out(seg(t, 34.6, 35.2)), fs = L.portrait ? 11 : 12.5;
+    if (la > 0) {
+      ctx.globalAlpha = la;
+      var lp = labelSpots(S);
+      haloText(T("gtc.l.shap"), lp.s[0], lp.s[1], col, font(700, fs), lp.s[2], "middle");
+      if (!S.shIn && t < 39.2) {
+        var w = S.shW, bills = S.bill(S.sh.x), pay = bills[0] * !!(w.m & 1) + bills[1] * !!(w.m & 2) + bills[2] * !!(w.m & 4);
+        ctx.globalAlpha = la * (1 - E.inOut(seg(t, 38.6, 39.2)));
+        haloText(T("gtc.l.block", { s: cname(w.m), p: num(pay, 2), c: num(S.c[w.m], 0) }), lp.b[0], lp.b[1], HOT, font(700, fs), lp.b[2], "middle");
+      }
+    }
+    ctx.restore();
+  }
+  // where the labels of the Shapley value and the nucleolus go, so that they never cover each other
+  function labelSpots(S) {
+    var a = P(S.sh.x), b = P(S.nu.x), off = L.portrait ? 12 : 15;
+    var shUp = a[1] <= b[1] - 4 || (Math.abs(a[1] - b[1]) < 4 && a[0] < b[0]);
+    var s = shUp ? [a[0] - off, a[1] - off * 0.9, "right"] : [a[0] + off, a[1] + off * 0.9, "left"];
+    var n = shUp ? [b[0] + off, b[1] + off * 0.9, "left"] : [b[0] - off, b[1] - off * 0.9, "right"];
+    var bl = shUp ? [a[0] - off, a[1] - off * 0.9 - (L.portrait ? 15 : 18), "right"] : [a[0] + off, a[1] + off * 0.9 + (L.portrait ? 15 : 18), "left"];
+    [s, n, bl].forEach(function (q) { q[0] = clamp(q[0], L.R.x + 8, L.R.x + L.R.w - 8); q[1] = clamp(q[1], L.R.y + 10, L.R.y + L.R.h - 10); });
+    return { s: s, n: n, b: bl };
+  }
+
+  /* ---------- chapter 5: shrink the complaints ---------- */
+  function epsAt(S, t) {
+    var R = S.nu.rounds, cur = 0, val = 0;
+    S.sh5.forEach(function (w, j) {
+      if (t >= w[0]) { cur = j; val = lerp(j ? R[j - 1].eps : 0, R[j].eps, E.inOut(seg(t, w[0], w[1]))); }
+    });
+    return { j: cur, e: val };
+  }
+  function drawShrink(S, t) {
+    if (t < S.sh5[0][0]) return;
+    var st = epsAt(S, t), R = S.nu.rounds;
+    var poly = TU.polygon(S.G, function (m) { var f = S.fixedAt[m]; return f != null && f < st.j ? R[f].eps : st.e; });
+    var a = (1 - 0.75 * E.inOut(seg(t, S.nucT, S.nucT + 0.8))) * (1 - E.inOut(seg(t, 48.6, 49.6)));
+    if (a > 0) drawSet(poly, C.sel, C.accent, 2.6, a);
+  }
+  function drawNucleolus(S, t) {
+    if (t < S.nucT) return;
+    var p = P(S.nu.x), pop = E.back(seg(t, S.nucT, S.nucT + 0.5)), r = 6.5 * pop;
+    ctx.save();
+    ctx.fillStyle = C.surface; ctx.beginPath(); ctx.arc(p[0], p[1], r + 3, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p[0], p[1], r + 3, 0, 6.2832); ctx.stroke();
+    ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill();
+    var la = E.out(seg(t, S.nucT + 0.3, S.nucT + 0.9));
+    if (la > 0) {
+      var lp = labelSpots(S), fs = L.portrait ? 11 : 12.5;
+      ctx.globalAlpha = la;
+      haloText(T("gtc.l.nuc"), lp.n[0], lp.n[1], C["accent-text"], font(700, fs), lp.n[2], "middle");
+    }
+    ctx.restore();
+  }
+
+  /* ---------- captions ---------- */
+  function captions(S, t) {
+    var G = S.G, bills = S.bill(S.sh.x), nb = S.bill(S.nu.x);
+    if (t < CH[1]) return [T("gtc.cap1", { a: num(G.c[1] + G.c[2] + G.c[4], 0), n: num(G.c[7], 0) }), T("gtc.cap1.sub", { s: num(G.v[7], 0) })];
+    if (t < CH[2]) return [T("gtc.cap2"), T("gtc.cap2.sub", { shape: shapeName(S.core) })];
+    if (t < CH[3]) return [T("gtc.cap3"), T("gtc.cap3.sub", { k: S.nIn })];
+    if (t < CH[4]) {
+      if (S.shIn) return [T("gtc.cap4"), T("gtc.cap4.in", { x: tri(bills) })];
+      var w = S.shW, pay = 0; TU.mem(w.m, 3).forEach(function (i) { pay += bills[i]; });
+      return [T("gtc.cap4"), T("gtc.cap4.out", { x: tri(bills), s: cname(w.m), p: num(pay, 2), c: num(S.c[w.m], 0) })];
+    }
+    var R = S.nu.rounds;
+    if (t < CH[5]) return [T("gtc.cap5"), R.length === 1 ? T("gtc.cap5.one", { e1: num(R[0].eps, 2), x: tri(nb) }) : T("gtc.cap5.two", { e1: num(R[0].eps, 2), e2: num(R[1].eps, 2), x: tri(nb) })];
+    return [T("gtc.cap6"), T(S.shIn ? "gtc.cap6.in" : "gtc.cap6.out", { s: cname(S.shW.m) })];
+  }
+  function allCaptions(S) { return [1, CH[1] + 1, CH[2] + 1, CH[3] + 1, CH[4] + 1, DUR].map(function (t) { return captions(S, t); }); }
+  function drawCaption(S, t) {
+    var ci = 0; CH.forEach(function (c, k) { if (t >= c) ci = k; });
+    var a = ci === 0 ? seg(t, 0.4, 1.1) : seg(t, CH[ci] + 0.15, CH[ci] + 0.8);
+    if (ci < CH.length - 1) a *= 1 - seg(t, CH[ci + 1] - 0.45, CH[ci + 1] - 0.05);
+    if (t >= DUR - 1e-6) a = 1;
+    if (a <= 0) return;
+    var lines = captions(S, t), x = L.capX, y = L.capY, maxW = L.capW - 12;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = C.accent; ctx.fillRect(x, y - L.ft + 2, 3, L.ft + 1);
+    ctx.font = font(700, L.ft); ctx.fillStyle = C.ink; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    var tl = wrap(lines[0], maxW);
+    tl.forEach(function (s, k) { ctx.fillText(s, x + 10, y + k * (L.ft + 3), maxW); });
+    y += (tl.length - 1) * (L.ft + 3) + L.fs + 6;
+    ctx.font = font(400, L.fs + (L.portrait ? 0 : 1)); ctx.fillStyle = C.ink2;
+    wrap(lines[1], maxW).forEach(function (s) { ctx.fillText(s, x + 10, y, maxW); y += L.fs + 5; });
+    ctx.restore();
+  }
+
+  /* ---------- HUD chips ---------- */
+  var chips = [0, 1, 2, 3, 4, 5].map(function (i) {
+    var el = $("gtc-c" + i);
+    return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
+  });
+  function setChip(i, val, labl, op, kind) {
+    var c = chips[i];
+    op = Math.round(clamp(op, 0, 1) * 20) / 20;
+    if (c.v !== val) { c.b.textContent = val; c.v = val; }
+    if (c.l !== labl) { c.s.textContent = labl; c.l = labl; }
+    if (c.o !== op) { c.el.style.opacity = op; c.o = op; }
+    if (c.k !== kind) {
+      c.el.classList.toggle("accent", /acc/.test(kind));
+      c.el.classList.toggle("hot", /hot/.test(kind));
+      c.el.classList.toggle("long", /long/.test(kind));
+      c.k = kind;
+    }
+  }
+  function hud(S, t) {
+    var G = S.G, R = S.nu.rounds, nIn = 0, done = 0;
+    S.orders.forEach(function (o, j) { if (t >= ordT(j) + 1.3 && o.inCore) nIn++; });
+    S.sh5.forEach(function (w) { if (t >= w[1]) done++; });
+    setChip(0, num(G.v[7], 0), T("gtc.k.saving"), seg(t, 6.6, 7.1), "hot");
+    setChip(1, shapeName(S.core), T("gtc.k.core"), seg(t, 16.6, 17.1), "acc");
+    setChip(2, T("gtc.k.ofsix", { k: nIn }), T("gtc.k.orders"), seg(t, 20.0, 20.5), "");
+    setChip(3, tri(S.bill(S.sh.x)), T(S.shIn ? "gtc.k.shap.in" : "gtc.k.shap.out", { s: cname(S.shW.m) }), seg(t, 34.4, 34.9), S.shIn ? "long" : "hot long");
+    var eps = R.slice(0, Math.max(1, done)).map(function (r) { return num(r.eps, 2); });
+    setChip(4, fmt(done, 0), done ? T("gtc.k.rounds", { e: joinL(eps) }) : T("gtc.k.rounds0"), seg(t, 40.4, 40.9), "");
+    setChip(5, tri(S.bill(S.nu.x)), T("gtc.k.nuc"), seg(t, S.nucT, S.nucT + 0.5), "acc long");
+  }
+
+  /* ---------- the frame ---------- */
+  function render(t) {
+    C = AN.colors();
+    HOT = C.accent.toLowerCase() === C["mit-bright"].toLowerCase() ? C.crit : C["mit-bright"];
+    var S = scen(ast.sc);
+    hud(S, t);
+    if (hudKey !== key()) layout();
+    ctx.clearRect(0, 0, L.W, L.H);
+    ctx.fillStyle = C.surface; ctx.fillRect(0, 0, L.W, L.H);
+    ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.setLineDash([]); ctx.globalAlpha = 1;
+    CAM = camAt(t);
+    if (t < 9.3) drawBars(S, t);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(L.R.x - 4, L.R.y - 4, L.R.w + 8, L.R.h + 8); ctx.clip();
+    drawPairs(S, t);
+    drawCore(S, t);
+    drawShrink(S, t);
+    drawTriangle(S, t);
+    drawOrderDots(S, t);
+    drawShapley(S, t);
+    drawNucleolus(S, t);
+    ctx.restore();
+    drawOrders(S, t);
+    ctx.globalAlpha = 1;
+    drawCaption(S, t);
+  }
+
+  layout();
+  var player = AN.create({
+    root: aroot,
+    duration: DUR,
+    chapters: CH.map(function (c, k) { return { t: c, key: "gtc.ch" + (k + 1) }; }),
+    onResize: function () { cv.fit(); layout(); },
+    render: render
+  });
+
+  /* =====================================================================================
+     Part 2: your alliance. Eight data sets feed one engine; four lenses read the same game.
+     ===================================================================================== */
+  var SP = { T: 0.25, h: 10, p: 200 };                       // spare parts: repair years, holding and emergency, thousand USD
+  var NET0 = [[0, 10, 12, 15], [10, 0, 4, 9], [12, 4, 0, 5], [15, 9, 5, 0]];
+  var OWN0 = [[50, 20, 20], [30, 40, 10], [20, 20, 10]];     // finishing h, carpentry h, soldier demand per workshop
+  var AIR0 = [30, 50, 80], BK0 = [100, 200, 300];             // runway costs; claims
+  var WB = {
+    ds: "dc", lens: "core", test: "nuc", user: null, firm: 0, epsU: null, node: 7,
+    dc: DC0.slice(),
+    ws: { own: OWN0.map(function (r) { return r.slice(); }), cap: 40 },
+    maj: 70, glv: { L: 1, R: 2 }, air: AIR0.slice(),
+    bk: { d: BK0.slice(), E: 200 },
+    net: { pos: null, moved: [false, false, false] },
+    pool: { mode: "spare", eoq: [30, 40, 120], lam: [1, 2, 4] }
+  };
+  function range(n) { var a = []; for (var i = 0; i < n; i++) a.push(i); return a; }
+  function wsOwn() { var f = WB.ws.cap / 40; return WB.ws.own.map(function (r) { return [r[0], r[1], r[2] * f]; }); }
+  function gloveLeft() { var a = []; for (var i = 0; i < WB.glv.L + WB.glv.R; i++) a.push(i < WB.glv.L); return a; }
+  function gloveNames() {
+    var a = []; for (var i = 0; i < WB.glv.L; i++) a.push("L" + (i + 1));
+    for (i = 0; i < WB.glv.R; i++) a.push("R" + (i + 1));
+    return a;
+  }
+
+  /* ---------- the shared network: default link costs, and a map you can drag ---------- */
+  function netLayout() {                                    // positions that reproduce the table as well as a plane can
+    var th = Math.acos((100 + 225 - 81) / 300), al = -0.42;
+    var p1 = [10 * Math.cos(al), 10 * Math.sin(al)], p3 = [15 * Math.cos(al + th), 15 * Math.sin(al + th)];
+    var p2 = [p1[0] + 4 / 9 * (p3[0] - p1[0]), p1[1] + 4 / 9 * (p3[1] - p1[1])];
+    return [[0, 0], p1, p2, p3];
+  }
+  function netD() {
+    var D = NET0.map(function (r) { return r.slice(); }), pos = WB.net.pos;
+    if (!pos) return D;
+    for (var a = 0; a < 4; a++) for (var b = a + 1; b < 4; b++) {
+      if ((a > 0 && WB.net.moved[a - 1]) || (b > 0 && WB.net.moved[b - 1])) {
+        var d = Math.round(Math.hypot(pos[a][0] - pos[b][0], pos[a][1] - pos[b][1]) * 10) / 10;
+        D[a][b] = D[b][a] = d;
+      }
+    }
+    return D;
+  }
+
+  /* ---------- data sets ---------- */
+  function names() { return WB.ds === "glv" ? gloveNames() : N3; }
+  function nPlayers() { return WB.ds === "glv" ? WB.glv.L + WB.glv.R : 3; }
+  function make(pl) {
+    pl = pl || range(nPlayers());
+    switch (WB.ds) {
+      case "dc": return GEN.dcGame(WB.dc, pl);
+      case "ws": return GEN.wsGame(wsOwn(), pl);
+      case "maj": return GEN.majGame(WB.maj, pl);
+      case "glv": return GEN.gloveGame(gloveLeft(), pl);
+      case "air": return GEN.airGame(WB.air, pl);
+      case "bk": return GEN.bkGame(WB.bk.d, WB.bk.E, pl);
+      case "net": return GEN.netGame(netD(), pl);
+      default: return WB.pool.mode === "eoq" ? GEN.eoqGame(WB.pool.eoq, pl) : GEN.spareGame(WB.pool.lam, SP, pl);
+    }
+  }
+  function unitKey() {
+    return { dc: "gtc.u.mcop", ws: "gtc.u.usd", maj: "gtc.u.mcop", glv: "gtc.u.pairs", air: "gtc.u.bcop", bk: "gtc.u.mcopb", net: "gtc.u.mcopb",
+      pool: WB.pool.mode === "eoq" ? "gtc.u.mcopy" : "gtc.u.kusd" }[WB.ds];
+  }
+  // a rule's split of the savings (x) from bills (cost games) or payoffs (profit games)
+  function fromShow(G, b) { return G.kind === "cost" ? b.map(function (v, i) { return G.c[1 << i] - v; }) : b.slice(); }
+  function show(G, x) { return G.kind === "cost" ? x.map(function (v, i) { return G.c[1 << i] - v; }) : x.slice(); }
+  // own rules of a data set, for the game of the players pl (null for the whole set)
+  function ownRules(G, pl) {
+    pl = pl || range(G.n);
+    var out = [];
+    if (WB.ds === "ws") out.push({ id: "owen", x: G.owen.slice(), sub: true });
+    if (WB.ds === "air") out.push({ id: "seg", x: fromShow(G, G.segment), sub: true });
+    if (WB.ds === "net") out.push({ id: "bird", x: fromShow(G, G.bird), sub: true });
+    if (WB.ds === "pool" && WB.pool.mode === "eoq") out.push({ id: "soc", x: fromShow(G, G.soc), sub: true });
+    if (WB.ds === "pool" && WB.pool.mode === "spare") out.push({ id: "dem", x: TU.rDriver(G, pl.map(function (i) { return WB.pool.lam[i]; })), sub: true });
+    if (WB.ds === "bk") {
+      var d = pl.map(function (i) { return WB.bk.d[i]; }), E = WB.bk.E;
+      out.push({ id: "tal", x: GEN.talmud(d, E), sub: false });
+      out.push({ id: "cea", x: GEN.cea(d, E), sub: false });
+      out.push({ id: "cel", x: GEN.cel(d, E), sub: false });
+    }
+    return out;
+  }
+  function tuRules(G, pl) {
+    var out = [{ id: "eq", x: TU.rEqual(G), tu: true }];
+    if (WB.ds === "bk") out.push({ id: "propc", x: GEN.propClaims((pl || range(G.n)).map(function (i) { return WB.bk.d[i]; }), WB.bk.E), tu: false, sub: false });
+    else { var p = TU.rProp(G); if (p) out.push({ id: "prop", x: p, tu: true }); }
+    out.push({ id: "scrb", x: TU.rSCRB(G), tu: true });
+    out.push({ id: "shap", x: TU.shapley(G).x, tu: true });
+    var nu = TU.nucleolus(G);
+    if (nu) out.push({ id: "nuc", x: nu.x, tu: true });
+    return out;
+  }
+  function allRules(G, pl) { return tuRules(G, pl).concat(ownRules(G, pl)); }
+  function ruleName(id) { return T("gtc.r." + id); }
+
+  var A = null;                                              // the analysis of the current game
+  function analyze() {
+    var G = make(null), n = G.n, sh = TU.shapley(G);
+    var a = { G: G, n: n, names: names(), sh: sh, nu: TU.nucleolus(G), cl: TU.coreLP(G), conv: TU.convex(G), sup: TU.superadd(G) };
+    a.orders = n <= 4 ? sh.orders.map(function (o) { return { perm: o.perm, m: o.m, inCore: TU.inCore(G, o.m) }; }) : null;
+    a.core = n === 3 ? TU.core(G) : [];
+    a.weber = n === 3 ? TU.hull2(sh.orders.map(function (o) { return o.m; })) : [];
+    a.rules = allRules(G, null);
+    a.shIn = TU.inCore(G, sh.x);
+    if (WB.ds === "ws") a.owenR = GEN.owenRange(wsOwn(), G);
+    a.props = null;
+    return a;
+  }
+  function cn(m) {
+    var nm = A.names, ids = TU.mem(m, A.n);
+    if (nm.every(function (s) { return s.length === 1; })) return ids.map(function (i) { return nm[i]; }).join("");
+    return ids.map(function (i) { return nm[i]; }).join("+");
+  }
+  function testSplit() {
+    if (WB.test === "user" && WB.user) return WB.user;
+    var r = A.rules.filter(function (q) { return q.id === WB.test; })[0];
+    return r ? r.x : A.nu ? A.nu.x : A.sh.x;
+  }
+  function testName() { return WB.test === "user" ? T("gtc.r.user") : ruleName(WB.test); }
+  function valD(v) {
+    if (WB.ds === "glv" && A.n > 3) return num(v, 3);
+    return Math.abs(v - Math.round(v)) < 5e-7 ? num(v, 0) : fmtFixed(v);
+  }
+  function svalD(v) { var m = valD(Math.abs(v)); return m === valD(0) ? m : (v < 0 ? MINUS : "+") + m; }
+  function fmtFixed(v) { var m = I18N.fmt(Math.abs(v), 2, 2); return m === I18N.fmt(0, 2, 2) ? m : (v < 0 ? MINUS : "") + m; }
+  function triD(x) { return x.map(function (v) { return valD(v); }).join(" · "); }
+
+  /* ---------- the triangle of splits (SVG) ---------- */
+  var triBox = $("gtc-tri"), triSvg = document.createElementNS(NS, "svg");
+  triSvg.setAttribute("tabindex", "0");
+  triBox.appendChild(triSvg);
+  var TG = null;                                             // geometry of the last drawing
+  function triGeom() {
+    var W = Math.max(260, Math.min(560, triBox.clientWidth || 480)), pad = W < 380 ? 26 : 32;
+    var side = W - 2 * pad, th = side * Math.sqrt(3) / 2, H = th + 2 * pad + 4;
+    return { W: W, H: H, V: [[pad, pad + th], [pad + side, pad + th], [pad + side / 2, pad]] };
+  }
+  function tp(x) {
+    var G = A.G, w = [0, 1, 2].map(function (i) { return (x[i] - G.vi[i]) / G.sur; }), V = TG.V;
+    return [w[0] * V[0][0] + w[1] * V[1][0] + w[2] * V[2][0], w[0] * V[0][1] + w[1] * V[1][1] + w[2] * V[2][1]];
+  }
+  function fromPx(px, py) {                                  // pixel to the nearest split inside the triangle
+    var V = TG.V, G = A.G;
+    var d = (V[1][1] - V[2][1]) * (V[0][0] - V[2][0]) + (V[2][0] - V[1][0]) * (V[0][1] - V[2][1]);
+    var w0 = ((V[1][1] - V[2][1]) * (px - V[2][0]) + (V[2][0] - V[1][0]) * (py - V[2][1])) / d;
+    var w1 = ((V[2][1] - V[0][1]) * (px - V[2][0]) + (V[0][0] - V[2][0]) * (py - V[2][1])) / d;
+    var w = [w0, w1, 1 - w0 - w1].map(function (z) { return Math.max(0, z); }), s = w[0] + w[1] + w[2];
+    return w.map(function (z, i) { return G.vi[i] + z / s * G.sur; });
+  }
+  function pts(arr) { return arr.map(function (p) { var q = tp(p); return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "); }
+  function svgSet(poly, cls, extra) {
+    if (!poly.length) return "";
+    if (poly.length >= 3) return '<polygon points="' + pts(poly) + '" ' + cls + (extra || "") + "/>";
+    if (poly.length === 2) { var a = tp(poly[0]), b = tp(poly[1]); return '<line x1="' + a[0].toFixed(1) + '" y1="' + a[1].toFixed(1) + '" x2="' + b[0].toFixed(1) + '" y2="' + b[1].toFixed(1) + '" ' + cls.replace("fill", "data-f") + ' stroke-linecap="round"' + (extra || "") + "/>"; }
+    var c = tp(poly[0]); return '<circle cx="' + c[0].toFixed(1) + '" cy="' + c[1].toFixed(1) + '" r="5" ' + cls + (extra || "") + "/>";
+  }
+  function renderTri() {
+    var G = A.G, help = $("gtc-tri-help"), lg = $("gtc-tri-lg");
+    $("gtc-tri-title").textContent = T(G.kind === "cost" ? "gtc.tri.title.c" : "gtc.tri.title.p");
+    if (A.n !== 3 || G.sur <= G.tol) {
+      triSvg.innerHTML = ""; triSvg.style.display = "none"; lg.innerHTML = "";
+      var msg = A.n !== 3 ? T("gtc.tri.non3", { n: A.n }) : T("gtc.tri.nosur", { s: num(G.sur) });
+      help.innerHTML = '<span class="nontri" style="display:block">' + msg + "</span>";
+      return;
+    }
+    triSvg.style.display = "";
+    TG = triGeom();
+    var W = TG.W, H = TG.H, V = TG.V, h = [];
+    triSvg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    triSvg.setAttribute("width", W); triSvg.setAttribute("height", H);
+    // forbidden sides of the pair lines
+    [3, 5, 6].forEach(function (m) {
+      var k = [0, 1, 2].filter(function (i) { return !(m & (1 << i)); })[0], wv = (G.v[G.N] - G.v[m] - G.vi[k]) / G.sur;
+      if (wv >= 1 - 1e-9) return;
+      var others = [0, 1, 2].filter(function (i) { return i !== k; });
+      var w = Math.max(0, wv), p = lerpP(V[others[0]], V[k], w), q = lerpP(V[others[1]], V[k], w);
+      h.push('<polygon points="' + [p, q, V[k]].map(function (z) { return z[0].toFixed(1) + "," + z[1].toFixed(1); }).join(" ") + '" style="fill:var(--region)"/>');
+    });
+    h.push('<polygon points="' + V.map(function (z) { return z.join(","); }).join(" ") + '" style="fill:none;stroke:var(--ink);stroke-width:2"/>');
+    // lens layers under the points
+    if (WB.lens === "shap" && A.weber.length >= 2) h.push(svgSet(A.weber, 'style="fill:none;stroke:var(--ink);stroke-width:1.6;stroke-dasharray:6 5"'));
+    h.push(svgSet(A.core, 'style="fill:var(--sel);stroke:var(--accent);stroke-width:2.4;stroke-linejoin:round"'));
+    if (WB.lens === "nuc" && A.nu) {
+      var ep = epsNow(), ec = TU.polygon(G, function () { return ep; });
+      h.push(svgSet(ec, 'style="fill:none;stroke:var(--accent);stroke-width:2.6;stroke-dasharray:7 5"'));
+    }
+    if (WB.lens === "core" && !A.cl.nonempty && A.nu) {
+      var lc = TU.polygon(G, function () { return A.nu.least; });
+      h.push(svgSet(lc, 'style="fill:none;stroke:var(--hot);stroke-width:2.6;stroke-dasharray:7 5"'));
+    }
+    // pair lines with labels (and the certificate weights in the core lens)
+    [3, 5, 6].forEach(function (m) {
+      var k = [0, 1, 2].filter(function (i) { return !(m & (1 << i)); })[0], wv = (G.v[G.N] - G.v[m] - G.vi[k]) / G.sur;
+      if (wv < -1e-9 || wv > 1 - 1e-9) return;
+      var others = [0, 1, 2].filter(function (i) { return i !== k; }), p = lerpP(V[others[0]], V[k], wv), q = lerpP(V[others[1]], V[k], wv);
+      var lam = WB.lens === "core" ? A.cl.lam[m] : 0, sw = 1.5 + (lam > 1e-9 ? 2.5 * lam : 0);
+      h.push('<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" style="stroke:' + (lam > 1e-9 ? "var(--accent)" : "var(--ink2)") + ";stroke-width:" + sw.toFixed(1) + '"/>');
+      var sp0 = tp(A.sh.x), c1 = lerpP(p, q, 0.22), c2 = lerpP(p, q, 0.78);
+      var at = Math.hypot(c1[0] - sp0[0], c1[1] - sp0[1]) >= Math.hypot(c2[0] - sp0[0], c2[1] - sp0[1]) ? c1 : c2;
+      var nx = -(q[1] - p[1]), ny = q[0] - p[0], nl = Math.hypot(nx, ny) || 1;
+      if (nx * (at[0] - V[k][0]) + ny * (at[1] - V[k][1]) < 0) { nx = -nx; ny = -ny; }
+      var lx = at[0] + nx / nl * 12, ly = at[1] + ny / nl * 12;
+      var txt = cn(m) + (lam > 1e-9 ? "  λ = " + fr(lam) : "");
+      var anc = Math.abs(at[0] - sp0[0]) < 8 ? "middle" : at[0] < sp0[0] ? "end" : "start";
+      h.push('<text class="' + (lam > 1e-9 ? "acc" : "b") + ' sv-halo" x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + anc + '" dominant-baseline="middle">' + esc(txt) + "</text>");
+    });
+    // vertex labels: the corner where one player keeps the whole saving
+    var off = [[-8, 16, "end"], [8, 16, "start"], [0, -10, "middle"]];
+    V.forEach(function (z, i) {
+      h.push('<text class="b" x="' + (z[0] + off[i][0]) + '" y="' + (z[1] + (i < 2 ? 4 : off[i][1])) + '" text-anchor="' + off[i][2] + '">' + esc(A.names[i]) + "</text>");
+    });
+    // points
+    if (WB.lens === "shap" && A.orders) A.orders.forEach(function (o) {
+      var c = tp(o.m);
+      h.push(o.inCore ? '<circle cx="' + c[0].toFixed(1) + '" cy="' + c[1].toFixed(1) + '" r="4" style="fill:var(--accent)"/>'
+        : '<circle cx="' + c[0].toFixed(1) + '" cy="' + c[1].toFixed(1) + '" r="4.5" style="fill:none;stroke:var(--hot);stroke-width:2"/>');
+    });
+    if (WB.lens === "rules") {
+      var groups = [], boxes = [];
+      A.rules.forEach(function (r) {
+        var c = tp(r.x), g = groups.filter(function (q) { return Math.hypot(q.c[0] - c[0], q.c[1] - c[1]) < 3; })[0];
+        if (g) g.ids.push(r.id); else groups.push({ c: c, ids: [r.id] });
+      });
+      // points already drawn (Shapley, nucleolus, the split under test) keep their place
+      [A.sh.x, testSplit()].concat(A.nu ? [A.nu.x] : []).forEach(function (x) { var c = tp(x); boxes.push([c[0] - 7, c[1] - 7, c[0] + 7, c[1] + 7]); });
+      V.forEach(function (z, i) { var y = i < 2 ? z[1] + 4 : z[1] - 10; boxes.push([z[0] - 14, y - 14, z[0] + 14, y + 4]); });
+      groups.forEach(function (g) {
+        var named = g.ids.filter(function (id) { return id !== "shap" && id !== "nuc"; });
+        if (named.length < g.ids.length && !named.length) return;
+        h.push('<circle cx="' + g.c[0].toFixed(1) + '" cy="' + g.c[1].toFixed(1) + '" r="4" style="fill:var(--mit-silver);stroke:var(--surface);stroke-width:1.5"/>');
+      });
+      groups.forEach(function (g) {
+        var named = g.ids.filter(function (id) { return id !== "shap" && id !== "nuc"; });
+        if (!named.length) return;
+        var txt = named.map(ruleShort).join(" = ") + (named.length < g.ids.length ? " = " + g.ids.filter(function (id) { return named.indexOf(id) < 0; }).map(ruleShort).join(" = ") : ""), w = txt.length * 6 + 4, hgt = 13;
+        var cands = [[7, -6, "start"], [7, 14, "start"], [-7, -6, "end"], [-7, 14, "end"], [0, -12, "middle"], [0, 22, "middle"],
+          [14, -12, "start"], [14, 22, "start"], [-14, -12, "end"], [-14, 22, "end"], [0, -24, "middle"], [0, 34, "middle"]], pick = null;
+        cands.forEach(function (cd) {
+          if (pick) return;
+          var x0 = cd[2] === "start" ? g.c[0] + cd[0] : cd[2] === "end" ? g.c[0] + cd[0] - w : g.c[0] - w / 2, y0 = g.c[1] + cd[1] - hgt + 2, bx = [x0, y0, x0 + w, y0 + hgt];
+          if (bx[0] < 0 || bx[2] > TG.W || bx[1] < 0 || bx[3] > TG.H) return;
+          if (!boxes.some(function (o) { return bx[0] < o[2] && bx[2] > o[0] && bx[1] < o[3] && bx[3] > o[1]; })) pick = { cd: cd, bx: bx };
+        });
+        if (!pick) return;
+        boxes.push(pick.bx);
+        h.push('<text class="mut sv-halo" x="' + (g.c[0] + pick.cd[0]).toFixed(1) + '" y="' + (g.c[1] + pick.cd[1]).toFixed(1) + '" text-anchor="' + pick.cd[2] + '" style="font-size:11px">' + esc(txt) + "</text>");
+      });
+    }
+    var owen = A.rules.filter(function (r) { return r.id === "owen"; })[0];
+    if (owen && WB.lens === "core") {
+      var oc = tp(owen.x);
+      h.push('<rect x="' + (oc[0] - 5.5).toFixed(1) + '" y="' + (oc[1] - 5.5).toFixed(1) + '" width="11" height="11" style="fill:var(--surface);stroke:var(--accent);stroke-width:2.5"/>');
+    }
+    var sp = tp(A.sh.x), np = A.nu ? tp(A.nu.x) : null;
+    h.push('<path d="M' + sp[0].toFixed(1) + " " + (sp[1] - 7).toFixed(1) + "l7 7l-7 7l-7 -7z" + '" style="fill:' + (A.shIn ? "var(--ink)" : "var(--hot)") + ';stroke:var(--surface);stroke-width:1.5"/>');
+    if (np) h.push('<circle cx="' + np[0].toFixed(1) + '" cy="' + np[1].toFixed(1) + '" r="6" style="fill:var(--accent);stroke:var(--surface);stroke-width:2"/>');
+    // the split under test (draggable)
+    var x = testSplit(), up = tp(x), bad = !TU.inCore(G, x);
+    h.push('<circle cx="' + up[0].toFixed(1) + '" cy="' + up[1].toFixed(1) + '" r="10" style="fill:none;stroke:' + (bad ? "var(--hot)" : "var(--ink)") + ';stroke-width:2.5"/>');
+    h.push('<line x1="' + (up[0] - 14).toFixed(1) + '" y1="' + up[1].toFixed(1) + '" x2="' + (up[0] + 14).toFixed(1) + '" y2="' + up[1].toFixed(1) + '" style="stroke:' + (bad ? "var(--hot)" : "var(--ink)") + ';stroke-width:1.2"/>');
+    h.push('<line x1="' + up[0].toFixed(1) + '" y1="' + (up[1] - 14).toFixed(1) + '" x2="' + up[0].toFixed(1) + '" y2="' + (up[1] + 14).toFixed(1) + '" style="stroke:' + (bad ? "var(--hot)" : "var(--ink)") + ';stroke-width:1.2"/>');
+    triSvg.innerHTML = h.join("");
+    triSvg.setAttribute("aria-label", T("gtc.tri.aria", { name: testName(), x: triD(show(G, x)) }));
+    // legend
+    var L2 = ['<span><i class="l-core"></i>' + esc(T("gtc.lg.core")) + "</span>", '<span><i class="l-reg"></i>' + esc(T("gtc.lg.reg")) + "</span>"];
+    if (WB.lens === "shap") L2.push('<span><i class="l-web"></i>' + esc(T("gtc.lg.web")) + "</span>");
+    if (WB.lens === "nuc") L2.push('<span><i class="l-eps"></i>' + esc(T("gtc.lg.eps")) + "</span>");
+    if (WB.lens === "core" && !A.cl.nonempty) L2.push('<span><i class="l-eps" style="border-top-color:var(--hot)"></i>' + esc(T("gtc.lg.least")) + "</span>");
+    if (owen && WB.lens === "core") L2.push('<span><i class="l-owen"></i>' + esc(ruleName("owen")) + "</span>");
+    if (WB.lens === "rules") L2.push('<span><i class="l-rule"></i>' + esc(T("gtc.lg.rules")) + "</span>");
+    L2.push('<span><i class="l-shap"></i>' + esc(T("gtc.lg.shap")) + "</span>");
+    if (A.nu) L2.push('<span><i class="l-nuc"></i>' + esc(T("gtc.lg.nuc")) + "</span>");
+    L2.push('<span><i class="l-you"></i>' + esc(T("gtc.lg.test")) + "</span>");
+    lg.innerHTML = L2.join("");
+    help.textContent = T("gtc.tri.help");
+  }
+  function ruleShort(id) { return T("gtc.rs." + id); }
+
+  // drag and keys move the split under test
+  var dragging = false;
+  function setUser(x) { WB.user = x; WB.test = "user"; $("gtc-test").value = "user"; renderSplit(); }
+  function evPoint(ev) {
+    var r = triSvg.getBoundingClientRect();
+    return fromPx((ev.clientX - r.left) * TG.W / r.width, (ev.clientY - r.top) * TG.H / r.height);
+  }
+  triSvg.addEventListener("pointerdown", function (ev) {
+    if (!TG || A.n !== 3) return;
+    dragging = true; triSvg.setPointerCapture(ev.pointerId); setUser(evPoint(ev)); ev.preventDefault();
+  });
+  triSvg.addEventListener("pointermove", function (ev) { if (dragging) setUser(evPoint(ev)); });
+  triSvg.addEventListener("pointerup", function () { dragging = false; });
+  triSvg.addEventListener("pointercancel", function () { dragging = false; });
+  triSvg.addEventListener("keydown", function (ev) {
+    if (!TG || A.n !== 3) return;
+    var G = A.G, x = testSplit().slice(), st = (ev.shiftKey ? 0.1 : 0.02) * G.sur, mv = null;
+    // left and right move saving between A and B; up and down move it between C and the pair
+    if (ev.key === "ArrowLeft") mv = [st, -st, 0];
+    if (ev.key === "ArrowRight") mv = [-st, st, 0];
+    if (ev.key === "ArrowUp") mv = [-st / 2, -st / 2, st];
+    if (ev.key === "ArrowDown") mv = [st / 2, st / 2, -st];
+    if (!mv) return;
+    ev.preventDefault();
+    var y = x.map(function (v, i) { return v + mv[i]; });
+    if (y.some(function (v, i) { return v < G.vi[i] - 1e-9; })) return;
+    setUser(y);
+  });
+
+  /* ---------- the coalition table and the verdict on the split under test ---------- */
+  function renderTestSelect() {
+    var sel = $("gtc-test"), h = [];
+    if (A.n === 3) h.push('<option value="user">' + esc(T("gtc.r.user")) + "</option>");
+    A.rules.forEach(function (r) { h.push('<option value="' + r.id + '">' + esc(ruleName(r.id)) + "</option>"); });
+    sel.innerHTML = h.join("");
+    var ok = A.rules.some(function (r) { return r.id === WB.test; }) || (WB.test === "user" && A.n === 3 && WB.user);
+    if (!ok) { WB.test = A.nu ? "nuc" : "shap"; WB.user = null; }
+    if (WB.test === "user" && !WB.user) WB.test = A.nu ? "nuc" : "shap";
+    sel.value = WB.test;
+  }
+  function renderCoal() {
+    var G = A.G, x = testSplit(), cost = G.kind === "cost", rows = [];
+    for (var m = 1; m < G.N; m++) rows.push({ m: m, e: G.v[m] - TU.sumIn(x, m) });
+    if (A.n > 3) { rows.sort(function (a, b) { return b.e - a.e || a.m - b.m; }); rows = rows.slice(0, 9); }
+    rows.push({ m: G.N, e: 0 });
+    var h = ["<thead><tr><th>" + esc(T("gtc.tb.S")) + '</th><th class="num">' + esc(T(cost ? "gtc.tb.alone" : "gtc.tb.worth")) + '</th><th class="num">' +
+      esc(T(cost ? "gtc.tb.pays" : "gtc.tb.gets")) + '</th><th class="num">' + esc(T("gtc.tb.comp")) + "</th></tr></thead><tbody>"];
+    var y = show(G, x);
+    rows.forEach(function (r) {
+      var grand = r.m === G.N, tot = TU.sumIn(y, r.m), own = cost ? G.c[r.m] : G.v[r.m], bad = !grand && r.e > Math.max(G.tol, 1e-7 * G.scale);
+      h.push("<tr" + (grand ? ' class="grand"' : "") + "><td>" + esc(cn(r.m)) + '</td><td class="num">' + valD(own) + '</td><td class="num">' + valD(tot) +
+        '</td><td class="num ' + (grand ? "mut" : bad ? "bad" : "good") + '">' + (grand ? "0" : svalD(r.e)) + "</td></tr>");
+    });
+    h.push("</tbody>");
+    $("gtc-coal").innerHTML = h.join("");
+    var w = TU.worst(G, x), el = $("gtc-block"), tol = Math.max(G.tol, 1e-7 * G.scale);
+    if (w.e > tol) {
+      el.className = "verdict bad";
+      el.innerHTML = T(cost ? "gtc.tb.blocked.c" : "gtc.tb.blocked.p", { name: esc(testName()), s: esc(cn(w.m)), e: valD(w.e), x: triD(y) });
+    } else {
+      el.className = "verdict ok";
+      el.innerHTML = T(cost ? "gtc.tb.stable.c" : "gtc.tb.stable.p", { name: esc(testName()), s: esc(cn(w.m)), e: valD(-w.e), x: triD(y) });
+    }
+  }
+
+  /* ---------- KPIs and the story line ---------- */
+  function kpi(v, l, cls) { return '<div class="kpi' + (cls ? " " + cls : "") + '"><b>' + v + "</b><span>" + esc(l) + "</span></div>"; }
+  function coreWord() {
+    if (!A.cl.nonempty) return T("gtc.shape.empty");
+    if (A.n === 3) return shapeName(A.core);
+    return T("gtc.shape.some");
+  }
+  function renderKpis() {
+    var G = A.G, cost = G.kind === "cost", u = T(unitKey()), h = [];
+    h.push(kpi(valD(G.v[G.N]), T(cost ? "gtc.kp.save" : "gtc.kp.worth", { u: u }), "accent"));
+    h.push(kpi(esc(coreWord()), T("gtc.kp.core"), A.cl.nonempty ? "" : "hot"));
+    h.push(kpi(valD(A.cl.z), T("gtc.kp.z", { v: valD(G.v[G.N]) }), A.cl.nonempty ? "" : "hot"));
+    if (A.nu) h.push(kpi(num(A.nu.least, A.n > 3 && WB.ds === "glv" ? 3 : 2), T("gtc.kp.least")));
+    h.push(A.cl.nonempty ? kpi(esc(T(A.conv ? "gtc.no" : "gtc.yes")), T("gtc.kp.convex")) : kpi(valD(A.cl.gap), T("gtc.kp.subsidy", { u: u }), "hot"));
+    $("gtc-kpis").innerHTML = h.join("");
+  }
+  function renderStory() {
+    var G = A.G, el = $("gtc-story"), u = T(unitKey()), alone = 0;
+    for (var i = 0; i < G.n; i++) alone += G.kind === "cost" ? G.c[1 << i] : G.v[1 << i];
+    var k = { dc: "gtc.st.dc", ws: "gtc.st.ws", maj: "gtc.st.maj", glv: "gtc.st.glv", air: "gtc.st.air", bk: "gtc.st.bk", net: "gtc.st.net", pool: WB.pool.mode === "eoq" ? "gtc.st.eoq" : "gtc.st.spare" }[WB.ds];
+    el.innerHTML = T(k, { a: valD(alone), n: valD(G.kind === "cost" ? G.c[G.N] : G.v[G.N]), s: valD(G.v[G.N]), u: u, sur: valD(G.sur), L: WB.glv.L, R: WB.glv.R,
+      E: num(WB.bk.E, 0), D: num(WB.bk.d[0] + WB.bk.d[1] + WB.bk.d[2], 0) });
+  }
+
+  /* ---------- lens: core (core LP, Bondareva and Shapley certificate, vertices, Owen) ---------- */
+  function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+  function fr(v) {                                           // small fractions read better as fractions
+    for (var d = 1; d <= 12; d++) { var n = Math.round(v * d); if (Math.abs(v - n / d) < 1e-7) return d === 1 ? String(n) : n + "/" + d; }
+    return fmt(v, 3);
+  }
+  function renderCoreLens() {
+    var G = A.G, cl = A.cl, vN = G.v[G.N], mx = Math.max(Math.abs(cl.z), Math.abs(vN), 1e-9), u = T(unitKey());
+    var bar = function (cls, lab, v) {
+      return '<div class="gbar ' + cls + '"><span>' + esc(lab) + '</span><span class="tr"><i style="width:' + clamp(100 * Math.max(0, v) / mx, 0, 100).toFixed(1) + '%"></i></span><output>' + valD(v) + "</output></div>";
+    };
+    $("gtc-gauge").innerHTML = bar("z" + (cl.nonempty ? "" : " bad"), T("gtc.lc.z"), cl.z) + bar("", T("gtc.lc.vN"), vN);
+    var el = $("gtc-corelp");
+    el.className = "verdict " + (cl.nonempty ? "ok" : "bad");
+    el.innerHTML = cl.nonempty ? T("gtc.lc.ok", { z: valD(cl.z), v: valD(vN), s: valD(vN - cl.z), u: u }) : T("gtc.lc.bad", { z: valD(cl.z), v: valD(vN), g: valD(cl.gap), u: u });
+    var chips = [], terms = [];
+    for (var m = 1; m < G.N; m++) {
+      if (cl.lam[m] <= 1e-7) continue;
+      chips.push('<span class="pc on">λ(' + esc(cn(m)) + ") = <b>" + fr(cl.lam[m]) + "</b></span>");
+      if (Math.abs(G.v[m]) > 1e-9) terms.push(fr(cl.lam[m]) + " × " + valD(G.v[m]));
+    }
+    $("gtc-lam").innerHTML = chips.join("");
+    $("gtc-cert").innerHTML = T(cl.nonempty ? "gtc.lc.cert.ok" : "gtc.lc.cert.bad", { terms: terms.join(" + ") || "0", z: valD(cl.cert), v: valD(vN), g: valD(cl.gap) });
+    var vb = $("gtc-verts-box");
+    vb.hidden = !(A.n === 3 && A.core.length);
+    if (!vb.hidden) {
+      var h = ["<thead><tr><th>" + esc(T("gtc.lc.vertex")) + "</th>"];
+      A.names.forEach(function (s) { h.push('<th class="num">' + esc(s) + "</th>"); });
+      h.push("</tr></thead><tbody>");
+      A.core.forEach(function (x, k) {
+        h.push("<tr><td>" + (k + 1) + "</td>" + show(G, x).map(function (v) { return '<td class="num">' + valD(v) + "</td>"; }).join("") + "</tr>");
+      });
+      $("gtc-verts").innerHTML = h.join("") + "</tbody>";
+    }
+    var ow = $("gtc-owen");
+    ow.hidden = WB.ds !== "ws";
+    if (!ow.hidden) {
+      var y = G.plans[G.N].y, x = G.owen, R = A.owenR, wide = R.some(function (r) { return r[1] - r[0] > 1e-4 * Math.max(1, vN); });
+      ow.className = "verdict " + (TU.inCore(G, x) ? "ok" : "bad");
+      ow.innerHTML = T("gtc.lc.owen", { y1: fmt(y[0], 3), y2: fmt(y[1], 3), y3: fmt(y[2], 3), x: triD(x) }) + " " +
+        (wide ? T("gtc.lc.owen.wide", { r: R.map(function (r, i) { return A.names[i] + " " + valD(r[0]) + " … " + valD(r[1]); }).join(T("gtc.sep")) }) : T("gtc.lc.owen.one"));
+    }
+  }
+
+  /* ---------- lens: Shapley (subsets, orders, dividends) ---------- */
+  function renderShapLens() {
+    var G = A.G, n = A.n, cost = G.kind === "cost", f = Math.min(WB.firm, n - 1), bit = 1 << f;
+    var sf = $("gtc-sf"), hb = [];
+    A.names.forEach(function (s, i) { hb.push('<button type="button" data-v="' + i + '" aria-pressed="' + (i === f) + '">' + esc(s) + "</button>"); });
+    sf.innerHTML = hb.join("");
+    $("gtc-sub-title").textContent = T("gtc.ls.sub", { f: A.names[f] });
+    var h = ["<thead><tr><th>" + esc(T("gtc.ls.joins")) + '</th><th class="num">' + esc(T("gtc.ls.w")) + '</th><th class="num">' + esc(T(cost ? "gtc.ls.mc" : "gtc.ls.mv")) + '</th><th class="num">' + esc(T("gtc.ls.wm")) + "</th></tr></thead><tbody>"];
+    var tot = 0, rows = [];
+    for (var S = 0; S <= G.N; S++) {
+      if (S & bit) continue;
+      var s = TU.pc(S), w = TU.FACT[s] * TU.FACT[n - s - 1] / TU.FACT[n];
+      var mc = cost ? G.c[S | bit] - (S ? G.c[S] : 0) : G.v[S | bit] - G.v[S];
+      tot += w * mc; rows.push({ S: S, s: s, w: w, mc: mc });
+    }
+    rows.sort(function (a, b) { return a.s - b.s || a.S - b.S; });
+    rows.forEach(function (r) {
+      h.push("<tr><td>" + esc(r.S ? cn(r.S) : T("gtc.ls.nobody")) + '</td><td class="num">' + fr(r.w) + '</td><td class="num">' + valD(r.mc) + '</td><td class="num">' + valD(r.w * r.mc) + "</td></tr>");
+    });
+    h.push('<tr class="grand"><td>' + esc(T("gtc.ls.total")) + '</td><td class="num">1</td><td></td><td class="num">' + valD(tot) + "</td></tr></tbody>");
+    $("gtc-subsets").innerHTML = h.join("");
+    var oh = [];
+    if (A.orders) {
+      oh.push("<thead><tr><th>" + esc(T("gtc.ls.order")) + "</th>" + A.names.map(function (s) { return '<th class="num">' + esc(s) + "</th>"; }).join("") + "<th>" + esc(T("gtc.ls.incore")) + "</th></tr></thead><tbody>");
+      A.orders.forEach(function (o) {
+        oh.push("<tr><td>" + esc(o.perm.map(function (i) { return A.names[i]; }).join(" → ")) + "</td>" + show(G, o.m).map(function (v) { return '<td class="num">' + valD(v) + "</td>"; }).join("") +
+          "<td>" + (o.inCore ? '<span class="yes">' + esc(T("gtc.yes")) + "</span>" : '<span class="no">' + esc(T("gtc.no")) + "</span>") + "</td></tr>");
+      });
+      oh.push('<tr class="grand"><td>' + esc(T("gtc.ls.avg")) + "</td>" + show(G, A.sh.xOrders).map(function (v) { return '<td class="num">' + valD(v) + "</td>"; }).join("") + "<td></td></tr></tbody>");
+    } else {
+      oh.push("<tbody><tr><td>" + esc(T("gtc.ls.many", { k: num(TU.FACT[n], 0), x: triD(show(G, A.sh.xOrders)) })) + "</td></tr></tbody>");
+    }
+    $("gtc-orders").innerHTML = oh.join("");
+    // dividends of the game as it is shown (costs for cost games), split equally among the members
+    var arr = cost ? G.c : G.v, d = TU.dividends({ n: n, N: G.N, v: arr }), dh = ["<thead><tr><th>" + esc(T("gtc.tb.S")) + '</th><th class="num">' + esc(T("gtc.ls.div")) + '</th><th class="num">' + esc(T("gtc.ls.each")) + "</th></tr></thead><tbody>"];
+    var cnt = 0;
+    for (var m = 1; m <= G.N; m++) {
+      if (Math.abs(d[m]) < 1e-9) continue;
+      cnt++;
+      if (cnt > 14) continue;
+      dh.push("<tr><td>" + esc(cn(m)) + '</td><td class="num">' + valD(d[m]) + '</td><td class="num">' + valD(d[m] / TU.pc(m)) + "</td></tr>");
+    }
+    $("gtc-divs").innerHTML = dh.join("") + "</tbody>";
+    var nIn = A.orders ? A.orders.filter(function (o) { return o.inCore; }).length : null, el = $("gtc-shapnote");
+    el.className = "verdict " + (A.shIn ? "ok" : "bad");
+    var w = TU.worst(G, A.sh.x);
+    el.innerHTML = (A.shIn ? T("gtc.ls.in", { x: triD(show(G, A.sh.x)) }) : T(cost ? "gtc.ls.out.c" : "gtc.ls.out.p", { x: triD(show(G, A.sh.x)), s: esc(cn(w.m)), e: valD(w.e) })) + " " +
+      (A.conv ? (nIn != null ? T("gtc.ls.notconv", { k: nIn, t: num(TU.FACT[n], 0) }) : "") : T("gtc.ls.conv"));
+  }
+
+  /* ---------- lens: nucleolus (LP rounds, epsilon core, sorted complaints) ---------- */
+  function epsSpan() { var lo = A.nu.least; return { lo: lo, hi: lo + Math.max(A.G.sur, 1e-3) * 0.9 }; }
+  function epsNow() {
+    var sp = epsSpan();
+    if (WB.epsU == null) WB.epsU = sp.lo < 0 ? clamp(-0.5 * sp.lo / (sp.hi - sp.lo), 0, 1) : 0.15;
+    return lerp(sp.lo, sp.hi, WB.epsU);
+  }
+  function renderNucLens() {
+    var G = A.G, nu = A.nu, cost = G.kind === "cost";
+    if (!nu) { $("gtc-rounds").innerHTML = "<li>" + esc(T("gtc.ln.none")) + "</li>"; $("gtc-sorted").innerHTML = ""; $("gtc-nucnote").innerHTML = ""; return; }
+    $("gtc-rounds").innerHTML = nu.rounds.map(function (r, k) {
+      return "<li>" + T("gtc.ln.round", { k: k + 1, e: valD(r.eps), f: esc(joinL(r.fixed.map(cn))), x: 1 + r.extra }) + "</li>";
+    }).join("") + "<li>" + T(cost ? "gtc.ln.final.c" : "gtc.ln.final.p", { x: triD(show(G, nu.x)), l: num(nu.lps, 0) }) + "</li>";
+    var e = epsNow(), inp = $("gtc-eps");
+    inp.value = Math.round(WB.epsU * 1000);
+    $("gtc-epsv").textContent = "ε = " + valD(e);
+    var poly = A.n === 3 ? TU.polygon(G, function () { return e; }) : null;
+    $("gtc-eps-note").innerHTML = A.n === 3 ? T(A.cl.nonempty ? "gtc.ln.epsnote" : "gtc.ln.epsnote0", { e: valD(e), shape: shapeName(poly), l: valD(nu.least) }) : T("gtc.ln.epsnote4", { l: valD(nu.least) });
+    var cols = [{ id: "nuc", x: nu.x }, { id: "shap", x: A.sh.x }];
+    var pr = A.rules.filter(function (r) { return r.id === "prop" || r.id === "propc"; })[0] || A.rules.filter(function (r) { return r.id === "eq"; })[0];
+    cols.push({ id: pr.id, x: pr.x });
+    var lists = cols.map(function (c) { return TU.sortedExcess(G, c.x); }), rows = Math.min(lists[0].length, A.n === 3 ? 6 : 10);
+    var h = ['<thead><tr><th class="num">#</th>' + cols.map(function (c) { return "<th>" + esc(ruleName(c.id)) + "</th>"; }).join("") + "</tr></thead><tbody>"];
+    for (var k = 0; k < rows; k++) {
+      h.push('<tr><td class="num">' + (k + 1) + "</td>" + lists.map(function (l) {
+        var q = l[k], bad = q.e > Math.max(G.tol, 1e-7 * G.scale);
+        return '<td class="' + (bad ? "bad" : "") + '">' + esc(cn(q.m)) + " " + svalD(q.e) + "</td>";
+      }).join("") + "</tr>");
+    }
+    $("gtc-sorted").innerHTML = h.join("") + "</tbody>";
+    var el = $("gtc-nucnote");
+    el.className = "verdict ok";
+    el.innerHTML = T("gtc.ln.note", { n: valD(lists[0][0].e), s: valD(lists[1][0].e), p: valD(lists[2][0].e), pn: esc(ruleName(pr.id)) });
+  }
+
+  /* ---------- lens: rules (board of rules by properties) ---------- */
+  function ruleOn(id, G, pl) {
+    switch (id) {
+      case "eq": return TU.rEqual(G);
+      case "prop": return TU.rProp(G);
+      case "scrb": return TU.rSCRB(G);
+      case "shap": return TU.shapley(G).x;
+      case "nuc": var nu = TU.nucleolus(G); return nu ? nu.x : null;
+    }
+    var o = ownRules(G, pl).filter(function (r) { return r.id === id; })[0];
+    return o ? o.x : null;
+  }
+  function perturbed(G, m, d) {
+    if (G.kind === "cost") { var c = G.c.slice(); c[m] -= d; return TU.fromCost(G.n, c); }
+    var v = G.v.slice(); v[m] += d; return TU.fromProfit(G.n, v);
+  }
+  // coalitional monotonicity: when one coalition's cost falls (or its worth rises), none of its members is worse off
+  function coalMono(r) {
+    var G = A.G, d = 0.01 * Math.max(1, Math.abs(G.v[G.N]), G.kind === "cost" ? Math.abs(G.c[G.N]) : 0), tol = 1e-6 * G.scale;
+    var base = show(G, r.x);
+    for (var m = 1; m <= G.N; m++) {
+      var G2 = perturbed(G, m, d), x2 = ruleOn(r.id, G2, null);
+      if (!x2) continue;
+      var y2 = show(G2, x2), ids = TU.mem(m, G.n);
+      for (var q = 0; q < ids.length; q++) {
+        var i = ids[q], worse = G.kind === "cost" ? y2[i] > base[i] + tol : y2[i] < base[i] - tol;
+        if (worse) return { ok: false, m: m, i: i };
+      }
+    }
+    return { ok: true };
+  }
+  // population monotonicity: as the group grows, no member is worse off (checked on every smaller group of two or more)
+  function popMono(r) {
+    var G = A.G, tol = 1e-6 * G.scale, alloc = {};
+    var get = function (S) {
+      if (S === G.N) return show(G, r.x);
+      if (alloc[S]) return alloc[S];
+      var ids = TU.mem(S, G.n), Gs = r.tu ? TU.restrict(G, S) : make(ids), x = ruleOn(r.id, Gs, ids);
+      var full = []; if (x) { var y = show(Gs, x); ids.forEach(function (i, j) { full[i] = y[j]; }); }
+      alloc[S] = x ? full : null; return alloc[S];
+    };
+    for (var T2 = 1; T2 <= G.N; T2++) {
+      if (TU.pc(T2) < 3) continue;
+      for (var S = (T2 - 1) & T2; S > 0; S = (S - 1) & T2) {
+        if (TU.pc(S) < 2) continue;
+        var a = get(S), b = get(T2);
+        if (!a || !b) continue;
+        var ids = TU.mem(S, G.n);
+        for (var q = 0; q < ids.length; q++) {
+          var i = ids[q], worse = G.kind === "cost" ? b[i] > a[i] + tol : b[i] < a[i] - tol;
+          if (worse) return { ok: false, S: S, T: T2, i: i };
+        }
+      }
+    }
+    return { ok: true };
+  }
+  var CNT = { eq: function () { return 1; }, prop: function (n) { return n + 1; }, propc: function () { return 0; }, scrb: function (n) { return 2 * n + 1; },
+    shap: function (n) { return (1 << n) - 1; }, nuc: function (n) { return (1 << n) - 1; }, owen: function () { return 1; }, seg: function () { return 0; },
+    bird: function () { return 1; }, soc: function (n) { return n + 1; }, dem: function () { return 1; }, tal: function () { return 0; }, cea: function () { return 0; }, cel: function () { return 0; } };
+  function renderRules() {
+    var G = A.G, n = A.n, small = n <= 4;
+    if (!A.props) {
+      A.props = {};
+      A.rules.forEach(function (r) {
+        A.props[r.id] = { core: TU.inCore(G, r.x), w: TU.worst(G, r.x),
+          cm: small && r.tu ? coalMono(r) : null, pm: small && (r.tu || r.sub) && n >= 3 ? popMono(r) : null };
+      });
+    }
+    var yes = '<span class="yes">' + esc(T("gtc.yes")) + "</span>", na = '<span class="na">' + esc(T("gtc.na")) + "</span>";
+    var h = ["<thead><tr><th>" + esc(T("gtc.lr.rule")) + "</th><th>" + esc(T(G.kind === "cost" ? "gtc.lr.bills" : "gtc.lr.pay")) + "</th><th>" + esc(T("gtc.lr.core")) + "</th><th>" + esc(T("gtc.lr.cm")) + "</th><th>" + esc(T("gtc.lr.pm")) + '</th><th class="num">' + esc(T("gtc.lr.cnt")) + "</th></tr></thead><tbody>"];
+    A.rules.forEach(function (r) {
+      var p = A.props[r.id], tol = Math.max(G.tol, 1e-7 * G.scale);
+      var core = p.core ? yes : '<span class="no">' + esc(T("gtc.lr.blocked", { s: cn(p.w.m), e: valD(p.w.e) })) + "</span>";
+      var cm = p.cm == null ? na : p.cm.ok ? yes : '<span class="no">' + esc(T("gtc.lr.cmno", { s: cn(p.cm.m), i: A.names[p.cm.i] })) + "</span>";
+      var pm = p.pm == null ? na : p.pm.ok ? yes : '<span class="no">' + esc(T("gtc.lr.pmno", { s: cn(p.pm.S), t: cn(p.pm.T), i: A.names[p.pm.i] })) + "</span>";
+      h.push("<tr" + (r.id === WB.test ? ' class="sel"' : "") + "><td>" + esc(ruleName(r.id)) + "</td><td>" + triD(show(G, r.x)) + "</td><td>" + core + "</td><td>" + cm + "</td><td>" + pm + '</td><td class="num">' + num(CNT[r.id](n), 0) + "</td></tr>");
+    });
+    $("gtc-board").innerHTML = h.join("") + "</tbody>";
+    var stable = A.rules.filter(function (r) { return A.props[r.id].core; }).map(function (r) { return ruleName(r.id); });
+    $("gtc-young").innerHTML = (small ? "" : T("gtc.lr.big", { n: n }) + " ") + T("gtc.lr.young", { k: stable.length, t: A.rules.length });
+  }
+
+  /* ---------- data panels ---------- */
+  var DC_LBL = [1, 2, 4, 3, 5, 6, 7];
+  function buildDcInputs() {
+    $("gtc-dc-in").innerHTML = DC_LBL.map(function (m) {
+      return '<label>c(' + cname(m) + ')<input class="num" type="number" step="0.5" min="0" data-m="' + m + '" value="' + WB.dc[m] + '"></label>';
+    }).join("");
+    $("gtc-dc-in").querySelectorAll("input").forEach(function (inp) {
+      inp.addEventListener("input", function () {
+        var v = parseFloat(inp.value);
+        if (!isFinite(v) || v < 0) return;
+        WB.dc[+inp.getAttribute("data-m")] = v;
+        if (+inp.getAttribute("data-m") === 3) $("gtc-dc-ab").value = v;
+        refresh(false);
+      });
+    });
+    $("gtc-dc-pre").querySelectorAll("button").forEach(function (b) {
+      var v = b.getAttribute("data-v");
+      if (v !== "reset") b.textContent = T("gtc.dc.pre", { v: fmt(+v, 1) });
+    });
+  }
+  function syncDcInputs() {
+    $("gtc-dc-in").querySelectorAll("input").forEach(function (inp) {
+      var m = +inp.getAttribute("data-m");
+      if (document.activeElement !== inp) inp.value = WB.dc[m];
+    });
+    $("gtc-dc-ab").value = WB.dc[3];
+    $("gtc-dc-abv").textContent = num(WB.dc[3], 1);
+  }
+  // the four regimes of the pair bill c(AB), found by scanning the slider and bisecting at each change
+  function regimeOf(cab) {
+    var c = WB.dc.slice(); c[3] = cab;
+    var G = GEN.dcGame(c), cl = TU.coreLP(G);
+    if (!cl.nonempty) return 0;
+    if (!TU.convex(G)) return 3;
+    return TU.inCore(G, TU.shapley(G).x) ? 2 : 1;
+  }
+  function renderRegime() {
+    var inp = $("gtc-dc-ab"), lo = +inp.min, hi = +inp.max, step = 0.25, bands = [], prev = regimeOf(lo), start = lo;
+    for (var v = lo + step; v <= hi + 1e-9; v += step) {
+      var r = regimeOf(v);
+      if (r !== prev) {
+        var a = v - step, b = v;
+        for (var it = 0; it < 30; it++) { var mid = (a + b) / 2; if (regimeOf(mid) === prev) a = mid; else b = mid; }
+        bands.push({ r: prev, a: start, b: (a + b) / 2 }); start = (a + b) / 2; prev = r;
+      }
+    }
+    bands.push({ r: prev, a: start, b: hi });
+    var W = Math.max(260, Math.min(640, $("gtc-regime").clientWidth || 640)), H = 46, x = function (z) { return 6 + (z - lo) / (hi - lo) * (W - 12); }, h = [];
+    var fill = ["fill:var(--hot);fill-opacity:0.28", "fill:var(--region)", "fill:var(--sel);stroke:var(--accent);stroke-width:1", "fill:var(--accent);fill-opacity:0.32"];
+    bands.forEach(function (bd) {
+      h.push('<rect x="' + x(bd.a).toFixed(1) + '" y="4" width="' + Math.max(0.5, x(bd.b) - x(bd.a)).toFixed(1) + '" height="20" style="' + fill[bd.r] + '"/>');
+      var lab = T("gtc.reg." + bd.r), w = x(bd.b) - x(bd.a);
+      if (w > lab.length * 5.6 + 6) h.push('<text x="' + ((x(bd.a) + x(bd.b)) / 2).toFixed(1) + '" y="18" text-anchor="middle" style="font-weight:600;fill:var(--ink)">' + esc(lab) + "</text>");
+      if (bd.a > lo + 1e-9) h.push('<line x1="' + x(bd.a).toFixed(1) + '" y1="2" x2="' + x(bd.a).toFixed(1) + '" y2="28" style="stroke:var(--ink2);stroke-width:1"/><text x="' + x(bd.a).toFixed(1) + '" y="40" text-anchor="middle">' + num(bd.a, 2) + "</text>");
+    });
+    var cx = x(WB.dc[3]);
+    h.push('<path d="M' + cx.toFixed(1) + ' 26l-5 8h10z" style="fill:var(--ink)"/>');
+    $("gtc-regime").innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(T("gtc.reg.aria", { list: joinL(bands.map(function (bd) { return T("gtc.reg." + bd.r) + " " + num(bd.a, 2) + " … " + num(bd.b, 2); })) })) + '">' + h.join("") + "</svg>";
+    // the inequality that keeps the current bill out of the next better regime
+    var G = A.G, why = $("gtc-dc-why"), r = regimeOf(WB.dc[3]), k;
+    if (A.sup) {
+      why.className = "verdict bad";
+      why.innerHTML = T("gtc.why.sup", { s: cname(A.sup.S), t: cname(A.sup.T), u: cname(A.sup.S | A.sup.T), l: valD(A.sup.lhs), r: valD(A.sup.rhs) });
+    } else if (r === 0) {
+      why.className = "verdict bad";
+      why.innerHTML = T("gtc.why.empty", { z: valD(A.cl.z), v: valD(G.v[G.N]), g: valD(A.cl.gap) });
+    } else if (r === 1) {
+      var w = TU.worst(G, A.sh.x), b = show(G, A.sh.x), pay = TU.sumIn(b, w.m);
+      why.className = "verdict bad";
+      why.innerHTML = T("gtc.why.out", { s: cname(w.m), p: valD(pay), c: valD(G.c[w.m]) });
+    } else if (r === 2) {
+      k = A.conv;
+      why.className = "verdict";
+      why.innerHTML = T("gtc.why.in", { s: cname(k.S), t: cname(k.T), u: cname(k.S | k.T), i: cname(k.S & k.T) || "∅", l: valD(k.lhs), r: valD(k.rhs) });
+    } else {
+      why.className = "verdict ok";
+      why.innerHTML = T("gtc.why.conv");
+    }
+  }
+
+  // workshops: ownership table and the lattice of coalitions
+  function buildWs() {
+    var res = [T("gtc.ws.fin"), T("gtc.ws.car"), T("gtc.ws.dem")], h = ["<thead><tr><th></th>" + res.map(function (s) { return '<th class="num">' + esc(s) + "</th>"; }).join("") + "</tr></thead><tbody>"];
+    for (var i = 0; i < 3; i++) {
+      h.push("<tr><td><b>" + N3[i] + "</b></td>" + [0, 1, 2].map(function (r) { return '<td class="num"><input class="num" type="number" min="0" step="5" data-i="' + i + '" data-r="' + r + '" value="' + WB.ws.own[i][r] + '" aria-label="' + esc(N3[i] + ", " + res[r]) + '"></td>'; }).join("") + "</tr>");
+    }
+    h.push('<tr class="grand" id="gtc-ws-tot"></tr></tbody>');
+    $("gtc-ws-own").innerHTML = h.join("");
+    $("gtc-ws-own").querySelectorAll("input").forEach(function (inp) {
+      inp.addEventListener("input", function () {
+        var v = parseFloat(inp.value);
+        if (!isFinite(v) || v < 0) return;
+        WB.ws.own[+inp.getAttribute("data-i")][+inp.getAttribute("data-r")] = v;
+        refresh(false);
+      });
+    });
+    document.querySelectorAll("#gtc-cap button").forEach(function (b) { b.textContent = T("gtc.ws.capv", { v: b.getAttribute("data-v") }); });
+  }
+  function renderWs() {
+    var own = wsOwn(), tot = [0, 1, 2].map(function (r) { return own[0][r] + own[1][r] + own[2][r]; });
+    $("gtc-ws-tot").innerHTML = "<td>" + esc(T("gtc.ws.tot")) + "</td>" + tot.map(function (v) { return '<td class="num">' + num(v, 1) + "</td>"; }).join("");
+    $("gtc-ws-own").querySelectorAll("input").forEach(function (inp) {
+      if (document.activeElement !== inp) inp.value = WB.ws.own[+inp.getAttribute("data-i")][+inp.getAttribute("data-r")];
+    });
+    var G = A.G, W = 420, H = 230, pos = { 7: [210, 34] , 3: [80, 115], 5: [210, 115], 6: [340, 115], 1: [80, 196], 2: [210, 196], 4: [340, 196] }, h = [];
+    [3, 5, 6, 7].forEach(function (m) {
+      for (var s = 1; s <= 7; s++) if (s !== m && (s & m) === s && TU.pc(s) === TU.pc(m) - 1)
+        h.push('<line x1="' + pos[m][0] + '" y1="' + pos[m][1] + '" x2="' + pos[s][0] + '" y2="' + pos[s][1] + '" style="stroke:var(--axis);stroke-width:1.5"/>');
+    });
+    Object.keys(pos).forEach(function (k) {
+      var m = +k, p = pos[m], on = m === WB.node;
+      h.push('<g class="node" tabindex="0" role="button" data-m="' + m + '" aria-pressed="' + on + '" aria-label="' + esc(cname(m) + ": " + valD(G.v[m])) + '">' +
+        '<rect x="' + (p[0] - 52) + '" y="' + (p[1] - 21) + '" width="104" height="42" rx="3" style="fill:' + (on ? "var(--accent)" : "var(--surface)") + ";stroke:" + (on ? "var(--accent)" : "var(--border)") + ';stroke-width:1.5"/>' +
+        '<text x="' + p[0] + '" y="' + (p[1] - 4) + '" text-anchor="middle" style="font-weight:700;fill:' + (on ? "var(--on-solid)" : "var(--ink)") + '">' + cname(m) + "</text>" +
+        '<text x="' + p[0] + '" y="' + (p[1] + 13) + '" text-anchor="middle" style="font-size:11.5px;fill:' + (on ? "var(--on-solid)" : "var(--ink2)") + '">' + esc(T("gtc.ws.vv", { v: valD(G.v[m]) })) + "</text></g>");
+    });
+    var box = $("gtc-lattice");
+    box.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '">' + h.join("") + "</svg>";
+    box.querySelectorAll("g.node").forEach(function (g) {
+      var pick = function () { WB.node = +g.getAttribute("data-m"); renderWs(); var q = box.querySelector('g.node[data-m="' + WB.node + '"]'); if (q) q.focus(); };
+      g.addEventListener("click", pick);
+      g.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(); } });
+    });
+    var pl = G.plans[WB.node], bind = [T("gtc.ws.r0"), T("gtc.ws.r1"), T("gtc.ws.r2")].filter(function (s, r) { return pl.binding[r]; });
+    $("gtc-plan").innerHTML = T("gtc.ws.plan", { s: cname(WB.node), f: num(pl.b[0], 1), c: num(pl.b[1], 1), d: num(pl.b[2], 1), q1: num(pl.q[0], 2), q2: num(pl.q[1], 2),
+      v: valD(G.v[WB.node]), bind: esc(joinL(bind)) || "∅", y1: fmt(pl.y[0], 3), y2: fmt(pl.y[1], 3), y3: fmt(pl.y[2], 3) });
+  }
+
+  function renderMaj() {
+    var c2 = WB.maj, vN = 3 * 60 - 110, a = (120 - c2) / vN;
+    $("gtc-majv").textContent = num(c2, 1);
+    $("gtc-maj-a").innerHTML = T("gtc.maj.a", { a: fmt(a, 3), v2: valD(120 - c2), vN: valD(vN), c23: valD(120 - 2 / 3 * vN), c12: valD(120 - 0.5 * vN) });
+  }
+
+  // sliders built from a spec list; values live in WB
+  function sliders(box, spec) {
+    box.innerHTML = spec.map(function (s, k) {
+      return '<div class="rng"><label for="' + s.id + '">' + esc(s.label) + '</label><output id="' + s.id + 'v"></output><input type="range" id="' + s.id + '" min="' + s.min + '" max="' + s.max + '" step="' + s.step + '" value="' + s.get() + '"></div>';
+    }).join("");
+    spec.forEach(function (s) {
+      var inp = $(s.id);
+      $(s.id + "v").textContent = s.show(s.get());
+      inp.addEventListener("input", function () { s.set(+inp.value); $(s.id + "v").textContent = s.show(+inp.value); refresh(false); });
+    });
+  }
+  function buildAir() {
+    sliders($("gtc-air-sl"), [0, 1, 2].map(function (i) {
+      return { id: "gtc-air" + i, label: T("gtc.air.r", { p: N3[i] }), min: 5, max: 120, step: 1, get: function () { return WB.air[i]; }, set: function (v) { WB.air[i] = v; }, show: function (v) { return num(v, 0); } };
+    }));
+  }
+  function buildBk() {
+    var spec = [0, 1, 2].map(function (i) {
+      return { id: "gtc-bkd" + i, label: T("gtc.bk.d", { p: N3[i] }), min: 0, max: 400, step: 10, get: function () { return WB.bk.d[i]; }, set: function (v) { WB.bk.d[i] = v; clampE(); }, show: function (v) { return num(v, 0); } };
+    });
+    spec.push({ id: "gtc-bkE", label: T("gtc.bk.E"), min: 0, max: 1200, step: 5, get: function () { return WB.bk.E; }, set: function (v) { WB.bk.E = v; clampE(); }, show: function (v) { return num(Math.min(v, sumD()), 0); } });
+    sliders($("gtc-bk-sl"), spec);
+    $("gtc-bk-pre").querySelectorAll("button").forEach(function (b) { var v = b.getAttribute("data-v"); if (v !== "reset") b.textContent = T("gtc.bk.pre", { v: v }); });
+    syncBk();
+  }
+  function sumD() { return WB.bk.d[0] + WB.bk.d[1] + WB.bk.d[2]; }
+  function clampE() { WB.bk.E = Math.min(WB.bk.E, sumD()); }
+  function syncBk() {
+    var e = $("gtc-bkE");
+    if (!e) return;
+    e.max = Math.max(5, sumD()); e.value = WB.bk.E; $("gtc-bkEv").textContent = num(WB.bk.E, 0);
+    [0, 1, 2].forEach(function (i) { $("gtc-bkd" + i).value = WB.bk.d[i]; $("gtc-bkd" + i + "v").textContent = num(WB.bk.d[i], 0); });
+  }
+  function renderPaths() {
+    var d = WB.bk.d, D = sumD(), E = WB.bk.E, mx = Math.max(1, Math.max.apply(null, d)), rules = [["propc", GEN.propClaims], ["cea", GEN.cea], ["cel", GEN.cel], ["tal", GEN.talmud]];
+    var W = 220, H = 150, l = 30, b = 22, t = 8, r = 8, X = function (e) { return l + (D > 0 ? e / D : 0) * (W - l - r); }, Y = function (v) { return H - b - v / mx * (H - b - t); };
+    var stroke = ["var(--ink)", "var(--mit-silver)", "var(--accent)"], dash = ["", "6 4", ""];
+    $("gtc-paths").innerHTML = rules.map(function (rl) {
+      var h = ['<line x1="' + l + '" y1="' + (H - b) + '" x2="' + (W - r) + '" y2="' + (H - b) + '" style="stroke:var(--axis)"/>', '<line x1="' + l + '" y1="' + t + '" x2="' + l + '" y2="' + (H - b) + '" style="stroke:var(--axis)"/>'];
+      h.push('<text x="' + (W - r) + '" y="' + (H - 6) + '" text-anchor="end">' + esc(T("gtc.bk.ax", { D: num(D, 0) })) + "</text>");
+      h.push('<text x="' + (l - 4) + '" y="' + (t + 8) + '" text-anchor="end">' + num(mx, 0) + "</text>");
+      for (var i = 0; i < 3; i++) {
+        var p = [];
+        for (var k = 0; k <= 60; k++) { var e = D * k / 60, aw = rl[1](d, e); p.push(X(e).toFixed(1) + "," + Y(aw[i]).toFixed(1)); }
+        h.push('<polyline points="' + p.join(" ") + '" style="fill:none;stroke:' + stroke[i] + ";stroke-width:" + (i === 2 ? 2.4 : 2) + (dash[i] ? ";stroke-dasharray:" + dash[i] : "") + '"/>');
+      }
+      h.push('<line x1="' + X(E).toFixed(1) + '" y1="' + t + '" x2="' + X(E).toFixed(1) + '" y2="' + (H - b) + '" style="stroke:var(--hot);stroke-width:1.2;stroke-dasharray:3 3"/>');
+      var now = rl[1](d, E);
+      now.forEach(function (v, i) { h.push('<circle cx="' + X(E).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="3.5" style="fill:' + stroke[i] + ';stroke:var(--surface);stroke-width:1.2"/>'); });
+      return '<div><p class="pt">' + esc(ruleName(rl[0])) + '</p><svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(ruleName(rl[0]) + ": " + triD(now)) + '">' + h.join("") + '</svg><p class="tri-help" style="margin:2px 0 0">' + triD(now) + "</p></div>";
+    }).join("");
+    $("gtc-paths-lg").innerHTML = [0, 1, 2].map(function (i) {
+      return '<span><i style="width:18px;height:0;border-top:' + (i === 2 ? "2.5px" : "2px") + " " + (i === 1 ? "dashed" : "solid") + " " + stroke[i] + '"></i>' + esc(T("gtc.bk.who", { p: N3[i], d: num(d[i], 0) })) + "</span>";
+    }).join("");
+  }
+
+  // the shared network map: drag a customer and the links that touch it follow the straight line distance
+  var mapSvg = document.createElementNS(NS, "svg"), MG = null, mapDrag = -1;
+  $("gtc-map").appendChild(mapSvg);
+  function renderNet() {
+    if (!WB.net.pos) WB.net.pos = netLayout();
+    var pos = WB.net.pos, D = netD(), G = A.G, W = 420, H = 250, pad = 30;
+    var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    netLayout().concat(pos).forEach(function (p) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+    var s = Math.min((W - 2 * pad) / Math.max(1, x1 - x0 + 6), (H - 2 * pad) / Math.max(1, y1 - y0 + 6));
+    MG = { s: s, ox: pad + ((W - 2 * pad) - s * (x1 - x0)) / 2 - s * x0, oy: H - pad - ((H - 2 * pad) - s * (y1 - y0)) / 2 + s * y0, W: W, H: H };
+    var px = function (p) { return [MG.ox + MG.s * p[0], MG.oy - MG.s * p[1]]; }, h = [];
+    var tree = G.trees[G.N].edges, inTree = function (a, b) { return tree.some(function (e) { return (e.a === a && e.b === b) || (e.a === b && e.b === a); }); };
+    for (var a = 0; a < 4; a++) for (var b = a + 1; b < 4; b++) {
+      var p = px(pos[a]), q = px(pos[b]), on = inTree(a, b);
+      h.push('<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" style="stroke:' + (on ? "var(--accent)" : "var(--mit-silver)") + ";stroke-width:" + (on ? 3.5 : 1.5) + (on ? "" : ";stroke-dasharray:5 4") + '"/>');
+      var mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
+      h.push('<text class="' + (on ? "acc" : "mut") + ' sv-halo" x="' + mx.toFixed(1) + '" y="' + my.toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" style="font-size:11.5px">' + num(D[a][b], 1) + "</text>");
+    }
+    pos.forEach(function (pp, k) {
+      var c = px(pp);
+      if (k === 0) {
+        h.push('<rect x="' + (c[0] - 9) + '" y="' + (c[1] - 9) + '" width="18" height="18" style="fill:var(--ink)"/><text class="b" x="' + c[0] + '" y="' + (c[1] + 25) + '" text-anchor="middle">' + esc(T("gtc.net.depot")) + "</text>");
+      } else {
+        h.push('<circle class="drag" data-k="' + k + '" cx="' + c[0].toFixed(1) + '" cy="' + c[1].toFixed(1) + '" r="13" style="fill:var(--surface);stroke:var(--ink);stroke-width:2"/><text x="' + c[0].toFixed(1) + '" y="' + (c[1] + 1).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" style="font-weight:700;fill:var(--ink);pointer-events:none">' + N3[k - 1] + "</text>");
+      }
+    });
+    mapSvg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    mapSvg.setAttribute("aria-label", T("gtc.net.aria", { c: valD(G.c[G.N]) }));
+    mapSvg.innerHTML = h.join("");
+    var lh = ["<thead><tr><th>" + esc(T("gtc.net.link")) + '</th><th class="num">' + esc(T("gtc.net.cost")) + "</th><th>" + esc(T("gtc.net.used")) + "</th></tr></thead><tbody>"];
+    var nm = [T("gtc.net.depot")].concat(N3);
+    for (a = 0; a < 4; a++) for (b = a + 1; b < 4; b++) lh.push("<tr" + (inTree(a, b) ? ' class="sel"' : "") + "><td>" + esc(nm[a] + " · " + nm[b]) + '</td><td class="num">' + num(D[a][b], 1) + "</td><td>" + (inTree(a, b) ? '<span class="yes">' + esc(T("gtc.yes")) + "</span>" : "") + "</td></tr>");
+    $("gtc-links").innerHTML = lh.join("") + "</tbody>";
+    $("gtc-net-note").innerHTML = T("gtc.net.note", { c: valD(G.c[G.N]), b: triD(G.bird), s: valD(G.c[1] + G.c[2] + G.c[4]) });
+  }
+  function mapPoint(ev) {
+    var r = mapSvg.getBoundingClientRect(), X = (ev.clientX - r.left) * MG.W / r.width, Y = (ev.clientY - r.top) * MG.H / r.height;
+    return [(X - MG.ox) / MG.s, (MG.oy - Y) / MG.s];
+  }
+  mapSvg.addEventListener("pointerdown", function (ev) {
+    var k = ev.target.getAttribute && ev.target.getAttribute("data-k");
+    if (!k) return;
+    mapDrag = +k; mapSvg.setPointerCapture(ev.pointerId); ev.preventDefault();
+  });
+  mapSvg.addEventListener("pointermove", function (ev) {
+    if (mapDrag < 0) return;
+    var p = mapPoint(ev), L0 = netLayout();
+    p[0] = clamp(p[0], -4, 22); p[1] = clamp(p[1], -10, 12);
+    WB.net.pos[mapDrag] = p; WB.net.moved[mapDrag - 1] = true;
+    refresh(false);
+  });
+  mapSvg.addEventListener("pointerup", function () { mapDrag = -1; });
+  mapSvg.addEventListener("pointercancel", function () { mapDrag = -1; });
+
+  function buildPool() {
+    var eoq = WB.pool.mode === "eoq";
+    $("gtc-pool-intro").innerHTML = T(eoq ? "gtc.pool.eoq.intro" : "gtc.pool.spare.intro", { T: fmt(SP.T, 2), h: fmt(SP.h, 0), p: fmt(SP.p, 0) });
+    sliders($("gtc-pool-sl"), [0, 1, 2].map(function (i) {
+      return eoq ? { id: "gtc-eoq" + i, label: T("gtc.pool.c", { p: N3[i] }), min: 5, max: 150, step: 1, get: function () { return WB.pool.eoq[i]; }, set: function (v) { WB.pool.eoq[i] = v; }, show: function (v) { return num(v, 0); } }
+        : { id: "gtc-lam" + i, label: T("gtc.pool.lam", { p: N3[i] }), min: 0.5, max: 8, step: 0.5, get: function () { return WB.pool.lam[i]; }, set: function (v) { WB.pool.lam[i] = v; }, show: function (v) { return num(v, 1); } };
+    }));
+  }
+  function renderPoolTab() {
+    var G = A.G, eoq = WB.pool.mode === "eoq", h = [];
+    if (eoq) {
+      h.push("<thead><tr><th>" + esc(T("gtc.tb.S")) + '</th><th class="num">' + esc(T("gtc.pool.cS")) + "</th></tr></thead><tbody>");
+      for (var m = 1; m <= G.N; m++) h.push("<tr" + (m === G.N ? ' class="grand"' : "") + "><td>" + cname(m) + '</td><td class="num">' + valD(G.c[m]) + "</td></tr>");
+    } else {
+      h.push("<thead><tr><th>" + esc(T("gtc.tb.S")) + '</th><th class="num">' + esc(T("gtc.pool.l")) + '</th><th class="num">' + esc(T("gtc.pool.s")) + '</th><th class="num">' + esc(T("gtc.pool.B")) + '</th><th class="num">' + esc(T("gtc.pool.cost")) + "</th></tr></thead><tbody>");
+      for (m = 1; m <= G.N; m++) {
+        var p = G.pool[m];
+        h.push("<tr" + (m === G.N ? ' class="grand"' : "") + "><td>" + cname(m) + '</td><td class="num">' + num(p.lam, 1) + '</td><td class="num">' + num(p.s, 0) + '</td><td class="num">' + T("gtc.pct", { v: fmt(100 * p.B, 2) }) + '</td><td class="num">' + valD(G.c[m]) + "</td></tr>");
+      }
+    }
+    $("gtc-pooltab").innerHTML = h.join("") + "</tbody>";
+  }
+
+  /* ---------- the optimization strips ---------- */
+  function texVars(m, n, nm) { return TU.mem(m, n).map(function (i) { return "x_{" + texText(nm[i]) + "}"; }).join(" + "); }
+  // on narrow screens the formulas drop their comment column, so they stay readable without scrolling
+  var narrowTex = false;
+  function cmt(key, vars) { return narrowTex ? "" : texText(T(key, vars)); }
+  function setNarrow() { narrowTex = ($("gtc-s1").clientWidth || 800) < 560; }
+  function renderStrip1() {
+    setNarrow();
+    var S = scen(ast.sc), G = S.G, cl = S.cl, L1 = [];
+    L1.push("z^* = \\min\\;& x_{A} + x_{B} + x_{C} && " + cmt("gtc.s1.obj"));
+    [3, 5, 6].forEach(function (m, k) {
+      L1.push((k ? "& " : "\\text{ST}\\;& ") + texVars(m, 3, N3) + " \\ge " + texNum(G.v[m]) + " && \\lambda_{" + cname(m) + "} = " + texNum(cl.lam[m], 3));
+    });
+    L1.push("& x_{A},\\ x_{B},\\ x_{C} \\ge 0 &&");
+    L1.push("& z^* = " + texNum(cl.z) + (cl.nonempty ? " \\le " : " > ") + "v(N) = " + texNum(G.v[7]) + " && " + cmt(cl.nonempty ? "gtc.s1.ok" : "gtc.s1.bad"));
+    TeX.set($("gtc-s1"), "\\begin{aligned}" + L1.join(" \\\\ ") + "\\end{aligned}", T("gtc.s1.formula", { z: num(cl.z), v: num(G.v[7]) }));
+    $("gtc-s1-note").innerHTML = T("gtc.s1.note", { ab: num(G.v[3]), ac: num(G.v[5]), bc: num(G.v[6]), z: num(cl.z), v: num(G.v[7]), s: num(G.v[7] - cl.z) });
+  }
+  function renderStrip2() {
+    var G = A.G, n = A.n, nm = A.names, el = $("gtc-s2"), note = $("gtc-s2-note"), L2 = [];
+    if (WB.lens === "core") {
+      var cl = A.cl;
+      L2.push("z^* = \\min\\;& \\textstyle\\sum_{i} x_i && " + cmt("gtc.s2.core.obj"));
+      if (n === 3) {
+        [3, 5, 6].forEach(function (m, k) {
+          L2.push((k ? "& " : "\\text{ST}\\;& ") + texVars(m, 3, nm) + " \\ge " + texNum(G.v[m]) + " && \\lambda_{" + texText(cn(m)) + "} = " + texNum(cl.lam[m], 3));
+        });
+        L2.push("& " + [0, 1, 2].map(function (i) { return "x_{" + texText(nm[i]) + "} \\ge " + texNum(G.vi[i]); }).join(",\\ ") + " &&");
+      } else {
+        L2.push("\\text{ST}\\;& x(S) \\ge v(S) && " + cmt("gtc.s2.core.rows", { k: G.N - 1 }));
+      }
+      L2.push("& z^* = " + texNum(cl.z) + (cl.nonempty ? " \\le " : " > ") + "v(N) = " + texNum(G.v[G.N]) + " && " + cmt(cl.nonempty ? "gtc.s1.ok" : "gtc.s1.bad"));
+      TeX.set(el, "\\begin{aligned}" + L2.join(" \\\\ ") + "\\end{aligned}", T("gtc.s1.formula", { z: num(cl.z), v: num(G.v[G.N]) }));
+      note.innerHTML = T("gtc.s2.core.note");
+    } else if (WB.lens === "shap") {
+      var f = Math.min(WB.firm, n - 1), bit = 1 << f, cost = G.kind === "cost", terms = [], tot = 0, sym = cost ? "c" : "v";
+      for (var S = 0; S <= G.N; S++) {
+        if (S & bit) continue;
+        var s = TU.pc(S), w = TU.FACT[s] * TU.FACT[n - s - 1] / TU.FACT[n], mc = cost ? G.c[S | bit] - (S ? G.c[S] : 0) : G.v[S | bit] - G.v[S];
+        tot += w * mc;
+        if (n <= 3) { var nu0 = Math.round(w * TU.FACT[n]), de = TU.FACT[n], g0 = gcd(nu0, de); terms.push("\\tfrac{" + nu0 / g0 + "}{" + de / g0 + "}\\," + texNum(mc)); }
+      }
+      var lhs = (cost ? "\\text{bill}" : "\\varphi") + "_{" + texText(nm[f]) + "}";
+      L2.push(lhs + " &= \\sum_{S \\subseteq N \\setminus \\{" + texText(nm[f]) + "\\}} \\frac{|S|!\\,(n-|S|-1)!}{n!}\\,\\big[" + sym + "(S \\cup \\{" + texText(nm[f]) + "\\}) - " + sym + "(S)\\big]");
+      if (terms.length) L2.push("&= " + terms.join(" + ") + " = " + texNum(tot));
+      else L2.push("&= " + texNum(tot));
+      TeX.set(el, "\\begin{aligned}" + L2.join(" \\\\ ") + "\\end{aligned}", T("gtc.s2.shap.formula", { f: nm[f], v: num(tot) }));
+      note.innerHTML = T("gtc.s2.shap.note");
+    } else if (WB.lens === "nuc" && A.nu) {
+      var R = A.nu.rounds, last = R.length;
+      L2.push("\\varepsilon_k = \\min\\;& \\varepsilon && " + cmt("gtc.s2.nuc.obj"));
+      L2.push("\\text{ST}\\;& x(S) + \\varepsilon \\ge v(S) && " + cmt("gtc.s2.nuc.free"));
+      L2.push("& x(S) + \\varepsilon_j = v(S) && " + cmt("gtc.s2.nuc.fixed"));
+      L2.push("& x(N) = v(N),\\quad x_i \\ge v(i) &&");
+      L2.push("& " + R.map(function (r, k) { return "\\varepsilon_{" + (k + 1) + "} = " + texNum(r.eps); }).join(",\\ ") + " && " + cmt("gtc.s2.nuc.lps", { l: A.nu.lps }));
+      TeX.set(el, "\\begin{aligned}" + L2.join(" \\\\ ") + "\\end{aligned}", T("gtc.s2.nuc.formula", { e: joinL(R.map(function (r) { return num(r.eps); })) }));
+      note.innerHTML = T("gtc.s2.nuc.note", { k: last });
+    } else {
+      var cost2 = G.kind === "cost", vN = G.v[G.N], Ms = [], rs = [];
+      for (var i = 0; i < n; i++) { Ms.push(vN - G.v[G.N & ~(1 << i)]); rs.push(Ms[i] - G.vi[i]); }
+      var x = TU.rSCRB(G);
+      if (n <= 4) {
+        L2.push("x_i &= v(i) + \\frac{M_i - v(i)}{\\sum_j \\big(M_j - v(j)\\big)}\\Big(v(N) - \\sum_j v(j)\\Big), \\quad M_i = v(N) - v(N \\setminus i)");
+        L2.push("M &= (" + Ms.map(function (v) { return texNum(v); }).join(",\\ ") + "), \\quad x = (" + x.map(function (v) { return texNum(v); }).join(",\\ ") + ")");
+      } else L2.push("x_i &= v(i) + \\frac{M_i - v(i)}{\\sum_j (M_j - v(j))}\\Big(v(N) - \\sum_j v(j)\\Big)");
+      TeX.set(el, "\\begin{aligned}" + L2.join(" \\\\ ") + "\\end{aligned}", T("gtc.s2.rules.formula", { x: triD(x) }));
+      note.innerHTML = T(cost2 ? "gtc.s2.rules.note.c" : "gtc.s2.rules.note.p", { b: triD(show(G, x)) });
+    }
+  }
+
+  /* =====================================================================================
+     Wiring: one refresh recomputes the game and every view of it
+     ===================================================================================== */
+  function renderLens() {
+    if (WB.lens === "core") renderCoreLens();
+    else if (WB.lens === "shap") renderShapLens();
+    else if (WB.lens === "nuc") renderNucLens();
+    else renderRules();
+  }
+  function renderViews() {
+    ["core", "shap", "nuc", "rules"].forEach(function (k) { $("gtc-l-" + k).hidden = k !== WB.lens; });
+    renderTestSelect(); renderTri(); renderCoal(); renderLens(); renderStrip2();
+  }
+  function refresh() {
+    A = analyze();
+    ["dc", "ws", "maj", "glv", "air", "bk", "net", "pool"].forEach(function (k) { $("gtc-p-" + k).hidden = k !== WB.ds; });
+    if (WB.ds === "dc") { syncDcInputs(); renderRegime(); }
+    if (WB.ds === "ws") renderWs();
+    if (WB.ds === "maj") renderMaj();
+    if (WB.ds === "bk") { syncBk(); renderPaths(); }
+    if (WB.ds === "net") renderNet();
+    if (WB.ds === "pool") renderPoolTab();
+    renderStory(); renderKpis();
+    renderViews();
+  }
+  function renderSplit() {
+    renderTri(); renderCoal();
+    if (WB.lens === "rules") renderRules();
+  }
+  function pressSeg(box, val) { box.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === String(val))); }); }
+
+  $("gtc-ds").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    WB.ds = b.getAttribute("data-v"); WB.user = null; WB.test = "nuc"; WB.epsU = null; WB.firm = 0;
+    pressSeg($("gtc-ds"), WB.ds); refresh();
+  });
+  $("gtc-lens").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    WB.lens = b.getAttribute("data-v"); pressSeg($("gtc-lens"), WB.lens); renderViews();
+  });
+  $("gtc-test").addEventListener("change", function () {
+    WB.test = this.value;
+    if (WB.test === "user" && !WB.user) WB.user = (A.nu ? A.nu.x : A.sh.x).slice();
+    renderSplit();
+  });
+  $("gtc-dc-ab").addEventListener("input", function () { WB.dc[3] = +this.value; refresh(); });
+  $("gtc-dc-pre").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    var v = b.getAttribute("data-v");
+    if (v === "reset") WB.dc = DC0.slice(); else WB.dc[3] = +v;
+    WB.user = null; if (WB.test === "user") WB.test = "nuc";
+    refresh();
+  });
+  $("gtc-cap").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    WB.ws.cap = +b.getAttribute("data-v"); pressSeg($("gtc-cap"), WB.ws.cap); refresh();
+  });
+  $("gtc-ws-reset").addEventListener("click", function () {
+    WB.ws.own = OWN0.map(function (r) { return r.slice(); }); WB.ws.cap = 40; pressSeg($("gtc-cap"), 40); refresh();
+  });
+  $("gtc-maj").addEventListener("input", function () { WB.maj = +this.value; refresh(); });
+  $("gtc-gl").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    WB.glv.L = +b.getAttribute("data-v"); pressSeg($("gtc-gl"), WB.glv.L); WB.user = null; WB.test = "nuc"; WB.epsU = null; WB.firm = 0; refresh();
+  });
+  $("gtc-gr").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    WB.glv.R = +b.getAttribute("data-v"); pressSeg($("gtc-gr"), WB.glv.R); WB.user = null; WB.test = "nuc"; WB.epsU = null; WB.firm = 0; refresh();
+  });
+  $("gtc-bk-pre").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    var v = b.getAttribute("data-v");
+    WB.bk.d = BK0.slice(); WB.bk.E = v === "reset" ? 200 : +v; WB.user = null; if (WB.test === "user") WB.test = "nuc";
+    refresh();
+  });
+  $("gtc-net-reset").addEventListener("click", function () { WB.net.pos = null; WB.net.moved = [false, false, false]; refresh(); });
+  $("gtc-pm").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    WB.pool.mode = b.getAttribute("data-v"); pressSeg($("gtc-pm"), WB.pool.mode); WB.user = null; WB.test = "nuc"; buildPool(); refresh();
+  });
+  $("gtc-eps").addEventListener("input", function () { WB.epsU = +this.value / 1000; renderTri(); renderNucLens(); });
+  $("gtc-sf").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    WB.firm = +b.getAttribute("data-v"); renderShapLens(); renderStrip2();
+  });
+
+  /* ---------- texts with live numbers ---------- */
+  function renderTexts() {
+    var S = scen("mid"), G = S.G, pw = priceWars();
+    $("gtc-lede").innerHTML = T("gtc.lede", { s: num(G.v[7], 0) });
+    $("gtc-what-pw").innerHTML = T("gtc.what.p2", { c: fmt(pw.cour, 0), m: fmt(pw.mono, 0), g: fmt(pw.gain, 1), a: fmt(PW.a, 0), b: fmt(PW.b, 0), cc: fmt(PW.c, 0) });
+    var t = { a: num(DC0[1], 0), b: num(DC0[2], 0), c: num(DC0[4], 0), ac: num(DC0[5], 0), bc: num(DC0[6], 0), n: num(DC0[7], 0), s: num(G.v[7], 0) };
+    $("gtc-anim-intro").innerHTML = T("gtc.anim.intro", t);
+    $("gtc-dc-intro").innerHTML = T("gtc.dc.intro", t);
+    var gp = GEN.GP;
+    $("gtc-ws-intro").innerHTML = T("gtc.ws.intro", { p1: fmt(gp.p[0], 0), p2: fmt(gp.p[1], 0), f1: fmt(gp.A[0][0], 0), f2: fmt(gp.A[0][1], 0), c1: fmt(gp.A[1][0], 0), c2: fmt(gp.A[1][1], 0) });
+    $("gtc-maj-intro").innerHTML = T("gtc.maj.intro", { a: num(60, 0), n: num(110, 0) });
+    $("gtc-net-intro").innerHTML = T("gtc.net.intro");
+    document.querySelectorAll("#gtc-seg button").forEach(function (b) { b.textContent = T("gtc.sc." + b.getAttribute("data-sc"), { v: fmt(SCV[b.getAttribute("data-sc")], 0) }); });
+  }
+  function renderStatus() {
+    var S = scen(ast.sc), G = S.G, R = S.nu.rounds;
+    var v = { c: num(S.cab, 0), shape: shapeName(S.core), k: S.nIn, x: tri(S.bill(S.sh.x)), y: tri(S.bill(S.nu.x)), r: R.length, s: cname(S.shW.m),
+      rr: T(R.length === 1 ? "gtc.rounds.1" : "gtc.rounds.n", { r: R.length }) };
+    $("gtc-status").innerHTML = T(S.shIn ? "gtc.st.in" : "gtc.st.out", v);
+    stage.setAttribute("aria-label", T("gtc.anim.aria") + " " + T("gtc.anim.aria.nums", v));
+  }
+  function renderModel() {
+    $("gtc-mdata").innerHTML = T("gtc.m.cls.data", { r: tri(AIR0, 0), d: tri(BK0, 0),
+      T: fmt(SP.T, 2), h: fmt(SP.h, 0), p: fmt(SP.p, 0) });
+  }
+  function renderNotes() {
+    var M = scen("mid"), W = scen("weak"), St = scen("strong"), G = M.G;
+    var eq = M.bill(TU.rEqual(G)), pr = M.bill(TU.rProp(G)), sc = M.bill(TU.rSCRB(G));
+    $("gtc-n1").innerHTML = T("gtc.n.p1", { e: num(eq[0]), eab: num(eq[0] + eq[1]), c: num(G.c[3], 0), ge: num(eq[0] + eq[1] - G.c[3]), p: tri(pr), pab: num(pr[0] + pr[1]), gp: num(pr[0] + pr[1] - G.c[3]), s: tri(sc) });
+    var Gm = GEN.majGame(70), cm = TU.coreLP(Gm), nm = TU.nucleolus(Gm);
+    $("gtc-n2").innerHTML = T("gtc.n.p2", { z: num(M.cl.z), v: num(G.v[7], 0), zm: num(cm.z), vm: num(Gm.v[7], 0), g: num(cm.gap), l: num(nm.least), lam: fr(cm.lam[3]) });
+    var bills = St.bill(St.sh.x), w = St.shW, pay = 0; TU.mem(w.m, 3).forEach(function (i) { pay += bills[i]; });
+    $("gtc-n3").innerHTML = T("gtc.n.p3", { kw: W.nIn, km: M.nIn, x: tri(M.bill(M.sh.x)), xs: tri(bills), s: cname(w.m), p: num(pay), c: num(St.c[w.m], 0), cw: num(W.cab, 0), cm: num(M.cab, 0), cs: num(St.cab, 0),
+      ins: M.orders.filter(function (o) { return o.inCore; }).map(function (o) { return o.perm.map(function (i) { return N3[i]; }).join(""); }).join(T("gtc.sep")) });
+    $("gtc-n4").innerHTML = T("gtc.n.p4", { e: num(M.nu.rounds[0].eps), x: tri(M.bill(M.nu.x)), e1: num(St.nu.rounds[0].eps), e2: num(St.nu.rounds[1].eps), y: tri(St.bill(St.nu.x)), cm: num(M.cab, 0), cs: num(St.cab, 0) });
+    var Gw = GEN.wsGame(OWN0), y = Gw.plans[7].y, sh = TU.shapley(Gw).x, nu = TU.nucleolus(Gw).x, core = TU.core(Gw);
+    var own10 = OWN0.map(function (r) { return [r[0], r[1], r[2] / 4]; }), G10 = GEN.wsGame(own10), y10 = G10.plans[7].y;
+    var lo = Math.min(core[0][0], core[core.length - 1][0]), hi = Math.max(core[0][0], core[core.length - 1][0]);
+    $("gtc-n5").innerHTML = T("gtc.n.p5", { v: tri([1, 2, 4, 3, 5, 6, 7].map(function (m) { return Gw.v[m]; }), 0), y: tri(y, 0), o: tri(Gw.owen), x3: num(core[0][2], 0), lo: num(lo, 0), hi: num(hi, 0),
+      s: tri(sh), ab: num(sh[0] + sh[1]), vab: num(Gw.v[3], 0), n: tri(nu), y10: tri(y10, 0), o10: tri(G10.owen) });
+    var gl = GEN.gloveGame([true, false, false], [0, 1, 2]), gsh = TU.shapley(gl).x, gnu = TU.nucleolus(gl).x;
+    var air = GEN.airGame(AIR0), ash = TU.shapley(air).x, anu = TU.nucleolus(air);
+    var bk = GEN.bkGame(BK0, 200), bsh = TU.shapley(bk).x, bnu = TU.nucleolus(bk).x, tal = GEN.talmud(BK0, 200);
+    var net = GEN.netGame(NET0), nsh = TU.shapley(net).x, nnu = TU.nucleolus(net).x;
+    var bill = function (Gx, x) { return x.map(function (v, i) { return Gx.c[1 << i] - v; }); };
+    $("gtc-n6").innerHTML = T("gtc.n.p6", { gc: tri(gnu, 0), gs: tri(gsh, 3), as: tri(air.segment), an: tri(bill(air, anu.x)), ae: joinL(anu.rounds.map(function (r) { return num(r.eps); })),
+      bt: tri(tal), bn: tri(bnu), bs: tri(bsh), nb: tri(net.bird, 0), ns: tri(bill(net, nsh), 0), nn: tri(bill(net, nnu), 0) });
+    var sp = GEN.spareGame([1, 2, 4], SP), ssh = TU.shapley(sp).x, snu = TU.nucleolus(sp).x, cv = TU.convex(sp), ssh2 = TU.shapley(sp);
+    var outC = ssh2.orders.filter(function (o) { return !TU.inCore(sp, o.m); }).map(function (o) { return o.perm.map(function (i) { return N3[i]; }).join(""); });
+    var dem = TU.rDriver(sp, [1, 2, 4]);
+    $("gtc-n7").innerHTML = T("gtc.n.p7", { s1: sp.pool[1].s, s2: sp.pool[2].s, s3: sp.pool[4].s, sn: sp.pool[7].s, a: num(sp.c[1] + sp.c[2] + sp.c[4]), n: num(sp.c[7]),
+      sh: tri(bill(sp, ssh)), nu: tri(bill(sp, snu)), d: tri(bill(sp, dem)), l: num(cv.lhs), r: num(cv.rhs), S: cname(cv.S), Tt: cname(cv.T), U: cname(cv.S | cv.T), I: cname(cv.S & cv.T), out: joinL(outC) });
+  }
+
+  // the scenario control of the animation
+  var segBtns = document.querySelectorAll("#gtc-seg button");
+  segBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (ast.sc === b.getAttribute("data-sc")) return;
+      ast.sc = b.getAttribute("data-sc");
+      segBtns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      hudKey = "";
+      renderStatus(); renderStrip1();
+      if (AN.reducedMotion) { player.seek(DUR); return; }
+      if (player.time < CH[1]) player.refresh();
+      else { player.seek(CH[1] + 0.001); player.play(); }
+    });
+  });
+
+  function renderPage() {
+    renderTexts(); renderStatus(); renderStrip1(); renderModel(); renderNotes();
+    buildDcInputs(); buildWs(); buildAir(); buildBk(); buildPool();
+    refresh();
+    hudKey = "";
+    player.refresh();
+  }
+  var rsz = 0, lastW = window.innerWidth;
+  window.addEventListener("resize", function () {
+    clearTimeout(rsz);
+    rsz = setTimeout(function () {
+      if (A && window.innerWidth !== lastW) {
+        lastW = window.innerWidth; renderTri();
+        var was = narrowTex; setNarrow();
+        if (was !== narrowTex) { renderStrip1(); renderStrip2(); }
+        if (WB.ds === "dc") renderRegime();
+      }
+    }, 120);
+  });
+  I18N.onChange(renderPage);
+})();
+</script>
+</body>
+</html>

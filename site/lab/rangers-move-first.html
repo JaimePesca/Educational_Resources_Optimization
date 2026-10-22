@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en" data-title-key="pat.title" data-i18n-bundles="lab/lab-patrols">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>The Rangers Move First</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../assets/research.css?v=__BUILD__">
+<style>
+  [hidden] { display: none !important; }
+  /* new or urgent cues: bright red, or the crit shade where dark mode makes the accent that same red */
+  :root { --hot: var(--mit-bright); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hot: var(--crit); } }
+  :root[data-theme="dark"] { --hot: var(--crit); }
+
+  /* ---- part index ---- */
+  .case-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 760px) { .case-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 420px) { .case-nav { grid-template-columns: minmax(0, 1fr); } }
+  .case-nav a {
+    display: flex; gap: 9px; align-items: baseline; padding: 10px 12px; min-width: 0;
+    background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 3px;
+    color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14px; line-height: 1.3;
+  }
+  .case-nav a:hover { background: var(--surface2); }
+  .case-nav .n, .case-num { font-family: var(--font-mono); color: var(--accent-text); font-weight: 600; }
+  .case-num { display: block; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+  section.block { scroll-margin-top: 70px; grid-template-columns: minmax(0, 1fr); }
+  section.block > * { min-width: 0; }
+
+  /* ---- controls ---- */
+  .ctl-row { display: flex; flex-wrap: wrap; gap: 12px 26px; align-items: flex-end; }
+  .ctl-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ctl-group .lbl { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  button.btn {
+    font: 600 13px var(--font-sans); color: var(--on-solid); background: var(--accent); border: 1px solid var(--accent); border-radius: 2px;
+    padding: 8px 12px; cursor: pointer;
+  }
+  button.btn:hover { filter: brightness(1.1); }
+  button.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
+  button.btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--border); }
+  .btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .rng { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; min-width: 200px; flex: 1 1 240px; max-width: 380px; }
+  .rng label { font-size: 13px; color: var(--ink2); font-weight: 600; }
+  .rng output { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .rng input[type="range"] { flex: 1 1 100%; width: 100%; accent-color: var(--accent); margin: 4px 0 0; }
+
+  /* ---- live numbers ---- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
+  @media (max-width: 460px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .kpi { border: 1px solid var(--border); border-radius: 3px; padding: 8px 11px; background: var(--surface); min-width: 0; }
+  .kpi b { display: block; font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: -0.01em; line-height: 1.2; overflow-wrap: anywhere; }
+  .kpi span { display: block; font-size: 12.5px; color: var(--ink2); line-height: 1.3; margin-top: 2px; }
+  .kpi.accent { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .kpi.accent b { color: var(--accent-text); }
+  .kpi.hot b { color: var(--hot); }
+  @media (max-width: 460px) { .kpi b { font-size: 16px; } .kpi span { font-size: 12px; } }
+  .verdict { margin: 14px 0 0; padding: 10px 14px; border-radius: 3px; font-size: 14.5px; border: 1px solid var(--border); border-left: 3px solid var(--ink2); background: var(--surface2); color: var(--ink2); }
+  .verdict b { color: var(--ink); }
+  .verdict.ok { border-left-color: var(--accent); }
+  .verdict:empty { display: none; }
+  .readline { font-size: 13.5px; color: var(--ink2); margin: 10px 0 0; min-height: 2.6em; }
+  .readline b { color: var(--ink); }
+
+  /* ---- layout helpers ---- */
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 24px; align-items: start; margin-top: 6px; }
+  @media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+  .two > div { min-width: 0; }
+  .subhead { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+  .mhead { margin: 16px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .mhead:first-child { margin-top: 0; }
+  .mtext { font-size: 14px; color: var(--ink2); margin: 6px 0 0; max-width: 80ch; }
+  .mtext b { color: var(--ink); }
+  .chartbox { margin-top: 8px; min-width: 0; touch-action: pan-y; }
+  .chartbox svg { display: block; width: 100%; max-width: 760px; height: auto; overflow: visible; }
+  .tabnote { font-size: 13px; color: var(--muted); margin: 6px 0 0; max-width: 80ch; }
+  .tabnote b { color: var(--ink2); }
+
+  /* ---- SVG charts (colours from the tokens) ---- */
+  .chartbox svg text { font-family: var(--font-sans); font-size: 12px; fill: var(--ink2); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+  .chartbox svg text.m { fill: var(--muted); font-size: 11px; }
+  .chartbox svg text.a { fill: var(--accent-text); font-weight: 700; }
+  .chartbox svg text.i { fill: var(--ink); font-weight: 700; }
+  .chartbox svg text.h { fill: var(--hot); font-weight: 700; }
+  .chartbox svg text.mono { font-family: var(--font-mono); }
+  .chartbox svg text.on { fill: var(--on-solid); stroke: none; font-weight: 700; }
+  .chartbox svg text.sm { font-size: 10.5px; letter-spacing: -0.02em; }
+  .chartbox svg .ax { stroke: var(--axis); stroke-width: 1; fill: none; }
+  .chartbox svg .gr { stroke: var(--grid); stroke-width: 1; fill: none; }
+  .chartbox svg .col { fill: var(--region); stroke: var(--mit-silver); stroke-width: 1; }
+  .chartbox svg .cov { fill: var(--accent); fill-opacity: 0.3; stroke: var(--accent); stroke-width: 1; }
+  .chartbox svg .band { fill: var(--region); stroke: var(--mit-silver); stroke-width: 1; }
+  .chartbox svg .lnA { stroke: var(--accent); fill: none; stroke-width: 3; stroke-linecap: round; }
+  .chartbox svg .lnI { stroke: var(--ink); fill: none; stroke-width: 1.5; }
+  .chartbox svg .lnS { stroke: var(--mit-silver); fill: none; stroke-width: 1.2; }
+  .chartbox svg .dash { stroke-dasharray: 5 4; }
+  .chartbox svg .dotA { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+  .chartbox svg .dotI { fill: var(--ink); stroke: var(--surface); stroke-width: 2; }
+  .chartbox svg .dotO { fill: var(--surface); stroke: var(--ink2); stroke-width: 1.6; }
+  .chartbox svg .fA { fill: var(--accent); }
+  .chartbox svg .fI { fill: var(--ink); }
+  .chartbox svg .fI2 { fill: var(--ink2); }
+  .chartbox svg .seg0 { fill: var(--surface2); stroke: var(--ink2); stroke-width: 1; }
+  .chartbox svg .seg1 { fill: var(--region); stroke: var(--ink2); stroke-width: 1; }
+  .chartbox svg .segH { fill: var(--accent); fill-opacity: 0.28; stroke: var(--accent); stroke-width: 2; }
+  .chartbox svg .idle { fill: url(#pat-hatch); stroke: var(--mit-silver); stroke-width: 1; }
+  .chartbox svg .hatch { stroke: var(--mit-silver); stroke-width: 1.2; }
+  .chartbox svg .tooth { stroke: var(--accent); stroke-width: 2.2; }
+  .chartbox svg .grab { cursor: ns-resize; touch-action: none; }
+  .chartbox.drag svg { cursor: ns-resize; }
+
+  /* ---- part 1: the game ---- */
+  .game-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 16px 24px; align-items: start; margin-top: 14px; }
+  @media (max-width: 860px) { .game-grid { grid-template-columns: minmax(0, 1fr); } }
+  .game-grid > div { min-width: 0; }
+  .map-stage { position: relative; width: 100%; aspect-ratio: 4 / 3; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .map-legend { margin-top: 8px; }
+  .map-legend i.lg-forest { background: var(--mit-silver); opacity: 0.6; }
+  .map-legend i.lg-cov { border-radius: 50%; border: 3px solid var(--accent); border-right-color: var(--grid); border-bottom-color: var(--grid); background: transparent; }
+  .map-legend i.lg-gain { border-radius: 50%; border: 2px solid var(--mit-silver); background: transparent; }
+  .map-legend i.lg-top { border-radius: 50%; border: 2.5px solid var(--ink); background: transparent; }
+  .map-legend i.lg-hit { background: var(--hot); }
+  .map-legend i.lg-team { background: var(--accent); }
+  .budget { display: grid; gap: 5px; margin-bottom: 4px; }
+  .budget .bl { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .budget .bl output { font-family: var(--font-mono); font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .bbar { position: relative; height: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+  .bbar .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--accent); }
+  .bbar .tk { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--surface); }
+  .bnote { font-size: 12.5px; color: var(--muted); margin: 0; min-height: 1.4em; }
+  .sliders { display: grid; gap: 0; }
+  .srow { display: grid; grid-template-columns: 34px minmax(0, 1fr) 54px; gap: 0 10px; align-items: center; padding: 5px 0 6px; border-bottom: 1px solid var(--grid); }
+  .srow:last-child { border-bottom: none; }
+  .srow .zn { font-weight: 700; font-size: 14px; color: var(--ink); }
+  .srow .zi { display: block; font: 400 11px var(--font-mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .srow .trk { position: relative; min-width: 0; }
+  .srow input[type="range"] { width: 100%; accent-color: var(--accent); margin: 2px 0 0; display: block; }
+  .srow .opt { position: absolute; bottom: -4px; width: 2px; height: 7px; margin-left: -1px; background: var(--ink); left: calc(8px + (100% - 16px) * var(--c, 0)); }
+  .srow output { font: 600 13px var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; color: var(--accent-text); }
+  .srow.top .zn { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .srow.hit .zn { color: var(--hot); text-decoration-color: var(--hot); }
+  table.data { min-width: 0; margin-top: 8px; }
+  table.data th.num, table.data td.num { text-align: right; }
+  table.data td.num { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.data td.acc { color: var(--accent-text); font-weight: 700; }
+  table.data td.hot { color: var(--hot); font-weight: 700; }
+  table.data td.mut { color: var(--muted); }
+  table.data tr.opt td { background: var(--sel); font-weight: 600; }
+  @media (max-width: 560px) {
+    table.data .wide { display: none; }
+    table.data th, table.data td { padding-inline: 5px; font-size: 12px; }
+    table.data td.num { font-size: 11.5px; }
+  }
+
+  /* ---- part 2: the optimum ---- */
+  .locked { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  .locked p { margin: 0; color: var(--ink2); font-size: 14.5px; max-width: 64ch; }
+  .lpgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  @media (max-width: 700px) { .lpgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .lpc { border: 1px solid var(--border); border-radius: 3px; padding: 8px 10px; background: var(--surface); min-width: 0; display: grid; gap: 1px; }
+  .lpc .h { font-size: 12px; color: var(--ink2); font-weight: 600; line-height: 1.25; }
+  .lpc b { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); line-height: 1.25; }
+  .lpc .s { font: 400 11.5px var(--font-mono); color: var(--muted); overflow-wrap: anywhere; }
+  .lpc.best { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); background: var(--sel); }
+  .lpc.best b { color: var(--accent-text); }
+  .lpc.off { background: var(--surface2); }
+  .lpc.off .h, .lpc.off b { text-decoration: line-through; text-decoration-thickness: 1.5px; color: var(--muted); }
+  .tiebox { border: 1px solid var(--border); border-left: 3px solid var(--hot); border-radius: 3px; background: var(--surface); padding: 12px 14px; }
+  .tiebox .subhead { margin-bottom: 2px; }
+  .optstrip {
+    border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 3px; background: var(--surface);
+    padding: 10px 14px; display: grid; gap: 4px;
+  }
+  .optstrip .kicker { margin: 0; color: var(--accent-text); }
+  .optstrip p { margin: 0; font-size: 14px; color: var(--ink2); max-width: 86ch; }
+  .optstrip p b { color: var(--ink); }
+  .anim-legend i.s-bar { background: var(--ink2); }
+  .anim-legend i.s-tick { width: 16px; height: 3px; background: var(--accent); }
+  .anim-legend i.s-band { background: var(--region); border: 1px solid var(--mit-silver); }
+  .anim-legend i.s-cov { background: var(--accent); opacity: 0.45; }
+  .anim-legend i.s-col { background: var(--region); border: 1px solid var(--mit-silver); }
+  .anim-legend i.s-lvl { width: 16px; height: 3px; background: var(--accent); }
+  .anim-legend i.s-idle { background: repeating-linear-gradient(45deg, var(--mit-silver) 0 1.5px, transparent 1.5px 4px); border: 1px solid var(--mit-silver); }
+
+  /* ---- model ---- */
+  .model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 22px; align-items: start; margin-top: 16px; }
+  @media (max-width: 860px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+  .model-grid > div { min-width: 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="pat.back"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n-html="pat.eyebrow"></p>
+    <h1 data-i18n="pat.title"></h1>
+    <p class="lede" data-i18n-html="pat.lede"></p>
+  </header>
+
+  <nav class="case-nav" data-i18n-attr="aria-label:pat.nav.aria">
+    <a href="#pat-p1"><span class="n">1</span><span data-i18n="pat.p1.title"></span></a>
+    <a href="#pat-p2"><span class="n">2</span><span data-i18n="pat.p2.title"></span></a>
+    <a href="#pat-p3"><span class="n">3</span><span data-i18n="pat.p3.title"></span></a>
+    <a href="#pat-model"><span class="n">4</span><span data-i18n="pat.m.title"></span></a>
+  </nav>
+
+  <!-- =================================================================== part 1: the game -->
+  <section class="block" id="pat-p1" aria-labelledby="pat-p1-h">
+    <h2 class="section-title" id="pat-p1-h"><span class="case-num" data-i18n="pat.part1"></span><span data-i18n="pat.p1.title"></span></h2>
+    <p class="section-intro" data-i18n-html="pat.p1.intro"></p>
+    <div class="card" id="g-card">
+      <div class="ctl-row">
+        <div class="ctl-group">
+          <span class="lbl" id="m-lbl" data-i18n="pat.g.teams"></span>
+          <div class="seg" role="group" aria-labelledby="m-lbl" id="m-seg">
+            <button type="button" data-m="2" aria-pressed="false">2</button>
+            <button type="button" data-m="3" aria-pressed="true">3</button>
+            <button type="button" data-m="4" aria-pressed="false">4</button>
+          </div>
+        </div>
+      </div>
+      <div class="game-grid">
+        <div>
+          <div class="map-stage" id="map-stage" role="img"></div>
+          <div class="anim-legend map-legend">
+            <span><i class="lg-forest"></i><span data-i18n="pat.lg.forest"></span></span>
+            <span><i class="lg-cov"></i><span data-i18n="pat.lg.cov"></span></span>
+            <span><i class="lg-gain"></i><span data-i18n="pat.lg.gain"></span></span>
+            <span><i class="lg-top"></i><span data-i18n="pat.lg.top"></span></span>
+            <span><i class="lg-hit"></i><span data-i18n="pat.lg.hit"></span></span>
+          </div>
+        </div>
+        <div>
+          <div class="budget">
+            <div class="bl"><span data-i18n="pat.g.budget"></span><output id="b-val"></output></div>
+            <div class="bbar" id="b-bar"><span class="fill" id="b-fill"></span></div>
+            <p class="bnote" id="b-note" aria-live="polite"></p>
+          </div>
+          <div class="sliders" id="sliders"></div>
+          <div class="btnrow">
+            <button type="button" class="btn" id="g-decide" data-i18n="pat.g.decide"></button>
+            <button type="button" class="btn ghost" id="g-same" data-i18n="pat.g.same"></button>
+            <button type="button" class="btn ghost" id="g-even" data-i18n="pat.g.even"></button>
+            <button type="button" class="btn ghost" id="g-clear" data-i18n="pat.g.clear"></button>
+          </div>
+        </div>
+      </div>
+      <div class="kpis" id="g-kpis"></div>
+      <p class="readline" id="g-read" aria-live="polite"></p>
+      <div class="tblwrap"><table class="data" id="g-log"></table></div>
+      <div class="btnrow">
+        <button type="button" class="btn ghost" id="g-new" data-i18n="pat.g.new"></button>
+        <button type="button" class="btn" id="g-show" data-i18n="pat.g.show"></button>
+      </div>
+      <div class="verdict ok" id="g-verdict" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- =================================================================== part 2: the optimum -->
+  <section class="block" id="pat-p2" aria-labelledby="pat-p2-h">
+    <h2 class="section-title" id="pat-p2-h"><span class="case-num" data-i18n="pat.part2"></span><span data-i18n="pat.p2.title"></span></h2>
+    <p class="section-intro" data-i18n-html="pat.p2.intro"></p>
+    <div class="card locked" id="opt-locked">
+      <p data-i18n="pat.p2.locked"></p>
+      <button type="button" class="btn" id="opt-show" data-i18n="pat.g.show"></button>
+    </div>
+    <div id="opt-body" hidden>
+      <div class="card">
+        <h3 class="subhead" id="cmp-title"></h3>
+        <div class="tblwrap"><table class="data" id="cmp"></table></div>
+        <p class="tabnote" id="cmp-note"></p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3 class="subhead" data-i18n="pat.wf.title"></h3>
+        <p class="mtext" style="margin-top:0" data-i18n-html="pat.wf.intro"></p>
+        <div class="ctl-row" style="margin-top:12px">
+          <div class="rng"><label for="wf-lv" data-i18n="pat.wf.level"></label><output id="wf-lvv" for="wf-lv"></output><input type="range" id="wf-lv" min="-40" max="120" step="0.01" value="25"></div>
+          <div class="ctl-group"><button type="button" class="btn" id="wf-drop" data-i18n="pat.wf.drop"></button></div>
+        </div>
+        <div class="chartbox" id="wf" role="img"></div>
+        <div class="anim-legend" style="margin-top:6px">
+          <span><i class="s-col"></i><span data-i18n="pat.wf.lg.col"></span></span>
+          <span><i class="s-cov"></i><span data-i18n="pat.wf.lg.cov"></span></span>
+          <span><i class="s-lvl"></i><span data-i18n="pat.wf.lg.lvl"></span></span>
+        </div>
+        <div class="kpis" id="wf-kpis"></div>
+        <p class="tabnote" id="wf-note" aria-live="polite"></p>
+        <div class="formula" id="wf-f"></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3 class="subhead" data-i18n="pat.lp.title"></h3>
+        <p class="mtext" style="margin-top:0" data-i18n-html="pat.lp.intro"></p>
+        <div class="lpgrid" id="lps"></div>
+        <p class="mtext" id="lp-note"></p>
+        <p class="tabnote" id="lp-why" data-i18n-html="pat.lp.why"></p>
+      </div>
+      <div class="tiebox" style="margin-top:14px">
+        <h3 class="subhead" data-i18n="pat.tie.title"></h3>
+        <p class="mtext" style="margin-top:0" id="tie-intro"></p>
+        <div class="tblwrap"><table class="data" id="ties"></table></div>
+        <p class="mtext" id="tie-note"></p>
+      </div>
+      <div class="optstrip" style="margin-top:14px">
+        <span class="kicker" data-i18n="pat.opt.kicker"></span>
+        <p data-i18n-html="pat.opt.text"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================================================================== part 3: tomorrow's patrol -->
+  <section class="block" id="pat-p3" aria-labelledby="pat-p3-h">
+    <h2 class="section-title" id="pat-p3-h"><span class="case-num" data-i18n="pat.part3"></span><span data-i18n="pat.p3.title"></span></h2>
+    <p class="section-intro" data-i18n-html="pat.p3.intro"></p>
+    <div class="card">
+      <div class="ctl-row">
+        <div class="ctl-group">
+          <span class="lbl" id="src-lbl" data-i18n="pat.d.src"></span>
+          <div class="seg" role="group" aria-labelledby="src-lbl" id="src-seg">
+            <button type="button" data-src="opt" aria-pressed="true" data-i18n="pat.d.opt"></button>
+            <button type="button" data-src="you" aria-pressed="false" data-i18n="pat.d.you"></button>
+          </div>
+        </div>
+        <div class="ctl-group"><button type="button" class="btn" id="d-draw" data-i18n="pat.d.draw"></button></div>
+      </div>
+      <p class="chart-title mhead" data-i18n="pat.d.comb"></p>
+      <div class="chartbox" id="comb" role="img"></div>
+      <div class="anim-legend" style="margin-top:6px">
+        <span><i class="s-tick"></i><span data-i18n="pat.d.lg.tooth"></span></span>
+        <span><i class="s-cov"></i><span data-i18n="pat.d.lg.hit"></span></span>
+        <span id="d-lg-idle"><i class="s-idle"></i><span data-i18n="pat.d.lg.idle"></span></span>
+      </div>
+      <div class="two" style="margin-top:12px">
+        <div>
+          <div class="map-stage" id="day-stage" role="img"></div>
+          <div class="anim-legend map-legend">
+            <span><i class="lg-team"></i><span data-i18n="pat.lg.team"></span></span>
+            <span><i class="lg-hit"></i><span data-i18n="pat.lg.target"></span></span>
+          </div>
+        </div>
+        <div>
+          <p class="readline" id="d-read" aria-live="polite" style="margin-top:0"></p>
+          <div class="kpis" id="d-kpis" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <p class="mhead" data-i18n="pat.y.head"></p>
+      <div class="ctl-row" style="margin-top:10px">
+        <div class="rng"><label for="y-d" data-i18n="pat.y.days"></label><output id="y-dv" for="y-d"></output><input type="range" id="y-d" min="1" max="730" step="1" value="365"></div>
+        <div class="ctl-group"><button type="button" class="btn ghost" id="y-play" data-i18n="pat.y.play"></button></div>
+      </div>
+      <div class="chartbox" id="year" role="img"></div>
+      <div class="anim-legend" style="margin-top:6px">
+        <span><i class="s-bar"></i><span data-i18n="pat.y.lg.bar"></span></span>
+        <span><i class="s-tick"></i><span data-i18n="pat.y.lg.tick"></span></span>
+        <span><i class="s-band"></i><span data-i18n="pat.y.lg.band"></span></span>
+      </div>
+      <div class="kpis" id="y-kpis"></div>
+      <p class="tabnote" id="y-note"></p>
+    </div>
+  </section>
+
+  <!-- =================================================================== model -->
+  <div class="card" id="pat-model">
+    <h2><span class="kicker" data-i18n="pat.m.kicker"></span><span data-i18n="pat.m.title"></span></h2>
+    <p class="mtext" style="margin-top:0" data-i18n-html="pat.m.sym"></p>
+    <div class="model-grid">
+      <div>
+        <p class="mhead" data-i18n="pat.m.lp.head"></p>
+        <div class="formula" data-tex="pat.m.lp.tex" data-i18n="pat.m.lp.formula"></div>
+        <p class="mtext" data-i18n-html="pat.m.lp.why"></p>
+        <p class="mhead" data-i18n="pat.m.wf.head"></p>
+        <div class="formula" data-tex="pat.m.wf.tex" data-i18n="pat.m.wf.formula"></div>
+        <p class="mtext" data-i18n-html="pat.m.wf.why"></p>
+      </div>
+      <div>
+        <p class="mhead" data-i18n="pat.m.milp.head"></p>
+        <div class="formula" data-tex="pat.m.milp.tex" data-i18n="pat.m.milp.formula"></div>
+        <p class="mtext" data-i18n-html="pat.m.milp.why"></p>
+        <p class="mhead" data-i18n="pat.m.comb.head"></p>
+        <div class="formula" data-tex="pat.m.comb.tex" data-i18n="pat.m.comb.formula"></div>
+        <p class="mtext" data-i18n-html="pat.m.comb.why"></p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <details open>
+      <summary data-i18n="pat.n.title"></summary>
+      <div class="body">
+        <p id="pat-n1"></p>
+        <p id="pat-n2"></p>
+        <p id="pat-n3"></p>
+        <p id="pat-n4"></p>
+        <p id="pat-n5"></p>
+      </div>
+    </details>
+  </section>
+
+  <p class="note further" data-further="2.11" data-refs="pat.refs"></p>
+  <p class="note" data-i18n="pat.footer"></p>
+</div>
+
+<script src="../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../locales/lab/lab-patrols.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/anim.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var T = I18N.t;
+  var $ = function (id) { return document.getElementById(id); };
+  var AN = window.Anim, clamp = AN.clamp, lerp = AN.lerp, ease = AN.ease;
+  var MINUS = "−", TAU = Math.PI * 2;
+  var REDUCE = AN.reducedMotion;
+
+  /* ===================================================================================== the model
+     Eight zones t. If the loggers go to zone t and no team is there they earn R_t (M COP); if a team is
+     there they are caught and get P_t. A team in a zone protects L_t hectares. The rangers commit to a
+     coverage c (c_t = share of days zone t is patrolled, sum c_t <= m teams, 0 <= c_t <= 1); the loggers
+     see c, not the day's draw, and go where their expected gain is highest. */
+  var N = 8;
+  var R = [120, 95, 80, 70, 60, 48, 40, 30];
+  var P = [-40, -40, -35, -35, -30, -30, -25, -25];
+  var L = [20, 45, 30, 60, 25, 50, 15, 35];
+  var D = R.map(function (r, t) { return r - P[t]; });
+  var TOL = 1e-9;                 // one tie rule everywhere: relative tolerance, ties broken for the rangers
+  var DELTA = 1;                  // margin of the robust LP, in M COP
+  var DAYS = 730;                 // draws kept for the replay
+
+  function sum(a) { return a.reduce(function (s, v) { return s + v; }, 0); }
+  function Ua(t, c) { return R[t] - c[t] * D[t]; }
+  function lossAt(t, c) { return (1 - c[t]) * L[t]; }
+
+  // the loggers' best response to a coverage, with the ranger-favorable and the adverse pick among exact ties
+  function respond(c) {
+    var u = [], mx = -Infinity, t;
+    for (t = 0; t < N; t++) { u.push(Ua(t, c)); if (u[t] > mx) mx = u[t]; }
+    var tol = TOL * (1 + Math.abs(mx)), tie = [];
+    for (t = 0; t < N; t++) if (u[t] >= mx - tol) tie.push(t);
+    var fav = tie[0], adv = tie[0];
+    tie.forEach(function (k) {
+      if (lossAt(k, c) < lossAt(fav, c)) fav = k;
+      if (lossAt(k, c) > lossAt(adv, c)) adv = k;
+    });
+    return { u: u, max: mx, tie: tie, fav: fav, adv: adv, loss: lossAt(fav, c), lossAdv: lossAt(adv, c), gain: u[fav] };
+  }
+
+  // one LP per zone t*: max L_t* c_t*  s.t.  U_a(t*) - U_a(k) >= delta (k != t*), sum c <= m, c <= 1
+  function lpFor(ts, m, delta) {
+    var rows = [], k, a;
+    for (k = 0; k < N; k++) {
+      if (k === ts) continue;
+      a = new Array(N).fill(0); a[k] = D[k]; a[ts] = -D[ts];
+      rows.push({ a: a, op: ">=", b: R[k] - R[ts] + delta });
+    }
+    rows.push({ a: new Array(N).fill(1), op: "<=", b: m });
+    for (k = 0; k < N; k++) { a = new Array(N).fill(0); a[k] = 1; rows.push({ a: a, op: "<=", b: 1 }); }
+    var obj = new Array(N).fill(0); obj[ts] = L[ts];
+    var r = LP.solve({ sense: "max", c: obj, rows: rows });
+    if (r.status !== "optimal") return { t: ts, ok: false, status: r.status };
+    return { t: ts, ok: true, x: r.x, ha: L[ts] - r.z, gain: R[ts] - r.x[ts] * D[ts], it: r.iterations };
+  }
+  function sseLP(m, delta) {
+    var t0 = performance.now(), list = [], best = null;
+    for (var ts = 0; ts < N; ts++) {
+      var r = lpFor(ts, m, delta);
+      list.push(r);
+      if (r.ok && (!best || r.ha < best.ha - 1e-12)) best = r;
+    }
+    return { list: list, best: best, ms: performance.now() - t0 };
+  }
+
+  // water filling (ORIGAMI): add zones by decreasing R until the level that spends exactly m teams on them
+  // lies above the next zone's R; the coverage brings every zone of the attack set down to that level
+  function needs(U) {
+    var s = 0;
+    for (var t = 0; t < N; t++) s += clamp((R[t] - U) / D[t], 0, 1);
+    return s;
+  }
+  function origami(m) {
+    var ord = R.map(function (r, t) { return t; }).sort(function (a, b) { return R[b] - R[a] || a - b; });
+    var sA = 0, sB = 0, U = R[ord[0]], k;
+    for (k = 0; k < N; k++) {
+      sA += R[ord[k]] / D[ord[k]]; sB += 1 / D[ord[k]];
+      U = (sA - m) / sB;
+      if (k + 1 === N || U >= R[ord[k + 1]]) break;
+    }
+    var c = R.map(function (r, t) { return Math.max(0, (r - U) / D[t]); });
+    if (c.some(function (v) { return v > 1; })) {
+      // a cap binds (never with at most 4 teams here): fall back to bisection on the capped filling
+      var lo = Math.max.apply(null, P), hi = R[ord[0]];
+      for (var i = 0; i < 200; i++) { var mid = (lo + hi) / 2; if (needs(mid) > m) lo = mid; else hi = mid; }
+      U = hi; c = R.map(function (r, t) { return clamp((r - U) / D[t], 0, 1); });
+    }
+    return { U: U, c: c, set: c.map(function (v, t) { return t; }).filter(function (t) { return R[t] >= U - 1e-9; }) };
+  }
+
+  // best coverage on the 1% slider grid: fix the attacked zone and its coverage, give every other zone the
+  // least whole percent that keeps it at or below that zone (same tie tolerance), keep what fits the budget
+  function gridBest(m) {
+    var S = 100, best = null;
+    for (var ts = 0; ts < N; ts++) {
+      for (var j = 0; j <= S; j++) {
+        var U = R[ts] - j / S * D[ts], tol = TOL * (1 + Math.abs(U)), q = new Array(N), tot = j, ok = true;
+        q[ts] = j;
+        for (var k = 0; k < N && ok; k++) {
+          if (k === ts) continue;
+          var g = Math.max(0, Math.ceil(S * (R[k] - U) / D[k] - 1e-7));
+          while (g <= S && R[k] - g / S * D[k] > U + tol) g++;
+          while (g > 0 && R[k] - (g - 1) / S * D[k] <= U + tol) g--;
+          if (g > S) ok = false; else { q[k] = g; tot += g; }
+        }
+        if (!ok || tot > m * S) continue;
+        var c = q.map(function (v) { return v / S; }), r = respond(c);
+        if (!best || r.loss < best.loss - 1e-12) best = { loss: r.loss, c: c, q: q, t: r.fav, gain: r.max, used: tot / S };
+      }
+    }
+    return best;
+  }
+
+  function orderBy(v) { return v.map(function (x, t) { return t; }).sort(function (a, b) { return v[b] - v[a] || a - b; }); }
+  function fixed(S) { var c = new Array(N).fill(0); S.forEach(function (t) { c[t] = 1; }); return c; }
+  function combos(n, k, fn) {
+    var a = [];
+    (function rec(s) {
+      if (a.length === k) { fn(a); return; }
+      for (var i = s; i < n; i++) { a.push(i); rec(i + 1); a.pop(); }
+    })(0);
+  }
+  function baselines(m) {
+    var even = new Array(N).fill(m / N);
+    var big = orderBy(L).slice(0, m), rich = orderBy(R).slice(0, m);
+    var best = null, nSets = 0, nBest = 0;
+    combos(N, m, function (S) {
+      nSets++;
+      var r = respond(fixed(S));
+      if (!best || r.loss < best.r.loss - 1e-12) { best = { S: S.slice(), r: r }; nBest = 1; }
+      else if (Math.abs(r.loss - best.r.loss) <= 1e-12) nBest++;
+    });
+    return {
+      even: { c: even, r: respond(even) },
+      big: { S: big, r: respond(fixed(big)) },
+      rich: { S: rich, r: respond(fixed(rich)) },
+      det: best, nSets: nSets, nBest: nBest
+    };
+  }
+
+  // comb (systematic) sampling: lay the coverages end to end on [0, m], add an idle stretch when they sum to
+  // less than m, and send team j to the zone under u + j
+  function comb(c, m, u) {
+    var tot = sum(c), k = Math.abs(tot - m) < 1e-6 ? m / tot : 1;   // the LP may return 2.999999999
+    var segs = [], s = 0, t;
+    for (t = 0; t < N; t++) { var w = c[t] * k; segs.push({ t: t, a: s, b: s + w }); s += w; }
+    if (s < m - 1e-9) segs.push({ t: -1, a: s, b: m });
+    var hit = [];
+    for (var j = 0; j < m; j++) {
+      var x = u + j, q;
+      for (q = 0; q < segs.length; q++) if (x >= segs[q].a && x < segs[q].b) break;
+      if (q === segs.length) q = segs.length - 1;
+      hit.push(segs[q].t);
+    }
+    return { segs: segs, hit: hit, total: s };
+  }
+
+  var seqCache = {};
+  function seqU(m) {   // the day offsets u, one per day, from a fixed seed per number of teams
+    if (seqCache[m]) return seqCache[m];
+    var rnd = AN.rng(20260 + 7 * m), out = [];
+    for (var d = 0; d < DAYS; d++) out.push(rnd());
+    return (seqCache[m] = out);
+  }
+  function replay(c, m) {
+    var us = seqU(m), cnt = [], cur = new Array(N).fill(0), per = [], target = respond(c).fav, caught = [], cc = 0;
+    for (var d = 0; d < DAYS; d++) {
+      var h = comb(c, m, us[d]).hit, zones = h.filter(function (t) { return t >= 0; });
+      zones.forEach(function (t) { cur[t]++; });
+      if (zones.indexOf(target) >= 0) cc++;
+      cnt.push(cur.slice()); per.push(zones.length); caught.push(cc);
+    }
+    return { cnt: cnt, per: per, caught: caught, target: target };
+  }
+
+  var cache = {};
+  function sol(m) {
+    if (cache[m]) return cache[m];
+    var o = origami(m), lp0 = sseLP(m, 0), lp1 = sseLP(m, DELTA), diff = 0, nOk = 0;
+    lp0.list.forEach(function (r) {
+      if (!r.ok) return;
+      nOk++;
+      for (var t = 0; t < N; t++) diff = Math.max(diff, Math.abs(r.x[t] - o.c[t]));
+    });
+    if (!(diff <= 1e-6)) console.error("Water filling and the LPs disagree", m, diff);
+    var r = respond(o.c);
+    if (!lp0.best || lp0.best.t !== r.fav || Math.abs(lp0.best.ha - r.loss) > 1e-6) console.error("The best LP is not the water-filling pick", m);
+    var cr = o.c.map(function (v) { return Math.round(v * 1000) / 1000; });
+    var rob = respond(lp1.best.x);
+    return (cache[m] = {
+      m: m, o: o, r: r, lp0: lp0, lp1: lp1, diff: diff, nOk: nOk, rob: rob,
+      rnd: { c: cr, r: respond(cr), used: sum(cr) },
+      grid: gridBest(m), base: baselines(m)
+    });
+  }
+
+  /* ===================================================================================== formatting */
+  function num(v, d) {
+    d = d == null ? 2 : d;
+    var a = I18N.fmt(Math.abs(v), d, d), z = I18N.fmt(0, d, d);
+    return v < 0 && a !== z ? MINUS + a : a;
+  }
+  function ha(v) { return T("pat.u.ha", { v: num(v, 2) }); }
+  function cop(v) { return T("pat.u.cop", { v: num(v, 2) }); }
+  function pct(v, d) { return T("pat.pct", { v: num(100 * v, d == null ? 1 : d) }); }
+  function pctQ(q) { return T("pat.pct", { v: I18N.fmt(q, 1) }); }
+  function zn(t) { return "Z" + (t + 1); }
+  function list(items) {
+    if (items.length < 2) return items.join("");
+    return items.slice(0, -1).join(", ") + T("pat.and") + items[items.length - 1];
+  }
+  function zl(ts) { return list(ts.map(zn)); }
+  function tuple(c) { return T("pat.pct", { v: "(" + c.map(function (v) { return num(100 * v, 1); }).join(T("pat.sep")) + ")" }); }
+  function sci(v) {   // a small difference as m × 10^e, with the decimal mark of the language
+    if (!(v > 0)) return I18N.fmt(0, 0);
+    var e = Math.floor(Math.log10(v)), mt = v / Math.pow(10, e);
+    if (mt >= 9.95) { mt /= 10; e++; }
+    return I18N.fmt(mt, 1, 1) + " × 10<sup>" + (e < 0 ? MINUS : "") + Math.abs(e) + "</sup>";
+  }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function svg(w, h, body, aria) { return '<svg viewBox="0 0 ' + w + " " + h + '" role="img"' + (aria ? ' aria-label="' + esc(aria) + '"' : "") + ">" + body + "</svg>"; }
+  function txt(x, y, s, cls, anchor, extra) {
+    return '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '"' + (cls ? ' class="' + cls + '"' : "") +
+      (anchor ? ' text-anchor="' + anchor + '"' : "") + (extra || "") + ">" + esc(s) + "</text>";
+  }
+  function line(x0, y0, x1, y1, cls) { return '<line class="' + cls + '" x1="' + x0.toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + x1.toFixed(1) + '" y2="' + y1.toFixed(1) + '"/>'; }
+  function rect(x, y, w, h, cls) { return '<rect class="' + cls + '" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + Math.max(0, w).toFixed(1) + '" height="' + Math.max(0, h).toFixed(1) + '"/>'; }
+  function dot(x, y, r, cls) { return '<circle class="' + cls + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r + '"/>'; }
+  function kpis(id, rows) {
+    $(id).innerHTML = rows.map(function (q) { return '<div class="kpi ' + (q[2] || "") + '"><b>' + esc(q[1]) + "</b><span>" + esc(q[0]) + "</span></div>"; }).join("");
+  }
+  function boxW(id, lo, hi) { var w = $(id).clientWidth || $(id).parentNode.clientWidth || hi; return Math.round(clamp(w, lo, hi)); }
+
+  /* ===================================================================================== canvas colours */
+  function cols() {
+    var cs = getComputedStyle(document.documentElement), o = {};
+    ["bg", "surface", "surface2", "ink", "ink2", "muted", "grid", "axis", "accent", "accent-text", "mit-bright", "mit-silver", "crit", "on-solid"].forEach(function (k) {
+      o[k] = cs.getPropertyValue("--" + k).trim();
+    });
+    o.hot = o.accent.toLowerCase() === o["mit-bright"].toLowerCase() ? o.crit : o["mit-bright"];
+    o.dark = lum(o.surface) < 0.4;
+    return o;
+  }
+  function rgbOf(c) {
+    if (c && c[0] === "#") {
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return [n >> 16 & 255, n >> 8 & 255, n & 255];
+    }
+    var m = (c || "").match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [255, 255, 255];
+  }
+  function lum(c) { var r = rgbOf(c); return (0.299 * r[0] + 0.587 * r[1] + 0.114 * r[2]) / 255; }
+  function rgba(c, a) { var r = rgbOf(c); return "rgba(" + r[0] + "," + r[1] + "," + r[2] + "," + a + ")"; }
+  var SANS = "Helvetica Neue, Helvetica, Arimo, Arial, sans-serif", MONO = "JetBrains Mono, ui-monospace, Menlo, monospace";
+  function font(w, s, mono) { return w + " " + s.toFixed(1) + "px " + (mono ? MONO : SANS); }
+
+  /* ===================================================================================== the park (illustrative)
+     Map units: x in [0, 1], y in [0, 0.75]. The zones are a power diagram of eight seeds clipped to an
+     organic outline, weighted so the bigger forests get a little more room. */
+  function clipHalf(poly, ax, ay, b) {
+    var out = [];
+    for (var i = 0; i < poly.length; i++) {
+      var p = poly[i], q = poly[(i + 1) % poly.length];
+      var fp = ax * p[0] + ay * p[1] - b, fq = ax * q[0] + ay * q[1] - b;
+      if (fp <= 0) out.push(p);
+      if ((fp <= 0) !== (fq <= 0)) { var s = fp / (fp - fq); out.push([p[0] + s * (q[0] - p[0]), p[1] + s * (q[1] - p[1])]); }
+    }
+    return out;
+  }
+  function centroid(poly) {
+    var A = 0, cx = 0, cy = 0;
+    for (var i = 0; i < poly.length; i++) {
+      var p = poly[i], q = poly[(i + 1) % poly.length], f = p[0] * q[1] - q[0] * p[1];
+      A += f; cx += (p[0] + q[0]) * f; cy += (p[1] + q[1]) * f;
+    }
+    return [cx / (3 * A), cy / (3 * A), Math.abs(A) / 2];
+  }
+  function inPoly(poly, x, y) {
+    var ins = false;
+    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      var a = poly[i], b = poly[j];
+      if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) ins = !ins;
+    }
+    return ins;
+  }
+  var GEO = (function () {
+    var outline = [], i;
+    for (i = 0; i < 160; i++) {
+      var a = i / 160 * TAU;
+      var w = 1 + 0.05 * Math.sin(3 * a + 0.7) + 0.035 * Math.sin(5 * a + 2.1) + 0.018 * Math.sin(9 * a + 0.4);
+      outline.push([0.5 + 0.44 * w * Math.cos(a), 0.375 + 0.318 * w * Math.sin(a)]);
+    }
+    var seeds = [[0.2, 0.24], [0.4, 0.17], [0.61, 0.16], [0.81, 0.26], [0.18, 0.52], [0.39, 0.52], [0.61, 0.55], [0.82, 0.5]];
+    var wts = L.map(function (l) { return 0.004 * (l - 35) / 25; });
+    var cells = seeds.map(function (p, t) {
+      var poly = outline.slice();
+      seeds.forEach(function (q, k) {
+        if (k === t) return;
+        poly = clipHalf(poly, 2 * (q[0] - p[0]), 2 * (q[1] - p[1]), q[0] * q[0] + q[1] * q[1] - p[0] * p[0] - p[1] * p[1] + wts[t] - wts[k]);
+      });
+      return poly;
+    });
+    var cent = cells.map(centroid);
+    var top = cent.map(function (c) { return c[1] < 0.375; });       // label above the glyph in the upper row
+    var trees = cells.map(function (poly, t) {
+      var rnd = AN.rng(907 + 31 * t), out = [], tries = 0, want = Math.round(L[t] / 2.5);
+      var xs = poly.map(function (p) { return p[0]; }), ys = poly.map(function (p) { return p[1]; });
+      var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+      while (out.length < want && tries < 6000) {
+        tries++;
+        var x = x0 + rnd() * (x1 - x0), y = y0 + rnd() * (y1 - y0);
+        if (!inPoly(poly, x, y) || !inPoly(poly, x + 0.014, y) || !inPoly(poly, x - 0.014, y) || !inPoly(poly, x, y + 0.012) || !inPoly(poly, x, y - 0.016)) continue;
+        var dx = x - cent[t][0], dy = y - cent[t][1];
+        if (dx * dx + dy * dy < 0.092 * 0.092) continue;
+        var ly = top[t] ? -1 : 1;
+        if (Math.abs(dx) < 0.075 && dy * ly > 0.04 && dy * ly < 0.125) continue;
+        if (out.some(function (o) { return (o[0] - x) * (o[0] - x) + (o[1] - y) * (o[1] - y) < 0.026 * 0.026; })) continue;
+        out.push([x, y]);
+      }
+      return out;
+    });
+    var river = [[-0.04, 0.42], [0.14, 0.37], [0.3, 0.405], [0.5, 0.35], [0.7, 0.4], [0.86, 0.36], [1.04, 0.39]];
+    return { outline: outline, cells: cells, cent: cent, top: top, trees: trees, river: river };
+  })();
+
+  function makeMap(stage) {
+    var cv = AN.canvas(stage), ctx = cv.ctx, K = {};
+    function fit() {
+      cv.fit();
+      var s = Math.min(cv.w - 12, (cv.h - 12) / 0.75);
+      K = { s: s, ox: (cv.w - s) / 2, oy: (cv.h - 0.75 * s) / 2 };
+      K.g = clamp(0.036 * s, 11.5, 18.5);
+      K.rr = clamp(0.03 * s, 7, 14);
+      K.fs = clamp(0.024 * s, 10, 12.5);
+    }
+    function X(p) { return K.ox + p[0] * K.s; }
+    function Y(p) { return K.oy + p[1] * K.s; }
+    function path(poly) {
+      ctx.beginPath();
+      poly.forEach(function (p, i) { if (i) ctx.lineTo(X(p), Y(p)); else ctx.moveTo(X(p), Y(p)); });
+      ctx.closePath();
+    }
+    function label(s, x, y, col, f, align) {
+      ctx.font = f; ctx.textAlign = align || "center"; ctx.textBaseline = "middle";
+      ctx.lineJoin = "round"; ctx.lineWidth = 3.5; ctx.strokeStyle = C.surface; ctx.strokeText(s, x, y);
+      ctx.fillStyle = col; ctx.fillText(s, x, y);
+    }
+    var C = null;
+    function base() {
+      C = cols();
+      ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+      ctx.clearRect(0, 0, cv.w, cv.h);
+      ctx.fillStyle = C.surface2; ctx.fillRect(0, 0, cv.w, cv.h);
+      path(GEO.outline); ctx.fillStyle = C.surface; ctx.fill();
+      // forest: darker shade, more hectares
+      GEO.cells.forEach(function (poly, t) {
+        path(poly); ctx.fillStyle = rgba(C["mit-silver"], (C.dark ? 0.1 : 0.08) + 0.36 * L[t] / 60); ctx.fill();
+      });
+      // trees, a few marks per hectare band
+      ctx.fillStyle = rgba(C.ink, C.dark ? 0.32 : 0.26);
+      var ts = clamp(K.s * 0.0085, 2.4, 4.4);
+      GEO.trees.forEach(function (tr) {
+        tr.forEach(function (p) {
+          var x = X(p), y = Y(p);
+          ctx.beginPath(); ctx.moveTo(x, y - ts * 1.2); ctx.lineTo(x + ts, y + ts * 0.8); ctx.lineTo(x - ts, y + ts * 0.8); ctx.closePath(); ctx.fill();
+        });
+      });
+      // river (decorative)
+      ctx.save(); path(GEO.outline); ctx.clip();
+      ctx.beginPath();
+      var rv = GEO.river;
+      ctx.moveTo(X(rv[0]), Y(rv[0]));
+      for (var i = 1; i < rv.length - 1; i++) {
+        var mx = (X(rv[i]) + X(rv[i + 1])) / 2, my = (Y(rv[i]) + Y(rv[i + 1])) / 2;
+        ctx.quadraticCurveTo(X(rv[i]), Y(rv[i]), mx, my);
+      }
+      ctx.lineTo(X(rv[rv.length - 1]), Y(rv[rv.length - 1]));
+      ctx.strokeStyle = rgba(C["mit-silver"], C.dark ? 0.5 : 0.55); ctx.lineWidth = clamp(K.s * 0.011, 3, 6); ctx.lineCap = "round"; ctx.stroke();
+      ctx.restore();
+      // borders
+      GEO.cells.forEach(function (poly) { path(poly); ctx.strokeStyle = C.surface; ctx.lineWidth = 2; ctx.stroke(); });
+      path(GEO.outline); ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    function zoneLabel(t, offset) {
+      var c = GEO.cent[t], x = X(c), y = Y(c) + (GEO.top[t] ? -1 : 1) * offset;
+      label(zn(t), x - 3, y, C.ink, font(700, K.fs + 1), "right");
+      label(T("pat.u.ha", { v: I18N.fmt(L[t], 0) }), x + 3, y, C.ink2, font(400, K.fs), "left");
+    }
+    // the game view: coverage arcs, expected gain rings, the loggers' choice
+    function game(st) {
+      base();
+      var r = st.r, maxR = R[0];
+      GEO.cent.forEach(function (cp, t) {
+        var x = X(cp), y = Y(cp), g = K.g, cov = st.c[t];
+        var gain = r.u[t], rg = g + 4 + K.rr * clamp(gain / maxR, 0, 1);
+        var isTop = r.tie.indexOf(t) >= 0, isHit = st.hit && st.hit.t === t;
+        // expected gain ring
+        if (gain > 0) {
+          ctx.beginPath(); ctx.arc(x, y, rg, 0, TAU);
+          ctx.strokeStyle = isHit ? C.hot : isTop ? C.ink : C["mit-silver"];
+          ctx.lineWidth = isHit || isTop ? 2.6 : 1.8; ctx.setLineDash(isTop || isHit ? [] : [3, 2.5]); ctx.stroke(); ctx.setLineDash([]);
+        }
+        // coverage disc
+        ctx.beginPath(); ctx.arc(x, y, g, 0, TAU); ctx.fillStyle = C.surface; ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y, g - 2, 0, TAU); ctx.strokeStyle = C.grid; ctx.lineWidth = 4; ctx.stroke();
+        if (cov > 0) {
+          ctx.beginPath(); ctx.arc(x, y, g - 2, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, cov)); ctx.strokeStyle = C.accent; ctx.lineWidth = 4; ctx.lineCap = "butt"; ctx.stroke();
+        }
+        var q = Math.round(cov * 1000) / 10;
+        ctx.font = font(700, K.fs - (q % 1 ? 1 : 0), true); ctx.fillStyle = C["accent-text"]; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(I18N.fmt(q, 1), x, y + 0.5);
+        zoneLabel(t, g + 4 + K.rr + K.fs * 0.75);
+      });
+      // the loggers' choice: outline and pulse
+      if (st.hit) {
+        var t = st.hit.t, cp = GEO.cent[t], x = X(cp), y = Y(cp);
+        path(GEO.cells[t]); ctx.strokeStyle = C.hot; ctx.lineWidth = 3; ctx.stroke();
+        var p = st.pulse == null ? 1 : st.pulse;
+        if (p < 1) {
+          for (var k = 0; k < 2; k++) {
+            var u = clamp(p * 1.6 - k * 0.45, 0, 1);
+            if (u <= 0 || u >= 1) continue;
+            ctx.beginPath(); ctx.arc(x, y, K.g + 4 + u * K.s * 0.09, 0, TAU);
+            ctx.strokeStyle = rgba(C.hot, 1 - u); ctx.lineWidth = 3 * (1 - u) + 1; ctx.stroke();
+          }
+        }
+      }
+    }
+    // the day view: where each team goes and what the loggers find
+    function day(st) {
+      base();
+      GEO.cent.forEach(function (cp, t) { zoneLabel(t, 0); });
+      if (st.target != null) {
+        path(GEO.cells[st.target]); ctx.strokeStyle = C.hot; ctx.lineWidth = 3; ctx.setLineDash(st.caught ? [6, 4] : []); ctx.stroke(); ctx.setLineDash([]);
+      }
+      var sz = clamp(K.s * 0.05, 15, 22);
+      st.hit.forEach(function (t, j) {
+        if (t < 0) return;
+        var cp = GEO.cent[t], x = X(cp), y = Y(cp) + (GEO.top[t] ? 1 : -1) * (K.fs + sz * 0.5 + 2);
+        ctx.fillStyle = C.accent; ctx.fillRect(x - sz / 2, y - sz / 2, sz, sz);
+        ctx.strokeStyle = C.surface; ctx.lineWidth = 1.5; ctx.strokeRect(x - sz / 2, y - sz / 2, sz, sz);
+        ctx.font = font(700, sz * 0.6); ctx.fillStyle = C["on-solid"]; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(String(j + 1), x, y + 0.5);
+      });
+    }
+    fit();
+    return { fit: fit, game: game, day: day, el: cv.el };
+  }
+
+  /* ===================================================================================== state */
+  var S = {
+    m: 3,
+    q: new Array(N).fill(0),   // the visitor's coverage in percent (presets may hold halves)
+    rounds: [], hit: null, pulse: null, read: null,
+    shown: false, level: null,
+    src: "opt", day: 1, days: 365
+  };
+  function cUser() { return S.q.map(function (v) { return v / 100; }); }
+  var gameMap = makeMap($("map-stage")), dayMap = makeMap($("day-stage"));
+
+  /* ===================================================================================== part 1: the game */
+  function buildSliders() {
+    var html = "";
+    for (var t = 0; t < N; t++) {
+      html += '<div class="srow" id="sr' + t + '"><span class="zn">' + zn(t) + "</span>" +
+        '<div class="trk"><span class="zi" id="zi' + t + '"></span><input type="range" min="0" max="100" step="1" value="0" id="s' + t + '"><span class="opt" id="so' + t + '" hidden></span></div>' +
+        '<output id="sv' + t + '" for="s' + t + '"></output></div>';
+    }
+    $("sliders").innerHTML = html;
+    for (t = 0; t < N; t++) (function (t) { $("s" + t).addEventListener("input", function () { slide(t); }); })(t);
+  }
+  function labelSliders() {
+    for (var t = 0; t < N; t++) {
+      $("zi" + t).textContent = T("pat.g.zinfo", { ha: I18N.fmt(L[t], 0), r: I18N.fmt(R[t], 0), p: num(P[t], 0) });
+      $("s" + t).setAttribute("aria-label", T("pat.g.slider.aria", { z: zn(t), ha: I18N.fmt(L[t], 0), r: I18N.fmt(R[t], 0), p: num(P[t], 0) }));
+    }
+  }
+  function slide(t) {
+    var el = $("s" + t), v = +el.value, others = 0;
+    for (var k = 0; k < N; k++) if (k !== t) others += S.q[k];
+    var cap = Math.max(0, Math.floor(100 * S.m - others + 1e-9));
+    if (v > cap) { v = cap; el.value = v; }
+    S.q[t] = v;
+    changed();
+  }
+  function changed(keepRead) {
+    S.hit = null; S.pulse = null;
+    if (!keepRead) S.read = null;
+    renderGame();
+    if (S.shown) renderCmp();
+    if (S.src === "you") { yearCache = null; renderDay(); renderYear(); }
+  }
+  function preset(kind) {
+    var so = sol(S.m);
+    if (kind === "same") { S.q = fixed(so.base.big.S).map(function (v) { return 100 * v; }); S.read = { k: "same" }; }
+    else if (kind === "even") { S.q = new Array(N).fill(100 * S.m / N); S.read = { k: "even" }; }
+    else { S.q = new Array(N).fill(0); S.read = null; }
+    changed(true);
+  }
+  function decide() {
+    if (S.rounds.length >= 3) return;
+    var c = cUser(), r = respond(c);
+    S.rounds.push({ used: sum(S.q) / 100, t: r.fav, tie: r.tie.slice(), gain: r.max, ha: r.loss });
+    S.read = { k: "round", n: S.rounds.length, t: r.fav, tie: r.tie.slice(), gain: r.max, ha: r.loss };
+    S.hit = { t: r.fav };
+    renderGame();
+    if (S.rounds.length >= 3 && !S.shown) reveal(false);
+    pulse();
+  }
+  var pulseRaf = 0;
+  function pulse() {
+    cancelAnimationFrame(pulseRaf);
+    if (REDUCE) { S.pulse = null; drawGame(); return; }
+    var t0 = performance.now();
+    (function f(now) {
+      if (!S.hit) return;
+      S.pulse = clamp((now - t0) / 1500, 0, 1);
+      drawGame();
+      if (S.pulse < 1) pulseRaf = requestAnimationFrame(f); else S.pulse = null;
+    })(t0);
+  }
+  function drawGame() {
+    var c = cUser();
+    gameMap.game({ c: c, r: respond(c), hit: S.hit, pulse: S.pulse });
+  }
+  function renderGame() {
+    var so = sol(S.m), c = cUser(), r = respond(c), used = sum(S.q) / 100, m = S.m;
+    // budget
+    $("b-val").textContent = T("pat.g.budget.v", { u: num(used, 2), m: m });
+    $("b-fill").style.width = (100 * used / m) + "%";
+    var bar = $("b-bar"); bar.querySelectorAll(".tk").forEach(function (e) { e.remove(); });
+    for (var k = 1; k < m; k++) { var tk = document.createElement("span"); tk.className = "tk"; tk.style.left = (100 * k / m) + "%"; bar.appendChild(tk); }
+    var idle = m - used;
+    $("b-note").textContent = idle > 1e-9 ? T("pat.g.idle", { v: num(idle, 2) }) : T("pat.g.full");
+    // sliders
+    for (var t = 0; t < N; t++) {
+      var el = $("s" + t);
+      if (+el.value !== Math.round(S.q[t])) el.value = Math.round(S.q[t]);
+      $("sv" + t).textContent = pctQ(S.q[t]);
+      var row = $("sr" + t);
+      row.classList.toggle("top", r.tie.indexOf(t) >= 0);
+      row.classList.toggle("hit", !!(S.hit && S.hit.t === t));
+      var o = $("so" + t);
+      o.hidden = !S.shown;
+      o.style.setProperty("--c", String(so.o.c[t]));
+      o.title = T("pat.g.opt.tick", { p: pct(so.o.c[t]) });
+    }
+    // live numbers
+    kpis("g-kpis", [
+      [T("pat.k.ha"), ha(r.loss), "accent"],
+      [T("pat.k.gain"), cop(r.max)],
+      [T("pat.k.tie"), T("pat.k.tie.v", { n: r.tie.length, z: zl(r.tie) })],
+      [T("pat.k.gap"), T("pat.u.ha", { v: (r.loss - so.r.loss >= 0 ? "+" : MINUS) + num(Math.abs(r.loss - so.r.loss), 2) })],
+      [T("pat.k.grid"), ha(so.grid.loss)]
+    ]);
+    // read line
+    var rd = S.read, txtR;
+    if (!rd) txtR = T(S.rounds.length ? "pat.g.read.again" : "pat.g.read0", { n: 3 - S.rounds.length });
+    else if (rd.k === "same") txtR = T("pat.g.same.read", { m: m, z: zl(so.base.big.S), t: zn(r.fav), g: cop(r.max), ha: ha(r.loss) });
+    else if (rd.k === "even") txtR = T("pat.g.even.read", { p: pctQ(100 * m / N), t: zn(r.fav), g: cop(r.max), ha: ha(r.loss) });
+    else txtR = T(rd.tie.length > 1 ? "pat.g.round.tie" : "pat.g.round", { n: rd.n, t: zn(rd.t), g: cop(rd.gain), ha: ha(rd.ha), z: zl(rd.tie), k: rd.tie.length });
+    $("g-read").innerHTML = txtR;
+    // log
+    var h = "<thead><tr><th>" + esc(T("pat.log.round")) + '</th><th class="num">' + esc(T("pat.log.teams")) + "</th><th>" + esc(T("pat.log.zone")) +
+      '</th><th class="num wide">' + esc(T("pat.log.gain")) + '</th><th class="num">' + esc(T("pat.log.ha")) + "</th></tr></thead><tbody>";
+    if (!S.rounds.length) h += '<tr><td colspan="5" class="mut">' + esc(T("pat.log.none")) + "</td></tr>";
+    S.rounds.forEach(function (q, i) {
+      h += "<tr><td>" + (i + 1) + '</td><td class="num">' + num(q.used, 2) + "</td><td>" + zn(q.t) + (q.tie.length > 1 ? " " + esc(T("pat.log.tie", { k: q.tie.length })) : "") +
+        '</td><td class="num wide">' + esc(cop(q.gain)) + '</td><td class="num acc">' + esc(ha(q.ha)) + "</td></tr>";
+    });
+    $("g-log").innerHTML = h + "</tbody>";
+    $("g-decide").disabled = S.rounds.length >= 3;
+    $("g-decide").textContent = S.rounds.length >= 3 ? T("pat.g.decide.done") : T("pat.g.decide.n", { n: S.rounds.length + 1 });
+    // verdict
+    var vd = $("g-verdict");
+    if (!S.rounds.length) vd.innerHTML = "";
+    else {
+      var best = Math.min.apply(null, S.rounds.map(function (q) { return q.ha; }));
+      var key = S.rounds.length < 3 ? "pat.g.v.part" : "pat.g.v.done";
+      vd.innerHTML = T(key, { best: ha(best), grid: ha(so.grid.loss), opt: ha(so.r.loss), n: 3 - S.rounds.length }) +
+        (best <= so.grid.loss + 1e-9 ? " " + T("pat.g.v.grid") : "");
+    }
+    $("map-stage").setAttribute("aria-label", T("pat.map.aria", { t: zn(r.fav), ha: ha(r.loss) }));
+    drawGame();
+  }
+  function newGame() { S.rounds = []; S.hit = null; S.pulse = null; S.read = null; renderGame(); }
+
+  /* ===================================================================================== part 2: the optimum */
+  function reveal(scroll) {
+    S.shown = true;
+    $("opt-body").hidden = false;
+    $("opt-locked").hidden = true;
+    renderOpt();
+    renderGame();
+    if (scroll) $("pat-p2").scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" });
+  }
+  function renderCmp() {
+    var so = sol(S.m), b = so.base, m = S.m, rU = respond(cUser());
+    $("cmp-title").textContent = T("pat.cmp.title", { m: m });
+    var rows = [
+      [T("pat.cmp.big", { z: zl(b.big.S) }), b.big.r],
+      [T("pat.cmp.rich", { z: zl(b.rich.S) }), b.rich.r],
+      [T("pat.cmp.det", { n: b.nSets }), b.det.r],
+      [T("pat.cmp.even", { p: pctQ(100 * m / N) }), b.even.r],
+      [T("pat.cmp.you"), rU],
+      [T("pat.cmp.grid"), respond(so.grid.c)],
+      [T("pat.cmp.opt"), so.r, true]
+    ];
+    var h = "<thead><tr><th>" + esc(T("pat.cmp.plan")) + "</th><th>" + esc(T("pat.log.zone")) + '</th><th class="num wide">' + esc(T("pat.log.gain")) +
+      '</th><th class="num">' + esc(T("pat.log.ha")) + "</th></tr></thead><tbody>";
+    rows.forEach(function (q) {
+      h += (q[2] ? '<tr class="opt">' : "<tr>") + "<td>" + esc(q[0]) + "</td><td>" + zn(q[1].fav) + (q[1].tie.length > 1 ? " " + esc(T("pat.log.tie", { k: q[1].tie.length })) : "") +
+        '</td><td class="num wide">' + esc(cop(q[1].max)) + '</td><td class="num' + (q[2] ? " acc" : "") + '">' + esc(ha(q[1].loss)) + "</td></tr>";
+    });
+    $("cmp").innerHTML = h + "</tbody>";
+    $("cmp-note").textContent = T("pat.cmp.note", { k: b.nBest, n: b.nSets, ha: ha(b.det.r.loss) });
+  }
+
+  // water filling chart, level draggable
+  var wfDrag = false, wfRaf = 0;
+  function levelNow() { return S.level == null ? sol(S.m).o.U : S.level; }
+  function drawWater() {
+    var so = sol(S.m), U = levelNow(), Ustar = so.o.U, m = S.m;
+    var W = boxW("wf", 300, 760), narrow = W < 520, H = narrow ? 300 : 330;
+    var ml = narrow ? 34 : 44, mr = narrow ? 8 : 14, mt = 30, mb = 26, lo = -45, hi = 125;
+    var Y = function (v) { return mt + (hi - v) / (hi - lo) * (H - mt - mb); };
+    var cw = (W - ml - mr) / N, Xc = function (t) { return ml + (t + 0.5) * cw; }, bw = Math.min(40, cw * 0.56);
+    var g = "";
+    [-40, 0, 40, 80, 120].forEach(function (v) {
+      g += line(ml, Y(v), W - mr, Y(v), v === 0 ? "ax" : "gr");
+      g += txt(ml - 6, Y(v) + 4, num(v, 0), "m", "end");
+    });
+    g += txt(2, 12, T("pat.wf.axis"), "m", "start");
+    var at = [];
+    for (var t = 0; t < N; t++) {
+      var x = Xc(t), top = Y(R[t]), bot = Y(P[t]);
+      g += rect(x - bw / 2, top, bw, bot - top, "col");
+      var cv = clamp((R[t] - U) / D[t], 0, 1);
+      if (cv > 0) g += rect(x - bw / 2, top, bw, Y(Math.max(U, P[t])) - top, "cov");
+      var e = Math.max(P[t], Math.min(R[t], U));
+      var onLevel = R[t] >= U - 1e-9;
+      if (onLevel) at.push(t);
+      g += dot(x, Y(e), narrow ? 4 : 5, onLevel ? "dotI" : "dotO");
+      g += txt(x, 16, pct(cv, 0), (cv > 0 ? "a mono" : "m mono") + (narrow ? " sm" : ""), "middle");
+      g += txt(x, H - 8, zn(t), "i", "middle");
+    }
+    if (Math.abs(U - Ustar) > 0.005) {
+      g += line(ml, Y(Ustar), W - mr, Y(Ustar), "lnS dash");
+      g += txt(ml + 4, Y(Ustar) + (U > Ustar ? 15 : -6), T("pat.wf.ustar", { u: num(Ustar, 2) }), "m", "start");
+    }
+    g += line(ml, Y(U), W - mr, Y(U), "lnA");
+    g += txt(W - mr - 4, Y(U) - 8, "U = " + num(U, 2), "a", "end");
+    g += '<rect class="grab" x="' + ml + '" y="' + (Y(U) - 12).toFixed(1) + '" width="' + (W - ml - mr) + '" height="24" fill="transparent"/>';
+    g += dot(W - mr, Y(U), 6, "dotA grab");
+    var need = needs(U);
+    $("wf").innerHTML = svg(W, H, g, T("pat.wf.aria", { u: num(U, 2), n: num(need, 2) }));
+    $("wf").dataset.h = String(H);
+    $("wf-lv").value = U.toFixed(2);
+    $("wf-lvv").textContent = cop(U);
+    kpis("wf-kpis", [
+      [T("pat.wf.k.level"), cop(U)],
+      [T("pat.wf.k.need"), T("pat.g.budget.v", { u: num(need, 2), m: m }), need > m + 1e-6 ? "hot" : ""],
+      [T("pat.wf.k.opt"), cop(Ustar), "accent"],
+      [T("pat.wf.k.set"), T("pat.k.tie.v", { n: at.length, z: zl(at) })]
+    ]);
+    var key = Math.abs(U - Ustar) <= 0.005 ? "pat.wf.note.at" : U > Ustar ? "pat.wf.note.above" : "pat.wf.note.below";
+    $("wf-note").innerHTML = T(key, { u: cop(Ustar), need: num(need, 2), spare: num(m - need, 2), m: m, ha: ha(so.r.loss), z: zn(so.r.fav) });
+  }
+  function wfFromEvent(ev) {
+    var box = $("wf").querySelector("svg"); if (!box) return;
+    var rc = box.getBoundingClientRect(), H = +$("wf").dataset.h, sc = H / rc.height;
+    var W = boxW("wf", 300, 760), mt = 30, mb = 26, lo = -45, hi = 125;
+    var y = (ev.clientY - rc.top) * sc;
+    var v = hi - (y - mt) / (H - mt - mb) * (hi - lo);
+    S.level = clamp(v, -40, 120);
+    if (Math.abs(S.level - sol(S.m).o.U) < 0.25) S.level = null;   // snaps to the optimum
+    drawWater();
+  }
+  function dropWater() {
+    cancelAnimationFrame(wfRaf);
+    var Ustar = sol(S.m).o.U;
+    if (REDUCE) { S.level = null; drawWater(); return; }
+    var t0 = performance.now(), from = R[0], dur = 2600;
+    (function f(now) {
+      var u = clamp((now - t0) / dur, 0, 1);
+      S.level = u >= 1 ? null : lerp(from, Ustar, ease.inOut(u));
+      drawWater();
+      if (u < 1) wfRaf = requestAnimationFrame(f);
+    })(t0);
+  }
+  function renderWfFormula() {
+    var so = sol(S.m), o = so.o, parts = [], plain = [];
+    o.set.forEach(function (t) {
+      if (o.c[t] <= 0) return;
+      parts.push("\\tfrac{" + R[t] + "-" + num(o.U, 2) + "}{" + D[t] + "}");
+      plain.push("(" + R[t] + " " + MINUS + " " + num(o.U, 2) + ")/" + D[t]);
+    });
+    var vals = o.set.filter(function (t) { return o.c[t] > 0; }).map(function (t) { return num(o.c[t], 3); });
+    var tex = "\\begin{aligned} U^* &= " + num(o.U, 2) + "\\ \\text{" + T("pat.tex.mcop") + "}:\\\\ " +
+      "&" + parts.slice(0, 4).join(" + ") + (parts.length > 4 ? " \\\\ &\\quad + " + parts.slice(4).join(" + ") : "") +
+      " \\\\ &= " + vals.slice(0, 4).join(" + ") + (vals.length > 4 ? " \\\\ &\\quad + " + vals.slice(4).join(" + ") : "") +
+      " = " + S.m + "\\end{aligned}";
+    TeX.set($("wf-f"), tex, "U* = " + num(o.U, 2) + ": " + plain.join(" + ") + " = " + S.m);
+  }
+  function renderLPs() {
+    var so = sol(S.m), best = so.lp0.best, h = "";
+    so.lp0.list.forEach(function (r) {
+      var cls = !r.ok ? " off" : r === best ? " best" : "";
+      h += '<div class="lpc' + cls + '"><span class="h">' + esc(T("pat.lp.card", { z: zn(r.t) })) + "</span>";
+      if (r.ok) h += "<b>" + esc(ha(r.ha)) + '</b><span class="s">' + esc(T("pat.lp.cov", { z: zn(r.t), p: pct(r.x[r.t]) })) + "</span>";
+      else h += "<b>" + esc(T("pat.lp.infeas")) + '</b><span class="s">' + esc(T("pat.lp.infeas.why", { z: zn(r.t) })) + "</span>";
+      h += "</div>";
+    });
+    $("lps").innerHTML = h;
+    var off = so.lp0.list.filter(function (r) { return !r.ok; }).map(function (r) { return r.t; });
+    $("lp-note").innerHTML = T("pat.lp.note", {
+      k: so.nOk, cov: tuple(so.o.c), diff: sci(so.diff),
+      z: zn(best.t), ha: ha(best.ha), ms: num(so.lp0.ms, 1)
+    }) + (off.length ? " " + T("pat.lp.note.off", { z: zl(off), u: cop(so.o.U) }) : "");
+  }
+  function renderTies() {
+    var so = sol(S.m), r = so.r, rob = so.rob, rn = so.rnd.r;
+    $("tie-intro").innerHTML = T("pat.tie.intro", { k: r.tie.length, z: zl(r.tie), u: cop(so.o.U) });
+    var rows = [
+      [T("pat.tie.fav"), r.fav, r.loss, "acc"],
+      [T("pat.tie.adv"), r.adv, r.lossAdv, "hot"],
+      [T("pat.tie.rob", { d: cop(DELTA) }), rob.fav, rob.loss, ""],
+      [T("pat.tie.rnd"), rn.fav, rn.loss, ""]
+    ];
+    var h = "<thead><tr><th>" + esc(T("pat.tie.rule")) + "</th><th>" + esc(T("pat.log.zone")) + '</th><th class="num">' + esc(T("pat.log.ha")) + "</th></tr></thead><tbody>";
+    rows.forEach(function (q) { h += "<tr><td>" + esc(q[0]) + "</td><td>" + zn(q[1]) + '</td><td class="num ' + q[3] + '">' + esc(ha(q[2])) + "</td></tr>"; });
+    $("ties").innerHTML = h + "</tbody>";
+    var second = rob.u.slice().sort(function (a, b) { return b - a; })[1];
+    $("tie-note").innerHTML = T("pat.tie.note", {
+      fav: ha(r.loss), adv: ha(r.lossAdv), diff: ha(r.lossAdv - r.loss),
+      z: zn(rob.fav), g: num(rob.max - second, 2), cost: ha(rob.loss - r.loss), rob: ha(rob.loss),
+      zr: zn(rn.fav), har: ha(rn.loss), used: num(so.rnd.used, 3)
+    });
+  }
+  function renderOpt() {
+    if (!S.shown) return;
+    renderCmp(); drawWater(); renderWfFormula(); renderLPs(); renderTies();
+  }
+
+  /* ===================================================================================== part 3: tomorrow's patrol */
+  var yearCache = null, yRaf = 0;
+  function srcCov() { return S.src === "opt" ? sol(S.m).o.c : cUser(); }
+  function year() {
+    var key = S.m + ":" + S.src + ":" + (S.src === "you" ? S.q.join(",") : "");
+    if (yearCache && yearCache.key === key) return yearCache;
+    yearCache = replay(srcCov(), S.m); yearCache.key = key;
+    return yearCache;
+  }
+  function drawComb(c, u) {
+    var m = S.m, W = boxW("comb", 300, 760), narrow = W < 520, H = 112, ml = 10, mr = 10, top = 40, hh = 36;
+    var X = function (v) { return ml + v / m * (W - ml - mr); };
+    var cb = comb(c, m, u), g = '<defs><pattern id="pat-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch" x1="0" y1="0" x2="0" y2="6"/></pattern></defs>';
+    cb.segs.forEach(function (sg, i) {
+      var w = X(sg.b) - X(sg.a);
+      if (w <= 0.01) return;
+      var hitT = cb.hit.indexOf(sg.t) >= 0 && sg.t >= 0;
+      g += rect(X(sg.a), top, w, hh, sg.t < 0 ? "idle" : hitT ? "segH" : i % 2 ? "seg1" : "seg0");
+      var lab = sg.t < 0 ? T("pat.d.idle.short") : zn(sg.t);
+      ctxMeasure.font = font(700, 12);
+      if (w > ctxMeasure.measureText(lab).width + 6) g += txt(X(sg.a) + w / 2, top + hh / 2 + 4, lab, sg.t < 0 ? "m" : "i", "middle");
+    });
+    for (var k = 0; k <= m; k++) { g += line(X(k), top + hh, X(k), top + hh + 6, "ax"); g += txt(X(k), top + hh + 19, String(k), "m", k === 0 ? "start" : k === m ? "end" : "middle"); }
+    for (var j = 0; j < m; j++) {
+      var x = X(u + j);
+      g += line(x, top - 14, x, top + hh + 2, "tooth");
+      g += '<path class="fA" d="M' + (x - 6).toFixed(1) + "," + (top - 26) + " L" + (x + 6).toFixed(1) + "," + (top - 26) + " L" + x.toFixed(1) + "," + (top - 14) + ' Z"/>';
+      g += txt(x, top - 30, String(j + 1), "a", "middle");
+    }
+    $("comb").innerHTML = svg(W, H, g, T("pat.d.comb.aria", { u: num(u, 2), z: zl(cb.hit.filter(function (t) { return t >= 0; })) }));
+    return cb;
+  }
+  var ctxMeasure = document.createElement("canvas").getContext("2d");
+  function renderDay() {
+    var c = srcCov(), m = S.m, us = seqU(m), u = us[(S.day - 1) % DAYS], cb = drawComb(c, u);
+    var r = respond(c), zones = cb.hit.filter(function (t) { return t >= 0; }), idle = cb.hit.length - zones.length;
+    var caught = zones.indexOf(r.fav) >= 0;
+    dayMap.day({ hit: cb.hit, target: r.fav, caught: caught });
+    var read = T("pat.d.read", { d: S.day, u: num(u, 2), z: zl(zones.slice().sort(function (a, b) { return a - b; })) });
+    if (idle) read += " " + T("pat.d.idle", { k: idle });
+    read += " " + T(caught ? "pat.d.caught" : "pat.d.cut", { z: zn(r.fav), ha: ha(L[r.fav]) });
+    $("d-read").innerHTML = read;
+    $("d-lg-idle").hidden = cb.total >= m - 1e-9;
+    $("day-stage").setAttribute("aria-label", T("pat.d.map.aria", { z: zl(zones), t: zn(r.fav) }));
+    kpis("d-kpis", [
+      [T("pat.d.k.day"), String(S.day)],
+      [T("pat.d.k.u"), num(u, 3)],
+      [T("pat.d.k.target", { z: zn(r.fav) }), pct(c[r.fav]), "accent"],
+      [T("pat.d.k.exp"), ha(r.loss)]
+    ]);
+  }
+  function renderYear() {
+    var c = srcCov(), m = S.m, Y = year(), d = S.days, cnt = Y.cnt[d - 1];
+    var W = boxW("year", 300, 760), narrow = W < 520, H = narrow ? 220 : 240, ml = narrow ? 42 : 46, mr = 8, mt = 14, mb = 26;
+    var Yp = function (v) { return mt + (1 - v) * (H - mt - mb); };
+    var cw = (W - ml - mr) / N, Xc = function (t) { return ml + (t + 0.5) * cw; }, bw = Math.min(30, cw * 0.38), band = Math.min(46, cw * 0.7);
+    var g = "", inside = 0, gap = 0, gapT = 0;
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (v) { g += line(ml, Yp(v), W - mr, Yp(v), v === 0 ? "ax" : "gr"); g += txt(ml - 5, Yp(v) + 4, pct(v, 0), "m", "end"); });
+    for (var t = 0; t < N; t++) {
+      var x = Xc(t), f = cnt[t] / d, sd = Math.sqrt(c[t] * (1 - c[t]) / d), a = clamp(c[t] - 2 * sd, 0, 1), b = clamp(c[t] + 2 * sd, 0, 1);
+      if (Math.abs(f - c[t]) <= 2 * sd + 1e-12) inside++;
+      if (Math.abs(f - c[t]) > gap) { gap = Math.abs(f - c[t]); gapT = t; }
+      g += rect(x - band / 2, Yp(b), band, Math.max(1, Yp(a) - Yp(b)), "band");
+      g += rect(x - bw / 2, Yp(f), bw, Yp(0) - Yp(f), "fI2");
+      g += line(x - band / 2 - 2, Yp(c[t]), x + band / 2 + 2, Yp(c[t]), "lnA");
+      g += txt(x, H - 8, zn(t), "i", "middle");
+    }
+    $("year").innerHTML = svg(W, H, g, T("pat.y.aria", { d: d }));
+    $("y-d").value = d;
+    $("y-dv").textContent = T("pat.y.days.v", { d: d });
+    var per = Y.per.slice(0, d), lo = Math.min.apply(null, per), hi = Math.max.apply(null, per);
+    var caught = Y.caught[d - 1] / d;
+    kpis("y-kpis", [
+      [T("pat.y.k.in"), T("pat.y.k.in.v", { k: inside })],
+      [T("pat.y.k.gap"), T("pat.y.k.gap.v", { v: num(100 * gap, 1), z: zn(gapT) })],
+      [T("pat.y.k.per"), lo === hi ? T("pat.y.k.per.one", { a: lo }) : T("pat.y.k.per.two", { a: lo, b: hi })],
+      [T("pat.y.k.caught", { z: zn(Y.target) }), T("pat.y.k.caught.v", { f: pct(caught), c: pct(c[Y.target]) }), "accent"]
+    ]);
+    $("y-note").textContent = T("pat.y.note", { d: d, w: num(200 * Math.sqrt(0.25 / d), 1) });
+  }
+  function playYear() {
+    cancelAnimationFrame(yRaf);
+    if (REDUCE) { S.days = 365; renderYear(); return; }
+    var t0 = performance.now(), dur = 3200;
+    (function f(now) {
+      var u = clamp((now - t0) / dur, 0, 1);
+      S.days = Math.max(1, Math.round(365 * ease.inOut(u)));
+      renderYear();
+      if (u < 1) yRaf = requestAnimationFrame(f);
+    })(t0);
+  }
+
+  /* ===================================================================================== notes */
+  function renderNotes() {
+    var so = sol(S.m), b = so.base, m = S.m, rob = so.rob, rn = so.rnd.r, Y = (S.src === "opt") ? year() : replay(so.o.c, m);
+    var c = so.o.c, d = 365, cnt = Y.cnt[d - 1], inside = 0;
+    for (var t = 0; t < N; t++) { var sd = Math.sqrt(c[t] * (1 - c[t]) / d); if (Math.abs(cnt[t] / d - c[t]) <= 2 * sd + 1e-12) inside++; }
+    $("pat-n1").innerHTML = T("pat.n.p1", { m: m, big: ha(b.big.r.loss), bz: zn(b.big.r.fav), rich: ha(b.rich.r.loss), rz: zn(b.rich.r.fav), even: ha(b.even.r.loss), opt: ha(so.r.loss) });
+    $("pat-n2").innerHTML = T("pat.n.p2", { k: so.nOk, u: cop(so.o.U), n: so.r.tie.length });
+    $("pat-n3").innerHTML = T("pat.n.p3", { fav: ha(so.r.loss), adv: ha(so.r.lossAdv), z: zn(so.r.fav), za: zn(so.r.adv), rob: ha(rob.loss), rz: zn(rn.fav), rnd: ha(rn.loss) });
+    $("pat-n4").innerHTML = T("pat.n.p4", { grid: ha(so.grid.loss), gap: ha(so.grid.loss - so.r.loss), used: num(so.grid.used, 2), m: m, z: zn(so.grid.t) });
+    $("pat-n5").innerHTML = T("pat.n.p5", { m: m, k: inside, w: num(200 * Math.sqrt(0.25 / d), 1) });
+  }
+
+  /* ===================================================================================== wiring */
+  function setM(m) {
+    if (m === S.m) return;
+    var tot = sum(S.q);
+    if (tot > 100 * m + 1e-9) { var k = 100 * m / tot; S.q = S.q.map(function (v) { return Math.floor(v * k); }); }
+    S.m = m; S.rounds = []; S.hit = null; S.pulse = null; S.read = null; S.level = null; S.day = 1; yearCache = null;
+    cancelAnimationFrame(wfRaf);
+    document.querySelectorAll("#m-seg button").forEach(function (o) { o.setAttribute("aria-pressed", String(+o.getAttribute("data-m") === m)); });
+    renderAll();
+  }
+  function renderAll() {
+    renderGame(); renderOpt(); renderDay(); renderYear(); renderNotes();
+  }
+  document.querySelectorAll("#m-seg button").forEach(function (b) { b.addEventListener("click", function () { setM(+b.getAttribute("data-m")); }); });
+  $("g-decide").addEventListener("click", decide);
+  $("g-same").addEventListener("click", function () { preset("same"); });
+  $("g-even").addEventListener("click", function () { preset("even"); });
+  $("g-clear").addEventListener("click", function () { preset("clear"); });
+  $("g-new").addEventListener("click", newGame);
+  $("g-show").addEventListener("click", function () { reveal(true); });
+  $("opt-show").addEventListener("click", function () { reveal(false); });
+  $("wf-lv").addEventListener("input", function () {
+    cancelAnimationFrame(wfRaf);
+    S.level = +$("wf-lv").value;
+    if (Math.abs(S.level - sol(S.m).o.U) < 0.005) S.level = null;
+    drawWater();
+  });
+  $("wf-drop").addEventListener("click", dropWater);
+  $("wf").addEventListener("pointerdown", function (ev) {
+    if (!ev.target.classList || !ev.target.classList.contains("grab")) return;
+    cancelAnimationFrame(wfRaf);
+    wfDrag = true; $("wf").classList.add("drag"); $("wf").setPointerCapture(ev.pointerId); wfFromEvent(ev); ev.preventDefault();
+  });
+  $("wf").addEventListener("pointermove", function (ev) { if (wfDrag) wfFromEvent(ev); });
+  ["pointerup", "pointercancel"].forEach(function (e) { $("wf").addEventListener(e, function () { wfDrag = false; $("wf").classList.remove("drag"); }); });
+  document.querySelectorAll("#src-seg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var v = b.getAttribute("data-src");
+      if (v === S.src) return;
+      S.src = v; S.day = 1;
+      document.querySelectorAll("#src-seg button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderDay(); renderYear();
+    });
+  });
+  $("d-draw").addEventListener("click", function () { S.day = S.day % DAYS + 1; renderDay(); });
+  $("y-d").addEventListener("input", function () { cancelAnimationFrame(yRaf); S.days = +$("y-d").value; renderYear(); });
+  $("y-play").addEventListener("click", playYear);
+
+  function redrawMaps() { gameMap.fit(); dayMap.fit(); drawGame(); renderDay(); }
+  var lastW = window.innerWidth, rz = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(rz);
+    rz = setTimeout(function () {
+      redrawMaps();
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
+      if (S.shown) drawWater();
+      renderYear();
+    }, 120);
+  });
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redrawMaps);
+  new MutationObserver(redrawMaps).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  buildSliders();
+  I18N.onChange(function () {
+    labelSliders();
+    renderAll();
+  });
+})();
+</script>
+</body>
+</html>

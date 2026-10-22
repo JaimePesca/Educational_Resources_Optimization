@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="en" data-i18n-langs="es en nl" data-title-key="stbgd.title" data-i18n-bundles="lab/study/common lab/study/2025-bodyguards">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Assigning Bodyguards: Round Up or Down at Random</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../../assets/study.css?v=__BUILD__">
+<style>
+  /* ---- "Try it": the bodyguard allocation and scheduling games ---- */
+  #study-try { grid-template-columns: minmax(0, 1fr); }
+  .bg-panel { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; min-width: 0; }
+  .bg-panel > * { min-width: 0; }
+  .bg-panel[hidden] { display: none; }
+  .bg-chart svg .grid, .bg-gantt svg .grid { stroke: var(--grid); stroke-width: 1; }
+  .bg-chart svg .axis, .bg-gantt svg .axis, .bg-ruler svg .axis { stroke: var(--axis); stroke-width: 1.2; }
+  .bg-chart svg .tick, .bg-gantt svg .tick, .bg-ruler svg .tick { fill: var(--muted); font-size: 11px; }
+  .bg-chart svg .lab { fill: var(--ink2); font-size: 12px; }
+  .bg-chart svg .cv { fill: none; stroke-width: 2; stroke-linejoin: round; }
+  .bg-chart svg .pt { stroke: none; }
+  .bg-chart svg .water { stroke: var(--mit-bright); stroke-width: 1.6; stroke-dasharray: 6 4; }
+  .bg-chart svg .water-t { fill: var(--accent-text); font-size: 12px; font-weight: 700; }
+  .bg-chart svg .mk { fill: var(--surface); stroke-width: 2.5; }
+  .bg-chart svg .mk-t { fill: var(--ink); font-size: 11px; font-weight: 700; }
+  .bg-chart svg .c1, .bg-legend i.c1 { stroke: var(--ink); color: var(--ink); }
+  .bg-chart svg .c2, .bg-legend i.c2 { stroke: var(--accent); color: var(--accent); }
+  .bg-chart svg .c3, .bg-legend i.c3 { stroke: var(--mit-silver); color: var(--mit-silver); }
+  .bg-chart svg .c4, .bg-legend i.c4 { stroke: var(--ink2); color: var(--ink2); }
+  .bg-chart svg .cv.c4 { stroke-dasharray: 6 4; }
+  .bg-chart svg .pt.c1 { fill: var(--ink); } .bg-chart svg .pt.c2 { fill: var(--accent); }
+  .bg-chart svg .pt.c3 { fill: var(--mit-silver); } .bg-chart svg .pt.c4 { fill: var(--ink2); }
+  .bg-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
+  .bg-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .bg-legend i { width: 18px; height: 0; border-top: 2px solid currentColor; display: inline-block; flex: none; }
+  .bg-legend i.c4 { border-top-style: dashed; }
+  .bg-legend i.water { color: var(--mit-bright); border-top-style: dashed; }
+  .bg-legend i.on { color: var(--accent); }
+  .bg-legend i.off { color: var(--mit-silver); border-top-style: dashed; }
+  .bg-ruler svg .iv { stroke: var(--surface); stroke-width: 1.5; }
+  .bg-ruler svg .iv.c1 { fill: var(--ink); fill-opacity: 0.16; } .bg-ruler svg .iv.c2 { fill: var(--accent); fill-opacity: 0.2; }
+  .bg-ruler svg .iv.c3 { fill: var(--mit-silver); fill-opacity: 0.3; } .bg-ruler svg .iv.c4 { fill: var(--ink2); fill-opacity: 0.22; }
+  .bg-ruler svg .iv-t { fill: var(--ink); font-size: 12px; font-weight: 700; }
+  .bg-ruler svg .cut { stroke: var(--ink2); stroke-width: 1.2; }
+  .bg-ruler svg .pin { stroke: var(--mit-bright); stroke-width: 2; }
+  .bg-ruler svg .pin-h { fill: var(--mit-bright); }
+  .bg-ruler svg .pin-t { fill: var(--accent-text); font-size: 11px; font-weight: 700; }
+  .bg-gantt svg .bar { fill: var(--surface2); stroke: var(--ink); stroke-width: 1.4; }
+  .bg-gantt svg .bar-t { fill: var(--ink); font-size: 12px; font-weight: 700; }
+  .bg-gantt svg .arc { fill: none; stroke-width: 2; }
+  .bg-gantt svg .arc.on { stroke: var(--accent); }
+  .bg-gantt svg .arc.off { stroke: var(--mit-silver); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .bg-gantt svg .head.on { fill: var(--accent); }
+  .bg-gantt svg .head.off { fill: var(--mit-silver); }
+  .bg-u { max-width: 520px; }
+  .bg-at { margin: 0; font-size: 14px; color: var(--ink2); }
+  .bg-at b { color: var(--ink); }
+  .bg-two { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+  @media (max-width: 760px) { .bg-two { grid-template-columns: minmax(0, 1fr); } }
+  .bg-two > div { min-width: 0; display: grid; gap: 6px; }
+  .bg-arcs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bg-arcs button[aria-pressed="true"] { color: var(--on-solid); background: var(--accent); border-color: var(--accent); }
+  .bg-arcs button[aria-pressed="false"] { color: var(--muted); border-style: dashed; }
+  .st-tbl tr.is-out td { color: var(--muted); }
+  .st-tbl tr.is-pick td { background: var(--sel); }
+  @media (max-width: 520px) { .st-tbl td.mixc { white-space: normal; } }
+  @media (max-width: 520px) { .st-tbl .wide { display: none; } .st-tbl td, .st-tbl th { padding: 6px 5px; } .st-tbl td.num { font-size: 11.5px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="st-crumbs" data-i18n-attr="aria-label:stu.crumbLabel">
+      <a class="backlink" href="../index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.lab"></span></a>
+      <span class="sep" aria-hidden="true">/</span>
+      <a class="backlink" href="index.html" data-keep-lang data-i18n="stu.crumb"></a>
+    </nav>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<main class="wrap" id="study-root" data-study-paper="2025-bodyguards" data-study-prefix="stbgd">
+  <!-- The "Try it" widget: assets/study.js moves this node into the "Try it" section and shows it -->
+  <div id="study-try" class="st-w" hidden>
+    <div class="st-w-row">
+      <div class="st-w-group">
+        <span class="lbl" id="bg-mode-lbl" data-i18n="stbgd.w.mode"></span>
+        <div class="seg" id="bg-mode" role="group" aria-labelledby="bg-mode-lbl">
+          <button type="button" data-mode="alloc" data-i18n="stbgd.w.mode.alloc"></button><button type="button" data-mode="sched" data-i18n="stbgd.w.mode.sched"></button>
+        </div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="bg-k-lbl" data-i18n="stbgd.w.k"></span>
+        <div class="seg" id="bg-k" role="group" aria-labelledby="bg-k-lbl">
+          <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+        </div>
+      </div>
+    </div>
+    <div class="st-w-group">
+      <span class="lbl" id="bg-inst-lbl" data-i18n="stbgd.w.inst"></span>
+      <div class="st-presets" id="bg-inst" role="group" aria-labelledby="bg-inst-lbl">
+        <button type="button" class="st-btn" data-mode="alloc" data-inst="ex4" data-i18n="stbgd.w.i.ex4"></button>
+        <button type="button" class="st-btn" data-mode="alloc" data-inst="ex1" data-i18n="stbgd.w.i.ex1"></button>
+        <button type="button" class="st-btn" data-mode="alloc" data-inst="exp" data-i18n="stbgd.w.i.exp"></button>
+        <button type="button" class="st-btn" data-mode="alloc" data-inst="same" data-i18n="stbgd.w.i.same"></button>
+        <button type="button" class="st-btn" data-mode="alloc" data-inst="b1" data-i18n="stbgd.w.i.b1"></button>
+        <button type="button" class="st-btn" data-mode="sched" data-inst="ex5" data-i18n="stbgd.w.i.ex5"></button>
+        <button type="button" class="st-btn" data-mode="sched" data-inst="day" data-i18n="stbgd.w.i.day"></button>
+      </div>
+    </div>
+
+    <!-- the allocation game -->
+    <div class="bg-panel" id="bg-alloc">
+      <div>
+        <p class="st-w-head" data-i18n="stbgd.w.a.chart"></p>
+        <div class="st-chart bg-chart" id="bg-a-chart" role="img" data-i18n-attr="aria-label:stbgd.w.a.chart.aria"></div>
+        <div class="bg-legend" id="bg-a-leg"></div>
+      </div>
+      <div class="st-kpis" id="bg-a-kpis"></div>
+      <p class="st-verdict" id="bg-a-verdict" aria-live="polite"></p>
+      <div><p class="st-w-head" data-i18n="stbgd.w.a.tbl"></p><div class="st-tbl" id="bg-a-tbl"></div></div>
+      <div>
+        <p class="st-w-head" data-i18n="stbgd.w.a.draw"></p>
+        <div class="st-chart bg-ruler" id="bg-a-ruler" role="img" data-i18n-attr="aria-label:stbgd.w.a.ruler.aria"></div>
+      </div>
+      <div class="st-rng bg-u">
+        <label for="bg-u" data-i18n="stbgd.w.a.u"></label><output id="bg-u-out" for="bg-u"></output>
+        <input type="range" id="bg-u" min="0.005" max="0.995" step="0.005" value="0.4">
+      </div>
+      <p class="bg-at" id="bg-a-at" aria-live="polite"></p>
+      <div class="st-tbl" id="bg-a-mix"></div>
+    </div>
+
+    <!-- the scheduling game -->
+    <div class="bg-panel" id="bg-sched" hidden>
+      <div>
+        <p class="st-w-head" data-i18n="stbgd.w.s.chart"></p>
+        <div class="st-chart bg-gantt" id="bg-s-chart" role="img" data-i18n-attr="aria-label:stbgd.w.s.chart.aria"></div>
+        <div class="bg-legend" id="bg-s-leg"></div>
+      </div>
+      <div class="st-w-group">
+        <span class="lbl" id="bg-arcs-lbl" data-i18n="stbgd.w.s.arcs"></span>
+        <div class="bg-arcs" id="bg-arcs" role="group" aria-labelledby="bg-arcs-lbl"></div>
+      </div>
+      <div class="st-kpis" id="bg-s-kpis"></div>
+      <p class="st-verdict" id="bg-s-verdict" aria-live="polite"></p>
+      <div class="bg-two">
+        <div><p class="st-w-head" data-i18n="stbgd.w.s.tbl"></p><div class="st-tbl" id="bg-s-tbl"></div></div>
+        <div><p class="st-w-head" data-i18n-html="stbgd.w.s.mixh"></p><div class="st-tbl" id="bg-s-mix"></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/common.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/2025-bodyguards.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="papers.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/lp.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/study.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t;
+
+  // ---- core start: the two bodyguard games of the article, solved live (no hard-coded results) ----
+  var BG = (function () {
+    var TOL = 1e-9;
+    // damage g_i(z) for integer z: constant from b_i on
+    function gz(gi, b, z) { return gi[Math.min(z, b)]; }
+    // h_i(x): expected damage of a consistent strategy, the interpolation of g_i between floor(x) and ceil(x)
+    function h(gi, b, x) {
+      if (x >= b) return gi[b];
+      var lo = Math.floor(x + 1e-10), f = x - lo;
+      if (f < 1e-10) return gi[Math.min(lo, b)];
+      return (1 - f) * gi[lo] + f * gi[lo + 1];
+    }
+    // smallest x with h_i(x) <= r (the water level r reached at target i)
+    function level(gi, b, r) {
+      if (r >= gi[0]) return 0;
+      for (var j = 0; j < b; j++) if (gi[j + 1] <= r) return j + (gi[j] - r) / (gi[j] - gi[j + 1]);
+      return Infinity;
+    }
+    // rows "v >= every affine piece of h_i" and "v >= g_i(b_i)" (LP (9) and LP (14)); x_i at column i, v at column V
+    function damageRows(G, B, nv, V) {
+      var rows = [];
+      G.forEach(function (gi, i) {
+        for (var j = 0; j < B[i]; j++) {
+          var s = gi[j + 1] - gi[j], a = new Array(nv).fill(0);
+          a[V] = 1; a[i] = -s;
+          rows.push({ a: a, op: ">=", b: gi[j] - s * j });
+        }
+        var a2 = new Array(nv).fill(0); a2[V] = 1;
+        rows.push({ a: a2, op: ">=", b: gi[B[i]] });
+      });
+      return rows;
+    }
+    // LP (9): min v over the expected allocations x with sum x = k
+    function lp9(G, B, k) {
+      var n = G.length, nv = n + 1, rows = damageRows(G, B, nv, n), a = new Array(nv).fill(0);
+      for (var i = 0; i < n; i++) a[i] = 1;
+      rows.push({ a: a, op: "=", b: k });
+      var c = new Array(nv).fill(0); c[n] = 1;
+      var r = LP.solve({ sense: "min", c: c, rows: rows });
+      return { v: r.z, x: r.x.slice(0, n), rows: rows.length, vars: nv, status: r.status };
+    }
+    // value of a matrix game (rows: attacker targets, columns: defender pure strategies), attacker side
+    function gameValue(A) {
+      var n = A.length, C = A[0].length, rows = [];
+      for (var c = 0; c < C; c++) {
+        var a = []; for (var i = 0; i < n; i++) a.push(-A[i][c]); a.push(1);
+        rows.push({ a: a, op: "<=", b: 0 });
+      }
+      var one = []; for (var i2 = 0; i2 < n; i2++) one.push(1); one.push(0);
+      rows.push({ a: one, op: "=", b: 1 });
+      var cc = new Array(n + 1).fill(0); cc[n] = 1;
+      var r = LP.solve({ sense: "max", c: cc, rows: rows });
+      return { v: r.z, p: r.x.slice(0, n) };
+    }
+    // the defender's optimal mix of a matrix game
+    function gameMix(A) {
+      var n = A.length, C = A[0].length, rows = [];
+      for (var i = 0; i < n; i++) {
+        var a = A[i].slice(); a.push(-1);
+        rows.push({ a: a, op: "<=", b: 0 });
+      }
+      var one = new Array(C).fill(1); one.push(0);
+      rows.push({ a: one, op: "=", b: 1 });
+      var cc = new Array(C + 1).fill(0); cc[C] = 1;
+      var r = LP.solve({ sense: "min", c: cc, rows: rows });
+      return { v: r.z, q: r.x.slice(0, C) };
+    }
+    // every way to put k bodyguards on n targets (one target per bodyguard)
+    function allocations(n, k) {
+      var out = [];
+      (function rec(pre, left, i) {
+        if (i === n - 1) { out.push(pre.concat([left])); return; }
+        for (var z = left; z >= 0; z--) rec(pre.concat([z]), left - z, i + 1);
+      })([], k, 0);
+      return out;
+    }
+    function binom(a, b) { var r = 1; for (var i = 1; i <= b; i++) r = r * (a - b + i) / i; return Math.round(r); }
+
+    // ---- the allocation game G (Section 3) ----
+    function alloc(G, B, k) {
+      var n = G.length, i;
+      var lp = lp9(G, B, k);
+      // the greedy (water-filling) solution of (2): bisection on the common damage level
+      var rlo = 0, rhi = 0;
+      for (i = 0; i < n; i++) { rlo = Math.max(rlo, G[i][B[i]]); rhi = Math.max(rhi, G[i][0]); }
+      function X(r) { var s = 0; for (var q = 0; q < n; q++) s += level(G[q], B[q], r); return s; }
+      var r, spare = 0;
+      if (X(rlo) <= k + TOL) { r = rlo; spare = k - X(rlo); }
+      else {
+        var a = rlo, b = rhi;
+        for (var it = 0; it < 200; it++) { var m = (a + b) / 2; if (X(m) > k) a = m; else b = m; }
+        r = (a + b) / 2;
+      }
+      var x = G.map(function (gi, q) { return level(gi, B[q], r); });
+      if (spare > TOL) {
+        // not all bodyguards are needed (endnote 2): the spare ones go to targets 1, 2, ... up to b_i, any placement is optimal
+        var left = spare;
+        for (i = 0; i < n && left > TOL; i++) { var add = Math.min(left, Math.max(0, B[i] - x[i])); x[i] += add; left -= add; }
+        if (left > TOL) x[0] += left;
+      }
+      var T = [], m = [], y = [], D = [], sat = false;
+      for (i = 0; i < n; i++) {
+        var mi = Math.floor(x[i] + 1e-9), yi = x[i] - mi;
+        if (yi < 1e-9) yi = 0;
+        m.push(mi); y.push(yi);
+        D.push(gz(G[i], B[i], mi) - gz(G[i], B[i], mi + 1));
+        if (x[i] > 1e-9) { T.push(i); if (D[i] < 1e-12) sat = true; }
+      }
+      var regular = spare <= TOL && !sat && T.length > 0;
+      var lam = null, s = null, r6 = null, p = new Array(n).fill(0), i0 = 0;
+      if (regular) {
+        var inv = 0, sg = 0, sm = 0;
+        T.forEach(function (q) { inv += 1 / D[q]; sg += gz(G[q], B[q], m[q]) / D[q]; sm += m[q]; });
+        lam = 1 / inv; s = Math.round(k - sm); r6 = (sg - s) * lam;
+        T.forEach(function (q) { p[q] = lam / D[q]; });
+      } else {
+        for (i = 1; i < n; i++) if (G[i][B[i]] > G[i0][B[i0]] + 1e-12) i0 = i;
+        p[i0] = 1;
+      }
+      // the full matrix game over every pure allocation, and the defender's best reply to p
+      var pures = allocations(n, k), A = [];
+      for (i = 0; i < n; i++) A.push(pures.map(function (z) { return gz(G[i], B[i], z[i]); }));
+      var full = gameValue(A);
+      var best = Infinity, bestN = 0;
+      pures.forEach(function (z, c) {
+        var e = 0; for (var q = 0; q < n; q++) e += p[q] * A[q][c];
+        if (e < best - 1e-12) { best = e; bestN = 1; } else if (Math.abs(e - best) <= 1e-12) bestN++;
+      });
+      // the one-draw construction of p. 337: intervals of lengths x_i on [0, k], points u, u+1, ..., u+k-1
+      var mix = draw(x, k);
+      var hx = x.map(function (xi, q) { return h(G[q], B[q], xi); });
+      var mixDamage = G.map(function (gi, q) {
+        var e = 0; mix.forEach(function (o) { e += o.p * gz(gi, B[q], o.z[q]); }); return e;
+      });
+      // special cases of Section 3.5
+      var homog = G.every(function (gi, q) { return B[q] === B[0] && gi.every(function (v, j) { return Math.abs(v - G[0][j]) < 1e-12; }); });
+      var r12 = null;
+      if (homog) {
+        var fl = Math.floor(k / n), g0 = gz(G[0], B[0], fl), g1 = gz(G[0], B[0], fl + 1);
+        r12 = g0 - (k / n - fl) * (g0 - g1);
+      }
+      var r11 = null, cand11 = null;
+      if (B.every(function (bb) { return bb === 1; })) {
+        var order = G.map(function (gi, q) { return q; }).sort(function (u, v) { return G[v][0] - G[u][0] || u - v; });
+        var mg1 = Math.max.apply(null, G.map(function (gi) { return gi[1]; }));
+        cand11 = [];
+        var sInv = 0, sG = 0;
+        order.forEach(function (q) {
+          var d = G[q][0] - G[q][1];
+          if (d < 1e-12) { cand11.push(null); return; }
+          sInv += 1 / d; sG += G[q][0] / d;
+          cand11.push((sG - k) / sInv);
+        });
+        r11 = Math.max.apply(null, [mg1].concat(cand11.filter(function (v) { return v != null; })));
+        cand11 = { g1: mg1, list: cand11 };
+      }
+      return {
+        n: n, k: k, r: r, lp: lp, x: x, m: m, y: y, D: D, T: T, s: s, lam: lam, r6: r6, p: p, regular: regular,
+        spare: spare, i0: i0, full: full, nPure: pures.length, best: best, bestN: bestN, mix: mix, hx: hx,
+        mixDamage: mixDamage, homog: homog, r12: r12, r11: r11, cand11: cand11,
+        matrixRows: binom(k + n - 1, n - 1), lpRows: lp.rows, lpVars: lp.vars
+      };
+    }
+
+    // pure allocations produced by the one-draw construction, with their probabilities
+    function draw(x, k) {
+      var n = x.length, cum = [0], i;
+      for (i = 0; i < n; i++) cum.push(cum[i] + x[i]);
+      var cuts = [0, 1];
+      for (i = 1; i < n; i++) { var f = cum[i] - Math.floor(cum[i] + 1e-9); if (f > 1e-9 && f < 1 - 1e-9) cuts.push(f); }
+      cuts.sort(function (a, b) { return a - b; });
+      var out = [], seen = {};
+      for (i = 0; i + 1 < cuts.length; i++) {
+        var a = cuts[i], b = cuts[i + 1];
+        if (b - a < 1e-9) continue;
+        var z = realize(cum, (a + b) / 2, k), key = z.join(",");
+        if (seen[key] == null) { seen[key] = out.length; out.push({ z: z, p: 0 }); }
+        out[seen[key]].p += b - a;
+      }
+      return out;
+    }
+    function realize(cum, u, k) {
+      var n = cum.length - 1, z = new Array(n).fill(0);
+      for (var j = 0; j < k; j++) z[target(cum, u + j)]++;
+      return z;
+    }
+    function target(cum, t) {
+      var n = cum.length - 1, last = 0;
+      for (var i = 0; i < n; i++) {
+        if (cum[i + 1] - cum[i] > 1e-12) { last = i; if (t < cum[i + 1] - 1e-12) return i; }
+      }
+      return last;
+    }
+
+    // ---- the scheduling game G_S (Section 4) ----
+    // feasibility of a pure strategy z under (13): a bipartite transfer flow of exactly sum z - k
+    function feasible(z, k, arcs) {
+      var n = z.length, need = 0, i;
+      for (i = 0; i < n; i++) need += z[i];
+      need -= k;
+      if (need < 0) return false;
+      if (need === 0) return true;
+      // max flow: source -> out_i (z_i) -> in_j (arc capacity k) -> sink (z_j)
+      var N = 2 * n + 2, S = 2 * n, Tt = 2 * n + 1, cap = [], adj = [];
+      for (i = 0; i < N; i++) { cap.push(new Array(N).fill(0)); adj.push([]); }
+      function edge(u, v, c) { if (!cap[u][v] && !cap[v][u]) { adj[u].push(v); adj[v].push(u); } cap[u][v] += c; }
+      for (i = 0; i < n; i++) { edge(S, i, z[i]); edge(n + i, Tt, z[i]); }
+      arcs.forEach(function (e) { edge(e[0], n + e[1], k); });
+      var flow = 0;
+      while (flow < need) {
+        var prev = new Array(N).fill(-1), queue = [S]; prev[S] = S;
+        while (queue.length && prev[Tt] < 0) {
+          var u = queue.shift();
+          adj[u].forEach(function (v) { if (prev[v] < 0 && cap[u][v] > 0) { prev[v] = u; queue.push(v); } });
+        }
+        if (prev[Tt] < 0) break;
+        var aug = Infinity, v2 = Tt;
+        while (v2 !== S) { aug = Math.min(aug, cap[prev[v2]][v2]); v2 = prev[v2]; }
+        v2 = Tt;
+        while (v2 !== S) { cap[prev[v2]][v2] -= aug; cap[v2][prev[v2]] += aug; v2 = prev[v2]; }
+        flow += aug;
+      }
+      return flow >= need;
+    }
+    // LP (14): LP (9) with sum x = k replaced by the continuous flow constraints
+    function lp14(G, B, k, arcs) {
+      var n = G.length, m = arcs.length, nv = 2 * n + 1 + m, V = n, i;
+      var rows = damageRows(G, B, nv, V);
+      var a = new Array(nv).fill(0);
+      for (i = 0; i < n; i++) a[n + 1 + i] = 1;
+      rows.push({ a: a, op: "=", b: k });
+      for (i = 0; i < n; i++) {
+        var r1 = new Array(nv).fill(0); r1[n + 1 + i] = 1; r1[i] = -1;
+        arcs.forEach(function (e, t) { if (e[1] === i) r1[2 * n + 1 + t] = 1; });
+        rows.push({ a: r1, op: "=", b: 0 });
+        var out = false, r2 = new Array(nv).fill(0); r2[i] = -1;
+        arcs.forEach(function (e, t) { if (e[0] === i) { r2[2 * n + 1 + t] = 1; out = true; } });
+        if (out) rows.push({ a: r2, op: "<=", b: 0 });
+      }
+      arcs.forEach(function (e, t) { var r3 = new Array(nv).fill(0); r3[2 * n + 1 + t] = 1; rows.push({ a: r3, op: "<=", b: k }); });
+      var c = new Array(nv).fill(0); c[V] = 1;
+      var r = LP.solve({ sense: "min", c: c, rows: rows });
+      return { v: r.z, x: r.x.slice(0, n), w0: r.x.slice(n + 1, 2 * n + 1), w: r.x.slice(2 * n + 1), status: r.status };
+    }
+    function product(lists) {
+      var out = [[]];
+      lists.forEach(function (L) {
+        var next = [];
+        out.forEach(function (pre) { L.forEach(function (v) { next.push(pre.concat([v])); }); });
+        out = next;
+      });
+      return out;
+    }
+    function sched(G, B, k, arcs) {
+      var n = G.length, i;
+      var lp = lp14(G, B, k, arcs);
+      // steps 2 and 3: the floor/ceiling candidates around x, and those that satisfy (13)
+      var opts = lp.x.map(function (xi) {
+        var lo = Math.floor(xi + 1e-7), hi = Math.ceil(xi - 1e-7);
+        return lo === hi ? [lo] : [lo, hi];
+      });
+      var cands = product(opts), feas = cands.filter(function (z) { return feasible(z, k, arcs); });
+      // step 4: the restricted matrix game G_S*
+      var star = null;
+      if (feas.length) {
+        var As = [];
+        for (i = 0; i < n; i++) As.push(feas.map(function (z) { return gz(G[i], B[i], z[i]); }));
+        var gm = gameMix(As), gv = gameValue(As);
+        var mixS = [];
+        feas.forEach(function (z, c) { if (gm.q[c] > 1e-9) mixS.push({ z: z, p: gm.q[c] }); });
+        mixS.sort(function (u, v) { return v.p - u.p; });
+        var Ez = G.map(function (gi, q) { var e = 0; mixS.forEach(function (o) { e += o.p * o.z[q]; }); return e; });
+        var dmg = G.map(function (gi, q) { var e = 0; mixS.forEach(function (o) { e += o.p * gz(gi, B[q], o.z[q]); }); return e; });
+        star = { v: gv.v, vMix: gm.v, mix: mixS, Ez: Ez, dmg: dmg };
+      }
+      // the exact value of G_S: every pure strategy with at most k bodyguards per target that satisfies (13)
+      var all = [], z0 = new Array(n).fill(0);
+      (function rec(i2) {
+        if (i2 === n) { if (feasible(z0, k, arcs)) all.push(z0.slice()); return; }
+        for (var v = 0; v <= k; v++) { z0[i2] = v; rec(i2 + 1); }
+      })(0);
+      var Ae = [];
+      for (i = 0; i < n; i++) Ae.push(all.map(function (z) { return gz(G[i], B[i], z[i]); }));
+      var exact = gameValue(Ae);
+      var noTransfer = lp9(G, B, k);
+      return {
+        n: n, k: k, lp: lp, opts: opts, nCand: cands.length, feas: feas, star: star, exact: exact.v,
+        nAll: all.length, nScreen: Math.pow(k + 1, n), noTransfer: noTransfer.v
+      };
+    }
+
+    return { alloc: alloc, sched: sched, h: h, gz: gz, feasible: feasible, draw: draw, realize: realize, binom: binom };
+  })();
+  // ---- core end ----
+
+  // ---- instances: the article's examples, plus one illustrative morning ----
+  function expG(gam, al, k) {
+    return gam.map(function (g, i) { var a = []; for (var z = 0; z <= k; z++) a.push(g * Math.exp(-al[i] * z)); return a; });
+  }
+  var ALLOC = {
+    // Example 4 and Table 1 (p. 340)
+    ex4: { k: 3, make: function () { return { G: [[0.9, 0.7, 0.6, 0.6], [0.8, 0.6, 0.5, 0.5], [0.7, 0.5, 0.4, 0.3], [0.6, 0.4, 0.3, 0.2]], B: [2, 2, 3, 3] }; } },
+    // Examples 1 to 3 (pp. 337-338)
+    ex1: { k: 2, make: function () { return { G: [[0.8, 0.6, 0.5], [0.6, 0.4, 0.3]], B: [2, 2] }; } },
+    // g_i(z) = gamma_i exp(-alpha_i z) with the first four targets of Example 7 (p. 343), b_i = k
+    exp: { k: 3, make: function (k) { return { G: expG([0.95, 0.90, 0.85, 0.80], [0.5, 0.2, 0.3, 0.6], k), B: [k, k, k, k] }; } },
+    // homogeneous targets (Section 3.5.3) with the damage of target 3 of Table 1
+    same: { k: 3, make: function () { var g = [0.7, 0.5, 0.4, 0.3]; return { G: [g, g, g, g], B: [3, 3, 3, 3] }; } },
+    // at most one bodyguard per target, b_i = 1 (Section 3.5.1): the damage of Example 5 (p. 342) without the transfer arc
+    b1: { k: 1, make: function () { return { G: [[0.8, 0.4], [0.6, 0.3], [0.5, 0.3]], B: [1, 1, 1] }; } }
+  };
+  var SCHED = {
+    // Example 5 (p. 342): times in hours, one arc 1 -> 2
+    ex5: { k: 1, times: [[9, 12], [14, 18], [8, 15]], make: function () { return { G: [[0.8, 0.4], [0.6, 0.3], [0.5, 0.3]], B: [1, 1, 1] }; } },
+    // illustrative morning: four targets, exponential damage, b_i = k
+    day: { k: 2, times: [[8, 9], [9, 11], [10, 12], [12, 13]], make: function (k) { return { G: expG([0.9, 0.8, 0.7, 0.6], [0.6, 0.4, 0.5, 0.3], k), B: [k, k, k, k] }; } }
+  };
+  function allowedArcs(times) {
+    var out = [];
+    for (var i = 0; i < times.length; i++) for (var j = 0; j < times.length; j++) if (i !== j && times[i][1] <= times[j][0]) out.push([i, j]);
+    return out;
+  }
+
+  var state = {
+    mode: "alloc",
+    a: { inst: "ex4", k: 3, u: 0.4 },
+    s: { inst: "ex5", k: 1, off: {} }
+  };
+  var resA = null, resS = null, pending = false;
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+
+  // ---- formatting ----
+  function f4(v) { return I18N.fmt(v, 4, 4); }
+  function f3(v) { return I18N.fmt(v, 3, 3); }
+  function isInt(v) { return Math.abs(v - Math.round(v)) < 1e-9; }
+  // a small fraction a/q (q <= 64) when the number is one, else null
+  function frac(v) {
+    if (isInt(v)) return null;
+    for (var q = 2; q <= 64; q++) { var a = v * q; if (Math.abs(a - Math.round(a)) < 1e-7) return Math.round(a) + "/" + q; }
+    return null;
+  }
+  function num(v) { return isInt(v) ? I18N.fmt(Math.round(v), 0) : f4(v); }
+  function numF(v) { var f = frac(v); return f4(v) + (f ? " = " + f : ""); }
+  function short(v) { if (isInt(v)) return I18N.fmt(Math.round(v), 0); var f = frac(v); return f || f4(v); }
+  function pct(v) { return t("stbgd.w.pct", { v: I18N.fmt(100 * v, 1, 1) }); }
+  function setName(S) { return "{" + S.map(function (i) { return i + 1; }).join(", ") + "}"; }
+  function vec(z) { return "(" + z.join(", ") + ")"; }
+  function list(a) { return a.join(t("stbgd.w.sep")); }
+  function listD(a) { return a.join(t("stbgd.w.vsep")); }
+  function hour(x) { var hh = Math.floor(x), mm = Math.round((x - hh) * 60); return hh + ":" + (mm < 10 ? "0" : "") + mm; }
+  function svg(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function h(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function boxWidth(id) { var w = $(id).clientWidth; return Math.max(280, Math.min(1000, w || 640)); }
+  function kpi(label, value, cls) {
+    var d = h("div", "st-kpi" + (cls ? " " + cls : "")), sp = h("span"); sp.innerHTML = label; d.append(h("b", null, value), sp); return d;
+  }
+  function table(host, heads, rows) {
+    var tb = h("table"), thead = h("thead"), tr = h("tr");
+    heads.forEach(function (c) { var th = h("th", c[1] || null); th.innerHTML = c[0]; tr.appendChild(th); });
+    thead.appendChild(tr); tb.appendChild(thead);
+    var body = h("tbody");
+    rows.forEach(function (r) {
+      var row = h("tr", r.cls || null);
+      r.cells.forEach(function (c) { var td = h("td", c[1] || null); td.innerHTML = c[0]; row.appendChild(td); });
+      body.appendChild(row);
+    });
+    tb.appendChild(body);
+    host.textContent = ""; host.appendChild(tb);
+  }
+
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; update(); });
+  }
+
+  // ======================= the allocation game =======================
+  function solveA() {
+    var I = ALLOC[state.a.inst].make(state.a.k);
+    resA = BG.alloc(I.G, I.B, state.a.k);
+    resA.G = I.G; resA.B = I.B;
+  }
+
+  function drawA() {
+    var R = resA, host = $("bg-a-chart"); host.textContent = "";
+    var W = boxWidth("bg-a-chart"), H = W < 520 ? 270 : Math.round(Math.min(340, W * 0.4));
+    var ML = 46, MR = 14, MT = 18, MB = 38, n = R.n, i;
+    var maxB = Math.max.apply(null, R.B), maxX = Math.max.apply(null, R.x);
+    var XM = Math.max(2, Math.min(maxB, R.k), Math.ceil(maxX - 1e-9));
+    var g0 = Math.max.apply(null, R.G.map(function (g) { return g[0]; }));
+    var YM = Math.ceil((g0 + 0.04) * 10) / 10;
+    function X(x) { return ML + (W - ML - MR) * Math.min(x, XM) / XM; }
+    function Y(y) { return MT + (H - MT - MB) * (1 - y / YM); }
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    for (var xt = 0; xt <= XM; xt++) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(xt), x2: X(xt), y1: Y(0), y2: Y(YM) }));
+      s.appendChild(svg("text", { "class": "tick", x: X(xt), y: Y(0) + 15, "text-anchor": "middle" }, String(xt)));
+    }
+    var step = YM > 0.6 ? 0.2 : 0.1;
+    for (var yt = 0; yt <= YM + 1e-9; yt += step) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(0), x2: X(XM), y1: Y(yt), y2: Y(yt) }));
+      s.appendChild(svg("text", { "class": "tick", x: ML - 13, y: Y(yt) + 4, "text-anchor": "end" }, I18N.fmt(yt, 1, 1)));
+    }
+    s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(XM), y1: Y(0), y2: Y(0) }));
+    s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(0), y1: Y(0), y2: Y(YM) }));
+    s.appendChild(svg("text", { "class": "lab", x: X(XM), y: H - 4, "text-anchor": "end" }, t("stbgd.w.a.ax.x")));
+    s.appendChild(svg("text", { "class": "lab", x: ML + 6, y: MT - 5 }, t("stbgd.w.a.ax.y")));
+    // h_i: the interpolation of g_i between neighbouring integers, flat from b_i on
+    for (i = 0; i < n; i++) {
+      var cls = "c" + (i + 1), d = "", top = Math.min(R.B[i], XM);
+      for (var z = 0; z <= top; z++) d += (z ? "L" : "M") + X(z).toFixed(1) + " " + Y(R.G[i][z]).toFixed(1);
+      if (R.B[i] < XM) d += "L" + X(XM).toFixed(1) + " " + Y(R.G[i][R.B[i]]).toFixed(1);
+      s.appendChild(svg("path", { "class": "cv " + cls, d: d }));
+      for (z = 0; z <= top; z++) s.appendChild(svg("circle", { "class": "pt " + cls, cx: X(z), cy: Y(R.G[i][z]), r: 2.6 }));
+    }
+    // the water level r*
+    s.appendChild(svg("line", { "class": "water", x1: X(0), x2: X(XM), y1: Y(R.r), y2: Y(R.r) }));
+    s.appendChild(svg("text", { "class": "water-t", x: X(XM) - 2, y: Y(R.r) - 7, "text-anchor": "end" }, "r* = " + f4(R.r)));
+    // each target at its optimal expected allocation (markers that share a spot are drawn once with all numbers)
+    var groups = [];
+    for (i = 0; i < n; i++) {
+      var px = X(R.x[i]), py = Y(R.hx[i]);
+      var hit = groups.filter(function (q) { return Math.abs(q.x - px) < 7 && Math.abs(q.y - py) < 7; })[0];
+      if (hit) hit.ids.push(i); else groups.push({ x: px, y: py, ids: [i] });
+    }
+    groups.forEach(function (q) {
+      var c = "c" + (q.ids[0] + 1), label = q.ids.map(function (k) { return k + 1; }).join("·");
+      var rr = label.length > 1 ? 4 + 3.4 * label.length : 9;
+      if (label.length > 1) s.appendChild(svg("rect", { "class": "mk " + c, x: q.x - rr, y: q.y - 9, width: 2 * rr, height: 18, rx: 9 }));
+      else s.appendChild(svg("circle", { "class": "mk " + c, cx: q.x, cy: q.y, r: 9 }));
+      s.appendChild(svg("text", { "class": "mk-t", x: q.x, y: q.y + 4, "text-anchor": "middle" }, label));
+    });
+    host.appendChild(s);
+    var leg = $("bg-a-leg"); leg.textContent = "";
+    for (i = 0; i < n; i++) {
+      var sp = h("span"); sp.append(h("i", "c" + (i + 1)), document.createTextNode(t("stbgd.w.target", { i: i + 1 }))); leg.appendChild(sp);
+    }
+    var sw = h("span"); sw.append(h("i", "water"), document.createTextNode(t("stbgd.w.a.leg.water"))); leg.appendChild(sw);
+  }
+
+  function kpisA() {
+    var R = resA, k = $("bg-a-kpis"); k.textContent = "";
+    var att = R.p.map(short);
+    k.append(
+      kpi(t("stbgd.w.a.k.r"), numF(R.lp.v), "accent"),
+      kpi(t("stbgd.w.a.k.full", { n: I18N.fmt(R.nPure, 0) }), numF(R.full.v)),
+      kpi(t("stbgd.w.a.k.T"), R.regular ? setName(R.T) : setName([R.i0])),
+      kpi(t("stbgd.w.a.k.p"), "(" + listD(att) + ")"),
+      kpi(t("stbgd.w.a.k.size"), t("stbgd.w.a.k.size.v", { lp: I18N.fmt(R.lpRows, 0), mx: I18N.fmt(R.matrixRows, 0) }))
+    );
+  }
+
+  function verdictA() {
+    var R = resA, v = $("bg-a-verdict"), parts = [];
+    if (R.regular) {
+      var out = [];
+      for (var i = 0; i < R.n; i++) if (R.T.indexOf(i) < 0) out.push(i);
+      var lam = R.lam, lamS = frac(lam) || f4(lam);
+      parts.push(R.T.length === 1 ? t("stbgd.w.a.v.reg1", { i: R.T[0] + 1, r: f4(R.r) }) : t("stbgd.w.a.v.reg", { T: setName(R.T), r: f4(R.r) }));
+      // targets without bodyguards: strictly below r* (never attacked by any optimal attacker), or exactly at r* (a tie)
+      var below = out.filter(function (q) { return R.G[q][0] < R.r - 1e-9; });
+      var atLevel = out.filter(function (q) { return R.G[q][0] >= R.r - 1e-9; });
+      var ids = function (a) { return list(a.map(function (q) { return String(q + 1); })); };
+      if (below.length) parts.push(t(below.length > 1 ? "stbgd.w.a.v.outN" : "stbgd.w.a.v.out1", { S: ids(below) }));
+      if (atLevel.length) parts.push(t(atLevel.length > 1 ? "stbgd.w.a.v.tieN" : "stbgd.w.a.v.tie1", { S: ids(atLevel) }));
+      parts.push(t("stbgd.w.a.v.f6", {
+        m: vec(R.T.map(function (q) { return R.m[q]; })), s: R.s, lam: lamS, r6: f4(R.r6), n: I18N.fmt(R.nPure, 0)
+      }));
+      parts.push(t("stbgd.w.a.v.best", { best: f4(R.best) }));
+    } else {
+      parts.push(t("stbgd.w.a.v.sat", { i: R.i0 + 1, r: f4(R.r), b: R.B[R.i0] }));
+      parts.push(t("stbgd.w.a.v.sat2", { i: R.i0 + 1, n: I18N.fmt(R.nPure, 0), full: f4(R.full.v) }));
+    }
+    if (R.r12 != null) parts.push(t("stbgd.w.a.v.f12", { kn: short(R.k / R.n), r: f4(R.r12) }));
+    if (R.r11 != null) {
+      var c = R.cand11.list.map(function (x) { return x == null ? t("stbgd.w.dash") : f4(x); });
+      parts.push(t("stbgd.w.a.v.f11", { g1: f4(R.cand11.g1), c: listD(c), r: f4(R.r11) }));
+    }
+    v.className = "st-verdict ok";
+    v.innerHTML = parts.join(" ");
+  }
+
+  function tableA() {
+    var R = resA, rows = [];
+    for (var i = 0; i < R.n; i++) {
+      var xi = R.x[i], lo = Math.floor(xi + 1e-9), fr = xi - lo, mixTxt;
+      if (fr < 1e-9) mixTxt = t("stbgd.w.a.always", { a: lo });
+      else mixTxt = t("stbgd.w.a.split", { lo: lo, plo: pct(1 - fr), hi: lo + 1, phi: pct(fr) });
+      var inT = R.regular ? R.T.indexOf(i) >= 0 : false;
+      rows.push({
+        cls: xi < 1e-9 ? "is-out" : null,
+        cells: [[String(i + 1)], [f3(R.G[i][0]), "num wide"], [num(xi) + (frac(xi) ? " <span class='wide'>(" + frac(xi) + ")</span>" : ""), "num"],
+          [mixTxt, "num mixc"], [f4(R.hx[i]), "num"], [short(R.p[i]), "num"],
+          [inT ? f4(R.D[i]) : t("stbgd.w.dash"), "num wide"]]
+      });
+    }
+    table($("bg-a-tbl"), [[t("stbgd.w.t.target")], [t("stbgd.w.t.g0"), "num wide"], [t("stbgd.w.t.x"), "num"], [t("stbgd.w.t.mix"), "num"],
+      [t("stbgd.w.t.h"), "num"], [t("stbgd.w.t.p"), "num"], [t("stbgd.w.t.D"), "num wide"]], rows);
+  }
+
+  // the one-draw construction of p. 337 on a ruler [0, k]
+  function drawRuler() {
+    var R = resA, host = $("bg-a-ruler"); host.textContent = "";
+    var W = boxWidth("bg-a-ruler"), H = 92, L = 14, Rm = 14, Y0 = 30, BH = 24;
+    function X(v) { return L + (W - L - Rm) * v / R.k; }
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    var cum = 0;
+    for (var i = 0; i < R.n; i++) {
+      var a = cum, b = cum + R.x[i]; cum = b;
+      if (R.x[i] < 1e-9) continue;
+      s.appendChild(svg("rect", { "class": "iv c" + (i + 1), x: X(a), y: Y0, width: Math.max(1, X(b) - X(a)), height: BH }));
+      if (X(b) - X(a) > 14) s.appendChild(svg("text", { "class": "iv-t", x: (X(a) + X(b)) / 2, y: Y0 + BH / 2 + 4, "text-anchor": "middle" }, String(i + 1)));
+    }
+    s.appendChild(svg("line", { "class": "axis", x1: X(0), x2: X(R.k), y1: Y0 + BH, y2: Y0 + BH }));
+    for (var j = 0; j <= R.k; j++) {
+      s.appendChild(svg("line", { "class": "cut", x1: X(j), x2: X(j), y1: Y0 + BH, y2: Y0 + BH + 5 }));
+      s.appendChild(svg("text", { "class": "tick", x: X(j), y: Y0 + BH + 18, "text-anchor": "middle" }, String(j)));
+    }
+    var u = state.a.u;
+    for (j = 0; j < R.k; j++) {
+      var px = X(u + j);
+      s.appendChild(svg("line", { "class": "pin", x1: px, x2: px, y1: Y0 - 6, y2: Y0 + BH }));
+      s.appendChild(svg("path", { "class": "pin-h", d: "M" + (px - 5) + " " + (Y0 - 12) + "h10l-5 7z" }));
+      s.appendChild(svg("text", { "class": "pin-t", x: px, y: Y0 - 16, "text-anchor": "middle" }, j ? "u+" + j : "u"));
+    }
+    host.appendChild(s);
+  }
+
+  function drawPanelA() {
+    var R = resA, u = state.a.u;
+    $("bg-u-out").textContent = I18N.fmt(u, 3, 3);
+    var cum = [0];
+    for (var i = 0; i < R.n; i++) cum.push(cum[i] + R.x[i]);
+    var z = BG.realize(cum, u, R.k), who = [];
+    for (var j = 0; j < R.k; j++) {
+      var t0 = u + j, c = 0;
+      for (var q = 0; q < R.n; q++) { if (R.x[q] > 1e-12) { c = q; if (t0 < cum[q + 1] - 1e-12) break; } }
+      who.push(c + 1);
+    }
+    $("bg-a-at").innerHTML = t("stbgd.w.a.at", { u: I18N.fmt(u, 3, 3), who: list(who.map(String)), z: "<b>" + vec(z) + "</b>" });
+    drawRuler();
+    // the pure allocations of the construction, with their probabilities, and the damage they give
+    var rows = R.mix.map(function (o) {
+      var hit = o.z.join(",") === z.join(",");
+      return { cls: hit ? "is-pick" : null, cells: [[vec(o.z)], [pct(o.p) + (frac(o.p) ? " <span class='wide'>(" + frac(o.p) + ")</span>" : ""), "num"]] };
+    });
+    rows.push({ cls: "grand", cells: [[t("stbgd.w.a.mixdmg")], ["(" + listD(R.mixDamage.map(f4)) + ")", "num"]] });
+    table($("bg-a-mix"), [[t("stbgd.w.t.alloc")], [t("stbgd.w.t.prob"), "num"]], rows);
+  }
+
+  // ======================= the scheduling game =======================
+  function arcsOn() {
+    var S = SCHED[state.s.inst];
+    return allowedArcs(S.times).filter(function (e) { return !state.s.off[e[0] + ">" + e[1]]; });
+  }
+  function solveS() {
+    var S = SCHED[state.s.inst], I = S.make(state.s.k), arcs = arcsOn();
+    resS = BG.sched(I.G, I.B, state.s.k, arcs);
+    resS.G = I.G; resS.B = I.B; resS.arcs = arcs; resS.times = S.times; resS.allowed = allowedArcs(S.times);
+  }
+
+  function drawS() {
+    var R = resS, host = $("bg-s-chart"); host.textContent = "";
+    var W = boxWidth("bg-s-chart"), n = R.n, RH = 40, MT = 12, MB = 30, L = 14, Rm = 18;
+    var H = MT + n * RH + MB;
+    var t0 = Math.min.apply(null, R.times.map(function (p) { return p[0]; })) - 0.5;
+    var t1 = Math.max.apply(null, R.times.map(function (p) { return p[1]; })) + 0.5;
+    function X(v) { return L + (W - L - Rm) * (v - t0) / (t1 - t0); }
+    function Yc(i) { return MT + i * RH + RH / 2; }
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    var every = (X(t0 + 1) - X(t0)) < 34 ? 2 : 1;
+    for (var hr = Math.ceil(t0); hr <= t1; hr++) {
+      s.appendChild(svg("line", { "class": "grid", x1: X(hr), x2: X(hr), y1: MT, y2: MT + n * RH }));
+      if ((hr - Math.ceil(t0)) % every === 0) s.appendChild(svg("text", { "class": "tick", x: X(hr), y: MT + n * RH + 17, "text-anchor": "middle" }, hour(hr)));
+    }
+    s.appendChild(svg("line", { "class": "axis", x1: X(t0), x2: X(t1), y1: MT + n * RH, y2: MT + n * RH }));
+    // transfer arcs: from the end of i to the start of j
+    R.allowed.forEach(function (e) {
+      var on = R.arcs.some(function (a) { return a[0] === e[0] && a[1] === e[1]; }), cls = on ? "on" : "off";
+      var x1 = X(R.times[e[0]][1]), y1 = Yc(e[0]), x2 = X(R.times[e[1]][0]) - 1, y2 = Yc(e[1]), dx = Math.max(18, (x2 - x1) / 2);
+      s.appendChild(svg("path", { "class": "arc " + cls, d: "M" + x1 + " " + y1 + "C" + (x1 + dx) + " " + y1 + " " + (x2 - dx) + " " + y2 + " " + (x2 - 6) + " " + y2 }));
+      s.appendChild(svg("path", { "class": "head " + cls, d: "M" + (x2 - 8) + " " + (y2 - 4.5) + "L" + x2 + " " + y2 + "L" + (x2 - 8) + " " + (y2 + 4.5) + "z" }));
+    });
+    for (var i = 0; i < n; i++) {
+      var a = X(R.times[i][0]), b = X(R.times[i][1]);
+      s.appendChild(svg("rect", { "class": "bar", x: a, y: Yc(i) - 11, width: b - a, height: 22, rx: 2 }));
+      var lab = b - a > 84 ? t("stbgd.w.target", { i: i + 1 }) : String(i + 1);
+      s.appendChild(svg("text", { "class": "bar-t", x: a + 7, y: Yc(i) + 4 }, lab));
+    }
+    host.appendChild(s);
+    var leg = $("bg-s-leg"); leg.textContent = "";
+    [["on", t("stbgd.w.s.leg.on", { k: R.k })], ["off", t("stbgd.w.s.leg.off")]].forEach(function (L2) {
+      var sp = h("span"); sp.append(h("i", L2[0]), document.createTextNode(L2[1])); leg.appendChild(sp);
+    });
+  }
+
+  function arcButtons() {
+    var host = $("bg-arcs"); host.textContent = "";
+    var all = allowedArcs(SCHED[state.s.inst].times);
+    all.forEach(function (e) {
+      var key = e[0] + ">" + e[1], b = h("button", "st-btn", (e[0] + 1) + " → " + (e[1] + 1));
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(!state.s.off[key]));
+      b.setAttribute("aria-label", t("stbgd.w.s.arc.aria", { i: e[0] + 1, j: e[1] + 1 }));
+      b.addEventListener("click", function () { state.s.off[key] = !state.s.off[key]; schedule(); });
+      host.appendChild(b);
+    });
+  }
+
+  function kpisS() {
+    var R = resS, k = $("bg-s-kpis"); k.textContent = "";
+    var st = R.star;
+    k.append(
+      kpi(t("stbgd.w.s.k.noT"), numF(R.noTransfer)),
+      kpi(t("stbgd.w.s.k.lp"), numF(R.lp.v)),
+      kpi(t("stbgd.w.s.k.exact", { f: I18N.fmt(R.nAll, 0), all: I18N.fmt(R.nScreen, 0) }), numF(R.exact), "accent"),
+      kpi(t("stbgd.w.s.k.star", { f: I18N.fmt(R.feas.length, 0), c: I18N.fmt(R.nCand, 0) }), st ? numF(st.v) : t("stbgd.w.dash"), st ? null : "warn")
+    );
+  }
+
+  function verdictS() {
+    var R = resS, v = $("bg-s-verdict"), parts = [], cls = "ok", st = R.star;
+    if (!st) {
+      cls = "bad";
+      parts.push(t("stbgd.w.s.v.none", { c: I18N.fmt(R.nCand, 0), ex: f4(R.exact) }));
+    } else if (Math.abs(st.v - R.lp.v) < 1e-7) {
+      parts.push(t("stbgd.w.s.v.meet", { lp: f4(R.lp.v), f: I18N.fmt(R.feas.length, 0), c: I18N.fmt(R.nCand, 0), all: I18N.fmt(R.nAll, 0), ex: f4(R.exact) }));
+    } else if (Math.abs(st.v - R.exact) < 1e-7) {
+      parts.push(t("stbgd.w.s.v.conj", { lp: f4(R.lp.v), ex: f4(R.exact), all: I18N.fmt(R.nAll, 0) }));
+    } else {
+      cls = "bad";
+      parts.push(t("stbgd.w.s.v.gap", { lp: f4(R.lp.v), ex: f4(R.exact), up: f4(st.v) }));
+    }
+    if (!R.arcs.length) parts.push(t("stbgd.w.s.v.noarcs"));
+    else if (R.noTransfer - R.exact > 1e-9) parts.push(t("stbgd.w.s.v.cut", { g: f4(R.noTransfer), ex: f4(R.exact), pct: pct((R.noTransfer - R.exact) / R.noTransfer) }));
+    else parts.push(t("stbgd.w.s.v.nocut", { g: f4(R.noTransfer) }));
+    if (st) {
+      var reuse = st.mix.filter(function (o) { return o.z.reduce(function (a, b) { return a + b; }, 0) > R.k; });
+      if (reuse.length) parts.push(t("stbgd.w.s.v.reuse", { k: R.k }));
+    }
+    v.className = "st-verdict " + cls;
+    v.innerHTML = parts.join(" ");
+  }
+
+  function tablesS() {
+    var R = resS, st = R.star, rows = [];
+    for (var i = 0; i < R.n; i++) {
+      rows.push({ cells: [[String(i + 1)], [hour(R.times[i][0]) + "-" + hour(R.times[i][1]), "num wide"], [f3(R.G[i][0]), "num wide"],
+        [num(R.lp.x[i]) + (frac(R.lp.x[i]) ? " <span class='wide'>(" + frac(R.lp.x[i]) + ")</span>" : ""), "num"],
+        [R.opts[i].join(t("stbgd.w.or")), "num"],
+        [st ? f3(st.Ez[i]) : t("stbgd.w.dash"), "num"], [st ? f4(st.dmg[i]) : t("stbgd.w.dash"), "num"]] });
+    }
+    table($("bg-s-tbl"), [[t("stbgd.w.t.target")], [t("stbgd.w.t.time"), "num wide"], [t("stbgd.w.t.g0"), "num wide"], [t("stbgd.w.t.x14"), "num"],
+      [t("stbgd.w.t.cand"), "num"], [t("stbgd.w.t.Ez"), "num"], [t("stbgd.w.t.dmg"), "num"]], rows);
+    var mrows = [];
+    if (st) st.mix.forEach(function (o) {
+      var sum = o.z.reduce(function (a, b) { return a + b; }, 0);
+      mrows.push({ cells: [[vec(o.z)], [String(sum) + (sum > R.k ? " &gt; " + R.k : ""), "num"], [pct(o.p) + (frac(o.p) ? " <span class='wide'>(" + frac(o.p) + ")</span>" : ""), "num"]] });
+    });
+    table($("bg-s-mix"), [[t("stbgd.w.t.z")], [t("stbgd.w.t.sum"), "num"], [t("stbgd.w.t.prob"), "num"]], mrows);
+  }
+
+  // ======================= controls =======================
+  function update() {
+    var m = state.mode;
+    document.querySelectorAll("#bg-mode button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === m)); });
+    var cur = m === "alloc" ? state.a : state.s, kmax = m === "alloc" ? 6 : 4;
+    document.querySelectorAll("#bg-k button").forEach(function (b) {
+      var kk = +b.getAttribute("data-k");
+      b.hidden = kk > kmax;
+      b.setAttribute("aria-pressed", String(kk === cur.k));
+    });
+    document.querySelectorAll("#bg-inst button").forEach(function (b) {
+      b.hidden = b.getAttribute("data-mode") !== m;
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-inst") === cur.inst));
+    });
+    $("bg-alloc").hidden = m !== "alloc";
+    $("bg-sched").hidden = m !== "sched";
+    if (m === "alloc") {
+      solveA(); drawA(); kpisA(); verdictA(); tableA(); drawPanelA();
+    } else {
+      solveS(); arcButtons(); drawS(); kpisS(); verdictS(); tablesS();
+    }
+  }
+
+  document.querySelectorAll("#bg-mode button").forEach(function (b) {
+    b.addEventListener("click", function () { state.mode = b.getAttribute("data-mode"); schedule(); });
+  });
+  document.querySelectorAll("#bg-k button").forEach(function (b) {
+    b.addEventListener("click", function () { (state.mode === "alloc" ? state.a : state.s).k = +b.getAttribute("data-k"); schedule(); });
+  });
+  document.querySelectorAll("#bg-inst button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var id = b.getAttribute("data-inst");
+      if (state.mode === "alloc") { state.a.inst = id; state.a.k = ALLOC[id].k; }
+      else { state.s.inst = id; state.s.k = SCHED[id].k; state.s.off = {}; }
+      schedule();
+    });
+  });
+  $("bg-u").addEventListener("input", function () { state.a.u = +this.value; if (resA) drawPanelA(); });
+
+  I18N.onChange(update);
+  var resizeTimer, lastW = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var w = $("study-try").clientWidth;
+      if (w !== lastW) { lastW = w; if (state.mode === "alloc" && resA) { drawA(); drawRuler(); } else if (resS) drawS(); }
+    }, 120);
+  });
+})();
+</script>
+<!-- after the page scripts, so each language switch first rebuilds the page and then typesets its formulas -->
+<script src="../../assets/tex.js?v=__BUILD__" charset="utf-8"></script>
+</body>
+</html>

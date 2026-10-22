@@ -1,0 +1,274 @@
+{
+ "notes": {
+  "slug": "2023-streaming-platforms",
+  "bibliography": {
+   "title": "Stable streaming platforms: a cooperative game approach",
+   "authors": [
+    "Loe Schlicher",
+    "Bas Dietzenbacher",
+    "Marieke Musegaas"
+   ],
+   "affiliations_as_printed": "a Department of Industrial Engineering and Innovation Sciences, Eindhoven University of Technology, The Netherlands (Loe Schlicher, corresponding author, [e-mail omitted]); b Department of Quantitative Economics, Maastricht University, The Netherlands (Bas Dietzenbacher, [e-mail omitted]); c Department of Advanced Computing Sciences, Maastricht University, The Netherlands (Marieke Musegaas, [e-mail omitted])",
+   "journal": "Omega",
+   "volume_issue_pages_or_article": "Volume 125 (2024), article 103020, 9 pages",
+   "year": "2024",
+   "received": "2023-05-09",
+   "accepted": "2023-12-12",
+   "available_online": "2023-12-19",
+   "doi": "10.1016/j.omega.2023.103020",
+   "open_access_or_license": "Open access under the CC BY license (http://creativecommons.org/licenses/by/4.0/); printed line: 0305-0483/(c) 2023 The Author(s). Published by Elsevier Ltd. Journal area: Production Management, Scheduling and Logistics; processed by Associate Editor Harks. Data availability: no data was used for the research described in the article.",
+   "keywords": [
+    "Streaming platforms",
+    "Stability",
+    "Cooperative game theory",
+    "Core"
+   ]
+  },
+  "chronology_date": "2023-12-19",
+  "one_line": "A subscription streaming platform is modeled as a cooperative revenue game among content creators, and the paper shows that a stable (core) split of revenue exists or not depending on how similar users' streaming behaviour is: disjoint market segments with distinct premium fees are always unstable, while inclusive markets, two-user semi-inclusive markets and homogeneous markets are always stable.",
+  "question": "\"Which conditions for streaming platform situations lead to (un)stable streaming platforms?\" (p. 4, Section 4.2). In the introduction (p. 1): \"we analyze in what type of situations stability can be preserved\", i.e., when the platform can divide its total revenue among its content creators so that no group of creators has an incentive to leave and start its own platform, which is when the core of the associated streaming platform game is nonempty. The authors stress (p. 2) that they evaluate the stability of an existing platform rather than optimize its performance (best menu of services or revenue-maximizing allocation rule), which is what the earlier OM literature on streaming did.",
+  "motivation_application": "Music streaming (Spotify as the running example, p. 1): more than 400 million monthly active users in 2021, yet criticized by artists who believe they should earn more; in 2021 a group of content creators held protests in front of Spotify and artists such as Sting, Kate Bush and Paul McCartney spoke out against too low payments. Because the market is highly competitive (Apple Music, Deezer, Soundcloud), artists or the record labels holding their rights may switch platforms or collaborate and start a platform themselves. The platform must therefore allocate streaming revenue so that stability is preserved. The model is stylized: users pay one fixed premium fee per subscription period for unlimited access, total revenue = fee x number of subscribed users, and reservation prices per stream could be estimated from marketing data following refs [1] Jedidi, Jagpal, Manchanda 2003 and [2] Stauss and Gaul 2005. The conclusion (p. 8) states that the model applies to any service bundling format with similar characteristics: museum passepartouts, movie and series platforms, and digital libraries. Managerial message (abstract): stability is a delicate matter; platforms are more likely stable in markets where users stream similarly, so it is recommended to focus on market segments where such similarities occur.",
+  "model": "Streaming platform situation (Section 3.1, p. 2-3): $\\theta=(N,U,V,r)$.\n- Players: nonempty finite set $N$ of content creators (footnote 1, p. 2: one may include only the key creators responsible for a significant part of revenue).\n- Users: nonempty finite set $U$ of subscribers.\n- Streaming matrix $V\\in\\mathbb{Z}^{N\\times U}_{\\ge 0}$, $V_{ij}$ = number of streams of creator $i$ by user $j$ (the introduction calls it the average number of streams per subscription period). Assumed: $\\sum_{j\\in U}V_{ij}>0$ for all $i$ and $\\sum_{i\\in N}V_{ij}>0$ for all $j$.\n- Reservation price $r_j\\in\\mathbb{R}_{>0}$: maximum money user $j$ is willing to pay per stream (footnote 2, p. 3: a creator-specific reservation price could be incorporated straightforwardly).\n- Existing platform: every user pays the same premium fee, the largest fee at which all users stay: $p^N=\\min_{j\\in U}\\{r_j\\sum_{i\\in N}V_{ij}\\}$; total revenue $p^N\\cdot|U|$. Footnote 3 (p. 3): one could restrict attention to situations where it is optimal to charge a fee such that all users stay.\n\nCoalition problem (Section 3.2, p. 3): a nonempty strict subset $S\\subset N$ leaves and offers all content of $S$ on its own platform.\n- Users reached: $U^S=\\{j\\in U: \\sum_{i\\in S}V_{ij}>0\\}$ (nonempty).\n- Willingness to pay of $j\\in U^S$: $t^S_j=r_j\\sum_{i\\in S}V_{ij}$.\n- Subscribers at fee $p>0$: $Q^S(p)=\\{j\\in U^S: t^S_j\\ge p\\}$; $Q^S(p)\\subseteq Q^S(p')$ if $p>p'$.\n- $S$ chooses the revenue-maximizing single fee: $\\max_{p\\in\\mathbb{R}_{>0}}\\{p\\,|Q^S(p)|\\}=\\max_{j\\in U^S}\\{t^S_j\\,|Q^S(t^S_j)|\\}$ (compare at most $|U^S|$ local optima).\n- Optimal fee set $P^S=\\arg\\max_{p>0}\\{p\\,|Q^S(p)|\\}\\subseteq\\{t^S_j: j\\in U^S\\}$, nonempty, not necessarily a singleton.\n- In the proof of Proposition 1 also $Q^N(p)=\\{j\\in U: r_j\\sum_{i\\in N}V_{ij}\\ge p\\}$.\n\nStreaming platform game (p. 3): $(N,v^\\theta)$ with $v^\\theta(N)=p^N\\cdot|U|$ and $v^\\theta(S)=\\max_{p>0}\\{p\\,|Q^S(p)|\\}$ for $S\\subset N$. Asymmetry worth noting (reader's remark, implied by the definition): the grand coalition's value is the revenue of the existing all-users fee, not the re-optimized revenue $\\max_p p|Q^N(p)|$; the proof of Proposition 1 uses that the latter is at least $p^N|U|$.\n\nCore (Section 4.1, p. 4): $C(N,v^\\theta)=\\{x\\in\\mathbb{R}^N_{\\ge 0}: \\sum_{i\\in N}x_i=v^\\theta(N),\\ \\sum_{i\\in S}x_i\\ge v^\\theta(S)\\ \\forall\\ \\emptyset\\ne S\\subset N\\}$ (allocations are required to be nonnegative). The platform is stable iff the core is nonempty.\n\nMarket types (Section 4.2):\n- Disjoint market segments with distinct premium fees (p. 4): there is a nonempty $S\\subset N$ with (i) $U^S\\cap U^{N\\setminus S}=\\emptyset$ and (ii) $P^S\\cap P^{N\\setminus S}=\\emptyset$.\n- Inclusive market (p. 5): for each nonempty $S\\subset N$ there is $p^S\\in P^S$ with $Q^S(p^S)=U$.\n- Semi-inclusive market (p. 5): for each $i\\in N$ there is $p^{\\{i\\}}\\in P^{\\{i\\}}$ with $Q^{\\{i\\}}(p^{\\{i\\}})=U$.\n- Homogeneous market (p. 6): $p^N=r_j\\sum_{i\\in N}V_{ij}$ for all $j\\in U$ (all users willing to pay the same to stay; with equal reservation prices, equal total streams per user).\n\nImplicit assumptions: static single-period model, single posted fee per platform, users subscribe whenever willingness to pay is at least the fee, every coalition can start a platform, no operating costs (Section 6 discusses relaxing the last two).",
+  "results": [
+   {
+    "label": "Example 1 (with continuations)",
+    "page": "3-4, 6",
+    "statement": "N={i1,i2,i3}, U={j1,j2,j3}, V rows i1:(2,2,0), i2:(4,0,4), i3:(6,4,0), r=(1,2,3). Each user is willing to pay 12 to stay, so p^N=12 and v(N)=36 (p. 3). For S={i1,i2}, U^S=U, t^S=(6,4,12), revenue 12 at each of p=4,6,12, so P^S={4,6,12} (optimal fee not unique, p. 3). Game (p. 4): v({i1})=4, v({i2})=12, v({i3})=12, v({i1,i2})=12, v({i1,i3})=16, v({i2,i3})=24, v(N)=36. x=(6,16,14) is in the core, so the platform is stable (p. 4). On p. 6 it is noted that this market is homogeneous, consistent with Proposition 4.",
+    "meaning": "A stable platform exists; optimal standalone fees can be non-unique; this platform is homogeneous but not inclusive.",
+    "proof_idea": "Direct computation; core membership checked constraint by constraint (6>=4, 16>=12, 14>=12, 22>=12, 20>=16, 30>=24)."
+   },
+   {
+    "label": "Example 2",
+    "page": "4",
+    "statement": "N={i1,i2}, U={j1,j2}, V rows i1:(3,0), i2:(0,2), r=(1,1). p^N=min{3,2}=2, v(N)=4; i1 would charge 3 on its own platform, v({i1})=3; i2 would charge 2, v({i2})=2. A core allocation would need x_{i1}+x_{i2}=4 with x_{i1}>=3 and x_{i2}>=2, impossible, so C(N,v)=empty and the platform is unstable.",
+    "meaning": "Unstable streaming platforms exist; the single fee that keeps every user is too low compared with what each creator can charge its own niche audience.",
+    "proof_idea": "Direct computation; v({i1})+v({i2})=5>4=v(N)."
+   },
+   {
+    "label": "Proposition 1",
+    "page": "4 (proof continues on 5)",
+    "statement": "All streaming platforms operating in disjoint market segments with distinct premium fees are unstable. (Definition: there is a nonempty S subset of N with (i) U^S intersect U^{N\\S} empty and (ii) P^S intersect P^{N\\S} empty.)",
+    "meaning": "If the creators can be split into two groups whose audiences do not overlap and whose standalone optimal fees differ, then no revenue division can keep both groups on board.",
+    "proof_idea": "Show {U^S, U^{N\\S}} partitions U (every user streams someone, segments are disjoint) and that, for every p, {Q^S(p), Q^{N\\S}(p)} partitions Q^N(p). Then v(S)+v(N\\S) = max_p p|Q^S(p)| + max_p p|Q^{N\\S}(p)| > max_p {p|Q^S(p)| + p|Q^{N\\S}(p)|} (strict by condition (ii): no common maximizer) = max_p p|Q^N(p)| >= p^N|U| = v(N), since Q^N(p^N)=U. Hence the two complementary coalition constraints cannot both hold under efficiency, so the core is empty."
+   },
+   {
+    "label": "Proposition 2",
+    "page": "5",
+    "statement": "All streaming platforms operating in an inclusive market are stable. (Inclusive: for each nonempty S subset of N there exists p^S in P^S such that Q^S(p^S)=U.)",
+    "meaning": "If every group of creators, on its own platform, would optimally price so that all users still subscribe, then the platform can always be stabilized.",
+    "proof_idea": "Constructive. Pick a user j* with r_{j*} sum_{i in N} V_{ij*} = p^N and set x_i = r_{j*} V_{ij*} |U| (x in R^N_{>=0}). Efficiency: sum x_i = p^N|U| = v(N). For S: since all users subscribe at p^S, p^S = min_j r_j sum_{i in S} V_ij, so x(S) = r_{j*} sum_{i in S} V_{ij*} |U| >= min_j {r_j sum_{i in S} V_ij} |U| = p^S|U| = v(S)."
+   },
+   {
+    "label": "Example 3",
+    "page": "5",
+    "statement": "N={i1,i2,i3}, U={j1,j2}, V rows i1:(3,2), i2:(3,5), i3:(5,3), r=(1,1). p^N=min{11,10}=10, v(N)=20. Optimal fee sets: P^{i1}={2}, P^{i2}={3}, P^{i3}={3}, P^{i1,i2}={6}, P^{i1,i3}={5}, P^{i2,i3}={8}, P^N={10}; every coalition prices so that all users subscribe, so the market is inclusive. Game: v=4, 6, 6, 12, 10, 16, 20 for {i1},{i2},{i3},{i1,i2},{i1,i3},{i2,i3},N. (4,10,6) is in the core.",
+    "meaning": "Illustrates an inclusive (hence stable) market; it is not homogeneous (users willing to pay 11 and 10), as stated on p. 6.",
+    "proof_idea": "Direct computation. Reader's check (not stated in the paper): (4,10,6) is exactly the Proposition 2 allocation with j*=j2, x_i = 1 x V_{i j2} x 2."
+   },
+   {
+    "label": "Proposition 3",
+    "page": "5",
+    "statement": "All streaming platforms with two users operating in a semi-inclusive market are stable. (Semi-inclusive: for each i in N there exists p^{i} in P^{i} such that Q^{i}(p^{i})=U.)",
+    "meaning": "With only two (types of) users it suffices to check individual creators: if each creator alone would price to keep both users, the market is inclusive and hence stable.",
+    "proof_idea": "For each i, keeping both users means p^{i} = min_j r_j V_ij and optimality gives min_j{r_j V_ij}*2 >= max_j{r_j V_ij}*|Q^{i}(max_j r_j V_ij)| >= max_j{r_j V_ij}*1. For any S: min_j{r_j sum_{i in S} V_ij}*2 >= sum_{i in S} min_j{r_j V_ij}*2 >= sum_{i in S} max_j{r_j V_ij}*1 >= max_j{r_j sum_{i in S} V_ij}*1. Hence (the paper concludes) there is an optimal fee at which all users subscribe to the platform of S, i.e., the market is inclusive, and Proposition 2 applies. (Reader's gloss: with two users the only candidate fees are the smaller willingness to pay, where both subscribe, and the larger one, where one subscribes.)"
+   },
+   {
+    "label": "Example 4",
+    "page": "5-6",
+    "statement": "N={i1,i2,i3}, U={j1,j2,j3}, V rows i1:(1,2,1), i2:(4,5,6), i3:(12,18,20), r=(1,1,1). p^N=min{17,25,27}=17, v(N)=51. Each individual creator optimally keeps all users (semi-inclusive). P^S: {1},{4},{12,18},{5},{20},{16},{17} for {i1},{i2},{i3},{i1,i2},{i1,i3},{i2,i3},N. Game: v=3, 12, 36, 15, 40, 48, 51. Since v({i2})+v({i1,i3})=52>51, C(N,v) is empty: semi-inclusive but unstable.",
+    "meaning": "Proposition 3 does not extend to more than two (types of) users: semi-inclusiveness is not sufficient in general. Reader's reading: coalition {i1,i3} prefers a fee (20) that drops user j1.",
+    "proof_idea": "Direct computation and the partition {i2},{i1,i3}."
+   },
+   {
+    "label": "Proposition 4",
+    "page": "6",
+    "statement": "All streaming platforms operating in a homogeneous market are stable. (Homogeneous: p^N = r_j sum_{i in N} V_ij for all j in U.)",
+    "meaning": "If all users are willing to pay exactly the same amount to stay on the full platform, the platform can always be stabilized.",
+    "proof_idea": "Constructive. x_i = sum_{j in U} r_j V_ij (stated as x in R^N_{>0}). Efficiency: sum_i x_i = sum_j r_j sum_i V_ij = sum_j p^N = p^N|U| = v(N). For S: x(S) = sum_{j in U^S} t^S_j >= max_{j in U^S} {t^S_j |Q^S(t^S_j)|} = v(S), because a new platform can never earn more than charging every user the maximum it would be willing to pay."
+   },
+   {
+    "label": "Remark (unnumbered, after Example 1 continued)",
+    "page": "6",
+    "statement": "Homogeneous markets are not necessarily inclusive, and inclusive markets are not necessarily homogeneous: Example 1 is homogeneous but not inclusive, Example 3 is inclusive but not homogeneous. Platforms in both kinds of market exist, including those where all users have equal reservation prices and equal numbers of streams for each content creator.",
+    "meaning": "Propositions 2 and 4 are genuinely different sufficient conditions.",
+    "proof_idea": "Examples 1 and 3."
+   },
+   {
+    "label": "Example 5",
+    "page": "6",
+    "statement": "N={i1,i2}, U={j1,j2}, V rows i1:(3,0), i2:(1,2), r=(1,1). Both creators have the same added value, sum_j r_j V_{i1 j} = 3 = sum_j r_j V_{i2 j}. Game: v({i1})=3, v({i2})=2, v(N)=4; since 3+2>4 the core is empty and the platform is unstable.",
+    "meaning": "Similarity of content creators (equal value added) does not guarantee stability; the paper's sufficient conditions are about similarity of users.",
+    "proof_idea": "Direct computation."
+   },
+   {
+    "label": "Numerical observation, Fig. 1 (Section 5.1)",
+    "page": "6-7",
+    "statement": "For V^alpha = (1-alpha)V + alpha V' with V rows (300,200),(300,200) (inclusive, stable) and V' rows (600,0),(0,400) (disjoint segments with distinct fees, unstable), r=(1,1), alpha in {0,0.05,...,1}: p^N=400 and v(N)=800 for all alpha. Stability is not monotonic in alpha: stable for alpha in {0,0.05,0.1}, unstable for {0.15,...,0.3}, stable for {0.35,...,0.6}, unstable for {0.65,...,1}.",
+    "meaning": "Between inclusive markets and disjoint segments, stability depends on the specific streaming matrix and can switch several times.",
+    "proof_idea": "Two-player core test v({i1})+v({i2}) <= 800, with the switches explained by which users each creator's optimal standalone fee targets (numbers in numerical_study)."
+   },
+   {
+    "label": "Numerical observation, Fig. 2 (Section 5.2)",
+    "page": "7-8",
+    "statement": "Keeping user j2's total streams at 400 and setting user j1's total streams to beta in {400,440,...,840} (V^{alpha,beta} rows (beta(1+alpha)/2, 200-200alpha), (beta(1-alpha)/2, 200+200alpha), so V^{alpha,600}=V^alpha), stability is not necessarily monotonic in alpha but is monotonic in beta; beta=400 is a homogeneous market and hence stable, and platforms switch once from stable to unstable as homogeneous markets are gradually turned into heterogeneous ones.",
+    "meaning": "Moving away from homogeneity destroys stability monotonically in this family.",
+    "proof_idea": "Grid evaluation of the two-player core condition; monotonicity in beta is observed, not proved."
+   },
+   {
+    "label": "Remark on costs (Section 6, unnumbered)",
+    "page": "8",
+    "statement": "Costs can be included by subtracting from each coalition's revenue all costs of running its own platform. Stability is preserved if the platform in the original game is stable and the costs are concave, i.e., the additional costs when a content creator joins a coalition are decreasing in the size of the coalition.",
+    "meaning": "Economies of scale in platform costs can only help stability.",
+    "proof_idea": "No proof given in the paper (stated as a remark)."
+   }
+  ],
+  "methods_and_tools": [
+   "Cooperative game with transferable revenue whose characteristic function comes from an optimization problem: each coalition's revenue-maximizing single posted price (premium fee) against step demand",
+   "Core: efficiency plus coalitional rationality, with nonnegative allocations; stability defined as core nonemptiness",
+   "Constructive core allocations built from the primal characteristics of the situation (technique (i) in the paper's list on p. 2)",
+   "Counterexamples and a complementary-coalition argument v(S)+v(N\\S) > v(N) to prove core emptiness",
+   "Partition arguments on user sets (U^S, U^{N\\S}) and subscriber sets Q^S(p)",
+   "Inequalities on min and max of sums (sum of minima <= minimum of sum, maximum of sum <= sum of maxima) for the two-user case",
+   "Upper bound of single-price revenue by total willingness to pay (reader's label: the perfect price discrimination bound)",
+   "Parametric numerical experiments: convex combinations of streaming matrices (alpha grid) and a two-dimensional (alpha, beta) grid",
+   "Methodological template: sufficient conditions for core (non)emptiness plus numerical study for uncovered cases, following e.g. [11] Giudici, Lu, Thielen, Zuidwijk (2021)",
+   "Mentioned in the literature review (p. 2) but not used: convexity of the game (sufficient for core nonemptiness), reformulating the game into another game with a nonempty core, and balancedness (necessary and sufficient; the paper does not name the Bondareva-Shapley theorem)"
+  ],
+  "allocation_rules": "The paper does not propose or axiomatize a general allocation rule. It uses the core as the stability criterion (p. 4: a convex polytope, so it has zero, one or infinitely many elements) and builds two explicit core allocations inside the proofs:\n(a) Inclusive markets (Proposition 2, p. 5): choose a user j* with r_{j*} sum_i V_{ij*} = p^N and give x_i = r_{j*} V_{ij*} |U|, i.e., creator i receives its share of that user's willingness to pay, multiplied by the number of users. In Example 3 this gives (4,10,6) (reader's check), the allocation the paper shows to be in the core.\n(b) Homogeneous markets (Proposition 4, p. 6): x_i = sum_{j in U} r_j V_ij, i.e., each creator receives the total willingness to pay generated by its own streams. In Example 1 this is (6,16,14), the allocation verified to be in the core on p. 4.\nRules discussed from the literature (p. 2, ref [6] Alaei, Makhdoumi, Malekian, Pekec 2022): the pro-rata rule pays creators proportionally to their share of the overall streaming volume; the user-centric rule divides each user's subscription fee proportionally among the creators based on that user's streaming behaviour; [6] shows pro-rata is preferable if the platform wants to maximize revenue, taking into account that creators and users can join or leave based on individual considerations (creators leave if their individual share is below an outside option value). The present paper adds collective (group) deviations. It does not test whether pro-rata or user-centric allocations lie in the core, and it does not compute the Shapley value, nucleolus or other single-valued solutions.\nReader's notes (not stated in the paper): in a homogeneous market p^N / sum_k V_kj = r_j, so allocation (b) coincides with the user-centric rule; if additionally all reservation prices are equal it also coincides with pro-rata. Allocation (a) equals applying the user-centric split of user j* to all |U| fees. In Example 1 (homogeneous, unequal reservation prices) pro-rata gives (72/11, 144/11, 180/11) = (6.55, 13.09, 16.36), which is also in the core. With two creators and nonnegative values, the core is nonempty iff v({i1}) + v({i2}) <= v(N), which is the test used throughout Section 5.",
+  "numerical_study": "Section 5 (p. 6-8). Parameters are not selected to represent reality but to keep calculations simple. All instances: N={i1,i2}, U={j1,j2}, r=(1,1).\n5.1 (Fig. 1, p. 7): V rows (300,200),(300,200) is inclusive (stable); V' rows (600,0),(0,400) is disjoint segments with distinct premium fees (unstable). For alpha in {0,0.05,...,0.95,1}, V^alpha rows (300+300alpha, 200-200alpha), (300-300alpha, 200+200alpha). p^N=400 and v(N)=800 for all alpha (user totals stay 600 and 400). Fig. 1: stable for alpha in {0,0.05,0.1}; unstable for {0.15,0.2,0.25,0.3}; stable for {0.35,...,0.6}; unstable for {0.65,...,1}. Three transitions explained in the text:\n- 0.1 to 0.15 (stable to unstable): for alpha in {0,0.05,0.1} both creators keep both users, so the market is (semi-)inclusive and stable. At 0.15, i1 prefers fee 345 with only j1 (345 x 1 > 340 = 170 x 2); v({i1})+v({i2}) = 345 + 230 x 2 = 805 > 800. For alpha in {0.15,...,0.3} i2 still keeps both users, but from alpha=0.2 its fee is determined by j1 instead of j2 (alpha=0.15: 230 set by j2; alpha=0.2: 240 set by both; alpha=0.25: 225 set by j1).\n- 0.3 to 0.35 (unstable to stable): 390 + 210 x 2 = 810 > 800 at 0.3; 405 + 195 x 2 = 795 < 800 at 0.35; the sum keeps decreasing for alpha in {0.4,0.45,0.5}. At 0.45 i2 charges 165 (both subscribe); at 0.5 both 150 and 300 are optimal for i2 (revenue 300); from 0.55 i2 charges 310 and only j2 subscribes; from 0.55 onwards the sum increases.\n- 0.6 to 0.65 (stable to unstable): 480 + 320 = 800 at 0.6 (stable, boundary); 495 + 330 = 825 > 800 at 0.65; unstable thereafter.\nReader's recomputation of v({i1}), v({i2}), sum by alpha (agrees with every number quoted in the paper and with Fig. 1): 0: 400,400,800; 0.05: 380,420,800; 0.1: 360,440,800; 0.15: 345,460,805; 0.2: 360,480,840; 0.25: 375,450,825; 0.3: 390,420,810; 0.35: 405,390,795; 0.4: 420,360,780; 0.45: 435,330,765; 0.5: 450,300,750; 0.55: 465,310,775; 0.6: 480,320,800; 0.65: 495,330,825; 0.7: 510,340,850; 0.75: 525,350,875; 0.8: 540,360,900; 0.85: 555,370,925; 0.9: 570,380,950; 0.95: 585,390,975; 1: 600,400,1000.\nText typo (p. 7): \"For alpha = 0.3, the fee equals r_{j1} V^{0.25}_{i2 j1} = 225\" should read alpha = 0.25 (225 is the entry of V^{0.25}; for alpha = 0.3 the entry is 210).\n5.2 (Fig. 2, p. 8): the total streams of user j2 stay 400; beta = total streams of j1 in {400,440,...,800,840}, alpha in {0,0.05,...,1} (21 x 12 grid); V^{alpha,beta} rows (beta(1+alpha)/2, 200-200alpha), (beta(1-alpha)/2, 200+200alpha); V^{alpha,600} = V^alpha, so the beta=600 row is Fig. 1. Findings: not necessarily monotonic in alpha, monotonic in beta; beta=400 is homogeneous and therefore stable for all alpha. Reader's recomputation of the largest stable beta per alpha (matches Fig. 2 as printed, and in every column stability is monotone in beta): alpha 0: 800; 0.05: 720; 0.1: 640; 0.15 to 0.3: 560; 0.35 to 0.45: 600; 0.5: 640; 0.55 and 0.6: 600; 0.65: 560; 0.7: 520; 0.75 and 0.8: 480; 0.85 and 0.9: 440; 0.95 and 1: 400.\nSummary stated on p. 8: (i) platforms may switch multiple times between stable and unstable when inclusive markets are gradually turned into disjoint market segments; (ii) they switch once from stable to unstable when homogeneous markets are gradually turned into heterogeneous ones; stability is a delicate matter.",
+  "worked_example": "Example 1 (p. 3-4, 6), fully recomputable.\nData: creators i1,i2,i3; users j1,j2,j3; V (rows = creators, columns = users): i1 = (2,2,0), i2 = (4,0,4), i3 = (6,4,0); reservation prices per stream r = (1,2,3).\nStep 1, existing platform: willingness to stay j1 = 1 x (2+4+6) = 12, j2 = 2 x (2+0+4) = 12, j3 = 3 x (0+4+0) = 12. p^N = 12, v(N) = 12 x 3 = 36.\nStep 2, each coalition S: t^S_j = r_j x (streams of S by j), keep users with t>0, try each t as fee, revenue = fee x number of users with t >= fee.\n{i1}: t=(2,4,0): fee 2 -> 4, fee 4 -> 4; v=4, P={2,4}.\n{i2}: t=(4,0,12): fee 4 -> 8, fee 12 -> 12; v=12, P={12}.\n{i3}: t=(6,8,0): fee 6 -> 12, fee 8 -> 8; v=12, P={6}.\n{i1,i2}: t=(6,4,12): fee 4 -> 12, 6 -> 12, 12 -> 12; v=12, P={4,6,12} (paper's revenue curve: p x 3 for p up to 4, p x 2 on (4,6], p x 1 on (6,12], 0 above 12).\n{i1,i3}: t=(8,12,0): 8 -> 16, 12 -> 12; v=16, P={8}.\n{i2,i3}: t=(10,8,12): 8 -> 24, 10 -> 20, 12 -> 12; v=24, P={8}.\nStep 3, core test: x=(6,16,14) sums to 36 and satisfies 6>=4, 16>=12, 14>=12, 22>=12, 20>=16, 30>=24, so stable. The market is homogeneous (all users willing to pay 12), and the Proposition 4 allocation x_i = sum_j r_j V_ij gives exactly (1x2+2x2+3x0, 1x4+2x0+3x4, 1x6+2x4+3x0) = (6,16,14). It is not inclusive: j3 does not stream i1, so {i1} cannot keep all users (it is not even semi-inclusive). Other core points exist, e.g. (12,12,12).\nMinimal unstable instance (Example 2, p. 4): V rows (3,0),(0,2), r=(1,1): p^N=2, v(N)=4, v({i1})=3, v({i2})=2, 3+2>4, empty core.\nSlider instance for a widget (Section 5.1): V^alpha rows (300+300a, 200-200a), (300-300a, 200+200a), r=(1,1), v(N)=800; stable iff v({i1})+v({i2}) <= 800 where for each creator v = max(2 x min(t1,t2), max(t1,t2)) when both t>0 (and the single positive t otherwise, e.g. a=1 gives 600 and 400). Expected: stable at a=0.1 (360+440=800), unstable at 0.15 (345+460=805), stable at 0.35 (405+390=795), stable at 0.6 (480+320=800), unstable at 0.65 (495+330=825). Adding beta (total streams of j1, j2 fixed at 400) replaces the first column by beta(1+a)/2 and beta(1-a)/2. A general widget for 3 creators can check the core with a small LP feasibility problem (constraints x(S) >= v(S), x(N)=v(N), x>=0); Example 4 (expected empty core: 12+40 > 51) and Example 3 (expected core point (4,10,6)) are good test cases.",
+  "insights": [
+   "The paper's sufficient conditions for stability (inclusive, two-user semi-inclusive and homogeneous markets) all describe similarities of users' streaming behaviour, and completely opposite behaviour (disjoint segments with distinct fees) is sufficient for instability (p. 5-6, p. 8). Similarity of creators is not enough: Example 5 shows creators with identical value added can still make the platform unstable.",
+   "The threat is group exit: unlike ref [6], where a creator leaves if its individual share is below an outside option value, here creators may also leave collectively and start their own platform; the authors claim to be the first to incorporate this group behaviour and show it can make platforms unstable (p. 2).",
+   "Reader's interpretation (not stated in the paper): the mechanism of instability is a pricing asymmetry. The grand coalition's value is fixed by the single fee that keeps every user (p^N = minimum willingness to pay), while each breakaway coalition re-optimizes its fee and may drop low-value users. A niche group can therefore extract more from its own audience than the bundle's uniform fee can (Example 2: 3 + 2 > 4).",
+   "The condition that P^S and P^{N\\S} are disjoint in Proposition 1 matters: the strict inequality in the proof comes from the two segments having no common optimal fee. Reader's note (not in the paper): with disjoint segments but a common optimal fee, e.g. V rows (2,0),(0,2), r=(1,1), v=(2,2,4), the platform is stable (that instance is homogeneous, so Proposition 4 applies).",
+   "Reader's note (not stated in the paper): Example 2 shows the game need not be superadditive, so it is not convex in general, and since the core can be empty it is not balanced in general; the paper itself says (p. 2) that when core nonemptiness cannot always be proved it is common to give sufficient conditions plus numerics, and it follows that approach.",
+   "Stability is not monotone along the path from an inclusive market to disjoint segments (Fig. 1 switches three times), but it is monotone in the heterogeneity parameter beta (Fig. 2, observed, not proved); the text explains the switches by changes in which users each creator's optimal standalone fee targets.",
+   "The constructive core allocations are simple and interpretable: Proposition 2 splits revenue by the streams of a user whose willingness to pay equals p^N; Proposition 4 pays each creator the willingness to pay its streams generate. Reader's note: the latter equals the user-centric rule in homogeneous markets (and pro-rata too when reservation prices are equal).",
+   "Reader's interpretation: the paper follows a template common in cooperative OM applications, which it describes on p. 2: define a game from an operational decision problem, prove core nonemptiness constructively under structural conditions, give counterexamples showing the conditions cannot be dropped (Example 4 for semi-inclusive with three users), and map the uncovered region numerically.",
+   "The existing platform is a bundle sold at one uniform price, and the authors state that the analysis carries over to other service bundling formats with similar characteristics (museum passepartouts, movie and series platforms, digital libraries; p. 8)."
+  ],
+  "limitations_future_work": "Stated by the authors in Section 6 (p. 8):\n1. Core as stability notion: it assumes every group of creators can start its own platform. If that is hard or impossible for some groups, their coalitional rationality constraints could be excluded from the core, or their maximum total revenue could be set to zero in the game.\n2. Only revenues are considered, not costs. Costs can be included by subtracting each coalition's cost of running its own platform; stability is preserved if the original platform is stable and costs are concave (additional cost of adding a creator decreasing in coalition size). This is stated without proof.\n3. One reservation price per user. If willingness to pay per stream depends on the creator, replace the vector r by a user-by-creator matrix (also footnote 2, p. 3).\n4. Generalization: the same analysis applies to other service bundles (museum passepartouts, movie and series platforms, digital libraries).\nAlso in the model section, footnote 3 (p. 3): one could restrict to situations where it is optimal to charge a fee such that all users stay on the platform.\nReader's observations (not stated in the paper): the results are sufficient conditions only, with no full characterization of core nonemptiness and no complexity results for checking it; the numerical study uses only 2 creators and 2 users with hand-picked parameters and no real data (\"No data was used\"); the model is static, with no explicit competition among platforms, user switching, free tiers or advertising; the full platform does not re-optimize its fee while sub-coalitions do; no single-valued rule (Shapley value, nucleolus) or comparison with pro-rata and user-centric payments in the core is studied; the monotonicity in beta seen in Fig. 2 is not proved.",
+  "connections": "Builds on and positions itself against the new OM literature on music streaming platforms (Section 2.1, p. 2): [3] Li, Luo, Qiu, Bandyopadhyay 2020 (Prod Oper Manage; free vs subscribed services depending on the advertisement rate), [4] Amaldoss, Du, Shin 2021 (Marketing Science; competing platforms, never optimal to offer only subscribed services), [5] DeValve and Pekec 2022 (Operations Research; menus of price/advertising levels), and the most recent [6] Alaei, Makhdoumi, Malekian, Pekec 2022 (Management Science; pro-rata vs user-centric revenue sharing with individual outside options). Those papers optimize platform performance; this one evaluates stability of an existing platform and adds collective (group) deviations.\nCooperative game theory applications cited (Section 2.2): (public) transport [7]-[11] (Kimms and Cetiner 2012 and Cetiner and Kimms 2013 on airline alliances, Algaba et al. 2019 multimodal public transport, van Zon, Spliet, van den Heuvel 2021 joint network vehicle routing game, Giudici, Lu, Thielen, Zuidwijk 2021 hinterland container transport), sports [12] Bergantinos and Moreno-Ternero 2020, health care [13], retail [14]-[16] (Ozen, Fransoo, Norde, Slikker 2008 newsvendors with warehouses; Chen and Zhang 2016 economic lot-sizing games; Nip, Wang, Wang 2022 assortment games under Markov chain choice), (high-tech) service industry [17]-[20] (Karsten, Slikker, van Houtum 2015 resource pooling; Lozano, Hinojosa, Marmol 2015 set-valued DEA production games; An, Wen, Ding, Li 2019 network DEA with the Shapley value; Schlicher et al. 2020), electricity market [21] Mitridati, Kazempour, Pinson 2021, humanitarian sector [22] Ergun et al. 2014, and the survey [23] Luo, Zhou, Lev 2022 on core, Shapley value, nucleolus and Nash bargaining in OM. The approach of giving sufficient conditions plus numerics for uncovered cases explicitly follows e.g. [11].\nOwn and co-author work cited: [13] Westerink-Duijzer, Schlicher, Musegaas 2020, \"Core allocations for cooperation problems in vaccination\" (Prod Oper Manage 29(7):1720-37), which shares two authors (Schlicher, Musegaas) and is one of the other papers in this study set; [20] Schlicher, Slikker, van Jaarsveld, van Houtum 2020, \"Core nonemptiness of stratified pooling games: a structured Markov decision process approach\" (Math Oper Res 45(4):1445-65). Reservation price estimation refers to marketing work [1] Jedidi, Jagpal, Manchanda 2003 and [2] Stauss and Gaul 2005.\nNot cited: Schlicher and Lurkin, \"Stable allocations for choice-based collaborative price setting\" (EJOR 302, 2022, available online 31 January 2022), another paper in this study set, which predates this one.\nPlace in the line of work (reader's interpretation, not stated in the paper): it continues the core-nonemptiness agenda of the vaccination paper, which also derives sufficient conditions for a nonempty core and complements them with numerical analyses, now in a revenue game for a platform and bundling setting. As in the earlier choice-based price setting paper, the coalition's subproblem is a pricing decision against heterogeneous users (here a revenue-maximizing posted fee under step demand rather than a multinomial logit choice model).",
+  "prerequisites": [
+   "Cooperative games with transferable utility: characteristic function, coalitions, superadditivity, convex games",
+   "The core: efficiency and coalitional rationality; core emptiness via a partition of players; for two players with nonnegative values the condition v(1)+v(2) <= v(N)",
+   "Balancedness and the Bondareva-Shapley theorem (balancedness is mentioned in the paper as the necessary and sufficient condition, not used)",
+   "Monopoly posted-price revenue maximization with heterogeneous valuations: step demand curves, candidate prices equal to valuations",
+   "Bundling and reservation prices (willingness to pay)",
+   "Revenue sharing rules for streaming: pro-rata vs user-centric",
+   "Basic linear programming to test core nonemptiness numerically for more than two players"
+  ],
+  "glossary": [
+   {
+    "term": "Streaming platform situation",
+    "definition": "Quadruple theta=(N,U,V,r): creators N, users U, streaming matrix V, reservation prices r."
+   },
+   {
+    "term": "Streaming matrix V",
+    "definition": "Nonnegative integer matrix with V_ij = number of streams of creator i by user j (per subscription period, as the introduction puts it); every row and column has a positive entry."
+   },
+   {
+    "term": "Reservation price r_j",
+    "definition": "Maximum amount user j is willing to pay per stream."
+   },
+   {
+    "term": "Premium fee p^N",
+    "definition": "Uniform fee charged by the existing platform: the largest fee at which all users stay, min_j r_j sum_i V_ij; total revenue p^N |U|."
+   },
+   {
+    "term": "U^S",
+    "definition": "Users who stream at least one creator of coalition S."
+   },
+   {
+    "term": "t^S_j",
+    "definition": "Maximum amount user j would pay to subscribe to S's own platform: r_j times j's streams of creators in S."
+   },
+   {
+    "term": "Q^S(p)",
+    "definition": "Users of U^S who subscribe to S's platform at fee p, i.e., with t^S_j >= p."
+   },
+   {
+    "term": "P^S",
+    "definition": "Set of revenue-maximizing premium fees of coalition S; a subset of {t^S_j}, possibly with several elements."
+   },
+   {
+    "term": "Streaming platform game (N, v^theta)",
+    "definition": "v(N) = p^N |U|; for strict coalitions v(S) = max_p p |Q^S(p)|, the maximum total revenue S would obtain from its own platform."
+   },
+   {
+    "term": "Core C(N, v^theta)",
+    "definition": "Nonnegative allocations that divide v(N) exactly and give every nonempty strict coalition at least v(S)."
+   },
+   {
+    "term": "Stable / unstable platform",
+    "definition": "Stable if the core of the associated game is nonempty, unstable otherwise."
+   },
+   {
+    "term": "Disjoint market segments with distinct premium fees",
+    "definition": "Some split S, N\\S has no common users and no common optimal fee; implies instability (Proposition 1)."
+   },
+   {
+    "term": "Inclusive market",
+    "definition": "Every nonempty strict coalition has an optimal fee at which all users subscribe; implies stability (Proposition 2)."
+   },
+   {
+    "term": "Semi-inclusive market",
+    "definition": "Every individual creator has an optimal fee at which all users subscribe; implies stability with two users (Proposition 3) but not in general (Example 4)."
+   },
+   {
+    "term": "Homogeneous market",
+    "definition": "Every user's willingness to pay to stay on the full platform equals p^N; implies stability (Proposition 4)."
+   },
+   {
+    "term": "Pro-rata rule",
+    "definition": "Pays creators in proportion to their share of the overall streaming volume (from ref [6])."
+   },
+   {
+    "term": "User-centric rule",
+    "definition": "Divides each user's subscription fee among creators in proportion to that user's streams (from ref [6])."
+   },
+   {
+    "term": "Added value of a creator (Example 5)",
+    "definition": "sum_j r_j V_ij, the total amount of money users would be willing to pay for that creator's streams."
+   }
+  ],
+  "study_questions": [
+   "Why does the paper define v(N) as p^N |U| rather than max_p p|Q^N(p)|, and where exactly does the proof of Proposition 1 use the inequality max_p p|Q^N(p)| >= p^N |U|?",
+   "Show that the revenue maximization of a coalition only needs to compare at most |U^S| candidate fees and that P^S is a subset of {t^S_j}.",
+   "Recompute the full game of Example 1 and verify that (6,16,14) is in the core; is the market inclusive? Why not?",
+   "In Proposition 1, which step uses condition (ii) on distinct premium fees? Build a disjoint-segments example with a common optimal fee and check whether it is stable.",
+   "Write the allocation used in the proof of Proposition 2 and interpret it in terms of the user j* whose willingness to pay equals p^N. Verify it gives (4,10,6) in Example 3.",
+   "Reproduce the chain of inequalities in the proof of Proposition 3. Which property of two-user markets is essential, and how does Example 4 break the result with three users?",
+   "Prove Proposition 4 and explain the economic bound x(S) = sum_{j in U^S} t^S_j >= v(S). Show that in a homogeneous market this allocation equals the user-centric payment.",
+   "Example 5 has creators with identical added value but an empty core. What does this say about whether stability conditions should be about creators or users?",
+   "For the two-creator family V^alpha, derive v({i1}) and v({i2}) as functions of alpha and explain the three transitions in Fig. 1 (alpha = 0.15, 0.35, 0.65).",
+   "Why is the beta = 400 row of Fig. 2 stable for every alpha? Can you argue why stability is monotone in beta in this family (the paper only observes it)?",
+   "How would you modify the game if some coalitions cannot form a platform, or if running a platform has costs? Why do concave costs preserve stability?",
+   "Is the streaming platform game superadditive or convex in general? Use the examples to answer, and explain why the authors rely on sufficient conditions rather than proving balancedness.",
+   "How would a creator-specific reservation price matrix change t^S_j and the four market definitions?"
+  ]
+ },
+ "verification": {
+  "changes": [
+   "Methods: the notes listed 'balancedness (Bondareva-Shapley)' as mentioned in the literature review. The paper (p. 2) names balancedness as a necessary and sufficient condition but never names the Bondareva-Shapley theorem. Reworded, and the four techniques of p. 2 are now listed as the paper words them. Prerequisites now say balancedness is mentioned but not used.",
+   "Connections: the claim that this paper's pricing subproblem 'anticipates choice- and price-based collaboration settings' had the order wrong. Schlicher and Lurkin, 'Stable allocations for choice-based collaborative price setting' (EJOR 302, 2022), was available online on 31 January 2022, nearly two years before this paper (online 19 December 2023). It is also not among this paper's 23 references. Rewritten as a labelled reader's interpretation: this paper comes after that one and is not linked to it by citation.",
+   "Connections: the 'place in the line of work' paragraph is now marked as reader's interpretation. The unverified description of [20] as writing core allocations from primal data was removed. The comparison with the vaccination paper was checked against its abstract (sufficient conditions for a nonempty core plus numerical analyses).",
+   "Connections: added full bibliographic details for [13] (Prod Oper Manage 29(7):1720-37) and [20] (Math Oper Res 45(4):1445-65). Clarified that [6] is the 'most recent' streaming paper in the review, not the 'closest'. Added the paper's own section labels '(public) transport' and '(high-tech) service industry'.",
+   "Insights: 'stability depends on the similarity of users, not of creators' went further than the paper. The paper says only that its sufficient conditions describe user similarities and that creator similarity (Example 5) does not guarantee stability (p. 6, p. 8). Softened to match.",
+   "Insights: the 'pricing asymmetry' mechanism and the 'methodological template' were the reader's own reading but were presented as findings. Both are now labelled as reader's interpretation. The superadditivity/balancedness remark now cites what the paper actually says on p. 2.",
+   "Insights: added that the reader's disjoint-segments-with-common-fee instance (V rows (2,0),(0,2)) is homogeneous, so Proposition 4 already covers it. Checked in Python.",
+   "Limitations: the notes put footnote 3 (p. 3, model section) under 'Stated by the authors (Section 6, p. 8)'. It is now listed separately. Item 1 now quotes the paper's alternative of setting those coalitions' maximum total revenue to zero.",
+   "Proposition 3 proof idea: separated the paper's conclusion ('there exists an optimal premium fee such that all users subscribe', p. 5) from the reader's gloss about the two candidate fees.",
+   "Example 4 meaning: the remark that {i1,i3} prefers fee 20, which drops j1, is now labelled as the reader's reading. Checked: t=(13,20,21), revenue 40 at fee 20.",
+   "Fig. 2 statement and numerical study: added that user j2's total streams stay at 400 (p. 7), which is needed to define the beta family. Added that the recomputation shows stability is monotone in beta in every alpha column.",
+   "Numerical study, Section 5.1: the 0.2 to 0.25 detail now says 'alpha=0.25: 225 set by j1' instead of 'next value'. The typo note now gives the alpha=0.3 entry (210) to show why 0.3 is wrong.",
+   "Bibliography: the license field now matches the printed line (ISSN 0305-0483, CC BY URL). Added the emails printed for Dietzenbacher and Musegaas (p. 1, footer).",
+   "Allocation rules: added a reader's check computed in Python. In Example 1 the pro-rata allocation (72/11, 144/11, 180/11) is also in the core. Noted that the Proposition 2 allocation uses any user whose willingness to pay equals p^N, not necessarily a unique 'binding' user.",
+   "Worked example: added the optimal fee sets for every coalition of Example 1, including P^{i1} = {2,4} (also non-unique). Noted that the market is not even semi-inclusive and that (12,12,12) is another core point (LP check). Added the alpha = 0.6 boundary case to the expected slider values.",
+   "Confirmed unchanged, against the text and the 300 dpi renders of Fig. 1 and Fig. 2: every bibliographic date, the DOI, the keywords, all page numbers, Examples 1-5 (V, r, p^N, P^S tables, game tables, core points), Propositions 1-4 and their proofs, the cost remark, every alpha transition value in Section 5.1, the Fig. 1 pattern, the largest stable beta per alpha in Fig. 2, and the p. 7 typo (alpha = 0.3 written where 0.25 is meant)."
+  ],
+  "example_recomputed": true,
+  "example_check": "Script: /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2023-streaming-platforms/check.py. It uses exact fractions throughout, and a scipy linprog feasibility LP (x >= 0, x(N) = v(N), x(S) >= v(S)) to decide whether each core is empty. For every coalition it computes U^S, t^S, P^S (the argmax over candidate fees t^S_j) and v(S) from the model definitions. It also builds the grand coalition's value as p^N|U|.\n\nExample 1 matches the paper exactly:\n- p^N = 12 and v(N) = 36.\n- v = 4, 12, 12, 12, 16, 24, 36.\n- P^{i1,i2} = {4,6,12}, and P^{i1} = {2,4}.\n- (6,16,14) is in the core and equals the Proposition 4 allocation and the user-centric split.\n- The market is homogeneous but neither inclusive nor semi-inclusive.\n\nOther examples:\n- Example 2: v = 3, 2, 4, core empty.\n- Example 3: p^N = 10, v = 4, 6, 6, 12, 10, 16, 20, P^S as in the paper. The market is inclusive, and (4,10,6) is in the core and equals the Proposition 2 allocation with j* = j2.\n- Example 4: p^N = 17, v = 3, 12, 36, 15, 40, 48, 51, P^S as in the paper. The market is semi-inclusive and the core is empty.\n- Example 5: v = 3, 2, 4, core empty.\n- Reader's disjoint common-fee instance: stable.\n\nSection 5.1: all 21 alpha values reproduce the quoted values and Fig. 1's pattern (stable for 0 to 0.1 and 0.35 to 0.6, unstable otherwise). The slider formula max(2 min(t1,t2), max(t1,t2)) matches the game for every alpha.\n\nSection 5.2: the 21 x 12 grid reproduces the largest stable beta per alpha read from a 300 dpi render of Fig. 2 (800, 720, 640, 560 x4, 600 x3, 640, 600 x2, 560, 520, 480 x2, 440 x2, 400 x2). Every column is monotone in beta.\n\nThe worked example was consistent with the model and needed no correction. Only details were added (the P^S sets, the non-unique P^{i1}, a second core point, and the alpha = 0.6 boundary case)."
+ }
+}

@@ -112,7 +112,14 @@ window.CATALOG = {
     { id: "lab-svm-dual", type: "animation", href: "lab/dual-street.html" },
     { id: "lab-svm-kernel", type: "animation", href: "lab/kernel-trick.html" },
     { id: "lab-ml-ai-cases", type: "simulation", href: "lab/ml-ai-optimization.html" },
-    { id: "lab-fahp", type: "simulation", href: "lab/fuzzy-ahp.html" }
+    { id: "lab-fahp", type: "simulation", href: "lab/fuzzy-ahp.html" },
+    { id: "lab-gtb-table", type: "simulation", href: "lab/read-the-table.html" },
+    { id: "lab-gtb-mix", type: "game", href: "lab/be-unpredictable.html" },
+    { id: "lab-gtb-moves", type: "animation", href: "lab/move-by-move.html" },
+    { id: "lab-gtb-share", type: "simulation", href: "lab/share-the-savings.html" },
+    { id: "lab-braess", type: "animation", href: "lab/braess.html" },
+    { id: "lab-patrols", type: "game", href: "lab/rangers-move-first.html" },
+    { id: "lab-tolls", type: "game", href: "lab/pricing-the-road.html" }
   ],
   // true adds a "Lab" link to the home page's top menu; false keeps the lab reachable only by its door
   labInNav: false

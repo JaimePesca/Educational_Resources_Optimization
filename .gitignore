@@ -2,3 +2,5 @@
 materials/manuscripts/
 materials/cv/
 *.pdf
+# Full texts of the study papers (PDF and extracted text): local only, never in git
+materials/study/papers/

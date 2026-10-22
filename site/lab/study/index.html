@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en" data-i18n-langs="es en nl" data-title-key="sth.title" data-i18n-bundles="lab/study/common lab/study/hub">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1HT57WJW6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L1HT57WJW6');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Study: Game Theory in Operations</title>
+<!-- Speed (invisible): open the connections the page needs early -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- /Speed -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../../assets/site.css?v=__BUILD__">
+<link rel="stylesheet" href="../../assets/study.css?v=__BUILD__">
+<style>
+/* "How the line evolves": full width, two text columns when there is room (one column on phones) */
+.sth-evo { columns: 30em 2; column-gap: 28px; }
+.sth-evo p { max-width: none; margin: 0 0 10px; }
+.sth-evo p:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="backlink" href="../index.html" data-keep-lang><span aria-hidden="true">←</span> <span data-i18n="nav.lab"></span></a>
+    <div class="lang" data-lang-switcher></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" data-i18n="stu.eyebrow"></p>
+    <h1 data-i18n="sth.title"></h1>
+    <p class="lede" data-i18n="sth.lede"></p>
+    <p class="lede sth-how" data-i18n="sth.how"></p>
+  </header>
+
+  <div class="sth-lines" id="sth-lines" role="list" data-i18n-attr="aria-label:sth.lines.aria"></div>
+
+  <section class="st-sec" id="timeline" aria-labelledby="h-tl">
+    <h2 class="st-h" id="h-tl"><span class="st-h-text" data-i18n="sth.tl.title"></span></h2>
+    <div class="sth-tools">
+      <div class="sth-filter">
+        <span class="lbl" id="sth-filter-lbl" data-i18n="sth.filter.label"></span>
+        <div class="seg" id="sth-filter" role="group" aria-labelledby="sth-filter-lbl"></div>
+      </div>
+      <div class="sth-scrollbtns">
+        <button type="button" class="st-btn" id="sth-earlier" data-i18n="sth.earlier"></button>
+        <button type="button" class="st-btn" id="sth-later" data-i18n="sth.later"></button>
+      </div>
+    </div>
+    <div class="tl-frame">
+      <div class="tl-scroll" id="tl-scroll" tabindex="0" data-i18n-attr="aria-label:sth.tl.aria">
+        <div class="tl-grid" id="tl-grid"></div>
+      </div>
+      <div class="tl-fade r" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="sth-box" aria-labelledby="h-evo">
+    <h2 id="h-evo" data-i18n="sth.evolution.title"></h2>
+    <div class="sth-evo">
+      <p data-i18n-html="sth.evolution.p1"></p>
+      <p data-i18n-html="sth.evolution.p2"></p>
+      <p data-i18n-html="sth.evolution.p3"></p>
+      <p data-i18n-html="sth.evolution.p4"></p>
+      <p data-i18n-html="sth.evolution.p5"></p>
+    </div>
+  </section>
+
+  <div class="sth-cols">
+    <section class="sth-box" aria-labelledby="h-found">
+      <h2 id="h-found" data-i18n="sth.found.title"></h2>
+      <p data-i18n="sth.found.intro"></p>
+      <ul class="sth-found">
+        <li><a href="../read-the-table.html" data-keep-lang data-ga-event="resource_open" data-ga-location="study" data-ga-resource-id="lab-gtb-table" data-ga-level="lab"><b data-i18n="sth.found.1.t"></b><span data-i18n="sth.found.1.d"></span></a></li>
+        <li><a href="../be-unpredictable.html" data-keep-lang data-ga-event="resource_open" data-ga-location="study" data-ga-resource-id="lab-gtb-mix" data-ga-level="lab"><b data-i18n="sth.found.2.t"></b><span data-i18n="sth.found.2.d"></span></a></li>
+        <li><a href="../move-by-move.html" data-keep-lang data-ga-event="resource_open" data-ga-location="study" data-ga-resource-id="lab-gtb-moves" data-ga-level="lab"><b data-i18n="sth.found.3.t"></b><span data-i18n="sth.found.3.d"></span></a></li>
+        <li><a href="../share-the-savings.html" data-keep-lang data-ga-event="resource_open" data-ga-location="study" data-ga-resource-id="lab-gtb-share" data-ga-level="lab"><b data-i18n="sth.found.4.t"></b><span data-i18n="sth.found.4.d"></span></a></li>
+      </ul>
+    </section>
+    <section class="sth-box sth-notyet" aria-labelledby="h-notyet">
+      <h2 id="h-notyet" data-i18n="sth.notyet.title"></h2>
+      <p data-i18n="sth.notyet.p"></p>
+      <ul lang="en">
+        <li data-i18n-html="sth.notyet.1"></li>
+        <li data-i18n-html="sth.notyet.2"></li>
+        <li data-i18n-html="sth.notyet.3"></li>
+        <li data-i18n-html="sth.notyet.4"></li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script src="../../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/site.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/common.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../locales/lab/study/hub.en.js?v=__BUILD__" charset="utf-8"></script>
+<script src="papers.js?v=__BUILD__" charset="utf-8"></script>
+<script src="../../assets/study.js?v=__BUILD__" charset="utf-8"></script>
+<script>
+(function () {
+  "use strict";
+  var t = I18N.t, S = window.Study;
+  var LINES = S.lines, filter = "all";
+  var grid = document.getElementById("tl-grid"), scroller = document.getElementById("tl-scroll");
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function count(n) { return n === 1 ? t("sth.count.one") : t("sth.count.many", { n: n }); }
+
+  // the three lines, with their number of papers (also the legend of the timeline colours)
+  function renderLines() {
+    var host = document.getElementById("sth-lines"); host.textContent = "";
+    LINES.forEach(function (line) {
+      var n = S.papers.filter(function (p) { return p.line === line; }).length;
+      var box = el("div", "sth-line line-" + line); box.setAttribute("role", "listitem");
+      var h = el("h3"); h.append(el("span", null, S.lineName(line)), el("span", "n", count(n)));
+      box.append(h, el("p", null, t("stu.line." + line + ".desc")));
+      host.appendChild(box);
+    });
+  }
+
+  function renderFilter() {
+    var host = document.getElementById("sth-filter"); host.textContent = "";
+    ["all"].concat(LINES).forEach(function (f) {
+      var b = el("button", f === "all" ? null : "line-" + f); b.type = "button";
+      if (f !== "all") b.appendChild(el("i"));
+      b.appendChild(document.createTextNode(f === "all" ? t("sth.filter.all") : S.lineName(f)));
+      b.setAttribute("aria-pressed", String(filter === f));
+      b.addEventListener("click", function () { filter = f; renderFilter(); renderTimeline(); scroller.scrollLeft = 0; });
+      host.appendChild(b);
+    });
+  }
+
+  // Columns: every card spans two columns; a card starts at least one column after the previous paper (any line) and two
+  // columns after the previous paper of its own line, so the order reads left to right and cards in a lane never overlap.
+  function renderTimeline() {
+    grid.textContent = "";
+    var shown = S.papers.filter(function (p) { return filter === "all" || p.line === filter; });
+    var lanes = LINES.filter(function (l) { return shown.some(function (p) { return p.line === l; }); });
+    var prev = 1, lastIn = {}, maxC = 2;
+    var pos = shown.map(function (p) {
+      var c = Math.max(prev + 1, (lastIn[p.line] || 0) + 2);
+      prev = c; lastIn[p.line] = c; maxC = Math.max(maxC, c);
+      return c;
+    });
+    grid.style.setProperty("--cols", String(maxC));
+    grid.appendChild(el("div", "tl-axis"));
+    lanes.forEach(function (l, k) {
+      var lane = el("div", "tl-lane line-" + l); lane.style.setProperty("--r", String(k + 2));
+      lane.append(el("i"), el("b", null, t("stu.line." + l + ".lane")));
+      var rail = el("div", "tl-rail line-" + l); rail.style.setProperty("--r", String(k + 2));
+      grid.append(lane, rail);
+    });
+    var lastYear = null;
+    shown.forEach(function (p, k) {
+      var y = p.date.slice(0, 4);
+      if (y !== lastYear) {
+        var ye = el("p", "tl-year", y); ye.style.setProperty("--c", String(pos[k]));
+        grid.appendChild(ye); lastYear = y;
+      }
+      var card;
+      if (p.ready) { card = el("a", "tl-card line-" + p.line); card.href = p.href; card.setAttribute("data-keep-lang", ""); }
+      else card = el("div", "tl-card line-" + p.line);
+      card.style.setProperty("--c", String(pos[k]));
+      card.style.setProperty("--r", String(lanes.indexOf(p.line) + 2));
+      var top = el("span", "tl-card-top");
+      top.append(el("span", "tl-date", S.fmtDate(p, true)), el("span", "tl-n", (S.indexOf(p.slug) + 1) + "/" + S.papers.length));
+      var title = el("h3", "tl-title", S.shortTitle(p));
+      var venue = el("span", "tl-venue", p.venue); venue.lang = "en";
+      card.append(top, title, venue, el("p", "tl-sum", S.summary(p)));
+      if (p.ready) card.appendChild(el("span", "tl-go", t("sth.open")));
+      else card.appendChild(el("span", "st-soon", t("stu.soon")));
+      grid.appendChild(card);
+    });
+    S.keepLang(grid);
+    updateButtons();
+  }
+
+  var earlier = document.getElementById("sth-earlier"), later = document.getElementById("sth-later");
+  var fade = document.querySelector(".tl-fade.r");
+  function updateButtons() {
+    var max = scroller.scrollWidth - scroller.clientWidth;
+    earlier.disabled = scroller.scrollLeft <= 2;
+    later.disabled = scroller.scrollLeft >= max - 2;
+    fade.hidden = later.disabled;
+  }
+  earlier.addEventListener("click", function () { scroller.scrollBy({ left: -scroller.clientWidth * 0.8 }); });
+  later.addEventListener("click", function () { scroller.scrollBy({ left: scroller.clientWidth * 0.8 }); });
+  scroller.addEventListener("scroll", updateButtons, { passive: true });
+  window.addEventListener("resize", updateButtons);
+
+  I18N.onChange(function () { renderLines(); renderFilter(); renderTimeline(); });
+})();
+</script>
+</body>
+</html>

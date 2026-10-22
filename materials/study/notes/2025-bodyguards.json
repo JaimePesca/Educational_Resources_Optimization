@@ -1,0 +1,322 @@
+{
+ "notes": {
+  "slug": "2025-bodyguards",
+  "bibliography": {
+   "title": "Scheduling Bodyguards",
+   "authors": [
+    "Loe Schlicher",
+    "Kyle Y. Lin",
+    "Moshe Kress"
+   ],
+   "affiliations_as_printed": "1 Department of Industrial Engineering and Innovation Sciences, Eindhoven University of Technology, Eindhoven, the Netherlands (Schlicher) | 2 Operations Research Department, Naval Postgraduate School, Monterey, California, USA (Lin, Kress). Correspondence: Loe Schlicher ([e-mail omitted]). Handling Editor: Michael Atkinson. Funding: Nederlandse Organisatie voor Wetenschappelijk Onderzoek Grant VI.Veni.201E.017.",
+   "journal": "Naval Research Logistics (NRL)",
+   "volume_issue_pages_or_article": "Vol. 73, issue 3 (issue number taken from the Wiley download stamp '15206750, 2026, 3'), pp. 334-351",
+   "year": "2026",
+   "received": "10 February 2025 (revised 14 May 2025)",
+   "accepted": "2 July 2025",
+   "available_online": "Not printed in the PDF",
+   "doi": "10.1002/nav.70006",
+   "open_access_or_license": "Marked 'RESEARCH ARTICLE' with an 'OPEN ACCESS' badge (p. 334). The Wiley download stamp in the page margin says 'OA articles are governed by the applicable Creative Commons License'; the specific CC licence is not printed in the PDF.",
+   "keywords": [
+    "resource allocation",
+    "scheduling",
+    "zero-sum game"
+   ]
+  },
+  "chronology_date": "2025-07-02",
+  "one_line": "A simultaneous two-person zero-sum game in which a defender randomizes k interchangeable bodyguards over n targets and an attacker hits one target. With convex, nonincreasing damage functions, an optimal defender only needs to randomize each target between the floor and the ceiling of its expected allocation (Lemma 1, Theorem 1). This gives a closed-form value and an LP whose size is linear in n and k. In a network-flow extension (the scheduling game G_S), a bodyguard can serve several targets in sequence. Its value lies between an LP-relaxation lower bound (LP (14)) and the value of a restricted floor/ceiling matrix game G_S* (upper bound). In 50,000 random instances the value of G_S* equalled the exact value of G_S (Conjecture 1); in Example 7 and in the case study G_S* also attained the LP bound. A case study for the Dutch protection service (DKDB) solves the allocation game in under a second and the scheduling game in at most a few minutes.",
+  "question": "How should a security agency allocate a limited number of bodyguards across several threatened targets when a strategic attacker chooses one target, and how can this zero-sum game be solved without enumerating the defender's pure strategies, whose number explodes in n and k? The paper asks this in two settings: (i) the bodyguard allocation game G, where each bodyguard protects exactly one target; (ii) the bodyguard scheduling game G_S, where a bodyguard may report to several targets in sequence if their start and end times and locations allow it (a feasible flow in a schedule network).",
+  "motivation_application": "Personal protection of government officials and public figures by agencies such as the U.S. Secret Service, the U.K. Protected Persons Service and the Dutch Dienst Koninklijke en Diplomatieke Beveiliging (DKDB). In the Netherlands the number of protected individuals grew tenfold in twenty years (Start and Janssen 2023), while protection capacity lagged behind (Nachtegael 2024). A Dutch Safety Board report (2023), commissioned by the Ministry of Justice and Security, says this shortage might already have led to the assassinations of a prominent crime journalist, a lawyer representing a key witness, and a family member of that witness. Based on the report, the cabinet raised the budget of the Dutch Protection and Security program by 112 million euros per year, to hire and train personnel and to fund scientific research (Dutch Ministry of Finance 2023) (all p. 334). Modelling choices (p. 335): the game is zero-sum against a single strategic opponent, because agencies cannot identify the many adversaries or assess their views; thousands of (digital) threat reports were made against Dutch politicians in 2022, many anonymous via social media. Moves are simultaneous rather than sequential, because the agency can re-randomize its plan every morning while an attack takes days or weeks to plan; a sequential game would make adversaries 'unrealistically strong' by letting them steal the plan, pick the least protected target and plan an attack in a few hours. Size motivation: with n = 10 targets and k = 30 bodyguards the defender has C(39, 9), more than 211 million pure allocations (p. 335). In the scheduling game up to (30+1)^10 ≈ 8.19 x 10^14 candidate assignments would need feasibility screening (p. 335). Example of a transfer: a bodyguard covers a courthouse 9:00-12:00 and then a press conference in the same city 14:00-15:00 (p. 335).",
+  "model": "ALLOCATION GAME \\mathcal{G} (Section 3, p. 336). Two-person zero-sum game. The defender has k \\in \\mathbb{N}_{\\ge 0} bodyguards and targets N = \\{1,\\dots,n\\}. If z bodyguards guard target i, an attack on i causes damage g_i(z), with g_i: \\mathbb{N}_{\\ge0} \\to \\mathbb{R}_{\\ge0} convex and nonincreasing (diminishing marginal reduction). There is b_i \\in \\mathbb{N}_{\\ge0} with g_i(z) = g_i(b_i) for all z \\ge b_i; this is not restrictive, since b_i = k is allowed. Defender pure strategy: (z_1,\\dots,z_n) with \\sum_i z_i = k, at most \\binom{k+n-1}{n-1} of them. Attacker pure strategy: a target i \\in N (n of them). Payoff g_i(z_i); the attacker maximizes expected damage, the defender minimizes it. A mixed strategy with expected allocation x = (x_1,\\dots,x_n), \\sum x_i = k (endnote 1), is called CONSISTENT if it assigns exactly x_i when x_i is integer and otherwise \\lfloor x_i \\rfloor with probability \\lceil x_i\\rceil - x_i and \\lceil x_i \\rceil with probability x_i - \\lfloor x_i \\rfloor (p. 337). Implementation (p. 337; the paper does not name it, these notes call it systematic sampling): split [0,k] into consecutive subintervals of lengths x_1,\\dots,x_n, draw u \\sim U(0,1), and send one bodyguard to the target whose subinterval contains each of the points u, u+1, \\dots, u+k-1. Targets are labelled so that g_1(0) \\ge g_2(0) \\ge \\dots \\ge g_n(0) (p. 338). The expected damage of target i under a consistent strategy is the piecewise-linear interpolation h_i(x_i) = g_i(x_i) if x_i is integer, else (\\lceil x_i\\rceil - x_i) g_i(\\lfloor x_i\\rfloor) + (x_i - \\lfloor x_i\\rfloor) g_i(\\lceil x_i \\rceil), for x_i \\in [0, b_i]. The defender's problem is (2): \\min_{x \\in \\mathcal{X}} \\max_{i\\in N} h_i(x_i), with \\mathcal{X} = \\{x \\ge 0, \\sum_i x_i = k\\}. LP (9) (p. 340): \\min v s.t. v \\ge (g_i(j+1)-g_i(j))(x_i - j) + g_i(j) for j = 0,\\dots,b_i-1 and all i; v \\ge g_i(b_i) for all i; \\sum_i x_i = k; v \\ge 0; x_i \\ge 0. Notation for the solution (p. 339): T = \\{1,\\dots,t\\} is the set of targets with positive allocation, x_i^* = m_i + y_i (integer part m_i, fractional part y_i), s = \\sum_{i\\in T} y_i = k - \\sum_{i \\in T} m_i, \\lambda_T = (\\sum_{i\\in T} 1/(g_i(m_i) - g_i(m_i+1)))^{-1}, and r^* is the value. These notes abbreviate \\Delta_i = g_i(m_i) - g_i(m_i+1) (not the paper's symbol). SCHEDULING GAME \\mathcal{G}_S (Section 4, p. 341-342). Each target has a start time t_i^s and an end time t_i^e (endnote 3: 7.5 means 7:30 a.m.). There is a node per target and a directed arc i \\to j when t_i^e \\le t_j^s, with capacity q_{ij} \\in \\mathbb{N}_{\\ge0}: the maximum number of bodyguards who may protect j after finishing at i (for example a travel regulation; endnote 4: only arcs with q_{ij} > 0 are drawn). Source node 0 (for example headquarters). z_j is the number of bodyguards at target j, w_{ij} the number reporting to j directly after i, and w_{0j} the number whose first assignment is j. A defender pure strategy (z_1,\\dots,z_n) is feasible if there are flows satisfying (13): \\sum_j w_{0j} = k; w_{0j} + \\sum_{i} w_{ij} = z_j for all j; \\sum_j w_{ij} \\le z_i for all i; w_{ij} \\in \\{0,\\dots,q_{ij}\\}. Note that \\sum_i z_i can exceed k because bodyguards are reused (the rows of Table 4 sum to 20, 20, 19 and 21 with k = 10). The attacker again chooses one target. LP (14) (p. 342) is LP (9) with \\sum x_i = k replaced by the continuous flow constraints \\sum_j w_{0j} = k, w_{0j} + \\sum_i w_{ij} = x_j, \\sum_j w_{ij} \\le x_i, w_{ij} \\le q_{ij} (nonnegativity of w is not written in (14) but is implied by the definition of the flows). Restricted game \\mathcal{G}_S^* (p. 343): the attacker may hit any target, but the defender may use only the pure strategies in \\prod_i \\{\\lfloor x_i\\rfloor, \\lceil x_i \\rceil\\} (x from LP (14)) that are feasible for (13). Special structures in Section 4.2 assume q_{ij} \\in \\{0, k\\}. Exponential damage appears in two parameterizations with opposite roles of \\alpha: Section 3.5.2 and Appendix A use g_i(z) = \\gamma_i \\alpha_i^z (\\alpha_i \\in (0,1) is the probability of penetrating one layer, so a smaller \\alpha_i means a more effective bodyguard), while Example 7 and the case study use g_i(z) = \\gamma_i \\exp(-\\alpha_i z) (a larger \\alpha_i means a more effective bodyguard). Appendix A instances use q_{ij} = k if t_i^e + t_{ij} \\le t_j^s, with travel time t_{ij}. Assumptions stated: interchangeable bodyguards; convex, nonincreasing damage; a single attacker attacking one target.",
+  "results": [
+   {
+    "label": "Lemma 1",
+    "page": "337 (proof 337-338)",
+    "statement": "Let W be a non-negative integer-valued random variable with E[W] = c in R_{>0}. If c is integer and P{W = c} = 1, or if c is non-integer and P{W = floor(c)} = ceil(c) - c and P{W = ceil(c)} = c - floor(c), then for any convex and non-increasing function g, E[g(W)] <= E[g(W')] for all non-negative integer-valued random variables W' with E[W'] = c.",
+    "meaning": "Among all ways of randomizing an integer number of bodyguards with a given mean, putting all mass on the two integers around the mean minimizes expected damage when damage is convex and nonincreasing. The paper notes that the special case g(z) = a^z, a in (0,1), was proved in Lin (2022) (p. 338).",
+    "proof_idea": "Define d_z = g(z-1) - g(z), so that d_1 >= d_2 >= ... >= 0. Then E[g(W')] = g(0) - sum_{j>=1} d_j P{W' >= j} (the sum is eq. (1)). Minimizing damage is maximizing sum_j d_j y_j with y_j = P{W' >= j}, subject to sum_j y_j = c (tail-sum formula for the mean) and 1 >= y_1 >= y_2 >= ... >= 0. Because d_j is nonincreasing, the greedy solution y_j = 1 for j <= floor(c), y_{floor(c)+1} = c - floor(c), 0 afterwards is optimal, and it corresponds exactly to the floor/ceiling two-point distribution. (The last paragraph of the printed proof writes c where floor(c) is meant and mixes W and W'.)"
+   },
+   {
+    "label": "Theorem 1",
+    "page": "338",
+    "statement": "There is always an optimal strategy that is a consistent mixed strategy.",
+    "meaning": "When searching for an optimal defender strategy in G, it suffices to choose an expected allocation vector x and randomize each target only between floor(x_i) and ceil(x_i). This collapses the search from C(k+n-1, n-1) pure strategies to a continuous vector x.",
+    "proof_idea": "Take any defender mixed strategy and let X_i be the random number of bodyguards at target i, with E[X_i] = x_i. By Lemma 1 applied to each g_i, the expected damage at each target is minimized by the floor/ceiling distribution with the same mean, so every non-consistent strategy is dominated by a consistent one. The proof relies implicitly on the existence of a consistent strategy with these marginals that always uses exactly k bodyguards, which the one-draw construction of p. 337 provides. (The proof calls g_i 'integer-valued'; g_i is real-valued on the integers, which looks like a slip.)"
+   },
+   {
+    "label": "Section 3.2 (unnumbered): greedy structure of the defender's optimum and formulas (3)-(6)",
+    "page": "338-339",
+    "statement": "Problem (2), min_{x in X} max_i h_i(x_i), can be solved by a greedy algorithm: keep allocating fractional bodyguards to the targets with the highest present expected damage until bodyguards run out or some target reaches b_i so the objective cannot be reduced further (endnote 2 gives a case where not all bodyguards are needed). The optimum x* satisfies h_1(x*_1) = ... = h_t(x*_t) for some t, and h_j(x*_j) = h_j(0) for j >= t+1; r* denotes the optimal value, and h_i(x*_i) = r* for i in T. With T = {1,...,t}, x*_i = m_i + y_i: (3) y_i = (g_i(m_i) - r*)/(g_i(m_i) - g_i(m_i+1)) if m_i <= b_i - 1, and y_i = 0 if m_i >= b_i; (4) s = sum_{i in T} y_i = sum_{i in T} g_i(m_i)/(g_i(m_i) - g_i(m_i+1)) - r*/lambda; (5) lambda_T = (sum_{i in T} 1/(g_i(m_i) - g_i(m_i+1)))^{-1}; (6) r* = (sum_{i in T} g_i(m_i)/(g_i(m_i) - g_i(m_i+1)) - s) lambda_T. Since the defender can guarantee r*, r* is an upper bound on the value of G.",
+    "meaning": "The defender equalizes expected damage across the protected set T (water-filling). The value has a closed form once T and the integer parts m_i are known. Since s = k - sum m_i with k and m_i integers, s is an integer, and s < t because each y_i < 1 (the paper states s < t).",
+    "proof_idea": "Set h_i(x*_i) = r* = (1 - y_i) g_i(m_i) + y_i g_i(m_i+1) for i in T, solve for y_i, sum over T using k = sum m_i + s, and solve for r*. (Equation (4) writes lambda without the subscript T.)"
+   },
+   {
+    "label": "Section 3.3 (unnumbered): attacker's optimal strategy, eq. (7)",
+    "page": "339-340",
+    "statement": "The attacker strategy p_i = lambda_T/(g_i(m_i) - g_i(m_i+1)) for i in T and p_i = 0 for i not in T guarantees expected damage of at least r* whatever the defender does. Hence r* is a lower bound on the value of G.",
+    "meaning": "The attacker only attacks the protected set T, with probability inversely proportional to the damage reduction that the next, (m_i+1)st, bodyguard would give at target i. Low-value targets outside T are never attacked.",
+    "proof_idea": "Against (7), the defender solves min sum_{i in T} p_i g_i(z_i) s.t. sum z_i = k (eq. (8)), a separable convex problem solved greedily (Lemma 1 in Subelman 1981; Appendix in Ross and Lin 2001). Each of the first m_i bodyguards at i reduces (8) by at least lambda_T (the paper writes a strict '>'; convexity gives only 'at least'). The (m_i+1)st reduces it by exactly lambda_T. So the greedy places m_i at each i in T, and the remaining s < t bodyguards each go to a different target of T and reduce the objective by exactly lambda_T. The minimum is sum p_i g_i(m_i) - s lambda_T = r* by (6)."
+   },
+   {
+    "label": "Section 3.4 (unnumbered): value of G and LP (9)",
+    "page": "340",
+    "statement": "r* in (6) is the value of G. The optimal value of LP (9) equals r*, an optimal solution (x*_i) of (9) is the induced vector of an optimal consistent mixed strategy (implemented by the procedure of Section 3.1), and the attacker's strategy (7) is optimal. LP (9) has n + 1 variables and up to nk + n + 1 constraints (n = 10, k = 20: 11 variables, 211 constraints). The payoff-matrix LP for the attacker needs n + 1 variables and up to C(k+n-1, n-1) constraints (more than 10 million for n = 10, k = 20).",
+    "meaning": "The game is solved by a small LP that is linear in n and k. The paper motivates it by h_i being 'piecewise-linear nonincreasing'; the epigraph form v >= each affine segment is exact because h_i is also convex (it interpolates a convex g_i), so h_i is the maximum of its segments.",
+    "proof_idea": "The upper bound (Section 3.2) and the lower bound (Section 3.3) coincide. The LP models v >= h_i(x_i) through its affine segments plus v >= g_i(b_i)."
+   },
+   {
+    "label": "Section 3.5.1 (unnumbered): at most one bodyguard per target (b_i = 1), eqs. (10)-(11)",
+    "page": "340-341",
+    "statement": "If b_i = 1 for all i: if x*_i >= 1 for some i then i in argmax g_i(1) and r* = max_i g_i(1). Otherwise m_i = 0, s = k, and for each candidate T' in {{1},{1,2},...,{1,...,n}}, (10) gives h_i = (sum_{i' in T'} g_{i'}(0)/(g_{i'}(0) - g_{i'}(1)) - k) lambda_{T'}. The optimal T* maximizes this expression (11). Hence r* = max{ max_{i in N} g_i(1), max_{T'} (sum_{i in T'} g_i(0)/(g_i(0) - g_i(1)) - k) lambda_{T'} }.",
+    "meaning": "When only two data points per target are estimated (g_i(0), g_i(1)), the value comes from comparing a handful of closed-form numbers instead of solving an LP. Use cases: low per-target attack probability (g_i(0) << 1), or limiting the data input required.",
+    "proof_idea": "If t' < t*, the bodyguards at t* could be spread over the first t*-1 targets (possible because x_{t*} > 0), so the candidate value is not larger. If t' > t*, the formula implies x_j < 0 for j > t*, i.e. 'fictitious' bodyguards spread over the first t* targets. Unclear in the text: it says 'compare n + 2 values', then 'n + 1 candidate optimal solutions', then 'the n candidate optimal solutions ... with max g_i(1)'; the final formula compares max_i g_i(1) with n candidate values."
+   },
+   {
+    "label": "Section 3.5.1 (unnumbered): booby-trap game as special case",
+    "page": "341",
+    "statement": "The booby trap game of Lidbetter and Lin (2020), in which one player booby-traps k of n > k boxes and the other opens one box (getting its reward unless it is trapped), is a special case of G with g_i(1) = 0 for all i.",
+    "meaning": "Connects G to known search games with traps.",
+    "proof_idea": "Stated by identification of payoffs; no proof given."
+   },
+   {
+    "label": "Section 3.5.2 (unnumbered): exponential damage and Subelman's hide-search game",
+    "page": "341",
+    "statement": "With g_i(z) = gamma_i alpha_i^z (gamma_i > 0, alpha_i in (0,1)), each bodyguard is a defense layer that the attacker penetrates independently with probability alpha_i, succeeding only if all layers are penetrated; gamma_i is the target's importance or societal value. If gamma_i = 1 for all i (g_i(z) = alpha_i^z), G is mathematically equivalent to Subelman's (1981) hide-search game, in which a searcher allocates k searches over n locations, each finding the hider w.p. 1 - alpha_i. The authors say their algorithm is 'more powerful' because it works for any nonincreasing convex damage function.",
+    "meaning": "G generalizes a classic search game. Exponential damage (in the form gamma exp(-alpha z)) is used in Example 7 and the case study; gamma alpha^z is used in Appendix A.",
+    "proof_idea": "Identification of the two games; no formal proof."
+   },
+   {
+    "label": "Section 3.5.3 (unnumbered): homogeneous targets, eq. (12)",
+    "page": "341",
+    "statement": "If g_i = g for all i, it is optimal to allocate evenly: floor(k/n) bodyguards to each target, plus one extra bodyguard to each of k - n floor(k/n) targets chosen uniformly at random. The value is r* = g(floor(k/n)) - (k/n - floor(k/n))(g(floor(k/n)) - g(floor(k/n) + 1)) (12). In general not every target receives bodyguards (Example 4, target 4).",
+    "meaning": "Symmetric targets lead to the uniform allocation, and the value is the linear interpolation of g at k/n.",
+    "proof_idea": "The paper only says it 'follows immediately from optimization problem (9)'; the natural argument is that with identical convex h the min-max is attained at x_i = k/n."
+   },
+   {
+    "label": "Section 4 (unnumbered): total unimodularity of (13)",
+    "page": "342",
+    "statement": "The constraint matrix of the flow/schedule constraints (13) is totally unimodular, so integrality of w_ij need not be enforced: feasibility of a pure strategy (z_1,...,z_n) can be checked with linear programming.",
+    "meaning": "The feasibility of each candidate pure strategy is a cheap LP or flow check.",
+    "proof_idea": "Network-flow structure; asserted without proof."
+   },
+   {
+    "label": "Section 4.1 (unnumbered): bounds for G_S and the four-step algorithm (Figure 5)",
+    "page": "342-343",
+    "statement": "Steps: (1) solve LP (14); (2) generate the 2^n pure strategies assigning floor(x_i) or ceil(x_i) to each target; (3) eliminate those violating (13); (4) solve the matrix game G_S* by LP. Because G_S* restricts the defender's strategy set, value(G_S*) is an upper bound for value(G_S). The optimal value of LP (14) is a lower bound, 'because the expected number of bodyguards assigned to each target may not be achieved by any defender's mixed strategy'. If the two coincide, the common value is the value of G_S and the defender's optimal strategy in G_S* is optimal in G_S. Otherwise the defender can still guarantee the upper bound by playing optimally in G_S*. Screening drops from up to (30+1)^10 ≈ 8.19 x 10^14 to 2^10 = 1024 for n = 10, k = 30.",
+    "meaning": "This is a certify-by-sandwich method. The LP relaxation plus Lemma 1 gives a bound that no defender can beat, and randomizing over feasible floor/ceiling strategies tries to attain it.",
+    "proof_idea": "Restriction gives the upper bound. For the lower bound (only sketched in the paper; this is the notes' reconstruction): any mixed strategy of G_S has expected flows feasible for (14), and by Lemma 1 the damage at each target is at least h_i(x_i)."
+   },
+   {
+    "label": "Conjecture 1",
+    "page": "343",
+    "statement": "The value of G_S* is equal to the value of G_S.",
+    "meaning": "Restricting the defender to feasible floor/ceiling pure strategies around the LP (14) solution loses nothing. It is supported by 50,000 random instances (Appendix A) in which the values of G_S* and G_S coincided. The paper does not report whether G_S* also attained the LP (14) lower bound in those instances. The conclusion lists proving it or finding a counterexample as an open problem.",
+    "proof_idea": "No proof; empirical evidence only (Appendix A, p. 351)."
+   },
+   {
+    "label": "Section 4.1 (unnumbered): incremental alternative algorithm",
+    "page": "344",
+    "statement": "Instead of checking all 2^n candidates, first check (ceil(x_1),...,ceil(x_n)); if feasible, add it to G_S* and test whether the LP (14) value is attained. If not, add all feasible strategies with n-1 ceilings and one floor, then n-2 ceilings and two floors, and so on, until the value is attained or all strategies are exhausted. Runtime of the base algorithm is 'more or less constant' in k but not scalable in n (2^n checks).",
+    "meaning": "This is a layered, lazy generation of the restricted game. In the case study its savings are sensitive to k (from 10% to 90% of strategies checked).",
+    "proof_idea": "Procedure; justified by the same bounds."
+   },
+   {
+    "label": "Section 4.2.1 (unnumbered): horizontal clusters",
+    "page": "344",
+    "statement": "Assume q_ij in {0, k}. A horizontal cluster is a group of targets close in location, without overlap in time and away from other targets, such that a bodyguard assigned to the first target can only be reassigned within the cluster. If all targets partition into horizontal clusters, G_S reduces to an allocation game G, merging each cluster into one target whose damage function is the maximum of the damage functions in the cluster. If only some targets form horizontal clusters, each cluster can still be represented by one damage function, reducing n.",
+    "meaning": "The same team follows a sequence of nearby events (for example two rallies of one candidate in a remote town), so the team size is one decision.",
+    "proof_idea": "Structural argument, no formal proof."
+   },
+   {
+    "label": "Section 4.2.2 (unnumbered): vertical clusters",
+    "page": "344",
+    "statement": "A vertical cluster is a group of targets taking place around the same time, with all other targets before or after them, so that all k bodyguards are available and shared by the cluster. If all targets partition into vertical clusters, solving G_S reduces to solving an allocation game for every vertical cluster. Partial vertical clusters can be solved separately via allocation games, reducing n.",
+    "meaning": "Time slices with plenty of travel time between them decouple into independent allocation games (example: two Royal family members visiting cities early in the morning, two ministers visiting universities late in the afternoon).",
+    "proof_idea": "Structural argument, no formal proof."
+   },
+   {
+    "label": "Section 4.2.3 (unnumbered): diverging clusters (trees)",
+    "page": "345",
+    "statement": "If a group of targets forms a tree in the schedule network, steps 2-4 need not be executed for all targets. Solve LP (14) for all targets, run steps 2-4 only for the remaining targets (Figure 9: targets 1, 2, 3, so 2^3 instead of 2^5 checks), and build a consistent mixed strategy for the children from the LP solution. Illustration: x3 = 4.2, x4 = 2.5, x5 = 1.7. Target 3 has 4 bodyguards w.p. 80% and 5 w.p. 20%. Given 4, send 2 to target 4 w.p. 62.5% and 3 w.p. 37.5%; given 5, send 3 to target 4. Target 4 then has 2 or 3 w.p. 50% each, and target 5 has 2 w.p. 70% and 1 w.p. 30%, matching x4 and x5 (Figure 10). Deeper trees are handled recursively by consolidating subtrees into one node (Figure 11).",
+    "meaning": "Out-trees in the schedule network can be rounded consistently in a nested way, so they do not add to the 2^n enumeration.",
+    "proof_idea": "Constructive, nested conditional splitting. Unclear in the text: the example has x4 + x5 = x3 (all of target 3's bodyguards go on to its children), and the general rule (sources feeding children, or x4 + x5 < x3) is not spelled out. The text also writes 'target 4' where 'target 5' is meant in the split of the remaining bodyguards."
+   }
+  ],
+  "methods_and_tools": [
+   "Two-person zero-sum matrix games, minimax value, solving matrix games by linear programming",
+   "Simultaneous-move defender-attacker model, justified against sequential play",
+   "Discrete convexity and tail-sum representation E[g(W)] = g(0) - sum_j d_j P{W >= j}",
+   "Small LP over tail probabilities y_j = P{W >= j} solved greedily (Lemma 1)",
+   "Dominance argument and marginal-preserving randomization (consistent mixed strategies)",
+   "One-uniform-draw implementation of fractional allocations with exactly k bodyguards (points u, u+1, ..., u+k-1 over consecutive intervals; called systematic sampling in these notes, unnamed in the paper)",
+   "Piecewise-linear interpolation h_i and epigraph LP formulation (LP (9))",
+   "Greedy water-filling for min-max allocation; greedy for separable convex resource allocation (Subelman 1981; Ross and Lin 2001)",
+   "Closed-form value via active set T, integer parts m_i and lambda_T",
+   "Network-flow schedule model with source node, arc capacities q_ij; total unimodularity",
+   "LP relaxation (LP (14)) as lower bound; restricted strategy set game G_S* as upper bound",
+   "Enumeration of 2^n floor/ceiling candidates plus LP feasibility checks; layered incremental generation",
+   "Decomposition by special structures: horizontal, vertical and diverging (tree) clusters",
+   "Exponential damage in two forms: gamma exp(-alpha z) (Example 7, case study) and gamma alpha^z (Section 3.5.2, Appendix A; layered-defense interpretation)",
+   "Random instance generation (50,000 instances) for conjecture testing",
+   "Case study parameterized from public sources (news articles, radio interview, ministers' online agendas, a press photo)",
+   "Column generation suggested as future work (restricted master matrix game, defender best-response pricing)"
+  ],
+  "allocation_rules": "This is not a cooperative game, so there are no cost-sharing rules. The 'allocations' are allocations of bodyguards (defender strategies) and attack probabilities. (1) Consistent mixed strategy (p. 337): for an expected allocation x, randomize each target between floor(x_i) and ceil(x_i) with probabilities ceil(x_i) - x_i and x_i - floor(x_i). It is optimal by Theorem 1 and implemented with one uniform draw u and points u, u+1, ..., u+k-1 over consecutive intervals of lengths x_i, so every realization uses exactly k bodyguards. (2) Greedy or water-filling expected allocation (p. 338): fractional bodyguards go to the targets with the highest current expected damage, which equalizes h_i over the protected set T; equivalently LP (9). (3) Attacker's equilibrium rule (7): p_i = lambda_T/(g_i(m_i) - g_i(m_i+1)) on T and 0 elsewhere; it attacks inversely to the marginal benefit of the next bodyguard. (4) Homogeneous targets (p. 341): even split floor(k/n), with k - n floor(k/n) extra bodyguards placed uniformly at random; value (12). (5) Scheduling game: the defender mixes over flow-feasible floor/ceiling pure strategies in G_S*. This is certified optimal for G_S whenever the G_S* value equals the LP (14) value, which the paper shows in Example 7 (p. 344) and which holds in the case study (the incremental algorithm stopped before 100% in all 37 instances; the Table 8 mix for k = 12 attains the LP value in the notes' recomputation). Appendix A reports, more weakly, that value(G_S*) = value(G_S) in all 50,000 random instances. (6) Diverging cluster rule (p. 345): nested conditional splitting of parent allocations to children. (7) Cluster merging (p. 344): a horizontal cluster becomes one target with the max damage function; vertical clusters become separate allocation games. Properties stated: optimality in G (Theorem 1 plus Sections 3.2-3.4); a damage-equalizing structure; not all targets necessarily protected (Example 4); in the case study, more bodyguards go to higher initial risk (gamma) and, at equal risk, to lower sensitivity (smaller alpha in gamma exp(-alpha z)) targets.",
+  "numerical_study": "Illustrative examples. Example 1/3 (p. 337-338): n = 2, k = 2, value 8/15. Example 4 (p. 340): n = 4, k = 3, r* = 5/8. Example 5/6 (p. 342-343): n = 3, k = 1, value 7/15. Example 7 (p. 343-344): n = 7, k = 10, q12 = q15 = q23 = q45 = q65 = q67 = 10 (0 otherwise), g_i(z) = gamma_i exp(-alpha_i z), gamma = (0.95, 0.90, 0.85, 0.80, 0.75, 0.70, 0.65), alpha = (0.5, 0.2, 0.3, 0.6, 0.4, 0.1, 0.2), b_i = 10. LP (14) gives x = (3.8162, 3.8162, 2.3774, 1.0918, 1.4940, 5.0920, 2.1881) and v = 0.4209 (Table 2), with flows w01 = 3.816, w04 = 1.092, w06 = 5.092, w12 = 3.816, w23 = 2.377, w65 = 1.494, w67 = 2.188 (Table 3). Of 2^7 = 128 candidates, 40 are reported infeasible, leaving a 7 x 88 matrix game. Its value 0.4209 matches the LP, with a 4-strategy defender mix (Table 4): (3,3,2,1,2,6,3) w.p. 0.09198; (3,3,3,2,1,5,3) 0.09185; (3,4,3,1,1,5,2) 0.41411; (3,4,3,1,2,5,3) 0.40206. Intro claim: an allocation game with 10 targets and 30 bodyguards is solved within a few seconds (p. 335).\n\nAppendix A (p. 351): 50,000 random G_S instances, 1000 for each n in {5,...,9} and k in {10,...,19}. Parameters: t_i^s ~ U[0,10], t_i^e ~ t_i^s + U[0,10], travel t_ij ~ U[0,2] (used only to set q_ij = k if t_i^e + t_ij <= t_j^s, else 0), g_i(z) = gamma_i alpha_i^z with gamma_i, alpha_i ~ U[0,1], b_i = k. The values of G_S and G_S* coincided in all instances. The paper does not say how the exact value of G_S was computed, nor whether G_S* also attained the LP (14) bound.\n\nCase study, DKDB diplomatic unit (Section 5, p. 345-349), all from public sources. Allocation game (5.1, p. 346-347): about 400 people receive some protection, 10-20% of them bodyguards (40 to 80); about 20 are covered by the Royal unit, so the diplomatic unit protects at most 60 individuals. From ministers' agendas (January-April 2025), 30 individuals with no activity, 20 with one and 10 with two per day give at most 40 targets per shift (the most risky activity per individual per shift). A photo of Geert Wilders with four bodyguards motivates k = 4 x 40 = 160, with variations k in {120, 80, 40}. Damage g(z) = gamma exp(-alpha z). Risk classes: 6 high (gamma = 0.005), 10 medium (0.004), 24 low (0.003), each split equally into alpha = 1 (high sensitivity) and alpha = 0.8 (low sensitivity). Each run took under 1 second. Table 5 gives expected bodyguards per target as (gamma, alpha) = (0.005,1), (0.005,0.8), (0.004,1), (0.004,0.8), (0.003,1), (0.003,0.8): k = 160: 3.899, 4.859, 3.729, 4.620, 3.444, 4.221; k = 120: 2.978, 3.781, 2.826, 3.522, 2.575, 3.091; k = 80: 2.122, 2.693, 1.911, 2.412, 1.687, 1.975; k = 40: 1.275, 1.587, 0.981, 1.280, 0.780, 0.896. For k = 160 the high-risk, low-sensitivity targets always get at least 4 bodyguards and get a 5th 85.9% of the time. Scheduling game (5.2, p. 347-349): one of three regions (three reporting locations), 14 targets in the morning shift 7:00-14:00, starts at 8, 9, 10 or 11 a.m., durations of 1 or 2 h. Cities: Amsterdam, The Hague, Rotterdam, Utrecht, Delft. Transfers take 1 h within or between cities, except 2 h between Amsterdam and Rotterdam, The Hague or Delft. Risk mix: 2 high, 4 medium, 8 low, each split by sensitivity; k = 48 (30% of 160), with variations 36, 24, 12. Table 6 lists schedules and transfer options. Each run has 2^14 = 16,384 candidates. Figure 14: the incremental algorithm checks between 10% and 90% of them for k in {12,...,48}, 26.7% on average over the 37 instances. Runtime for k in {12, 24, 36, 48} is at most 2 min (alternative) versus at most 4 min (original). Table 7 gives expected bodyguards per target. Game values (x 10^-4), scheduling vs allocation: k = 48: 0.35 vs 1.77; k = 36: 1.11 vs 3.79; k = 24: 3.56 vs 8.23; k = 12: 11.00 vs 18.00. The paper reports a risk reduction from allowing transfers of 39% to 80%. Table 8: for k = 12 the optimal mix uses 11 pure strategies A-K; D has probability 0.607400, the others range from 0.015568 to 0.099969. Table 9 gives the direct and transfer schedule of strategy K (e.g., target 1 has 2 direct and sends one to 11 and one to 13; target 9 sends two to 6).\n\nRe-computation by the note writer (not in the paper; scipy HiGHS, q_ij = k on the arcs of Table 6 as printed, b_i = k). Table 7 is reproduced to all three printed decimals for every k. Table 5 is reproduced to three decimals except one entry: k = 40, (0.005, 1) gives 1.2745, printed 1.275. Scheduling LP values (x 10^-4): 0.346, 1.110, 3.562, 11.332 (k = 48, 36, 24, 12). Allocation LP values: 1.772, 3.792, 8.236, 17.519. So the printed 8.23 should round to 8.24, and the printed 11.00 and 18.00 look like integers padded with zeros. With the recomputed values the reduction is 80.5%, 70.7%, 56.8% and 35.3%, so the paper's lower end of 39% comes from the rounded 11/18. The 11 strategies of Table 8 are flow-feasible, their probabilities sum to 1.000002, and the mix gives maximum expected damage 11.332 x 10^-4, equal to the LP value. Its expected allocation differs from Table 7 at targets 2, 9 and 10 (1.782, 1.890, 1.822 vs 1.364, 1.364, 1.671), where its damage is below the value. Table 6 inconsistency: target 14 (Amsterdam 8:00-9:00) lists only target 8 as a transfer option, but the stated travel rule also allows 6, 7, 11 and 13. With the rule-derived arcs the scheduling LP values would be 0.182, 0.696, 2.637 and 9.932, so the paper's numbers use Table 6 as printed. Example 7: targets 1, 4 and 6 have no incoming arcs, so z1 + z4 + z6 <= 10 is necessary. This alone rules out 64 of the 128 candidates. A full LP feasibility check gives 48 feasible and 80 infeasible, not 88 and 40 as printed. The G_S* value over the 48 is 0.42086, so 0.4209 and the feasibility of all four Table 4 strategies are confirmed. The LP (14) optimum is not unique in x_1 (HiGHS returns x_1 = 1.685 with the same v). The Table 4 mix has expected allocation (3, 3.8162, 2.908, 1.0918, 1.494, 5.092, 2.586). It matches Table 2 only on targets 2, 4, 5 and 6, which are the targets at 0.4209 under the mix; its damage at targets 1, 3 and 7 is 0.212, 0.357 and 0.389.",
+  "worked_example": "Paper's Example 4 (p. 340, Table 1, Figure 3), allocation game G. Data: n = 4, k = 3, b1 = b2 = 2, b3 = b4 = 3. g1 = (0.9, 0.7, 0.6, 0.6), g2 = (0.8, 0.6, 0.5, 0.5), g3 = (0.7, 0.5, 0.4, 0.3), g4 = (0.6, 0.4, 0.3, 0.2) for z = 0, 1, 2, 3.\n\nSolve LP (9), or equalize h_i greedily. The paper reports r* = 5/8 and x* = (7/4, 7/8, 3/8, 0), with T = {1,2,3}, m = (1,0,0,0), y = (3/4, 7/8, 3/8, 0). Derived here: s = k - sum m = 3 - 1 = 2 = 3/4 + 7/8 + 3/8. Check: h1(1.75) = 0.25*0.7 + 0.75*0.6 = 0.625; h2(0.875) = 0.125*0.8 + 0.875*0.6 = 0.625; h3(0.375) = 0.625*0.7 + 0.375*0.5 = 0.625; h4(0) = 0.6 < 0.625, so target 4 is left unprotected. The LP optimum is unique, because h1, h2, h3 <= 0.625 forces x1 >= 1.75, x2 >= 0.875 and x3 >= 0.375, which already sum to 3.\n\nFormula (6) (computed in these notes, not in the paper's example): Delta = (g1(1)-g1(2), g2(0)-g2(1), g3(0)-g3(1)) = (0.1, 0.2, 0.2). lambda_T = (10 + 5 + 5)^{-1} = 1/20. r* = (0.7/0.1 + 0.8/0.2 + 0.7/0.2 - 2)/20 = (7 + 4 + 3.5 - 2)/20 = 12.5/20 = 5/8.\n\nAttacker (7) (in the paper): p = (lambda/0.1, lambda/0.2, lambda/0.2, 0) = (1/2, 1/4, 1/4, 0). Against it, every one of the 20 defender pure allocations gives expected damage of at least 0.625, and the full 4 x 20 matrix game has value 0.625.\n\nDefender, one uniform draw: the intervals are [0, 1.75) target 1, [1.75, 2.625) target 2 and [2.625, 3] target 3, with points u, u+1, u+2 and u ~ U(0,1). If u < 0.625 the allocation is (2,1,0,0) (prob 5/8). If 0.625 <= u < 0.75 it is (2,0,1,0) (prob 1/8). If u >= 0.75 it is (1,1,1,0) (prob 1/4). One bodyguard is always at target 1. The paper states this mix: targets 1 and 2 w.p. 5/8, 1 and 3 w.p. 1/8, 2 and 3 w.p. 1/4 for the remaining two bodyguards. The expected damage under the mix is (0.625, 0.625, 0.625, 0.6) by target.\n\nSmaller companion, Examples 1-3 (p. 337-338): n = 2, k = 2, g1 = (0.8, 0.6, 0.5), g2 = (0.6, 0.4, 0.3). The payoff matrix (rows are attacker targets, columns are defender allocations (2,0), (1,1), (0,2)) is [0.5 0.6 0.8; 0.6 0.4 0.3]. Value 8/15; attacker (2/3, 1/3); defender (2,0) w.p. 2/3 and (1,1) w.p. 1/3, i.e. x* = (5/3, 1/3). h1(x) = max{0.8 - 0.2x, 0.7 - 0.1x, 0.5} and h2(x) = max{0.6 - 0.2x, 0.5 - 0.1x, 0.3}. With k = 1: x* = (1, 0), r* = 0.6. Via (6) (notes): T = {1,2}, m = (1,0), Delta = (0.1, 0.2), lambda = 1/15, s = 1, r* = (6 + 3 - 1)/15 = 8/15, p = (2/3, 1/3).\n\nScheduling companion, Examples 5-6 (p. 342-343): n = 3, k = 1, b = 1, times target 1 9-12, target 2 14-18, target 3 8-15; only arc 1->2 with q12 = 1. g(0) = (0.8, 0.6, 0.5), g(1) = (0.4, 0.3, 0.3). LP (14) as reported: x = (5/6, 5/6, 1/6), w01 = 5/6, w12 = 5/6, w03 = 1/6, v = 7/15. The LP optimum is not unique in x2: any x2 >= 4/9 keeps h2 <= 7/15. Feasible pure strategies under (13): (1,0,0), (0,1,0), (0,0,1), (1,1,0). Paper's G_S* solution: (0,0,1) w.p. 1/6 and (1,1,0) w.p. 5/6; attacker targets 1 and 3 w.p. 1/3 and 2/3; value 7/15 (other optimal defender mixes exist). Derived by the note writer, not in the paper: without the transfer arc, the b_i = 1 formula compares max g_i(1) = 0.4 with the candidates 0.4, 18/35 and 33/65 ≈ 0.508. The value is 18/35 ≈ 0.514 with x = (5/7, 2/7, 0). A browser widget can re-solve LP (9) or water-filling by bisection on r, then compute T, m, y, lambda_T, p and the realization for a given u.",
+  "insights": [
+   "Convex, nonincreasing damage means the defender never benefits from spreading a target's bodyguard count beyond the two integers around its mean (Lemma 1, Theorem 1). Randomization is only 'between adjacent integers'.",
+   "The exponential-size matrix game collapses to a min-max over piecewise-linear convex interpolations h_i. It is solvable by water-filling or by an LP with n+1 variables and up to nk+n+1 constraints (p. 340).",
+   "At equilibrium the defender equalizes expected damage over the protected set T. Targets whose unprotected damage g_i(0) is below the value get nothing and are never attacked (Example 4).",
+   "The attacker's equilibrium probability on a protected target is inversely proportional to the damage reduction of the next bodyguard there (eq. (7)). Targets where an extra bodyguard helps little are attacked more often.",
+   "Because sum x_i = k is an integer, the fractional parts of the optimal expected allocation sum to an integer s < t. One uniform draw then realizes all floor/ceiling marginals: exactly s targets get their ceiling, and every realization uses exactly k bodyguards.",
+   "Transfers make bodyguards reusable: in the scheduling game the sum of z_i can exceed k. In the case study, the paper reports that allowing transfers cut the game value by 39% to 80% (Table 7); with unrounded LP values the k = 12 reduction is about 35% (note writer's recomputation).",
+   "For the scheduling game, the LP relaxation plus Lemma 1 gives a bound the defender cannot beat, and the restricted floor/ceiling matrix game gives a bound the defender can guarantee. Equality certifies optimality; it holds in Example 7 and in the case study. Appendix A shows only that value(G_S*) = value(G_S) in all 50,000 tests (Conjecture 1).",
+   "The optimal G_S* mix need not be consistent with the LP vector x: in Example 7 (Table 4 vs Table 2) and for k = 12 in the case study (Table 8 vs Table 7), the mix matches x only on the targets that are at the value and over- or under-protects slack targets (note writer's recomputation).",
+   "The scheduling algorithm's bottleneck is 2^n in the number of targets, not k. Structural decompositions (horizontal, vertical and tree clusters) reduce the effective n.",
+   "In the case study, more bodyguards go to targets with higher initial risk gamma and, for equal risk, to targets that are less sensitive to protection (smaller alpha in gamma exp(-alpha z)). This brings their expected damage down to the common level (p. 347).",
+   "The model is deliberately zero-sum and simultaneous: daily re-randomization against an attacker who needs days to plan. The paper contrasts it with the non-zero-sum models with travel-constrained schedules used for LAX police and federal air marshals (Pita et al. 2009; Jain et al. 2012), which allow at most one marshal per flight."
+  ],
+  "limitations_future_work": "Stated by the authors (p. 349): (1) Damage is assumed convex and nonincreasing in the number of bodyguards. This is supported by interviews with Dutch bodyguards (Nachtegael 2024) but may fail in other situations; exploiting other damage properties is open. (2) Bodyguards are assumed interchangeable. Heterogeneous qualifications and target vulnerabilities would require an entirely different formulation. (3) The scheduling algorithm does not scale in n (2^n checks). Better methods are needed for countries with many more high-risk targets (Germany, United Kingdom); the suggestion is column generation with a matrix-game restricted master over a subset of defender pure strategies and a pricing problem that computes the defender's best response to the attacker's current mix. (4) Prove Conjecture 1 or find a counterexample. Other limits visible in the paper: for G_S in general there is only a bound, not an exact method. The case-study parameters (risk classes, gamma, alpha, k, travel times, schedules) are educated guesses from public sources, and only the morning shift is shown. Formulas (5) and (7) divide by g_i(m_i) - g_i(m_i+1), which is zero if a target in T sits at its saturation level (m_i = b_i, a case (3) allows). This is the note writer's observation. Points that are unclear or appear to be typos in the text: Example 6 lists w12 twice (5/6 and 0) and keeps (0,0,0) among the 5 feasible strategies, although (13) requires sum w_0j = k = 1 (Example 5 itself lists only 4 feasible strategies). Example 7's count of 40 infeasible candidates cannot be reproduced under the stated arcs (80 are infeasible, see numerical_study). Section 3.5.1 gives inconsistent counts (n+2, n+1, n) of values to compare. Eq. (4) drops the subscript T on lambda. The Section 3.3 inequality '> lambda_T' should be 'at least'. The end of the Lemma 1 proof writes c for floor(c) and mixes W and W'. The proof of Theorem 1 calls g_i 'integer-valued'. LP (14) omits w >= 0. Section 4.2.3 writes 'target 4' for 'target 5'. Section 5.2.2 writes k = 12, 28, 36, 48 instead of 24. Endnote 6 computes 20*1 + (1/2)*10*2 = 35, although the arithmetic gives 30. Figure 4 labels noon as '12 a.m.'. Example 7 writes g_i(z) = gamma_i exp(-alpha_i z_i), mixing z and z_i. alpha has opposite meanings in gamma alpha^z (Section 3.5.2, Appendix A) and gamma exp(-alpha z) (Example 7, case study). Table 6 omits transfers 14 -> 6, 7, 11, 13, which the stated travel rule allows. Table 7 prints 8.23, 11.00 and 18.00 where the LP gives 8.236, 11.33 and 17.52. The diverging-cluster construction is only illustrated, without a general statement.",
+  "connections": "This paper continues the first author's line on game-theoretic police and security resource allocation. It cites Schlicher and Lurkin (2024, EJOR 315(2), allocation of police officers and cameras against pickpocketing) and Musegaas, Schlicher and Blok (2022, EJOR 297(1), Stackelberg production-protection games); both are in this study set. Co-author Lin's work supplies key tools. Lin (2022, Operations Research, 'Optimal Patrol of a Perimeter') proved Lemma 1 for g(z) = a^z, and this paper extends it to all convex nonincreasing g. Lidbetter and Lin (2020, Theoretical Computer Science) give the booby-trap search game, a special case of G with g_i(1) = 0. Ross and Lin (2001) is cited, with Subelman (1981), for the greedy argument. The allocation game generalizes Subelman's (1981) hide-search game (g_i(z) = alpha_i^z). Literature positioning (p. 335-336). Police OR without strategic opponents: Kolesar et al. 1975; Chaiken and Dormont 1978; Green and Kolesar 1984; Green 1984; Schaack and Larson 1989; Kolesar and Green 1998; Green and Kolesar 2004; Dunnett et al. 2019; Adler et al. 2014; Curtin et al. 2010; Camacho-Collados and Liberatore 2015; Schlicher and Lurkin 2024. Defender-attacker budget allocation after 9/11: Azaiez and Bier 2007; Bier et al. 2007, 2008; Zhuang and Bier 2007; Hausken 2008; Shan and Zhuang 2013; Guan et al. 2017; Baron et al. 2018; Musegaas et al. 2022; reviews by Gupta et al. 2020, Hausken 2024 and Hunt and Zhuang 2024. Unlike those, which treat resources as a budget, resources here are countable objects, as in Dahan et al. (2022). The authors list few exceptions that are police-inspired, game-theoretic and use countable resources. Wu et al. (2020) play a 2x2 zero-sum police-team game per San Francisco region (2016 data). Pita et al. (2009) build a non-zero-sum randomization game solved by a MILP for LAX airport police. Jain et al. (2012) apply a variation of it to federal air marshals, with travel-constrained schedules of 2 to 3 flights, which the paper calls close to its own setting. The authors argue that Jain et al.'s method cannot easily be applied here: it allows at most one marshal per flight, and it is tailored to few marshals relative to flights and to different utility functions for the two players. Here many bodyguards can guard one target and interests are opposed. (The paper does not use the term 'Stackelberg' for these works.) The case study builds on Nachtegael's (2024) TU/e master's thesis on risk-based guard allocation at the DKDB.",
+  "prerequisites": [
+   "Two-person zero-sum games: mixed strategies, minimax theorem, value, solving a matrix game by LP",
+   "Linear programming and duality; epigraph formulations of max of affine or piecewise-linear convex functions",
+   "Discrete convex functions, diminishing marginal returns, greedy optimality for separable convex resource allocation",
+   "Probability: nonnegative integer random variables, tail-sum formula E[W] = sum_j P{W >= j}",
+   "Dependent rounding with one uniform draw (systematic sampling) to realize fractional marginals with a fixed total",
+   "Network flows, arc capacities, totally unimodular matrices",
+   "Basic search games (hide-search, booby traps) and security games for airport police and air marshals (Pita et al. 2009; Jain et al. 2012)",
+   "Exponential or layered-defense damage models from homeland security literature"
+  ],
+  "glossary": [
+   {
+    "term": "Bodyguard allocation game G",
+    "definition": "Zero-sum game: the defender splits k bodyguards over n targets (one target each), the attacker picks one target, and the payoff is damage g_i(z_i)."
+   },
+   {
+    "term": "Bodyguard scheduling game G_S",
+    "definition": "Extension of G in which bodyguards can move between targets along arcs i->j (t_i^e <= t_j^s) with capacities q_ij; pure strategies are allocations z for which integer flows satisfying (13) exist."
+   },
+   {
+    "term": "Restricted game G_S*",
+    "definition": "G_S with the defender limited to flow-feasible pure strategies assigning floor(x_i) or ceil(x_i), where x solves LP (14); its value is an upper bound on the value of G_S."
+   },
+   {
+    "term": "Damage function g_i(z)",
+    "definition": "Damage if target i is attacked while guarded by z bodyguards; assumed convex and nonincreasing, constant from b_i onward."
+   },
+   {
+    "term": "b_i",
+    "definition": "Saturation level: bodyguards beyond b_i add no benefit at target i (b_i = k is always allowed)."
+   },
+   {
+    "term": "Consistent mixed strategy",
+    "definition": "Defender mixed strategy that, for an expected allocation x, assigns exactly x_i if integer, else floor(x_i) w.p. ceil(x_i) - x_i and ceil(x_i) w.p. x_i - floor(x_i)."
+   },
+   {
+    "term": "Induced vector x",
+    "definition": "Vector of expected numbers of bodyguards per target under a defender mixed strategy; sums to k in G."
+   },
+   {
+    "term": "h_i(x_i)",
+    "definition": "Expected damage at target i under a consistent strategy: linear interpolation of g_i between floor(x_i) and ceil(x_i)."
+   },
+   {
+    "term": "r*",
+    "definition": "Optimal value of min_x max_i h_i(x_i), shown to be the value of G (eq. (6))."
+   },
+   {
+    "term": "T, m_i, y_i, s",
+    "definition": "T = targets receiving bodyguards at the optimum; m_i and y_i are the integer and fractional parts of x*_i; s = sum of y_i over T = k - sum of m_i (an integer, s < |T|)."
+   },
+   {
+    "term": "lambda_T",
+    "definition": "(sum over T of 1/(g_i(m_i) - g_i(m_i+1)))^{-1}; scales the attacker's probabilities (7) and enters the value formula (6)."
+   },
+   {
+    "term": "Systematic sampling",
+    "definition": "These notes' name for the paper's unnamed procedure (p. 337): lay intervals of lengths x_i on [0,k], draw u ~ U(0,1), and assign bodyguards to the intervals containing u, u+1, ..., u+k-1."
+   },
+   {
+    "term": "Source node 0, w_0j, w_ij, q_ij",
+    "definition": "Schedule network: w_0j is the number of bodyguards whose first assignment is j (e.g. from headquarters), w_ij the number moving from target i to j, and q_ij the cap on that move."
+   },
+   {
+    "term": "Horizontal cluster",
+    "definition": "Nearby, non-overlapping targets isolated from others so bodyguards only circulate inside; can be merged into one target with the max damage function."
+   },
+   {
+    "term": "Vertical cluster",
+    "definition": "Targets at about the same time with all others before or after, so all k bodyguards are shared; solved as a separate allocation game."
+   },
+   {
+    "term": "Diverging cluster",
+    "definition": "Targets forming a tree in the schedule network; children allocations are built from the LP solution by nested splitting, avoiding 2^n enumeration for them."
+   },
+   {
+    "term": "Alternative (incremental) algorithm",
+    "definition": "Adds floor/ceiling strategies layer by layer (all ceilings, then one floor, two floors, ...) until the G_S* value reaches the LP (14) value."
+   },
+   {
+    "term": "DKDB",
+    "definition": "Dienst Koninklijke en Diplomatieke Beveiliging, the Dutch protection service with a Royal unit and a diplomatic unit; the case study focuses on the diplomatic unit."
+   },
+   {
+    "term": "Initial risk gamma and sensitivity alpha",
+    "definition": "Case-study damage g(z) = gamma exp(-alpha z): gamma is the risk without protection, alpha the responsiveness to added bodyguards (1 = high, 0.8 = low). In the form gamma alpha^z (Section 3.5.2, Appendix A) alpha is instead the probability of penetrating one bodyguard layer, so there a smaller alpha means a more effective bodyguard."
+   },
+   {
+    "term": "Hide-search game (Subelman 1981)",
+    "definition": "Searcher allocates k searches over n locations, each search at i finding the hider w.p. 1 - alpha_i; equivalent to G with g_i(z) = alpha_i^z."
+   }
+  ],
+  "study_questions": [
+   "State Lemma 1 precisely and explain why convexity and monotonicity of g are both needed. What goes wrong for a concave damage function?",
+   "Derive E[g(W')] = g(0) - sum_j d_j P{W' >= j} and show why the greedy solution of the y-LP corresponds to the floor/ceiling distribution.",
+   "Why does Theorem 1 need the existence of a joint distribution with given floor/ceiling marginals and sum exactly k? Show how the one-draw construction of p. 337 provides it and why the sum of fractional parts must be an integer.",
+   "Write LP (9) for Example 1 and verify that its value is 8/15 with x* = (5/3, 1/3). How many constraints does it have, and how many would the payoff-matrix LP need for n = 10, k = 20?",
+   "Derive formulas (3) to (6). Given T and m_i, compute r* for Example 4 and check that it equals 5/8.",
+   "Show that the attacker's strategy (7) is a probability distribution, and reproduce the argument that the defender's best response against it yields exactly r*. Where does the paper's strict inequality '> lambda_T' fail?",
+   "Why is target 4 in Example 4 never protected and never attacked? Give the condition on g_i(0) for a target to be outside T.",
+   "For b_i = 1 for all i, use the closed-form comparison to compute the value of the allocation version of Example 5 (without the transfer arc). Explain the paper's argument for why the optimal T* maximizes expression (11).",
+   "Show how the homogeneous-target value (12) follows from LP (9).",
+   "In G_S, write constraints (13) for Example 5, list the feasible pure strategies, and explain why (1,1,0) dominates (1,0,0) and (0,1,0). Is (0,0,0) feasible?",
+   "Explain precisely why the LP (14) value is a lower bound and the G_S* value is an upper bound for the value of G_S. What does Conjecture 1 claim, and what exactly does Appendix A show?",
+   "Why does the 2^n screening scale well in k but not in n? Describe the incremental alternative algorithm and the role of horizontal, vertical and diverging clusters.",
+   "In the case study, why do targets with lower sensitivity alpha receive more bodyguards at equal initial risk gamma? Relate this to equalization of h_i.",
+   "Why do the authors choose a simultaneous zero-sum game rather than a sequential or non-zero-sum game, and how does this distinguish the work from Jain et al. (2012)?",
+   "Check the paper's Example 7: using the arc set q12, q15, q23, q45, q65, q67 = 10, derive a necessary condition on z1 + z4 + z6 and count how many of the 128 candidates it rules out. Then compare the expected allocation of the Table 4 mix with Table 2: why can they differ?"
+  ]
+ },
+ "verification": {
+  "changes": [
+   "one_line: 'the two bounds coincided in all 50,000 random instances' is wrong. Appendix A (p. 351) and Conjecture 1 (p. 343) say the value of G_S* equalled the value of G_S. Whether the LP (14) lower bound was also attained there is not reported. LP = G_S* is shown only in Example 7 (p. 344) and holds in the case study. Corrected in one_line, insights, allocation_rules (5) and the Conjecture 1 meaning.",
+   "one_line: 'runtimes of seconds to minutes' made precise: the allocation runs took under one second (p. 347); the scheduling runs took at most 2 min with the alternative algorithm and 4 min with the original (p. 348).",
+   "motivation_application: the tenfold growth, the Dutch Safety Board report and the 112 million euro budget are all on p. 334, not p. 334-335. Added that the report was commissioned by the Ministry of Justice and Security.",
+   "model: Delta_i is flagged as the notes' shorthand, not the paper's symbol. 'Systematic sampling' is flagged as the notes' name, because the paper does not name the procedure (p. 337). The ordering g_1(0) >= ... >= g_n(0) is located on p. 338.",
+   "model: Table 4 row sums are given as 20, 20, 19, 21 (k = 10). Noted that LP (14) does not write w >= 0 (p. 342).",
+   "model, methods, glossary: alpha has opposite meanings. In gamma alpha^z (p. 341, Appendix A p. 351) a smaller alpha means a more effective bodyguard. In gamma exp(-alpha z) (Example 7, p. 343; case study, p. 346) a larger alpha does.",
+   "Section 3.4 meaning: the paper calls h_i 'piecewise-linear nonincreasing' (p. 340). The epigraph LP is exact because h_i is also convex; the notes had attributed the formulation to monotonicity alone.",
+   "Section 3.5.3 proof idea: the paper only says the result 'follows immediately from optimization problem (9)' (p. 341) and gives no symmetry argument. The argument is now attributed to the notes.",
+   "Section 3.2 statement: the paper sets h_1 = ... = h_t and names the optimal value r*. The equality h_i(x*_i) = r* for i in T comes on p. 339. s being an integer is derived from k and m_i being integers; the paper states only s < t.",
+   "Lemma 1 proof idea: added that the printed end of the proof writes c for floor(c) and mixes W and W' (p. 338).",
+   "Theorem 1 proof idea: the existence of a consistent strategy with exactly k bodyguards is used implicitly in the proof and comes from p. 337.",
+   "Conjecture 1 meaning: it now says 'the values of G_S* and G_S coincided' and that LP tightness in Appendix A is not reported.",
+   "numerical_study, Appendix A: removed the unsupported guess that G_S was solved by full enumeration. The paper does not say how (p. 351).",
+   "numerical_study: added the case-study derivation of 40 targets and k = 160 (about 400 protected, 10-20% with bodyguards, about 20 covered by the Royal unit, agendas 30/20/10, Wilders photo with four bodyguards; p. 346-347).",
+   "numerical_study, recomputation: Table 5 is not reproduced 'exactly'. One entry differs: k = 40, (0.005, 1) gives 1.2745 against 1.275 printed (p. 347). Table 7 x is reproduced to three decimals (p. 348).",
+   "numerical_study, recomputation: the allocation value at k = 24 is 8.236 x 10^-4 (printed 8.23). The k = 12 values are 11.332 and 17.519 (printed 11.00 and 18.00). The recomputed reductions are 80.5%, 70.7%, 56.8% and 35.3%, so the paper's '39% to 80%' (p. 348) depends on the rounded k = 12 values.",
+   "numerical_study: added that Table 6 (p. 348) lists only target 8 as a transfer option for target 14 (Amsterdam 8-9), although the stated travel rule also allows 6, 7, 11 and 13. The paper's numbers match Table 6 as printed; rule-derived arcs give 0.182, 0.696, 2.637 and 9.932 x 10^-4.",
+   "numerical_study: verified that the Table 8 strategies are flow-feasible, that the probabilities sum to 1.000002, and that the mix attains 11.332 x 10^-4 = LP value. Its expected allocation differs from Table 7 at targets 2, 9 and 10 (p. 348-349).",
+   "numerical_study, Example 7 (p. 343-344): the notes' recount is confirmed: 48 feasible, 80 infeasible (not 88/40), 64 ruled out by z1 + z4 + z6 <= 10, G_S* value 0.42086. Added that the Table 4 mix has E[z] = (3, 3.8162, 2.908, 1.0918, 1.494, 5.092, 2.586), which matches Table 2 only on targets 2, 4, 5 and 6, and that x_1 is not unique in LP (14).",
+   "insights: rewrote the 'fractional parts sum to an integer' item. Integrality follows from sum x_i = k and is not the reason the one-draw construction works. Added an insight on the G_S* mix not being consistent with the LP vector (note writer's observation).",
+   "insights and connections: the paper never calls Pita et al. (2009) or Jain et al. (2012) Stackelberg games. It describes Pita et al. as a non-zero-sum game solved by a MILP (p. 336). 'Closest works' is rephrased as the few exceptions the authors list (p. 336). The year-less 'Green and Kolesar' is replaced by the cited Green and Kolesar 1984, 2004, Green 1984 and Kolesar and Green 1998. Schlicher and Lurkin 2024 and Musegaas et al. 2022 are placed in the lists where the paper cites them.",
+   "limitations: added the omitted w >= 0 in LP (14) (p. 342), the Lemma 1 proof slip (p. 338), the Table 6 row 14 inconsistency, the Table 7 rounding, the opposite meanings of alpha, and the note writer's observation that (5) and (7) are undefined if g_i(m_i) = g_i(m_i+1) for some i in T. Corrected 'Example 6 keeps (0,0,0)' by noting that Example 5 lists only 4 feasible strategies (p. 342).",
+   "worked_example: confirmed unchanged. Added uniqueness of the Example 4 LP optimum, a brute-force check of the full 4 x 20 game (value 0.625), the expected damage under the mix, non-uniqueness of the LP (14) solution in Example 5 (x2 >= 4/9), and the allocation optimum x = (5/7, 2/7, 0) for the no-transfer variant. Marked which steps the paper prints and which the notes derive.",
+   "prerequisites and study_questions: replaced 'ARMOR/Stackelberg' wording with the paper's description, and added questions on the strict inequality in Section 3.3, the feasibility of (0,0,0) and the Table 4 vs Table 2 marginals."
+  ],
+  "example_recomputed": true,
+  "example_check": "Script: /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2025-bodyguards/verify.py, plus extra.py in the same folder for extra digits. Both use scipy HiGHS linprog and exact Fractions. Example 4: LP (9) gives r* = 0.625 and x* = (1.75, 0.875, 0.375, 0). The h values at x* are exactly 5/8, 5/8, 5/8 and 3/5. Formula (6) gives lambda_T = 1/20, s = 2, r* = 5/8 and p = (1/2, 1/4, 1/4, 0). Against p, every one of the 20 defender pure strategies has damage >= 0.625. The full 4 x 20 matrix game has value 0.625. The one-draw construction gives (2,1,0,0) w.p. 0.625, (2,0,1,0) w.p. 0.125 and (1,1,1,0) w.p. 0.25, with damage by target (0.625, 0.625, 0.625, 0.6). The worked example is consistent and unchanged in substance. Examples 1-3: matrix game value 8/15, attacker (2/3, 1/3), defender (2/3, 1/3, 0), LP (9) x = (5/3, 1/3); k = 1 gives 0.6 at (1, 0); formula (6) gives 8/15. Examples 5-6: LP (14) v = 7/15 (x2 not unique); the 4 feasible strategies are (0,0,1), (0,1,0), (1,0,0), (1,1,0); G_S* value 7/15 with attacker (1/3, 0, 2/3). The no-transfer allocation value is 18/35 (candidates 0.4, 2/5, 18/35, 33/65), and LP (9) gives x = (5/7, 2/7, 0). Example 7: LP (14) v = 0.4209; 48 of 128 candidates are feasible and 80 infeasible (64 satisfy z1 + z4 + z6 <= 10); G_S* value 0.42086; all four Table 4 strategies are feasible, with E[z] = (3, 3.8162, 2.908, 1.0918, 1.494, 5.092, 2.586). Case study: Table 5 is reproduced except 1.2745 vs 1.275; Table 7 x is reproduced to three decimals. The LP values x1e-4 are 0.346/1.110/3.562/11.332 (scheduling) and 1.772/3.792/8.236/17.519 (allocation). The Table 8 mix is feasible and attains 11.332. Table 6 row 14 is inconsistent with the travel rule."
+ }
+}

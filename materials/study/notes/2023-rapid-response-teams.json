@@ -1,0 +1,343 @@
+{
+ "notes": {
+  "slug": "2023-rapid-response-teams",
+  "bibliography": {
+   "title": "Fighting terrorism: How to position rapid response teams?",
+   "authors": [
+    "Lotte van Aken",
+    "Loe Schlicher",
+    "Marco Slikker",
+    "Geert-Jan van Houtum"
+   ],
+   "affiliations_as_printed": "School of Industrial Engineering, Eindhoven University of Technology, Eindhoven, The Netherlands (one shared affiliation printed for all four authors). Correspondence: Lotte van Aken, School of Industrial Engineering, Eindhoven University of Technology, P.O. Box 513, 5600 MB, Eindhoven, The Netherlands; email [e-mail omitted]. Handling Editor: Michael Atkinson. Funding: Nederlandse Organisatie voor Wetenschappelijk Onderzoek (NWO), Grant/Award Number VI.Veni.201E.017.",
+   "journal": "Naval Research Logistics (NRL)",
+   "volume_issue_pages_or_article": "Vol. 71, Issue 5, pp. 709-727 (Research Article)",
+   "year": "2024",
+   "received": "19 April 2023 (revised 1 November 2023)",
+   "accepted": "12 December 2023",
+   "available_online": "Not printed in the article (no online/Early View date appears in the text).",
+   "doi": "10.1002/nav.22170",
+   "open_access_or_license": "Open access under the Creative Commons Attribution License (CC BY). (c) 2024 The Authors. Naval Research Logistics published by Wiley Periodicals LLC. Data availability: data sharing not applicable, no new data created or analyzed.",
+   "keywords": [
+    "counter-terrorism",
+    "resource allocation",
+    "Stackelberg game"
+   ]
+  },
+  "chronology_date": "2023-12-12",
+  "one_line": "A government (leader) places n rapid response teams on a line segment, a terrorist (follower) then attacks the point maximizing response time times a damage rate f(a); the authors prove an optimal strategy always exists that balances the maximal damage on every interval (left end, between consecutive teams, right end), that every balanced strategy is optimal, and derive closed forms for uniform, linear and (for peaks at beta = k/(n+1)) triangular f, plus a boulevard case where two intuitive rules raise damage by 50% and by more than 134%.",
+  "question": "Where should a government position a given number of heavily armed rapid response teams on a line segment (a boulevard or shopping avenue) when a strategic terrorist observes the positions and then attacks the location with the highest potential impact, measured as the product of the closest team's response time and a location-dependent damage rate? Formally: solve the leader's min-max problem P := min_{d in D^n} max_{a in A} D(d,a), show that a subgame perfect Nash equilibrium exists, characterize the leader's optimal (equilibrium) strategy, and derive its implications for various damage rate functions (pp. 709-710, 712).",
+  "motivation_application": "Recent European terrorist attacks (Bataclan in Paris, the van attack on Barcelona's La Rambla, the truck incident in Nice) cost hundreds of lives and caused economic losses (destruction of property, market uncertainty, loss of tourism, in the order of millions) (p. 709). Government counter-terrorism agendas (Bossong, 2021) include deploying rapid response teams: heavily armed, highly trained units located at high potential attack locations that can respond within minutes. Their placement trades off being close to high-risk spots (where many people cluster) against being dispersed enough to cover many risk spots in reasonable time (p. 709). Classical location theory assumes demand independent of resource positions, but here 'demand' (the attack location) is chosen strategically by a terrorist who observes the positions, so game theory is needed (p. 709). The closest discrete network models (Berman & Gavious, 2007; Meng et al., 2013) assume the number of potential attack and resource locations to be limited when multiple resources are positioned (around 20 nodes); since continuous location problems are notoriously hard (Garcia & Marin, 2015), the authors use a continuous line segment, e.g., Ocean Drive in Miami, La Rambla in Barcelona, the Las Vegas strip (p. 710). The boulevard scenario of Section 5.4 is inspired by the Las Vegas strip and the Ramblas (p. 719).",
+  "model": "Players and timing (Section 3, p. 712). Stackelberg protection location (SPL) game: leader = government, follower = opponent (e.g., a terrorist). The leader first positions $n \\in \\mathbb{N}$ response teams on $[0,1]$: $d=(d_1,\\dots,d_n)\\in D^n$, where $D^n=\\{d\\in[0,1]^n \\mid d_1\\le d_2\\le\\cdots\\le d_n\\}$. Teams move at constant speed $v\\in\\mathbb{R}_{>0}$. After observing $d$, the follower chooses one attack location $a\\in A=[0,1]$.\n\nDamage. Response time of the closest team: $\\min_{i\\in\\{1,\\dots,n\\}} |d_i-a|/v$. Continuous damage rate function $f:[0,1]\\to\\mathbb{R}_{\\ge 0}$ (damage per time unit; a composition of people affected and damage to surroundings such as buildings or statues). Damage of an attack: $D(d,a)=\\min_{i\\in\\{1,\\dots,n\\}}\\frac{|d_i-a|}{v}\\cdot f(a)$. The follower maximizes $D$, the leader minimizes it: $\\mathcal{P}:=\\min_{d\\in D^n}\\max_{a\\in A} D(d,a)$ (eq. 1; printed with $d\\in D$). Footnote 1: formally sup/inf, but max and min are well defined. Because $v$ is constant it does not affect strategies, so $v=1$ from then on (footnote 2; Section 5.5 discusses $v$). An SPL situation is $\\theta=(n,f)$; the set of all situations is $\\Theta$. The leader's strategy within a subgame perfect Nash equilibrium is called an optimal strategy (pp. 710, 712).\n\nLocal damage problems (Section 4.1, p. 713). Left of the first team: $\\mathcal{L}(d_1)=\\max_{a\\in[0,d_1]} f(a)(d_1-a)$. Between teams $i$ and $i+1$, with $D^{i,i+1}=\\{(d_i,d_{i+1})\\in[0,1]^2\\mid d_i\\le d_{i+1}\\}$: $\\mathcal{I}^i(d_i,d_{i+1})=\\max_{a\\in[d_i,d_{i+1}]} f(a)\\min\\{a-d_i,\\,d_{i+1}-a\\}$. Right of the last team: $\\mathcal{R}(d_n)=\\max_{a\\in[d_n,1]} f(a)(a-d_n)$. Then (eq. 2) $\\max_{a\\in A}D(d,a)=\\max\\{\\mathcal{L}(d_1),\\mathcal{I}^1(d_1,d_2),\\dots,\\mathcal{I}^{n-1}(d_{n-1},d_n),\\mathcal{R}(d_n)\\}$. Their optimal values are called local damages.\n\nRecursive reformulation (p. 714). For $i\\in\\{2,\\dots,n\\}$: $\\mathcal{L}^i(d_i)=\\min_{d_{i-1}\\in[0,d_i]}\\max\\{\\mathcal{L}^{i-1}(d_{i-1}),\\mathcal{I}^{i-1}(d_{i-1},d_i)\\}$ with $\\mathcal{L}^1=\\mathcal{L}$ (eq. 5), the minimal damage to the left of team $i$. Then $\\mathcal{P}=\\min_{d_n\\in[0,1]}\\max\\{\\mathcal{L}^n(d_n),\\mathcal{R}(d_n)\\}$ (eq. 6). System (7): $\\mathcal{L}^n(d'_n)=\\mathcal{R}(d'_n)$ and $\\mathcal{L}^{i-1}(d'_{i-1})=\\mathcal{I}^{i-1}(d'_{i-1},d'_i)$ for all $i\\in\\{2,\\dots,n\\}$.\n\nBalanced strategy (p. 714): a strategy for which the local damages of all local damage problems are exactly the same, i.e., $d\\in D^n$ with $\\mathcal{L}(d_1)=\\mathcal{I}^1(d_1,d_2)=\\cdots=\\mathcal{I}^{n-1}(d_{n-1},d_n)=\\mathcal{R}(d_n)$, making the attacker indifferent among all intervals (p. 720).\n\nSpecial damage rate functions (Section 5): uniform $f(x)=c$; linearly increasing $f(x)=c\\,x$; linearly decreasing $f(x)=c(1-x)$; triangular $f(x)=c\\,x$ on $[0,\\beta]$ and $f(x)=c\\frac{\\beta}{1-\\beta}(1-x)$ on $(\\beta,1]$ (top at $\\beta\\in[0,1]$, peak value $c\\beta$); a piecewise-linear boulevard function (eq. 9). Average damage rate: $\\int_0^1 f(x)\\,dx$ (footnote 6, p. 717).\n\nAssumptions stated or implicit in the text: a single attack; a rational, strategic terrorist who observes the positions (Section 6); the closest team responds; damage is linear in response time; teams and attacks are on the one-dimensional segment; the government has a single objective (minimizing damage); $f$ continuous and nonnegative. Note: this is a two-player non-cooperative game, so there is no coalition or characteristic function. The leader's objective $d\\mapsto\\max_a D(d,a)$ plays the role of a value function (my remark: since the leader minimizes exactly what the follower maximizes, the game is zero-sum in $D$; the paper does not use this term).",
+  "results": [
+   {
+    "label": "Theorem 2.1 (Herings, 1996)",
+    "page": "711",
+    "statement": "Let S ⊆ R^m, T ⊆ R^n, x an element of S, and phi: S -> T a compact-valued correspondence. Then phi is upper hemicontinuous at x if and only if for every sequence (x_n) in S converging to x and every sequence (y_n) in T with y_n in phi(x_n) for all n, converging to y in R^n, it holds that y in phi(x).",
+    "meaning": "A sequential (closed-graph) test for upper hemicontinuity of compact-valued correspondences, used instead of the formal definition.",
+    "proof_idea": "Cited from Herings (1996); not proved in the paper."
+   },
+   {
+    "label": "Theorem 2.2 (Herings, 1996)",
+    "page": "711",
+    "statement": "Let S ⊆ R^m, T ⊆ R^n, x an element of S. The correspondence phi is lower hemicontinuous at x if and only if for every sequence (x_n) in S converging to x and every y in phi(x) there exists a sequence (y_n) in T with y_n in phi(x_n) for all n and lim y_n = y.",
+    "meaning": "A sequential test for lower hemicontinuity: every point of phi(x) can be approached by points of phi(x_n).",
+    "proof_idea": "Cited from Herings (1996); not proved in the paper."
+   },
+   {
+    "label": "Lemma 2.3",
+    "page": "711 (proof p. 722)",
+    "statement": "Let S ⊆ R^m, T ⊆ R^n, and p: S -> R, q: S -> R continuous and bounded with p(x) <= q(x) for all x in S. Then the correspondence phi: S -> T with phi(x) = [p(x), q(x)] is continuous and compact-valued, and phi(x) is non-empty for all x in S.",
+    "meaning": "Interval-valued feasible sets with continuous endpoints (such as [0,d_1], [d_i,d_{i+1}], [d_n,1]) satisfy the hypotheses of Berge's theorem.",
+    "proof_idea": "Non-empty since p(x) in phi(x); closed bounded interval so compact. UHC: if y_n in [p(x_n),q(x_n)] and y_n -> y, continuity of p, q gives p(x) <= y <= q(x) (Theorem 2.1). LHC: write y = alpha p(x) + (1-alpha) q(x) and take y_n = alpha p(x_n) + (1-alpha) q(x_n) (Theorem 2.2)."
+   },
+   {
+    "label": "Theorem 2.4 (Berge's maximum theorem, Herings 1996)",
+    "page": "712",
+    "statement": "Let S ⊆ R^m, T ⊆ R^n, phi: S -> T a continuous, compact-valued correspondence, h: S x T -> R continuous, and g: S -> R defined by g(x) = max_{y in phi(x)} h(x,y). Then g is a continuous function.",
+    "meaning": "Optimal-value functions of parametric problems with continuous objective and continuous compact feasible sets are continuous; this is the engine behind continuity of the local damage functions.",
+    "proof_idea": "Cited; not proved in the paper."
+   },
+   {
+    "label": "Lemma 4.1",
+    "page": "714 (proof pp. 722-723)",
+    "statement": "Let theta = (n,f) in Theta. L, I^i for all i in {1,...,n-1}, and R are continuous.",
+    "meaning": "The maximal damage on the left end, between any two consecutive teams, and on the right end varies continuously with the team positions.",
+    "proof_idea": "Write each as a maximum over the interval correspondences [0,d_1], [d_1,d_2], [d_n,1] (continuous and compact-valued by Lemma 2.3) of a continuous objective (products and minima of continuous functions, f continuous), then apply Berge's theorem (Theorem 2.4). Since all I^i are the same function on their domains, continuity of I^1 gives all."
+   },
+   {
+    "label": "Lemma 4.2",
+    "page": "714-715 (proof p. 723)",
+    "statement": "Let theta = (n,f) in Theta. L is non-decreasing, R is non-increasing, and for all i in {1,...,n-1}: (i) I^i(., d_{i+1}) is non-increasing for all d_{i+1} in [0,1]; (ii) I^i(d_i, .) is non-decreasing for all d_i in [0,1].",
+    "meaning": "Moving a team to the right enlarges the region on its left (more damage there) and shrinks the region on its right (less damage there).",
+    "proof_idea": "Feasibility argument: take a maximizer a* of the problem at one team location; it is feasible for the problem at the other location and its objective value there is weakly larger (distance to the closest team is weakly larger), so the optimal value is weakly larger."
+   },
+   {
+    "label": "Lemma 4.3",
+    "page": "715 (proof p. 724)",
+    "statement": "Let theta = (n,f) in Theta. L^i is continuous and non-decreasing for all i in {1,2,...,n}.",
+    "meaning": "The minimal achievable damage to the left of team i, when the first i-1 teams are placed optimally, is continuous and grows as team i moves right.",
+    "proof_idea": "Induction. Continuity: L^{i+1}(d_{i+1}) = -max_{d_i in [0,d_{i+1}]} -max{L^i(d_i), I^i(d_i,d_{i+1})}; apply Lemma 2.3 and Berge (the proof text says 'Theorem 1.1', apparently meaning Theorem 2.4). Monotonicity: for d_{i+1} < d'_{i+1}, take d_i* optimal for d'_{i+1}; Case 1 (d_i* <= d_{i+1}) use that I^i(d_i,.) is non-decreasing and d_i* is feasible; Case 2 (d_i* > d_{i+1}) use L^i non-decreasing, L^i >= 0, I^i(d_{i+1},d_{i+1}) = 0, and feasibility of d_{i+1}."
+   },
+   {
+    "label": "Lemma 4.4",
+    "page": "715 (proof pp. 724-725)",
+    "statement": "Let theta = (n,f) in Theta. There exists a d in D^n that solves (7), i.e., L^n(d_n) = R(d_n) and L^{i-1}(d_{i-1}) = I^{i-1}(d_{i-1}, d_i) for all i in {2,...,n}.",
+    "meaning": "One can always place the last team where the optimized left damage equals the right damage, and then recursively place each earlier team where its two neighbouring damages coincide.",
+    "proof_idea": "Backward induction with an intermediate-value argument: R is continuous non-increasing, L^n continuous non-decreasing, and R(1) = L^n(0) = 0, so they cross at some d_n. Inductively, L^{n-k-1} is continuous non-decreasing, I^{n-k-1}(., d_{n-k}) continuous non-increasing, and L^{n-k-1}(0) = I^{n-k-1}(d_{n-k}, d_{n-k}) = 0, so a crossing point d_{n-k-1} in [0, d_{n-k}] exists."
+   },
+   {
+    "label": "Lemma 4.5",
+    "page": "715 (proof p. 725)",
+    "statement": "Let theta = (n,f) in Theta. If d' in D^n solves (7), the minimum of (6) is attained at d'_n. Thus, d'_n is optimal.",
+    "meaning": "The crossing points constructed in Lemma 4.4 solve the leader's problem: at a crossing of a non-decreasing and a non-increasing function, their maximum is minimized.",
+    "proof_idea": "Monotonicity and continuity (Lemmas 4.1-4.3) plus R(1) = L^n(0) = 0 imply the min of max{L^n, R} is at the crossing d'_n; likewise the minimum in (5) with d_i = d'_i is attained at d'_{i-1} for all i in {2,...,n} (stated in step 2 of the plan, p. 714, and in the proof)."
+   },
+   {
+    "label": "Lemma 4.6",
+    "page": "715 (proof p. 725)",
+    "statement": "Let theta = (n,f) in Theta. If d' in D^n solves (7), then d' is balanced.",
+    "meaning": "The optimal strategy built by the crossing construction equalizes all n+1 local damages.",
+    "proof_idea": "From Lemma 4.5, L^i(d'_i) = L^{i-1}(d'_{i-1}) = I^{i-1}(d'_{i-1}, d'_i) for all i in {2,...,n} (A2); combined with L^n(d'_n) = R(d'_n) (A1) this chains to R(d'_n) = I^{n-1}(d'_{n-1},d'_n) = ... = I^1(d'_1,d'_2) = L(d'_1)."
+   },
+   {
+    "label": "Lemma 4.7",
+    "page": "715 (proof p. 725)",
+    "statement": "Let theta = (n,f) in Theta. All balanced strategies lead to the same damage.",
+    "meaning": "Balanced strategies cannot differ in value, so any balanced strategy is as good as the one constructed in Lemma 4.4.",
+    "proof_idea": "Contradiction: if balanced d' has strictly higher damage than balanced d, then L(d'_1) > L(d_1) gives d'_1 > d_1; inductively, I^k non-increasing in its first argument and non-decreasing in its second force d'_{k+1} > d_{k+1}; so d'_n > d_n and R(d'_n) <= R(d_n), contradicting R(d'_n) > R(d_n) (A3)."
+   },
+   {
+    "label": "Theorem 4.8 (main result)",
+    "page": "715 (proof p. 725)",
+    "statement": "Let theta = (n,f) in Theta. There exists a balanced strategy and any balanced strategy is optimal.",
+    "meaning": "For any number of teams and any continuous nonnegative damage rate function, the leader can make the terrorist indifferent among all intervals, and doing so is optimal; this gives the existence of a subgame perfect Nash equilibrium with a balanced leader strategy.",
+    "proof_idea": "Lemma 4.4 (a solution of (7) exists) + Lemma 4.5 (it is optimal) + Lemma 4.6 (it is balanced) give an optimal balanced strategy; Lemma 4.7 (equal damage for all balanced strategies) makes every balanced strategy optimal. The authors stress (p. 715) that balancedness is sufficient but not necessary for optimality (Example 5)."
+   },
+   {
+    "label": "Example 4",
+    "page": "713-714",
+    "statement": "theta with n = 2, f(x) = 1 on [0,1]. Fixing d'_2, min over d_1 in [0,d'_2] of max{d_1, (d'_2 - d_1)/2, 1 - d'_2} = max{d'_2/3, 1 - d'_2} (eq. 3), attained at d_1* = d'_2/3 (not unique if d'_2/3 <= 1 - d'_2). With d'_2 = 0.8 the damage falls from 0.3 to 4/15 (I^1 falls from 0.3 to 4/15, L rises from 0.2 to 4/15). Optimizing d'_2 gives min max{d'_2/3, d'_2/3, 1 - d'_2} = 1/4 at d_2* = 3/4, d_1* = 1/4, with L(d_1*) = I^1(d_1*,d_2*) = R(d_2*) = 1/4 (eq. 4).",
+    "meaning": "Illustrates the two-step balancing logic behind the general proof: first balance the first two intervals, then balance with the third.",
+    "proof_idea": "Direct calculation using L(d_1) = d_1, I^1 = (d_2 - d_1)/2, R(d_2) = 1 - d_2 (Example 3)."
+   },
+   {
+    "label": "Example 5",
+    "page": "715-716",
+    "statement": "n = 4, f piecewise linear with two tall spikes (height 1) at 0.05 and 0.95, two small spikes (height 0.05) at 0.45 and 0.55, and f = 0 on (0.1,0.4) and (0.6,0.9). For d = (0.05, 0.2, 0.8, 0.95): L(0.05) = I^1(0.05,0.2) = I^2(0.2,0.8) = I^3(0.8,0.95) = R(0.95) = 1/80, so d is balanced and optimal. For d' = (0.05, 0.4, 0.6, 0.95): all local damages are 1/80 except I^2(0.4,0.6) = 1/400 < 1/80, so d' is not balanced, but its damage max{1/80, 1/400} = 1/80 equals the optimum, so d' is optimal as well.",
+    "meaning": "Balancedness is sufficient but not necessary for optimality; optimal strategies need not be unique.",
+    "proof_idea": "Explicit maximization of each local damage piece by piece (the maximizers are a* = 0.025, 0.075, 0.45/0.55, 0.925, and 0.975 implicitly for R)."
+   },
+   {
+    "label": "Theorem 5.1",
+    "page": "717 (proof pp. 725-726)",
+    "statement": "Let theta = (n,f) in Theta with f being uniform (f(x) = c). An optimal location of the response teams is given by d_i* = (2i-1)/(2n) for all i in {1,...,n}, with associated damage c/(2n).",
+    "meaning": "With equal exposure everywhere, teams are equally spaced at distance 1/n with half that distance (1/(2n)) to each boundary (p. 716); damage falls as 1/n with decreasing marginal reduction (Figure 5, c = 1). Footnote 4 (p. 716): the optimal value coincides with the continuous p-center value of Chandrasekaran and Tamir (1980) and Tamir (1987) for a two-node, one-edge graph of length one.",
+    "proof_idea": "L(d_1) = c d_1 (max at a = 0), I^i = c (d_{i+1} - d_i)/2 (max at the midpoint), R(d_n) = c(1 - d_n) (max at a = 1). Substitution gives all equal to c/(2n), so the strategy is balanced and Theorem 4.8 applies."
+   },
+   {
+    "label": "Lemma 5.2",
+    "page": "717 (proof p. 726)",
+    "statement": "Let theta = (n,f) in Theta with f being linearly increasing (f(x) = c x), d in D^n and k in {1,2,...,n}. If d_i = sqrt(i/k) d_k for all i in {1,...,k}, then L(d_1) = I^1(d_1,d_2) = ... = I^k(d_{k-1}, d_k) (as printed; since all I^i are the same function, this is the local damage between teams k-1 and k).",
+    "meaning": "Under a linear damage rate, positions growing like the square root of the team index equalize all local damages to the left of team k.",
+    "proof_idea": "L(d_1) = c d_1^2/4 (max at a = d_1/2) and, since the attacker strikes exactly at the midpoint, I(d_i,d_{i+1}) = c (d_{i+1}^2 - d_i^2)/4; with d_i^2 = (i/k) d_k^2 all equal c d_k^2/(4k). (The proof text writes 'for all i in {2,...,k-1}' where {1,...,k-1} is meant.)"
+   },
+   {
+    "label": "Theorem 5.3",
+    "page": "717 (proof p. 726)",
+    "statement": "Let theta = (n,f) in Theta with f being linearly increasing. Then, an optimal location of the response teams is given by d_i* = 2 sqrt(i) (sqrt(n+1) - sqrt(n)) for all i in {1,...,n}, with associated damage c/(sqrt(n+1) + sqrt(n))^2.",
+    "meaning": "Square-root spacing: relatively more teams toward the high-damage end; teams should be closer to each other where there are more people or buildings. With c = 2 (average damage rate 1, as for uniform c = 1) damage is smaller than in the uniform case for every n (Figure 6; footnote 5, p. 717: 1/(2n) >= 2/(sqrt(n+1)+sqrt(n))^2).",
+    "proof_idea": "Show d_i* = sqrt(i/n) d_n*, so Lemma 5.2 with k = n equalizes L and all I^i; then verify L(d_1*) = c d_1*^2/4 = c(1 - 2 sqrt(n) sqrt(n+1) + 2n) = c(1 - d_n*) = R(d_n*) (R maximized at a = 1); the result is balanced, so Theorem 4.8 applies."
+   },
+   {
+    "label": "Corollary 5.4",
+    "page": "718",
+    "statement": "Let theta = (n,f) in Theta with f being linearly decreasing (f(x) = c(1-x)), d in D^n and k in {1,...,n-1}. If d_i = 1 - sqrt((n+1-i)/(n+1-k)) (1 - d_k) for all i in {k,...,n}, then I^k(d_k,d_{k+1}) = ... = I^{n-1}(d_{n-1},d_n) = R(d_n).",
+    "meaning": "Mirror image of Lemma 5.2: equalizes all local damages to the right of team k for a decreasing linear rate.",
+    "proof_idea": "No separate proof; obtained from the linearly increasing case by relabeling d and a transformation on x (x -> 1 - x) (p. 718)."
+   },
+   {
+    "label": "Corollary 5.5",
+    "page": "718",
+    "statement": "Let theta = (n,f) in Theta with f being linearly decreasing. Then, an optimal location of the response teams is given by d_i* = 1 - 2 sqrt(n+1-i) (sqrt(n+1) - sqrt(n)) for all i in {1,...,n}.",
+    "meaning": "Mirror of Theorem 5.3. The corollary does not state the damage; by symmetry it is c/(sqrt(n+1)+sqrt(n))^2 as in Theorem 5.3 (my inference, confirmed numerically for n = 1, 2, 3 with c = 2).",
+    "proof_idea": "Relabeling and reflection of Theorem 5.3; no proof in the appendix."
+   },
+   {
+    "label": "Theorem 5.6",
+    "page": "718 (proof pp. 726-727)",
+    "statement": "Let theta = (n,f) in Theta with f being triangular (f(x) = c x on [0,beta], c beta/(1-beta) (1-x) on (beta,1]). If beta = k/(n+1) for some k in {1,...,n}, then an optimal location of the response teams is given by (8): d_i* = sqrt(i/k) beta for i in {1,...,k-1}; d_k* = beta; d_i* = 1 - sqrt((n+1-i)/(n+1-k)) (1 - beta) for i in {k+1,...,n}; with associated damage c k / (4 (n+1)^2).",
+    "meaning": "When the peak sits exactly where a balanced strategy would put team k, team k is at the peak, teams to its left follow the increasing-linear square-root rule and teams to its right the decreasing one; relatively more teams are positioned towards the top. Only n instances of beta (one per k) are covered. With beta = 1/2, c = 4 (average rate 1) the damage is 1/(2(n+1)), available only for odd n (Figure 8); this is lower than uniform and linear (footnote 7, p. 718, whose middle term needs the factor 2, see the numerical study).",
+    "proof_idea": "Combine a natural variant of Lemma 5.2 on [0, d_k] and of Corollary 5.4 on [d_k, 1] (the proof text cites 'Corollary 5.3.2', apparently Corollary 5.4), then verify L(d_1) = c d_1^2/4 = c k/(4(n+1)^2) = c beta (1-d_n)^2/(4(1-beta)) = R(d_n) with R maximized at a = (d_n+1)/2; conclude by the balanced-strategy theorem (the text says 'Theorem 4.6', apparently Theorem 4.8)."
+   },
+   {
+    "label": "Example 6",
+    "page": "719",
+    "statement": "f consists of two symmetric triangles with peaks 0.2 at 0.25 and 0.75 (f = 0.8x on [0,0.25], 0.4 - 0.8x on (0.25,0.5], 0.8x - 0.4 on (0.5,0.75], 0.8 - 0.8x on (0.75,1]). With d = (0.25, 0.75) (two teams), L(0.25) = I^1(0.25,0.75) = R(0.75) = 1/80, so d is optimal. With one extra team in the middle, d' = (0.25, 0.5, 0.75) is optimal with the same damage 1/80 (L(0.25) = I^1(0.25,0.5) = I^2(0.5,0.75) = R(0.75) = 1/80).",
+    "meaning": "Damage is not always strictly decreasing in the number of teams: adding a team need not help when hedging against the worst case. (The example's first line says n = 3 although d = (0.25, 0.75) is the n = 2 case; Figure 9 shows n = 2 and n = 3.)",
+    "proof_idea": "The paper only says 'one can easily verify'. Why it works: with d = (0.25, 0.75) the worst attacks in the middle interval are at a = 3/8 and 5/8, each at distance 1/8 from the nearer team (0.25 or 0.75) and at distance 1/8 from 0.5 as well; so a team at 0.5 does not shorten the response time there, and L and R are unchanged. All four local damages equal 1/80, so d' is balanced and hence optimal by Theorem 4.8."
+   },
+   {
+    "label": "Section 5.5 (unnumbered result on speed)",
+    "page": "720",
+    "statement": "Optimal team and attack locations are independent of v, but damage is inversely proportional to v: to obtain the damage for arbitrary v, multiply the expressions of Theorems 5.1, 5.3 and 5.6 by 1/v.",
+    "meaning": "Faster teams reduce damage, with a marginally decreasing impact of extra speed on this reduction.",
+    "proof_idea": "v enters D(d,a) only as a multiplicative factor 1/v."
+   }
+  ],
+  "methods_and_tools": [
+   "Stackelberg (leader-follower) game, subgame perfect Nash equilibrium, backward reasoning over the follower's best response",
+   "Min-max (bilevel) optimization: P = min_d max_a D(d,a)",
+   "Decomposition of the follower's problem into n+1 local damage problems (L, I^i, R), eq. (2)",
+   "Recursive (dynamic-programming-like) reformulation via L^i, eqs. (5)-(6), and the crossing system (7)",
+   "Correspondences, upper and lower hemicontinuity via sequential characterizations (Herings, 1996; Theorems 2.1-2.2)",
+   "Berge's maximum theorem (Theorem 2.4) for continuity of optimal-value functions",
+   "Monotonicity by feasibility arguments (a maximizer for one location is feasible for another)",
+   "Intermediate-value / crossing arguments for continuous non-decreasing vs non-increasing functions, backward induction (Lemma 4.4)",
+   "Proof by contradiction with induction on team index (Lemma 4.7)",
+   "Closed-form derivations by maximizing piecewise quadratic objectives in a (midpoint, endpoint or interior stationary point)",
+   "Symmetry/reflection argument (x -> 1-x) for linearly decreasing f",
+   "Comparison to continuous and weighted p-center location problems (Table 1)",
+   "Illustrative analytical scenario comparison (boulevard, Section 5.4); no computational experiments"
+  ],
+  "allocation_rules": "Not applicable in the cooperative-game sense: the paper has no coalitions, characteristic function or cost/value sharing rule (no core, Shapley value, etc.). The 'rules' analysed are positioning rules for the leader's resources:\n1. Optimal balanced strategy (Theorem 4.8): place teams so that the left-end local damage, every between-teams local damage and the right-end local damage are equal; existence is guaranteed and every such strategy is optimal (balance is sufficient, not necessary: Example 5). Closed forms: uniform d_i* = (2i-1)/(2n), damage c/(2n) (Theorem 5.1); linearly increasing d_i* = 2 sqrt(i)(sqrt(n+1)-sqrt(n)), damage c/(sqrt(n+1)+sqrt(n))^2 (Theorem 5.3); linearly decreasing d_i* = 1 - 2 sqrt(n+1-i)(sqrt(n+1)-sqrt(n)) (Corollary 5.5, damage not stated); triangular with beta = k/(n+1), eq. (8), damage c k/(4(n+1)^2) (Theorem 5.6).\n2. Intuitive rule 'position response teams at the most crowded locations' (p. 720): in the boulevard, d = (3/10, 11/20, 3/4, 17/20) (these are the four local maxima of f in eq. 9, with f = 0.3, 0.2, 0.25, 0.2; my reading, verified), damage 1/50, i.e., 50% above the optimum 1/75.\n3. Intuitive rule 'minimize the maximal response time to any location' (p. 720), in line with equally distributing resources in Shan & Zhuang (2013a): d = (1/8, 3/8, 5/8, 7/8), maximal response time 1/8 (footnote 8, p. 720: coincides with the uniform-optimal positioning), damage 1/32, i.e., more than 134% above the optimum (exactly 75/32 = 2.34375 times).\nStated property: intuitive rules from practice might perform substantially worse than the optimal strategy; there is a trade-off between minimizing damage and minimizing maximal response time.",
+  "numerical_study": "There is no computational study and no data (Data Availability: not applicable). The paper uses analytical illustrations:\n- Leading example (Examples 1-4, pp. 712-714, Figures 1-3): n = 2, f = 1. d = (0.2, 0.8), attack a = 0.4 gives D = 0.2 (Example 1); best response a = 0.5 with damage 0.3 (local damages 0.2, 0.3, 0.2; Examples 2-3); repositioning d_1 to 4/15 with d_2 = 0.8 gives 4/15; optimum d* = (1/4, 3/4) with damage 1/4 (eq. 4, Figure 3C).\n- Example 5 (pp. 715-716, Figure 4): balanced d = (0.05, 0.2, 0.8, 0.95) and non-balanced d' = (0.05, 0.4, 0.6, 0.95) both reach damage 1/80 (I^2(0.4,0.6) = 1/400).\n- Damage versus number of teams (n = 1 to 16 on the axis): Figure 5 (uniform, c = 1, damage 1/(2n): 0.5, 0.25, 0.167, ...), Figure 6 (linear, c = 2, damage 2/(sqrt(n+1)+sqrt(n))^2: about 0.343, 0.202, 0.144, ...), Figure 8 (triangular, beta = 1/2, c = 4, damage 1/(2(n+1)) for odd n only: 0.25, 0.125, 0.083, ...). All three have average damage rate 1 (footnote 6). The values listed are those implied by the formulas and match the bar heights read from the axes; the bars are not labelled numerically. Ranking: triangular <= linear <= uniform (footnotes 5 and 7). Note: footnote 7 as printed reads 1/(2(n+1)) <= 1/(sqrt(n+1)+sqrt(n))^2 <= 1/(2n); with numerator 1 the first inequality fails for every n >= 1 (e.g., n = 1: 0.25 vs 0.172; in general (sqrt(n+1)+sqrt(n))^2 > 4n+1 > 2n+2), so the middle term should carry the factor c = 2 used in Figure 6 (my check).\n- Example 6 (p. 719, Figure 9): two-triangle f, damage 1/80 with 2 teams and still 1/80 with 3 teams.\n- Boulevard scenario (Section 5.4, pp. 719-720, eq. 9, Figure 10): n = 4, piecewise-linear f with peaks 0.3 at x = 0.3, 0.2 at 0.55, 0.25 at 0.75, 0.2 at 0.85 and a base level 0.1 elsewhere (ramping up from 0 on [0, 0.1] and down to 0 on (0.85, 1]); narrative: musician, historical fountain, casino hotel and restaurant with a constant pedestrian flow in between. Optimal d = (7/30, 1/3, 3/5, 4/5); optimal attack locations a in {1/10, 17/60, 7/15, 11/15, 9/10}; all five local damages equal; damage 1/75 (printed as (3/70 - 1/10) x 1/10 = 1/75, which is a typo for (7/30 - 1/10) x 1/10; the printed expression would be negative). Most-crowded rule: d = (3/10, 11/20, 3/4, 17/20), attack at 1/10, D = (3/10 - 1/10) x 1/10 = 1/50 (+50%). Min-max response time rule: d = (1/8, 3/8, 5/8, 7/8), attack at 3/4, D = (3/4 - 5/8) x 1/4 = 1/32 (+134.375%, printed as 'more than 134%').",
+  "worked_example": "(a) Leading example from the paper (pp. 712-714), v = 1, n = 2, f(x) = 1 on [0,1]. Local damages (Example 3): L(d_1) = d_1, I^1(d_1,d_2) = (d_2 - d_1)/2, R(d_2) = 1 - d_2. At d = (0.2, 0.8): L = 0.2 (attack a = 0), I^1 = 0.3 (a = 0.5), R = 0.2 (a = 1), so the terrorist attacks at 0.5 and the damage is 0.3. Keep d_2 = 0.8 and move d_1 to 0.8/3 = 4/15: L = I^1 = 4/15 (about 0.267, I^1 attained at a = 8/15), R = 0.2, damage 4/15. Then choose d_2 to solve d_2/3 = 1 - d_2: d_2* = 3/4, d_1* = 1/4, and L = I^1 = R = 1/4 (balanced, optimal; matches Theorem 5.1 with c = 1, n = 2: positions (2i-1)/4, damage 1/(2n) = 1/4).\n\n(b) Boulevard (pp. 719-720), n = 4, f from eq. (9): f(x) = x on [0,0.1]; 0.1 on (0.1,0.2]; 2x - 0.3 on (0.2,0.3]; -2x + 0.9 on (0.3,0.4]; 0.1 on (0.4,0.5]; 2x - 0.9 on (0.5,0.55]; -2x + 1.3 on (0.55,0.6]; 0.1 on (0.6,0.7]; 3x - 2 on (0.7,0.75]; -3x + 2.5 on (0.75,0.8]; 2x - 1.5 on (0.8,0.85]; -(4/3)x + 4/3 on (0.85,1] (continuous at every breakpoint). Optimal d = (7/30, 1/3, 3/5, 4/5). Check each interval: left end: attack at 0.1, f = 0.1, distance 7/30 - 3/30 = 2/15, damage 1/75; between 7/30 and 1/3: attack at 17/60 (the midpoint), f = 4/15, distance 1/20, damage 1/75; between 1/3 and 3/5: attack at 7/15 (the midpoint), f = 0.1, distance 2/15, damage 1/75; between 3/5 and 4/5: attack at 11/15, f = 0.2, distance to 4/5 = 1/15, damage 1/75; right end: attack at 0.9, f = 2/15, distance 0.1, damage 1/75. Optimal damage 1/75 = 0.01333. Alternatives: d = (3/10, 11/20, 3/4, 17/20) gives 1/50 = 0.02 (attack at 0.1); d = (1/8, 3/8, 5/8, 7/8) gives 1/32 = 0.03125 (attack at 0.75). Ratios 1.5 and 2.34375. Full local-damage profiles of the alternatives (my computation, not printed in the paper): most crowded (L, I^1, I^2, I^3, R) = (1/50, 1/80, 1/100, 1/192, 3/400), attained at a = 1/10, 17/40, 13/20, 19/24, 37/40; min-max response time = (1/256, 81/3200, 49/3200, 1/32, 1/192), attained at a = 1/16, 21/80, 43/80, 3/4, 15/16.\n\n(c) Closed-form spot checks a widget can recompute: linear f = 2x, n = 2: d* = (2(sqrt3 - sqrt2), 2 sqrt2 (sqrt3 - sqrt2)) = (0.636, 0.899), damage 2/(sqrt3 + sqrt2)^2 = 0.202 (L = c d_1^2/4 = 0.202, I^1 = c(d_2^2 - d_1^2)/4 = 0.202, R = c(1 - d_2) = 0.202). Triangular c = 4, beta = 1/2, n = 3 (k = 2): d* = (0.5/sqrt2, 0.5, 1 - 0.5/sqrt2) = (0.354, 0.5, 0.646), damage 4 x 2/(4 x 16) = 0.125 (all four local damages 0.125).\n\nWidget recipe (my own construction, not in the paper, which gives no algorithm for general f): evaluate max_a D(d,a) interval by interval (for piecewise-linear f, D is quadratic in a on each piece between breakpoints of f, team positions and midpoints, so check segment ends and the parabola vertex). To compute P for arbitrary continuous f, bisect on a target damage z: sweep left to right, placing each team at the largest position whose local damage on its left is at most z (well defined by the monotonicity of Lemma 4.2), and accept z if R(d_n) <= z; the smallest accepted z approximates P and the sweep returns an optimal strategy, which need not be balanced in general (on the boulevard it returns the balanced optimum (7/30, 1/3, 3/5, 4/5) with z = 1/75).",
+  "insights": [
+   "Main structural result (Theorem 4.8): an optimal strategy always exists that balances the local damages of all n+1 intervals, making the terrorist indifferent between attacking left of the first team, between any two consecutive teams, or right of the last team; every balanced strategy is optimal and all balanced strategies have the same damage (Lemma 4.7).",
+   "Balancedness is sufficient but not necessary (Example 5): when f is zero on stretches, unbalanced strategies can also be optimal, so optimal strategies are generally not unique.",
+   "Managerial insight 1: if people or buildings are more clustered, response teams are positioned closer together around them, and the total damage is lower than with equal spread (uniform 1/(2n) > linear 2/(sqrt(n+1)+sqrt(n))^2 > triangular 1/(2(n+1)) at equal average damage rate 1; the triangular value is available for odd n only).",
+   "Managerial insight 2: adding response teams does not always strictly reduce the worst-case damage (Example 6).",
+   "Managerial insight 3: intuitive rules can perform badly; in the boulevard, positioning at the most crowded locations raises damage by 50% and minimizing maximal response time raises it by more than 134%.",
+   "Managerial insight 4: there is a trade-off between minimizing damage and minimizing the maximal response time to any location on the line.",
+   "In the uniform, linear and triangular cases the marginal reduction in damage decreases in the number of teams (Figures 5, 6, 8).",
+   "Square-root spacing (Theorem 5.3, eq. 8): teams get denser where the damage rate is higher; under linear f the attacker strikes exactly at midpoints between teams.",
+   "Team speed does not change optimal positions or attack locations; damage scales with 1/v, so extra speed has a marginally decreasing benefit (Section 5.5).",
+   "The uniform case reproduces the continuous p-center value on a single edge; the model is a combination of the continuous and the weighted p-center problems on a two-node, one-edge graph (Table 1, p. 711; footnote 4, p. 716).",
+   "Proof architecture worth reusing: split the follower's best response into local problems, define left-optimized value functions recursively, prove continuity (Berge) and opposite monotonicity, then find crossing points by backward induction."
+  ],
+  "limitations_future_work": "Stated by the authors (Section 6, pp. 720-721): (1) The terrorist is rational and strategic, observing the government's actions before choosing the best location; future work could include irrational or non-strategic behavior (Golany et al., 2009; Hao et al., 2009; Shan & Zhuang, 2013b). The min-max model can also be read as hedging against the worst case when the government is unsure about the terrorist's information or motives. (2) A single objective (minimizing damage); governments may have multiple objectives (Bertsimas et al., 2011; Keeney, 1980; Shan & Zhuang, 2013a). (3) Only a one-dimensional line segment; a natural generalization is a two-dimensional space or street network with Manhattan distance, where it is not immediately clear what a balanced strategy would be and likely not all balanced strategies lead to the same damage, which severely complicates the analysis. (4) A single attack; future work could allow multiple attacks closely after each other and relocation/re-assignment of response teams.\nFurther observations from reading (not claimed by the paper): closed forms are given only for uniform, linear and triangular f, and the triangular result only for beta = k/(n+1); no algorithm is given for computing a balanced strategy for general f; damage is linear in response time and the closest team always responds; teams are restricted to the segment and no capacity or randomization (mixed strategies) is considered. Minor printing issues: the proof of Lemma 4.3 cites 'Theorem 1.1' (Berge's theorem is Theorem 2.4) and defines g with I^{i+1} instead of I^i; the end of the proof of Lemma 4.2 reads 'for all i in {1,...,i-1}'; the proof of Lemma 5.2 says 'for all i in {2,...,k-1}' where {1,...,k-1} is meant; the proof of Theorem 5.6 cites 'Corollary 5.3.2' and 'Theorem 4.6' (apparently Corollary 5.4 and Theorem 4.8); several proofs call the objective c a (d_1 - a) 'convex' where it is concave with an interior maximum; the codomain of L^i is printed as a script R instead of the reals (p. 714); Example 6 opens with n = 3 while d = (0.25, 0.75) is the n = 2 case; the boulevard damage is printed as (3/70 - 1/10) x 1/10 instead of (7/30 - 1/10) x 1/10; footnote 7 omits the factor 2 in the linear-case term.",
+  "connections": "Literature extended: (i) game-theoretic terrorism protection, including protection of critical infrastructure (Bier et al., 2007; Brown et al., 2011; Hausken & Zhuang, 2011; Holzmann & Smith, 2019; Jiao & Luo, 2019; Musegaas et al., 2022; Powell, 2009; Scaparra & Church, 2008; Zhuang & Bier, 2007) and security of airports (Korzhyk et al., 2011; Pita et al., 2009; Shieh et al., 2012, whose reference title concerns US ports); the majority of these papers do not explicitly model geographic positioning (p. 710). (ii) Ambush games on a line (Baston & Bostock, 1987; Baston & Kikuta, 2004; Hausken, 2010), where an intruder crosses a line and a defender positions detectors to maximize detection. (iii) Closest predecessors: Berman & Gavious (2007), a Stackelberg game where the leader allocates supportive resources (e.g., ambulances) on a network and the follower attacks the node with highest expected damage (one resource anywhere on nodes or arcs solved efficiently; multiple resources on nodes only via ILP, case study of the 20 largest US cities); and Meng et al. (2013), with multiple capacitated resources (ILP, 19 districts in Shanghai). This paper moves to a continuous line to allow unrestricted attack and team locations. (iv) Location theory (Eiselt et al., 2004; Wang & Liu, 2019), with Garcia & Marin (2015) cited for the hardness of continuous location problems, and p-center problems (Calik et al., 2015; discrete: Mladenovic et al., 2003, Tansel, 2011, Calik & Tansel, 2013, Davidovic et al., 2011; continuous: Chandrasekaran & Tamir, 1980, Hansen et al., 1991, Tamir, 1987, 1988; weighted: Averbakh & Berman, 1997, Burkard & Dollani, 2003, Calik & Tansel, 2013, Bhattacharya & Shi, 2007); the model is placed in the weighted continuous cell of Table 1. (v) Equal-distribution allocation (Shan & Zhuang, 2013a) as the benchmark 'min max response time' rule. Game theory background from Osborne (2004); mathematical tools from Herings (1996).\nOwn-group work cited: Musegaas, Schlicher & Blok (2022), 'Stackelberg production-protection games: Defending crop production against intentional attacks', EJOR 297(1), 102-119 (co-author Loe Schlicher). No other paper by these authors is cited. This paper introduces the name 'Stackelberg protection location games (SPL games)' (p. 712). (Outside the paper: the reading list also contains Musegaas et al. (2022) and 'Time-dependent Stackelberg protection location games', which reuses the SPL name and cites this paper as its reference [3]; that forward link is of course not made in this text.)",
+  "prerequisites": [
+   "Stackelberg leader-follower games, subgame perfect Nash equilibrium, backward induction",
+   "Min-max (robust / worst-case) optimization",
+   "Real analysis on R^n: continuity, compactness, intermediate value theorem, monotone functions",
+   "Correspondences, upper and lower hemicontinuity, Berge's maximum theorem",
+   "Maximizing quadratic and piecewise-linear-times-linear functions on intervals",
+   "Location theory basics: p-center problem (discrete, continuous, weighted)",
+   "Familiarity with security games and defender-attacker models (e.g., Berman & Gavious, 2007)"
+  ],
+  "glossary": [
+   {
+    "term": "Response team",
+    "definition": "Heavily armed, highly trained rapid response unit positioned on the segment; the closest one responds to an attack at speed v."
+   },
+   {
+    "term": "SPL game / SPL situation theta = (n, f)",
+    "definition": "Stackelberg protection location game: the leader places n teams on [0,1], the follower picks one attack point; a situation is the pair (number of teams, damage rate function); Theta is the set of all situations."
+   },
+   {
+    "term": "D^n",
+    "definition": "Set of ordered team positions {d in [0,1]^n | d_1 <= ... <= d_n}."
+   },
+   {
+    "term": "Damage rate function f",
+    "definition": "Continuous f: [0,1] -> R_{>=0} giving damage per time unit of an attack at each location (people affected, buildings, statues)."
+   },
+   {
+    "term": "Damage D(d, a)",
+    "definition": "min_i |d_i - a|/v times f(a): response time of the closest team times the damage rate at the attack point."
+   },
+   {
+    "term": "P",
+    "definition": "The leader's problem min_{d in D^n} max_{a in A} D(d, a) (eq. 1)."
+   },
+   {
+    "term": "Local damage problems L, I^i, R",
+    "definition": "Maximal damage left of the first team, between teams i and i+1 (with distance to the nearer of the two), and right of the last team; their optimal values are the local damages."
+   },
+   {
+    "term": "L^i",
+    "definition": "Recursively defined minimal damage to the left of team i when teams 1..i-1 are placed optimally (eq. 5), with L^1 = L."
+   },
+   {
+    "term": "Balanced strategy",
+    "definition": "Team positions for which all n+1 local damages are equal, so the attacker is indifferent among all intervals."
+   },
+   {
+    "term": "Optimal strategy of the leader",
+    "definition": "The leader's strategy in a subgame perfect Nash equilibrium, i.e., a minimizer of P."
+   },
+   {
+    "term": "Correspondence",
+    "definition": "A relation phi: S -> T with phi(x) non-empty for every x in S."
+   },
+   {
+    "term": "Upper / lower hemicontinuity",
+    "definition": "Continuity notions for correspondences, used here through the sequential characterizations of Theorems 2.1 and 2.2."
+   },
+   {
+    "term": "Berge's maximum theorem",
+    "definition": "If phi is continuous and compact-valued and h is continuous, then g(x) = max_{y in phi(x)} h(x, y) is continuous (Theorem 2.4)."
+   },
+   {
+    "term": "Average damage rate",
+    "definition": "Integral of f over [0,1] (footnote 6); used to compare uniform (c = 1), linear (c = 2) and triangular (c = 4, beta = 1/2) cases at equal average 1."
+   },
+   {
+    "term": "Continuous p-center problem",
+    "definition": "Place p facilities anywhere on a graph to minimize the maximum distance from any demand point (anywhere on the graph) to its closest facility."
+   },
+   {
+    "term": "Weighted p-center problem",
+    "definition": "p-center variant where facilities can be positioned anywhere but demand points sit on the nodes and carry different weights; the paper's model combines weights (via f) with continuous demand on one edge."
+   },
+   {
+    "term": "Ambush game",
+    "definition": "Game where an intruder crosses a line between two points and a defender positions detectors on it to maximize detection."
+   },
+   {
+    "term": "Triangular damage rate",
+    "definition": "f(x) = c x on [0, beta] and c beta/(1-beta) (1 - x) on (beta, 1]; models one attraction at beta."
+   }
+  ],
+  "study_questions": [
+   "Why can the team speed v be set to 1 without loss of generality for strategies, and how does damage depend on v (Section 5.5)?",
+   "Show that max_a D(d, a) equals the maximum of the n+1 local damages (eq. 2). Why does I^i use min{a - d_i, d_{i+1} - a}?",
+   "Derive L, I^i and R for f = c and prove Theorem 5.1 directly. Why are boundary gaps half the interior gaps?",
+   "State the monotonicity properties of L, R and I^i in each argument (Lemma 4.2) and reproduce the feasibility argument.",
+   "Which correspondences and objective functions are fed into Berge's theorem in Lemma 4.1 and Lemma 4.3, and why is Lemma 2.3 enough to verify the hypotheses?",
+   "Explain the backward-induction crossing argument of Lemma 4.4. Why are R(1) = L^n(0) = 0 and I(d_i, d_i) = 0 essential?",
+   "Reconstruct the contradiction in Lemma 4.7 showing all balanced strategies have the same damage. Which step would fail in a two-dimensional Manhattan-distance setting, as the authors suggest?",
+   "In Example 5, why is d' = (0.05, 0.4, 0.6, 0.95) optimal but not balanced? What feature of f makes this possible?",
+   "In Example 6, why does a third team at 0.5 not reduce damage? Design another f for which adding a team does not help.",
+   "For f(x) = c x, derive d_n* from c d_n^2/(4n) = c(1 - d_n) and recover Theorem 5.3. Why does the attacker hit exactly the midpoint between two teams?",
+   "Why does Theorem 5.6 require beta = k/(n+1)? What does the paper say (and not say) about other values of beta?",
+   "Verify the boulevard numbers: optimal damage 1/75 at d = (7/30, 1/3, 3/5, 4/5), 1/50 for the most-crowded rule, 1/32 for the min-max response time rule. Spot the typo in the printed computation.",
+   "Compare the model with Berman & Gavious (2007) and Meng et al. (2013): what is gained and what is lost by moving to a continuous line segment?",
+   "Place the model in Table 1: in what sense is it a weighted continuous p-center problem on a two-node, one-edge graph?",
+   "How would you compute a balanced strategy numerically for an arbitrary continuous f, given the monotonicity results of Section 4?"
+  ]
+ },
+ "verification": {
+  "changes": [
+   "Theorems 2.1, 2.2, 2.4 and Lemma 2.3: 'S in R^m, T in R^n' corrected to the printed subset relations S ⊆ R^m, T ⊆ R^n (p. 711-712).",
+   "Motivation: 'Discrete network models ... handle only about 20 nodes' replaced by the paper's wording: both papers assume the number of potential attack and resource locations to be limited when multiple resources are positioned (around 20 nodes); added that continuous location problems are notoriously hard (Garcia & Marin, 2015), which motivates the line segment (p. 710).",
+   "Numerical study and Theorem 5.6 note on footnote 7 (p. 718): the printed chain 1/(2(n+1)) <= 1/(sqrt(n+1)+sqrt n)^2 <= 1/(2n) fails for every n >= 1, not only n = 1, because (sqrt(n+1)+sqrt n)^2 > 4n+1 > 2n+2; with the factor 2 (c = 2 of Figure 6) it holds (checked n = 1..7).",
+   "Example 6 proof idea corrected: the paper only says 'one can easily verify'; the reason the middle team does not help is that the worst attacks in the middle interval (a = 3/8, 5/8) are already at distance 1/8 from 0.5, so the team at 0.5 does not shorten the response there; the previous explanation ('worst intervals around the peaks' flanks are unchanged') was imprecise (p. 719).",
+   "Theorem 5.1 meaning: added that footnote 4 is on p. 716 (not p. 717) and that the spacing statement (1/n between teams, 1/(2n) to the boundaries) is on p. 716.",
+   "Theorem 5.3: proof idea reworded: the appendix shows d_i* = sqrt(i/n) d_n* and verifies L(d_1*) = R(d_n*) rather than choosing d_n*; footnote 5 located on p. 717 (p. 726).",
+   "Lemma 5.2: added that the proof writes 'for all i in {2,...,k-1}' where {1,...,k-1} is meant (p. 726); also added to the printing-issues list together with the L^i codomain typo (p. 714).",
+   "Corollary 5.5: the symmetry inference that its damage equals c/(sqrt(n+1)+sqrt n)^2 is still marked as my inference, now confirmed numerically for n = 1, 2, 3 (c = 2).",
+   "Worked example recipe: the left-to-right greedy sweep with bisection on z returns an optimal strategy that need not be balanced in general (previously described as finding 'a balanced strategy'); noted that on the boulevard it returns the balanced optimum with z = 1/75.",
+   "Worked example (b): added the full local-damage profiles of the two intuitive rules, labelled as my computation (not printed in the paper); stated that eq. (9) is continuous at all breakpoints (checked).",
+   "Boulevard min-max rule: made precise that 1/32 vs 1/75 is a factor 75/32 = 2.34375 (+134.375%), printed as 'more than 134%' (p. 720); noted that the printed (3/70 - 1/10) x 1/10 would be negative (-1/175).",
+   "Connections: added Calik & Tansel (2013) to the weighted p-center list (it appears in both discrete and weighted lists and in Table 1, p. 711); described the security references as 'security of airports' as the paper groups them, noting that Shieh et al. (2012) concerns US ports by its reference title; García & Marín (2015) attributed to the hardness remark; added Osborne (2004); noted that the Time-dependent SPL paper cites this one as reference [3].",
+   "Insights: noted that the triangular damage 1/(2(n+1)) is only available for odd n (Figure 8, p. 718) when ranking uniform > linear > triangular.",
+   "Allocation rules: confirmed by computation that (3/10, 11/20, 3/4, 17/20) are the four local maxima of f in eq. (9) (f = 0.3, 0.2, 0.25, 0.2); footnote 8 located on p. 720.",
+   "Bibliography, dates, DOI, license, keywords, pages 709-727, issue 5, all result labels and page numbers, Examples 1-6 numbers, the boulevard optimum 1/75, the 1/50 and 1/32 alternatives, and the closed forms of Theorems 5.1, 5.3, 5.6 were confirmed in the text and PDF without change."
+  ],
+  "example_recomputed": true,
+  "example_check": "Script: /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2023-rapid-response-teams/check.py (run with python3 -I). It computes local damages exactly with Fractions for piecewise-linear f: each interval is split at the breakpoints of f, the team positions and the midpoints between teams; on each piece the nearest team is fixed, so D is quadratic in a and the maximum is at a piece end or at the parabola vertex. Results: (a) leading example f = 1, n = 2: d = (0.2, 0.8) gives local damages (1/5, 3/10, 1/5), damage 3/10 at a = 1/2; d = (4/15, 0.8) gives (4/15, 4/15, 1/5); d = (1/4, 3/4) gives (1/4, 1/4, 1/4). (b) Boulevard eq. (9) (continuity at every breakpoint checked): d = (7/30, 1/3, 3/5, 4/5) gives all five local damages exactly 1/75 at a = 1/10, 17/60, 7/15, 11/15, 9/10; most crowded d = (3/10, 11/20, 3/4, 17/20) gives 1/50 at a = 1/10; d = (1/8, 3/8, 5/8, 7/8) gives 1/32 at a = 3/4; ratios 3/2 and 75/32 = 2.34375; the printed (3/70 - 1/10)/10 = -1/175 while (7/30 - 1/10)/10 = 1/75. A greedy left-to-right sweep with bisection on the target damage gives P = 0.0133333 = 1/75 with positions (0.23333, 0.33333, 0.6, 0.8), confirming optimality. (c) Example 5: d gives five local damages 1/80; d' gives (1/80, 1/80, 1/400, 1/80, 1/80). Example 6: n = 2 and n = 3 both give all local damages 1/80, and the greedy check shows z = 1/81 is infeasible for n = 3. (d) On a fine grid: uniform n = 1, 2, 3, 5 gives c/(2n); linear c = 2, n = 1..4 gives balanced local damages 0.343146, 0.202041, 0.143594, 0.111456 equal to c/(sqrt(n+1)+sqrt n)^2, with n = 2 positions (0.6357, 0.899); linear decreasing (Corollary 5.5) gives the same damages; triangular (n,k,c) = (3,2,4), (1,1,4), (5,3,4), (4,1,1), (4,3,1), (4,4,1) all balanced at c k/(4(n+1)^2), e.g., n = 3: positions (0.3536, 0.5, 0.6464), damage 0.125. (e) Footnote 7 as printed fails for n = 1..7; with the factor 2 it holds. The worked example was consistent with the model; only the recipe wording (optimal, not necessarily balanced) changed, and the local-damage profiles of the alternatives were added."
+ }
+}

@@ -1,0 +1,212 @@
+{
+ "notes": {
+  "slug": "2025-protection-location",
+  "bibliography": {
+   "title": "Time-dependent Stackelberg protection location games",
+   "authors": [
+    "Lotte van Aken",
+    "Loe Schlicher",
+    "Marco Slikker"
+   ],
+   "affiliations_as_printed": "School of Industrial Engineering, Eindhoven University of Technology, P.O. Box 513, 5600 MB, Eindhoven, the Netherlands (one affiliation printed for all three authors). Lotte van Aken is the corresponding author. E-mail addresses as printed: [e-mail omitted] (L. van Aken), [e-mail omitted] (L. Schlicher), [e-mail omitted] (M. Slikker). Footnote 1 (Loe Schlicher): \"Is supported by NWO grant VI.Veni.201E.017.\"",
+   "journal": "Operations Research Letters",
+   "volume_issue_pages_or_article": "Volume 60 (2025), article 107278, 9 pages (ISSN 0167-6377)",
+   "year": "2025",
+   "received": "8 August 2024 (received in revised form 7 March 2025)",
+   "accepted": "10 March 2025",
+   "available_online": "13 March 2025",
+   "doi": "10.1016/j.orl.2025.107278",
+   "open_access_or_license": "Open access under the CC BY license (http://creativecommons.org/licenses/by/4.0/). (c) 2025 The Author(s). Published by Elsevier B.V.",
+   "keywords": [
+    "Counter-terrorism",
+    "Stackelberg game",
+    "Resource allocation"
+   ]
+  },
+  "chronology_date": "2025-03-13",
+  "one_line": "A government places n rapid response teams on the segment [0,1] before a terrorist picks an attack point; when the damage per time unit may change over time (and even jump, e.g. when a police team arrives), a balanced placement, one that equalizes the worst-case damage on every interval between and around the teams, still exists and is optimal, and in a police office example ignoring the time effect raises the worst-case damage by more than 10%.",
+  "question": "The predecessor paper (van Aken et al. [3], Naval Research Logistics 2024) studied a Stackelberg protection location game in which damage = (travel time of the closest response team) x (a damage rate f(a) that is constant over time) and showed that a balanced strategy is optimal. The authors consider the constant-over-time assumption restrictive (victims run away, local police hinder the attacker, or damage grows when the attacker enters a shop, restaurant or museum). Their question: if the damage rate h(a,t) depends on both the attack location and the elapsed time, including possible \"jumps\", is a balanced strategy (one that balances the possible damage on all intervals created by the teams) still optimal for the government's min-max problem (the abstract phrases it as a subgame perfect Nash equilibrium that balances the damage), and how much does time dependency matter for the team locations and the resulting damage in a concrete instance?",
+  "motivation_application": "Counter-terrorism: positioning heavily armed, highly trained rapid response teams along a line segment, for instance a long boulevard (p.1). The time-dependence motivation (p.2): in a shooting at a market place the expected number of victims per time unit typically decreases as people run away; nearby local police teams will also respond and, although most likely unable to neutralize the threat, can hinder it and lower damage per time unit; conversely the damage rate can increase for a certain amount of time, e.g. a terrorist who enters a shop, restaurant or museum where many people may be around. A jump in the damage rate can represent a police team arriving at the scene (p.3). Section 4 (p.4 to 5) is a stylized busy shopping avenue with a market square at the end: quiet at the start, busier towards the square (damage rate linearly increasing in location), and a police office located at the busiest location a = 1 whose arrival cuts the damage per time unit in half from then on. The conclusion (p.5) adds that the results may apply in the broader emergency response sector whenever minimizing the maximal damage is a relevant criterion.",
+  "model": "Original setting of [3] (p.1). Line segment $[0,1]$, $n\\in\\mathbb N$ response teams, continuous damage rate $f:[0,1]\\to\\mathbb R_{\\ge 0}$. Government (leader) strategy $d=(d_1,\\dots,d_n)\\in D^n=\\{d\\in[0,1]^n \\mid d_1\\le d_2\\le\\dots\\le d_n\\}$; attacker (follower) chooses $a\\in A=[0,1]$. Damage $D(d,a)=\\min_{i\\in\\{1,\\dots,n\\}}\\frac{|d_i-a|}{v}\\cdot f(a)$ with constant team speed $v\\in\\mathbb R_{>0}$. Terrorist maximizes, government minimizes: $\\mathcal P := \\min_{d\\in D^n}\\max_{a\\in A} D(d,a)$ (eq. 1). An optimal strategy is not affected by $v$, so [3] takes $v=1$ w.l.o.g.\n\nGeneralized model (Section 2, p.2). Time-dependent damage rate $h:[0,1]^2\\to\\mathbb R_{\\ge 0}$, first argument = attack location, second = time. Speed $v=1$, so the time range can be restricted to 1 (otherwise the time domain is scaled accordingly). Damage $D(d,a)=\\int_{t=0}^{t=\\min_{i}|d_i-a|} h(a,t)\\,dt$ for all $a\\in A$, $d\\in D^n$. Government problem $\\mathcal P^*:=\\min_{d\\in D^n}\\max_{a\\in A} D(d,a)$ (eq. 2); a minimizer is an \"optimal strategy\". A TPL situation (time-dependent protection location situation) is $\\theta=(n,h)$; the associated Stackelberg game is a TPLS game. $\\Theta$ = set of TPL situations for which $D$ and problem (2) are well-defined (not characterized further).\n\nSubclasses: $\\Theta^C$ (p.2): $h$ constant over time and continuous on a closed interval (hence uniformly continuous); in bijection with the situations of [3], so the paper writes $\\Theta^C$ for those as well (p.3). $\\Theta^U$ (p.3): $h$ uniformly continuous. $\\Theta^J$ (\"jumps\", p.3): $k\\in\\mathbb N$ uniformly continuous $f_i:[0,1]^2\\to\\mathbb R_{\\ge0}$ ($f_1$ initial rate, $f_i$ for $i\\in\\{2,\\dots,k\\}$ the rate after jump $i-1$) and $k+1$ continuously differentiable thresholds $p_i:[0,1]\\to[0,1]$, $i\\in\\{0,\\dots,k\\}$, with $p_{i+1}(a)\\ge p_i(a)$, $p_0\\equiv 0$, $p_k\\equiv 1$; then $h(a,t)=f_1(a,t)$ if $p_0(a)\\le t\\le p_1(a)$ and $h(a,t)=f_j(a,t)$ if $p_{j-1}(a)<t\\le p_j(a)$ for $j=2,\\dots,k$. So the jump times may depend on the location. Inclusions (p.3): $\\Theta^C\\subseteq\\Theta^U\\subseteq\\Theta^J\\subseteq\\Theta$; the analysis is for $\\Theta^J$.\n\nLocal damage problems (Section 3, p.3): $\\mathcal L(d_1)=\\max_{a\\in[0,d_1]}\\int_0^{d_1-a}h(a,t)dt$ (left of team 1); for $i\\in\\{1,\\dots,n-1\\}$, $D^{i,i+1}=\\{(d_i,d_{i+1})\\in[0,1]^2\\mid d_i\\le d_{i+1}\\}$ and $\\mathcal I^i(d_i,d_{i+1})=\\max_{a\\in[d_i,d_{i+1}]}\\int_0^{\\min\\{a-d_i,d_{i+1}-a\\}}h(a,t)dt$; $\\mathcal R(d_n)=\\max_{a\\in[d_n,1]}\\int_0^{a-d_n}h(a,t)dt$ (right of the last team). Their optimal values are the local damages. Balanced strategy $d^*$ (from [3]): $\\mathcal L(d_1^*)=\\mathcal I^1(d_1^*,d_2^*)=\\mathcal I^2(d_2^*,d_3^*)=\\dots=\\mathcal R(d_n^*)$. Properties needed by [3] (p.3): (i) $\\mathcal L,\\mathcal I^i,\\mathcal R$ continuous; (ii) $\\mathcal L$ non-decreasing; (iii) $\\mathcal R$ non-increasing; (iv) $\\mathcal I^i(\\cdot,d_{i+1})$ non-increasing and $\\mathcal I^i(d_i,\\cdot)$ non-decreasing.\n\nPolice team scenario (Section 4, eq. 3, p.4): $h(a,t)=a$ if $t\\le 1-a$, and $h(a,t)=\\tfrac12 a$ otherwise (the police office at $a=1$ arrives after time $1-a$ and halves the rate). The paper only states $\\theta\\in\\Theta^J$; in the notation of $\\Theta^J$ this is $k=2$, $f_1(a,t)=a$, $f_2(a,t)=a/2$, $p_0\\equiv0$, $p_1(a)=1-a$, $p_2\\equiv1$ (our identification).\n\nBoth players optimize the same damage in opposite directions (a leader-follower game that is zero-sum in effect; the paper does not use the term zero-sum). There is no coalition, characteristic function or cost-sharing in this paper.",
+  "results": [
+   {
+    "label": "Lemma 3.1",
+    "page": "4 (sketch of proof in Appendix A, p.5 to 6)",
+    "statement": "Let $\\theta=(n,h)\\in\\Theta^J$. If $\\mathcal L$, $\\mathcal R$ and $\\mathcal I^i$ for all $i\\in\\{1,\\dots,n-1\\}$ are continuous and $\\mathcal L$ is non-decreasing, $\\mathcal R$ is non-increasing and for all $i\\in\\{1,\\dots,n-1\\}$: (i) $\\mathcal I^i(\\cdot,d_{i+1})$ is non-increasing for all $d_{i+1}\\in[0,1]$; (ii) $\\mathcal I^i(d_i,\\cdot)$ is non-decreasing for all $d_i\\in[0,1]$, then there exists a balanced strategy and any balanced strategy is optimal.",
+    "meaning": "The balancedness theorem of [3] is really a statement about the local damage functions: if they are continuous and have the right monotonicity (moving a team towards an interval cannot increase that interval's worst damage, moving it away cannot decrease it), an equalizing placement exists and is optimal.",
+    "proof_idea": "Reuse of the proofs of Lemma 4.3 to Lemma 4.7 and Theorem 4.8 of [3], which depend only on properties (i) to (iv). [3] defines, for each team i, a function giving the minimal damage to the left of team i (a subproblem of P); Lemma 4.3 of [3] gives that these are continuous and non-decreasing; Lemmas 4.4 to 4.6 exploit their recursive structure to get a d' that is optimal and balanced; Lemma 4.7 shows two balanced strategies cannot lead to different damages; Theorem 4.8 combines everything. Only a sketch is given."
+   },
+   {
+    "label": "Theorem 3.2 (Berge's maximum theorem, Herings [2])",
+    "page": "4",
+    "statement": "Let $S\\subseteq\\mathbb R^m$, $T\\subseteq\\mathbb R^n$, and let $\\varphi:S\\to T$ be a continuous, compact-valued correspondence. Let $z:S\\times T\\to\\mathbb R$ be continuous and let $g:S\\to\\mathbb R$ be defined by $g(x)=\\max_{y\\in\\varphi(x)}z(x,y)$ for all $x\\in S$. Then $g$ is a continuous function.",
+    "meaning": "A maximum of a continuous objective over a continuously moving compact feasible set varies continuously; used to get continuity of the local damage functions from continuity of their integrals.",
+    "proof_idea": "Cited result (Herings 1996), not proved in the paper."
+   },
+   {
+    "label": "Lemma 3.3",
+    "page": "4 (proof p.6)",
+    "statement": "Let $\\theta=(n,h)\\in\\Theta^J$. Let $W=\\{(d_1,a)\\in[0,1]^2\\mid a\\le d_1\\}$ and $g:W\\to\\mathbb R$ with $g(d_1,a)=\\int_{t=0}^{t=d_1-a}h(a,t)dt$ for all $(d_1,a)\\in W$. Function $g$ is continuous.",
+    "meaning": "The damage of an attack left of the first team varies continuously with the team position and the attack point, even though h itself can jump in time.",
+    "proof_idea": "Epsilon-delta. Take $\\delta_i'$ from uniform continuity of each $f_i$ with tolerance $\\epsilon/6$; $M=\\max\\{\\max f_1,\\dots,\\max f_k,1\\}$; $\\delta=\\min\\{\\epsilon/(6M(\\max_i\\max_{\\tilde a}|p_i'(\\tilde a)|(k+1)+1)),\\delta_1',\\dots,\\delta_k'\\}$. Bound $|g(d_1',a')-g(d_1,a)|$ by $\\int_0^1|h(a',t)-h(a,t)|dt$ plus $|\\int_{d_1-a}^{d_1'-a'}h(a',t)dt|$. Split [0,1] into A (times where a and a' are in the same regime, difference < epsilon/6) and B (times strictly between $p_i(a)$ and $p_i(a')$ for some i, difference <= M, total length <= $|a'-a|\\max_i\\max|p_i'|(k+1)$). The second term is <= $M\\cdot 2\\delta$. Total <= epsilon/6 + epsilon/6 + epsilon/3 < epsilon. Uses the continuous version of the triangle inequality (Dragomir [1])."
+   },
+   {
+    "label": "Lemma 3.4",
+    "page": "4 (proof p.6 to 7)",
+    "statement": "Let $\\theta=(n,h)\\in\\Theta^J$. Let $W=\\{(d_n,a)\\in[0,1]^2\\mid d_n\\le a\\}$ and $g:W\\to\\mathbb R$ with $g(d_n,a)=\\int_{t=0}^{t=a-d_n}h(a,t)dt$ for all $(d_n,a)\\in W$. Function $g$ is continuous.",
+    "meaning": "Mirror image of Lemma 3.3 for attacks to the right of the last team.",
+    "proof_idea": "Reflection: define $h^*$ from the pieces $f_i(1-a,t)$ and thresholds $p_i(1-a)$, so $h^*(1-a,t)=h(a,t)$; then $g(d_n,a)=g^*(1-d_n,1-a)$ where $g^*$ is a left-side function covered by Lemma 3.3."
+   },
+   {
+    "label": "Lemma 3.5",
+    "page": "4 (proof p.7)",
+    "statement": "Let $\\theta=(n,h)\\in\\Theta^J$. Let $W=\\{(d_i,d_{i+1},a)\\in[0,1]^3\\mid d_i\\le a\\le d_{i+1}\\}$ and $g:W\\to\\mathbb R$ with $g(d_i,d_{i+1},a)=\\int_{t=0}^{t=\\min\\{a-d_i,d_{i+1}-a\\}}h(a,t)dt$ for all $(d_i,d_{i+1},a)\\in W$ and for all $i\\in\\{1,\\dots,n-1\\}$. Function $g$ is continuous.",
+    "meaning": "The damage of an attack between two adjacent teams is continuous in both team positions and the attack point.",
+    "proof_idea": "Because $h\\ge0$, the integral up to the minimum of two limits equals the minimum of the two integrals; $\\int_0^{a-d_i}$ is continuous by Lemma 3.4 and $\\int_0^{d_{i+1}-a}$ by Lemma 3.3; the minimum of two continuous functions is continuous."
+   },
+   {
+    "label": "Lemma 3.6",
+    "page": "4 (proof p.7)",
+    "statement": "Let $\\theta=(n,h)\\in\\Theta^J$. $\\mathcal L$, $\\mathcal I^i$ for all $i\\in\\{1,2,\\dots,n-1\\}$ and $\\mathcal R$ are continuous.",
+    "meaning": "All local damages move continuously with the team positions (property (i)).",
+    "proof_idea": "Berge's maximum theorem (Theorem 3.2) with the correspondences $[0,d_1]$, $[d_1,d_2]$ on $D^{1,2}$ (if $n\\ge2$) and $[d_n,1]$, which are continuous and compact-valued by Lemma 2.3 of [3] (interval correspondences whose endpoint functions r <= q are continuous and bounded), and integrands continuous by Lemmas 3.3, 3.5, 3.4. Since $\\mathcal I^{i+1}=\\mathcal I^{i}$ as functions, continuity of $\\mathcal I^1$ gives all."
+   },
+   {
+    "label": "Lemma 3.7",
+    "page": "4 (proof p.7 to 8)",
+    "statement": "Let $\\theta=(n,h)\\in\\Theta^J$. $\\mathcal L$ is non-decreasing, $\\mathcal R$ is non-increasing, and for all $i\\in\\{1,\\dots,n-1\\}$: (i) $\\mathcal I^i(\\cdot,d_{i+1})$ is non-increasing for all $d_{i+1}\\in[0,1]$; (ii) $\\mathcal I^i(d_i,\\cdot)$ is non-decreasing for all $d_i\\in[0,1]$.",
+    "meaning": "Moving a team further from an interval cannot decrease the worst damage in it, and moving it closer cannot increase it (properties (ii) to (iv)).",
+    "proof_idea": "Feasibility argument: take a maximizer a* of the smaller problem; it stays feasible in the enlarged interval, and because $h\\ge0$ a longer integration horizon gives at least as much damage. Only non-negativity of h is used."
+   },
+   {
+    "label": "Theorem 3.8",
+    "page": "4",
+    "statement": "Let $\\theta=(n,h)\\in\\Theta^J$. There exists a balanced strategy and any balanced strategy is optimal.",
+    "meaning": "Main result: even with time-dependent damage rates that may jump at location-dependent times, the government can equalize the worst-case damage left of the first team, between every pair of adjacent teams and right of the last team, and such an equalizing placement solves the min-max problem (2). The abstract phrases this as existence of a subgame perfect Nash equilibrium that balances the possible damage on all intervals.",
+    "proof_idea": "Lemma 3.6 (continuity) and Lemma 3.7 (monotonicity) verify the hypotheses of Lemma 3.1, which then yields the claim. Remark after the proof (p.4): balancedness is sufficient but not necessary; Example 5 of [3] has non-balanced optimal strategies, and its conclusion also holds if the damage rate f is increased by a small constant, so a strictly positive damage rate does not necessarily lead to a unique solution."
+   },
+   {
+    "label": "Theorem 4.1",
+    "page": "5 (proof p.8 to 9)",
+    "statement": "Let $\\theta=(n,h)\\in\\Theta^J$ with $h(a,t)=a$ if $t\\le 1-a$ and $h(a,t)=\\tfrac12 a$ otherwise, for all $(a,t)\\in[0,1]^2$. An optimal location of the response teams is given by $d_i^*=\\sqrt{(2+n)\\cdot i}-\\sqrt{n\\cdot i}$ for all $i\\in\\{1,\\dots,n\\}$, with associated damage $\\tfrac12\\left(1-\\sqrt{2n+n^2}+n\\right)$.",
+    "meaning": "Closed-form optimal placement for the police office scenario: $d_i^*=\\sqrt i(\\sqrt{n+2}-\\sqrt n)$ grows like sqrt(i), so teams are spaced more tightly towards the busy end, and the worst-case damage is (1 + n - sqrt(n(n+2)))/2.",
+    "proof_idea": "Show $d^*$ is balanced, then apply Theorem 3.8. Left: in the relevant domain $h=a$ (since $d_1^*-a\\le1-a$), $\\mathcal L(d_1^*)=\\max_a a(d_1^*-a)=\\tfrac14 d_1^{*2}$ at $a^*=d_1^*/2$. Interior: $h=a$, objective $a\\cdot\\min\\{a-d_i^*,d_{i+1}^*-a\\}$ is increasing on the left half and decreasing on the right half, so it is maximized at the midpoint, giving $(d_{i+1}^{*2}-d_i^{*2})/4$. Right: split $[d_n^*,1]$ at $\\tfrac12+\\tfrac12 d_n^*$; on the first part the closest team arrives before the police, $h=a$, and the maximum $a^2-ad_n^*$ at $a=\\tfrac12+\\tfrac12d_n^*$ is $\\tfrac14-\\tfrac14 d_n^{*2}$; on the second part the police arrives first (after time $1-a$), the damage is $\\int_0^{1-a}a\\,dt+\\int_{1-a}^{a-d_n^*}\\tfrac12a\\,dt=\\tfrac12 a-\\tfrac12 a d_n^*$, maximal at $a^*=1$, so $\\mathcal R(d_n^*)=\\tfrac12-\\tfrac12 d_n^*$. All equal $\\tfrac12(1+n-\\sqrt n\\sqrt{2+n})$."
+   }
+  ],
+  "methods_and_tools": [
+   "Stackelberg (leader-follower) game with government leader and terrorist follower optimizing the same damage in opposite directions; min-max formulation $\\min_{d}\\max_{a}D(d,a)$ (subgame perfect Nash equilibrium mentioned in the abstract only)",
+   "Continuous location on a line segment; [3] discusses the connection to the p-center location model",
+   "Decomposition of the attacker's problem into n+1 local damage problems (left, interior, right)",
+   "Balanced (equalizing) strategy argument inherited from van Aken et al. [3] (Lemmas 4.3 to 4.7, Theorem 4.8, Lemma 2.3, Theorem 5.3, Example 5 of [3])",
+   "Berge's maximum theorem (Herings 1996) with continuous compact-valued interval correspondences",
+   "Epsilon-delta proofs using uniform continuity of the pieces f_i and a bound on the length of the 'regime-switch' set via max |p_i'| (the step |p_i(a') - p_i(a)| <= |a' - a| max |p_i'| is a mean-value bound used without naming it)",
+   "Continuous triangle inequality for integrals (Dragomir 2007)",
+   "Reflection argument a -> 1 - a to reduce right-side results to left-side ones",
+   "Monotonicity via feasibility of the old maximizer and non-negativity of h",
+   "Closed-form calculus for a damage rate that is linear in location and piecewise constant in time (police office scenario)"
+  ],
+  "allocation_rules": "None in the cooperative-game sense: the paper has no coalitions, characteristic function or cost/benefit sharing. The 'resource allocation' (keyword) is the placement of n identical response teams on [0,1]. The decision rule analysed is the balanced strategy: a placement d* with L(d1*) = I^1(d1*, d2*) = ... = R(dn*), i.e. equal worst-case damage on every interval created by the teams. Stated properties: for every TPL situation in Theta^J a balanced strategy exists and every balanced strategy is optimal for problem (2) (Theorem 3.8, p.4); balancedness is sufficient but not necessary for optimality, and optimal strategies need not be unique even for strictly positive damage rates (remark after Theorem 3.8, p.4, referring to Example 5 of [3]). For the police scenario, the balanced placement is d_i* = sqrt((2+n)i) - sqrt(ni) (Theorem 4.1, p.5).",
+  "numerical_study": "There is no computational study or data set (\"No data was used for the research described in the article\", p.9). The only quantitative experiment is Example 6 (p.5, Figure 7, footnotes 2 and 3) on the police team scenario with n = 4 and h(a,t) = a if t <= 1 - a, a/2 otherwise. (1) Correct model: by Theorem 4.1, d ~ (0.45, 0.64, 0.78, 0.90), exactly d = (sqrt6 - sqrt4, sqrt12 - sqrt8, sqrt18 - sqrt12, sqrt24 - sqrt16) (footnote 2), damage 0.0505 rounded to four decimals (exact 1/2 (5 - sqrt24)); lower four arrows in Figure 7. (2) Model of [3] that ignores the police (theta-hat in Theta^C with h-hat(a) = a): by Theorem 5.3 of [3], d' ~ (0.47, 0.67, 0.82, 0.94), exactly d' = (2(sqrt5 - sqrt4), 2 sqrt2 (sqrt5 - sqrt4), 2 sqrt3 (sqrt5 - sqrt4), 4(sqrt5 - sqrt4)), with exact associated damage 1/(sqrt5 + sqrt4)^2 (footnote 3); upper four arrows in Figure 7. (3) Evaluating d' in the true situation gives a damage of 0.0557 (rounded to four decimals). Ignoring the police places the teams slightly more towards the end of the avenue and the actual damage increases by \"more than 10%\" (own computation from the exact values: 0.055728 / 0.050510 = 1.1033, i.e. about 10.3%). Earlier illustrative numbers: Example 2 (Figure 2, p.2) for n = 2, f = 1: d = (0.2, 0.8) gives maximal local damages 0.2 (left), 0.3 (middle), 0.2 (right); d = (0.25, 0.75) gives 0.25 on all three intervals (balanced, hence optimal).",
+  "worked_example": "All numbers below are from the paper unless marked (own check). Speed v = 1, segment [0,1].\n\nExample 1 (p.1) / Example 3 (p.2): n = 2, f(x) = 1 (h(a,t) = 1). d = (0.2, 0.8), a = 0.4: D = min{|0.2 - 0.4|, |0.8 - 0.4|} * 1 = 0.2.\nExample 2 (p.2, Figure 2): with d = (0.2, 0.8) the maximal local damages are 0.2 (left), 0.3 (middle, at a = 0.5), 0.2 (right); with d = (0.25, 0.75) all three equal 0.25 (Figure 2(b): D(d,0) = D(d,0.5) = D(d,1) = 1/4), so (0.25, 0.75) is balanced and optimal.\nExample 4 (p.3): h(a,t) = 1 - t, d = (0.2, 0.8), a = 0.4: D = int_0^0.2 (1 - t) dt = 9/50 = 0.18.\nExample 5 (p.3): h(a,t) = 1 - t if t <= 0.3, 0 otherwise; d = (0, 0.8), a = 0.4: D = int_0^0.4 h(0.4,t) dt = int_0^0.3 (1 - t) dt = 0.255.\n\nPolice office scenario (Theorem 4.1 and Example 6, p.4 to 5, proof p.8 to 9): h(a,t) = a if t <= 1 - a, else a/2. Local damages for any placement 0 <= d_1 <= ... <= d_n <= 1, following the steps of the proof (the paper evaluates them only at d*, but each step uses only 0 <= d_i <= d_{i+1} <= 1; own check, confirmed numerically on 200 random placements): L(d_1) = d_1^2 / 4 (attained at a = d_1/2); I(d_i, d_{i+1}) = (d_{i+1}^2 - d_i^2)/4 (attained at the midpoint); R(d_n) = max{1/4 - d_n^2/4, (1 - d_n)/2} = (1 - d_n)/2 (attained at a = 1). Worst-case damage of d = max of these n + 1 numbers.\n- n = 4, optimal d* = (sqrt6 - 2, sqrt12 - sqrt8, sqrt18 - sqrt12, sqrt24 - 4) = (0.4495, 0.6357, 0.7785, 0.8990): L = 0.4495^2/4 = 0.0505; each I = 0.0505; R = (1 - 0.8990)/2 = 0.0505; damage = 1/2 (1 - sqrt(2*4 + 16) + 4) = 1/2 (5 - sqrt24) = 0.050510.\n- n = 4, placement from the time-constant model of [3], d' = 2 sqrt(i) (sqrt5 - 2) = (0.4721, 0.6677, 0.8178, 0.9443): L = 0.0557, each I = 0.0557, R = (1 - 0.9443)/2 = 0.0279, so worst case 0.0557 = (sqrt5 - 2)^2 = 1/(sqrt5 + sqrt4)^2; relative increase about 10.3% (paper: \"more than 10%\").\nGeneral n (useful for a slider over n): d_i* = sqrt(i) (sqrt(n+2) - sqrt(n)) (Theorem 4.1 rewritten). The time-constant placement for general n is Theorem 5.3 of [3] with f(x) = x (c = 1): d_i' = 2 sqrt(i) (sqrt(n+1) - sqrt(n)) with damage 1/(sqrt(n+1) + sqrt(n))^2 = (sqrt(n+1) - sqrt(n))^2; the ORL paper itself prints only the n = 4 case (footnote 3). Evaluated in the true police model, d' keeps L and every I equal to (sqrt(n+1) - sqrt(n))^2 while R drops to half of that, so its true worst case equals its constant-model damage (own check). True worst-case damage, d* vs d' (own check, brute-force grid): n = 1: d* = 0.7321, damage 0.1340 vs d' = 0.8284, 0.1716 (+28.1%); n = 2: 0.0858 vs 0.1010 (+17.8%); n = 3: 0.0635 vs 0.0718 (+13.1%); n = 4: 0.0505 vs 0.0557 (+10.3%); n = 5: 0.0420 vs 0.0455 (+8.6%); n = 10: 0.0228 vs 0.0238 (+4.6%).",
+  "insights": [
+   "The balancedness result of [3] does not hinge on the product form travel time x constant rate: Lemma 3.1 (stated for Theta^J) holds because, as the appendix notes, the proofs of [3] only use continuity of the local damage functions and the two monotonicity properties. Reading this as 'any damage model with these properties inherits balanced is optimal' is our interpretation; the paper states it only for Theta^J.",
+   "Monotonicity (Lemma 3.7) is almost free: it uses only non-negativity of h (a longer response time never lowers damage, and the old maximizer stays feasible). The real technical work is continuity (Lemmas 3.3 to 3.6), which is where the structure of Theta^J (uniformly continuous pieces f_i and continuously differentiable jump curves p_i) is needed.",
+   "Jumps in time are allowed but must occur along smooth, location-dependent curves t = p_i(a); this keeps the set of times where nearby attack points are in different regimes small (length at most |a' - a| max |p_i'| (k + 1)), which is what makes the integrated damage continuous even though h is discontinuous.",
+   "In the police office scenario the optimal positions are d_i* = sqrt(i) * (sqrt(n+2) - sqrt(n)): spacing shrinks towards the busy market square, and every team sits slightly further from the end than in the time-constant model (d_i* < d_i' for all i and n, own check via concavity of the square root; for n = 4 the paper notes the constant model puts the teams 'slightly more towards the end').",
+   "At the optimum the worst case is attained simultaneously on every interval; on the right interval the attacker's best point is the very end a = 1, where the police arrives at once (1 - a = 0) and the rate is halved, giving R(d_n) = (1 - d_n)/2.",
+   "Ignoring time-dependent effects is costly: placing teams with the constant-rate model of [3] raises the true worst-case damage by more than 10% for n = 4 (about 10.3%).",
+   "Balancedness is sufficient, not necessary; optimal strategies may be non-unique even when the damage rate is strictly positive (remark after Theorem 3.8)."
+  ],
+  "limitations_future_work": "Stated by the authors (Section 5, p.5): the future research directions of [3] remain relevant for the generalized game, namely a non-strategic terrorist, the possibility of multiple attacks, and generalization from a line segment to a two-dimensional setting; for the latter, [3] already raises concerns about the concept (and perhaps optimality) of balancedness, so the balancedness result cannot be applied to such extensions trivially. They also suggest applications in the broader emergency response sector when minimizing maximal damage is a relevant criterion.\n\nScope limits visible in the paper: one attack, one line segment, identical teams with equal unit speed, deterministic damage, worst-case (min-max) criterion; the analysis covers Theta^J only (Theta, the set where D and (2) are well-defined, is not characterized); the paper proves existence and optimality of balanced strategies but gives no general algorithm to compute them, and a closed form only for the police scenario; only a single numerical example (n = 4), no data.\n\nPoints that are unclear or appear to be typos in the text (our reading): (1) p.3: the monotonicity of the thresholds is stated 'for all i in {0,...,k}' (should be {0,...,k-1}, since p_{k+1} does not exist), and 'p_i with i in {2,...,k-1} represent a jump from f_i to f_{i+1}' (should be {1,...,k-1}). (2) Proof of Lemma 3.6 (p.7): g is defined with a max and then said to be continuous by Lemma 3.5, and I^1(d1,d2) is written as max over a of g(d1,d2); the intended g is the integral g(d1,d2,a). (3) Proof of Lemma 3.3 (p.6): one line has the factor (k - 1) while the others have (k + 1). (4) Proof of Theorem 4.1 (p.9): the ninth equality justifies itself with 1/2 - 1/2 d_n* > 1/4 - 1/4 d_n* (the square on d_n* in 1/4 - 1/4 d_n*^2 is missing), and the strict inequality becomes an equality at d_n* = 1 in either version (harmless since d_n* < 1). (5) Proof of Lemma 3.3 (p.6): A and B are indeed disjoint and cover [0,1] (own check), but at the finitely many endpoints of A (t equal to some p_i(a) or p_i(a')) the piecewise definition of h, closed on the right, assigns the earlier piece f_i to one of the two attack points, so the bound |h(a,t) - h(a',t)| < epsilon/6 can fail there; these points have measure zero and do not affect the integral, but this is not discussed. (6) The abstract speaks of a subgame perfect Nash equilibrium, while the body works only with optimal strategies of the min-max problem (2); the link between the two is inherited from [3] and not re-derived here.",
+  "connections": "Direct extension of L. van Aken, L. Schlicher, M. Slikker, G.-J. van Houtum, 'Fighting terrorism: how to position rapid response teams?', Naval Research Logistics (reference [3]; the ORL reference list prints only '(2024) 1-19'; the published version is NRL 71(5) (2024) 709-727, DOI 10.1002/nav.22170, per the copy of [3] in materials/study/papers). [3] has the same three authors plus van Houtum, the same TU Eindhoven affiliation and the same NWO grant VI.Veni.201E.017; it introduced Stackelberg protection location games with a time-constant damage rate f(a), local damage problems and balanced strategies. Its Section 5.2 already uses the 'shopping avenue with a market square at the end' setting with linear f(x) = c x; Section 4 of this paper adds the police office (time effect) to that setting. This paper reuses from [3]: Lemma 2.3 (continuity and compact-valuedness of interval correspondences), Lemma 4.3 to Lemma 4.7 and Theorem 4.8 (proof that balanced strategies exist and are optimal), Theorem 5.3 (closed-form placement d_i = 2 sqrt(i)(sqrt(n+1) - sqrt(n)) with damage c/(sqrt(n+1) + sqrt(n))^2 for linear f, used in Example 6) and Example 5 (non-balanced optimal strategies, non-uniqueness). For the position in the literature (game-theoretic counter-terrorism and the connection to the p-center location model) it refers the reader to [3]. The reference list has exactly three entries: [3] (the authors' own earlier paper), Herings (1996), Static and Dynamic Aspects of General Disequilibrium Theory (Theory and Decision Library: Series C, vol. 13, Springer), for Berge's maximum theorem; and Dragomir (2007), 'Reverses of the continuous triangle inequality for Bochner integral in complex Hilbert spaces', J. Math. Anal. Appl. 329(1) 65-76, for the continuous triangle inequality.",
+  "prerequisites": [
+   "Stackelberg leader-follower games, min-max problems and subgame perfect Nash equilibrium",
+   "The predecessor model: van Aken et al. (2024) 'Fighting terrorism: how to position rapid response teams?' (local damage problems, balanced strategies, Theorem 5.3 for linear damage rates)",
+   "Continuous facility location on a line, p-center problem",
+   "Real analysis: continuity, uniform continuity, epsilon-delta arguments, mean value theorem, Riemann integrals of piecewise-defined functions",
+   "Correspondences and Berge's maximum theorem",
+   "Basic calculus for maximizing quadratics on intervals"
+  ],
+  "glossary": [
+   {
+    "term": "Stackelberg protection location game",
+    "definition": "Game of [3]: a government positions n response teams on [0,1], then a terrorist chooses an attack point; damage = (time for the closest team to arrive) x (damage rate at that point); government minimizes, terrorist maximizes."
+   },
+   {
+    "term": "TPL situation",
+    "definition": "Time-dependent protection location situation theta = (n, h): number of response teams n and time-dependent damage rate function h: [0,1]^2 -> R_{>=0}, h(a,t) = damage per time unit at location a at time t after the attack starts."
+   },
+   {
+    "term": "TPLS game",
+    "definition": "The Stackelberg game associated with a TPL situation, with damage D(d,a) = integral of h(a,t) from t = 0 to the distance from a to the closest team."
+   },
+   {
+    "term": "Strategy set D^n",
+    "definition": "Ordered team locations {d in [0,1]^n | d_1 <= ... <= d_n}; the attacker's set is A = [0,1]."
+   },
+   {
+    "term": "Optimal strategy",
+    "definition": "A d in D^n attaining P* = min over d of max over a of D(d,a) (problem (2))."
+   },
+   {
+    "term": "Theta, Theta^C, Theta^U, Theta^J",
+    "definition": "Theta: TPL situations where D and problem (2) are well-defined. Theta^C: h constant over time and continuous in location (the situations of [3]). Theta^U: h uniformly continuous. Theta^J: h piecewise given by uniformly continuous f_1,...,f_k switching at continuously differentiable time thresholds p_i(a). Theta^C within Theta^U within Theta^J within Theta."
+   },
+   {
+    "term": "Jump (in the damage rate)",
+    "definition": "A switch from f_i to f_{i+1} at time t = p_i(a), e.g. a police team arriving; may depend on the attack location."
+   },
+   {
+    "term": "Local damage problems / local damages",
+    "definition": "The attacker's problem split into n+1 pieces: L(d_1) (worst damage left of the first team), I^i(d_i, d_{i+1}) (worst damage between teams i and i+1), R(d_n) (worst damage right of the last team); their optimal values are the local damages."
+   },
+   {
+    "term": "Balanced strategy",
+    "definition": "A placement d* with L(d_1*) = I^1(d_1*, d_2*) = ... = I^{n-1}(d_{n-1}*, d_n*) = R(d_n*): all local damages coincide."
+   },
+   {
+    "term": "Berge's maximum theorem",
+    "definition": "If the feasible set correspondence is continuous and compact-valued and the objective is continuous, the optimal value function is continuous (Theorem 3.2)."
+   },
+   {
+    "term": "Compact-valued continuous correspondence",
+    "definition": "A set-valued map whose values are compact sets and which is both upper and lower hemicontinuous (standard definition, not spelled out in the paper); here intervals [r(x), q(x)] with continuous bounded r <= q (Lemma 2.3 of [3])."
+   },
+   {
+    "term": "Police team scenario",
+    "definition": "Section 4 instance: h(a,t) = a if t <= 1 - a, a/2 otherwise; damage rate grows towards a market square at a = 1 where a police office halves the rate once it arrives (after time 1 - a)."
+   }
+  ],
+  "study_questions": [
+   "Write the damage D(d,a) of the original Stackelberg protection location game and of the TPLS game. Under which h do they coincide, and why can the speed be set to 1?",
+   "Define the classes Theta^C, Theta^U and Theta^J and explain the inclusions. Why are the jump thresholds p_i required to be continuously differentiable in the proof, and would mere continuity suffice for a different proof?",
+   "State the four properties (i) to (iv) of the local damage functions and explain intuitively why each one should hold.",
+   "Why does Lemma 3.7 need only h >= 0, while the continuity lemmas need the specific structure of Theta^J? Construct an h for which continuity of L would fail if the jump time p_1(a) were discontinuous in a.",
+   "Reproduce the epsilon-delta bound in the proof of Lemma 3.3: what are the sets A and B, and why is the length of B bounded by |a' - a| max |p_i'| (k + 1)?",
+   "How does the reflection h*(1 - a, t) = h(a, t) reduce Lemma 3.4 to Lemma 3.3?",
+   "Why is the integral up to min{a - d_i, d_{i+1} - a} equal to the minimum of the two integrals (Lemma 3.5)? What would go wrong if h could be negative?",
+   "State Theorem 3.8 precisely. Is every optimal strategy balanced? Is the optimal strategy unique when h > 0? Cite the paper's remark.",
+   "For the police scenario derive L(d_1) = d_1^2/4, I(d_i, d_{i+1}) = (d_{i+1}^2 - d_i^2)/4 and R(d_n) = (1 - d_n)/2, and from balancedness derive d_i* = sqrt((2+n)i) - sqrt(ni) and the damage (1 + n - sqrt(n^2 + 2n))/2.",
+   "Recompute Example 6 for n = 4: the optimal positions, the positions from the constant-rate model (Theorem 5.3 of [3]), and the 10% damage increase. In which direction does ignoring the police move the teams, and why?",
+   "Examples 4 and 5: compute D for the given d and a, and find a balanced strategy for n = 2 when h(a,t) = 1 - t.",
+   "Why might balancedness fail or become ill-defined in a two-dimensional version, as the conclusion warns?"
+  ]
+ },
+ "verification": {
+  "changes": [
+   "Worked example: the general-n constant-rate placement d_i' = 2 sqrt(i)(sqrt(n+1) - sqrt(n)) with damage (sqrt(n+1) - sqrt(n))^2 was labelled 'own check, not in the paper'. It is Theorem 5.3 of [3] (NRL 71(5), p.717, linear f(x) = c x with c = 1), which this paper cites in Example 6 (p.5); the ORL paper itself prints only the n = 4 case (footnote 3, p.5). Relabelled accordingly.",
+   "Connections: 'It cites only these three works and no other papers of the authors' was misleading, since [3] is itself the authors' paper. Reworded: the reference list has exactly three entries ([3], Herings 1996, Dragomir 2007) (p.9). Added the full published details of [3] (NRL 71(5) 709-727, DOI 10.1002/nav.22170; the ORL reference prints only '(2024) 1-19'), the shared NWO grant, and the fact that [3] Section 5.2 already used the shopping-avenue linear-rate setting that Section 4 here (p.4) extends with the police office.",
+   "Limitations, item (5): the original claimed a problem with A and B being disjoint and covering [0,1]. Corrected: A and B are disjoint and cover [0,1] (checked). The real gap is at the finitely many endpoints of A, where the right-closed piecewise definition of h assigns the earlier piece, so |h(a,t) - h(a',t)| < epsilon/6 can fail at those points. This is a measure-zero issue the paper does not discuss (proof of Lemma 3.3, p.6).",
+   "Limitations, item (4): confirmed on the rendered p.9 that the ninth-equality justification prints 1/2 - 1/2 d_n* > 1/4 - 1/4 d_n* without the square. Clarified that the strict inequality becomes an equality at d_n* = 1 in both versions.",
+   "Insight on the police placement: the original said 'the police office lets the last team stay further from the end'. Generalized: every team sits further from the end, since d_i* < d_i' for all i and n (own check via concavity of sqrt; the paper's statement for n = 4 is on p.5).",
+   "Insight 1: added the caveat that Lemma 3.1 is stated only for Theta^J (p.4). Applying it to 'any damage model with these properties' is our reading of the appendix remark (p.5) that the proofs of [3] use only (i) to (iv).",
+   "Model: the identification of the police scenario as k = 2, f_1 = a, f_2 = a/2, p_1(a) = 1 - a is now marked as our identification. The paper only states theta in Theta^J (eq. 3, p.4). 'Zero-sum' is now marked as not the paper's term.",
+   "Methods: 'piecewise-linear time-dependent damage rate' corrected to 'linear in location and piecewise constant in time' (eq. 3, p.4). The bound |p_i(a') - p_i(a)| <= |a'-a| max|p_i'| is now noted as an unnamed mean-value step (p.6).",
+   "Theorem 4.1 proof idea: 'second part (police has arrived)' made precise. On [1/2 + 1/2 d_n*, 1] the police arrives first, after time 1 - a, and the damage is int_0^{1-a} a dt + int_{1-a}^{a-d_n*} a/2 dt = a/2 - a d_n*/2 (p.8). Also added why the interior maximum is at the midpoint (increasing then decreasing, p.8).",
+   "Bibliography: added the printed e-mail addresses of all three authors and ISSN 0167-6377 (p.1). All other fields were confirmed: received 8 Aug 2024, revised 7 Mar 2025, accepted 10 Mar 2025, online 13 Mar 2025, vol. 60 article 107278, 9 pages, CC BY, keywords.",
+   "Minor wording: the monotonicity meaning was rephrased with 'cannot increase / cannot decrease' to match non-strict monotonicity (Lemma 3.7, p.4). Proof attributions for Lemma 3.5 now say explicitly which integral uses Lemma 3.4 and which uses Lemma 3.3 (p.7). Verified unchanged: every result label, statement and page number (Lemmas 3.1 and 3.3 to 3.7, Theorems 3.2, 3.8 and 4.1), Examples 1 to 6, the Figure 7 arrow description, footnotes 2 and 3, and the conclusion's future work list."
+  ],
+  "example_recomputed": true,
+  "example_check": "The script /tmp/claude-0/-home-user-repo/c29c830a-c0ee-54bb-9a58-8c9f26c80fec/scratchpad/study/2025-protection-location/check_example.py recomputes everything from the definition D(d,a) = int_0^{min_i|d_i-a|} h(a,t) dt. The attacker's maximum is taken by brute force on a grid of 200001 attack points; no closed form is used for the max.\n\n(1) Examples 1/3, 2, 4 and 5 reproduce exactly: 0.2; local damages (0.2, 0.3 at a = 0.5, 0.2) and (0.25, 0.25, 0.25); 9/50 = 0.18; 0.255.\n\n(2) Police scenario, n = 4: d* = (0.4495, 0.6357, 0.7785, 0.8990) rounds to the paper's (0.45, 0.64, 0.78, 0.90). All five local damages equal 0.050510 = 1/2(5 - sqrt24), which the paper rounds to 0.0505. d' = (0.4721, 0.6677, 0.8178, 0.9443) rounds to (0.47, 0.67, 0.82, 0.94). Its true local damages are (0.055728 x4, 0.027864), so the worst case is 0.055728 = (sqrt5 - 2)^2 = 1/(sqrt5 + 2)^2, the paper's 0.0557. The ratio is 1.1033, about +10.3%, which matches 'more than 10%'.\n\n(3) The closed-form local damages L = d_1^2/4, I = (d_{i+1}^2 - d_i^2)/4 and R = (1 - d_n)/2 match the grid values on 200 random placements, with maximum error 4.7e-6.\n\n(4) For n = 1, 2, 3, 5 and 10, the worst case at d* equals the Theorem 4.1 formula. The worst case at d' equals (sqrt(n+1) - sqrt(n))^2. The increases are +28.06%, +17.76%, +13.05%, +10.33%, +8.55% and +4.60%, consistent with the notes' rounded figures.\n\n(5) A random local search started at d* (n = 4) found nothing below 0.050510. Random restarts reached only 0.051212. Both are consistent with the optimality of d*.\n\nThe worked example was consistent with the model. The only fix was attributing the general-n d' formula to Theorem 5.3 of [3] instead of calling it an own derivation."
+ }
+}
