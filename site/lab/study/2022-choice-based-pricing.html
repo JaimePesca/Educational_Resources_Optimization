@@ -633,7 +633,7 @@
   function kpi(label, value, cls) {
     var d = h("div", "st-kpi" + (cls ? " " + cls : "")); d.append(h("b", null, value), h("span", null, label)); return d;
   }
-  function ruleName(r) { return t(r === "mse" && st.d > 0 ? "stcbp.w.r.msed" : "stcbp.w.r." + r); }
+  function ruleName(r, mid) { return t(r === "mse" && st.d > 0 ? "stcbp.w.r.msed" : "stcbp.w.r." + r + (mid && r === "sv" ? ".mid" : "")); }
   function list(items) { return items.join(t("stcbp.w.list")); }
 
   function verdict() {
@@ -646,7 +646,7 @@
       if (losers.length) parts.push(t(losers.length > 1 ? "stcbp.w.v.losers" : "stcbp.w.v.loser1", { list: list(losers) }));
     }
     var inC = [], outC = [];
-    ["iprop", "mprop", "sv", "mse"].forEach(function (r) { (res.viol[r].length ? outC : inC).push(ruleName(r)); });
+    ["iprop", "mprop", "sv", "mse"].forEach(function (r) { (res.viol[r].length ? outC : inC).push(ruleName(r, true)); });
     parts.push(t(outC.length ? (inC.length ? "stcbp.w.v.rules" : "stcbp.w.v.rulesnone") : "stcbp.w.v.rulesall", { inn: list(inC), out: list(outC) }));
     if (st.k === 1) parts.push(t("stcbp.w.v.mse", { phi: f3(res.phi) }));
     else parts.push(t(res.viol.mse.length ? "stcbp.w.v.k2out" : "stcbp.w.v.k2in", { phi: f3(res.phi) }));

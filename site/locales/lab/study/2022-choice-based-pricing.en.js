@@ -382,6 +382,7 @@ I18N.register("en", {
   "stcbp.w.r.iprop": "I-PROP",
   "stcbp.w.r.mprop": "M-PROP",
   "stcbp.w.r.sv": "Shapley value",
+  "stcbp.w.r.sv.mid": "Shapley value",
   "stcbp.w.r.mse": "MSE",
   "stcbp.w.r.msed": "(1 − δ)·MSE",
   "stcbp.w.bench": "Benchmark margin of MSE",

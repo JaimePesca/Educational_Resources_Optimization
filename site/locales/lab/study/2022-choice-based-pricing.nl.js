@@ -382,6 +382,7 @@ I18N.register("nl", {
   "stcbp.w.r.iprop": "I-PROP",
   "stcbp.w.r.mprop": "M-PROP",
   "stcbp.w.r.sv": "Shapley-waarde",
+  "stcbp.w.r.sv.mid": "Shapley-waarde",
   "stcbp.w.r.mse": "MSE",
   "stcbp.w.r.msed": "(1 − δ)·MSE",
   "stcbp.w.bench": "Referentiemarge van MSE",
