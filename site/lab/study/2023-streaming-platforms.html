@@ -354,6 +354,8 @@
   }
 
   function fv(v) { return I18N.fmt(Math.abs(v) < 5e-10 ? 0 : v, 2); }
+  // separator for lists of numbers: "; " where the decimal mark is a comma (es, nl), so (6,67; 14,67) stays readable
+  function sep() { return I18N.fmt(1.5, 1).indexOf(",") >= 0 ? "; " : ", "; }
   function cr(i) { return "i<sub>" + (i + 1) + "</sub>"; }
   function us(j) { return "j<sub>" + (j + 1) + "</sub>"; }
   function setName(c) { return c.grand ? "<i>N</i>" : "{" + c.S.map(cr).join(", ") + "}"; }
@@ -450,7 +452,7 @@
   function kpi(label, value, cls) {
     var d = h("div", "st-kpi" + (cls ? " " + cls : "")); d.append(h("b", null, value), h("span", null, label)); return d;
   }
-  function feeList(c) { return "{" + c.P.map(function (q) { return fv(q.p); }).join(", ") + "}"; }
+  function feeList(c) { return "{" + c.P.map(function (q) { return fv(q.p); }).join(sep()) + "}"; }
   function userList(js) { return js.map(us).join(", "); }
 
   function verdict() {
@@ -458,7 +460,7 @@
     if (res.stable) {
       parts.push(t("ststr.w.v.stable", { need: fv(res.need), vN: fv(res.vN) }));
       if (res.lp) {
-        var xs = "(" + res.lp.x.map(fv).join(", ") + ")";
+        var xs = "(" + res.lp.x.map(fv).join(sep()) + ")";
         parts.push(res.eps > 1e-7 ? t("ststr.w.v.margin", { x: xs, e: fv(res.eps) }) : t("ststr.w.v.thin", { x: xs }));
       }
     } else {
@@ -471,7 +473,7 @@
         });
       } else {
         cert = t("ststr.w.cert.weights", {
-          w: res.weights.map(function (w) { return t("ststr.w.w.item", { w: I18N.fmt(w.w, 3), S: setName(w.c) }); }).join(", "),
+          w: res.weights.map(function (w) { return t("ststr.w.w.item", { w: I18N.fmt(w.w, 3), S: setName(w.c) }); }).join(sep()),
           total: fv(res.need), vN: fv(res.vN)
         });
       }
@@ -499,7 +501,7 @@
     var distinct = [];
     res.stay.forEach(function (w) { if (!distinct.some(function (q) { return near(q, w); })) distinct.push(w); });
     item(t("ststr.w.c.homo"), res.homogeneous, false, res.homogeneous ? t("ststr.w.c.homo.yes", { p: fv(res.pN) })
-      : t("ststr.w.c.homo.no", { list: res.stay.map(fv).join(", ") }));
+      : t("ststr.w.c.homo.no", { list: res.stay.map(fv).join(sep()) }));
   }
 
   // ---- the revenue p |Q^S(p)| of the selected coalition's own platform (the figure of Example 1, p. 3) ----

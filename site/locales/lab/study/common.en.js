@@ -1,7 +1,6 @@
 /* Strings shared by every page of the study section (lab/study/): headings and labels of assets/study.js, the names of the
    lines, and the short title and one-line summary of each paper (hub cards, chronological strip, previous and next).
-   Summaries of the first five papers follow the verified study notes; the other six follow the article's abstract and
-   are provisional until their notes are ready. */
+   Every summary follows the verified study notes and the wording approved in the review of its study page. */
 I18N.register("en", {
   "stu.eyebrow": "Lab · Study",
   "stu.eyebrow.paper": "Lab · Study · <b>Paper {n} of {total}</b>",
@@ -74,23 +73,23 @@ I18N.register("en", {
   "stu.p.2020-vaccination.short": "Sharing vaccine doses",
   "stu.p.2020-vaccination.sum": "Regions pool vaccine doses whose returns are S-shaped. The core can be empty, but under severe shortage or sufficient supply one market price per dose splits the gain stably.",
   "stu.p.2021-production-protection.short": "Protecting crop production",
-  "stu.p.2021-production-protection.sum": "A producer spreads its crops, and in a second model also protection, over regions before an attacker destroys as much as it can. Linear time algorithms find the producer's optimal strategy.",
+  "stu.p.2021-production-protection.sum": "A government spreads its production, and in a second model also protection, over regions before an attacker destroys what it can. An optimal plan equalizes the loss per unit of attack over the highest-yield regions and puts all protection on the best one.",
   "stu.p.2021-3d-printing.short": "3D printers in disaster response",
   "stu.p.2021-3d-printing.sum": "Before demand is known, a relief team chooses which items, 3D printers and printing material to load. A two-stage stochastic knapsack shows that a printer pays off except in extreme cases.",
   "stu.p.2022-choice-based-pricing.short": "Setting prices together",
-  "stu.p.2022-choice-based-pricing.sum": "Mobility operators whose travelers choose by a logit model set prices together under a fixed total market share. The Shapley value can leave the core; a market share exchange rule never does.",
+  "stu.p.2022-choice-based-pricing.sum": "Mobility operators whose travelers choose by a logit model set prices together under a fixed total market share. Proportional rules and the Shapley value can leave the core; paying one price per unit of market share never does, and a scaled version survives a small enough payback to society.",
   "stu.p.2023-pickpocketing.short": "Fighting pickpocketing",
-  "stu.p.2023-pickpocketing.sum": "A policy maker splits a budget over local and central protection while thieves choose locations with random preferences. The optimal budget allocation is proportional to their sensitivity and to the locations' attractiveness.",
+  "stu.p.2023-pickpocketing.sum": "A city splits a budget over central campaigns and local cameras or officers while a thief picks a spot, or stays away, by a logit model. The optimal and the fair allocation have closed forms, and against a fully predictable thief the fair one is optimal.",
   "stu.p.2023-rapid-response-teams.short": "Positioning rapid response teams",
-  "stu.p.2023-rapid-response-teams.sum": "A government places rapid response teams on a boulevard, then a terrorist attacks where the damage is highest. An equilibrium balances the possible damage over all intervals.",
+  "stu.p.2023-rapid-response-teams.sum": "A government places rapid response teams on a line, then a terrorist attacks where the damage is largest. A placement that equalizes the worst damage on every stretch always exists, and every such placement is optimal; on a boulevard, two intuitive rules raise the damage by 50% and by more than 134%.",
   "stu.p.2023-streaming-platforms.short": "Stable streaming platforms",
-  "stu.p.2023-streaming-platforms.sum": "Content creators share a platform's subscription revenue. The core can be empty when users stream in completely opposite ways, and it is non-empty when users stream alike.",
+  "stu.p.2023-streaming-platforms.sum": "Content creators share a platform's subscription revenue, and any group could start its own platform. A stable split always exists in three kinds of market where users stream alike, and never when audiences split into disjoint segments with distinct fees.",
   "stu.p.2024-freight-consolidation.short": "Carriers sharing truck capacity",
   "stu.p.2024-freight-consolidation.sum": "Carriers pool truck capacity along a chain of transfer points. Fixed transfer costs can empty the core, three cost structures keep it non-empty, and most random instances are stable.",
   "stu.p.2025-protection-location.short": "When damage depends on time",
-  "stu.p.2025-protection-location.sum": "The rapid response team game with damage that changes over time: a strategy that balances the possible damage over all intervals is still a subgame perfect equilibrium.",
+  "stu.p.2025-protection-location.sum": "The rapid response team game with a damage rate that changes over time, even with jumps such as a police team arriving: a balanced placement still exists and is optimal, and in an example with four teams, ignoring a police office raises the worst-case damage by more than 10%.",
   "stu.p.2025-bodyguards.short": "Scheduling bodyguards",
-  "stu.p.2025-bodyguards.sum": "A defender assigns bodyguards to targets and an attacker strikes one. With non-increasing marginal benefit a small linear program solves the game, and a scheduling version gets a bound that a mixed strategy reaches in all experiments.",
+  "stu.p.2025-bodyguards.sum": "A defender assigns bodyguards to targets and an attacker strikes one. With diminishing returns, randomizing each target between two neighboring whole numbers is optimal and a small linear program solves the game; when bodyguards move between events, an LP bound and a restricted game bracket the value.",
   "stu.p.2026-parcel-lockers.short": "Shared parcel lockers",
-  "stu.p.2026-parcel-lockers.sum": "Carriers open parcel lockers together and share the profit. A stable split always exists for a class of networks, and numerical experiments find one in most other situations."
+  "stu.p.2026-parcel-lockers.sum": "Carriers open parcel lockers together and share the profit. Without an integrality gap, for example on tree networks, the LP dual gives a stable split; random instances have one in the vast majority of cases."
 }, "lab/study/common");

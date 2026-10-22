@@ -24,6 +24,12 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="../../assets/site.css?v=__BUILD__">
 <link rel="stylesheet" href="../../assets/study.css?v=__BUILD__">
+<style>
+/* "How the line evolves": full width, two text columns when there is room (one column on phones) */
+.sth-evo { columns: 30em 2; column-gap: 28px; }
+.sth-evo p { max-width: none; margin: 0 0 10px; }
+.sth-evo p:last-child { margin-bottom: 0; }
+</style>
 </head>
 <body>
 <header class="topbar">
@@ -63,14 +69,18 @@
     </div>
   </section>
 
+  <section class="sth-box" aria-labelledby="h-evo">
+    <h2 id="h-evo" data-i18n="sth.evolution.title"></h2>
+    <div class="sth-evo">
+      <p data-i18n-html="sth.evolution.p1"></p>
+      <p data-i18n-html="sth.evolution.p2"></p>
+      <p data-i18n-html="sth.evolution.p3"></p>
+      <p data-i18n-html="sth.evolution.p4"></p>
+      <p data-i18n-html="sth.evolution.p5"></p>
+    </div>
+  </section>
+
   <div class="sth-cols">
-    <section class="sth-box" aria-labelledby="h-evo">
-      <h2 id="h-evo" data-i18n="sth.evolution.title"></h2>
-      <!-- provisional text (see the comment in locales/lab/study/hub.en.js) -->
-      <p data-i18n="sth.evolution.p1"></p>
-      <p data-i18n="sth.evolution.p2"></p>
-      <p data-i18n="sth.evolution.p3"></p>
-    </section>
     <section class="sth-box" aria-labelledby="h-found">
       <h2 id="h-found" data-i18n="sth.found.title"></h2>
       <p data-i18n="sth.found.intro"></p>
@@ -81,18 +91,17 @@
         <li><a href="../share-the-savings.html" data-keep-lang data-ga-event="resource_open" data-ga-location="study" data-ga-resource-id="lab-gtb-share" data-ga-level="lab"><b data-i18n="sth.found.4.t"></b><span data-i18n="sth.found.4.d"></span></a></li>
       </ul>
     </section>
+    <section class="sth-box sth-notyet" aria-labelledby="h-notyet">
+      <h2 id="h-notyet" data-i18n="sth.notyet.title"></h2>
+      <p data-i18n="sth.notyet.p"></p>
+      <ul lang="en">
+        <li data-i18n-html="sth.notyet.1"></li>
+        <li data-i18n-html="sth.notyet.2"></li>
+        <li data-i18n-html="sth.notyet.3"></li>
+        <li data-i18n-html="sth.notyet.4"></li>
+      </ul>
+    </section>
   </div>
-
-  <section class="sth-box sth-notyet" aria-labelledby="h-notyet">
-    <h2 id="h-notyet" data-i18n="sth.notyet.title"></h2>
-    <p data-i18n="sth.notyet.p"></p>
-    <ul lang="en">
-      <li data-i18n-html="sth.notyet.1"></li>
-      <li data-i18n-html="sth.notyet.2"></li>
-      <li data-i18n-html="sth.notyet.3"></li>
-      <li data-i18n-html="sth.notyet.4"></li>
-    </ul>
-  </section>
 </div>
 
 <script src="../../assets/i18n.js?v=__BUILD__" charset="utf-8"></script>

@@ -29,7 +29,7 @@ window.STUDY = {
       authors: ["Marieke Musegaas", "Loe Schlicher", "Herman Blok"],
       venue: "European Journal of Operational Research", venue_short: "EJOR",
       volume_pages: "297, 102-119", doi: "10.1016/j.ejor.2021.04.012",
-      line: "security", href: "2021-production-protection.html", ready: false
+      line: "security", href: "2021-production-protection.html", ready: true
     },
     {
       slug: "2021-3d-printing", date: "2021-04-30", date_kind: "online", date_precision: "day", year: 2021,
@@ -37,7 +37,7 @@ window.STUDY = {
       authors: ["Denise D. Tönissen", "Loe Schlicher"],
       venue: "Computers & Operations Research", venue_short: "C&OR",
       volume_pages: "133, 105356", doi: "10.1016/j.cor.2021.105356",
-      line: "stochastic", href: "2021-3d-printing.html", ready: false
+      line: "stochastic", href: "2021-3d-printing.html", ready: true
     },
     {
       slug: "2022-choice-based-pricing", date: "2022-01-31", date_kind: "online", date_precision: "day", year: 2022,
@@ -45,7 +45,7 @@ window.STUDY = {
       authors: ["Loe Schlicher", "Virginie Lurkin"],
       venue: "European Journal of Operational Research", venue_short: "EJOR",
       volume_pages: "302, 1242-1254", doi: "10.1016/j.ejor.2022.01.036",
-      line: "cooperative", href: "2022-choice-based-pricing.html", ready: false
+      line: "cooperative", href: "2022-choice-based-pricing.html", ready: true
     },
     {
       slug: "2023-pickpocketing", date: "2023-12-09", date_kind: "online", date_precision: "day", year: 2024,
@@ -53,7 +53,7 @@ window.STUDY = {
       authors: ["Loe Schlicher", "Virginie Lurkin"],
       venue: "European Journal of Operational Research", venue_short: "EJOR",
       volume_pages: "315, 580-595", doi: "10.1016/j.ejor.2023.12.007",
-      line: "security", href: "2023-pickpocketing.html", ready: false
+      line: "security", href: "2023-pickpocketing.html", ready: true
     },
     {
       slug: "2023-rapid-response-teams", date: "2023-12-12", date_kind: "accepted", date_precision: "day", year: 2024,
@@ -61,7 +61,7 @@ window.STUDY = {
       authors: ["Lotte van Aken", "Loe Schlicher", "Marco Slikker", "Geert-Jan van Houtum"],
       venue: "Naval Research Logistics", venue_short: "NRL",
       volume_pages: "71(5), 709-727", doi: "10.1002/nav.22170",
-      line: "security", href: "2023-rapid-response-teams.html", ready: false
+      line: "security", href: "2023-rapid-response-teams.html", ready: true
     },
     {
       slug: "2023-streaming-platforms", date: "2023-12-19", date_kind: "online", date_precision: "day", year: 2024,
@@ -69,7 +69,7 @@ window.STUDY = {
       authors: ["Loe Schlicher", "Bas Dietzenbacher", "Marieke Musegaas"],
       venue: "Omega", venue_short: "Omega",
       volume_pages: "125, 103020", doi: "10.1016/j.omega.2023.103020",
-      line: "cooperative", href: "2023-streaming-platforms.html", ready: false
+      line: "cooperative", href: "2023-streaming-platforms.html", ready: true
     },
     {
       slug: "2024-freight-consolidation", date: "2024-07-08", date_kind: "online", date_precision: "day", year: 2024,
@@ -77,7 +77,7 @@ window.STUDY = {
       authors: ["Fabio Mercurio", "Loe Schlicher", "Sonja U.K. Rohmer", "Tom Van Woensel"],
       venue: "Operations Research Letters", venue_short: "ORL",
       volume_pages: "56, 107142", doi: "10.1016/j.orl.2024.107142",
-      line: "cooperative", href: "2024-freight-consolidation.html", ready: false
+      line: "cooperative", href: "2024-freight-consolidation.html", ready: true
     },
     {
       slug: "2025-protection-location", date: "2025-03-13", date_kind: "online", date_precision: "day", year: 2025,
@@ -85,7 +85,7 @@ window.STUDY = {
       authors: ["Lotte van Aken", "Loe Schlicher", "Marco Slikker"],
       venue: "Operations Research Letters", venue_short: "ORL",
       volume_pages: "60, 107278", doi: "10.1016/j.orl.2025.107278",
-      line: "security", href: "2025-protection-location.html", ready: false
+      line: "security", href: "2025-protection-location.html", ready: true
     },
     {
       slug: "2025-bodyguards", date: "2025-07-02", date_kind: "accepted", date_precision: "day", year: 2026,
@@ -93,7 +93,7 @@ window.STUDY = {
       authors: ["Loe Schlicher", "Kyle Y. Lin", "Moshe Kress"],
       venue: "Naval Research Logistics", venue_short: "NRL",
       volume_pages: "73(3), 334-351", doi: "10.1002/nav.70006",
-      line: "security", href: "2025-bodyguards.html", ready: false
+      line: "security", href: "2025-bodyguards.html", ready: true
     },
     {
       slug: "2026-parcel-lockers", date: "2026-06-04", date_kind: "online", date_precision: "day", year: 2026,
@@ -101,7 +101,7 @@ window.STUDY = {
       authors: ["Fabio Mercurio", "Loe Schlicher", "Sonja U.K. Rohmer", "Tom Van Woensel"],
       venue: "International Journal of Production Economics", venue_short: "IJPE",
       volume_pages: "300, 110096", doi: "10.1016/j.ijpe.2026.110096",
-      line: "cooperative", href: "2026-parcel-lockers.html", ready: false
+      line: "cooperative", href: "2026-parcel-lockers.html", ready: true
     }
   ]
 };
