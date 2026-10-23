@@ -30,7 +30,7 @@
   // The site's languages are en, es, pt and fr. A page can declare its own list on <html data-i18n-langs="es en nl">
   // (the hidden study section uses Spanish, English and Dutch); the selector, the URL parameter and the remembered
   // choice only accept the languages of the page, so nothing changes on pages that do not declare a list.
-  var SITE_LANGS = ["en", "es", "pt", "fr"];
+  var SITE_LANGS = ["en", "es", "pt", "fr", "nl"];
   var LANGS = (function () {
     var own = (document.documentElement.getAttribute("data-i18n-langs") || "").split(/\s+/).filter(Boolean);
     var codes = own.length ? own : SITE_LANGS;
@@ -189,7 +189,7 @@
     if (!known(code)) code = DEFAULT;
     load(code, function () {
       current = dicts[code] ? code : DEFAULT;
-      // remember only the site's own languages, so choosing Dutch in the study section does not change the rest of the site
+      // remember only the site's own languages, so a page with its own list (data-i18n-langs) does not change the rest of the site
       if (SITE_LANGS.indexOf(current) >= 0) { try { localStorage.setItem(STORE_KEY, current); } catch (e) { /* ok */ } }
       try {
         var u = new URL(location.href);
