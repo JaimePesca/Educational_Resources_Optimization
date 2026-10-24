@@ -67,7 +67,7 @@ I18N.register("nl", {
   "diet.c.vit.why": "10, 20 en 60 eenheden per kilogram; minstens 150 per dag.",
   "diet.c.nn": "Niet-negativiteit",
   "diet.c.nn.why": "Van geen enkele voersoort kun je een negatieve hoeveelheid geven.",
-  "diet.sol": "<b>Optimale oplossing</b> (in je browser berekend met de simplexmethode, {it} pivots): <code>x₁ = {x1}</code>, <code>x₂ = {x2}</code>, <code>x₃ = {x3}</code> kg, met minimale kosten <b>z = {z}</b> per dag. Dit voer levert {v0} eenheden koolhydraten, {v1} eenheden eiwitten en {v2} eenheden vitamines.",
+  "diet.sol": "<b>Optimale oplossing</b> (in je browser opgelost met de simplexmethode, {it} pivots): <code>x₁ = {x1}</code>, <code>x₂ = {x2}</code>, <code>x₃ = {x3}</code> kg, met minimale kosten <b>z = {z}</b> per dag. Dit voer levert {v0} eenheden koolhydraten, {v1} eenheden eiwitten en {v2} eenheden vitamines.",
 
   "diet.plane.kicker": "2D-weergave",
   "diet.plane.title": "Zonder vetresten: het vlak van maïs en luzerne",

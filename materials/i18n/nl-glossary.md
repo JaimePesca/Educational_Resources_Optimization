@@ -174,9 +174,9 @@ Sources for the choices: the Dutch study pages and `site/locales/nl.js` (kept un
 | gauge | meter; peilbuis when drawn as a tube | lp-machines / edu-diet |
 | Sweep / Stop (buttons) | Doorlopen / Stoppen | lp-shadow |
 | Start over / Reset data / Back to the problem's data | Opnieuw beginnen / Gegevens terugzetten / Terug naar de gegevens van het probleem | |
-| Home (game screen) | Start | Compacta header, fits 400 px |
+| Home (game screen) | Home | Compacta header; "Start" was too close to the "Beginnen" button |
 | Linear programming model (heading) | Lineair programmeringsmodel | all Level 1 pages; "LP model" in a statement: LP-model |
-| Solved in your browser with the page's simplex solver | Opgelost in je browser met de simplexsolver van deze pagina | "in je browser berekend met de simplexmethode ({n} pivots)" |
+| Solved in your browser with the page's simplex solver | Opgelost in je browser met de simplexsolver van deze pagina | "solved" is opgelost, "computed" is berekend: "(in je browser opgelost met de simplexmethode, {it} pivots)", "in je browser berekend met de simplexmethode ({n} pivots)" |
 | sweep (a value) / swept | laten doorlopen / doorlopen | "Sweep Z": Laat Z oplopen |
 | Available in {list}. | Beschikbaar in {list}. | |
 | Contributed by | Bijdrage van | `home.byAuthor`; "Bijgedragen door" is a calque |
@@ -766,3 +766,10 @@ Chosen by the translators and reviewers of `locales/nl.js` and the nine Level 1 
 | search (of a metaheuristic) / worsening proposal | zoektocht / verslechterend voorstel | nl.js tsp |
 | synthetic (territory, data) | fictief | nl.js tsp |
 | candidate water points / fruit shops / discounters | kandidaatwaterpunten / fruitwinkels / discounters | nl.js research summaries |
+| No feasible plan (status) / Feasible plans (legend) | Geen toegelaten plan / Toegelaten plannen | lp-inventory, lp-machines, feasible-region-3d, lp-shadow |
+| Slide to z* = {z} / Slide to the cheapest (button) | Schuif naar z* = {z} / Schuif naar het goedkoopste voer | feasible-region-3d, edu-diet |
+| (data), after a parameter in a variable list | (gegeven) | "vraag in maand t (gegeven)" |
+| dual value(s) / marginal cost | duale waarde(n) / marginale kosten | feasible-region-3d, edu-diet |
+| Classic linear programming formulation exercise (footer) | Klassieke formuleringsoefening uit de lineaire programmering | same pattern for other levels; "Money in US dollars": Bedragen in Amerikaanse dollars; "the model treats the quantities as continuous": het model behandelt de aantallen als continu |
+| the problem set “Problemas para modelar” | de opgavenverzameling “Problemas para modelar” | lp-shadow footer; "Problems 9 and 10": problemen 9 en 10 |
+| Spot the error (Compacta world) | Zoek de fout | |

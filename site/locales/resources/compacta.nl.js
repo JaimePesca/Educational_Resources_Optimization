@@ -9,7 +9,7 @@ I18N.register("nl", {
   "cmp.ui.howto": "Hoe speel je?",
   "cmp.ui.guide": "Beknopte gids",
   "cmp.ui.guideShort": "Gids",
-  "cmp.ui.home": "Start",
+  "cmp.ui.home": "Home",
   "cmp.ui.map": "Kaart",
   "cmp.ui.backToMap": "Terug naar de kaart",
   "cmp.ui.start": "Beginnen",
