@@ -898,3 +898,7 @@ Chosen by the translators and reviewers of `locales/nl.js` and the nine Level 1 
 | pure cutting-plane method / knapsack cover / flow cover / clique | zuivere snijvlakmethode / knapzakcover / flowcover / clique | cutting-planes |
 | bounding box / crew scheduling / Hungarian algorithm | omsluitende rechthoek / bemanningsplanning / het Hongaarse algoritme | rounding-trap, signal-coverage, perfect-assignment |
 | AHP scale: equal / moderate / strong / very strong / extreme importance | Gelijk / Matig / Sterk / Zeer sterk / Extreem belang | research/markets |
+| hectares (plural noun) | hectares; "hoeveel hectare", "per hectare" | global consistency: nl.js feas, milp-mixed-set and the study pages; not "hectaren" |
+| point coordinates in prose, also with whole numbers or fractions | semicolon: (40; 20), (60; 0), (5/2; 9/2), x = ({x1}; {x2}) | global consistency (pilot, groups A and B); lists of values (coin systems, roster vectors, fuzzy triples) keep commas; labels drawn by code keep the English form |
+| decimals in a plain-text formula fallback (`*.formula`) | decimal comma, as in prose: 1,1·D_t, 0,5·I | edu-power, nlp-weber, other-beer-game; the `*.tex` twin keeps 1.1 |
+| "Your …" as a short label or heading / in a sentence | Jouw … ("Jouw score", "Jouw plan") / je … ("Je plan kost …") | global consistency |

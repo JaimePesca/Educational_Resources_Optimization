@@ -6,7 +6,7 @@ I18N.register("nl", {
   "r.nanostores.eyebrow": "Onderzoekscase 1 · Chía en Cajicá, regio Sabana Centro, Colombia",
   "r.nanostores.h1": "CFLP voor nanostores",
   "r.nanostores.lede": "Waar moet een nieuw netwerk van kleine buurtwinkels (nanostores) opengaan, en welk vers voedsel moet elke winkel verkopen, als huishoudens ook bij supermarkten, groente- en fruitwinkels en bestaande buurtwinkels kunnen kopen? De studie beantwoordt die vraag met een model voor competitieve locatiekeuze waarin elk huishouden een winkel kiest met een kans die afhangt van het type winkel, de afstand en de prijs.",
-  "r.nanostores.cite": "<b>A Multi-product Competitive Facility Location Model for Food Purchase: Does the Store Type Matter?</b> A. C. da Silva-Ovando, D. Granados-Rivera, J. E. Pesca Santos, G. Mejía en C. Mejía-Argueta. In J. R. Montoya-Torres en G. E. Mejía (red.), ICPR 2025, Lecture Notes in Production Engineering, p. 33 tot 40, Springer, 2026. DOI 10.1007/978-3-032-19656-9_4.",
+  "r.nanostores.cite": "<b>A Multi-product Competitive Facility Location Model for Food Purchase: Does the Store Type Matter?</b> A. C. da Silva-Ovando, D. Granados-Rivera, J. E. Pesca Santos, G. Mejía en C. Mejía-Argueta. In J. R. Montoya-Torres en G. E. Mejía (red.), ICPR 2025, Lecture Notes in Production Engineering, p. 33 tot en met 40, Springer, 2026. DOI 10.1007/978-3-032-19656-9_4.",
 
   /* the real case */
   "r.nanostores.case.title": "De praktijkcase",
@@ -106,7 +106,7 @@ I18N.register("nl", {
   "r.nanostores.tbl.pct": "% van totaal",
 
   "r.nanostores.lg.title": "Aantrekking via het logitmodel: hoe één huishouden zijn aankoop verdeelt",
-  "r.nanostores.lg.intro": "In het model is het nut van het kopen van product p bij winkel r <b>V = β₀ + β_afstand·afstand + β_prijs·prijs</b>, met coëfficiënten per winkeltype en product, geschat uit de enquête van 2020. Het aandeel dat een winkel aantrekt is exp(V) gedeeld door de som van exp(V) over alle winkels die het huishouden kan bereiken. Verschuif de afstand tot de dichtstbijzijnde nieuwe nanostore en de prijs ervan, en kijk hoe de fruitaankoop van het huishouden wordt verdeeld.",
+  "r.nanostores.lg.intro": "In het model wordt het nut van het kopen van product p bij winkel r gegeven door <b>V = β₀ + β_afstand·afstand + β_prijs·prijs</b>, met coëfficiënten per winkeltype en product, geschat uit de enquête van 2020. Het aandeel dat een winkel aantrekt is exp(V) gedeeld door de som van exp(V) over alle winkels die het huishouden kan bereiken. Verschuif de afstand tot de dichtstbijzijnde nieuwe nanostore en de prijs ervan, en kijk hoe de fruitaankoop van het huishouden wordt verdeeld.",
   "r.nanostores.lg.warn": "Illustratieve coëfficiënten. Het artikel meldt dat locatie en prijs significant zijn, maar publiceert de geschatte coëfficiënten, de prijzen per kanaal en de typische afstanden niet. Elk getal in dit paneel (β-waarden, afstanden en prijzen van concurrenten) is verzonnen voor het lesgeven, dus alleen de vorm van de reactie zegt iets, niet de percentages.",
   "r.nanostores.lg.dist": "Afstand tot de dichtstbijzijnde nieuwe nanostore",
   "r.nanostores.lg.price": "Prijs van fruit bij de nieuwe nanostore",

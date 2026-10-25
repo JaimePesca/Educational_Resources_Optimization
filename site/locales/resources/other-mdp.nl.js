@@ -2,7 +2,7 @@
 I18N.register("nl", {
   "mdp.title": "Vervangen of repareren?",
   "mdp.eyebrow": "Niveau 5 · Andere OR-methoden · <b>Animatie</b>",
-  "mdp.lede": "Een koffiebrander slijt toestand voor toestand, en elk kwartaal beslist de branderij of ze hem blijft onderhouden of vervangt. Waarde-iteratie vult ronde voor ronde een heatmap van de verwachte verdisconteerde kosten V(x), tot het beste beleid verschijnt: <strong>onder een drempel houd je de koffiebrander, op of boven die drempel vervang je hem</strong>.",
+  "mdp.lede": "Een koffiebrander slijt toestand na toestand, en elk kwartaal beslist de branderij of ze hem blijft onderhouden of vervangt. Waarde-iteratie vult ronde voor ronde een heatmap van de verwachte verdisconteerde kosten V(x), tot het beste beleid verschijnt: <strong>onder een drempel houd je de koffiebrander, op of boven die drempel vervang je hem</strong>.",
 
   "mdp.anim.intro": "De toestanden 0 tot en met 5 meten de slijtage van de koffiebrander (0 nieuw, 5 defect). Houden kost meer naarmate hij slechter wordt; vervangen kost een vast bedrag en levert een nieuwe machine op. Waarde-iteratie begint bij V = 0 en past de Bellman-vergelijking toe tot de grootste verandering onder de tolerantie ε = {tol} ligt. Wissel van disconteringsfactor β en kijk hoe de drempel en het aantal iteraties veranderen.",
   "mdp.anim.ctl": "Disconteringsfactor",

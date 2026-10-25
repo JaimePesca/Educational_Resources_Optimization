@@ -51,7 +51,7 @@ I18N.register("nl", {
   "steam.msg.exact": "<b>Op tijd</b>, met aankomst precies op de deadline.",
   "steam.msg.late": "<b>{h} uur te laat.</b> De deadline van {T} dagen wordt niet gehaald: vaar op een van de trajecten sneller.",
 
-  "steam.score.head": "Je score",
+  "steam.score.head": "Jouw score",
   "steam.score.s3": "Op het optimum",
   "steam.score.s2": "Heel dichtbij",
   "steam.score.s1": "Goed plan",

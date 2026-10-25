@@ -4,7 +4,7 @@ I18N.register("nl", {
   "cpm.eyebrow": "Niveau 5 · Andere OR-methoden · <b>Animatie</b>",
   "cpm.lede": "Een plattelandsschool in een dorp in Boyacá wordt in negen activiteiten gebouwd. De <strong>methode van het kritieke pad</strong> vindt de vroegste eindtijd en de activiteiten die niet mogen uitlopen. Daarna laten tweeduizend gesimuleerde projecten zien waarom echte projecten later klaar zijn dan gepland: waar paden samenkomen, wacht het project op het tragere pad.",
 
-  "cpm.d": "{v} d",
+  "cpm.d": "{v} d",
   "cpm.pct": "{v}%",
   "cpm.of": "{k} van {n}",
 
@@ -39,7 +39,7 @@ I18N.register("nl", {
   "cpm.cap2.sub": "Een activiteit begint als haar laatste voorganger klaar is: ES is de grootste EF ervoor.",
   "cpm.cap3": "Achterwaartse doorrekening: laatste tijden",
   "cpm.cap3.sub": "Een activiteit moet klaar zijn als haar eerste opvolger moet beginnen: LF is de kleinste LS erna.",
-  "cpm.cap4": "Speling = LS − ES",
+  "cpm.cap4": "Speling = LS − ES",
   "cpm.cap4.sub": "Speling nul: het kritieke pad, {T} dagen.",
   "cpm.cap5.fixed": "Gepland einde: dag {T}",
   "cpm.cap5.fixed.sub": "De deadline is dag {dl}: {m} dagen marge.",
@@ -100,7 +100,7 @@ I18N.register("nl", {
   "cpm.lp.head": "Hetzelfde antwoord als lineair programma",
   "cpm.lp.tex": "\\begin{aligned} \\min\\;& t_{\\text{eind}} && \\text{(projectduur)} \\\\ \\text{ST}\\;& t_j \\ge t_i + d_i && \\forall\\, i \\to j \\\\ & t_{\\text{eind}} \\ge t_i + d_i && \\forall\\, i \\text{ zonder opvolgers} \\\\ & t_i \\ge 0 \\end{aligned}",
   "cpm.lp.formula": "min  t_eind                       (projectduur)\no.v. t_j ≥ t_i + d_i              voor elke pijl i → j\n     t_eind ≥ t_i + d_i           voor elke i zonder opvolgers\n     t_i ≥ 0",
-  "cpm.lp.res": "Opgelost in je browser met de simplexsolver van deze site: t_eind = {z} dagen. De duale waarde van een volgorderelatie is 1 op de pijlen {arcs} en 0 op de andere: precies het kritieke pad.",
+  "cpm.lp.res": "Opgelost in je browser met de simplexsolver van deze site: t_eind = {z} dagen. De duale waarde van een volgorderelatie is 1 op de pijlen {arcs} en 0 op de andere: precies het kritieke pad.",
   "cpm.mc.head": "Onzekere duur",
   "cpm.mc.tex": "\\begin{aligned} & d_i \\sim \\mathrm{Tri}(a_i, m_i, b_i), \\qquad \\mathbb{E}[d_i] = \\frac{a_i + m_i + b_i}{3} \\\\ & T = \\max_{p \\,\\in\\, \\text{paden}} \\; \\sum_{i \\in p} d_i \\\\ & \\mathbb{E}[T] \\;\\ge\\; \\max_{p} \\; \\mathbb{E}\\Big[\\sum_{i \\in p} d_i\\Big] = T_{\\text{CPM}} \\end{aligned}",
   "cpm.mc.formula": "d_i ~ Tri(a_i, m_i, b_i),   E[d_i] = (a_i + m_i + b_i)/3\nT = max over paden p van de som van d_i op p\nE[T] ≥ max over paden van E[som van d_i] = T_CPM",
@@ -132,7 +132,7 @@ I18N.register("nl", {
 
   "cpm.n.title": "Wat opvalt",
   "cpm.n.p1": "De voorwaartse doorrekening wacht bij elk punt waar paden samenkomen. Activiteit E (constructie en muren) kan pas beginnen als zowel de fundering (dag {eD}) als de materialen (dag {eC}) klaar zijn, dus begint E op dag {esE}. Het kritieke pad {path} heeft geen speling: één dag vertraging bij een van zijn activiteiten verschuift het einde met één dag.",
-  "cpm.n.p2": "Speling meet hoeveel een activiteit kan uitlopen zonder het project te vertragen: {slacks}. Deze kleine spelingen wijzen op bijna-kritieke paden. Met een vaste duur zijn ze onschuldig, maar in de simulatie maakt een lange getrokken duur op een van die paden dat pad kritiek.",
+  "cpm.n.p2": "Speling meet hoeveel een activiteit kan uitlopen zonder het project te vertragen: {slacks}. Deze kleine spelingen wijzen op bijna-kritieke paden. Met een vaste duur zijn ze onschuldig, maar in de simulatie maakt een toevallig lange duur op zo'n pad dat pad kritiek.",
   "cpm.n.p3": "Met de verwachte duur per activiteit is het kritieke pad {T} dagen lang, maar het gemiddelde van de {n} runs is {mean} dagen: een samenloopeffect van {bias}. Waar twee paden samenkomen, wacht het project op het pad dat het laatst klaar is, en gemiddeld ligt dat maximum later dan elk van beide verwachte eindtijden. Plannen met de meest waarschijnlijke duur zou nog optimistischer zijn: {Tm} dagen.",
   "cpm.n.p4": "Het deterministische plan laat {m} dagen marge over. Toch haalt maar {p} van de runs dag {dl}, en slechts {p0} is uiterlijk op dag {T} klaar. De criticaliteitsindex laat zien waar het risico zit: buiten het kritieke pad {off}; erop {on}. Wil je een datum beloven die in 9 van de 10 runs standhoudt, neem dan ongeveer dag {q}.",
 

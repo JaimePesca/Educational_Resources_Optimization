@@ -62,13 +62,13 @@ I18N.register("nl", {
   "cut.h.cut": "Houd alleen de fractionele delen over",
   "cut.h.x": "Teken de snede in het vlak",
   "cut.h.done": "Geheeltallig optimum bereikt",
-  "cut.n.lp0": "De simplexmethode lost het probleem zonder de eis van geheeltalligheid op in {piv} pivots. Het LP-optimum is <b>x = ({x1}, {x2})</b> met z = {z}. Fractionele eenheden hebben hier geen zin, dus zoeken we een ongelijkheid die dit punt verwijdert maar elk geheeltallig plan behoudt.",
-  "cut.n.lp": "Snede C{k} komt als nieuwe rij met een eigen slackvariabele in het tableau. Het oude optimum schendt deze snede, dus herstelt de <b>duale simplexmethode</b> de toelaatbaarheid in {piv} pivot(s). Nieuw LP-optimum: <b>x = ({x1}, {x2})</b>, z = {z}. De grens is gedaald van {zold} naar {z}.",
+  "cut.n.lp0": "De simplexmethode lost het probleem zonder de eis van geheeltalligheid op in {piv} pivots. Het LP-optimum is <b>x = ({x1}; {x2})</b> met z = {z}. Fractionele eenheden hebben hier geen zin, dus zoeken we een ongelijkheid die dit punt verwijdert maar elk geheeltallig plan behoudt.",
+  "cut.n.lp": "Snede C{k} komt als nieuwe rij met een eigen slackvariabele in het tableau. Het oude optimum schendt deze snede, dus herstelt de <b>duale simplexmethode</b> de toelaatbaarheid in {piv} pivot(s). Nieuw LP-optimum: <b>x = ({x1}; {x2})</b>, z = {z}. De grens is gedaald van {zold} naar {z}.",
   "cut.n.again": "Het is nog steeds fractioneel, dus begint er een nieuwe ronde.",
   "cut.n.row": "Elke rij met een fractioneel rechterlid kan een snede opleveren. We nemen de meest fractionele: <b>{v} = {val}</b>, met fractioneel deel {f0}. Die rij is gemarkeerd in het tableau.",
   "cut.n.cut": "Splits elk getal van de rij in een geheel deel en een fractioneel deel f(a) = a − ⌊a⌋. Omdat alle variabelen geheeltallig en niet-negatief zijn, voldoet elk geheeltallig plan aan <b>{cut}</b>. In het LP-optimum zijn de niet-basisvariabelen 0, dus is het linkerlid 0 en 0 &lt; {f0}: het optimum schendt de snede.",
   "cut.n.x": "Als je de slackvariabelen uitdrukt in x₁ en x₂, wordt de snede <b>{xcut}</b>. Ze snijdt de gearceerde strook af ({a} vierkante eenheden). De strook bevat het fractionele optimum, maar geen enkel geheeltallig punt.",
-  "cut.n.done": "<b>x = ({x1}, {x2})</b> is geheeltallig, dus stopt het algoritme. Geen enkele snede heeft een geheeltallig punt verwijderd, dus dit is ook het optimum van het geheeltallige probleem: <b>z = {z}</b>, bereikt met {k} snede(s). De volledige enumeratie in de tegels geeft hetzelfde resultaat.",
+  "cut.n.done": "<b>x = ({x1}; {x2})</b> is geheeltallig, dus stopt het algoritme. Geen enkele snede heeft een geheeltallig punt verwijderd, dus dit is ook het optimum van het geheeltallige probleem: <b>z = {z}</b>, bereikt met {k} snede(s). De volledige enumeratie in de tegels geeft hetzelfde resultaat.",
   "cut.n.hullEq": "Het LP-gebied valt nu precies samen met het geheeltallige omhulsel.",
   "cut.n.hullNe": "Het LP-gebied is op sommige plaatsen nog groter dan het geheeltallige omhulsel (zet het omhulsel aan om te zien waar), maar niet rond het optimum.",
 
@@ -113,7 +113,7 @@ I18N.register("nl", {
   "cut.b.touch1": "Raakt het geheeltallige omhulsel in één punt.",
   "cut.b.touch0": "Geen enkel geheeltallig punt ligt erop, dus de snede kan nog verder naar binnen worden geschoven.",
   "cut.b.bound": "Met deze snede daalt de LP-grens van {z0} naar <b>{z}</b>.",
-  "cut.b.gnote": "De eerste Gomory-snede in deel A is precies de Chvátal-Gomory-snede met u = ({u1}, {u2}), de fractionele delen van haar bronrij: {cut}.",
+  "cut.b.gnote": "De eerste Gomory-snede in deel A is precies de Chvátal-Gomory-snede met u = ({u1}; {u2}), de fractionele delen van haar bronrij: {cut}.",
   "cut.b.gomory": "Gebruik de multiplicatoren van Gomory",
   "cut.b.reset": "Terugzetten",
 
@@ -135,8 +135,8 @@ I18N.register("nl", {
   "cut.d3.p3": "Gomory-snedes werden ongeveer dertig jaar lang afgedaan als onpraktisch. In de jaren negentig lieten Balas, Ceria, Cornuéjols en Natraj zien dat ze heel goed werken als je ze in rondes toevoegt en combineert met vertakken. Voor de kant van de boom ga je terug naar <a href=\"search-tree.html\" data-keep-lang>De zoekboom groeit</a>.",
   "cut.d4.title": "Uitdagingen",
   "cut.d4.p0": "Werk elke uitdaging eerst op papier uit en controleer ze daarna op de pagina.",
-  "cut.d4.q1": "<strong>Met de hand.</strong> In de bakkerij is de bronrij bij stap 3 x₁ + 5/4 s₁ − 1/4 s₂ = 5/2. Controleer dat f(−1/4) = 3/4. Substitueer daarna s₁ = 7 − x₁ − x₂ en s₂ = 25 − x₁ − 5x₂ in 1/4 s₁ + 3/4 s₂ ≥ 1/2 en laat zien dat je x₁ + 4x₂ ≤ 20 krijgt.",
+  "cut.d4.q1": "<strong>Met de hand.</strong> In de bakkerij is de bronrij bij stap 3 x₁ + 5/4 s₁ − 1/4 s₂ = 5/2. Ga na dat f(−1/4) = 3/4. Substitueer daarna s₁ = 7 − x₁ − x₂ en s₂ = 25 − x₁ − 5x₂ in 1/4 s₁ + 3/4 s₂ ≥ 1/2 en laat zien dat je x₁ + 4x₂ ≤ 20 krijgt.",
   "cut.d4.q2": "<strong>Niet het hele omhulsel.</strong> Laat de meubelwerkplaats tot het einde lopen en zet het geheeltallige omhulsel aan. Welk deel van het uiteindelijke LP-gebied ligt nog buiten het omhulsel? Waarom kan het algoritme toch stoppen?",
-  "cut.d4.q3": "<strong>Op jacht naar een snede.</strong> Zoek in deel B met de bakkerij multiplicatoren die het LP-optimum (5/2, 9/2) afsnijden. Hint: op de schuifregelaars werken maar twee paren, en bij allebei geldt u₁ + u₂ = 1. Vergelijk ze met de multiplicatoren van Gomory.",
-  "cut.d4.q4": "<strong>Een facet.</strong> Zet in deel B met de verhuiswagen u = (1/3, 0). Welke geheeltallige punten liggen op de snede 2x₁ + x₂ ≤ 10 die je dan krijgt? Waarom is geen enkele geldige snede in die richting sterker? Zoek dezelfde ongelijkheid onder de snedes van deel A."
+  "cut.d4.q3": "<strong>Op jacht naar een snede.</strong> Zoek in deel B met de bakkerij multiplicatoren die het LP-optimum (5/2; 9/2) afsnijden. Hint: op de schuifregelaars werken maar twee paren, en bij allebei geldt u₁ + u₂ = 1. Vergelijk ze met de multiplicatoren van Gomory.",
+  "cut.d4.q4": "<strong>Een facet.</strong> Zet in deel B met de verhuiswagen u = (1/3; 0). Welke geheeltallige punten liggen op de snede 2x₁ + x₂ ≤ 10 die je dan krijgt? Waarom is geen enkele geldige snede in die richting sterker? Zoek dezelfde ongelijkheid onder de snedes van deel A."
 }, "resources/cutting-planes");

@@ -36,7 +36,7 @@ I18N.register("nl", {
   "bnb.br.most": "Meest fractionele",
   "bnb.br.first": "Eerste fractionele",
 
-  "bnb.nar.start": "De wortelknoop is de <b>LP-relaxatie</b>: hetzelfde model zonder de eis van gehele getallen. Het optimum ervan is een bovengrens voor elk geheeltallig plan. Druk op <b>Stap</b> om de relaxatie op te lossen.",
+  "bnb.nar.start": "De wortelknoop is de <b>LP-relaxatie</b>: hetzelfde model zonder de eis van geheeltalligheid. Het optimum ervan is een bovengrens voor elk geheeltallig plan. Druk op <b>Stap</b> om de relaxatie op te lossen.",
   "bnb.nar.root": "<b>Knoop 1</b> is de wortel: de volledige relaxatie.",
   "bnb.nar.dfs": "Diepte-eerst gaat verder met <b>knoop {n}</b> ({bc}), de diepste open knoop.",
   "bnb.nar.best": "Beste grens kiest <b>knoop {n}</b> ({bc}): zijn grens {b} is de hoogste van alle open knopen.",
@@ -46,7 +46,7 @@ I18N.register("nl", {
   "bnb.why.first": "de eerste fractionele variabele",
   "bnb.nar.inf": "Het LP heeft <b>geen toegelaten oplossing</b>: geen enkel punt van het gebied voldoet aan {bcs}. <b>Gesnoeid door niet-toelaatbaarheid.</b>",
   "bnb.nar.bound": "LP: z = <b>{z}</b> in {pt}. Dat is niet beter dan de incumbent ({inc}), dus geen enkel geheeltallig plan in deze tak kan die verslaan. <b>Gesnoeid door de grens.</b>",
-  "bnb.nar.int": "LP: z = <b>{z}</b> in {pt}. Beide waarden zijn gehele getallen: een echt plan en de <b>nieuwe incumbent</b>. Niets in deze tak kan beter, dus de tak sluit.",
+  "bnb.nar.int": "LP: z = <b>{z}</b> in {pt}. Beide waarden zijn gehele getallen: een echt plan en de <b>nieuwe incumbent</b>. Niets in deze tak kan beter zijn, dus de tak sluit.",
   "bnb.nar.prev": "Dit plan verslaat de vorige incumbent ({prev}).",
   "bnb.nar.cut": "De open knopen {list} hebben een grens van hoogstens {z}: <b>gesnoeid zonder ze op te lossen</b>.",
   "bnb.nar.done": "Er zijn geen open knopen meer: de incumbent z = <b>{z}</b> in {pt} is <b>optimaal</b>. Kosten van het bewijs: {lps} LP's.",
@@ -119,7 +119,7 @@ I18N.register("nl", {
   "bnb.d1.p1": "Elke week lost de werkplaats een klein <strong>geheeltallig programma</strong> op: maximaliseer de winst binnen de beschikbare middelen, met gehele aantallen stuks.",
   "bnb.d1.formula": "(IP)  max  z = c₁x₁ + c₂x₂\n      o.v. aᵢ₁x₁ + aᵢ₂x₂ ≤ bᵢ     voor elk middel i\n           x₁, x₂ ≥ 0 en geheeltallig\n\n(LP)  hetzelfde model met reële x₁, x₂ ≥ 0\n\n      z_IP ≤ z_LP",
   "bnb.d1.tex": "\\begin{aligned}\n(\\text{IP})\\quad \\max\\;& z=c_1x_1+c_2x_2\\\\\n\\text{ST}\\;& a_{i1}x_1+a_{i2}x_2\\le b_i\\quad \\text{voor elk middel } i\\\\\n& x_1, x_2\\ge 0\\ \\text{en geheeltallig}\\\\[6pt]\n(\\text{LP})\\quad & \\text{hetzelfde model met reële } x_1, x_2\\ge 0\\\\[6pt]\n& z_{\\text{IP}}\\le z_{\\text{LP}}\n\\end{aligned}",
-  "bnb.d1.p2": "Als je de geheeltalligheid laat vallen, krijg je de <strong>LP-relaxatie</strong>. Haar gebied bevat elk geheeltallig plan, dus haar optimum kan alleen gelijk of hoger zijn: z_LP is een <strong>bovengrens</strong> voor z_IP. Hetzelfde geldt in elke knoop van de boom: het LP van een knoop begrenst elk geheeltallig plan in het gebied van die knoop. Met twee variabelen wordt elk LP exact opgelost door de hoekpunten van zijn gebied te controleren, zoals bij de grafische methode.",
+  "bnb.d1.p2": "Als je de eis van geheeltalligheid laat vallen, krijg je de <strong>LP-relaxatie</strong>. Haar gebied bevat elk geheeltallig plan, dus haar optimum kan alleen gelijk of hoger zijn: z_LP is een <strong>bovengrens</strong> voor z_IP. Hetzelfde geldt in elke knoop van de boom: het LP van een knoop begrenst elk geheeltallig plan in het gebied van die knoop. Met twee variabelen wordt elk LP exact opgelost door de hoekpunten van zijn gebied te controleren, zoals bij de grafische methode.",
   "bnb.d2.title": "Vertakken en de drie snoeiregels",
   "bnb.d2.p1": "Als het LP-optimum van een knoop een fractionele variabele x_j = v heeft, <strong>vertakt</strong> de knoop in twee kinderen:",
   "bnb.d2.formula": "linkerkind:          x_j ≤ ⌊v⌋\nrechterkind:         x_j ≥ ⌈v⌉\nverwijderde strook:  ⌊v⌋ < x_j < ⌈v⌉   (geen geheeltallig punt)",
@@ -141,6 +141,6 @@ I18N.register("nl", {
   "bnb.d4.p1": "<strong>Uitdaging 1.</strong> Laat in week 1 eerst diepte-eerst en daarna beste grens lopen, beide met meest fractionele. Hoeveel LP's lost elke strategie op? Bij welke stap vindt elke strategie haar eerste incumbent? Welke krijgt in de grafiek vroeg een incumbent en welke verlaagt de grens sneller?",
   "bnb.d4.p2": "<strong>Uitdaging 2.</strong> In week 2 lost diepte-eerst evenveel LP's op als beste grens. Volg de eerste duik: welke incumbent wordt bij stap 3 gevonden, en wat gebeurt er met elke knoop die daarna wordt opgelost? Zo bespaar je werk als je vroeg een goede incumbent vindt.",
   "bnb.d4.p3": "<strong>Uitdaging 3.</strong> Zet in week 3 de vertakkingsvariabele van meest fractionele op eerste fractionele. Hoeveel LP's bespaar je? Doe nu hetzelfde in week 2. Is één regel altijd beter?",
-  "bnb.d4.p4": "<strong>Uitdaging 4.</strong> Ga in week 3, met diepte-eerst en meest fractionele, naar stap 12. Knoop 13 wordt gesnoeid door de grens: waar ligt zijn hele gebied ten opzichte van de gestreepte lijn van de incumbent? Leg met de figuur uit waarom de grensregel het optimum nooit kwijtraakt. Controleer daarna dat geen enkele gearceerde strook een geheeltallig plan bevat.",
+  "bnb.d4.p4": "<strong>Uitdaging 4.</strong> Ga in week 3, met diepte-eerst en meest fractionele, naar stap 12. Knoop 13 wordt gesnoeid door de grens: waar ligt zijn hele gebied ten opzichte van de gestreepte lijn van de incumbent? Leg met de figuur uit waarom de grensregel het optimum nooit kwijtraakt. Ga daarna na dat geen enkele gearceerde strook een geheeltallig plan bevat.",
   "bnb.footer": "Leermiddel · De werkplaats en haar gegevens zijn illustratief, met winst in honderdduizenden peso's. Het LP van elke knoop wordt exact in je browser opgelost door enumeratie van de hoekpunten van zijn gebied. Regels bij gelijke stand: meest fractionele kiest dan x₁, diepte-eerst neemt eerst het kind met x ≤, en beste grens beslist op diepte en daarna op knoopnummer."
 }, "resources/search-tree");
