@@ -255,9 +255,9 @@ table.crit { min-width: 560px; }
           <div class="tblwrap"><table class="data crit" id="t-crit"></table></div>
           <div class="grp">
             <div class="statrow">
-              <div class="kpi"><div class="v">10.370</div><div class="l" data-i18n="r.markets.cr.stat.lambda"></div></div>
-              <div class="kpi"><div class="v">0.041</div><div class="l" data-i18n="r.markets.cr.stat.ci"></div></div>
-              <div class="kpi"><div class="v">0.028</div><div class="l" data-i18n="r.markets.cr.stat.cr"></div></div>
+              <div class="kpi"><div class="v" data-num="10.370">10.370</div><div class="l" data-i18n="r.markets.cr.stat.lambda"></div></div>
+              <div class="kpi"><div class="v" data-num="0.041">0.041</div><div class="l" data-i18n="r.markets.cr.stat.ci"></div></div>
+              <div class="kpi"><div class="v" data-num="0.028">0.028</div><div class="l" data-i18n="r.markets.cr.stat.cr"></div></div>
             </div>
             <h4 style="margin-top:6px" data-i18n="r.markets.fz.h"></h4>
             <div class="chartbox" id="c-fz"></div>
@@ -1495,6 +1495,14 @@ table.crit { min-width: 560px; }
       segEl.appendChild(btn);
     });
   }
+
+  // fixed statistics in the reader's number format (data-num holds the English value and its decimals)
+  I18N.onChange(function () {
+    document.querySelectorAll("[data-num]").forEach(function (el) {
+      var v = el.getAttribute("data-num"), d = (v.split(".")[1] || "").length;
+      el.textContent = I18N.fmt(+v, d, d);
+    });
+  });
 
   I18N.onChange(function () {
     buildSeg();

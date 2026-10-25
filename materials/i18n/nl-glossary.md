@@ -887,3 +887,14 @@ Chosen by the translators and reviewers of `locales/nl.js` and the nine Level 1 
 | weekly profit / unit cost / (Eds.) | weekwinst / kosten per eenheid / (red.) | research/nanostores |
 | Figures reproduce the study for illustration. | De figuren geven de studie ter illustratie weer. | note line of every research page |
 | lecturer / teaching assistant (university) / corporate instructor / with distinction | docent / studentassistent / bedrijfstrainer / met onderscheiding | about; "onderwijsassistent" is a classroom assistant at a school |
+| relax (a constraint, a limit) | versoepelen | lp-inventory, milp-logic, milp-bigm, nlp-kkt; "relaxation" stays relaxatie |
+| short weekday labels / weekdays in prose | Ma, Di, Wo, Do, Vr, Za, Zo / maandag … zondag | hospital-shifts, research/markets |
+| furniture workshop / workshop (short) | meubelwerkplaats / werkplaats | search-tree, cutting-planes, milp-bigm |
+| power grid / grid of cells (on a page) | net / raster | edu-power: "Houd het net in balans", "Raster wissen" |
+| Custom (selector option) / guess (the player's estimate) / Effort (panel) | Aangepast / schatting / Rekenwerk | exact-change |
+| amount of a currency after a number | 50 peso, 1.000 peso (singular, like 10 euro) | exact-change; without a number: peso's, Colombiaanse peso's |
+| trace (of a sweep) / drag handle | spoor / greep | milp-bigm, milp-mixed-set |
+| too strict / too loose / mismatch (verifier) | te streng / te ruim / afwijking | milp-logic |
+| pure cutting-plane method / knapsack cover / flow cover / clique | zuivere snijvlakmethode / knapzakcover / flowcover / clique | cutting-planes |
+| bounding box / crew scheduling / Hungarian algorithm | omsluitende rechthoek / bemanningsplanning / het Hongaarse algoritme | rounding-trap, signal-coverage, perfect-assignment |
+| AHP scale: equal / moderate / strong / very strong / extreme importance | Gelijk / Matig / Sterk / Zeer sterk / Extreem belang | research/markets |

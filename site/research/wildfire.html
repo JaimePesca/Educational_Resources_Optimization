@@ -639,7 +639,7 @@ R_f &= c\, A_0\, e^{\rho_f\, t^{\mathrm{arr}}_f}
     svg.appendChild(el("polyline", { points: line.join(" "), fill: "none", stroke: cSil, "stroke-width": 1.5 }));
     data.forEach(function (d, i) {
       var x = X(i);
-      svg.appendChild(el("text", { x: x, y: m.t + ph + 18, "text-anchor": "middle", "font-size": 11.5, fill: cInk2, "font-family": css("--font-mono") }, d.x));
+      svg.appendChild(el("text", { x: x, y: m.t + ph + 18, "text-anchor": "middle", "font-size": 11.5, fill: cInk2, "font-family": css("--font-mono") }, d.x.replace(/^[\d.]+/, function (n) { return fmt(+n, (n.split(".")[1] || "").length); })));
       var lbl;
       if (d.kind === "floor") {
         svg.appendChild(el("line", { x1: x, x2: x, y1: Y(71), y2: Y(81), stroke: cSil, "stroke-width": 2, "stroke-dasharray": "3 3" }));
