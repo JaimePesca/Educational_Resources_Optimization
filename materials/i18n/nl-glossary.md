@@ -773,3 +773,117 @@ Chosen by the translators and reviewers of `locales/nl.js` and the nine Level 1 
 | Classic linear programming formulation exercise (footer) | Klassieke formuleringsoefening uit de lineaire programmering | same pattern for other levels; "Money in US dollars": Bedragen in Amerikaanse dollars; "the model treats the quantities as continuous": het model behandelt de aantallen als continu |
 | the problem set “Problemas para modelar” | de opgavenverzameling “Problemas para modelar” | lp-shadow footer; "Problems 9 and 10": problemen 9 en 10 |
 | Spot the error (Compacta world) | Zoek de fout | |
+| closed form / closed-form optimum | gesloten vorm / optimum in gesloten vorm | Level 4 and 5 pages (nlp-kkt, nlp-penalty-barrier, nlp-fairness, other-cournot, other-dea) |
+| multiplier (λ) | multiplicator | nlp-kkt, nlp-penalty-barrier; Lagrange-multiplicator stays |
+| squared distance | gekwadrateerde afstand | nlp-kkt, nlp-penalty-barrier, nlp-weber; not "afstand in het kwadraat" |
+| violation (of a constraint, of a chord) | schending | nlp-convexity, nlp-penalty-barrier |
+| stationarity / primal feasibility / dual feasibility | stationariteit / primale toelaatbaarheid / duale toelaatbaarheid | KKT lists |
+| first-order condition / second-order test / first-order estimate | eersteordevoorwaarde / tweedeordetoets / schatting van de eerste orde | nlp-stationary, nlp-kkt |
+| curve (graph of a function) / graph of f / tangent line | kromme / grafiek van f / raaklijn | a plotted curve in a chart may stay "curve" (other-complexity, other-abm-epidemic) |
+| bowl / saddle (surface) / fence / wall (a pictured constraint) | kom / zadel (het zadel) / hek / muur | nlp-stationary, nlp-kkt, nlp-penalty-barrier |
+| segment / intersection / union (of sets) | lijnstuk / doorsnede / vereniging | nlp-convexity, other-mcda |
+| descent (run) / trapped | afdaling / vastgelopen | nlp-convexity |
+| search direction / trial step / full step / backtracking | zoekrichting / proefstap / volle stap / backtracking | nlp-newton |
+| stopping rule | stopcriterium | nlp-newton, other-mdp |
+| identity matrix / linear system / diagonal entry | eenheidsmatrix / lineair stelsel / diagonaalelement | nlp-newton, other-mdp |
+| warm start / cold start / condition number / ill-conditioned | warme start / koude start / conditiegetal / slecht geconditioneerd | nlp-penalty-barrier |
+| duality gap | dualiteitskloof | like integraliteitskloof |
+| straight-line (distance) | hemelsbreed | nlp-weber, other-complexity; "the straight-line optimum": het euclidische optimum |
+| grid (of values, of roads) | raster / wegenraster | "rooster" is a staff roster |
+| kink | knik | nlp-weber, other-smoothing; a breakpoint stays knikpunt |
+| bisection | bisectie | nlp-slow-steaming, other-decision-tree, other-mcda |
+| site (candidate location) / municipality | locatie / gemeente | nlp-weber, other-mcda, nlp-fairness; a construction site is a (bouw)terrein |
+| linear utility | lineaire nutsfunctie | nlp-fairness |
+| cargo / laden / in ballast / shipowner / nautical mile | lading / beladen / in ballast / reder / zeemijl (nm) | nlp-slow-steaming |
+| service time / load (short label, chip, chapter name) | bedieningstijd / bezetting | other-queue-explode; prose keeps bezettingsgraad |
+| time average / long-run average | tijdgemiddelde / langetermijngemiddelde | other-queue-explode |
+| coefficient of variation / standard deviation / standard error / confidence interval | variatiecoëfficiënt / standaardafwijking / standaardfout / betrouwbaarheidsinterval | |
+| random number generator / seeded (run, simulation) | toevalsgenerator / met een vaste seed | other-queue-explode, other-smoothing, other-abm-epidemic, other-cpm |
+| policy iteration / policy evaluation / sweep (of value iteration) | beleidsiteratie / beleidsevaluatie / ronde | other-mdp |
+| expected discounted cost / error bound / Bellman equation | verwachte verdisconteerde kosten / foutgrens / Bellman-vergelijking | other-mdp |
+| scenario tree / extensive form / mean-value problem | scenarioboom / extensieve vorm / probleem met gemiddelde waarden | other-two-stage |
+| plan for the average (year) / plan with scenarios | plan op het gemiddelde (jaar) / plan met scenario's | other-two-stage, same preposition as the title |
+| perfect forecast / surplus / shortage | perfecte voorspelling / overschot / tekort | other-two-stage |
+| payoff / ending (outcome at a leaf) / lot (of produce) | opbrengst / eindpunt / partij | other-decision-tree |
+| certainty equivalent / expected utility / risk premium / risk tolerance / risk aversion / risk neutral / attitude to risk | zekerheidsequivalent (CE) / verwacht nut (EU) / risicopremie / risicotolerantie / risicoaversie / risiconeutraal / risicohouding | other-decision-tree; risk averse stays risicomijdend |
+| precedence / predecessor / successor | volgorderelatie / voorganger / opvolger | other-cpm, dijkstra |
+| merge bias / criticality index / triangular distribution / Gantt chart | samenloopeffect / criticaliteitsindex / driehoeksverdeling / Gantt-diagram | other-cpm |
+| augmentation / forward arc / backward arc / breadth-first search | vergroting / voorwaartse boog / achterwaartse boog / breedte-eerst zoeken | other-maxflow |
+| spare capacity (of an arc) / flow conservation / max-flow min-cut theorem | vrije capaciteit / stroombehoud / max-flow-min-cut-stelling | other-maxflow; overcapaciteit is excess capacity |
+| origin / destination / visited / unvisited / neighbor | beginknoop / bestemming / bezocht / onbezocht / buur (pl. buren) | dijkstra |
+| tie / tied | gelijke stand / gelijk staan | dijkstra, other-mcda; not "gelijkspel" (a drawn match) |
+| firm / rival / move (in a game) / commit to | bedrijf / concurrent / zet / zich vastleggen op | other-cournot; a choice in a decision tree is a keuze |
+| Cournot equilibrium / Stackelberg outcome / iso-profit curve / output (quantity) / inverse demand | Cournot-evenwicht / Stackelberg-uitkomst / isowinstcurve / productie / inverse vraagfunctie | other-cournot; best response curve and reaction line are both reactiecurve |
+| monopoly / perfect competition | monopolie / volkomen concurrentie | other-cournot |
+| simple exponential smoothing / naive forecast / lag / noise / golden-section search | enkelvoudige exponentiële afvlakking / naïeve voorspelling / vertraging / ruis / methode van de gulden snede | other-smoothing |
+| target (DEA) / target level (base stock) | streefpunt / doelniveau | other-dea, other-beer-game |
+| input-oriented / scale efficiency / convex combination / isoquant | inputgeoriënteerd / schaalefficiëntie / convexe combinatie / isoquant | other-dea |
+| operations (of a computer) / nearest neighbor (heuristic) | bewerkingen (chip: bew.) / heuristiek van de dichtstbijzijnde buur | other-complexity; in prose not "de dichtstbijzijnde buur" alone |
+| NP-complete / certificate / P vs NP | NP-volledig / certificaat / P versus NP | other-complexity |
+| infectious / final size / fizzle out / staying put | besmettelijk / eindomvang / uitdoven / stilstaan | other-abm-epidemic; besmet is infected |
+| retailer / wholesaler / distributor / factory (Beer Game roles) | detaillist / groothandel / distributeur / fabriek | other-beer-game |
+| customer demand / shipment / base stock / safety stock / inventory position / net stock | klantvraag / zending / basisvoorraad / veiligheidsvoorraad / voorraadpositie / nettovoorraad | other-beer-game |
+| review period / variance ratio / system dynamics | reviewperiode / variantieverhouding / systeemdynamica | other-beer-game |
+| Play again (a game) | Opnieuw spelen | other-beer-game; "Opnieuw afspelen" replays an animation |
+| decision matrix / weight profile / benefit criterion / cost criterion | beslissingsmatrix / gewichtsprofiel / batencriterium / kostencriterium | other-mcda |
+| min-max normalization / vector normalization / closeness (TOPSIS) / rank reversal / scatter plot | min-maxnormalisatie / vectornormalisatie / nabijheid / rangomkering / spreidingsdiagram | other-mcda |
+| against / versus (chapter names, titles, captions) | tegenover | "Cournot tegenover Stackelberg", "Wachttijd tegenover bezetting" |
+| illustrative but plausible (footer) | illustratief maar plausibel | footer sentence: "Elk getal op deze pagina wordt in je browser uit het model berekend" |
+| zoom (of the animation) | het inzoomen / een ingezoomd beeld | not "de zoom" (reads as a hem); the canvas label "zoom ×{z}" stays |
+| 1000 and other four-digit numbers in prose and labels | 1.000, 1.000× | other-complexity; inline formulas keep the English digits (1000^(1/2), log₂ 1000) |
+| integrality requirement / drop integrality | eis van geheeltalligheid / de eis van geheeltalligheid laten vallen | group A consistency: rounding-trap, cutting-planes, hospital-shifts, milp-mixed-set, milp-lot-sizing; not "geheeltalligheidseis" |
+| tighter / weaker (formulation, relaxation, option) | sterker / zwakker | milp-logic, edu-warehouses, milp-lot-sizing; not "strakker"; for M itself: "geldig en scherp", "ruim" (milp-bigm) |
+| tightest valid M / the tightest valid choice | kleinste geldige M / de kleinste geldige M (M_t) | milp-bigm, milp-logic, milp-lot-sizing; not "scherpste geldige keuze" |
+| valid (plan, inequality, bound) / cut off / let through | geldig / afsnijden / doorlaten | milp-logic, milp-bigm; cutting-planes "geldige ongelijkheid" |
+| shaded / hatched (region, strip) | gearceerd | edu-diet, rounding-trap, cutting-planes, milp-mixed-set, milp-bigm, search-tree; not "ingekleurd" |
+| step chart / area chart / stacked bar chart | trapdiagram / vlakdiagram / gestapeld staafdiagram | aria labels; not "trapgrafiek" |
+| profit line (English without "iso") | winstlijn | milp-mixed-set, milp-bigm; "iso-profit line" stays isowinstlijn |
+| tied plans / at this value plans tie | gelijkwaardige plannen / zijn even duur | search-tree, perfect-assignment, milp-bigm, rounding-trap, milp-lot-sizing; greedy ties on a score: "bij een gelijke score" (signal-coverage) |
+| lattice, grid of points / lattice point / rounding cell | rooster (van punten) / roosterpunt / afrondingscel | rounding-trap, milp-mixed-set, nl.js summary; a grid of cells or roads is raster |
+| slice (of a mixed-integer set) | plak | milp-mixed-set; cost segments stay "segment" (milp-piecewise) |
+| preset (scenario selector) / quick pick | scenario ("Vaste scenario's", "Scenario terugzetten") / snelkeuze | rounding-trap, milp-bigm |
+| semi-continuous | semicontinu | one word: edu-power, milp-logic ("Semicontinue variabele") |
+| be on / be off (switch, plant, budget) | aanstaan / uitstaan | separable verb, so one word in subordinate clauses and after laten: "als de ketel aanstaat", "Laat het budget uitstaan"; "zet ... aan / uit" stays split |
+| switch (a binary seen as a switch) / helper switch / threshold switch / conditional bound | schakelaar / hulpschakelaar / drempelschakelaar / voorwaardelijke grens | milp-logic |
+| either-or rule / either-or condition / k out of n | of-ofregel / of-ofvoorwaarde / k uit n | milp-bigm, milp-logic; the constraint stays of-ofrestrictie |
+| linking constraint / disaggregated / flow balance | koppelrestrictie (koppeling) / uitgesplitst / stroombalans | milp-lot-sizing, milp-logic |
+| integrality tolerance / numerics / mode (of a machine) | integraliteitstolerantie / numeriek gedrag / modus (pl. modi) | milp-bigm |
+| infeasible, short label where "niet toegelaten" does not fit | onhaalbaar | perfect-assignment chart band and Z stat only (layout); elsewhere niet toegelaten / geen toegelaten oplossing |
+| branching variable / branching rule / branching constraints / node selection | vertakkingsvariabele / vertakkingsregel / vertakkingsrestricties / knoopselectie | search-tree |
+| root node / parent node / left child / right child | wortelknoop / ouderknoop / linkerkind / rechterkind | search-tree |
+| most fractional / first fractional / dive / pseudocosts / strong branching | meest fractionele / eerste fractionele / duiken / pseudokosten / strong branching | search-tree |
+| pruned by bound / pruned by infeasibility / infeasibility | gesnoeid door de grens / gesnoeid door niet-toelaatbaarheid / niet-toelaatbaarheid | search-tree |
+| source row / fractional part / slack basis / dual simplex / re-optimize | bronrij / fractioneel deel / slackbasis / duale simplexmethode / opnieuw optimaliseren | cutting-planes |
+| facet / floating point / tiles (KPI cards) | facet / drijvendekommagetallen / tegels | cutting-planes, rounding-trap |
+| denominations / coin system / canonical / pseudo-polynomial | muntwaarden / muntsysteem / canoniek / pseudopolynomiaal | exact-change |
+| principle of optimality / optimal substructure / backtracking (path) / Bellman recursion | optimaliteitsprincipe / optimale substructuur / reconstructie (reconstructiepad) / Bellman-recursie | exact-change |
+| covering / packing / partitioning | overdekking / pakking / partitionering | signal-coverage; English set name in parentheses at first use |
+| range (of an antenna) / covered / redundant / demand point | dekkingsgebied / gedekt / overbodig / vraagpunt | signal-coverage |
+| coverage (staff on duty against demand) / spare (staff) / short | bezetting / overtallig / tekort | hospital-shifts; signal coverage is dekking |
+| nurse / labor agreement / split weekend / rest day / start day | verpleegkundige / cao / gebroken weekend / rustdag / startdag | hospital-shifts |
+| perfect matching / incidence matrix / submatrix / bipartite graph / assignment polytope | perfecte koppeling / incidentiematrix / deelmatrix / bipartiete graaf / de toewijzingspolytoop | perfect-assignment |
+| pay (of a rider) / delivery minutes / (thousand pesos) on an axis | vergoeding / bezorgminuten / (in duizenden peso's) | perfect-assignment, compacta |
+| open set (of facilities) / shipment, ship / transportation problem | combinatie van open magazijnen (table head: Open magazijnen) / zending, verzenden / transportprobleem | edu-warehouses |
+| tier variable / price schedule / economies of scale / SOS2 constraint | staffelvariabele / prijsschema / schaalvoordelen / SOS2-restrictie | milp-piecewise |
+| the LP cheats / claimed cost / split (of an order) | het LP speelt vals / beweerde kosten / verdeling | milp-piecewise |
+| neighboring (next in a sequence) | opeenvolgend | milp-piecewise (SOS2), milp-runway; not "naburig" |
+| price per unit in dollars | $ {v}/t, $ 30/MWh, $ {v}/kg | symbol first with a no-break space, as for dollar amounts; column heads keep the unit: Brandstof ($/MWh) |
+| no-load cost / fuel cost / spinning reserve / blackout / merit order | nullastkosten / brandstofkosten / draaiende reserve / stroomuitval / merit order | edu-power |
+| base steam / combined cycle / engines / gas peaker (plant names) | Basiscentrale (stoom) / STEG-centrale / Motoren / Piekcentrale (gas) | edu-power |
+| start-up (event) / on-off pattern / Can give (MW) | opstart (pl. opstarts) / aan-uitpatroon / Leverbaar (MW) | edu-power |
+| run a batch / batch week / build ahead / zero-inventory property / setup pattern | een batch draaien / batchweek / vooruit maken / nulvoorraadeigenschap / omstelpatroon | milp-lot-sizing |
+| target time / time window / wake turbulence / holding pattern | streeftijd / tijdvenster / zogturbulentie / wachtpatroon (canvas label: Wachten) | milp-runway |
+| Heavy / Medium / Light (wake category) | Zwaar / Middelzwaar / Licht | milp-runway |
+| first come (short label) / Yours (short Gantt label) | aankomstvolgorde / Jij | milp-runway; prose keeps "op volgorde van aankomst" |
+| trillion | biljoen | 10¹²; billion stays miljard |
+| walking buffer / walking radius / market day / weekday / candidate park / daily cap | loopbuffer / loopradius / marktdag / doordeweekse dag (doordeweeks) / kandidaatpark / dagmaximum | research/markets |
+| suitability weight / fuzzy AHP weights / membership (fuzzy) | geschiktheidsgewicht / gewichten uit fuzzy AHP / lidmaatschapsgraad | research/markets |
+| Produce shops, short canvas label | Groentewinkels | markets animation legend only; elsewhere groente- en fruitwinkels |
+| containability cliff / critical window / spread rate / water body / tractability / temporal radius | indammingsklif / kritiek venster / verspreidingssnelheid / waterlichaam / oplosbaarheid / temporele straal | research/wildfire |
+| aircraft (firefighting) / site costs / data pipeline | toestel (pl. toestellen; short toest.) / locatiekosten / datapijplijn | research/wildfire; airliners in milp-runway are vliegtuigen |
+| box / ramp (airport) / Stage 1, Stage 2 | doos (pl. dozen) / platform / fase 1, fase 2 (lowercase in running text) | research/pallets |
+| volumetric capacity / geometric utilisation / mixing penalty / arrival order control / lever | volumecapaciteit / geometrische benutting / straf op menging / sturing van de aankomstvolgorde / hefboom | research/pallets |
+| tubers / butcher shops / chain supermarkets / grocery / outskirts / downtown | knolgewassen / slagerijen / ketensupermarkten / kruidenier / buitenwijken / centrum | research/nanostores |
+| weekly profit / unit cost / (Eds.) | weekwinst / kosten per eenheid / (red.) | research/nanostores |
+| Figures reproduce the study for illustration. | De figuren geven de studie ter illustratie weer. | note line of every research page |
+| lecturer / teaching assistant (university) / corporate instructor / with distinction | docent / studentassistent / bedrijfstrainer / met onderscheiding | about; "onderwijsassistent" is a classroom assistant at a school |

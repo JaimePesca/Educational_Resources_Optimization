@@ -34,7 +34,9 @@ const extra = Object.keys(nl).filter(k => !(k in en));
 say(!missing.length, `keys: ${Object.keys(en).length} in en, missing in nl: ${missing.length}${missing.length ? ' ' + missing.slice(0, 15).join(', ') : ''}`);
 say(!extra.length, `extra keys in nl: ${extra.length}${extra.length ? ' ' + extra.slice(0, 15).join(', ') : ''}`);
 
-const ph = s => (String(s).match(/\{\w+\}/g) || []).sort().join(' ');
+// A TeX word group such as \text{accept} is not a placeholder (I18N.t leaves unknown {names} untouched), so it is skipped;
+// a placeholder inside \text{...} is still compared because a group that holds braces is not skipped.
+const ph = s => (String(s).replace(/\\(?:text|textrm|textbf|textit|mathrm|operatorname|mbox)\s*\{[^{}]*\}/g, '').match(/\{\w+\}/g) || []).sort().join(' ');
 const tags = s => (String(s).match(/<\/?[a-zA-Z][a-zA-Z0-9]*/g) || []).map(t => t.toLowerCase()).sort().join(' ');
 const attrs = s => (String(s).match(/\b(href|data-[a-z-]+|class)="[^"]*"/g) || []).sort().join(' ');
 const braces = s => { let n = 0; for (const c of String(s).replace(/\\[{}]/g, '')) { if (c === '{') n++; if (c === '}') { n--; if (n < 0) return false; } } return n === 0; };
