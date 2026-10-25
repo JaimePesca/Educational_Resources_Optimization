@@ -145,6 +145,10 @@
       btnRestart.setAttribute("aria-label", t_("ui.anim.restart"));
       btnRestart.title = t_("ui.anim.restart");
       speedWrap.setAttribute("aria-label", t_("ui.anim.speed"));
+      // 0.5× with the reader's decimal mark
+      speedWrap.querySelectorAll("button").forEach(function (b) {
+        b.textContent = (window.I18N ? I18N.fmt(+b.dataset.speed, 1) : b.dataset.speed) + "×";
+      });
       track.setAttribute("aria-label", t_("ui.anim.timeline"));
       chapWrap.querySelectorAll(".anim-chap").forEach(function (b, i) {
         b.textContent = (i + 1) + ". " + t_(chapters[i].key);

@@ -10,7 +10,7 @@ I18N.register("nl", {
   "mf.sc.long": "Langste pad (pech)",
   "mf.anim.aria": "Animatie: een gasnetwerk van een bron s naar een stad t. Stroomvergrotende paden met de minste bogen sturen stroom tot er geen pad meer over is. Een valstriknetwerk met een dunne leiding in het midden laat zien dat de volgorde van de paden ertoe doet. Terug op het gasnetwerk vormen de knopen die vanuit s in het restnetwerk bereikbaar zijn de minimale snede, waarvan de capaciteit gelijk is aan de stroom.",
   "mf.anim.aria.long": "Animatie: een gasnetwerk van een bron s naar een stad t. Stroomvergrotende paden met de meeste bogen sturen stroom tot er geen pad meer over is, vaak tegen een leiding in. Een valstriknetwerk met een dunne leiding in het midden laat zien dat de volgorde van de paden ertoe doet. Terug op het gasnetwerk vormen de knopen die vanuit s in het restnetwerk bereikbaar zijn de minimale snede, waarvan de capaciteit gelijk is aan de stroom.",
-  "mf.anim.aria.nums": "Resultaat: maximale stroom {v} na {n} vergrotingen op het gasnetwerk, minimale snede S = {S} met capaciteit {c}. Op het valstriknetwerk heeft deze regel {m} vergrotingen nodig.",
+  "mf.anim.aria.nums": "Resultaat: maximale stroom {v} na {n} vergrotingen op het gasnetwerk, minimale snede S = {S} met capaciteit {c}. Op het valstriknetwerk heeft deze regel {m} vergrotingen nodig.",
   "mf.ch1": "Leidingen en capaciteiten",
   "mf.ch2": "Stroomvergrotende paden",
   "mf.ch3": "Als de volgorde telt",
@@ -25,7 +25,7 @@ I18N.register("nl", {
   "mf.k.arcs": "Bogen in de snede",
   "mf.k.cut": "Snedecapaciteit",
 
-  "mf.l.delta": "δ = {d}",
+  "mf.l.delta": "δ = {d}",
   "mf.l.S": "S",
 
   "mf.cap1": "Een gasnetwerk van s naar t",
@@ -44,7 +44,7 @@ I18N.register("nl", {
   "mf.cap4a": "Het uiteindelijke restnetwerk",
   "mf.cap4a.sub": "Doorgetrokken bogen: vrije capaciteit. Gestreepte bogen: stroom die terug kan.",
   "mf.cap4b": "Er is geen stroomvergrotend pad meer",
-  "mf.cap4b.sub": "Vanuit s bereik je alleen S = {S}; t is onbereikbaar.",
+  "mf.cap4b.sub": "Vanuit s bereik je alleen S = {S}; t is onbereikbaar.",
   "mf.cap5a": "De bogen die S verlaten, vormen een snede",
   "mf.cap5a.sub": "Ze zijn allemaal vol.",
   "mf.cap5b": "Max. stroom = min. snede = {v}",
@@ -65,7 +65,7 @@ I18N.register("nl", {
   "mf.model.title": "Maximale stroom als lineair programma",
   "mf.model.tex": "\\begin{aligned}\\max\\;& v && \\text{(stroom van s naar t)}\\\\ \\text{ST}\\;& \\sum_{j} x_{sj} - \\sum_{j} x_{js} = v && \\text{(stroom verlaat s)}\\\\ & \\sum_{j} x_{ij} - \\sum_{j} x_{ji} = 0 && \\forall i \\ne s, t \\;\\text{(stroombehoud)}\\\\ & 0 \\le x_{ij} \\le u_{ij} && \\forall (i,j) \\in A \\;\\text{(capaciteit)}\\end{aligned}",
   "mf.model.formula": "max  v                                  (stroom van s naar t)\no.v. Σj x_sj − Σj x_js = v              (stroom verlaat s)\n     Σj x_ij − Σj x_ji = 0              voor elke i ≠ s, t (stroombehoud)\n     0 ≤ x_ij ≤ u_ij                    voor elke boog (i, j) (capaciteit)",
-  "mf.model.data": "Gasnetwerk op deze pagina: {arcs}. De capaciteiten zijn in miljoen kubieke voet per dag; s is een gasveld in La Guajira, t het gasontvangstation van Cartagena en a tot en met e zijn knooppunten. Het valstriknetwerk heeft vier buitenste bogen met capaciteit {C} en een middelste boog a → b met capaciteit {c}.",
+  "mf.model.data": "Gasnetwerk op deze pagina: {arcs}. De capaciteiten zijn in miljoen kubieke voet per dag; s is een gasveld in La Guajira, t het gasontvangstation van Cartagena en a tot en met e zijn knooppunten. Het valstriknetwerk heeft vier buitenste bogen met capaciteit {C} en een middelste boog a → b met capaciteit {c}.",
   "mf.res.head": "Restnetwerk en stroomvergrotende paden",
   "mf.res.tex": "\\begin{aligned} r_{ij} &= u_{ij} - x_{ij} && \\text{(voorwaarts: vrije capaciteit)} \\\\ r_{ji} &= x_{ij} && \\text{(achterwaarts: stroom die terug kan)} \\\\ \\delta &= \\min_{(i,j) \\in P} r_{ij} && \\text{(knelpunt van een pad P)} \\end{aligned}",
   "mf.res.formula": "r_ij = u_ij − x_ij      (voorwaarts: vrije capaciteit)\nr_ji = x_ij            (achterwaarts: stroom die terug kan)\nδ = minimum van r_ij over (i, j) in P   (knelpunt van een pad P)",
@@ -80,7 +80,7 @@ I18N.register("nl", {
   "mf.sol.v": "Maximale stroom",
   "mf.sol.vl": "gasnetwerk, {n} vergrotingen met deze regel",
   "mf.sol.cut": "Minimale snede",
-  "mf.sol.cutl": "S = {S}, bogen {arcs}",
+  "mf.sol.cutl": "S = {S}, bogen {arcs}",
   "mf.sol.lp": "Lineair programma",
   "mf.sol.lpl": "het model hierboven opgelost als LP: dezelfde waarde",
   "mf.sol.trap": "Valstriknetwerk",
@@ -98,10 +98,10 @@ I18N.register("nl", {
   "mf.cuts.note": "De kleinste capaciteit, {c}, is gelijk aan de maximale stroom. Hier bereikt maar één snede die waarde, en dat is precies de verzameling knopen die aan het eind vanuit s bereikbaar zijn.",
 
   "mf.n.title": "Wat opvalt",
-  "mf.n.p1": "Elke vergroting verhoogt de stroom met haar knelpunt, en geen stroom kan groter zijn dan de capaciteit van welke snede ook. Alleen al de leidingen die s verlaten, beperken de stroom tot {c0}; de minimale snede S = {S} beperkt hem tot {c}, en de stroom bereikt die waarde.",
-  "mf.n.p2": "Achterwaartse bogen doen ertoe. Met kortste paden loopt vergroting {k} langs {p}: ze neemt {d} terug uit de leiding {u} → {w}, zodat dat gas een andere weg kan nemen. Met dezelfde volgorde van breedte-eerst zoeken, maar zonder achterwaartse bogen, zou de zoektocht stoppen bij {g} in plaats van {v}.",
+  "mf.n.p1": "Elke vergroting verhoogt de stroom met haar knelpunt, en geen stroom kan groter zijn dan de capaciteit van welke snede ook. Alleen al de leidingen die s verlaten, beperken de stroom tot {c0}; de minimale snede S = {S} beperkt hem tot {c}, en de stroom bereikt die waarde.",
+  "mf.n.p2": "Achterwaartse bogen doen ertoe. Met kortste paden loopt vergroting {k} langs {p}: ze neemt {d} terug uit de leiding {u} → {w}, zodat dat gas een andere weg kan nemen. Met dezelfde volgorde van breedte-eerst zoeken, maar zonder achterwaartse bogen, zou de zoektocht stoppen bij {g} in plaats van {v}.",
   "mf.n.p3": "De volgorde van de paden verandert het aantal vergrotingen, niet het resultaat. Op het valstriknetwerk hebben kortste paden {a} vergrotingen nodig en langste paden {b}. Edmonds en Karp bewezen dat kortste paden nooit meer dan n·m vergrotingen nodig hebben (n knopen, m bogen), wat de capaciteiten ook zijn, terwijl een slechte volgorde bij geheeltallige capaciteiten evenveel vergrotingen kan vergen als de stroomwaarde zelf.",
-  "mf.n.p4": "Het uiteindelijke restnetwerk bewijst de optimaliteit: niets kan S = {S} verlaten. De uitgaande bogen {arcs} zijn vol en tellen op tot {c}, dus kan geen stroom groter zijn. Dit is de max-flow-min-cut-stelling van Ford en Fulkerson, en hier zie je LP-dualiteit aan het werk: de minimale snede lost het duale probleem van het LP voor maximale stroom op.",
+  "mf.n.p4": "Het uiteindelijke restnetwerk bewijst de optimaliteit: niets kan S = {S} verlaten. De uitgaande bogen {arcs} zijn vol en tellen op tot {c}, dus kan geen stroom groter zijn. Dit is de max-flow-min-cut-stelling van Ford en Fulkerson, en hier zie je LP-dualiteit aan het werk: de minimale snede lost het duale probleem van het LP voor maximale stroom op.",
 
   "mf.refs": "Ford, L. R., en Fulkerson, D. R. (1956). Maximal flow through a network. Canadian Journal of Mathematics, 8, 399-404. Edmonds, J., en Karp, R. M. (1972). Theoretical improvements in algorithmic efficiency for network flow problems. Journal of the ACM, 19(2), 248-264.",
   "mf.footer": "Leermiddel · Het gasnetwerk, de capaciteiten, de plaatsnamen, de posities van de knopen en de timing van de animatie zijn illustratief; het valstriknetwerk is het klassieke voorbeeld uit de leerboeken. Elke stroom, elk knelpunt, elke telling en elke snede op deze pagina wordt in je browser berekend, en bij gelijkwaardige paden beslist de alfabetische volgorde."
