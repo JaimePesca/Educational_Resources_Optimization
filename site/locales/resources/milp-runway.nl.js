@@ -26,6 +26,7 @@ I18N.register("nl", {
   "land.anim.ch4": "De geoptimaliseerde volgorde",
   "land.anim.ch5": "De eindstand",
   "land.anim.k.flights": "vluchten",
+  "land.anim.k.flights.one": "vlucht",
   "land.anim.k.bin": "binaire variabelen δ",
   "land.anim.k.cont": "continue variabelen",
   "land.anim.k.fcfs": "vertraging, aankomst\u00ADvolgorde",

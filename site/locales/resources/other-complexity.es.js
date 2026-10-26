@@ -51,6 +51,7 @@ I18N.register("es", {
   "cx.k.was": "{f}: antes {v}",
   "cx.k.cities": "ciudades",
   "cx.k.adds": "sumas (de {n})",
+  "cx.k.adds.one": "suma (de {n})",
   "cx.k.len": "longitud del recorrido",
   "cx.k.L": "límite L",
   "cx.k.verdict": "¿longitud ≤ L?",

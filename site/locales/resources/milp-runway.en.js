@@ -26,6 +26,7 @@ I18N.register("en", {
   "land.anim.ch4": "The optimized order",
   "land.anim.ch5": "The tally",
   "land.anim.k.flights": "flights",
+  "land.anim.k.flights.one": "flight",
   "land.anim.k.bin": "binary variables δ",
   "land.anim.k.cont": "continuous variables",
   "land.anim.k.fcfs": "delay, first come",

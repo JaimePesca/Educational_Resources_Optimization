@@ -26,6 +26,7 @@ I18N.register("fr", {
   "land.anim.ch4": "L'ordre optimisé",
   "land.anim.ch5": "Le bilan",
   "land.anim.k.flights": "vols",
+  "land.anim.k.flights.one": "vol",
   "land.anim.k.bin": "variables binaires δ",
   "land.anim.k.cont": "variables continues",
   "land.anim.k.fcfs": "retard, ordre d'arrivée",

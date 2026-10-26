@@ -26,6 +26,7 @@ I18N.register("pt", {
   "land.anim.ch4": "A ordem otimizada",
   "land.anim.ch5": "O placar",
   "land.anim.k.flights": "voos",
+  "land.anim.k.flights.one": "voo",
   "land.anim.k.bin": "variáveis binárias δ",
   "land.anim.k.cont": "variáveis contínuas",
   "land.anim.k.fcfs": "atraso, ordem de chegada",

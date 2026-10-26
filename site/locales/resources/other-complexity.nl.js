@@ -51,6 +51,7 @@ I18N.register("nl", {
   "cx.k.was": "{f}: was {v}",
   "cx.k.cities": "steden",
   "cx.k.adds": "optellingen (van {n})",
+  "cx.k.adds.one": "optelling (van {n})",
   "cx.k.len": "lengte van de rondrit",
   "cx.k.L": "grens L",
   "cx.k.verdict": "lengte ≤ L?",

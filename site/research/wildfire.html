@@ -712,6 +712,8 @@ R_f &= c\, A_0\, e^{\rho_f\, t^{\mathrm{arr}}_f}
   var FONT_B = "700 12px Helvetica Neue, Helvetica, Arimo, Arial, sans-serif";
   var TAU = Math.PI * 2;
   function tr(k, v) { return I18N.t(k, v); }
+  // a count of 1 takes the singular label (count labels have a ".one" form in the bundles)
+  function countLabel(key, n, vars) { var one = key + ".one"; return n === 1 && I18N.t(one) !== one ? I18N.t(one, vars) : I18N.t(key, vars); }
   function fmt(v, d) { d = d || 0; return I18N.fmt(v, d, d); }
 
   /* ---- manuscript parameters (Section 4.3, Table 3), as in the calculator below ---- */
@@ -1486,22 +1488,22 @@ R_f &= c\, A_0\, e^{\rho_f\, t^{\mathrm{arr}}_f}
     /* counters */
     var sc2 = SCEN[state.bud];
     if (t < 9) {
-      setChip(0, fmt(ST.fireApp), tr(P + "k.events"), ease.out(seg(t, 2.3, 2.8)), false);
-      setChip(1, fmt(ST.baseApp), tr(P + "k.bases"), ease.out(seg(t, 3.8, 4.3)), false);
-      setChip(2, fmt(ST.waterApp), tr(P + "k.water"), ease.out(seg(t, 5.4, 5.9)), false);
+      setChip(0, fmt(ST.fireApp), countLabel(P + "k.events", ST.fireApp), ease.out(seg(t, 2.3, 2.8)), false);
+      setChip(1, fmt(ST.baseApp), countLabel(P + "k.bases", ST.baseApp), ease.out(seg(t, 3.8, 4.3)), false);
+      setChip(2, fmt(ST.waterApp), countLabel(P + "k.water", ST.waterApp), ease.out(seg(t, 5.4, 5.9)), false);
     } else if (t < 18) {
-      setChip(0, fmt(Math.max(1, ST.baseLeft)), tr(P + "k.opened"), 1, false);
-      setChip(1, fmt(Math.max(6, ST.waterLeft)), tr(P + "k.used"), 1, false);
-      setChip(2, fmt(n), tr(P + "k.air"), ease.out(seg(t, 14.2, 14.7)), false);
+      setChip(0, fmt(Math.max(1, ST.baseLeft)), countLabel(P + "k.opened", Math.max(1, ST.baseLeft)), 1, false);
+      setChip(1, fmt(Math.max(6, ST.waterLeft)), countLabel(P + "k.used", Math.max(6, ST.waterLeft)), 1, false);
+      setChip(2, fmt(n), countLabel(P + "k.air", n), ease.out(seg(t, 14.2, 14.7)), false);
     } else if (t < 43.4) {
-      setChip(0, fmt(n), tr(P + "k.air"), 1, false);
-      setChip(1, fmt(nCont), tr(P + "k.cont"), 1, false);
-      setChip(2, fmt(nEsc), tr(P + "k.esc"), 1, false);
+      setChip(0, fmt(n), countLabel(P + "k.air", n), 1, false);
+      setChip(1, fmt(nCont), countLabel(P + "k.cont", nCont), 1, false);
+      setChip(2, fmt(nEsc), countLabel(P + "k.esc", nEsc), 1, false);
     } else {
       var ou = ease.out(seg(t, 44, 47.5)), done = ou >= 1;
       var ov = (sc2.approx ? "≈ " : "") + (done ? fmt(sc2.obj, sc2.obj % 1 ? 2 : 0) : fmt(Math.round(sc2.obj * ou)));
-      setChip(0, fmt(nCont), tr(P + "k.cont"), 1, false);
-      setChip(1, fmt(nEsc), tr(P + "k.esc"), 1, false);
+      setChip(0, fmt(nCont), countLabel(P + "k.cont", nCont), 1, false);
+      setChip(1, fmt(nEsc), countLabel(P + "k.esc", nEsc), 1, false);
       setChip(2, ov, tr(P + "k.obj"), 1, true);
     }
   }
