@@ -299,3 +299,12 @@ Nota: `resource_open` cuenta las aperturas desde el propio sitio. Quien llega a 
 - Cómo deshacerlo cuando cada artículo sea aceptado: `materials/under-review.md`.
 
 **Ícono del sitio como imagen** (antes era un SVG incrustado en cada página): `favicon.ico` (16, 32 y 48 px), `favicon.svg` (la "x*" convertida en trazos, sin depender de fuentes), `apple-touch-icon.png` (180 px, acceso directo en iPhone y iPad), `icon-192.png` y `icon-512.png` con `site.webmanifest` (acceso directo en Android, también como ícono adaptable). Todo en la raíz del sitio y enlazado desde las 67 páginas y la plantilla.
+
+## 10. Neerlandés (2026-10-25)
+
+- **Quinto idioma del sitio público:** `nl` (Países Bajos) se suma a en, es, pt y fr en `assets/i18n.js` (`SITE_LANGS`). El selector lo ofrece en el inicio, los cinco niveles, investigación, "Sobre el autor" y la 404, y se recuerda como los demás. El laboratorio oculto sigue en cuatro idiomas (`data-i18n-langs="en es pt fr"`); su sección de estudio ya tenía `en es nl`.
+- **hreflang:** cada página indexable declara ahora cinco versiones (`?lang=nl` incluida) más `x-default` (inglés); la canónica por idioma la sigue poniendo `assets/i18n.js`.
+- **Open Graph y datos estructurados:** `og:locale:alternate` incluye `nl_NL`; `og:locale` pasa a `nl_NL` al ver la página en neerlandés; `inLanguage` del sitio y de cada recurso incluye `nl`.
+- **sitemap.xml:** 260 URL (52 páginas indexables × 5 idiomas), cada una con sus alternativas hreflang.
+- **GA4:** `language_change` y `page_language` ya reportan `nl` sin cambios en el código.
+- Las páginas en revisión (mercados, incendios, estibas) siguen con `noindex` y anónimas también en neerlandés.

@@ -51,6 +51,7 @@ I18N.register("fr", {
   "cx.k.was": "{f} : avant {v}",
   "cx.k.cities": "villes",
   "cx.k.adds": "additions (sur {n})",
+  "cx.k.adds.one": "addition (sur {n})",
   "cx.k.len": "longueur de la tournée",
   "cx.k.L": "limite L",
   "cx.k.verdict": "longueur ≤ L ?",

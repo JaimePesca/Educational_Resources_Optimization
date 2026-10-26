@@ -23,6 +23,7 @@
 <link rel="alternate" hreflang="es" href="https://learn-optimization.jaimepesca.com/resources/easy-to-check.html?lang=es">
 <link rel="alternate" hreflang="pt" href="https://learn-optimization.jaimepesca.com/resources/easy-to-check.html?lang=pt">
 <link rel="alternate" hreflang="fr" href="https://learn-optimization.jaimepesca.com/resources/easy-to-check.html?lang=fr">
+<link rel="alternate" hreflang="nl" href="https://learn-optimization.jaimepesca.com/resources/easy-to-check.html?lang=nl">
 <link rel="alternate" hreflang="x-default" href="https://learn-optimization.jaimepesca.com/resources/easy-to-check.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Optimization in Action">
@@ -36,6 +37,7 @@
 <meta property="og:locale:alternate" content="es_CO">
 <meta property="og:locale:alternate" content="pt_BR">
 <meta property="og:locale:alternate" content="fr_FR">
+<meta property="og:locale:alternate" content="nl_NL">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Easy to Check, Hard to Find">
 <meta name="twitter:description" content="Race n², n³, 2ⁿ and n! as n grows, see why checking a tour is quick while finding the best one is not, and why a faster computer barely helps.">
@@ -110,7 +112,8 @@
     "en",
     "es",
     "pt",
-    "fr"
+    "fr",
+    "nl"
    ],
    "isAccessibleForFree": true,
    "author": {
@@ -946,6 +949,8 @@
     var el = document.getElementById("cx-c" + i);
     return { el: el, b: el.querySelector("b"), s: el.querySelector("span"), v: null, l: null, o: null, k: null };
   });
+  // a count of 1 takes the singular label (count labels have a ".one" form in the bundles)
+  function countLabel(key, n, vars) { var one = key + ".one"; return n === 1 && I18N.t(one) !== one ? I18N.t(one, vars) : I18N.t(key, vars); }
   function setChip(i, val, lab, op, kind) {
     var c = chips[i];
     op = Math.round(clamp(op, 0, 1) * 20) / 20;
@@ -988,7 +993,7 @@
       for (i = 0; i < NC; i++) if (t >= EDGE0 + (i + 1) * EDGEDT - 0.08) { ne++; sum += CAND_E[i]; }
       var ok = t >= 32.6;
       setChip(0, fmt(NC, 0), T("cx.k.cities"), f * seg(t, 24.8, 25.3), "");
-      setChip(1, fmt(ne, 0), T("cx.k.adds", { n: NC }), f * seg(t, 26.2, 26.7), "");
+      setChip(1, fmt(ne, 0), countLabel("cx.k.adds", Math.round(ne), { n: NC }), f * seg(t, 26.2, 26.7), "");
       setChip(2, km(sum), T("cx.k.len"), f * seg(t, 26.2, 26.7), "acc");
       setChip(3, km(LIMIT), T("cx.k.L"), f * seg(t, 25.8, 26.3), "");
       setChip(4, T("cx.k.yes"), T("cx.k.verdict"), f * seg(t, 32.6, 33.1), ok && sum <= LIMIT ? "acc" : "");

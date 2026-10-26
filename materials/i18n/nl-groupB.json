@@ -1,0 +1,190 @@
+{
+ "group": "B",
+ "items": [
+  {
+   "b": "resources/patrol-route",
+   "label": "patrol-route",
+   "file": "site/locales/resources/patrol-route.nl.js",
+   "pages": [
+    "resources/patrol-route.html"
+   ],
+   "note": "This page keeps almost all its strings in the shared file site/locales/nl.js (already translated); its own bundle is tiny. Translate it and check the page as a whole."
+  },
+  {
+   "b": "resources/dijkstra",
+   "label": "dijkstra",
+   "file": "site/locales/resources/dijkstra.nl.js",
+   "pages": [
+    "resources/dijkstra.html"
+   ]
+  },
+  {
+   "b": "resources/nlp-convexity",
+   "label": "nlp-convexity",
+   "file": "site/locales/resources/nlp-convexity.nl.js",
+   "pages": [
+    "resources/chord-test.html"
+   ]
+  },
+  {
+   "b": "resources/nlp-stationary",
+   "label": "nlp-stationary",
+   "file": "site/locales/resources/nlp-stationary.nl.js",
+   "pages": [
+    "resources/flat-is-not-a-bottom.html"
+   ]
+  },
+  {
+   "b": "resources/nlp-kkt",
+   "label": "nlp-kkt",
+   "file": "site/locales/resources/nlp-kkt.nl.js",
+   "pages": [
+    "resources/where-contours-touch.html"
+   ]
+  },
+  {
+   "b": "resources/nlp-newton",
+   "label": "nlp-newton",
+   "file": "site/locales/resources/nlp-newton.nl.js",
+   "pages": [
+    "resources/zigzag-or-leap.html"
+   ]
+  },
+  {
+   "b": "resources/nlp-penalty-barrier",
+   "label": "nlp-penalty-barrier",
+   "file": "site/locales/resources/nlp-penalty-barrier.nl.js",
+   "pages": [
+    "resources/walls-and-fences.html"
+   ]
+  },
+  {
+   "b": "resources/nlp-weber",
+   "label": "nlp-weber",
+   "file": "site/locales/resources/nlp-weber.nl.js",
+   "pages": [
+    "resources/one-point-many-distances.html"
+   ]
+  },
+  {
+   "b": "resources/nlp-slow-steaming",
+   "label": "nlp-slow-steaming",
+   "file": "site/locales/resources/nlp-slow-steaming.nl.js",
+   "pages": [
+    "resources/slow-steaming.html"
+   ]
+  },
+  {
+   "b": "resources/nlp-fairness",
+   "label": "nlp-fairness",
+   "file": "site/locales/resources/nlp-fairness.nl.js",
+   "pages": [
+    "resources/fair-shares.html"
+   ]
+  },
+  {
+   "b": "resources/other-queue-explode",
+   "label": "other-queue-explode",
+   "file": "site/locales/resources/other-queue-explode.nl.js",
+   "pages": [
+    "resources/why-queues-explode.html"
+   ]
+  },
+  {
+   "b": "resources/other-mdp",
+   "label": "other-mdp",
+   "file": "site/locales/resources/other-mdp.nl.js",
+   "pages": [
+    "resources/replace-or-repair.html"
+   ]
+  },
+  {
+   "b": "resources/other-two-stage",
+   "label": "other-two-stage",
+   "file": "site/locales/resources/other-two-stage.nl.js",
+   "pages": [
+    "resources/plan-for-the-average.html"
+   ]
+  },
+  {
+   "b": "resources/other-decision-tree",
+   "label": "other-decision-tree",
+   "file": "site/locales/resources/other-decision-tree.nl.js",
+   "pages": [
+    "resources/roll-back-the-tree.html"
+   ]
+  },
+  {
+   "b": "resources/other-cpm",
+   "label": "other-cpm",
+   "file": "site/locales/resources/other-cpm.nl.js",
+   "pages": [
+    "resources/critical-path.html"
+   ]
+  },
+  {
+   "b": "resources/other-maxflow",
+   "label": "other-maxflow",
+   "file": "site/locales/resources/other-maxflow.nl.js",
+   "pages": [
+    "resources/max-flow-min-cut.html"
+   ]
+  },
+  {
+   "b": "resources/other-cournot",
+   "label": "other-cournot",
+   "file": "site/locales/resources/other-cournot.nl.js",
+   "pages": [
+    "resources/price-wars.html"
+   ]
+  },
+  {
+   "b": "resources/other-smoothing",
+   "label": "other-smoothing",
+   "file": "site/locales/resources/other-smoothing.nl.js",
+   "pages": [
+    "resources/chasing-demand.html"
+   ]
+  },
+  {
+   "b": "resources/other-dea",
+   "label": "other-dea",
+   "file": "site/locales/resources/other-dea.nl.js",
+   "pages": [
+    "resources/efficient-or-not.html"
+   ]
+  },
+  {
+   "b": "resources/other-complexity",
+   "label": "other-complexity",
+   "file": "site/locales/resources/other-complexity.nl.js",
+   "pages": [
+    "resources/easy-to-check.html"
+   ]
+  },
+  {
+   "b": "resources/other-abm-epidemic",
+   "label": "other-abm-epidemic",
+   "file": "site/locales/resources/other-abm-epidemic.nl.js",
+   "pages": [
+    "resources/agents-and-outbreaks.html"
+   ]
+  },
+  {
+   "b": "resources/other-beer-game",
+   "label": "other-beer-game",
+   "file": "site/locales/resources/other-beer-game.nl.js",
+   "pages": [
+    "resources/beer-game.html"
+   ]
+  },
+  {
+   "b": "resources/other-mcda",
+   "label": "other-mcda",
+   "file": "site/locales/resources/other-mcda.nl.js",
+   "pages": [
+    "resources/weigh-the-criteria.html"
+   ]
+  }
+ ]
+}

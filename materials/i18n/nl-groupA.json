@@ -1,0 +1,179 @@
+{
+ "group": "A",
+ "items": [
+  {
+   "b": "resources/rounding-trap",
+   "label": "rounding-trap",
+   "file": "site/locales/resources/rounding-trap.nl.js",
+   "pages": [
+    "resources/rounding-trap.html"
+   ]
+  },
+  {
+   "b": "resources/critical-load",
+   "label": "critical-load",
+   "file": "site/locales/resources/critical-load.nl.js",
+   "pages": [
+    "resources/critical-load.html"
+   ],
+   "note": "This page keeps almost all its strings in the shared file site/locales/nl.js (already translated); its own bundle is tiny. Translate it and check the page as a whole."
+  },
+  {
+   "b": "resources/exact-change",
+   "label": "exact-change",
+   "file": "site/locales/resources/exact-change.nl.js",
+   "pages": [
+    "resources/exact-change.html"
+   ]
+  },
+  {
+   "b": "resources/search-tree",
+   "label": "search-tree",
+   "file": "site/locales/resources/search-tree.nl.js",
+   "pages": [
+    "resources/search-tree.html"
+   ]
+  },
+  {
+   "b": "resources/cutting-planes",
+   "label": "cutting-planes",
+   "file": "site/locales/resources/cutting-planes.nl.js",
+   "pages": [
+    "resources/cutting-planes.html"
+   ]
+  },
+  {
+   "b": "resources/signal-coverage",
+   "label": "signal-coverage",
+   "file": "site/locales/resources/signal-coverage.nl.js",
+   "pages": [
+    "resources/signal-coverage.html"
+   ]
+  },
+  {
+   "b": "resources/hospital-shifts",
+   "label": "hospital-shifts",
+   "file": "site/locales/resources/hospital-shifts.nl.js",
+   "pages": [
+    "resources/hospital-shifts.html"
+   ]
+  },
+  {
+   "b": "resources/perfect-assignment",
+   "label": "perfect-assignment",
+   "file": "site/locales/resources/perfect-assignment.nl.js",
+   "pages": [
+    "resources/perfect-assignment.html"
+   ]
+  },
+  {
+   "b": "resources/milp-mixed-set",
+   "label": "milp-mixed-set",
+   "file": "site/locales/resources/milp-mixed-set.nl.js",
+   "pages": [
+    "resources/mixed-feasible-set.html"
+   ]
+  },
+  {
+   "b": "resources/milp-logic",
+   "label": "milp-logic",
+   "file": "site/locales/resources/milp-logic.nl.js",
+   "pages": [
+    "resources/logic-constraints.html"
+   ]
+  },
+  {
+   "b": "resources/milp-bigm",
+   "label": "milp-bigm",
+   "file": "site/locales/resources/milp-bigm.nl.js",
+   "pages": [
+    "resources/big-m.html"
+   ]
+  },
+  {
+   "b": "resources/edu-warehouses",
+   "label": "edu-warehouses",
+   "file": "site/locales/resources/edu-warehouses.nl.js",
+   "pages": [
+    "resources/open-or-close.html"
+   ]
+  },
+  {
+   "b": "resources/milp-piecewise",
+   "label": "milp-piecewise",
+   "file": "site/locales/resources/milp-piecewise.nl.js",
+   "pages": [
+    "resources/bulk-discounts.html"
+   ]
+  },
+  {
+   "b": "resources/edu-power",
+   "label": "edu-power",
+   "file": "site/locales/resources/edu-power.nl.js",
+   "pages": [
+    "resources/keep-the-lights-on.html"
+   ]
+  },
+  {
+   "b": "resources/milp-lot-sizing",
+   "label": "milp-lot-sizing",
+   "file": "site/locales/resources/milp-lot-sizing.nl.js",
+   "pages": [
+    "resources/produce-now-or-later.html"
+   ]
+  },
+  {
+   "b": "resources/milp-runway",
+   "label": "milp-runway",
+   "file": "site/locales/resources/milp-runway.nl.js",
+   "pages": [
+    "resources/cleared-to-land.html"
+   ]
+  },
+  {
+   "b": "research/markets",
+   "label": "research-markets",
+   "file": "site/locales/research/markets.nl.js",
+   "pages": [
+    "research/markets.html"
+   ],
+   "note": "This is a research page that is temporarily anonymized while its paper is under review: translate exactly what the English says and never add a paper title, author names, a repository link or any hint of the company or partner (see materials/under-review.md). Its math blocks are rendered by assets/research.js: keep their markup and symbols exactly."
+  },
+  {
+   "b": "research/wildfire",
+   "label": "research-wildfire",
+   "file": "site/locales/research/wildfire.nl.js",
+   "pages": [
+    "research/wildfire.html"
+   ],
+   "note": "This is a research page that is temporarily anonymized while its paper is under review: translate exactly what the English says and never add a paper title, author names, a repository link or any hint of the company or partner (see materials/under-review.md). Its math blocks are rendered by assets/research.js: keep their markup and symbols exactly."
+  },
+  {
+   "b": "research/pallets",
+   "label": "research-pallets",
+   "file": "site/locales/research/pallets.nl.js",
+   "pages": [
+    "research/pallets.html"
+   ],
+   "note": "This is a research page that is temporarily anonymized while its paper is under review: translate exactly what the English says and never add a paper title, author names, a repository link or any hint of the company or partner (see materials/under-review.md). Its math blocks are rendered by assets/research.js: keep their markup and symbols exactly."
+  },
+  {
+   "b": "research/nanostores",
+   "label": "research-nanostores",
+   "file": "site/locales/research/nanostores.nl.js",
+   "pages": [
+    "research/nanostores.html"
+   ],
+   "note": "A published research case. Its math blocks are rendered by assets/research.js: keep their markup and symbols exactly."
+  },
+  {
+   "b": "about/about",
+   "label": "about",
+   "file": "site/locales/about/about.nl.js",
+   "pages": [
+    "about.html"
+   ],
+   "note": "The author page (professional profile, teaching, research, skills, work). Keep names of institutions, companies, degrees and tools as they are where Dutch keeps them; translate job titles and descriptions naturally; first person stays first person (ik)."
+  }
+ ]
+}

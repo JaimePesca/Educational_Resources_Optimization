@@ -51,6 +51,7 @@ I18N.register("pt", {
   "cx.k.was": "{f}: antes {v}",
   "cx.k.cities": "cidades",
   "cx.k.adds": "somas (de {n})",
+  "cx.k.adds.one": "soma (de {n})",
   "cx.k.len": "comprimento da rota",
   "cx.k.L": "limite L",
   "cx.k.verdict": "comprimento ≤ L?",

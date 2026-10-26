@@ -10,8 +10,8 @@ import json, os, re, subprocess, sys, html
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site")
 BASE = "https://learn-optimization.jaimepesca.com/"
-LANGS = ["en", "es", "pt", "fr"]
-OG_LOCALE = {"en": "en_US", "es": "es_CO", "pt": "pt_BR", "fr": "fr_FR"}
+LANGS = ["en", "es", "pt", "fr", "nl"]
+OG_LOCALE = {"en": "en_US", "es": "es_CO", "pt": "pt_BR", "fr": "fr_FR", "nl": "nl_NL"}
 PERSON_ID = "https://jaimepesca.com/#person"
 SITE_NAME = None  # from site.name
 
@@ -168,7 +168,7 @@ def main():
         url = page_url(rel)
         kind, desc_key, entity = None, None, None
         if rel == "index.html":
-            kind = "home"
+            kind, desc_key = "home", "home.desc"
         elif rel in edu_by_href:
             kind, entity = "resource", edu_by_href[rel]
             desc_key = "resource." + entity["id"] + ".summary"
@@ -198,7 +198,7 @@ def main():
         for l in LANGS:
             head_add.append('<link rel="alternate" hreflang="%s" href="%s">' % (l, lang_url(url, l)))
         head_add.append('<link rel="alternate" hreflang="x-default" href="%s">' % url)
-        changes.append("hreflang alternates en, es, pt, fr (?lang=xx) and x-default (English); canonical per language added by assets/i18n.js")
+        changes.append("hreflang alternates en, es, pt, fr, nl (?lang=xx) and x-default (English); canonical per language added by assets/i18n.js")
         # Open Graph + Twitter
         og = [
             ('property', 'og:type', {"research": "article", "about": "profile"}.get(kind, "website")),

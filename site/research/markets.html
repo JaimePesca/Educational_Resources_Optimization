@@ -255,9 +255,9 @@ table.crit { min-width: 560px; }
           <div class="tblwrap"><table class="data crit" id="t-crit"></table></div>
           <div class="grp">
             <div class="statrow">
-              <div class="kpi"><div class="v">10.370</div><div class="l" data-i18n="r.markets.cr.stat.lambda"></div></div>
-              <div class="kpi"><div class="v">0.041</div><div class="l" data-i18n="r.markets.cr.stat.ci"></div></div>
-              <div class="kpi"><div class="v">0.028</div><div class="l" data-i18n="r.markets.cr.stat.cr"></div></div>
+              <div class="kpi"><div class="v" data-num="10.370">10.370</div><div class="l" data-i18n="r.markets.cr.stat.lambda"></div></div>
+              <div class="kpi"><div class="v" data-num="0.041">0.041</div><div class="l" data-i18n="r.markets.cr.stat.ci"></div></div>
+              <div class="kpi"><div class="v" data-num="0.028">0.028</div><div class="l" data-i18n="r.markets.cr.stat.cr"></div></div>
             </div>
             <h4 style="margin-top:6px" data-i18n="r.markets.fz.h"></h4>
             <div class="chartbox" id="c-fz"></div>
@@ -978,6 +978,8 @@ table.crit { min-width: 560px; }
   var ak1 = document.getElementById("ak1"), ak2 = document.getElementById("ak2"), ak2l = document.getElementById("ak2l");
   var ak2c = document.getElementById("ak2c");
   var hudCache = {};
+  // a count of 1 takes the singular label (count labels have a ".one" form in the bundles)
+  function countLabel(key, n, vars) { var one = key + ".one"; return n === 1 && I18N.t(one) !== one ? I18N.t(one, vars) : I18N.t(key, vars); }
   function setText(el, key, s) { if (hudCache[key] !== s) { hudCache[key] = s; el.textContent = s; return true; } return false; }
   function setOp(el, key, v) { v = Math.round(v * 20) / 20; if (hudCache[key] !== v) { hudCache[key] = v; el.style.opacity = v; } }
 
@@ -1291,7 +1293,7 @@ table.crit { min-width: 560px; }
     var ch = t < T2 ? 0 : t < T3 ? 1 : t < T4 ? 2 : t < T5 ? 3 : 4;
     setText(ak1, "v1", fmt(Math.round(TOTAL * demandF), 0));
     var lk = ["pop", "comp", "parks", "days", "kg"][ch];
-    var relayout = setText(ak2l, "l2", I18N.t(P + "k." + lk));
+    var relayout = setText(ak2l, "l2", countLabel(P + "k." + lk, ch === 1 ? nComp : ch === 2 ? nParks : null));
     var v2;
     if (ch === 0) v2 = fmt(Math.round(POP * demandF), 0);
     else if (ch === 1) v2 = fmt(nComp);
@@ -1495,6 +1497,14 @@ table.crit { min-width: 560px; }
       segEl.appendChild(btn);
     });
   }
+
+  // fixed statistics in the reader's number format (data-num holds the English value and its decimals)
+  I18N.onChange(function () {
+    document.querySelectorAll("[data-num]").forEach(function (el) {
+      var v = el.getAttribute("data-num"), d = (v.split(".")[1] || "").length;
+      el.textContent = I18N.fmt(+v, d, d);
+    });
+  });
 
   I18N.onChange(function () {
     buildSeg();

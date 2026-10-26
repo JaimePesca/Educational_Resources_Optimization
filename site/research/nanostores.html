@@ -23,6 +23,7 @@
 <link rel="alternate" hreflang="es" href="https://learn-optimization.jaimepesca.com/research/nanostores.html?lang=es">
 <link rel="alternate" hreflang="pt" href="https://learn-optimization.jaimepesca.com/research/nanostores.html?lang=pt">
 <link rel="alternate" hreflang="fr" href="https://learn-optimization.jaimepesca.com/research/nanostores.html?lang=fr">
+<link rel="alternate" hreflang="nl" href="https://learn-optimization.jaimepesca.com/research/nanostores.html?lang=nl">
 <link rel="alternate" hreflang="x-default" href="https://learn-optimization.jaimepesca.com/research/nanostores.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Optimization in Action">
@@ -36,6 +37,7 @@
 <meta property="og:locale:alternate" content="es_CO">
 <meta property="og:locale:alternate" content="pt_BR">
 <meta property="og:locale:alternate" content="fr_FR">
+<meta property="og:locale:alternate" content="nl_NL">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="CFLP for nanostores">
 <meta name="twitter:description" content="Where to open a new network of nanostores, the small family-run food shops of Latin American neighborhoods, and which fresh products each one should sell.">
@@ -55,7 +57,8 @@
     "en",
     "es",
     "pt",
-    "fr"
+    "fr",
+    "nl"
    ],
    "author": {
     "@id": "https://jaimepesca.com/#person"
@@ -935,12 +938,18 @@ table.data tr.clickable { cursor: pointer; }
   cv.el.setAttribute("role", "img");
   var hud = {};
   ["Hh", "Comp", "Cand", "Stores", "Kg", "Profit"].forEach(function (k) {
-    hud[k] = { c: document.getElementById("c" + k), v: document.getElementById("k" + k), on: null, txt: null };
+    var c = document.getElementById("c" + k), l = c.querySelector("[data-i18n]");
+    hud[k] = { c: c, v: document.getElementById("k" + k), l: l, key: l.getAttribute("data-i18n"), on: null, txt: null };
   });
-  function chip(k, on, val) {
+  function chip(k, on, val, n) {
     var h = hud[k];
     if (h.on !== on) { h.c.style.display = on ? "" : "none"; h.on = on; }
-    if (on && h.txt !== val) { h.v.textContent = val; h.txt = val; }
+    if (on && h.txt !== val) {
+      h.v.textContent = val; h.txt = val;
+      // a count of 1 takes the singular label; it stays in data-i18n so a language switch keeps it
+      var key = n === 1 && I18N.t(h.key + ".one") !== h.key + ".one" ? h.key + ".one" : h.key;
+      if (h.l.getAttribute("data-i18n") !== key) { h.l.setAttribute("data-i18n", key); h.l.textContent = I18N.t(key); }
+    }
   }
 
   /* ---- screen layout ---- */
@@ -1341,13 +1350,13 @@ table.data tr.clickable { cursor: pointer; }
 
     /* HUD counters */
     var early = t < T4;
-    chip("Hh", early, fmt(popped));
-    chip("Comp", early && t >= T2, fmt(compN));
-    chip("Cand", early && t >= T3, fmt(candN));
+    chip("Hh", early, fmt(popped), popped);
+    chip("Comp", early && t >= T2, fmt(compN), compN);
+    chip("Cand", early && t >= T3, fmt(candN), candN);
     var prog = 0;
     if (!early) for (j = 0; j < W.hh.length; j++) if (S.swT[j] < t) prog += seg(t, S.swT[j], S.swT[j] + 0.6);
     var fr = S.M ? prog / S.M : 0;
-    chip("Stores", !early, fmt(opened));
+    chip("Stores", !early, fmt(opened), opened);
     chip("Kg", !early, fmt(Math.round(S.sc.kg * fr)));
     chip("Profit", !early, fmt(Math.round(S.sc.obj * fr)));
   }

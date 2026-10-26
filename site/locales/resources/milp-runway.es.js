@@ -26,6 +26,7 @@ I18N.register("es", {
   "land.anim.ch4": "El orden optimizado",
   "land.anim.ch5": "El balance",
   "land.anim.k.flights": "vuelos",
+  "land.anim.k.flights.one": "vuelo",
   "land.anim.k.bin": "variables binarias δ",
   "land.anim.k.cont": "variables continuas",
   "land.anim.k.fcfs": "demora, orden de llegada",
