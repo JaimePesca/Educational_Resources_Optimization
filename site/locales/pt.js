@@ -36,6 +36,7 @@ I18N.register("pt", {
   "home.eyebrow": "Pesquisa operacional · Recursos interativos",
   "home.title": "Otimização em <span class=\"opt\">Ação</span>",
   "home.lede": "Uma biblioteca aberta de exemplos de pesquisa operacional em cinco níveis, e quatro casos reais das minhas pesquisas. Todos os recursos rodam no seu navegador, então você pode mexer nos números e ver como o ótimo responde.",
+  "home.desc": "Recursos interativos de pesquisa operacional em cinco níveis e casos de pesquisa aplicada na Colômbia.",
   "home.facts.projects": "casos de pesquisa",
   "home.facts.levels": "níveis de aprendizagem",
   "home.facts.resources": "recursos publicados",

@@ -36,6 +36,7 @@ I18N.register("nl", {
   "home.eyebrow": "Operations research · Interactieve leermiddelen",
   "home.title": "Optimalisatie in <span class=\"opt\">actie</span>",
   "home.lede": "Een open bibliotheek met voorbeelden uit de operations research in vijf niveaus, en vier praktijkcases uit mijn onderzoek. Elk leermiddel draait in je browser, dus je kunt de getallen aanpassen en zien hoe het optimum reageert.",
+  "home.desc": "Interactieve leermiddelen voor operations research in vijf niveaus, en toegepaste onderzoekscases uit Colombia.",
   "home.facts.projects": "onderzoekscases",
   "home.facts.levels": "leerniveaus",
   "home.facts.resources": "gepubliceerde leermiddelen",

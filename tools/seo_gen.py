@@ -168,7 +168,7 @@ def main():
         url = page_url(rel)
         kind, desc_key, entity = None, None, None
         if rel == "index.html":
-            kind = "home"
+            kind, desc_key = "home", "home.desc"
         elif rel in edu_by_href:
             kind, entity = "resource", edu_by_href[rel]
             desc_key = "resource." + entity["id"] + ".summary"

@@ -36,6 +36,7 @@ I18N.register("fr", {
   "home.eyebrow": "Recherche opérationnelle · Ressources interactives",
   "home.title": "L'optimisation en <span class=\"opt\">action</span>",
   "home.lede": "Une bibliothèque ouverte d'exemples de recherche opérationnelle en cinq niveaux, et quatre cas réels issus de mes recherches. Chaque ressource s'exécute dans votre navigateur : vous pouvez modifier les chiffres et voir l'optimum réagir.",
+  "home.desc": "Ressources interactives de recherche opérationnelle en cinq niveaux, et cas de recherche appliquée en Colombie.",
   "home.facts.projects": "cas de recherche",
   "home.facts.levels": "niveaux d'apprentissage",
   "home.facts.resources": "ressources publiées",

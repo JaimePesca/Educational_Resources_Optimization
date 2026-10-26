@@ -515,14 +515,18 @@
     $("reset").disabled = phase !== "pick";
   }
 
-  function barsRow(host, label, value, max, color) {
+  function barsRow(host, label, value, max, color, onColor) {
     var row = document.createElement("div"); row.className = "brow";
     var lbl = document.createElement("span"); lbl.className = "lbl"; lbl.textContent = label;
     var track = document.createElement("div"); track.className = "btrack";
     var fill = document.createElement("div"); fill.className = "bfill";
-    fill.style.width = (max > 0 ? value / max * 100 : 0) + "%";
+    var pct = max > 0 ? value / max * 100 : 0;
+    fill.style.width = pct + "%";
     fill.style.background = color;
     var val = document.createElement("span"); val.className = "bval"; val.textContent = value + " " + t("knap.pts");
+    // the value sits just after the bar; a long bar keeps it inside, in a colour that reads on the fill
+    if (pct > 72) { val.style.right = "8px"; val.style.color = onColor; }
+    else val.style.left = pct + "%";
     track.append(fill, val);
     row.append(lbl, track);
     host.appendChild(row);
@@ -545,9 +549,9 @@
 
     var bars = $("bars"); bars.textContent = "";
     var mx = Math.max(mine, opt.value, gre.value);
-    barsRow(bars, t("knap.bar.mine"), mine, mx, css("--c-blue"));
-    barsRow(bars, t("knap.bar.greedy"), gre.value, mx, css("--c-aqua"));
-    barsRow(bars, t("knap.bar.opt"), opt.value, mx, css("--accent"));
+    barsRow(bars, t("knap.bar.mine"), mine, mx, css("--c-blue"), css("--on-solid"));
+    barsRow(bars, t("knap.bar.greedy"), gre.value, mx, css("--c-aqua"), "#000000");
+    barsRow(bars, t("knap.bar.opt"), opt.value, mx, css("--accent"), css("--on-solid"));
 
     $("rextra").innerHTML = t(gre.value < opt.value ? "knap.extra.worse" : "knap.extra.same", { v: gre.value });
     $("next").hidden = lv >= LEVELS.length - 1;

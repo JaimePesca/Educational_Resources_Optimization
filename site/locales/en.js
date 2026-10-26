@@ -36,6 +36,7 @@ I18N.register("en", {
   "home.eyebrow": "Operations research · Interactive resources",
   "home.title": "Optimization in <span class=\"opt\">Action</span>",
   "home.lede": "An open, five-level library of operations research examples, and four real cases from my research. Every resource runs in your browser, so you can move the numbers and watch the optimum respond.",
+  "home.desc": "Interactive operations research resources in five levels, and applied research cases from Colombia.",
   "home.facts.projects": "research cases",
   "home.facts.levels": "learning levels",
   "home.facts.resources": "published resources",

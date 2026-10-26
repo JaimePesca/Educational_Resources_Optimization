@@ -36,6 +36,7 @@ I18N.register("es", {
   "home.eyebrow": "Investigación de operaciones · Recursos interactivos",
   "home.title": "Optimización en <span class=\"opt\">Acción</span>",
   "home.lede": "Una biblioteca abierta de ejemplos de investigación de operaciones en cinco niveles, y cuatro casos reales de mi investigación. Cada recurso funciona en tu navegador, así que puedes mover los números y ver cómo responde el óptimo.",
+  "home.desc": "Recursos interactivos de investigación de operaciones en cinco niveles y casos de investigación aplicada en Colombia.",
   "home.facts.projects": "casos de investigación",
   "home.facts.levels": "niveles de aprendizaje",
   "home.facts.resources": "recursos publicados",
